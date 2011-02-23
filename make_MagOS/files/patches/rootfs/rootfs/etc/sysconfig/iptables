@@ -1,0 +1,30 @@
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+[0:0] -A FORWARD -i eth0 -o eth0 -j DROP
+[0:0] -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+COMMIT
+*filter
+:INPUT DROP [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+[0:0] -A INPUT -i lo -j ACCEPT
+[0:0] -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+[0:0] -A OUTPUT -o lo -j ACCEPT
+#[0:0] -A INPUT   -p tcp -m multiport --dport $IPTABLESOPENPORTSTCP -j ACCEPT
+#[0:0] -A INPUT   -p udp -m multiport --dport $IPTABLESOPENPORTSUDP -j ACCEPT
+#[0:0] -A INPUT   -s $IPTABLESTRUSTEDIP -j ACCEPT
+COMMIT
+*nat
+:OUTPUT ACCEPT [0:0]
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+[0:0] -A OUTPUT -d 66.102.13.91 -j DNAT --to-destination 127.0.0.2
+#TOR#[0:0] -A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner $TORUSERS -j RETURN
+#TOR#[0:0] -A OUTPUT -p udp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:5353
+#TOR#[0:0] -A OUTPUT -p tcp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:9040
+#ROUTER#[0:0] -A POSTROUTING   -j MASQUERADE
+COMMIT

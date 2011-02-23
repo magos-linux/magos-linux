@@ -1,0 +1,4 @@
+#!/bin/bash
+./1_download
+./4_addkernel
+./5_checkdeps

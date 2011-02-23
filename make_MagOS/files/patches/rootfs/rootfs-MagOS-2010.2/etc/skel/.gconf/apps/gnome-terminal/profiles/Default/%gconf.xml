@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="palette" mtime="1246472623" type="string">
+		<stringvalue>#000000000000:#AAAA00000000:#0000AAAA0000:#AAAA55550000:#00000000AAAA:#AAAA0000AAAA:#0000AAAAAAAA:#AAAAAAAAAAAA:#555555555555:#FFFF55555555:#5555FFFF5555:#FFFFFFFF5555:#55555555FFFF:#FFFF5555FFFF:#5555FFFFFFFF:#FFFFFFFFFFFF</stringvalue>
+	</entry>
+	<entry name="visible_name" mtime="1246472623" type="string">
+		<stringvalue>По умолчанию</stringvalue>
+	</entry>
+	<entry name="use_theme_colors" mtime="1246472623" type="bool" value="false"/>
+	<entry name="background_color" mtime="1246472623" type="string">
+		<stringvalue>#000000000000</stringvalue>
+	</entry>
+	<entry name="foreground_color" mtime="1246472623" type="string">
+		<stringvalue>#D3D3D6D6D3D3</stringvalue>
+	</entry>
+</gconf>

@@ -1,0 +1,1351 @@
+diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
+--- linux-live-6.3.0/build	2008-02-14 13:52:22.000000000 +0300
++++ linux-live-6.3.0_patched/build	2011-01-14 13:30:49.000000000 +0300
+@@ -18,20 +18,17 @@ allow_only_root
+ 
+ # live CD name
+ echo -ne "Name of your live distro [hit enter for $LIVECDNAME]: "
+-read NEWLIVECDNAME
++#read NEWLIVECDNAME
+ if [ "$NEWLIVECDNAME" != "" ]; then LIVECDNAME=$NEWLIVECDNAME; fi
+ LIVECDNAME=$(echo $LIVECDNAME | tr -d ' ')
+ 
+-. ./install
+-if [ "$ROOT" -a "$ROOT" != "/" ]; then 
+-   . ./install $ROOT
+-fi
++. ./install $CROOT
+ 
+ # search for kernel
+-VMLINUZ=$ROOT/boot/vmlinuz
++VMLINUZ=$KROOT/boot/vmlinuz
+ if [ -L "$VMLINUZ" ]; then VMLINUZ=$(readlink -f $VMLINUZ); fi
+ echo -ne "Enter path for the kernel you'd like to use [hit enter for $VMLINUZ]: "
+-read NEWKERNEL
++#read NEWKERNEL
+ if [ "$NEWKERNEL" != "" ]; then VMLINUZ="$NEWKERNEL"; fi
+ if [ "$(ls $VMLINUZ 2>>$DEBUG)" = "" ]; then echo "cannot find $VMLINUZ"; exit 1; fi
+ 
+@@ -52,32 +49,29 @@ mkdir -p $CDDATA/$LIVECDNAME
+ cp -R cd-root/linux/* $CDDATA/$LIVECDNAME
+ cp tools/* $CDDATA/$LIVECDNAME/tools
+ cp -R DOC/LICENSE $CDDATA/$LIVECDNAME
+-cp $VMLINUZ $CDDATA/boot/vmlinuz
++cp $VMLINUZ $CDDATA/$LIVECDNAME/vmlinuz
+ 
+ echo "creating initrd image..."
+-echo "Using kernel modules from $ROOT/$LMK"
++echo "Using kernel modules from $KROOT/$LMK"
+ cd initrd
+-./initrd_create $LIVECDNAME
++./initrd_create $LIVECDNAME $ADDLOCALE $KROOT
+ if [ "$?" -ne 0 ]; then exit; fi
+ cd ..
+ 
+-cp initrd/initrd.gz $CDDATA/boot/initrd.gz
++cp initrd/initrd.gz $CDDATA/$LIVECDNAME/initrd.gz
+ rm initrd/initrd.gz
+ 
++
++
++mv $CDDATA/$LIVECDNAME/livecd.sgn $CDDATA/$LIVECDNAME/$LIVECDNAME.sgn
++
+ echo "creating compressed images..."
+ 
+ for dir in $MKMOD; do
+     if [ -d $ROOT/$dir ]; then
+       echo "base/$dir.lzm ..."
+-      echo -ne > exclude.txt
+-      for i in $EXCLUDE; do
+-         part=$(echo "x/$i" | tr -s / | sed -r "s:x/[^/]+/::")
+-         if [ -e "$ROOT/$dir/$part" ]; then echo "$ROOT/$dir/$part" >> exclude.txt; fi
+-      done
+-      cat exclude.txt
+-      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.lzm -keep-as-directory -ef exclude.txt
++      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.lzm 
+       if [ $? -ne 0 ]; then exit; fi
+-      rm exclude.txt
+       echo
+     fi
+ done
+@@ -90,4 +84,4 @@ echo "* or copy content of $CDDATA to yo
+ echo "and run ./boot/bootinst.sh (from the device!) to setup boot sector"
+ echo
+ echo "Now press Enter..."
+-read junk
++#read junk
+diff -auprN linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c linux-live-6.3.0_patched/initrd/httpfs/usr/src/httpfs.c
+--- linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c	2008-08-28 00:33:25.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/httpfs/usr/src/httpfs.c	2011-01-14 13:30:49.000000000 +0300
+@@ -15,7 +15,7 @@
+ #define BUFSIZE 1024
+ #define BIGBUFSIZE 64*BUFSIZE
+ #define RESP_STATUS_LEN 12 // sizeof "HTTP/1.1 200"
+-#define VERSION "for-slax-6.0.7"
++#define VERSION "for-MagOS"
+ 
+ #define MIN(a,b) \
+     ({ __typeof__ (a) _a = (a); \
+@@ -132,12 +132,14 @@ static int parse_url(char *url) {
+ 
+     if (port < path && port != NULL) { // a semicolon is sooner than slash for path - that specifies port number
+ 	http_port = (unsigned short) atoi(port + 1);
++	strncpy(http_host, pos, port - pos);
+     } else {
+ 	http_port = 80;
++	strncpy(http_host, pos, path - pos);
+     }
+ 
+     if (path != NULL) {
+-	strncpy(http_host, pos, path - pos);
++//	strncpy(http_host, pos, path - pos);
+ 	file = strrchr(path, '/');
+ 	strncpy(http_path, path, file == path ? 1 : file - path);
+ 	strncpy(http_file, file + 1, strlen(file) - 1);
+@@ -170,7 +172,7 @@ static int open_client_socket() {
+ 
+     he = gethostbyname(http_host);
+     if (he == NULL) {
+-	fprintf(stderr, "%s: unknown host - %s\n", myself, http_host);
++	fprintf(stderr, "%s: unknown host - %s port=%d\n", myself, http_host,http_port);
+ 	return -1;
+     }
+ 
+@@ -411,14 +413,16 @@ static int httpfs_readdir(const char *pa
+ 	    len--;
+ 	}
+ 	len = MIN(len, strcspn(i, "/"));
+-	if (len > 0) {
++	if (len > 0) 
++	{
+     	    strncpy(file, i, len);
+     	    file[len] = '\0';
+-fprintf(stderr,"file: %s\n", file);
+-fprintf(stderr,"http_file: %s\n", http_file);
+-fprintf(stderr,"path: %s\n", path);
+-fprintf(stderr,"http_path: %s\n", http_path);
+-
++/*
++	    fprintf(stderr,"file: %s\n", file);
++	    fprintf(stderr,"http_file: %s\n", http_file);
++	    fprintf(stderr,"path: %s\n", path);
++	    fprintf(stderr,"http_path: %s\n", http_path);
++  */
+     	    if (! (strncmp(file, http_file, strlen(http_file)) == 0
+     	    && strlen(http_file)>0
+             && strncmp(path, http_path, strlen(http_path)) == 0) ) {
+@@ -427,8 +431,8 @@ fprintf(stderr,"http_path: %s\n", http_p
+ 	}
+     }
+ 
+-    if (strcmp(path, "/") == 0 && strlen(http_file) > 0)
+-	(*filler)(buffer, http_file, NULL, 0);
++//    if (strcmp(path, "/") == 0 && strlen(http_file) > 0)
++//	    (*filler)(buffer, http_file, NULL, 0);
+ 
+     i = w;
+     end:
+diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initrd/initrd_create
+--- linux-live-6.3.0/initrd/initrd_create	2009-08-29 23:47:30.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/initrd_create	2011-01-14 13:30:49.000000000 +0300
+@@ -139,34 +139,59 @@ ln -sf bin $INITRD_TREE/sbin
+ # necessary modules and dependency files
+ mkdir -p $INITRD_TREE/$LMK/kernel/fs
+ rcopy $ROOT/$LMK/kernel/fs/aufs $INITRD_TREE
+-rcopy $ROOT/$LMK/kernel/fs/squashfs $INITRD_TREE
++rcopy $ROOT/$LMK/dkms-binary/fs/squashfs $INITRD_TREE
++rcopy $ROOT/$LMK/dkms-binary/lib/lzma $INITRD_TREE
+ 
+ # copy filesystem modules, if not directly copied into kernel
+ rcopy_ex $ROOT/$LMK/kernel/lib/zlib_inflate $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/lib/zlib_deflate $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/lib/crc-t10dif.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/lib/crc16.* $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/drivers/block/loop.* $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/fs/fuse/fuse.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/unionfs/unionfs.* $INITRD_TREE 2>>$DEBUG
+ 
+ rcopy_ex $ROOT/$LMK/kernel/fs/isofs $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/fs/fat $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/fs/vfat $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/fs/ntfs $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/fs/ext3 $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/ext4 $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/jbd $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/jbd2 $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/fs/reiserfs $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/fs/xfs $INITRD_TREE 2>>$DEBUG
+ 
++rcopy_ex $ROOT/$LMK/kernel/fs/nfs $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/nfs_common $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/lockd $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/fscache $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/net/sunrpc/sunrpc.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/net/sunrpc/auth_gss/auth_rpcgss.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/net/packet/af_packet.ko.* $INITRD_TREE 2>>$DEBUG
++
+ # add language support for filesystems
+-rcopy_ex $ROOT/$LMK/kernel/fs/nls $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/nls/nls_cp866.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/fs/nls/nls_utf8.* $INITRD_TREE 2>>$DEBUG
++
++# add scsi support 
++rcopy_ex $ROOT/$LMK/kernel/drivers/scsi/scsi_mod.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/drivers/scsi/sd_mod.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/drivers/scsi/sr_mod.* $INITRD_TREE 2>>$DEBUG
+ 
+ # usb modules
++rcopy_ex $ROOT/$LMK/kernel/drivers/usb/core/usbcore.* $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/drivers/usb/storage $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/drivers/usb/host/ehci-hcd.* $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/drivers/usb/host/ohci-hcd.* $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/drivers/usb/host/uhci-hcd.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/drivers/hid/hid.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/drivers/hid/usbhid/usbhid.* $INITRD_TREE 2>>$DEBUG
+ 
+ # pci modules
+ rcopy_ex $ROOT/$LMK/kernel/drivers/cdrom $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/drivers/ide $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/drivers/ata $INITRD_TREE 2>>$DEBUG
+ 
+ # pcmcia modules
+ rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/pcmcia_core.* $INITRD_TREE 2>>$DEBUG
+@@ -174,19 +199,25 @@ rcopy_ex $ROOT/$LMK/kernel/drivers/pcmci
+ rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/rsrc_nonstatic.* $INITRD_TREE 2>>$DEBUG
+ rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/yenta_socket.* $INITRD_TREE 2>>$DEBUG
+ 
++# crypro modules
++rcopy_ex $ROOT/$LMK/kernel/drivers/block/cryptoloop.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/crypto/aes_generic.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/crypto/cbc.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/arch/x86/crypto/aes-i586.* $INITRD_TREE 2>>$DEBUG
++
+ # network modules
+ for mod in $(list_network_drivers); do
+-   cat $ROOT/$LMK/modules.dep | fgrep /$mod.ko | while read LINE; do
+-      for dep in $(echo $LINE | tr -d ":"); do
+-         rcopy_ex $ROOT/$dep $INITRD_TREE 2>>$DEBUG
++   cat $ROOT/$LMK/modules.dep | fgrep /$mod.ko.gz | while read LINE; do
++      for dep in $(echo $LINE | tr -d ":" ); do
++         rcopy_ex $ROOT/$LMK/$dep $INITRD_TREE 2>>$DEBUG
+       done
+    done
+ done
+ 
+ if [ "$ADDLOCALE" != "" ]; then
+    . ./addlocaleslib
+-   debug "copylocales $ROOT/ $INITRD_TREE $ADDLOCALE"
+-   copylocales $ROOT/ $INITRD_TREE $ADDLOCALE
++   debug "copylocales $CROOT/ $INITRD_TREE $ADDLOCALE"
++   copylocales $CROOT/ $INITRD_TREE $ADDLOCALE
+ fi
+ 
+ debug "unpacking all kernel modules for initrd"
+@@ -201,9 +232,14 @@ chmod ago-x $INITRD_TREE/usr.lzm
+ rm -Rf $INITRD_TREE/usr/*
+ 
+ debug "compressing net in initrd"
+-mksquashfs $INITRD_TREE/$LMK/kernel/drivers $INITRD_TREE/drivers.lzm >/dev/null 2>&1
++mkdir -p $INITRD_TREE/tmp_lzm/fs $INITRD_TREE/tmp_lzm/drivers
++mv $INITRD_TREE/$LMK/kernel/drivers/[ac-z]* $INITRD_TREE/tmp_lzm/drivers
++mv $INITRD_TREE/$LMK/kernel/net $INITRD_TREE/tmp_lzm
++mv $INITRD_TREE/$LMK/kernel/fs/[b-z]* $INITRD_TREE/tmp_lzm/fs
++cp -pr $INITRD_TREE/$LMK/kernel/* $INITRD_TREE/tmp_lzm
++mksquashfs $INITRD_TREE/tmp_lzm $INITRD_TREE/drivers.lzm >/dev/null 2>&1
+ chmod ago-x $INITRD_TREE/drivers.lzm
+-rm -Rf $INITRD_TREE/$LMK/kernel/drivers/*
++rm -Rf $INITRD_TREE/tmp_lzm
+ 
+ debug "creating empty image file for initrd"
+ dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
+diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linuxrc
+--- linux-live-6.3.0/initrd/linuxrc	2009-04-24 19:38:32.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/linuxrc	2011-01-14 13:30:49.000000000 +0300
+@@ -1,6 +1,9 @@
+ #!/bin/ash
+ # Initial script for Linux Live operating system
+ # Author: Tomas M <http://www.linux-live.org/>
++#
++# Author: Mikhail Zaripov <http://magos-linux.ru>
++# Author: Anton Goroshkin <http://magos-linux.ru>
+ 
+ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+ 
+@@ -17,14 +20,17 @@ header "starting Linux Live scripts <htt
+ # Syslog will reset printk settings, no need to remember it here anymore.
+ echo "0" >/proc/sys/kernel/printk
+ 
+-# Load essential drivers, like CDROM drivers, aufs/squashfs etc,
+-# use mdev to create /dev/ devices and setup it as a hotplug-handler
+-modprobe_essential_modules
++modprobe_module loop
++modprobe_module squashfs-lzma
+ 
+ # /usr and some drivers are compressed in initrd 
+ # so it must be mounted from .lzm files
+ mount_initrd_loops
+ 
++# Load essential drivers, like CDROM drivers, aufs/squashfs etc,
++# use mdev to create /dev/ devices and setup it as a hotplug-handler
++modprobe_essential_modules
++
+ # start hotplugging before hw drivers load
+ mdev_start_hotplug
+ 
+@@ -36,16 +42,20 @@ debug_shell
+ 
+ # make sure ext3 partitions are not mounted using ext2 driver,
+ # and vfat partitions are not mounted using msdos driver
+-echo -e "ext3\next2\nvfat\n*" >/etc/filesystems
++echo -e "ext4\next3\next2\nvfat\n*" >/etc/filesystems
+ 
+ mkdir -p $UNION
+ mkdir -p $MEMORY
+ 
++MUID=$(cmdline_value users | awk -F: '{print $2}')
++[ "$MUID" = "" ] || sed -i s/:500:500:/:$MUID:$MUID:/g /etc/passwd
++[ "$MUID" = "" ] || sed -i s/:500:/:$MUID:/g /etc/group
++
+ debug_shell
+ 
+ # Find livecd data directory by searching for livecd.sgn file
+ SGN=$(cmdline_value sgnfile)
+-if [ "$SGN" = "" ]; then SGN=livecd.sgn; fi
++if [ "$SGN" = "" ]; then SGN=$LIVECDNAME.sgn; fi
+ echolog "looking for '$LIVECDNAME' data directory (searching for $SGN file)"
+ 
+ # First, try from= boot argument, if given
+@@ -56,34 +66,28 @@ DATAFROM=$(cmdline_value from)
+ # ip=<client-ip>:<boot-server-ip>:<gw-ip>:<netmask>
+ # Nevertheless, from= parameter won't be overwritten by this
+ IP=$(cmdline_value ip)
+-if [ "$IP" != "" -a "$DATAFROM" = "" ]; then
+-   DATAFROM="http://"$(echo $IP | cut -d : -f 2)
+-fi
+ 
+ if [ "$DATAFROM" ]; then
+-   if [ "$(echo $DATAFROM | cut -b 1-7 | tr "[:upper:]" "[:lower:]")" = "http://" ]; then
++   DATA=$MOUNTDIR/$LIVEMEDIA
++   if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
+       init_dhcp $(modprobe_network_modules)
+-      mount_httpfs $DATAFROM $MOUNTDIR/httpfs
+-      # if mountdir/httpfs/livecdname is found, set DATA=, else umount httpfs
+-      # - currently this part works even without the above mentioned, but livecd.sgn is required now untill it's uncommented
++      echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
++      echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
+    else
+-      DATAFROM=$(find_in_computer $DATAFROM)
+-      if [ "$DATAFROM" ]; then
+-         mount_device $DATAFROM $LOOPMOUNT # mount again, it may be loop device
+-         if [ $? -eq 0 -a "$(find_modules $LOOPMOUNT/$LIVECDNAME)" != "" ]; then
+-            echolog "found in $DATAFROM"
+-            DATA=$LOOPMOUNT/$LIVECDNAME
+-         else
+-            fumount $LOOPMOUNT
+-            fumount $MOUNTDIR/*
+-         fi
+-      fi
++      DATAFROM=$(find_in_computer $DATAFROM $MOUNTDIR/$LIVEMEDIA)
++      [ -b "$DATAFROM" ] && mount_device $DATAFROM $MOUNTDIR/$LIVEMEDIA  # mount block device
+    fi
++   [ -d "$DATAFROM" ] && DATA="$DATAFROM"
++   [ -f "$DATAFROM" ] && DATA=$LOOPMOUNT && mount_device $DATAFROM $LOOPMOUNT  # mount again, it may be loop device
++   [ -d "$DATA/$LIVECDNAME" ] && DATA="$DATA/$LIVECDNAME"
++   [ -f "$DATA/$SGN" ] || DATA=""
++   grep -q "`head -1 /VERSION`" $DATA/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || DATA=""
+ fi
+ 
++
+ if [ "$DATA" = "" ]; then
+    # from= is not used or it didn't contain valid data
+-   DATA=$(find_in_computer $LIVECDNAME/$SGN)
++   DATA=$(find_in_computer $LIVECDNAME/$SGN $MOUNTDIR/$LIVEMEDIA)
+    DATA=$(dirname $DATA 2>/dev/null)
+ fi
+ 
+@@ -98,11 +102,38 @@ echolog "using $LIVECDNAME data from $DA
+ 
+ debug_shell
+ 
++
++echolog "setting up modules repository"
++REPOSITORY=$(cmdline_value repository)
++
++if [ "$REPOSITORY" ]; then
++   if [ "$(echo $REPOSITORY | grep "://")" != ""  ]; then
++      init_dhcp $(modprobe_network_modules)
++       mkdir -p $LIVEREPOSITORY
++      echo $REPOSITORY | grep -iq ^"http://" && mount_httpfs $REPOSITORY $LIVEREPOSITORY
++      echo $REPOSITORY | grep -iq ^"nfs://" && mount_nfs $REPOSITORY $LIVEREPOSITORY
++   else
++   REPOSITORYMNT=$(find_in_computer $REPOSITORY $LIVEREPOSITORY)
++   mount_device $REPOSITORYMNT $LIVEREPOSITORY
++   echolog $REPOSITORYMNT
++   fi
++fi
++
++
++debug_shell
++
++INIFILE=$(cmdline_value config)
++[ "$INIFILE" = "" ] && INIFILE=$LIVECDNAME.ini
++[ -f "$DATA/$INIFILE" ] && egrep -v '^#|^$' "$DATA/$INIFILE" | sed s-\\\\r-- | gzip > /tmp/$LIVECDNAME.ini.gz
++chmod 400 /tmp/$LIVECDNAME.ini.gz
++
++debug_shell
++
+ echolog "setting up directory for changes"
+ CHANGESVAL=$(cmdline_value changes)
+ 
+ if [ "$CHANGESVAL" ]; then
+-   CHANGESMNT=$(find_in_computer $CHANGESVAL)
++   CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
+    echolog $CHANGESMNT
+ fi
+ 
+@@ -147,9 +178,26 @@ else
+    fi
+ fi
+ 
+-# $UNION will be used as a root directory, livecd modules will be added soon
+-echolog "setup union directory (using aufs)"
++echolog "setting up modules local repository"
++LOCAL_REP=$(cmdline_value local_rep)
++
++if [ "$LOCAL_REP" ]; then
++      LOCAL_REPMNT=$(find_in_computer $LOCAL_REP $COPY2REP)
++      [ -f "$LOCAL_REPMNT" ] && mount_device $LOCAL_REPMNT $COPY2REP  # mount again, it may be loop device
++      [ -b "$LOCAL_REPMNT" ] && mount_device $LOCAL_REPMNT $COPY2REP  # mount block device
++      [ -d "$LOCAL_REPMNT" ] && mount -o rbind $LOCAL_REPMNT $COPY2REP # mount dir
++      echolog $LOCAL_REPMNT
++else 
++	COPY2REP=$MEMORY/modules
++fi
+ 
++
++# $UNION will be used as a root directory, livecd modules will be added soon
++if [ $(cmdline_parameter unionfs) ];then
++    echolog "setup union directory (using unionfs)"
++else
++    echolog "setup union directory (using aufs)"
++fi
+ mkdir -p $CHANGES
+ mkdir -p $IMAGES
+ 
+@@ -162,7 +210,12 @@ if [ "$XINO" != "$MEMORY" ]; then
+ fi
+ 
+ # mount aufs using the writable branch as the first one (leftmost/topmost)
+-mount -t aufs -o nowarn_perm,xino=$XINO/.aufs.xino,br:$CHANGES=rw aufs $UNION
++if [ $(cmdline_parameter unionfs) ];then
++    mount -t unionfs -o dirs=$CHANGES=rw unionfs $UNION
++else
++    mount -t aufs -o nowarn_perm,xino=$XINO/.aufs.xino,br:$CHANGES=rw aufs $UNION
++fi
++
+ if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
+ 
+ debug_shell
+@@ -170,32 +223,76 @@ debug_shell
+ # If toram or copy2ram boot parameter is present, copy all fs modules to RAM.
+ # (skip modules from /optional/ which are not listed in load= boot option)
+ # Finaly modify DATA variable so it will point to correct directory
+-if [ "$(cmdline_parameter toram)" != "" -o "$(cmdline_parameter copy2ram)" != "" ]; then
++if [ "$(cmdline_parameter toram)$(cmdline_parameter copy2ram)$(cmdline_value toram)$(cmdline_value copy2ram)" != "" ]; then
+    echolog "copying $LIVECDNAME data to RAM, this may take some time..."
+    mkdir -p $COPY2RAM
+ 
+    # make sure it's in RAM even with changes= parameter
+    if [ "$CHANGESMNT" ]; then mount -t tmpfs -o "size=$RAMSIZE" tmpfs $COPY2RAM; fi
+    copy_to_ram $DATA $COPY2RAM
++   copy_to_ram $LIVEREPOSITORY $COPY2RAM
++   cp -a "$DATA/rootcopy" "$COPY2RAM" 2>/dev/null  # could be empty
+ 
+-   cd_autoeject 1
+-   fumount $DATA
+-   fumount $MOUNTDIR/*
+-   rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
+-   DATA=$COPY2RAM
+-   cd_autoeject 0
++   if [ "$(cmdline_parameter nofreemedia)$(cmdline_value toram)$(cmdline_value copy2ram)" = "" ] && ! losetupfunc | egrep -q "$DATA/"'|'"$LIVEREPOSITORY/" ;then
++     cd_autoeject 1
++     fumount $DATA
++     fumount $MOUNTDIR/$LIVEMEDIA
++     fumount $LIVEREPOSITORY
++     rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
++     DATA=$COPY2RAM
++     cd_autoeject 0
++   fi
++fi
++debug_shell
++
++if [ "$(cmdline_parameter copy2rep)$(cmdline_value copy2rep)" != "" ]; then
++   echolog "copying $LIVECDNAME data to LOCAL_REP, this may take some time..."
++   mkdir -p $COPY2REP
++
++   copy_to_rep $DATA $COPY2REP
++   copy_to_rep $LIVEREPOSITORY $COPY2REP
++
++   if [ "$(cmdline_parameter nofreemedia)$(cmdline_value copy2rep)" = "" ] && ! losetupfunc | egrep -q "$DATA/"'|'"$LIVEREPOSITORY/" ;then
++     cd_autoeject 1
++     fumount $DATA
++     fumount $MOUNTDIR/$LIVEMEDIA
++     fumount $LIVEREPOSITORY
++     rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
++     DATA=$COPY2REP
++     cd_autoeject 0
++   fi
+ fi
+ 
+ debug_shell
+ 
++echolog "inserting all modules and creating live filesystem"
++
++
++if [ $(cmdline_parameter unionfs) ];then
++# the $LIVEREPOSITORY directory can contain $LIVEREPOSITORY/modules too
++    union_insert_modules $UNION $LIVEREPOSITORY $IMAGES
++
++# the $MEMORY directory can contain $MEMORY/modules too
++# in the case if changes= boot argument is used. If not, it doesn't hurt
++    union_insert_modules $UNION $MEMORY $IMAGES
++
+ # DATA contains path to the base directory of all fs modules which need
+ # to be mounted and inserted into live filesystem. Do it now.
+-echolog "inserting all modules and creating live filesystem"
+-union_insert_modules $UNION $DATA $IMAGES
++    union_insert_modules $UNION $DATA $IMAGES
++
++else
++
++# DATA contains path to the base directory of all fs modules which need
++# to be mounted and inserted into live filesystem. Do it now.
++    union_insert_modules $UNION $DATA $IMAGES
+ 
+ # the $MEMORY directory can contain $MEMORY/modules too
+ # in the case if changes= boot argument is used. If not, it doesn't hurt
+-union_insert_modules $UNION $MEMORY $IMAGES
++    union_insert_modules $UNION $MEMORY $IMAGES
++
++# the $LIVEREPOSITORY directory can contain $LIVEREPOSITORY/modules too
++    union_insert_modules $UNION $LIVEREPOSITORY $IMAGES
++fi
+ 
+ debug_shell
+ 
+@@ -207,6 +304,51 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
+ #    rm from memory once ??
+ #fi
+ 
++#converting images dirs to LZM/ROM
++if [ "$(cmdline_parameter oldpc)$(cmdline_value oldpc)" != "" ]; then
++
++    OLDPC=$(cmdline_value oldpc)
++    dir_imgs="$IMAGES"
++    mask="$OLDPC"
++    fd=$COPY2REP/sqms
++    echolog "converting images dirs to LZMs (no compression) for old PCs && netbooks"
++    for a in `ls -d $dir_imgs/$mask*`; do
++	mn=$(basename $a)
++	echo -ne \\n"     $mn --> $mn (no compression)"\\n
++	mkdir -p $fd
++	fm=$fd/$mn
++
++	create_module $a $fm -noI -noD -noF -nolzma
++    done
++    
++    echo -ne \\n "--> done." \\n "Total size: $(du -s -h $fd | tr -d $fd)"\\n\\n
++    echo "After reboot setup parameters in bootloader cfg: noload=/base/ repository=[local_rep]"
++    echo -ne \\n"Press ENTER to reboot..."
++    read enter
++    /bin/reboot -f
++    
++fi
++
++# find and mount /home
++echolog "setting up /home directory"
++HOME=$(cmdline_value home)
++
++if [ "$HOME" ]; then
++   if [ "$(echo $HOME | grep "://")" != ""  ]; then
++      init_dhcp $(modprobe_network_modules)
++      echo $HOME | grep -iq ^"nfs://" && HOMEMNT=$(mount_nfs $HOME $MOUNTDIR/$LIVEHOME)
++   else
++      HOMEMNT=$(find_in_computer $HOME $MOUNTDIR/$LIVEHOME)
++      [ -b "$HOMEMNT" ] && mount_device $HOMEMNT $UNION/home # mount block device
++   fi
++   [ -f "$HOMEMNT" ] && mount_device $HOMEMNT $UNION/home # mount again, it may be loop device
++   [ -d "$HOMEMNT" ] && mount -o rbind $HOMEMNT $UNION/home # mount dir
++   echolog $HOMEMNT
++fi
++[ -d $UNION/home ] || mkdir $UNION/home
++
++debug_shell
++
+ echolog "copying liblinuxlive library to union"
+ cp -af /liblinuxlive $UNION/usr/lib/
+ 
+@@ -216,6 +358,9 @@ echolog "recreating /etc/fstab and /mnt
+ touch $UNION/etc/fstab
+ rmdir $UNION/mnt/* 2>/dev/null
+ fstab_update $UNION
++cd $UNION
++[ -x "etc/rc.d/rc.preinit" ] && /bin/bash etc/rc.d/rc.preinit
++cd /
+ 
+ # everything is ready now, so we may unload unused kernel modules
+ # and do some cleanup, unmount few things which are no longer needed.
+@@ -231,10 +376,25 @@ mkdir -p $UNION/sys
+ mkdir -p $UNION/dev
+ mkdir -p $UNION/tmp
+ chmod 1777 $UNION/tmp
++#[ "$XINO" != "$MEMORY" ] && mount -t tmpfs tmpfs $UNION/tmp 
++mkdir -p $UNION/media
++for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" ;do
++   if losetupfunc | grep -q "$a/" || grep -q "^$a/" /proc/mounts ;then
++       mkdir -p $UNION$a
++       mount --move $a $UNION$a
++   else
++       [ "$(cmdline_parameter nofreemedia)" ] || fumount $a
++   fi
++done
++for a in "/$MOUNTDIR/$LIVECHANGES" "/$MOUNTDIR/$LIVEHOME" ;do
++   grep -q " $a " /proc/mounts || continue
++   mkdir -p $UNION$a
++   mount --move $a $UNION$a
++done
+ 
+ # Boot will contain whatever was in ./boot directory in the bootable media
+ # Error output goes to null, as nothing is mounted with copy2ram
+-mount -n -o rbind $(dirname $DATA)/boot $UNION/boot 2>/dev/null
++#mount -n -o rbind $(dirname $DATA)/boot $UNION/boot 2>/dev/null
+ 
+ debug_shell
+ 
+@@ -274,7 +434,11 @@ header "linux live end, starting $LIVECD
+ 
+ debug_shell
+ 
+-mount -n -o remount,ro aufs .
++[ $(cmdline_parameter unionfs) ] && fs_type=unionfs || fs_type=aufs
++fumount /lib/modules/*/kernel >/dev/null 2>/dev/null
++umount /proc
++rm -f /drivers.lzm /usr.lzm >/dev/null 2>/dev/null
++mount -n -o remount,ro $fs_type .
+ 
+ # We will copy init from the distro to initrd (there should be 2MB free)
+ # This allows us to use the cleanup script during reboot, as init will be
+diff -auprN linux-live-6.3.0/install linux-live-6.3.0_patched/install
+--- linux-live-6.3.0/install	2007-05-14 20:50:44.000000000 +0400
++++ linux-live-6.3.0_patched/install	2011-01-14 13:30:49.000000000 +0300
+@@ -16,17 +16,17 @@ if [ "$N" = "build" ]; then
+    N=install
+ else
+    . ./.config || exit 1
+-   if [ "$1" ]; then ROOT="$1"; fi
++   if [ "$1" ]; then CROOT="$1"; fi
+ fi
+ 
+ if [ "$N" != "uninstall" ]; then
+-   mkdir -p $ROOT/usr/bin
+-   mkdir -p $ROOT/usr/lib
+-   ls -1 ./tools | egrep -v "^lib" | while read FILE; do cp ./tools/$FILE $ROOT/usr/bin; done
+-   cat ./tools/liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $ROOT/usr/lib/liblinuxlive
++   mkdir -p $CROOT/usr/bin
++   mkdir -p $CROOT/usr/lib
++   ls -1 ./tools | egrep -v "^lib" | while read FILE; do cp ./tools/$FILE $CROOT/usr/bin; done
++   cat ./tools/liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $CROOT/usr/lib/liblinuxlive
+ else
+-   ls -1 ./tools | egrep -v "^lib" | while read FILE; do rm -v $ROOT/usr/bin/$FILE; done
+-   ls -1 ./tools | egrep "^lib" | while read FILE; do rm -v $ROOT/usr/lib/$FILE; done
++   ls -1 ./tools | egrep -v "^lib" | while read FILE; do rm -v $CROOT/usr/bin/$FILE; done
++   ls -1 ./tools | egrep "^lib" | while read FILE; do rm -v $CROOT/usr/lib/$FILE; done
+ fi
+ 
+ echo "Linux Live scripts were $N""ed successfuly in $1/"
+diff -auprN linux-live-6.3.0/tools/activate linux-live-6.3.0_patched/tools/activate
+--- linux-live-6.3.0/tools/activate	2008-04-21 21:18:13.000000000 +0400
++++ linux-live-6.3.0_patched/tools/activate	2011-01-14 22:52:50.000000000 +0300
+@@ -77,3 +77,9 @@ if [ -e "$MOD/etc/ld.so.conf" -o -e "$MO
+    echo "Module contains ld.so.conf or ld.so.cache, updating libs cache..."
+    /sbin/ldconfig
+ fi
++
++# update menus
++if [ -e "$MOD/usr/share/applications" ]; then
++   ps -A -F | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
++   touch /usr/share/applications
++fi
+diff -auprN linux-live-6.3.0/tools/deactivate linux-live-6.3.0_patched/tools/deactivate
+--- linux-live-6.3.0/tools/deactivate	2008-04-21 21:34:41.000000000 +0400
++++ linux-live-6.3.0_patched/tools/deactivate	2011-01-14 22:52:57.000000000 +0300
+@@ -35,6 +35,8 @@ if [ -e "$IMAGES/$MODULE/var/lock/deacti
+    exit 2
+ fi
+ 
++[ -e "$IMAGES/$MODULE/usr/share/applications" ] && UPDATE_MENUS=yes
++
+ try_remount()
+ {
+    mount -t aufs -o remount,verbose,del:$IMAGES/$MODULE aufs / 2>/dev/null
+@@ -76,3 +78,9 @@ if [ $? -ne 0 ]; then
+ fi
+ losetup -d "$LOOP" 2>/dev/null # sometimes it's freed by umount automatically
+ rmdir "$IMAGES/$MODULE" # if not empty or busy, a message will be shown
++
++# update menus
++if [ "$UPDATE_MENUS" = "yes" ] ;then
++   ps -A -F | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
++   touch /usr/share/applications
++fi
+diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/liblinuxlive
+--- linux-live-6.3.0/tools/liblinuxlive	2009-02-10 14:42:05.000000000 +0300
++++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-02-19 11:28:34.000000000 +0300
+@@ -3,6 +3,8 @@
+ # Functions library :: for Linux Live scripts 6
+ # Author: Tomas M. <http://www.linux-live.org>
+ #
++# Author: Mikhail Zaripov <http://magos-linux.ru>
++# Author: Anton Goroshkin <http://magos-linux.ru>
+ 
+ # ===========================================================
+ # GLOBAL variables
+@@ -19,9 +21,14 @@ MOUNTDIR=mnt
+ CHANGES=$MEMORY/changes
+ XINO=$MEMORY/xino
+ COPY2RAM=$MEMORY/copy2ram
++COPY2REP=$MEMORY/copy2rep
+ IMAGES=$MEMORY/images
+ INITRAMDISK=$MOUNTDIR/live
+-LOOPMOUNT=$MOUNTDIR/tmp
++LOOPMOUNT=$MOUNTDIR/liveloop
++LIVEMEDIA=livemedia
++LIVEHOME=livehome
++LIVECHANGES=livesave
++LIVEREPOSITORY=$MOUNTDIR/liverepository
+ 
+ # this will be replaced by build script, so never change the following line!
+ LIVECDNAME="mylinux"
+@@ -177,7 +184,7 @@ mount_initrd_loops()
+       mount_device /usr.lzm /usr loop,ro squashfs
+    fi
+    if [ -e /drivers.lzm ]; then
+-      mount_device /drivers.lzm /lib/modules/*/kernel/drivers loop,ro squashfs
++      mount_device /drivers.lzm /lib/modules/*/kernel loop,ro squashfs
+    fi
+ }
+ 
+@@ -248,10 +255,7 @@ locale_id()
+    # but only if there is just ONE directory, nothing more
+    # (so we are sure which one to use)
+    if [ "$LOCALE" = "" ]; then
+-      for LOCALE in $(ls -A1p /usr/lib/locale 2>/dev/null | grep / | sed -r "s:[/]|[.].*::"); do
+-         i="1$i"
+-      done
+-      if [ "$i" != "1" ]; then LOCALE=""; fi
++      LOCALE=ru_RU
+    fi
+ 
+    if [ "$LOCALE" != "" ]; then
+@@ -268,23 +272,23 @@ iocharset()
+    # if iocharset is explicitly set at the boot prompt,
+    # return it regardless the locale settings
+    IOCHARSET=$(cmdline_value iocharset)
+-   if [ "$IOCHARSET" != "" ]; then
+-      echo $IOCHARSET
+-      return 0;
+-   fi
++   if [ "$IOCHARSET" = "" ]; then IOCHARSET=utf8 ;fi
++   echo $IOCHARSET
++   return 0;
++}
+ 
+-   # else find out the iocharset from locale_id output, it should match
+-   # some kernel module (after stripping out few of the dashes)
+-   IOCHARSET=$(locale_id | cut -d . -f 2- | tr "[[:upper:]]" "[[:lower:]]" | tr -d -)
+-   if [ "$IOCHARSET" = "" ]; then return 0; fi
+-
+-   find /lib/modules -name "nls_*" | sed -r 's:^.*/|[.]ko$::g' | cut -b 5- | while read CHARSET; do
+-      if [ "$(echo $CHARSET | tr "[[:upper:]]" "[[:lower:]]" | tr -d -)" = "$IOCHARSET" ]; then
+-         echo "$CHARSET"
+-         return 0
+-      fi
+-   done
+-   return 1
++# Find out what codepage to use
++codepage()
++{
++   debug_log "codepage" "$*"
++   local CHARSET CODEPAGE
++
++   # if codepage is explicitly set at the boot prompt,
++   # return it regardless the locale settings
++   CODEPAGE=$(cmdline_value codepage)
++   if [ "$CODEPAGE" = "" ]; then CODEPAGE=866 ;fi
++   echo $CODEPAGE
++   return 0;
+ }
+ 
+ # Get filesystem options
+@@ -295,20 +299,25 @@ iocharset()
+ fs_options()
+ {
+    debug_log "fs_options" "$*"
+-   local NOAUTO IOCHARSET
++   local NOAUTO IOCHARSET CODEPAGE
+ 
+    NOAUTO=$(cmdline_parameter noauto)
+    if [ "$NOAUTO" = "" ]; then NOAUTO="auto"; fi
+    if [ "$2" = "fstab" ]; then echo -n "$NOAUTO," ; fi
+    if [ "$1" = "swap" ]; then echo "defaults,pri=1"; return 0; fi
+-   echo -n "noatime,users,suid,dev,exec"
++   echo -n "noatime,suid,dev,exec"
+ 
+    IOCHARSET=$(iocharset)
++   CODEPAGE=$(codepage)
++
++   MUID=$(cmdline_value users | awk -F: '{print $2}')
++   [ "$MUID" = "" ] && MUID=500
++
+ 
+    if [ "$1" = "vfat" ]; then
+-      echo -n ",quiet,umask=0,check=s,shortname=mixed"
++      echo -n ",quiet,umask=0,check=s,shortname=mixed,uid=$MUID,gid=$MUID"
+       if [ "$IOCHARSET" ]; then
+-         echo ",iocharset=$IOCHARSET"
++         echo ",codepage=$CODEPAGE,iocharset=$IOCHARSET"
+       fi
+    fi
+ 
+@@ -327,7 +336,7 @@ fs_options()
+    fi
+ 
+    if [ "$1" = "ntfs-3g" ]; then
+-      echo ",locale=$(locale_id)"
++      echo ",locale=$(locale_id),uid=$MUID,gid=$MUID"
+    fi
+ }
+ 
+@@ -360,6 +369,24 @@ is_supported_filesystem()
+    egrep -q "[[:space:]]$1\$" /proc/filesystems
+ }
+ 
++# Check device on demand. Only block devices and *.img loop files  can be checked
++# $1 = /dev device, eg. /dev/hda1, or loop file
++# $2 = optional filesystem name, in order to skip autodetection
++fsck_device()
++{
++  [ -b "$1" -o -f "$1" ] || return
++  if [ -f "$1" ] ;then
++     echo $1 | grep -q ".img$" || return
++  fi
++  echolog "Checking filesystem on $1 $2"  >/dev/console 2>/dev/console
++  FS=
++  if [ "$2" = "ntfs" ] ;then
++     /usr/bin/ntfsfix "$1" </dev/console >/dev/console 2>/dev/console
++  else
++     /usr/bin/fsck -a $([ "$2" ] && echo "-t $2") $1  </dev/console >/dev/console 2>/dev/console
++  fi
++}
++
+ # Mount device $1 to $2
+ # If the device is using vfat or ntfs filesystem, use iocharset as a mount option
+ # $1 = /dev device to mount, eg. /dev/hda1, or loop file, or directory
+@@ -375,6 +402,9 @@ mount_device()
+    # make sure we have enough arguments
+    if [ "$2" = "" ]; then return 1; fi
+    if [ "$1" = "" ]; then rmdir "$2" 2>/dev/null; return 1; fi
++   # skipping MBR
++   echo $(basename $1) | grep -q [a-z]$ && grep -q $(basename $1)[0-9] /proc/partitions  && return 1
++
+    mkdir -p "$2"
+ 
+    DEV="$1"
+@@ -387,13 +417,32 @@ mount_device()
+    OPTIONS=$(echo "$OPTIONS" | sed -r "s/^,+//")
+ 
+    if [ "$FS" = "-t ntfs-3g" ]; then
++      [ $(cmdline_parameter fsck) ] && fsck_device "$DEV" ntfs
+       ntfsmount "$DEV" "$2" -o $OPTIONS >/dev/null 2>&1
+       ERR=$?
+    else
++      [ $(cmdline_parameter fsck) ] && fsck_device "$DEV" $(echo $FS| sed "s/-t //" )
+       mount -n -o $OPTIONS $FS "$DEV" "$2" >/dev/null 2>&1
+       ERR=$?
+    fi
+ 
++   if [ $ERR -ne 0 ] && [ -f "$DEV" ] && echo "$DEV" | grep -q .enc$ ; then
++       LOOPDEV=$(losetup -f)
++       [ -z "$LOOPDEV" ] && LOOPDEV=$(mknod_next_loop_dev)
++       OPTIONS=$(echo "$OPTIONS" | sed -r "s/,loop//g")
++       echolog "Mounting encrypted filesystem $DEV" >/dev/console 2>/dev/console
++       times=3
++       while [ $times -gt 0 ]; do
++          /usr/bin/losetup.real -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
++          [ $(cmdline_parameter fsck) ] && fsck_device "$LOOPDEV"
++          mount -n -o $OPTIONS "$LOOPDEV" "$2" >/dev/null 2>&1
++          ERR=$?
++          [ $ERR -eq 0 ] && break
++          /usr/bin/losetup.real -d "$LOOPDEV"
++          times=$(expr $times - 1)
++       done
++   fi
++
+    # not enough loop devices? try to create one.
+    if [ $ERR -eq 2 ]; then
+        LOOPDEV=$(mknod_next_loop_dev)
+@@ -426,7 +475,7 @@ mount_device()
+ fumount()
+ {
+    debug_log "fumount" "$*"
+-   local TARGET LAZY
++   local TARGET LAZY LOOPDEVICE
+ 
+    while [ "$1" ]; do
+       if [ "$1" = "-l" ]; then LAZY="yes"; shift; fi
+@@ -438,11 +487,13 @@ fumount()
+       fi
+ 
+       if [ "$TARGET" != "" ]; then
++         LOOPDEVICE=$(grep '/dev/loop.* '"$TARGET " /proc/mounts | awk '{print $1}' )
+          umount -n "$TARGET" >/dev/null 2>&1
+          if [ $? -ne 0 ]; then
+             mount -n -o remount,ro -t ignored ignored "$TARGET" >/dev/null 2>&1
+             if [ "$LAZY" ]; then umount -n -l "$TARGET" >/dev/null 2>&1; fi
+          fi
++         [ "$LOOPDEVICE" = "" ] || losetup -d "$LOOPDEVICE"
+       fi
+       shift
+    done
+@@ -487,7 +538,7 @@ ismountpoint()
+ mount_module()
+ {
+    debug_log "mount_module" "$*"
+-   mount_device "$1" "$2" loop,ro squashfs
++   mount_device "$1" "$2" loop,$3 $4
+ }
+ 
+ # Insert a directory tree $2 to an union specified by $1
+@@ -499,16 +550,24 @@ mount_module()
+ union_insert_dir()
+ {
+    debug_log "union_insert_dir" "$*"
+-   mount -n -o remount,add:1:$2=rr aufs $1
++   if [ $(cmdline_parameter unionfs) ]; then
++	mount -n -o remount,add=:$2=$3 unionfs $1
++    else
++	mount -n -o remount,add:1:$2=$3 aufs $1
++   fi
+ }
+ 
+-# Find LZM modules in given dir
++# Find LZM,RWM,ROM modules in given dir
+ # $1 = root directory of mounted DATAdir
+ #
+ find_modules()
+ {
+    debug_log "find_modules" "$*"
+-   find "$1/base" "$1/modules" "$1/optional" -name "*.lzm" 2>/dev/null | sort
++   if [ $(cmdline_parameter unionfs) ]; then
++	find "$1/base" "$1/modules" "$1/optional"  -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort -r
++    else
++	find "$1/base" "$1/modules" "$1/optional" -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort
++    fi
+ }
+ 
+ # List all modules in all directories (base, modules, optional)
+@@ -521,8 +580,8 @@ list_modules()
+    debug_log "list_modules" "$*"
+    local LOAD NOLOAD
+ 
+-   LOAD=$(cmdline_value load | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+-   NOLOAD=$(cmdline_value noload | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
++   LOAD=$(cmdline_value load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
++   NOLOAD=$(cmdline_value noload | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+    find_modules "$1" | while read LINE; do
+       MODNAME=$(echo $LINE | cut -b ${#1}- | cut -b 2-)
+       if [ "$(echo $LINE | grep /optional/)" ]; then
+@@ -542,14 +601,24 @@ list_modules()
+ union_insert_module()
+ {
+    debug_log "union_insert_module" "$*"
+-   local TARGET
++   local TARGET MODPREF mod fs
+ 
+    TARGET="$3/$(basename $2)"
+    if ismountpoint $TARGET; then return 1; fi # skip already used modules
+    mkdir -p $TARGET
+-   mount_module $2 $TARGET
++   MODPREF="$2"
++   MODNAME="$(echo "$2" | cut -b $(($4+1))- )"
++   [ -f "/$COPY2REP/$MODNAME" ] && MODPREF="/$COPY2REP/$MODNAME"
++   [ -f "/$COPY2RAM/$MODNAME" ] && MODPREF="/$COPY2RAM/$MODNAME"
++
++    if [ "$(echo $MODNAME | grep -i .rwm )" ]; then mod=rw ;fs=""; 
++	elif [ "$(echo $MODNAME | grep -i .rom )" ]; then mod=ro ;fs="";
++	    else mod=ro ; fs=squashfs; 
++    fi
++   
++   mount_module $MODPREF $TARGET $mod $fs
+    if [ $? -ne 0 ]; then echo "Cannot read module data. corrupted download?" >&2; return 1; fi
+-   union_insert_dir $1 $TARGET
++   union_insert_dir $1 $TARGET $mod
+    if [ $? -ne 0 ]; then echo "can't insert module to union" >&2; return 2; fi
+    echo "$2" | cut -b $(($4+1))-
+    echolog "$2" >/dev/null
+@@ -572,23 +641,51 @@ union_insert_modules()
+    done
+ }
+ 
+-# Copy LiveCD modules to RAM directory
++# Copy modules to directory
+ # will copy only /boot, and module files from $1
+ # $1 = data directory
+-# $2 = target directory in RAM
+-#
+-copy_to_ram()
++# $2 = target directory
++# $3 = target name
++# $4 = cmdline param
++copy_to()
+ {
++   local C2PARAM MODNAME
++   C2PARAM="$(echo $4 | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')"
+    debug_log "copy_to_ram" "$*"
+-   cp -a "$1/rootcopy" "$2" 2>/dev/null # could be empty
+    list_modules "$1" | while read MODULE; do
++      MODNAME=$(echo $MODULE | cut -b ${#1}- | cut -b 2-)
++      [ "$C2PARAM" ] && ! [ "$(echo $MODNAME | egrep -i $C2PARAM )" ] && continue
+       TARGET=$(dirname "$MODULE" | cut -b ${#1}- | cut -b 2-)
+       mkdir -p "$2/$TARGET"
+-      cp "$MODULE" "$2/$TARGET"
+-      if [ $? -ne 0 ]; then fatal "Not enough memory. Using ramsize=$RAMSIZE"; fi
++      echolog "  $3 <- $(basename $MODULE)"
++#      cp "$MODULE" "$2/$TARGET"
++      rsync -a "$MODULE" "$2/$TARGET"
++      if [ $? -ne 0 ]; then fatal "Not enough memory."; fi
+    done
+ }
+ 
++# Copy modules to RAM directory
++# will copy only /boot, and module files from $1
++# $1 = data directory
++# $2 = target directory in RAM
++#
++copy_to_ram()
++{
++   debug_log "copy_to_ram" "$*"
++   copy_to $1 $2 RAM "$(cmdline_value copy2ram)$(cmdline_value toram)"
++}
++
++# Copy modules to LOCAL_REP directory
++# will copy only /boot, and module files from $1
++# $1 = data directory
++# $2 = target directory in LOCAL_REP
++#
++copy_to_rep()
++{
++   debug_log "copy_to_rep" "$*"
++   copy_to $1 $2 LOCAL_REPOSITORY "$(cmdline_value copy2rep)"
++}
++
+ # ===========================================================
+ # discovery functions
+ # ===========================================================
+@@ -605,12 +702,10 @@ list_network_drivers()
+    # so I'll be happy if you report any particular one to be not working
+    # (eg. causing hangups) in order to remove it from this list.
+ 
+-   echo 3c59x acenic atl1 b44 bnx2 de4x5 dgrs e100 eepro100 e1000 epic100 hp100 ne2k-pci \
+-   olympic pcnet32 r8169 rcpci 8139too 8139cp sktr skge sky2 tulip via-rhine \
+-   yellowfin tg3 dl2k ns83820 depca ibmtr 3c501 3c503 3c505 3c507 3c509 3c515 \
+-   ac3200 acenic at1700 cosa cs89x0 de4x5 de600 de620 e2100 eepro eexpress \
+-   es3210 eth16i ewrk3 fmv18x forcedeth hostess_sv11 hp-plus hp lne390 ne3210 \
+-   ni5010 ni52 ni65 sb1000 sealevel smc-ultra sis900 smc-ultra32 smc9194 wd \
++   echo 3c59x e100 eepro100 e1000 hp100 ne2k-pci \
++   r8169 8139too 8139cp via-rhine forcedeth \
++   e2100 eepro eexpress pcnet32  \
++   3c501 3c503 3c505 3c507 3c509 3c515 tg3 \
+    | tr " " "\n"
+ }
+ 
+@@ -689,7 +784,19 @@ list_block_devices()
+ device_mountdir()
+ {
+    debug_log "device_mountdir" "$*"
+-   echo "/$MOUNTDIR/$(basename "$1")" | tr -s /
++   if ! [ -b "$1" ] ;then
++      echo "/$MOUNTDIR/$(basename "$1")" | tr -s /
++   else
++      if grep -q "^$1 " /proc/mounts ;then
++         grep "^$1 " /proc/mounts | awk '{print $2}' | head -1 |  tr -s /
++      else
++         if [ "$2" = "" ];then
++            echo "/$MOUNTDIR/$(basename "$1")" | tr -s /
++         else
++            echo "$2" | tr -s /
++         fi
++      fi
++   fi
+ }
+ 
+ # Find file-path on given device
+@@ -699,13 +806,14 @@ device_mountdir()
+ # If the device/dev_directory is already mounted, preserve it mounted
+ # $1 = device
+ # $2 = path/filename
++# $3 = device mountpoint
+ #
+ find_filepath()
+ {
+    debug_log "find_filepath" "$*"
+    local DIR FOUND PRESERVE
+ 
+-   DIR=$(device_mountdir $1)
++   DIR=$(device_mountdir $1 $3)
+    ismountpoint $DIR
+    if [ $? -eq 0 ]; then
+       PRESERVE="true"
+@@ -717,6 +825,10 @@ find_filepath()
+ 
+    FOUND=$(ls -A1d $DIR/$2 2>/dev/null | head -n 1 | tr -s '/')
+ 
++   if [ "$FOUND" ] && echo "$2" | grep -q "$LIVECDNAME/$LIVECDNAME.sgn$"  ;then
++      grep -q "`head -1 /VERSION`" $DIR/$LIVECDNAME/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || FOUND=""
++   fi
++
+    if [ "$FOUND" = "" ]; then
+       if [ "$PRESERVE" != "true" ]; then
+          fumount $DIR
+@@ -742,6 +854,7 @@ find_filepath()
+ # Find file in computer by mounting disks or other storage devices
+ # and searching for $1 in the mounted directory
+ # $1 = filename or device-path or devicepath/filename
++# $2 = device mountpoint
+ #
+ find_file()
+ {
+@@ -763,7 +876,7 @@ find_file()
+       PATHPART="$FIND";
+       for DEVICE in $(list_mounted_directories) $(list_block_devices); do
+          if ! grep -q ":$DEVICE@$PATHPART:" /tmp/_findfile 2>/dev/null; then
+-            find_filepath "$DEVICE" "$PATHPART"
++            find_filepath "$DEVICE" "$PATHPART" "$2"
+             if [ $? -eq 0 ]; then return 0; fi
+             echo ":$DEVICE@$PATHPART:" >>/tmp/_findfile
+          fi
+@@ -771,7 +884,7 @@ find_file()
+    else
+       # try to find PATHPART only on the given device
+       PATHPART=$(echo "$FIND" | sed -r 's:^/dev/[^/]+(.*):\1:')
+-      find_filepath $DEVPART $PATHPART
++      find_filepath "$DEVPART" "$PATHPART" "$2"
+    fi
+ }
+ 
+@@ -780,6 +893,7 @@ find_file()
+ # if nothing found, sleep for a while to allow devices to settle and try again.
+ # (is there any way to find out if there are devices queued through /sys?)
+ # $1 = file or directory to find
++# $2 = device mountpoint
+ #
+ find_in_computer()
+ {
+@@ -789,13 +903,13 @@ find_in_computer()
+    TIMEOUT=$(cmdline_value scantimeout | sed -r 's/[^0-9]*([0-9]+).*/\1/')
+    if [ "$TIMEOUT" = "" ]; then TIMEOUT=10; fi
+ 
+-   RESULT=$(find_file "$1")
++   RESULT=$(find_file "$1" "$2")
+ 
+    while [ $TIMEOUT -gt 0 -a "$RESULT" = "" ]; do
+       echo -ne "- wait a while\r" >&2
+       sleep 1
+       TIMEOUT=$((TIMEOUT-1))
+-      RESULT=$(find_file "$1")
++      RESULT=$(find_file "$1" "$2")
+    done
+ 
+    echo $RESULT
+@@ -840,7 +954,7 @@ mdev_start_hotplug()
+    debug_log "mdev_start_hotplug" "$*"
+    echolog "creating /dev entries for block devices"
+    mdev -s
+-   rm /dev/pty??* /dev/tty??* # remove unneeded pty and tty devices
++   rm /dev/pty??* /dev/tty??* 2>/dev/null # remove unneeded pty and tty devices
+    echo /bin/mdev > /proc/sys/kernel/hotplug # use mdev as a hotplug handler
+ }
+ 
+@@ -855,47 +969,48 @@ modprobe_essential_modules()
+    echolog "starting cdrom filesystem support"
+    modprobe_module isofs
+    echolog "starting squashfs support"
+-   modprobe_module squashfs
+-   echolog "starting aufs support with brs=1"
+-   modprobe_module aufs brs=1
++   modprobe_module squashfs-lzma
++
++   if [ $(cmdline_parameter unionfs) ]; then
++	echolog "starting unionfs support"
++	modprobe_module unionfs
++    else
++	echolog "starting aufs support with brs=1"
++	modprobe_module aufs brs=1
++   fi
++
+    echolog "starting linux filesystem support"
+    modprobe_module ext2
+    modprobe_module ext3
++   modprobe_module crc16
++   modprobe_module ext4
+    modprobe_module reiserfs
+    modprobe_module xfs
+-   modprobe_module vfat
+    echolog "starting windows filesystem support"
+    modprobe_module vfat
+    modprobe_module fuse # for ntfs-3g
+    modprobe_module ntfs # for ro driver
++   echolog "starting crypto filesystem support"
++   modprobe_module aes-i586
++   modprobe_module aes_generic
++   modprobe_module cbc
++   modprobe_module cryptoloop
++   echolog "starting nls_cp866 support"
++   modprobe_module nls_cp866
++   modprobe_module nls_utf8
+ }
+ 
+ # Modprobe kernel modules needed for USB masstorage devices
+ #
+ modprobe_usb_modules()
+ {
+-   debug_log "modprobe_usb_modules" "$*"
+-   local LSPCI
+-
+-   # skip module loading if nohotplug bootparam is present
+-   if [ "$(cmdline_parameter nohotplug)" ]; then return 0; fi
+-
+-   LSPCI=$(lspci -v | grep -i prog-if)
+-   if [ "$(echo $LSPCI | egrep -i [eou]hci)" = "" ]; then
+-      return 0
+-   fi
+-
+-   echolog "starting USB support"
+-   if [ "$(echo $LSPCI | grep -i ehci)" != "" ]; then
+-      modprobe_module ehci-hcd
+-   fi
+-   if [ "$(echo $LSPCI | grep -i ohci)" != "" ]; then
+-      modprobe_module ohci-hcd
+-   fi
+-   if [ "$(echo $LSPCI | grep -i uhci)" != "" ]; then
+-      modprobe_module uhci-hcd
+-   fi
+-   modprobe_module usb-storage
++   debug_log "modprobe_hardware_modules" "$*"
++   depmod
++   local MODULES="sd_mod sr_mod ehci-hcd ohci-hcd uhci-hcd usb-storage hid usbhid \
++        `lspci -v | grep -i modules | tr -d , | sort -u `" 
++   for a in $MODULES ;do 
++      modprobe_module $a
++   done
+ }
+ 
+ # Load drivers for PCMCIA CardBus devices
+@@ -942,7 +1057,7 @@ modprobe_network_modules()
+ init_dhcp()
+ {
+    debug_log "start_dhcp_client" "$*"
+-
++   modprobe af_packet 2>/dev/null
+    if [ "$1" != "" ]; then
+       ifconfig $1 up
+       udhcpc -i $1 -q
+@@ -961,9 +1076,35 @@ mount_httpfs()
+    debug_log "mount_httpfs" "$*"
+ 
+    mkdir -p $2
+-   httpfs $1 $2
++   /bin/httpfs $1 $2 || return
++   if [ -f $2/$(basename $1) ] ;then
++      echo $2/$(basename $1)
++   else
++      echo $2
++   fi
+ }
+ 
++# Mount nfs filesystem from the given server
++# $1 = server
++# $2 = mountdir
++#
++mount_nfs()
++{
++   debug_log "mount_nfs" "$*"
++   mkdir -p $2
++   modprobe nfs
++   local SHARE=`echo $1 | sed s-^nfs://-- `
++   if mount -t nfs $SHARE $2 -o nolock,rsize=4096,wsize=4096 2>/dev/null ;then
++      echo $2
++   elif mount -t nfs $(dirname $SHARE) $2 -o nolock,rsize=4096,wsize=4096 2>/dev/null ;then
++      echo $2/$(basename $SHARE)
++   fi
++}
++
++losetupfunc()
++{ 
++  for i in `grep /dev/loop /proc/mounts | awk {'print $1'}` ;do losetup $i ;done
++}
+ 
+ # Unload modules loaded to kernel which are not used
+ # This function used to unload more modules, but it may cause
+@@ -973,7 +1114,7 @@ mount_httpfs()
+ rmmod_unused_modules()
+ {
+    debug_log "rmmod_unused_modules" "$*"
+-   rmmod usb-storage uhci-hcd ohci-hcd ehci-hcd 2>/dev/null
++#   rmmod usb-storage uhci-hcd ohci-hcd ehci-hcd 2>/dev/null
+    rmmod yenta_socket rsrc_nonstatic pcmcia pcmcia_core 2>/dev/null
+ }
+ 
+@@ -1017,7 +1158,7 @@ cd_autoeject()
+ dev_is_in_fstab()
+ {
+    debug_log "dev_is_in_fstab" "$*"
+-   cat "$1" | sed -r "s/#.*//" | egrep -q "^[[:space:]]*$2[[:space:]]"
++   cat "$1" | sed -r "s/#.*//" | grep -v "^[[:space:]]*none[[:space:]]" | grep -v "^[[:space:]]*tmpfs[[:space:]]" |  egrep -q "^[[:space:]]*$2[[:space:]]"
+ }
+ 
+ # update given line in fstab, add new values only if the device is not found
+@@ -1053,11 +1194,24 @@ fstab_update()
+    mkdir -p $1/etc $1/mnt
+    cat $FSTAB 2>/dev/null | grep -v "$FSTABLLFLAG" >$FSTABTMP
+ 
+-   fstab_add_line $FSTABTMP aufs / aufs defaults
++   if [ $(cmdline_parameter unionfs) ]; then
++        fstab_add_line $FSTABTMP unionfs / unionfs defaults
++    else
++	fstab_add_line $FSTABTMP aufs / aufs defaults
++   fi
+    fstab_add_line $FSTABTMP proc /proc proc defaults
+    fstab_add_line $FSTABTMP sysfs /sys sysfs defaults
+    fstab_add_line $FSTABTMP devpts /dev/pts devpts gid=5,mode=620
+-   fstab_add_line $FSTABTMP tmpfs /dev/shm tmpfs defaults
++   if [ "$XINO" != "$MEMORY" ] ;then
++#      fstab_add_line $FSTABTMP tmpfs /dev/shm tmpfs defaults
++      fstab_add_line $FSTABTMP tmpfs /tmp tmpfs defaults
++   fi
++   for a in "/$MOUNTDIR/$LIVEMEDIA" "/$MOUNTDIR/$LIVECHANGES" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVEHOME" ;do
++      grep -q " $a " /proc/mounts || continue
++      fstab_add_line $FSTABTMP $(grep " $a " /proc/mounts | head -1 | awk '{ print $1 " " $2 " " $3 " noauto," $4 }')
++   done
++
++   mv -f $FSTABTMP $FSTAB ; return
+ 
+    list_cdrom_devices | while read DEVICE; do
+       MNT=$(device_mountdir $DEVICE)
+@@ -1083,4 +1237,4 @@ fstab_update()
+    done
+ 
+    mv -f $FSTABTMP $FSTAB
+-}
++}
+\ В конце файла нет новой строки

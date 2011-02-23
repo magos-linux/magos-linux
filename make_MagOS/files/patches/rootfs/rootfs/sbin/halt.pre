@@ -1,0 +1,29 @@
+#!/bin/bash
+swapoff -a >/dev/null 2>/dev/null
+
+# umount any lzm from /media
+for a in `losetup -a | grep '(/media/.*.lzm)' | awk '{print $3}' | tr -d '()'` ;do
+    deactivate $a
+done
+# then free any /media
+for a in /home `grep /media/ /proc/mounts  | awk '{print $2}'` `grep " /mnt/" /proc/mounts | grep -v /mnt/live | awk '{print $2}'` ;do
+    grep -q " $a " /proc/mounts || continue
+    umount $a
+    grep -q " $a " /proc/mounts || continue
+    #move unmounted partitions
+    mkdir -p /mnt/live/mnt/unmounted$a
+    mount --move $a /mnt/live/mnt/unmounted$a
+done
+sync
+
+# Save2module mode parser
+grep -q save2module /proc/cmdline || exit 0
+. /mnt/live/liblinuxlive
+[ -w /mnt/livemedia/$LIVECDNAME/modules ] || exit 0
+rm -fr /tmp/*
+for a in /media/* ;do rmdir $a >/dev/null 2>&1 ;done
+SRC=/mnt/live/memory/changes
+DEST=/mnt/livemedia/$LIVECDNAME/modules/save-`date +%Y%m%d-%H%M%S`.lzm
+echo "Please wait. Saving changes to module $DEST"
+dir2lzm $SRC $DEST
+echo

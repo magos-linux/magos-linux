@@ -1,0 +1,168 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+function deletefiles()
+{
+ sort "$1" > "$1".tmp ; mv -f "$1".tmp "$1"
+ sort "$2" > "$2".tmp ; mv -f "$2".tmp "$2"
+ diff --suppress-common-lines "$1" "$2" | grep "<" | sed s/"^< "// >"$1".tmp  || exit 1
+ mv -f "$1".tmp "$1" || exit 1
+}
+
+function movefiles()
+{
+   grep "$3" "$1" > "$2".tmp
+   [ -f "$4" ] && grep -v -f "$4" "$2".tmp > "$2".tmp2
+   [ -f "$2".tmp2 ] &&  mv -f "$2".tmp2 "$2".tmp
+   deletefiles "$1" "$2".tmp
+   cat "$2".tmp >> "$2"
+   rm -f "$2".tmp
+}
+
+if [ "`id -u`" != "0" ] ;then
+   echo "Для доступа ко всем файлам каталога rootfs нужны права root" ; exit 1
+fi
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+cd "$MYPATH/work/$FLASHNAME-$VERREL"
+
+RPMBASE=
+
+echo "Удаление файлов прошлых сборок"
+rm -fr modules modules_list modules_filelist 2>/dev/null
+rm -f dir_list files_notfounded 2>/dev/null
+mkdir modules_list modules_filelist || exit 1
+
+echo "Создание списка файлов"
+cp ../../files/rpm_names/$FLASHNAME-$VERREL/??-* modules_list || exit 1
+KERNM=`ls -1 modules_list/*kernel* | head -1`
+sed -i /"^dkms-"/d $KERNM || exit 1
+cd kernel || exit 1
+ls -1 kernel-desktop-*flash*.$ARCH.rpm | awk -F- '{ for (i=1 ; i < ( NF - 1 ) ; i++) {  printf $i "-" }  print "" }'  >>../$KERNM || exit 1
+ls -1 kernel-2.*flash*.$ARCH.rpm | awk -F- '{ for (i=1 ; i < ( NF - 1 ) ; i++) {  printf $i "-" }  print "" }'  >>../$KERNM || exit 1
+cd dkms || exit 1
+ls -1 *.rpm | awk -F- '{ for (i=1 ; i < ( NF - 1 ) ; i++) {  printf $i "-" }  print "" }'  >>../../$KERNM || exit 1
+cd ../../
+cd rootfs
+find | sed /^.$/d | sed s-./-- >../rootfs_list || exit 1
+cd ../
+cat rootfs_list | sort > ost_list || exit 1
+cd modules_list || exit 1
+echo
+
+for MODULE in * ;do
+   echo -e \\r$MODULE
+   for RPM in `cat $MODULE`;do
+       FRPM=`ls -1 ../../../loaded/$FLASHNAME-$VERREL/rpms/$RPM* | sort | grep /$RPM[0-9._a-zA-Z]*-[0-9._a-zA-Z]*.[${ARCH}noarch]*.rpm  | tail -1 | tr -d @`
+       echo -ne \\r $FRPM \\r 
+       rpm -qlp $FRPM | grep -vi "^(" | sed s-^/-- >> ../modules_filelist/$MODULE
+       echo -ne \\r $FRPM \\r | tr [:print:] " "
+   done
+   if ! echo $MODULE | grep -q -- -int- ;then
+      movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/locale/.*/' ../../../files/locales
+      movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/gnome/help/.*/' ../../../files/locales
+      movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/gnome/help/.*/'
+      movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/doc/'
+   fi
+   deletefiles ../ost_list ../modules_filelist/$MODULE
+done
+cd ../
+
+deletefiles ost_list modules_filelist/92-documentation
+deletefiles ost_list modules_filelist/93-international
+movefiles ost_list modules_filelist/91-fullrpmbase 'var/lib/rpm'
+movefiles ost_list modules_filelist/91-fullrpmbase 'var/lib/urpmi'
+deletefiles ost_list modules_filelist/91-fullrpmbase
+if [ -f modules_filelist/*drakconf ] ;then
+   cat modules_filelist/91-fullrpmbase >> modules_filelist/*drakconf || exit 1
+   rm -f modules_filelist/91-fullrpmbase
+fi
+
+cat ost_list >> modules_filelist/*-core
+
+if [ -f modules_filelist/*-x-kde ];then
+   echo etc/sysconfig/desktop >> modules_filelist/*-x-kde
+fi
+if [ -f modules_filelist/*-x-gnome ];then
+   echo etc/sysconfig/desktop >> modules_filelist/*-x-gnome
+fi
+if [ -f modules_filelist/*-x-lxde ];then
+   echo etc/sysconfig/desktop >> modules_filelist/*-x-lxde
+fi
+
+#echo "Формирование модулей локализаций"
+movefiles modules_filelist/*-core modules_filelist/93-international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
+movefiles modules_filelist/93-international modules_filelist/*-core 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
+movefiles modules_filelist/93-international modules_filelist/*-x-kde 'usr/share/locale/currency'
+movefiles modules_filelist/93-international modules_filelist/*-x-kde 'usr/share/locale/l10n'
+#movefiles modules_filelist/92-documentation modules_filelist/93-international 'usr/share/doc/scribus-.*/.*/'
+#movefiles modules_filelist/93-international modules_filelist/92-documentation 'usr/share/doc/scribus-.*/en/'
+#movefiles modules_filelist/*-office modules_filelist/93-international 'usr/share/scribus/translations' 
+#movefiles modules_filelist/93-international modules_filelist/*-office 'usr/share/scribus/translations/scribus.ru.qm'
+movefiles modules_filelist/*-applications modules_filelist/93-international 'usr/share/playonlinux/lang/'
+movefiles modules_filelist/93-international modules_filelist/*-applications 'usr/share/playonlinux/lang/.*/ru.*'
+
+for a in modules_filelist/*-int-* ;do
+   LOCALES=`grep usr/share/locale/ $a | sed 's|usr/share/locale/||' | sed 's|[-_@/].*$||' | sort -u `
+   echo $a | grep -q -- -int-en && LOCALES="$LOCALES en"
+   echo $a | grep -q -- -int-russia && LOCALES="$LOCALES ru CP1251 KOI8-R KOI8-U"
+   echo $a | grep -q -- -int-no && LOCALES="$LOCALES no"
+   for l in $LOCALES ;do
+     movefiles modules_filelist/93-international $a "[-./]$l[-._@/]"
+   done
+done
+movefiles modules_filelist/93-international modules_filelist/*-core '.'
+rm -f modules_filelist/93-international
+
+echo "Раскидываем файлы по модулям"
+cd modules_filelist
+for MODULE in * ;do
+       echo $MODULE
+       mkdir -p ../modules/$MODULE || exit 1
+       cd ../rootfs
+       tar -c --ignore-failed-read --no-recursion -T ../modules_filelist/$MODULE | tar -x -C ../modules/$MODULE || exit 1
+       cd ../modules_filelist
+done
+cd ../
+
+echo "Подчистка хвостов"
+cd modules
+cd *-core
+mkdir -p -m 755 var/lib/rpm/modules
+cp ../../modules_list/* var/lib/rpm/modules
+chmod 444 var/lib/rpm/modules/*
+cd ../
+mv *-core/boot/initrd*  *kernel*/boot 2>/dev/null
+mv *-core/boot/vmlinuz*  *kernel*/boot 2>/dev/null
+mv *-core/lib/modules/*/* *kernel*/lib/modules/*/ 2>/dev/null
+mv *-core/var/lib/dkms-binary/* *kernel*/var/lib/dkms-binary 2>/dev/null
+mv *-core/usr/share/mdk/screensaver/* *x-base*/usr/share/mdk/screensaver 2>/dev/null
+
+for a in `grep var/lib/rpm/ ../rootfs_list | grep -v var/lib/rpm/modules` ;do
+    mv -n *-core/$a 91-fullrpmbase/var/lib/rpm 2>/dev/null
+done
+
+if [ -d *-x-lxde ] ;then
+   cd *-x-lxde
+   sed -i s/KDM/slim/ etc/sysconfig/desktop
+   sed -i s/KDE4/LXDE/ etc/sysconfig/desktop
+   cd ../
+fi
+if [ -d *-x-gnome ] ;then
+   cd *-x-gnome
+   sed -i s/KDM/GDM/ etc/sysconfig/desktop
+   sed -i s/KDE4/GNOME/ etc/sysconfig/desktop
+   cd ../
+fi
+cd *kernel*/boot
+ln -s `ls -1 vmlinuz-* | head -1` vmlinuz
+cd "$MYPATH"
+cp -pR files/patches/modules/* work/$FLASHNAME-$VERREL/modules
+
+echo "Работа скрипта завершена, в work/modules разложены файлы для создания модульной системы"

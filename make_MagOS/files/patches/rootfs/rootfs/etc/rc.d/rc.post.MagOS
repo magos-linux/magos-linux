@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# magosctl      Helper script for MagOS Linux Live.
+#
+# Authors:	Mikhail Zaripov <m3for@mail.ru>
+#
+
+# We have to launch some rc scripts
+for a in /usr/lib/magos/rc.post.d/* ;do
+   [ -x $a ] && $a 2>/dev/null &
+done
+for a in /usr/lib/magos/rc.post/* ;do
+   [ -x $a ] && $a 2>/dev/null
+done
+
+# We have to launch some rc scripts from external modules
+for a in /etc/rc.d/rc.post.MagOS.* ;do
+   [ -x $a ] && $a start 2>/dev/null
+done
+

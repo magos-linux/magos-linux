@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#echo "Изменение пользователей"
+#for a in group gshadow passwd shadow ;do
+#   for b in `cat ../../files/patches/users/$a` ;do
+#      c=`echo "$b" | awk -F: '{print $1}'`
+#      if grep -q "^$c:" etc/$a ;then
+#         sed -i s@"^$c:.*$"@"$b"@ etc/$a || exit 1
+#      else
+#         echo "$b" >> etc/$a
+#      fi
+#   done
+#done
+#mount --bind /dev/ dev || exit 1
+#[ -z "$PASSWDROOT" ] || echo "$PASSWDROOT" | chroot "$MYPATH/work/rootfs" passwd -f --stdin root
+#[ -z "$PASSWDUSER" ] || echo "$PASSWDUSER" | chroot "$MYPATH/work/rootfs" passwd -f --stdin user
+#[ -z "$PASSWDMASTER" ] || echo "$PASSWDMASTER" | chroot "$MYPATH/work/rootfs" passwd -f --stdin master
+#[ -z "$PASSWDUSER" ] || echo -ne "$PASSWDUSER\n$PASSWDUSER\n" | chroot "$MYPATH/work/rootfs" su -l user -c vncpasswd
+#umount dev
+

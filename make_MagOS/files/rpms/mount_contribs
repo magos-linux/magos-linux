@@ -1,0 +1,8 @@
+#!/bin/bash
+mkdir d0 d1 d2 d3 d4 2>/dev/null
+PATH_CONTIBS=../../../../mdv20091/iso
+mount -o loop $PATH_CONTIBS/mdv20091lar.iso d0
+mount -o loop $PATH_CONTIBS/mdv20091c1.iso d1
+mount -o loop $PATH_CONTIBS/mdv20091c2.iso d2
+mount -o loop $PATH_CONTIBS/mdv20091c3.iso d3
+mount -o loop $PATH_CONTIBS/mdv20091c4.iso d4

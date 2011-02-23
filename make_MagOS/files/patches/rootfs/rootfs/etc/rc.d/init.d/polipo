@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# Polipo Startup script for the Polipo caching web proxy
+#
+# chkconfig: - 90 15
+# description: Polipo is a lightweight caching web proxy that was designed \
+#              as a personal cache.
+# processname: polipo
+### BEGIN INIT INFO
+# Provides: polipo
+# Required-Start: $local_fs $network $named 
+# Required-Stop: $local_fs $network $named
+# Short-Description: start and stop Polipo caching web proxy
+# Default-Start: 2 3 4 5
+# Description: Polipo is a lightweight caching web proxy that was designed 
+#              as a personal cache.
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+polipo=${POLIPO-/usr/bin/polipo}
+prog=polipo
+config=${CONFIG-/etc/polipo/config}
+pidfile=${PIDFILE-/var/run/polipo/polipo.pid}
+lockfile=${LOCKFILE-/var/lock/subsys/polipo}
+logfile=${LOGFILE-/var/log/polipo}
+cachedir=${CACHEDIR-/var/cache/polipo}
+piddir=$(dirname $pidfile)
+RETVAL=0
+
+start() {
+	# Check that networking is up.
+	[ ${NETWORKING} = "no" ] && exit 1
+
+	[ -x $polipo ] || exit 1
+
+	[ `id -u` -ne 0 ] && exit 4
+
+	# check if the polipo config is present
+	[ -f $config ] || exit 6
+
+	[ -e $logfile ] ||touch $logfile
+	chmod -f 0640 $logfile
+	chown -f polipo:polipo $logfile
+	for i in $cachedir $piddir ; do
+		if [ ! -d $i ] ; then
+	    		if [ ! -e $i -a ! -h $i ] ; then
+				mkdir -p $i || exit 1
+	    		fi
+		fi
+	done
+	chmod -f 0750 $cachedir
+	chown -f polipo:polipo $cachedir
+	chmod -f 0755 $piddir
+	chown -f polipo:polipo $piddir
+
+        gprintf "Starting %s: " "$prog"
+        daemon --pidfile=${pidfile} --user=polipo $polipo -c $config
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && touch ${lockfile}
+        return $RETVAL
+}
+stop() {
+	gprintf "Stopping %s: " "$prog"
+	killproc -p ${pidfile} -d 3 $polipo
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
+}
+reload() {
+    gprintf "Reloading %s: " "$prog"
+        killproc -p ${pidfile} $polipo -USR1
+        RETVAL=$?
+    echo
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+        status -p ${pidfile} $polipo
+	RETVAL=$?
+	;;
+  restart)
+	stop
+	start
+	;;
+  condrestart|try-restart)
+	if status -p ${pidfile} $polipo >&/dev/null; then
+		stop
+		start
+	fi
+	;;
+  force-reload|reload)
+        reload
+	;;
+  *)
+	gprintf "Usage: %s {start|stop|restart|condrestart|reload|status}\n" "$prog"
+	RETVAL=3
+esac
+
+exit $RETVAL

@@ -1,0 +1,10 @@
+#!/bin/sh
+[ -f /var/lock/subsys/pdnsd ] || exit 0
+NAMESRV=$(grep nameserver /var/run/resolvconf/interface/$1 2>/dev/null | awk '{print $2}' | head -1)
+if [ "$NAMESRV" = "" ] ;then
+   [ -r /etc/sysconfig/network-scripts/ifcfg-$1 ] &&  . /etc/sysconfig/network-scripts/ifcfg-$1
+   NAMESRV=${DNS1}
+fi
+[ "$NAMESRV" = "" ]  && exit 0
+pdnsd-ctl server ISP up $NAMESRV >/dev/null 2>&1
+true

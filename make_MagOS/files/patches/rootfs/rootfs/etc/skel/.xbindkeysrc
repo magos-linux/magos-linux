@@ -1,0 +1,73 @@
+# имя файлу ~/.xbindkeysrc #
+# положите его в домашнюю папку и выполните xbindkeys (сначала его нужно установить) #
+# после внесения изменений в этот файл killall xbindkeys затем xbindkeys #
+###########################
+# xbindkeys configuration #
+###########################
+# список доступных горячих кнопок 
+" keyscripts list "
+  Mod4 + k
+
+# run - диалог
+" keyscripts run "
+  Mod4 + r
+
+" keyscripts run "
+  Alt + F2
+
+# xkill
+" xkill "
+  Mod4 + Escape
+
+# погасить экран
+" xset dpms force off "
+  Mod4 + space
+
+# спящий режим
+" pm-suspend "
+  Mod4 + Return
+
+# проводник
+" xdg-open ~/ "
+  Mod4 + e
+
+# google
+" firefox http://google.com "
+  Mod4 + g
+
+# заблокировать экран
+" dbus-send --session --dest=org.freedesktop.ScreenSaver --type=method_call --print-reply /ScreenSaver org.freedesktop.ScreenSaver.Lock "
+  Mod4 + l
+
+# показать рабочий стол 
+" wmctrl -k on "
+  Mod4 + d
+
+# включение, выключение тачпада
+" keyscripts touchpad "
+  Mod4 + t
+
+# включение выключение радиоинтерфейсов BT WLAN
+" keyscripts rfswitch "
+  Mod4 + w
+
+# запись экрана win+PrintScreen
+# (на ноутбуках PrintsScreen обычно с доп.клавишей Fn )
+" keyscripts record "
+  Mod4 + Print
+
+# информация о железе и системе
+" keyscripts info "
+  Mod4 + i
+
+# увеличить громкость (колесом мышки)
+"amixer -q set Master 5+"
+  Mod4 + b:4
+
+# уменьшить громкость (колесом мышки)
+"amixer -q set Master 5-"
+  Mod4 + b:5
+
+##################################
+# End of xbindkeys configuration #
+##################################

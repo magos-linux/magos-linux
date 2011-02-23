@@ -1,0 +1,26 @@
+Can't find device to install to.|Не могу определить устройство для установки|
+Make sure you run this script from a mounted device.|Убедитесь что вы запустили скрипт с нужного устройства|
+The disk|Устройство|
+is mounted with noexec parameter, trying to remount...|подключено с параметром noexec, попробую усправить|
+                        Welcome to MagOS boot installer                         |                      Скрипт для установки MagOS                        |
+This installer will setup disk|Этот установщик настроит устройство|
+to boot only MagOS.|для загрузки только MagOS.|
+Warning! Master boot record (MBR) of|Предупреждение! Загрузочная запись (MBR)|
+will be overwritten.|будет изменена.|
+If you use|Если вы используете|
+to boot any existing operating system, it will not work|для загрузки другой операционной системы, то она загружаться не будет.|
+anymore. Only MagOS will boot from this device. Be careful!|С этого устройства будет загружаться только MagOS. Будьте внимательны!|
+Press Enter to continue, or Ctrl+C to abort...|Нажмите Ввод для продолжения или Ctrl-C для отмены...|
+Flushing filesystem buffers, this may take a while...|Сброс буферов файловой системы, немного подождите...|
+Setting up MBR on|Настройка MBR на|
+Activating partition|Установка загрузочного раздела|
+Updating MBR on|Замена MBR на|
+Setting up boot record for|Настройка загрузочного сектора для|
+Disk|Устройство|
+should be bootable now. Installation finished.|теперь должно быть загрузочным. Установка завершена.|
+Read the information above and then press Enter to exit...|Прочтите информацию и нажмите Вввод для завершения...|
+This script will create bootable ISO|Этот скрипт создаст загрузочный ISO образ|
+Target ISO file name|Укажите имя ISO образа|
+Hit enter for|Нажмите Ввод чтобы выбрать|
+Copying grub4dos files on|Копирование файлов grub4dos на устройство|
+Saving old MBR ...|Сохранение текущей MBR ...|

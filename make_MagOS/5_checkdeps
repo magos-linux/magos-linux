@@ -1,0 +1,21 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+cd "$MYPATH"
+
+
+[ -d loaded/$FLASHNAME-$VERREL/rpms/media_info ] && rm -fr loaded/$FLASHNAME-$VERREL/rpms/media_info
+echo "Создание базы пакетов"
+genhdlist2 loaded/$FLASHNAME-$VERREL/rpms || exit 1
+echo "Проверка зависимостей"
+mkcd --checkdeps loaded/$FLASHNAME-$VERREL/rpms
+echo "Если после done до строки ERROR ничего нет, то значит всё хорошо, иначе придётся добавлять или убирать пакеты в files/rpm_names/*"
+

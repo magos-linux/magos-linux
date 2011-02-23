@@ -1,0 +1,49 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+DESTP=
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+[ "$PAE" = "" ] && PAE=yes
+[ "$PAE" != "yes" ] && DESTP=_nopae
+
+cd "$MYPATH"
+
+[ -d work ] || mkdir work
+   echo "Сборка средствами запущенной сейчас ОС"
+   [ "$RPMBPATH" = "" ] && RPMBPATH=`rpm -ql rpm-build | grep SPECS | sed s/SPECS//`
+   [ "$RPMBPATH" = "" ] && RPMBPATH="$HOME/rpmbuild"
+   if ! [ -d "$RPMBPATH" ] ;then
+      mkdir -p work/rpmbuild
+      ln -sf "$MYPATH/work/rpmbuild" $HOME/rpmbuild
+   fi
+   echo "Устанавливаем исходники ядра"
+   rpm -ihv `ls -1 loaded/$FLASHNAME-$VERREL/srpms/kernel-*.src.rpm | tail -1` || exit 1
+   echo "Изменение исходников ядра"
+   cp -f files/patches/kernel/$FLASHNAME-$VERREL/aufs-*-flash.patch  $RPMBPATH/SOURCES || exit 1
+   cp -f files/patches/kernel/$FLASHNAME-$VERREL/logo_mdk_clut224.patch  $RPMBPATH/SOURCES || exit 1
+   cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec.patch | patch -d $RPMBPATH/SPECS -p1 || exit 1
+   [ "$PAE" = "yes" ] && cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec_pae.patch | patch -d $RPMBPATH/SPECS -p1
+   echo "Сборка ядра"
+   rm -f $RPMBPATH/RPMS/i586/kernel-*flash*.rpm 2>/dev/null
+   rpmbuild -bb $RPMBPATH/SPECS/kernel.spec || exit 1
+   rm -f $RPMBPATH/SRPMS/kernel-*flash*.src.rpm 2>/dev/null
+   rpmbuild -bs $RPMBPATH/SPECS/kernel.spec || exit 1
+
+   echo "Удачно (странно...).  Копируем готовые пакеты в work/$FLASHNAME-$VERREL/kernel$DESTP"
+   [ -d work/$FLASHNAME-$VERREL/kernel$DESTP ] && rm -fr work/$FLASHNAME-$VERREL/kernel$DESTP
+   mkdir -p work/$FLASHNAME-$VERREL/kernel$DESTP ; cd work/$FLASHNAME-$VERREL/kernel$DESTP
+   cp -p $RPMBPATH/RPMS/i586/kernel-*flash*.rpm ./ || exit 1
+   cp -p $RPMBPATH/SRPMS/kernel-*flash*.src.rpm ./ || exit 1
+cd ../../../
+echo "Удаление временных файлов"
+rm -fr work/rpmbuild
+echo "Работа скрипта завершена, ядро ищите в work/$FLASHNAME-$VERREL/kernel$DESTP"
+

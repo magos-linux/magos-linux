@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# magosctl      Helper script for MagOS Linux Live.
+#
+# Authors:	Mikhail Zaripov <m3for@mail.ru>
+#
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ "$RUNLDCONFIG" = "yes" ] && /sbin/ldconfig

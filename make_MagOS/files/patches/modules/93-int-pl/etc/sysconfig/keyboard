@@ -1,0 +1,5 @@
+XkbModel=pc105
+XkbLayout=pl
+KEYBOARD=pl
+XkbOptions=compose:rwin
+KEYTABLE=pl

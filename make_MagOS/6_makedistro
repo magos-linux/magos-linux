@@ -1,0 +1,149 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+cd "$MYPATH"
+
+function install_rpms()
+{
+   for a in `cat $1` ;do
+      echo $a
+      rm -f rootfs/dev/null 2>/dev/null 
+      echo -ne > rootfs/dev/null
+      LC_ALL=C rpm $2 --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -i ../../loaded/$FLASHNAME-$VERREL/rpms/$a.rpm 2>error.tmp
+      sed -i /"arning"/d error.tmp
+      [ "`grep -v ^[[:space:]]*$ error.tmp  | nl | head -1`" = "" ] && continue
+      echo $a >>install_errors.log
+      cat error.tmp >>install_errors.log
+   done
+
+}
+
+
+OVERWRITE=yes
+cd work/$FLASHNAME-$VERREL || exit 1
+echo "Создаём список пакетов для установки"
+mkcd -d --buildhdlist ../../loaded/$FLASHNAME-$VERREL/rpms || exit 1
+
+echo "Обработка списка пакетов"
+rm -f depslist.ordered.*
+for a in ` awk '{ print $1}' depslist.ordered | awk -F: '{print $1}'`  ;do
+    if rpm -qp --scripts ../../loaded/$FLASHNAME-$VERREL/rpms/$a.rpm | grep -q . ;then
+       echo $a >> depslist.ordered.2.1
+    else
+       echo $a >> depslist.ordered.1
+    fi
+done
+grep -f ../../files/rpm_names/$FLASHNAME-$VERREL/noscripts depslist.ordered.2.1 >> depslist.ordered.1
+grep -v -f ../../files/rpm_names/$FLASHNAME-$VERREL/noscripts depslist.ordered.2.1 >> depslist.ordered.2
+rm -f *hdlist1.cz compss provides depslist.ordered depslist.ordered.2.1 2>/dev/null
+
+if [ "`id -u`" != "0" ] ;then
+   echo Для установки пакетов в каталог rootfs нужны права root, команда rpm будет запущена \
+с ключом --root rootfs, установочные скрипты от пакетов будут запущены с помощью chroot. \
+это не повредит вашей операционной системе, из под которой запускается этот скрипт.
+   exit 1
+fi
+
+echo "Подготовка к установке пакетов"
+[ -d rootfs ] && rm -fr rootfs
+[ -f install_errors.log ] && rm -f install_errors.log
+mkdir -p rootfs/dev rootfs/proc
+mount --bind /proc rootfs/proc
+cd rootfs
+rpm2cpio ../../../loaded/$FLASHNAME-$VERREL/rpms/setup-*.rpm | cpio -i --make-directories
+cd ../
+
+echo "Установка пакетов"
+install_rpms depslist.ordered.1 --noscripts
+install_rpms depslist.ordered.2
+rm -f error.tmp
+umount rootfs/proc
+
+echo "Импортирование ключей"
+cd "$MYPATH/work/$FLASHNAME-$VERREL"
+for a in ../../loaded/pubkeys/$VERREL-*.pubkey ;do
+   rpm  --root "`pwd`/rootfs" --import $a 2>/dev/null
+done
+
+echo "Создание модулей ядра средствами dkms"
+cd "$MYPATH/work/$FLASHNAME-$VERREL/rootfs"
+echo -ne >dev/null
+# вытаскиваем скрипты при установке модулей dkms, делаем из них скрипт
+rpm -qp --triggers --scripts ../../../loaded/$FLASHNAME-$VERREL/rpms/dkms-*.rpm \
+    | grep "^[/usr/sbin/]*dkms " | grep -v remove \
+    | sed s/" install "/" mkrpm "/  | tr -d \& > dkms_scripts || exit 1
+# надо указать ядро флешки
+sed -i s/"dkms "/"dkms -k `ls -1 lib/modules/ | tail -1 | tr -d /` "/ dkms_scripts || exit 1
+# Сборка rpm пакетов
+chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" bash /dkms_scripts || exit 1
+# Вытаскиваем rpm пакеты
+[ -d ../kernel/dkms ] && rm -fr ../kernel/dkms
+mkdir ../kernel/dkms
+cd var/lib/dkms
+for a in ` find | grep $ARCH.rpm$` ;do
+     cp $a ../../../../kernel/dkms
+done
+cd ../../../
+rm -f dkms_scripts Module.symvers
+# Добавляем к пакетам
+cd ../kernel/dkms
+for a in *.rpm ; do ln -sf ../../../work/$FLASHNAME-$VERREL/kernel/dkms/$a ../../../../loaded/$FLASHNAME-$VERREL/rpms  ;done
+# Устанавливаем пакеты с модулями
+rpm --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -ihv *.rpm
+# Удаляем dkms пакеты
+for a in `rpm --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -qa | grep dkms-[a-z] | grep -v dkms-minimal ` ;do
+    rpm -ev --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" $a
+done
+cd ../../rootfs
+mv var/lib/dkms/dkms_dbversion ./
+rm -fr var/lib/dkms/*
+mv dkms_dbversion var/lib/dkms
+
+echo "Изменение файлов дистрибутива"
+cd "$MYPATH"/work/$FLASHNAME-$VERREL
+cp -pfR ../../loaded/$FLASHNAME-$VERREL/urpmi/* rootfs
+for a in rootfs rootfs-$FLASHNAME rootfs-$FLASHNAME-$VERREL ;do
+    [ -d ../../files/patches/rootfs/$a ] && cp -pfR ../../files/patches/rootfs/$a rootfs
+done 
+cd rootfs
+for a in ../../../files/patches/rootfs/all-*.sh \
+         ../../../files/patches/rootfs/$FLASHNAME-*.sh \
+         ../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh ;do
+   [ -f $a ] || continue
+   echo $a
+   bash $a $FLASHNAME $VERREL || exit 1
+done
+
+echo "Отключение всех служб"
+cd etc/rc.d/init.d
+for a in * ;do
+   if grep -q "chkconfig:" $a || grep -q "### BEGIN INIT INFO"  $a ;then
+      chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --del $a 2>/dev/null
+   fi
+done
+
+echo "Включение нужных служб"
+for a in  $INITDNEED  ;do
+   [ -f $a ] || continue
+   echo $a
+   chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --add $a
+done
+
+
+cd "$MYPATH/work/$FLASHNAME-$VERREL"
+if grep -q cpio install_errors.log ;then 
+    echo "Обнаружены серьёзные ошибки при установке пакетов, см. файл work/$FLASHNAME-$VERREL/install_errors.log (ищите по cpio)"
+else
+    echo "Проверьте файл work/$FLASHNAME-$VERREL/install_errors.log, как правило там некритичные ошибки"
+fi
+cd ../../
+
+echo "Работа скрипта завершена, в work/$FLASHNAME-$VERREL/rootfs наш дистр, в work/$FLASHNAME-$VERREL/kernel/dkms должны быть сторонние модули ядра"

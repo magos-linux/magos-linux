@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#
+# Description: create LZM from RPM (& dependences)
+# Author : Anton Goroshkin ( http://magos-linux.ru )
+#
+# $1=RPM file or name program
+
+
+if [ "$(id -un)" != "root" ] ;then
+   gksu -g "/bin/bash '$0' $@"
+   exit 0
+fi
+
+
+(
+    echo "10"
+    /usr/sbin/urpm2lzm $@
+    echo "100" ;
+) | zenity --progress --auto-close --auto-kill --pulsate --text="Подождите, идет преобразование"
+
+zenity --info --text="Преобразование завершено :)."
+    

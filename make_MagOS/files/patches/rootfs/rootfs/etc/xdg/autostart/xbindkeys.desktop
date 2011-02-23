@@ -1,0 +1,21 @@
+[Desktop Entry]
+Categories=
+Comment=Hotkeys for MagOS
+Comment[ru]=Горячие кнопки для MagOS
+Exec=xbindkeys
+GenericName[ru]=
+GenericName=
+Icon=
+MimeType=
+Name[ru]=Xbindkeys
+Name=Xbindkeys
+Path=
+StartupNotify=false
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=unique
+X-KDE-StartupNotify=false
+X-KDE-SubstituteUID=false
+X-KDE-Username=

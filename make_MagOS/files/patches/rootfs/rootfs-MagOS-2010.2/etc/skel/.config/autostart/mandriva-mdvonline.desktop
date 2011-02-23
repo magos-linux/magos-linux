@@ -1,0 +1,12 @@
+
+[Desktop Entry]
+Name=Mandriva Online Applet
+Comment=Applet for Mandriva Online
+Exec=/usr/bin/mdkapplet
+Icon=mdkonline
+Type=Application
+StartupNotify=true
+Categories=X-MandrivaLinux-System-Configuration-Networking;Settings;Network;
+Name[ru_RU]=Mandriva Online Applet
+Comment[ru_RU]=Applet for Mandriva Online
+X-GNOME-Autostart-enabled=false

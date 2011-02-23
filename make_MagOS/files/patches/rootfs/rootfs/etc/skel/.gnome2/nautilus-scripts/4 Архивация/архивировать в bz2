@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+#  BZIP2 wrapper for Nautilus Scripts menu.
+#
+# AUTHOR:  Roberto Piscitello <robepisc@freemail.it>
+# VERSION: 1.1
+# LICENSE: public domain
+# DEPENDENCIES: Nautilus, nautilus-error-dialog | gdialog | xmessage, bzip2
+# CHANGES:
+#   v1.1: 17 Mar 2002
+#     * made public domain (no more GPL)
+#     * removed beep stuff, since it doesn't seem to work
+#     * added nautilus-error-dialog support
+#     * use "which" to avoid hardcoded paths (as suggested by Dylan Griffiths)
+#   v1.0: 21 May 2001
+#     * first public release
+# INSTALL NOTES:
+#   * open a Nautilus window and select, from the menu, File->Script->Open Scripts directory.
+#   * copy this file in that directory.
+#   * right-click on the copied file and open the Properties window.
+#   * from the first tab: (if you want) change its icon (I suggest
+#     "/usr/share/pixmaps/nautilus/gnome-compressed.png") and name.
+#   * from the third tab: give executable permissions to the file owner.
+#
+
+TMP_FILE=`tempfile 2> /dev/null` || TMP_FILE="/tmp/nautilus-script.$$"
+IFS="
+"
+
+trap "rm -f $TMP_FILE" EXIT
+
+for F in $NAUTILUS_SCRIPT_SELECTED_FILE_PATHS; do
+	cd `dirname $F`
+	if ! bzip2 `basename $F` 2> $TMP_FILE; then
+		# Some error happened: show an error message
+		if which nautilus-error-dialog; then
+			nautilus-error-dialog --title bzip2 --message "`cat $TMP_FILE`."
+		elif which gdialog; then
+			gdialog --title bzip2 --msgbox "`cat $TMP_FILE`." 20 100
+		elif which xmessage; then
+			xmessage -buttons OK -file $TMP_FILE
+		fi
+	fi
+done

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Compiz Fusion Icon
+Comment=Start and manage Compiz Fusion
+Exec=fusion-icon -n
+Icon=fusion-icon
+Terminal=false
+Type=Application
+Categories=System;Application;X-MandrivaLinux-CrossDesktop;DesktopSettings;Settings;GTK;
+Encoding=UTF-8
+X-Desktop-File-Install-Version=0.15

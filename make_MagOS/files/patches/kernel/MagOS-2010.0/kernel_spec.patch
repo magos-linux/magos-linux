@@ -1,0 +1,73 @@
+diff -auprN a/kernel.spec b/kernel.spec
+--- a/kernel.spec	2010-03-25 19:19:30.000000000 +0300
++++ b/kernel.spec	2010-03-29 15:08:05.000000000 +0400
+@@ -12,7 +12,8 @@
+ %define sublevel	31
+ 
+ # Package release
+-%define mnbrel		1
++%define mnbrel          1flash_nopae_
++%define realmnbrel      1
+ 
+ # kernel Makefile extraversion is substituted by 
+ # kpatch/kgit/kstable wich are either 0 (empty), rc (kpatch), git (kgit) 
+@@ -75,11 +76,11 @@
+ %else
+ %define tar_ver	  	%{kernelversion}.%{patchlevel}.%(expr %{sublevel} - 1)
+ %endif
+-%define patch_ver 	%{kversion}-%{kpatch}-%{ktag}%{mnbrel}
++%define patch_ver       %{kversion}-%{kpatch}-%{ktag}%{realmnbrel}
+ %else
+ %define kversion  	%{kernelversion}.%{patchlevel}.%{sublevel}%{?kstable:.%{kstable}}
+ %define tar_ver   	%{kernelversion}.%{patchlevel}.%{sublevel}
+-%define patch_ver 	%{kversion}-%{ktag}%{mnbrel}
++%define patch_ver       %{kversion}-%{ktag}%{realmnbrel}
+ %endif
+ %define kverrel   	%{kversion}-%{rpmrel}
+ 
+@@ -117,19 +118,19 @@ %if %{mdkversion} < 201000
+ # disable debug rpms for backports, it's enough already having them on cooker/stable
+ %define build_debug 		0
+ %else
+-%define build_debug 		1
++%define build_debug 		0
+ %endif
+ 
+ # Build desktop i586 / 4GB
+ %ifarch %{ix86}
+-%define build_desktop586	1
++%define build_desktop586	0
+ %endif
+ 
+ # Build desktop (i686 / 4GB) / x86_64 / sparc64 sets
+ %define build_desktop		1
+ 
+ # Build server (i686 / 64GB)/x86_64 / sparc64 sets
+-%define build_server		1
++%define build_server		0
+ 
+ # End of user definitions
+ %{?_without_desktop586: %global build_desktop586 0}
+@@ -236,6 +237,9 @@ Patch1:   	ftp://ftp.kernel.org/pub/linu
+ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.bz2.sign
+ %endif
+ %endif
++Patch3:         aufs-linux-flash.patch
++Patch4:         aufs-mnb-flash.patch
++Patch5:         logo_mdk_clut224.patch
+ 
+ #END
+ ####################################################################
+@@ -647,6 +651,12 @@ cd %src_dir
+ %endif
+ 
+ %{patches_dir}/scripts/apply_patches
++%patch3 -p1
++rm -f drivers/video/logo/logo_mdk_clut224.ppm
++cd %{patches_dir}
++%patch4 -p1
++cd %src_dir
++%patch5 -p1
+ 
+ # PATCH END
+ 

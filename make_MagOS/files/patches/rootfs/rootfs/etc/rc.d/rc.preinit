@@ -1,0 +1,271 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before startint init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+. /liblinuxlive
+
+get_name()
+{
+  for b in "" $(seq 1 64) ;do
+    grep -q " /media/disk$b " etc/fstab || break
+  done
+  echo disk$b
+}
+debug_log "starting /etc/rc.d/rc.preinit"
+debug_shell
+
+cp -af /bin/httpfs usr/bin/
+ps | grep ntfsmount | awk '{ print $1 }' >> var/run/sendsigs.omit
+
+# MagOS.ini processing
+FNAME=etc/sysconfig/MagOS
+gunzip -c /tmp/MagOS.ini.gz | egrep '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
+[ -f /tmp/.credential ] && . /tmp/.credential && rm -f /tmp/.credential
+gunzip -c /tmp/MagOS.ini.gz | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
+   echo $a | egrep -q '^[:space:]*#|^[:space:]*$' && continue
+   if echo $a | grep -q "^\[.*\][:space:]*" ;then
+      FNAME=`echo "$a" | tr -d '[ ]' | sed s-^/--`
+   else
+      nv=`echo $a | awk -F= '{print $1}'`
+      [ "$nv" = "" ] && continue
+      if ! grep -q "^[[:space:]]*$nv=" $FNAME 2>/dev/null ;then
+         echo "$a" >>$FNAME
+      else
+         sed -i 's|'"^[[:space:]]*$nv=.*$"'|'"$a"'|' $FNAME
+      fi
+   fi
+done
+
+[ -f etc/sysconfig/MagOS ] && . etc/sysconfig/MagOS
+
+debug_log "Boot parameter desktop= processing"
+debug_shell
+
+for a in $(cmdline_value desktop | tr , " " ) ;do
+   case $a in
+       3d)
+         echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
+         echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+         cp -pf usr/share/applications/fusion-icon.desktop etc/xdg/autostart/fusion-icon.desktop
+         sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+       ;;
+       no3d)
+         echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
+         echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+         rm -f etc/xdg/autostart/fusion-icon.desktop
+         sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+       ;;
+       none)
+         sed -i 's/id:.:initdefault:/id:3:initdefault:/' etc/inittab
+       ;;
+       kde)
+         echo -e "DISPLAYMANAGER=KDM\nDESKTOP=KDE4" >etc/sysconfig/desktop
+         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+       ;;
+       gnome)
+         echo -e "DISPLAYMANAGER=GDM\nDESKTOP=GNOME" >etc/sysconfig/desktop
+         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+       ;;
+       lxde)
+         echo -e "DISPLAYMANAGER=slim\nDESKTOP=LXDE" >etc/sysconfig/desktop
+         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+       ;;
+       kdm)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=KDM/' etc/sysconfig/desktop
+       ;;
+       gdm)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=GDM/' etc/sysconfig/desktop
+       ;;
+       slim)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=slim/' etc/sysconfig/desktop
+       ;;
+       lan)
+         sed -i s/ONBOOT=no/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null
+       ;;
+   esac
+done
+
+debug_log "Making autologin for user"
+debug_shell
+
+grep -q " autologin=" /proc/cmdline && AUTOLOGINUSER=$(cmdline_value autologin)
+if [ "$AUTOLOGINUSER" != "" ]; then
+   [ "$AUTOLOGINUSER" = "none" ] && AUTOLOGINUSER=
+   sed -i s/^AutomaticLogin=.*/AutomaticLogin=$AUTOLOGINUSER/ etc/X11/gdm/custom.conf 2>/dev/null
+   sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/X11/slim/slim.conf 2>/dev/null
+   sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ var/lib/mandriva/kde4-profiles/flash/share/config/kdm/kdmrc 2>/dev/null
+   sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ var/lib/mandriva/kde4-profiles/common/share/config/kdm/kdmrc 2>/dev/null
+fi
+
+debug_log "Creating users and passwords"
+debug_shell
+
+grep -q " users=" /proc/cmdline && NEEDEDUSERS=$(cmdline_value users)
+[ -z "$DEFAULTPASSWD" ] && DEFAULTPASSWD='$2a$08$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2'
+[ -z "$DEFAULTROOTPASSWD" ] && DEFAULTROOTPASSWD='$2a$08$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji'
+[ -z "$DEFAULTUSER" ] && DEFAULTUSER=user
+[ -z "$NEEDEDUSERS" ] && NEEDEDUSERS="$DEFAULTUSER:500:$DEFAULTPASSWD"
+for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
+   NEEDEDUSER=$(echo $a | awk -F: '{ print $1 }')
+   NEEDEDUID=$(echo $a | awk -F: '{ print $2 }')
+   NEEDEDPASS=$(echo $a | awk -F: '{ print $3 }')
+   if ! grep -q ^$NEEDEDUSER: etc/passwd ;then
+        chroot . usr/sbin/adduser -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1
+        chroot . usr/bin/passwd -uf $NEEDEDUSER >/dev/null  2>&1
+        [ "$NEEDEDPASS" = "x" ] && NEEDEDPASS="$DEFAULTPASSWD"
+        [ "$NEEDEDPASS" = "" ] || sed -i s=^$NEEDEDUSER::=$NEEDEDUSER:"$NEEDEDPASS":= etc/shadow
+   fi
+   if ! [ -d home/$NEEDEDUSER ] ;then
+        cp -a etc/skel home/$NEEDEDUSER
+        chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
+        chmod 700 home/$NEEDEDUSER
+   fi
+done
+sed -i s=^root::=root:"$DEFAULTROOTPASSWD":= etc/shadow
+
+debug_log "Setting up local time zone"
+debug_shell
+. etc/sysconfig/clock
+[ "$UTC" = "false" ] && cp -pf usr/share/zoneinfo/$ZONE etc/localtime
+
+debug_log "Switching on/off services"
+debug_shell
+mkdir proc
+mount -o rbind /proc proc
+for a in $(echo $SERVICESSTART | tr , " ") ;do chroot . chkconfig --add $a ;done
+for a in $(echo $SERVICESNOSTART | tr , " ") ;do chroot . chkconfig --del $a ;done
+umount proc
+
+[ -z "$PARTITIONSMOUNTUID" ] && PARTITIONSMOUNTUID=500
+FSCKFLAG=0
+[ $(cmdline_parameter fsck) ] && FSCKFLAG=2
+
+debug_log "Find and use swap partition. If not, use window$ swapfile."
+debug_shell
+if grep -q findswap /proc/cmdline ;then
+    sed -i /FINDSWAP/d etc/fstab
+    debug_log "Find linux native patitions"
+    FSWAP=$(blkid -t TYPE="swap" -l | awk -F: '{print $1}')
+    if [ "$FSWAP" ] ;then 
+       echo "$FSWAP none swap defaults 0 0 #FINDSWAP" >> etc/fstab
+    else
+       debug_log "Capturing windows swapfile"
+       FSWAP=$(find_in_computer /pagefile.sys /$UNION/mnt/windows)
+       if [ "$FSWAP" ] ;then
+          if [ -f "$FSWAP" ] ;then
+             mkswap "$FSWAP"
+             DSWAP=$(dirname $FSWAP)
+             DEV=$(grep /$UNION/mnt/windows /proc/mounts | awk '{ print $1 }')
+             DEVTYPE=$(blkid $DEV -s TYPE | awk -F\" '{print $2}' )
+             if [ "$DSWAP" = "/$UNION/mnt/windows" -a -b "$DEV" ] ;then
+                DEVOPTS=$(fs_options $DEV fstab),uid=$PARTITIONSMOUNTUID
+                echo "$DEV /mnt/windows $DEVTYPE $DEVOPTS 0 $FSCKFLAG # FINDSWAP" >>etc/fstab
+                umount /$UNION/mnt/windows 2>/dev/null
+             fi
+             echo "$FSWAP none swap defaults 0 0 # FINDSWAP" | sed s-/$UNION-- >> etc/fstab
+          fi
+       fi
+    fi
+fi
+
+debug_log "Creating partitions in /etc/fstab"
+debug_shell
+if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
+   sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
+   blkid | grep -v loop | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do
+       grep -q "^$a " /proc/mounts etc/fstab && continue
+       DEVTYPE=$(blkid $a -s TYPE | awk -F\" '{print $2}' )
+       if [ "$DEVTYPE" != "" -a "$DEVTYPE" != "swap" -a "$DEVTYPE" != "udf" -a "$DEVTYPE" != "iso9660" ] ;then
+          DEVLABEL=$( blkid $a -s LABEL | awk -F\" '{print $2}' | tr -d [:cntrl:][:space:])
+          [ -z "$DEVLABEL" ] && DEVLABEL=$(get_name)
+          echo " $PARTITIONSNOMOUNT " | tr ',;' ' ' | grep -q " $DEVLABEL " && continue
+          DEVOPTS=$(fs_options $a fstab)
+          [ "$DEVTYPE" = "vfat" -o "$DEVTYPE" = "ntfs" ] && DEVOPTS="$DEVOPTS,uid=$PARTITIONSMOUNTUID"
+          echo "$a /media/$DEVLABEL $DEVTYPE $DEVOPTS 0 $FSCKFLAG #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+          [ -d media/$DEVLABEL ] || mkdir -p media/$DEVLABEL
+       elif [ "$DEVTYPE" = "swap" ] ;then
+          grep -q "^$a none swap" etc/fstab || echo "$a none swap defaults 0 0 #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+       fi
+   done
+fi
+
+#If none swap founded launch compcache if available
+[ "$(grep " swap " etc/fstab)$(echo $SERVICESNOSTART | grep compcache)" = "" ] && chroot . chkconfig --add compcache >/dev/null 2<&1
+
+debug_log "Exporting partitions"
+debug_shell
+if [ "$PARTITIONSSHARE" = "yes" ];then
+   for a in $(grep " /media/" etc/fstab | awk '{print $2}' | sed s-/media/--) ;do
+       grep -q "^/media/$a " etc/exports && continue
+       echo " $PARTITIONSNOSHARE " | tr ',;' ' ' | grep -q " $a " && continue
+       echo "/media/$a 192.168.1.0/24(all_squash,anonuid=500,anongid=100,async,secure,no_subtree_check,rw)" >>etc/exports
+   done
+fi
+
+debug_log "Changing network parameters"
+debug_shell
+. etc/sysconfig/network
+grep -q " $HOSTNAME$" etc/hosts || echo "127.0.0.1             $HOSTNAME" >> etc/hosts
+[ -z "$MAGOSSERVER" ] || sed -i s/.*MagOS-Server.*/"$MAGOSSERVER             MagOS-Server"/ etc/hosts
+if [ "$NETWORKIP" != "" ] ;then
+   sed -i s/192.168.1./$NETWORKIP/g etc/dhcpd.conf
+   sed -i s/192.168.1./$NETWORKIP/g etc/pdnsd.conf
+   sed -i s/192.168.1./$NETWORKIP/g etc/exports
+   sed -i s/192.168.1./$NETWORKIP/g etc/samba/smb.conf
+fi
+[ -z "$SAMBADOMAIN" ] || sed -i s/"workgroup = .*"/"workgroup = $SAMBADOMAIN"/ etc/samba/smb.conf
+
+debug_log "Setting iptables exceptions"
+debug_shell
+[ -z "$IPTABLESTRUSTEDIP" ] || sed -i s-192.168.1.0/24-$IPTABLESTRUSTEDIP- etc/exports
+[ -z "$IPTABLESTRUSTEDIP" ] && sed -i s_"^\[.*-A INPUT   -s .* -j ACCEPT.*"_'#[0:0] -A INPUT   -s $IPTABLESTRUSTEDIP -j ACCEPT'_ etc/sysconfig/iptables
+[ -z "$IPTABLESTRUSTEDIP" ] || sed -i s_".*-A INPUT   -s .* -j ACCEPT.*"_"[0:0] -A INPUT   -s $IPTABLESTRUSTEDIP -j ACCEPT"_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSTCP" ] && sed -i s_"^\[.*-A INPUT   -p tcp -m multiport --dport.*-j ACCEPT.*"_'#[0:0] -A INPUT   -p tcp -m multiport --dport $IPTABLESOPENPORTSTCP -j ACCEPT'_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSTCP" ] || sed -i s_".*-A INPUT   -p tcp -m multiport --dport.*-j ACCEPT.*"_"[0:0] -A INPUT   -p tcp -m multiport --dport $IPTABLESOPENPORTSTCP -j ACCEPT"_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSUDP" ] && sed -i s_"^\[.*-A INPUT   -p udp -m multiport --dport.*-j ACCEPT.*"_'#[0:0] -A INPUT   -p udp -m multiport --dport $IPTABLESOPENPORTSUDP -j ACCEPT'_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSUDP" ] || sed -i s_".*-A INPUT   -p udp -m multiport --dport.*-j ACCEPT.*"_"[0:0] -A INPUT   -p udp -m multiport --dport $IPTABLESOPENPORTSUDP -j ACCEPT"_ etc/sysconfig/iptables
+if [ -z "$TORUSERS" ] ;then
+    sed -i s_"^\[.* -A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner .* -j RETURN.*"_'#TOR#[0:0] -A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner $TORUSERS -j RETURN'_ etc/sysconfig/iptables
+    sed -i s_"^\[.*-A OUTPUT -p udp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:5353.*"_'#TOR#[0:0] -A OUTPUT -p udp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:5353'_ etc/sysconfig/iptables
+    sed -i s_"^\[.*-A OUTPUT -p tcp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:9040.*"_'#TOR#[0:0] -A OUTPUT -p tcp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:9040'_ etc/sysconfig/iptables
+else
+    sed -i s_".*-A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner .* -j RETURN.*"_"[0:0] -A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner $TORUSERS -j RETURN"_ etc/sysconfig/iptables
+    sed -i s_".*-A OUTPUT -p udp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:5353.*"_"[0:0] -A OUTPUT -p udp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:5353"_ etc/sysconfig/iptables
+    sed -i s_".*-A OUTPUT -p tcp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:9040.*"_"[0:0] -A OUTPUT -p tcp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:9040"_ etc/sysconfig/iptables
+fi
+if [ "$ROUTER" = "yes" ] ;then
+    sed -i s/".* -A POSTROUTING   -j MASQUERADE.*"/'[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
+    sed -i /net.ipv4.ip_forward/d etc/sysctl.conf
+    echo "net.ipv4.ip_forward = 1" >>etc/sysctl.conf
+else
+    sed -i s/"^\[.* -A POSTROUTING   -j MASQUERADE.*"/'#ROUTER#[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
+fi
+
+debug_log "Setting system proxy"
+debug_shell
+if  ! [ -z "$HTTP_PROXY$FTP_PROXY" ] ;then 
+    echo "setenv http_proxy $HTTP_PROXY" > etc/profile.d/proxy.csh
+    echo "setenv https_proxy $HTTPS_PROXY" >> etc/profile.d/proxy.csh
+    echo "setenv ftp_proxy $FTP_PROXY" >> etc/profile.d/proxy.csh
+    echo "setenv no_proxy $NO_PROXY" >> etc/profile.d/proxy.csh
+    echo "http_proxy=$HTTP_PROXY" > etc/profile.d/proxy.sh
+    echo "https_proxy=$HTTPS_PROXY" >> etc/profile.d/proxy.sh
+    echo "ftp_proxy=$FTP_PROXY" >> etc/profile.d/proxy.sh
+    echo "no_proxy=$NO_PROXY" >> etc/profile.d/proxy.sh
+    echo "export http_proxy https_proxy ftp_proxy no_proxy" >> etc/profile.d/proxy.sh
+    chmod 755 etc/profile.d/proxy.sh etc/profile.d/proxy.csh
+fi
+
+debug_log "Profile updating"
+debug_shell
+grep -q -f /VERSION etc/magos-release 2>/dev/null || rm -fr /memory/changes/var/lib/rpm  /memory/changes/var/lib/urpmi 2>/dev/null
+cp -f /VERSION etc/magos-release
+
+debug_log "The endpoint of /etc/rc.d/rc.preinit"
+debug_shell
+
+exit 0

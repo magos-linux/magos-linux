@@ -1,0 +1,3 @@
+#!/bin/bash
+umount d0 d1 d2 d3 d4
+rmdir d0 d1 d2 d3 d4 2>/dev/null

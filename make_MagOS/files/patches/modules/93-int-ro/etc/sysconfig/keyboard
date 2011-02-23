@@ -1,0 +1,5 @@
+XkbModel=pc105
+XkbLayout="ro(std_cedilla)"
+KEYBOARD=ro
+XkbOptions=compose:rwin
+KEYTABLE=ro

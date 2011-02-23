@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# pdnsd         A caching dns proxy
+#
+# Authors:      Thomas Moestl and others
+#
+# chkconfig: 345 60 40
+# description:  A caching dns proxy for small networks or dialin accounts
+#
+### BEGIN INIT INFO
+# Provides: pdnsd
+# Required-Start: network
+# Should-Start:.
+# Required-Stop: network
+# Should-Stop:.
+# Default-Start: 2 3 4 5
+# Short-Description: A caching dns proxy
+# Description: A caching dns proxy for small networks or dialin accounts
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+NAME=pdnsd
+BINARY=/usr/sbin/pdnsd
+PROCESS=pdnsd
+LOCKFILE=/var/lock/subsys/pdnsd
+RETVAL=0
+
+[ -x /etc/sysconfig/pdnsd ] && . /etc/sysconfig/pdnsd
+
+start() {
+	gprintf "Starting %s: " "$NAME"
+	daemon $BINARY -d $OPTIONS
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch $LOCKFILE
+}	
+stop() {
+	gprintf "Shutting down %s: " "$NAME"
+	killproc $PROCESS
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+}	
+
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart|reload)
+	stop
+	start
+	;;
+  status)
+	status $PROCESS
+	RETVAL=$?
+	;;
+  condrestart)
+  	[ -f $LOCKFILE ] && restart
+	;;
+  *)
+	gprintf "Usage: %s {start|stop|restart|status|condrestart}\n" "$0"
+	RETVAL=1
+esac
+
+exit $?

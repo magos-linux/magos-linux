@@ -1,0 +1,38 @@
+#!/bin/bash
+# MagOS project
+# Authors: Alexandr Betсher
+# Authors: Mikhail Zaripov
+[ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ -z "$BACKGROUND" ] && exit 0
+
+grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
+[ -z "$XORG_RES" ] && XORG_RES=$(monitor-edid | awk '/ModeLine/ { print $2 }' | sed -e 's/"//g' -e '2,$d')
+echo "$XORG_RES" | grep -q ^[0-9]*x[0-9]*$ || XORG_RES=1024x768
+[ "$(echo $XORG_RES | awk -Fx '{print $1"*3/4" }' | bc )" -gt "$(echo $XORG_RES | awk -Fx '{print $2}')" ] && SOURCE="/usr/share/mdk/backgrounds/$BACKGROUND-wide.jpg"
+[ -f "$SOURCE" ] || SOURCE="/usr/share/mdk/backgrounds/$BACKGROUND.jpg"
+[ -f "$SOURCE" ] || exit 1
+rm -f /usr/share/mdk/backgrounds/default.jpg
+convert -resize $XORG_RES! $SOURCE /tmp/background.jpg
+if [ "$GRAFFITI" = "yes" ] ;then
+   rm -f /tmp/graffiti-label.png 2>/dev/null
+#   cp /usr/share/magos/graffiti/magos.png /tmp/graffiti-label.png
+   cat /proc/cmdline | grep -q changes && LABEL= || LABEL=clean.png
+   cat /proc/cmdline | egrep -q 'copy2ram|toram' && LABEL="$LABEL copy2ram.png"
+   cat /proc/cmdline | grep -q save2module && LABEL="$LABEL save2module.png"
+   [ -z "$LABEL" ] && LABEL=magos.png
+   for a in $LABEL ; do
+      if [ -f /tmp/graffiti-label.png ] ;then
+         montage /tmp/graffiti-label.png /usr/share/magos/graffiti/$a -geometry +0+0 -background transparent /tmp/graffiti-label.png
+      else
+         cp /usr/share/magos/graffiti/$a /tmp/graffiti-label.png
+      fi
+   done
+   convert -resize x$(expr $(echo $XORG_RES | awk -Fx '{ print $2 }') / 10) /tmp/graffiti-label.png /tmp/logo.png
+   composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg /usr/share/mdk/backgrounds/default.jpg
+   rm -f /tmp/background.jpg /tmp/logo.png /tmp/label.png
+else
+   mv /tmp/background.jpg /usr/share/mdk/backgrounds/default.jpg
+fi
+
+[ -f /usr/share/mdk/backgrounds/default.jpg ] || ln -sf "$SOURCE" /usr/share/mdk/backgrounds/default.jpg

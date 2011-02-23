@@ -1,0 +1,27 @@
+#!/bin/sh
+
+case "$1" in
+	hibernate|suspend)
+                for a in /dev/mmcblk* \
+                         /dev/disk/by-id/*_MMC_* \
+                         /dev/disk/by-id/mmc-* \
+                         /dev/disk/by-id/*Card* \
+                         /dev/disk/by-id/*_MS_MS-Pro_* \
+                         /dev/disk/by-id/*_SM_xD-Picture_* ;do
+                    if [ -e $a ] ;then
+                       DEV=`readlink -f $a`
+                       if grep -q "^$DEV " /proc/mounts ;then
+                          umount $DEV || exit 1
+                       fi
+                    fi
+                done
+                true
+		;;
+	thaw|resume)
+		true
+		;;
+	*)
+		;;
+esac
+
+exit $?

@@ -1,0 +1,129 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+if [ -f .config ] ;then 
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+cd "$MYPATH"
+
+function get_rpm()
+{
+  [ "$2" = "" ] && return 1
+  FNAME=`grep ^$1[0-9._a-zA-Z]*-[0-9._a-zA-Z]*.rpm$ ../../lists/mdv${VERREL}_$2.txt | tail -1`
+  [ "$FNAME" = "" ] && return 1
+  [ -f ../../cached_$VERREL/$FNAME ] && ln -s ../../cached_$VERREL/$FNAME $FNAME 
+  [ -f $FNAME ] && return 0
+  grep -q /${FNAME}$ ../local_rpms.txt && ln -s ../../../files/rpms`grep /${FNAME}$ ../local_rpms.txt | head -1` $FNAME
+  [ -f $FNAME ] && return 0
+
+  URL=`grep " $2 " ../../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $1}'`/$FNAME
+  if [ "$INET" = "good" ] ;then
+      echo
+      if curl -# -o $FNAME $URL -C - ;then
+          mv $FNAME ../../cached_$VERREL
+          ln -s ../../cached_$VERREL/$FNAME $FNAME
+      else 
+          echo $URL >>../rpms_errors.txt
+      fi
+      echo
+  else
+      echo $URL >>../urls.txt 
+  fi
+  return 0
+}
+
+[ -d loaded/cached_$VERREL ] || mkdir -p loaded/cached_$VERREL
+cd loaded 
+rm -fr $FLASHNAME-$VERREL/srpms $FLASHNAME-$VERREL/rpms $FLASHNAME-$VERREL/*.txt 2>/dev/null
+mkdir -p $FLASHNAME-$VERREL/rpms $FLASHNAME-$VERREL/srpms
+if cd ../files/rpms ;then
+   find -L | grep .rpm$ | sed s-^.-- > ../../loaded/$FLASHNAME-$VERREL/local_rpms.txt 
+   cd ../../loaded
+fi
+if ! [ -f linux-live-$VER_LL.tar.gz ]  ;then
+   echo "Загрузка скриптов linux-live"
+   if [ "$INET" = "good" ] ;then
+      curl -o linux-live-$VER_LL.tar.gz ftp://ftp.slax.org/Linux-Live/linux-live-$VER_LL.tar.gz
+   else
+      echo ftp://ftp.slax.org/Linux-Live/linux-live-$VER_LL.tar.gz >$FLASHNAME-$VERREL/urls.txt
+   fi
+fi
+
+# Чтобы не загружать постоянно списки можно закоментарить следующую строку
+[ "$INET" = "good" ] && rm -fr lists/mdv$VERREL* pubkeys/$VERREL-*.pubkey $FLASHNAME-$VERREL/urpmi 2>/dev/null
+mkdir -p lists pubkeys $FLASHNAME-$VERREL/urpmi/etc/urpmi $FLASHNAME-$VERREL/urpmi/var/lib/urpmi 2>/dev/null
+echo -e "{\n}\n" >  $FLASHNAME-$VERREL/urpmi/etc/urpmi/urpmi.cfg
+echo "Загрузка списков хранилищ пакетов"
+cd lists
+for a in `gawk '{print $2}' ../../files/media/media_list-$STATUS-$VERREL-$ARCH` ;do
+        echo -e "Обработка источника $a"
+        MEDIAURL=`grep " $a " ../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $1}'`
+        MEDIAKEY=`grep " $a " ../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $3}'`
+        MEDIAUPD=`grep " $a " ../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $4}'`
+        MEDIAADD=`grep " $a " ../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $5}'`
+        if ! [ -f mdv${VERREL}_$a.txt ] ;then
+           curl -# --retry-delay 2 --retry 5 -o .listing -l "$MEDIAURL/" || exit 1
+           if grep -q -i "a href=" .listing ;then 
+               awk -F'<[Aa] [Hh][Rr][Ee][Ff]=["]?'  '{ print $2 }' .listing | awk -F'[" ]' '{print $1}' | grep .rpm >>mdv${VERREL}_$a.txt
+           else
+               grep .rpm .listing >>mdv${VERREL}_$a.txt
+           fi
+           rm -f .listing
+           if [ "$MEDIAKEY" != "" -a "$MEDIAKEY" != "0" ] ;then
+               curl -# --retry-delay 2 --retry 5 -o ../pubkeys/$VERREL-$a.pubkey "$MEDIAURL/media_info/pubkey" || exit 1
+           fi
+           if [ "$MEDIAUPD" != "skip" ] ;then
+               mkdir ../$FLASHNAME-$VERREL/urpmi/var/lib/urpmi/$a
+               curl -# --retry-delay 2 --retry 5 -o ../$FLASHNAME-$VERREL/urpmi/var/lib/urpmi/$a/MD5SUM "$MEDIAURL/media_info/MD5SUM" || exit 1
+               curl -# --retry-delay 2 --retry 5 -o ../$FLASHNAME-$VERREL/urpmi/var/lib/urpmi/$a/synthesis.hdlist.cz "$MEDIAURL/media_info/synthesis.hdlist.cz" || exit 1
+           fi
+        fi
+        if [ "$MEDIAUPD" != "skip" ] ;then
+            echo "$a $MEDIAURL {" >>../$FLASHNAME-$VERREL/urpmi/etc/urpmi/urpmi.cfg
+            [ "$MEDIAKEY" != "0" ] && echo "  key-ids: $MEDIAKEY" >>../$FLASHNAME-$VERREL/urpmi/etc/urpmi/urpmi.cfg
+            [ "$MEDIAUPD" != "" ] && echo "  $MEDIAUPD" >>../$FLASHNAME-$VERREL/urpmi/etc/urpmi/urpmi.cfg
+            [ "$MEDIAADD" != "" ] && echo "  $MEDIAADD" >>../$FLASHNAME-$VERREL/urpmi/etc/urpmi/urpmi.cfg
+            echo -e "}\n"  >>../$FLASHNAME-$VERREL/urpmi/etc/urpmi/urpmi.cfg
+        fi
+        echo
+done
+cd ../
+
+echo "Загрузка основных пакетов"
+cd $FLASHNAME-$VERREL/rpms
+for a in `ls -1 ../../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do 
+     echo $a | awk -F/ '{ print "\rЗагрузка пакетов для модуля " $NF}'
+     for b in `cat $a` ;do 
+        echo -ne \\r$b\\r 
+        MEDIA_LIST="`grep ^$b[[:space:]] ../../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred | head -1 | sed s/^$b.// ` $MEDIA_DEFAULT"
+        ERR_FLAG=1
+        for c in $MEDIA_LIST ;do 
+            get_rpm $b $c && ERR_FLAG=0 && break
+        done
+        echo -ne \\r$b | tr [:print:] " "
+        [ $ERR_FLAG = 1 ] && echo $b >>../rpms_not_founded.txt
+     done
+done
+cd ../../
+
+cd $FLASHNAME-$VERREL/srpms
+echo -e \\n"Загрузка исходников ядра (нужна пересборка для поддержки aufs)"
+get_rpm kernel- src-updates || get_rpm kernel- src-release || exit 1
+rm -f local_rpms.txt
+cd ../../
+cd ../
+
+echo "Работа скрипта завершена"
+[ -f loaded/$FLASHNAME-$VERREL/urls.txt ] && echo "Ссылки сохранены в loaded/$FLASHNAME-$VERREL/urls.txt"
+[ -f loaded/$FLASHNAME-$VERREL/rpms_errors.txt -o -f loaded/$FLASHNAME-$VERREL/rpms_not_founded.txt ] || exit 0
+[ -f loaded/$FLASHNAME-$VERREL/rpms_errors.txt ] && echo "Ошибка: Часть пакетов не загружена из-за ошибок, запустите скрипт ещё раз для их докачки"
+cat loaded/$FLASHNAME-$VERREL/rpms_err.txt 2>/dev/null
+[ -f loaded/$FLASHNAME-$VERREL/rpms_not_founded.txt ] && echo "Ошибка: Не все пакеты были найдены в источниках."
+cat loaded/$FLASHNAME-$VERREL/rpms_not_founded.txt 2>/dev/null
+
+

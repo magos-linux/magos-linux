@@ -1,0 +1,72 @@
+diff -auprN a/kernel.spec b/kernel.spec
+--- a/kernel.spec	2010-06-17 22:47:25.000000000 +0400
++++ b/kernel.spec	2010-07-14 12:04:02.000000000 +0400
+@@ -12,7 +12,8 @@
+ %define sublevel	33
+ 
+ # Package release
+-%define mnbrel		2
++%define mnbrel          2flash_nopae_
++%define realmnbrel      2
+ 
+ # kernel Makefile extraversion is substituted by 
+ # kpatch/kgit/kstable wich are either 0 (empty), rc (kpatch), git (kgit) 
+@@ -74,10 +75,10 @@
+ %else
+ %define tar_ver	  	%{kernelversion}.%{patchlevel}.%(expr %{sublevel} - 1)
+ %endif
+-%define patch_ver 	%{kversion}-%{kpatch}-%{ktag}%{mnbrel}
++%define patch_ver 	%{kversion}-%{kpatch}-%{ktag}%{realmnbrel}
+ %else
+ %define tar_ver   	%{kernelversion}.%{patchlevel}.%{sublevel}
+-%define patch_ver 	%{kversion}-%{ktag}%{mnbrel}
++%define patch_ver 	%{kversion}-%{ktag}%{realmnbrel}
+ %endif
+ %if %kstable
+ %define kversion  	%{kernelversion}.%{patchlevel}.%{sublevel}.%{kstable}
+@@ -119,19 +120,19 @@
+ # disable debug rpms for backports, it's enough already having them on cooker/stable
+ %define build_debug 		0
+ %else
+-%define build_debug 		1
++%define build_debug 		0
+ %endif
+ 
+ # Build desktop i586 / 4GB
+ %ifarch %{ix86}
+-%define build_desktop586	1
++%define build_desktop586	0
+ %endif
+ 
+ # Build desktop (i686 / 4GB) / x86_64 / sparc64 sets
+ %define build_desktop		1
+ 
+ # Build server (i686 / 64GB)/x86_64 / sparc64 sets
+-%define build_server		1
++%define build_server		0
+ 
+ # End of user definitions
+ %{?_without_desktop586: %global build_desktop586 0}
+@@ -239,6 +240,9 @@ Patch1:   	ftp://ftp.kernel.org/pub/linu
+ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.bz2.sign
+ %endif
+ %endif
++Patch3:         aufs-linux-flash.patch
++Patch4:         aufs-mnb-flash.patch
++Patch5:         logo_mdk_clut224.patch
+ 
+ # Nouveau for 2010.1
+ # Merge in nouveau git, i.e. patches ending up in 2.6.34
+@@ -669,6 +673,12 @@ cd %src_dir
+ %endif
+ 
+ %{patches_dir}/scripts/apply_patches
++%patch3 -p1
++rm -f drivers/video/logo/logo_mdk_clut224.ppm
++cd %{patches_dir}
++%patch4 -p1
++cd %src_dir
++%patch5 -p1
+ 
+ # FIXME: allow apply_patches to apply patches depending on distro version...
+ %if %{mdkversion} > 201000

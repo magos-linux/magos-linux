@@ -1,0 +1,28 @@
+diff -auprN b/kernel.spec c/kernel.spec
+--- b/kernel.spec	2010-07-14 12:04:02.000000000 +0400
++++ c/kernel.spec	2010-07-14 12:11:48.000000000 +0400
+@@ -12,7 +12,7 @@
+ %define sublevel	33
+ 
+ # Package release
+-%define mnbrel          2flash_nopae_
++%define mnbrel          2flash_
+ %define realmnbrel      2
+ 
+ # kernel Makefile extraversion is substituted by 
+@@ -243,6 +243,7 @@ Source10: 	ftp://ftp.kernel.org/pub/linu
+ Patch3:         aufs-linux-flash.patch
+ Patch4:         aufs-mnb-flash.patch
+ Patch5:         logo_mdk_clut224.patch
++Patch6:         aufs-mnb-pae-flash.patch
+ 
+ # Nouveau for 2010.1
+ # Merge in nouveau git, i.e. patches ending up in 2.6.34
+@@ -677,6 +678,7 @@ cd %src_dir
+ rm -f drivers/video/logo/logo_mdk_clut224.ppm
+ cd %{patches_dir}
+ %patch4 -p1
++%patch6 -p1
+ cd %src_dir
+ %patch5 -p1
+ 

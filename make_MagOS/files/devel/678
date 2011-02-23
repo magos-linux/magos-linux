@@ -1,0 +1,7 @@
+#!/bin/bash
+echo 6_makedistro
+./6_makedistro >6.log 2>&1
+echo 7_split_rootfs
+./7_split_rootfs >7.log 2>&1
+echo 8_makeflash
+./8_makeflash >8.log 2>&1

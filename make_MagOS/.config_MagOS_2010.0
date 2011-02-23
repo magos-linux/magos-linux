@@ -1,0 +1,49 @@
+#!/bin/bash
+# Это файл с параметрами для скриптов
+#FIXME надо переделать через basename
+MYPATH="`pwd`"
+
+# Название флешки. Можете менять только  чур без пробелов и русских букв
+FLASHNAME=MagOS
+# Если инет плохой или дорогой, то закоментарьте 
+# Тогда файлы пакетов не будут качаться, будет создан файл с ссылками
+# см. в каталоге loaded
+INET=good
+# Размер в Мб для данных и изменений системы для каждого профиля
+DATASIZE1=512
+DATASIZE2=256
+
+# Версия скриптов linux-live
+VER_LL=6.3.0
+#STATUS=devel
+STATUS=official
+VERREL=2010.0
+# на 64 бит врядли стоит собирать, теряется универсальность
+# но под конкретную машину может и есть смысл. Тогда будьте готовы к возможным проблемам 
+# со скриптами linux-live, там бинарники собраны под 32бита
+ARCH=i586
+
+# приоритет источников
+MEDIA_DEFAULT="\
+edu-free-i586 edu-free-noarch edu-nonfree-i586 edu-nonfree-noarch \
+plf-free plf-nonfree \
+plf-free-backports plf-nonfree-backports \
+main-backports contrib-backports nonfree-backports \
+main-updates contrib-updates nonfree-updates \
+main-release contrib-release nonfree-release "
+
+# Службы которые будут загружаться при загрузке. Порядок перечисления важен.
+INITDNEED=" syslog acpid udev-post messagebus haldaemon cpufreq laptop-mode alsa sound keytable kheader resolvconf  \
+ iptables network network-up pdnsd fuse magosctl dm resolvconf wine gpm xinetd"
+
+# Размер initrd.
+INIRAMDSIZE=12000
+# Библиотеки из системы, которые положим в initrd в /lib (только ссылки)
+INIRAMDLIBS1="ld-linux.so.2 libblkid.so.1 libc.so.6 libdl.so.2 libgcc_s.so.1 libpthread.so.0 \
+  librt.so.1 libuuid.so.1 libz.so.1"
+# Библиотеки из системы, которые положим в initrd в /usr/lib (только ссылки)
+INIRAMDLIBS2="libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 libpopt.so.0 libsysfs.so.2 libpci.so.3 \
+  libresolv.so.2 libnss_files.so.2 libnss_dns.so.2 libattr.so.1 libacl.so.1 \
+  libaal-1.0.so.5 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libreadline.so.6 libreiser4-1.0.so.7 librepair-1.0.so.7 libntfs.so.10 \
+  libstdc++.so.6 "
+

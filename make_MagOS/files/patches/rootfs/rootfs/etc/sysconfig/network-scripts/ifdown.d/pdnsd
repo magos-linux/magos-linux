@@ -1,0 +1,9 @@
+#!/bin/sh
+[ -f /var/lock/subsys/pdnsd ] || exit 0
+NAMESRV=$( cat /var/run/resolvconf/interface/* 2>/dev/null | grep nameserver | awk '{print $2}' | head -1)
+if [ "$NAMESRV" = "" ] ;then
+    pdnsd-ctl server ISP down >/dev/null 2>&1
+else
+    pdnsd-ctl server ISP up $NAMESRV >/dev/null 2>&1
+fi
+true
