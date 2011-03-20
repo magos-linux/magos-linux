@@ -5,7 +5,7 @@ rm -fr var/tmp proc sys tmp etc/fstab etc/mtab ../null \
    etc/samba/passdb.tdb etc/samba/secrets.tdb \
    usr/share/applications/kde4/Welcome.desktop \
    usr/share/locale/locale-archive \
-   etc/locale \
+   etc/locale /usr/share/vpnpptp/wiki/Help_uk.doc \
    2>/dev/null
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 ln -sf ../tmp var/tmp

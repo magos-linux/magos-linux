@@ -1,0 +1,1639 @@
+#!/usr/bin/perl
+# $Id: control-center 269021 2010-05-19 16:37:57Z eugeni $
+
+# Copyright (C) 1999-2008 Mandriva
+#                         Daouda Lo
+#                         Damien Krotkine
+#                         Thierry Vignaud <tvignaud@mandriva.com>
+#                         Yves Duret
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+
+
+
+use lib qw(/usr/lib/libDrakX);
+use c;
+use standalone;
+use common;
+use detect_devices;
+use lang;
+
+# i18n: IMPORTANT: to get correct namespace (drakconf instead of libDrakX)
+BEGIN { unshift @::textdomains, 'drakconf' }
+use mygtk2 qw(gtknew);
+use ugtk2 qw(:create :dialogs :helpers :wrappers);
+use Gtk2::WebKit;
+
+use MDV::Control_Center;
+
+
+my (%tool_pids, %tool_feedback, $gurpmi_pid);
+
+my ($conffile, $class_install) = ('/etc/mcc.conf', '/etc/sysconfig/system');
+
+my ($rootwin_width, $rootwin_height) = gtkroot()->get_size;
+my $default_width  = $rootwin_width  <= 800 ? 720 : 800;
+my $default_height = $rootwin_height <= 480 ? 420 : $rootwin_height <= 600 ? 523 : 600;
+
+my $min_width  = $rootwin_width  == 640 ? 620 : 680;
+my $min_height = $rootwin_height == 480 ? 420 : 500;
+
+require_root_capability() if !$::testing; # just to get root capabilities
+
+
+#-------------------------------------------------------------
+# read configuration, set themes, ...
+my %h = getVarsFromSh($conffile);
+my %class = getVarsFromSh($class_install);
+$h{THEME} ||= 'default';
+$h{LOGS} ||= bool2text($class{CLASS} eq 'expert' ? 1 : 0);
+$h{EXPERT_WIZARD} ||= 0;
+$h{HEIGTH} ||= $default_height;
+$h{WIDTH}  ||= $default_width;
+
+my %option_values;
+$option_values{show_log} = text2bool($h{LOGS});
+my $theme = $h{THEME};
+my $program;
+my ($i, $geometry, $save_html);
+foreach (@ARGV) {
+    $i++;
+    $theme = $1 if /--theme (\w+)/;
+    $program = $1 if /--start-with=(.*)/;
+    if (/^--geometry$/) {
+        $geometry = splice @ARGV, $i, 1;
+        last;
+    }
+    $save_html = 1 if /--save-html-pages/;
+}
+
+-d "$themes_dir/$theme" or $theme = 'default';
+add_icon_path("$themes_dir/$theme/");
+add_icon_path("$themes_dir/default") if $theme ne 'default'; # fall back if theme miss some icons
+
+mygtk2::import_style_ressources();
+my $rc = find { -r $_ } ("$themes_dir/$theme/gtkrc", if_($theme ne 'default', "$themes_dir/default/gtkrc"));
+Gtk2::Rc->parse($rc) if -r $rc;
+
+my $branding = N("Mandriva Linux");
+my $product_id = common::parse_LDAP_namespace_structure(cat_('/etc/product.id'));
+# allow OEM branding:
+$branding = translate($product_id->{distribution});
+
+
+#-------------------------------------------------------------
+# Splash window:   please wait ...
+my $window_splash = Gtk2::Window->new('popup');
+$window_splash->signal_connect(delete_event => \&quit_global);
+$window_splash->set_title(N("%s Control Center", $branding));
+$window_splash->set_position('center_always');
+$window_splash->add(gtknew('Fixed', widget_name => 'Steps',
+                                  children => [
+                                          [ gtknew('Image_using_pixbuf', file => 'splash_screen'), 0, 0 ],
+                                          [ gtknew('Label', text => N("%s Control Center", $branding)), 21, 60 ],
+                                          [ gtknew('Label', text => N("Loading... Please wait")), 21, 175 ],
+                                         ]),
+                    );
+$window_splash->show_all;
+gtkflush();
+
+
+#-------------------------------------------------------------
+# Data structures
+my $more_wizard_dir = "/etc/wizard.d/";
+
+#neobht patch start
+my $isRpmDrake2lzm = -e "/usr/sbin/rpmdrake2lzm";
+my $isConv4mod = -e "/usr/sbin/conv4mod";
+#neobht patch end
+my $isWiz = -e "/usr/sbin/drakwizard";
+my $isRpmDrake = -e "/usr/sbin/rpmdrake";
+my $isParkRpmDrake = -e "/usr/sbin/park-rpmdrake";
+my $isWebAdmin = -e "/usr/bin/mdkwebadmin";
+my $isRfbDrake = -e "/usr/bin/rfbdrake";
+my $isDrakStats = -e "/usr/sbin/drakstats";
+
+my $application_driven_menu;
+
+sub is_wizard_installed { -f top(glob("/usr/lib/perl5/vendor_perl/*/MDK/Wizard/$_[0]")) }
+
+my $is_auth_wizard_installed = is_wizard_installed('Nisautofs.pm');
+
+
+sub wizard_format {
+    map {
+        my ($id, $wizard, $icon, $description, $long_description, $file) = @$_;
+        $programs{$id} =
+          {
+           binary => "$sbindir/drakwizard $wizard",
+           embedded => 1,
+           description => $description,
+           long_description => $long_description,
+           icon => $icon,
+          };
+         if_(is_wizard_installed($file), $id);
+    } @_;
+}
+
+# [ [ class_label, class icon name, [ program_label, ... ] ]
+my @tree = (
+
+# neobht patch start
+    if_($isRpmDrake2lzm ,
+        [
+            #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+            N("MagOS Tools"), 'magos-tools', 'magos-tools',
+            [
+                if_(1,
+                    {
+                        title => N("Modules Management"),
+                        list => [
+                        if_($isRpmDrake2lzm,
+                            (map {
+                                my ($id, $icon, $op, $description, $long_description) = @$_;
+                                $programs{$id} =
+                                  {
+                                      binary => "/usr/sbin/rpmdrake2lzm $op",
+                                      embedded => -1, # too big
+                                      description => $description,
+                                      long_description => $long_description,
+                                      icon => $icon,
+                                  };
+
+                                $id;
+                            } ( # [ id, wizard file name, icon, description ]
+                                [ "rpmdrake2lzm", "software", "/mnt/livemedia/MagOS/optional/", N("Install Software & Create LZM module"), ""]
+                                )
+                        )
+                        ),
+                        if_($isConv4mod,
+                            (map {
+                                my ($id, $icon, $op, $description, $long_description) = @$_;
+                                $programs{$id} =
+                                  {
+                                      binary => "/usr/sbin/conv4mod $op",
+                                      embedded => -1, # too big
+                                      description => $description,
+                                      long_description => $long_description,
+                                      icon => $icon,
+                                  };
+
+                                $id;
+                            } ( # [ id, wizard file name, icon, description ]
+                                [ "conv4mod", "/usr/share/icons/other_archiving.png", "", N("Convert LZM modules"), ""]
+                                )
+                        )
+                        ),
+                        ],
+                    },
+                    {
+                        title => N("Configs Management"),
+                        list => [
+                    	    if_(0,
+                            (map {
+                                my ($id, $icon, $op, $description, $long_description) = @$_;
+                                $programs{$id} =
+                                  {
+                                      binary => "/usr/bin/zenity $op",
+                                      embedded =>-1, # too big
+                                      description => $description,
+                                      long_description => $long_description,
+                                      icon => $icon,
+                                  };
+
+                                $id;
+                        	} ( # [ id, wizard file name, icon, description ]
+                            	    [ "zenity", "", "--info --text='Настройка системы'", N("Config MagOS"), ""]
+                            	    )
+                            )
+                    	    ),
+                        ],
+                    },
+                ),
+            ]
+        ]
+    ),
+# neobht patch end
+
+    if_($isRpmDrake || $isParkRpmDrake,
+        [
+            #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+            N("Software Management"), 'software', 'software-management',
+            [
+                if_($isRpmDrake,
+                    {
+                        title => N("Software Management"),
+                        list => [
+                            "Install Software",
+                            "Mandriva Update",
+                            if_(0, "Mandriva Online"),
+                            "Updates Configuration",
+                            "Software Media Manager",
+                            "Extended Maintenance",
+                        ]
+                    },
+                ),
+                {
+                    title => N("Others"),
+                    list => [
+                        if_($isParkRpmDrake, "Manage park"),
+                        if_($isDrakStats, "Package stats"),
+                    ],
+                },
+
+            ]
+        ]
+    ),
+
+    if_(0, [ N("Server wizards"), 'wizard-mdk' ]),
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Sharing"), 'file-sharing-mdk', 'wiz-client',
+        [
+            {
+                title => N("Sharing"),
+                list => [
+                    (wizard_format( # [ id, wizard file name, icon, description ]
+                        [ "FTP wizard",        "proftpd", 'ftp-mdk', N("Configure FTP"),
+                          N("Set up an FTP server"), 'Proftpd.pm',
+                      ],
+                        [ "Samba wizard",      "samba", 'samba_server-mdk', N("Configure Samba"),
+                          N("Set up a file and print server for workstations running Linux and non-Linux systems"), 'Samba.pm', 
+                      ],
+                        [ "Manage Samba share",    "sambashare", 'wizard-mdk', N("Manage Samba share"),
+                          N("Manage, create special share, create public/user share"), 'Sambashare.pm', 1,
+                      ],
+                        [ "Web wizard",        "apache2", 'web_server-mdk', N("Configure web server"),
+                          N("Set up a web server"), 'Apache.pm',
+                      ],
+                        [ "Installation server wizard",    "installsrv", 'wizard-mdk', N("Configure installation server"),
+                          N("Set up server for network installations of %s", $branding), 'Installsrv.pm', 1,
+                      ],
+                    ),
+                 ),
+                ]
+            },
+        ]
+    ],
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Network Services"), 'network-services-mdk', 'mcc-network',
+        [
+            {
+                title => N("Network Services"),
+                list => [
+                    (wizard_format( # [ id, wizard file name, icon, description ]
+                        [ "DHCP wizard",       "dhcp", 'dhcp_server-mdk', N("Configure DHCP"),
+                          N("Set up a DHCP server"), 'Dhcp.pm',
+                      ],
+                        [ "DNS wizard",        "bind", 'dns_server-mdk', N("Configure DNS"),
+                          N("Set up a DNS server (network name resolution)"), 'Bind.pm',
+                      ],
+                        [ "Squid wizard",      "squid", 'drakproxy-mdk', N("Configure proxy"),
+                          N("Configure a web caching proxy server"), 'Squid.pm',
+                      ],
+                        [ "Time wizard",       "ntp", 'ntp_server-mdk', N("Configure time"),
+                          N("Set the time of the server to be synchronized with an external time server"), 'Ntp.pm',
+                      ],
+                        [ "SSHD wizard",       "sshd", 'wizard-sshd', N("OpenSSH daemon configuration"),
+                          N("OpenSSH daemon configuration"), 'Sshd.pm',
+                      ],
+                    ),
+                 ),
+                ]
+            },
+        ]
+    ],
+
+    [ 
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Authentication"), 'drakauth-mdk', '',
+        [
+            {
+                title => N("Authentication"),
+                list => [
+                    if_($is_auth_wizard_installed, "Authentication"),
+                    (wizard_format( # [ id, wizard file name, icon, description ]
+                        [ 'Nis+autofs wizard',        "nisautofs",  'nisautofs', N("Configure NIS and Autofs"),
+                          N("Configure the NIS and Autofs services"), 'Nisautofs.pm',
+                      ],
+                        [ "LDAP wizard",             "ldap", "ldap-mdk", N("Configure LDAP"),
+                          N("Configure the LDAP directory services"), 'Ldap.pm',
+                      ],
+                    ),
+                 ),
+                ]
+            },
+        ]
+    ],
+
+    [ 
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Groupware"), 'groupware-mdk', '',
+        [
+            {
+                title => N("Groupware"),
+                list => [
+                    (wizard_format( # [ id, wizard file name, icon, description ]
+                        if_(0, [ "News wizard",       "inn", 'news-mdk', N("Configure news"),
+                                 N("Configure a newsgroup server"), 'Inn.pm',
+                             ],
+                            [ "Kolab wizard",             "kolab", "kolab-mdk", N("Configure groupware"),
+                              N("Configure a groupware server"), 'Kolab.pm',
+                          ]),
+                        [ "Postfix wizard",    "postfix", 'postfix-mdk', N("Configure mail"),
+                          N("Configure the Internet Mail services"), 'Postfix.pm'
+                      ],
+                    ),
+                 ),
+                ]
+            },
+        ]
+    ],
+
+    if_($isWebAdmin || $isRfbDrake,
+        [
+            #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+            N("Online Administration"), 'online-administration-mdk', '',
+            [
+                {
+                    title => N("Online Administration"),
+                    list => [
+                        if_($isWebAdmin,
+                            (map {
+                                my ($id, $icon, $op, $description, $long_description) = @$_;
+                                $programs{$id} =
+                                  {
+                                      binary => "$bindir/mdkwebadmin.pl $op",
+                                      embedded => -1, # too big
+                                      description => $description,
+                                      long_description => $long_description,
+                                      icon => $icon,
+                                  };
+
+                                $id;
+                            } ( # [ id, wizard file name, icon, description ]
+                                [ "Local Admin", 'local-administration-mdk', '--direct', N("Local administration"),
+                                  (-e "/usr/bin/webmin" ? N("Configure the local machine via web interface") : N("You don't seem to have webmin intalled. Local config is disabled"))
+                              ],
+                                [ "Remote Admin", 'remote-administration-mdk', '--link', N("Remote administration"),
+                                  N("Click here if you want to configure a remote box via Web interface"),
+                              ])
+                        )
+                        ),
+                        if_($isRfbDrake, 
+                            "Remote Control",
+                        )
+                    ]
+                },
+            ]
+        ]),
+
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Hardware"), 'drakhard-mdk', 'mcc-hardware',
+        [
+            {
+                title => N("Manage your hardware"),
+                list => [
+                    "Hardware List",
+                    "Sound",
+                ]
+            },
+            {
+                title => N("Configure graphics"),
+                list => [
+                    "3D",
+                    "Graphical server configuration",
+                ]
+            },
+            {
+                title => N("Configure mouse and keyboard"),
+                list => [
+                    "Keyboard",
+                    "Mouse",
+                ]
+            },
+            {
+                title => N("Configure printing and scanning"),
+                list => [
+                    "Printer",
+                    "Scanner",
+                    if_(-x "$bindir/drakfax", "Fax"),
+                ]
+            },
+            {
+                title => N("Others"),
+                list => [
+                    "UPS",
+                ]
+            },
+        ]
+    ],
+
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Network & Internet"), 'net-mdk', 'mcc-network',
+        [
+            {
+                title => N("Manage your network devices"),
+                list => [
+                    "Network Center",
+                    "Add Connection",
+                    if_(!-x "$sbindir/draknetcenter",
+                        "Configure Internet",
+                        "Manage Connection",
+                        "Monitor Connection",
+                    ),
+                        "Remove Interface",
+                ]
+            },
+            {
+                title => N("Personalize and Secure your network"),
+                list => [
+                    "Proxy Configuration",
+                    "Connection Sharing",
+                    "Network Profiles",
+                    "VPN",
+                ]
+            },
+            {
+                title => N("Others"),
+                list => [
+                    "Hosts",
+                ]
+            },
+        ],
+    ],
+
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("System"), 'system-mdk', 'mcc-system', 
+        [
+            {
+                title => N("Manage system services"),
+                list => [
+                    if_(!$is_auth_wizard_installed, "Authentication"),
+                    "Menus",
+                    "Services",
+                    "Fonts",
+                ]
+            },
+            {
+                title => N("Localization"),
+                list => [
+                    "Date & Time",
+                    "Localization",
+                ]
+            },
+            {
+                title => N("Administration tools"),
+                list => [
+                    "Logs",
+                    if_($ENV{LANGUAGE} !~ /^zh/, "Console"),
+                    "Users",
+                    "Migration",     
+                    if_(-x "$xbindir/drakcronat", "Programs scheduling"),
+                    "Backups",
+                    'Snapshots',
+                    "Virtualization",
+                ]
+            },
+        ]
+    ],
+
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Network Sharing"), 'network-sharing-mdk', '',
+        [
+            {
+                title => N("Configure Windows(R) shares"),
+                list => [
+                    "Access Windows shares",
+                    "Samba configuration",
+                ]
+            },
+            {
+                title => N("Configure NFS shares"),
+                list => [
+                    "NFS mount points",
+                    "NFS exports",
+                ]
+            },
+            {
+                title => N("Configure WebDAV shares"),
+                list => [
+                    "WebDAV mount points",
+                ]
+            },
+        ],
+    ],
+
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Local disks"), 'partition-mdk', 'mcc-localdisks',
+        [
+            {
+                title => N("Local disks"),
+                list => [
+                    "Hard Drives",
+                    (map {
+                        my ($type, $scan, $text_orig, $long_text) = @$_;
+                        map_index {
+                            my $text = sprintf(translate($text_orig), $_->{info});
+                            my $full_name = $text . ($::i ? $::i + 1 : '');
+                            $programs{$full_name} =
+                              {
+                                  binary => "$sbindir/diskdrake --removable=$_->{device}",
+                                  embedded => 1,
+                                  description => $text,
+                                  long_description => sprintf(translate($long_text), $_->{info}),
+                                  icon => "diskdrake_$type",
+                              };
+                            $full_name;
+                        } $scan->();
+                    } do {
+                        my %cdroms_by_type;
+                        foreach (detect_devices::cdroms()) {
+                            my $type = detect_devices::isBurner($_) ? 'burner' : detect_devices::isDvdDrive($_) ? 'DVD' : 'cdrom';
+                            push @{$cdroms_by_type{$type}}, $_;
+                        }
+                        ([ 'cdrom', sub { @{$cdroms_by_type{cdrom} || []} }, N_("CD-ROM (%s)",),
+                           N_("Set where your \"%s\" CD-ROM drive is mounted"),
+                       ],
+                         [ 'dvd', sub { @{$cdroms_by_type{DVD} || []} }, N_("DVD-ROM (%s)"),
+                           N_("Set where your \"%s\" DVD-ROM drive is mounted"),
+                       ],
+                         [ 'cdwriter', sub { @{$cdroms_by_type{burner} || []} }, N_("CD/DVD burner (%s)"),
+                           N_("Set where your \"%s\" CD/DVD burner is mounted"),
+                       ],
+                         [ 'zip', \&detect_devices::zips, N_("ZIP drive"),
+                           N_("Set where your ZIP drive is mounted"),
+                       ],
+                     );
+                    }),
+                    "Partition Sharing",
+                ]
+            },
+        ]
+    ],
+
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Security"), 'security-mdk', 'mcc-security',
+        [
+            {
+                title => N("Security"),
+                list => [
+                    "Security Level",
+                    "Tomoyo Policy",
+                    "Firewall",
+                    "Mandriva Tools Authentication",
+                    "Invictus Firewall",
+                    "Parental Controls",
+                ]
+            },
+        ]
+    ],
+
+    [
+        #-PO: please keep the following message very short: it must fit in the left list of MCC!!!
+        N("Boot"), 'drakboot-mdk', 'mcc-boot',
+        [
+            {
+                title => N("Configure boot steps"),
+                list => [
+                    #if_(detect_devices::floppies, "Boot Disk"), # kernel is too big
+                    "Auto login Config",
+                    "Boot Config",
+                    "Display Manager chooser",
+                ]
+            },
+            {
+                title => N("Boot look'n feel"),
+                list => [
+                    #"Boot Theme",
+                ]
+            },
+            {
+                title => N("Others"),
+                list => [
+                    if_(0, "Auto Install"),
+                ]
+            },
+        ]
+    ],
+);
+
+if (scalar glob_("$more_wizard_dir/*.conf")) {
+    my @leaf = (
+        N("Additional wizards"),
+        'wizard-mdk',
+        []
+    );
+
+    foreach my $file (glob_("$more_wizard_dir/*.conf")) {
+        next unless -f $file;
+        my %tmp = getVarsFromSh($file);
+        $programs{$tmp{NAME}} = {
+            binary => "$sbindir/drakwizard " . lc($file),
+            embedded => 1,
+            description => $tmp{DESCRIPTION},
+            icon => $tmp{ICON} || 'wizard-mdk',
+            long_description => $tmp{LONG_DESCRIPTION},
+        };
+        push(@{$leaf[2]}, $tmp{NAME});
+    }
+    push(@tree, \@leaf);     
+}
+
+#-------------------------------------------------------------
+# let build the GUI
+
+
+my $align = mygtk2::text_direction_rtl() ? "right" : "left";
+my $align2 = mygtk2::text_direction_rtl() ? "right" : "left";
+
+
+# main window :
+
+my ($timeout, %check_boxes, $emb_socket);
+
+# set default size:
+
+my $window_global = gtkset_size_request(Gtk2::Window->new('toplevel'), $min_width, $min_height);
+$::main_window = $window_global;
+
+if ($geometry) {
+    @h{qw(HEIGTH WIDTH)} = $geometry =~ /(\d+)x(\d+)/;
+    my ($x, $y) = $geometry =~ /([+-]\d+)([+-]\d+)/;
+    $window_global->set_uposition($x, $y) if $x || $y;
+} else {
+}
+$window_global->resize(max($default_width, $h{WIDTH}, $min_width), max($h{HEIGTH}, $default_height, $min_height));
+
+$window_global->set_icon(gtkcreate_pixbuf("/usr/share/icons/drakconf.png"));
+
+my $pending_app = 0;
+
+my $help_on_context = 'drakconf-intro';
+
+my @themes = grep { -d "$themes_dir/$_" } all($themes_dir);
+
+#-PO Translators, please keep all "/" charaters !!!
+my %options = (
+    'show_log' => [ N("/_Options"), N("/Display _Logs") ],
+    'embedded_mode' => [ N("/_Options"), N("/_Embedded Mode") ],
+    'wiz_expert' => [ N("/_Options"), N("/Expert mode in _wizards") ],
+);
+
+my $mdk_rel = common::mandrake_release();
+
+my ($steps, $view);
+
+my $release = mandrake_release_info();
+
+my @menu_items = (
+                  [ N("/_File"), undef, undef, undef, '<Branch>' ],
+                  [ N("/_File") . N("/_Quit"), N("<control>Q"), \&quit_global, undef, '<Item>', N("Quit") ],
+                  [ N("/_Options"), undef, undef, undef, '<Branch>' ],
+                  [ join('', @{$options{show_log}}), undef,
+                    sub  {
+                        $option_values{show_log} = $check_boxes{show_log}->get_active;
+                        if ($option_values{show_log}) {
+                            start_logdrake();
+                        } else {
+                            kill_logdrake();
+                        }
+                    },
+                    undef, '<CheckItem>'
+                  ],
+
+                  if_(0 && $isWiz,
+                      [ join('', @{$options{wiz_expert}}), undef,
+                        sub { $option_values{expert_wizard} = $check_boxes{wiz_expert}->get_active },
+                        undef, '<CheckItem>',
+                      ],
+                     ),
+                  if_(@themes > 1,
+                      [ N("/_Themes"), undef, undef, undef, '<Branch>' ],
+                      (map {
+                          my $name = $_;
+                          [ N("/_Themes") . "/" .  ($name eq $theme ? " O  " : "      ") . "_$_", undef,
+                            sub {
+                                return if $theme eq $name;
+                                !$pending_app || splash_warning(N("This action will restart the control center.\nAny change not applied will be lost."), 1) and do {
+                                    # embedded app must be killed
+                                    kill_children();
+                                    kill_logdrake();
+                                    child_just_exited();
+                                    exec "$0 --theme $name";
+                                };
+                            }, undef, '<CheckItem>'
+                          ];
+		      } @themes),
+                      [ N("/_Themes") . N("/_More themes"), undef, \&more_themes, undef, '<Item>' ]
+                     ),
+                  [ N("/_Help"), undef, undef, undef, '<Branch>' ],
+                  [ N("/_Help") . N("/_Help"), undef, \&run_help, undef, '<Item>', N("Help") ],
+                  [ N("/_Help") . N("/_Release notes"), undef,  sub { run_browser('Notes') }, undef, '<Item>', N("Help") ],
+                  [ N("/_Help") . N("/What's _New?"), undef,  sub { run_browser("What's New?") }, undef, '<Item>', N("Help") ],
+                  [ N("/_Help") . N("/_Errata"), undef,  sub { run_browser('Errata') }, undef, '<Item>', N("Help") ],
+                  [ N("/_Help") . N("/_Report Bug"), undef, sub {
+                        run_program::raw({ detach => 1, as_user => 1 }, 'drakbug', '--report', (split(/\s/, $pending_app))[0] || 'drakconf');
+                      }, undef, '<Item>' ],
+                  [ N("/_Help") . N("/_About..."), undef, \&about_mdk_cc, undef, '<Item>' ]
+                 );
+
+
+sub run_help() {
+    run_program::raw({ detach => 1, as_user => 1 }, 'drakhelp', '--id', $help_on_context);
+}
+
+sub run_browser {
+    my ($url) = @_;
+    $url = "http://wiki.mandriva.com/en/$release->{version}_$url" if $url !~ m!^http://!;
+    run_program::raw({ detach => 1, as_user => 1 }, '/usr/bin/www-browser', $url);
+}
+
+my ($menu, $factory) = create_factory_menu($window_global, @menu_items);
+
+# to retrieve a path, one must prevent "accelerators completion":
+sub get_path { join('', map { my $i = $_; $i =~ s/_//g; $i } @_) }
+
+%check_boxes = map {
+    $_ => $factory->get_widget("<main>" . get_path(@{$options{$_}}));
+} ('show_log', if_(0 && $isWiz, "wiz_expert"));
+
+my @buttons;
+my $offset = 15;
+
+$view = gtknew('WebKit_View', no_popup_menu => 1);
+# so that it exists when building steps:
+my $banner_notebook = Gtk2::Notebook->new;
+build_list();
+
+gtkadd($window_global,
+       gtkpack_(Gtk2::VBox->new(0, 0),
+                0, $menu,
+                #0, $banner_notebook,
+                0, Gtk2::HSeparator->new,
+                # 0, gtkset_size_request(Gtk2::VBox->new(10, 10), -1, 2),
+                1, gtkpack_(Gtk2::HBox->new(0, 0),
+                            1, $steps = gtknew('MDV_Notebook', parent_window => $window_global, children => [ #Layout Fixed
+                                # 145 is the vertical offset in order to be below the actual logo:
+                                [ gtknew('VBox', widget_name => 'Steps', spacing => 0, width => (192 - $offset),
+                                         children_tight => [ map {
+                                             gtknew('HBox', spacing => 0, children => [
+                                                 1, $_,
+                                                 0, gtknew('Alignment', width => 12),
+                                             ]);
+                                             } @buttons ]), 0, 100 ],
+                            ], right_child => gtknew('ScrolledWindow', child => gtkset_border_width($view, 5),
+                                                     no_shadow => 1, h_policy => 'never')),
+                            1, gtkpack(my $emb_box = Gtk2::VBox->new(0, 0),
+                                       my $wait_darea = gtkset_size_request(Gtk2::DrawingArea->new, -1, -1),
+                                      ),
+                           ),
+                0, Gtk2::HSeparator->new,
+                0, my $buttons = gtkadd(gtkset_layout(Gtk2::HButtonBox->new, 'start'),
+                                        map { gtkset_border_width($_, 3) }
+                                        gtksignal_connect(my $cancel = Gtk2::Button->new(N("Cancel")), 
+                                                          clicked => sub { 
+                                                              stop_wait_area();
+                                                              kill_children(); 
+                                                              child_just_exited();
+                                                          }),
+                                       ),
+               )
+      );
+
+$view->set_size_request(-1, -1);
+
+$window_global->signal_connect(delete_event => \&quit_global);
+
+my $accel = Gtk2::AccelGroup->new;
+$accel->connect(Gtk2::Gdk->keyval_from_name('F1'), [], ['visible'], \&run_help);
+$window_global->add_accel_group($accel);
+
+use POSIX qw(:sys_utsname_h :math_h :sys_wait_h :unistd_h);
+my (undef, $nodename) = POSIX::uname();
+$window_global->set_title(N("%s Control Center %s [on %s]", $branding, $version, $nodename));
+$window_global->set_position('center');
+
+foreach my $notebook ($banner_notebook) {
+    $notebook->set_property('show-border', 0);
+    $notebook->set_property('show-tabs', 0);
+}
+
+
+# banner :
+
+#add2notebook($banner_notebook, "", Gtk2::Banner->new("/usr/share/icons/large/drakconf.png", 
+#                                                     N("Welcome to the %s Control Center", $branding)));
+
+
+my ($_hand_cursor, $wait_cursor) = map { Gtk2::Gdk::Cursor->new($_) } qw(hand2 watch);
+
+my $left_locked = 0;
+
+#my $spacing = 25;
+
+my %tool_callbacks;
+
+my ($page_count);
+
+
+my $conf_file = '/etc/sysconfig/mcc.conf';
+foreach (cat_($conf_file)) {
+    #s/^ENABLE_//;
+    #my ($key, $val) = /^(.*)=(.*)/;
+    if (my ($key, $val) = /^ENABLE_(.*)=(.*)/) {
+        $key =~ s/_/ /g;
+        #warn "--> ($key, $val)\n";
+        $programs{$key}{disabled} = 1 if $val ne 'yes';
+        warn ">> disabling $key\n" if $val ne 'yes';
+    } else {
+        warn "bogus line in $conf_file: $_\n";
+        next;
+    }
+}
+
+sub load_packages2install() {
+    my $progs_conf_file = '/usr/share/mcc/progs.conf';
+    foreach (cat_($progs_conf_file)) {
+        #if (my ($key, $val) = /^USE_WRAPPER_FOR_(.*)=(.*)/) {
+        if (my ($key, $val) = /^INSTALL_FOR_(.*)=(.*)/) {
+            $key =~ s/_/ /g;
+            # we'll use gurpmi in order to install missing packages if needed;
+            $programs{$key}{packages2install} = $val if $val;
+        } else {
+            warn "bogus line in $conf_file: $_\n";
+            next;
+        }
+    }
+}
+
+sub clean_list {
+    my ($subtree) = @_;
+    grep {
+        my $stuff = $_;
+        my $exec = real_bin_path($programs{$stuff}{binary});
+        my $is_present = -x $exec;
+        if (!$is_present && $programs{$stuff}{packages2install}) {
+            $is_present = 1;
+            # override missing icon:
+            $programs{$stuff}{real_icon} ||= $programs{$stuff}{icon};
+            $programs{$stuff}{icon} = 'installremoverpm';
+        } elsif ($programs{$stuff}{real_icon}) {
+            $programs{$stuff}{icon} = $programs{$stuff}{real_icon};
+        }
+        # do not complain about missing entries in move:
+        warn qq("$exec" is not executable [$stuff]) if $mdk_rel !~ /Move/ && !$is_present && !$programs{$stuff}{disabled};
+        !$programs{$stuff}{hidden} && $is_present && !$programs{$stuff}{disabled};
+    } @$subtree;
+}
+
+sub build_widget_element {
+    my ($label) = @_;
+    my $icon = $programs{$label}{icon};
+    
+    die "$label 's icon is missing" if !$programs{$label} && $::testing;
+    $tool_callbacks{$label} = sub { 
+        run_tool($label, undef, #$event_box,
+                 $icon, $programs{$label}{description}, $programs{$label});
+    };
+    # FIX ME: DO THIS AGAIN:
+    $tool_feedback{$label} = sub {}; #sub { $event_box->window && $event_box->window->set_cursor($hand_cursor) };
+    my $real_icon = $icon ? '<IMG SRC="' . mygtk2::_find_imgfile($icon) . '">' : '';
+    my @widgets = (
+        qq(<TD class="img">$real_icon</TD>),
+        qq(<TD style="text-align: $align"><DIV>)
+          . escape_text_for_TextView_markup_format($programs{$label}{description})
+            . qq(</DIV></TD>)
+        );
+    qq(<TD WIDTH="49%">
+<A HREF="$label"><TABLE align="$align2" ID="subtable"><TR>
+@widgets
+</TR></TABLE></A></TD>
+);
+}
+
+my (@strings, $current_string_idx);
+sub load_view() {
+    $view->load_html_string($strings[$current_string_idx], 'file:///');
+}
+
+sub build_list() {
+    my $index = 0;
+    load_packages2install();
+    my $i;
+foreach (@tree) {
+    my ($text, $icon, $help, $subtrees) = @$_;
+
+    my @subtrees = grep { $_->{list} = [ clean_list($_->{list}) ]; !is_empty_array_ref($_->{list}) } @$subtrees;
+
+
+    # Skip empty classes:
+    next if !@subtrees;
+    $i++;
+
+
+    my $my_index = $index++;
+    my $square_icon_uri = mygtk2::_find_imgfile('cadre-ic');
+    my $back_img = mygtk2::_find_imgfile('right-white-background_right_part_768.png');
+    my $string = join("\n", qq(<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+ body {
+//    background-color:  #ecf0f2;
+//    background-image:  url($back_img);
+    background-repeat: no-repeat; /*pas de r�pition de l'image*/
+    background-attachment: fixed;
+    background-position: top left
+ }
+ p {text-align:  $align}
+ td {text-align: $align}
+ #title {
+    text-align: $align;
+    color: #5A8AD6;
+    font-weight: bold;
+    margin-left: 13px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+ }
+ #top_margin {
+    margin-top: 30px;
+ }
+ #block {
+    margin-left: 4px;
+    margin-bottom: 24px;
+    border-spacing: 8px 0px;
+ }
+ #subtable {
+    border-spacing: 8px 8px;
+ }
+ td.img {
+    background-image:  url($square_icon_uri);
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 60; height: 60;
+    text-align: center;
+ }
+ hr {
+     background-color: #eef2f6;
+     margin-left: 21px;
+     margin-right: 22px;
+     height: 1;
+     border: 0;
+ }
+ tr {text-align: $align}
+ td {
+     margin-left: 10px;
+     margin-right: 10px;
+ }
+),
+ if_(mygtk2::text_direction_rtl(), "  a { direction: rtl; unicode-bidi: embed }"), qq(
+ a:link    {color:black; text-decoration:none }
+ a:visited {color:black; text-decoration:none }
+ a:hover   {color:blue }
+// a:active  {color:black; text-decoration:none }
+</style>
+
+</HEAD>
+<BODY>
+));
+
+
+
+    # Create right notebook pages :
+
+    my $section;
+    foreach my $subtree (@subtrees) {
+        $string .= $section++ ? "<hr NOSHADE>\n" : '<div ID="top_margin"></div>';
+        my $title = mygtk2::asteriskize($subtree->{title});
+        $string .= qq(
+<div ID="title">$title</div>
+<TABLE BORDER=0 WIDTH="100%" ID="block">
+);
+        if (@{$subtree->{list}} % 2) {
+            my @widgets = (pop @{$subtree->{list}}, "");
+            @widgets = reverse @widgets if mygtk2::text_direction_rtl();
+            push @{$subtree->{list}}, @widgets;
+        }
+    $string .= join("\n",
+                    map {
+                        "<TR>" . join("\n", grep { defined $_ } @$_) . "</TR>" } 
+#                        "<TR>" . join("\n<TD> </TD>\n", grep { defined $_ } @$_) . "</TR>" } 
+                    group_by(2, map { $_ ? build_widget_element($_) : '<TD></TD>' } @{$subtree->{list}})
+                   );
+
+        $string .= "</TABLE>\n";
+    }
+    my $text_orig = $text;
+    # b/c we use Pango text markup language, we've to protect '&' caracter:
+    $text =~ s/&/&amp;/g;
+    $page_count++;
+
+    $string .= qq(</BODY></HTML>);
+    if ($save_html) {
+        mkdir_p('/tmp/mcc');
+        MDK::Common::File::output_utf8("/tmp/mcc/$i.html", $string);
+    }
+
+    $strings[$my_index] = $string;
+    push @buttons, gtknew('Button', relief => 'none', child =>
+                            gtknew('Label_Right', text_markup => qq(<small>$text</small>), ellipsize => 'end'),
+                          clicked => sub {
+                                $current_string_idx = $my_index;
+                                load_view();
+                                $steps->move_selection($_[0]->child);
+                                $banner_notebook->set_current_page($my_index);
+                                $help_on_context = $help;
+                            },
+                );
+
+    #add2notebook($banner_notebook, "", Gtk2::Banner->new($icon, $text_orig));
+}
+}
+
+$view->signal_connect('navigation-requested' => 
+                        sub {
+                            my (undef, undef, $request) = @_;
+                            my $res = 'ignore';
+
+                            # get the actual program ID:
+                            my $url = Glib::filename_from_uri($request->get_uri);
+                            $url =~ s!^/*!!; # not a path
+
+                            # workaround wekbit calling navigation-requested with "/":
+                            if (!$url) {
+                                return 'accept';
+			    }
+
+                            # url can be a translated UTF-8 string (eg: for CD/DVD entries):
+                            c::set_tagged_utf8($url);
+ 
+                            # do not crash on eg: "reload":
+                            if (!$tool_callbacks{$url}) {
+                                warn "Warning: invalid tool name: $url\n";
+                                return $res;
+                            }
+                            $tool_callbacks{$url}->();
+                            # FIXME: the following code is currently useless: 
+                            #        should we provide a way to kill buggy embedded programs ?
+                            return $res if $left_locked;
+                            warn_on_startup();
+                            return $res;
+                        });
+
+my %icons = (
+            );
+
+# manage tools not present in MCC (localedrake, drakauth, ...):
+foreach my $label (difference2([ keys %programs ], [ keys %tool_callbacks ])) {
+    my $text = $programs{$label}{description};
+    $tool_callbacks{$label} = sub { run_tool($label, undef, $icons{$label} || 'wizard-mdk', $text, $programs{$label}) };
+    $tool_feedback{$label} = sub {};
+}
+
+
+foreach (keys %check_boxes) {
+    my $widget = $check_boxes{$_};
+    if (defined $widget) {
+        $widget->set_active($option_values{$_});
+    } else {
+        print STDERR qq(BUG with LANGUAGE "$ENV{LANGUAGE}" for "$_"\n);
+        err_dialog(N("Error"), N("There's a bug in translations of your language (%s)
+
+Please report that bug.", $ENV{LANGUAGE}));
+    }
+}
+
+# "wait while launching a program" area :
+
+my ($run_pixbuf, $run_counter, $run_counter_add, %run_pixbufs);
+
+sub stop_wait_area() {
+    $wait_darea->hide;
+    Glib::Source->remove($timeout) if $timeout;
+    undef %run_pixbufs;
+}
+
+$wait_darea->signal_connect(expose_event => sub {
+    my ($w) = @_;
+    return if !$wait_darea->realized;
+    return unless $run_pixbuf; # some people got an expose event before we start an embedded tool
+    return unless $wait_darea->{size};
+    $wait_darea->{layout} ||= $wait_darea->create_pango_layout(N("Loading... Please wait"));
+    my $pixbuf = $run_pixbufs{$run_counter} ||= mygtk2::_pixbuf_render_alpha($run_pixbuf, $run_counter);
+    if (!$wait_darea->{first_expose}) {
+        $wait_darea->{first_expose} = 1;
+        my $size = $wait_darea->{size};
+        my ($d_width, $d_height) = ($size->width, $size->height);
+        ($w->{pix_width}, $w->{pix_height}) = ($pixbuf->get_width, $pixbuf->get_height);
+        my ($txt_width, $txt_height) = $wait_darea->{layout}->get_pixel_size;
+        $w->{pix_yy} = ($d_width  - $w->{pix_width})/2;
+        $w->{pix_xx} = ($d_height - $w->{pix_height} - $txt_height)/2;
+        $w->{text_yy} = $w->{pix_yy} + ($w->{pix_width} - $txt_width)/2;
+        $w->{text_xx} = $w->{pix_xx} + $w->{pix_height} + 5;
+    }
+    $pixbuf->render_to_drawable($w->window, $w->style->fg_gc('normal'), 0, 0, $w->{pix_yy}, $w->{pix_xx}, $w->{pix_width}, $w->{pix_height}, 'normal', 0, 0);
+    my $style = $wait_darea->{style} ||= $wait_darea->get_style;
+    $wait_darea->window->draw_layout($style->text_gc('normal'), $w->{text_yy}, $w->{text_xx}, $w->{layout});
+    $run_counter += $run_counter_add;
+    $run_counter_add = -$run_counter_add if $run_counter < 100 || 255-$run_counter_add < $run_counter;
+});
+
+gtkflush();
+
+# display first page (we use a timeout so that Y position of widgets is know):
+Glib::Timeout->add(100, sub { $buttons[0]->signal_emit('clicked'); 0 });
+
+$window_global->show_all;
+
+hide_buttons();
+$emb_box->hide;
+$wait_darea->realize;
+
+$SIG{USR1} = 'IGNORE';
+$SIG{USR2} = 'IGNORE';
+$SIG{TERM} = \&quit_global;
+$SIG{CHLD} = \&sig_child;
+
+$window_splash->destroy;
+undef $window_splash;
+Glib::Timeout->add(200, sub { sig_child('CHLD', 1); 1 });
+
+if ($program) {
+    if (my $sub = $tool_callbacks{$program}) {
+        Glib::Timeout->add(500, sub { $sub->(); 0 });
+    } else {
+        err_dialog(N("Error"), N("Impossible to run unknown '%s' program", $program));
+
+    }
+}
+
+Gtk2->main;
+
+
+sub group_by {
+    my $nb = shift @_;
+    my @l;
+    for (my $i = 0; $i < @_; $i += $nb) {
+        push @l, [ map { $_[$_] } $i..$i+$nb-1  ]; # $_[$i], $_[$i+1], $_[$i+2] ];
+    }
+    @l;
+}
+
+sub warn_on_startup() {
+    if ($pending_app) {
+        return if !splash_warning(N("The modifications done in the current module won't be saved."), 1);
+        kill_children();
+        child_just_exited();
+    }
+}
+
+#-------------------------------------------------------------
+# socket/plug managment
+
+# called once embedded tool has exited
+sub child_just_exited() {
+    $pending_app = 0;
+    $left_locked = 0;
+    if ($emb_socket) {
+        $emb_socket->destroy;
+        undef $emb_socket;
+    }
+    $emb_box->hide;
+    hide_buttons();
+    $cancel->hide;
+    gtkset_mousecursor_normal();
+    foreach my $w ($steps, $banner_notebook) {
+        $w->show;
+    }
+    
+    stop_wait_area();
+}
+
+sub hide_socket_and_clean() {
+    $emb_box->hide;
+    $pending_app = 0;
+}
+
+sub create_hidden_socket {
+    my ($icon, $label) = @_;
+    my $banner;
+    gtkpack_($emb_box,
+             0, $banner = gtkpack__(Gtk2::VBox->new(0, 0), Gtk2::Banner->new($icon, $label),
+                                    Gtk2::HSeparator->new,
+                                   ),
+             1, gtksignal_connect($emb_socket = Gtk2::Socket->new, 'plug-removed' => sub {
+                                      $menu->show if $application_driven_menu;
+                                      $banner->destroy;
+                                      child_just_exited();
+                                  }));
+    $banner->hide;
+    # signal emitted when embedded apps begin to draw:
+    $emb_socket->signal_connect('plug-added' => sub {
+                                    $banner_notebook->hide;
+                                    if ($application_driven_menu) {
+                                        $menu->hide;
+                                    } else {
+                                        $banner->show;
+                                    }
+                                    stop_wait_area();
+                                    $left_locked = 0;
+                                    hide_buttons();
+                                    $buttons->hide;
+                                    return if !$emb_socket;
+                                    $emb_socket->show;
+                                    $emb_socket->can_focus(1);
+                                    $emb_socket->grab_focus;
+                                    #$emb_socket->window->XSetInputFocus; #only need by console (no more embedded until we've vte/zvt binding)
+                                });
+    $emb_box->set_focus_child($emb_socket);
+    $emb_socket->hide;
+}
+
+
+#-------------------------------------------------------------
+# processes managment
+
+# embedded processes pid will be stocked there
+my @pid_launched;
+
+# logdrake pid are stocked here
+my $pid_exp;
+
+sub fork_ {
+    my ($prog, $o_pid_table) = @_;
+    $o_pid_table ||= \@pid_launched;
+    my $pid = fork();
+    if (defined $pid) {
+        !$pid and do { exec($prog) or POSIX::_exit(1) };   # immediate exit, else forked gtk+ object destructors will badly catch up parent mcc
+        push @$o_pid_table, $pid;
+        return $pid;
+    } else {
+        splash_warning(N("cannot fork: %s", "$!"));
+        child_just_exited();
+    }
+}
+
+sub real_bin_path {
+    my ($prog) = @_;
+    first(split /\s+/, $prog);
+}
+
+sub run_tool {
+    my ($label, $box, $icon, $text, $tool) = @_;
+    my ($exec, $gtkplug) = @$tool{qw(binary embedded)};
+    $application_driven_menu = $tool->{application_driven_menu};
+    return if $tool_pids{$label};
+    my $will_run_gurpmi;
+    if (! -x real_bin_path($exec)) {
+        if ($tool->{packages2install}) {
+            # gurpmi doesn't support being embedded yet:
+            $gtkplug = -1;
+            $exec = join(' ', "$bindir/gurpmi", split(/\s/, $tool->{packages2install}));
+            $will_run_gurpmi = 1;
+        } else {
+            splash_warning(N("cannot fork and exec \"%s\" since it is not executable", $exec));
+            return;
+        }
+    }
+    $exec .=  " --summary" if $option_values{expert_wizard} && $exec =~ /drakwizard/;
+    my $embedded = $gtkplug != -1; # not "explicitely not embedded"
+    if ($embedded) {
+        $steps->hide;
+        create_hidden_socket($icon, $text);
+        $emb_box->show;
+        $emb_socket->realize;
+        $pending_app = $tool->{binary};
+        if ($gtkplug > 0) {
+            $buttons->show;
+            $exec .= " --embedded " . $emb_socket->get_id;
+            $wait_darea->show;
+            $cancel->show;
+            $run_pixbuf = eval { gtkcreate_pixbuf($icon . "_128") };
+            $run_counter = 255;
+            $run_counter_add = -5;
+            undef $wait_darea->{color};
+            undef $wait_darea->{size};
+            undef $wait_darea->{first_expose};
+            $wait_darea->{not_yet_complete} = 1;
+            $timeout = Glib::Timeout->add(35, sub { 
+                                              $wait_darea->{size} ||= $wait_darea->allocation;
+                                              my $style = $wait_darea->{style} ||= $wait_darea->get_style;
+                                              my $bg    = $wait_darea->{bg}    ||= $style->bg('normal');
+                                              my $base  = $wait_darea->{base}  ||= $style->base('normal');
+                                              my $color = $wait_darea->{color} ||= $base;
+                                              # $base -> $bg
+                                              my @colors = ([ $color->red,   $bg->red ],
+                                                            [ $color->green, $bg->green ],
+                                                            [ $color->blue,  $bg->blue ]);
+                                              if ($wait_darea->{not_yet_complete} && any { $_->[0] != $_->[1] } @colors) {
+                                                  $wait_darea->window->set_background($color);
+                                                  $wait_darea->{color} = gtkcolor(map { $_->[0] - min(300, $_->[0] - $_->[1]) } @colors);
+                                                  $wait_darea->queue_draw;
+                                              } elsif ($wait_darea->{not_yet_complete}) {
+                                                  # set exact color
+                                                  $wait_darea->window->set_background($bg);
+                                                  $wait_darea->queue_draw;
+                                                  $wait_darea->{not_yet_complete} = 0;
+                                              } else {
+                                                  my $w = $wait_darea;
+                                                  $wait_darea->queue_draw_area($w->{pix_yy}, $w->{pix_xx}, $w->{pix_width}, $w->{pix_height});
+                                              }
+                                              1;
+                                          });
+            $left_locked = 1;
+            $buttons->show;
+            $tool_pids{$label} = fork_($exec);
+        }
+    } else { # not embedded
+        # fix #3415 when $gtkplug eq -1
+        local $option_values{embedded} = 0;
+        $tool_pids{$label} = fork_($exec);
+        $gurpmi_pid = $tool_pids{$label} if $will_run_gurpmi;
+    }
+    start_logdrake();
+    $box->window->set_cursor($wait_cursor) if $box;
+}
+
+sub start_logdrake() {
+    # (re)start logdrake if needed
+    if ($option_values{show_log} && !$pid_exp) {
+        my $exec_log = "logdrake --explain=drakxtools";
+        $pid_exp = fork_($exec_log, []);
+    }
+
+}
+
+sub kill_them_all {
+    foreach my $pid (@_) {
+        kill('TERM', $pid) if $pid;
+    }
+}
+
+sub kill_children() {
+    kill_them_all(@pid_launched);
+}
+
+sub kill_logdrake() {
+    kill_them_all($pid_exp) if $pid_exp;
+}
+
+sub quit_global() {
+    if (@pid_launched) {
+        &kill_children();
+        return 1; # tell gtk+ not to quit
+    }
+    &kill_children();
+    &kill_logdrake();
+    my ($x, $y) = $window_global->get_size;
+    setVarsInSh($conffile, {
+        LOGS          => bool2text($option_values{show_log}),
+        EXPERT_WIZARD => bool2text($option_values{expert_wizard}),
+        HEIGTH => $y,
+        WIDTH => $x,
+        THEME         => $theme,
+    });
+    gtkset_mousecursor_normal();
+    Gtk2::exit(0);
+    standalone::exit(0);
+}
+
+
+#-------------------------------------------------------------
+# signals managment
+
+# got when child died and gone in zombie state
+sub sig_child {
+    my ($_sig, $o_is_cleaner) = @_;
+    my $child_pid;
+    do { 
+        $child_pid = waitpid(-1, POSIX::WNOHANG);
+        if (my $tool = find { $tool_pids{$_} eq $child_pid } keys %tool_pids) {
+            $tool_feedback{$tool}->();
+            delete $tool_pids{$tool};
+            @pid_launched = grep { $_ ne $child_pid } @pid_launched;
+            if ($child_pid == $gurpmi_pid) {
+                undef $gurpmi_pid;
+
+                my @services;
+                if ($programs{$tool}{services_to_start_after_install}) {
+                    @services = @{$programs{$tool}{services_to_start_after_install}};
+                    run_program::raw({ detach => 1 }, 'service', $_, 'restart') foreach @services;
+                }
+                 
+                # refresh the icon list if some package got installed (eg: system-config-printer)
+                build_list();
+                load_view();
+            }
+        }
+        undef $pid_exp if $pid_exp eq $child_pid;
+    } while $child_pid > 0;
+    # child unexpectedly died (cleanup since child_just_exited won't be called by plug-removed since plug never was added)
+    return if $o_is_cleaner || !$left_locked;
+    child_just_exited();
+    splash_warning(N("This program has exited abnormally"));
+}
+
+
+#-------------------------------------------------------------
+# mcc dialog specific functions
+
+sub splash_warning {
+    my ($label, $o_cancel_button) = @_;
+    warn_dialog(N("Warning"), $label, { cancel => $o_cancel_button });
+}
+
+sub new_dialog {
+    my ($title, $o_no_button) = @_;
+    my $dialog = gtkset_border_width(Gtk2::Dialog->new, 10);
+    $dialog->set_transient_for($window_global);
+    $dialog->set_position('center-on-parent');
+    $dialog->set_title($title);
+    $dialog->action_area->pack_start(gtkadd(Gtk2::HButtonBox->new,
+                                            gtksignal_connect(Gtk2::Button->new(N("Close")), clicked => sub { $dialog->destroy })
+                                            ),
+                                     0,0,0) unless $o_no_button;
+    gtkset_modal($dialog, 1);
+}
+
+sub more_themes() {
+    my $window_about = new_dialog(N("More themes"));
+    gtkpack_($window_about->vbox,
+             0, Gtk2::Label->new(N("Getting new themes")),
+             0, gtkadd(gtkset_shadow_type(gtkset_border_width(Gtk2::Frame->new(N("Additional themes")), 10), 'etched_out'),
+                       gtkpack(Gtk2::HBox->new(0, 5),
+                               N("Get additional themes on www.damz.net"),
+                               )
+                       )
+             );
+    $window_about->show_all;
+}
+
+sub about_mdk_cc() {
+    my $window_about = new_dialog(N("About - %s Control Center", $branding));
+
+    my $tree_model = Gtk2::TreeStore->new("Glib::String", "Glib::String", "Glib::String");
+    my $credits = Gtk2::TextView->new;
+    my $list = Gtk2::TreeView->new_with_model($tree_model);
+    $list->can_focus(0);
+    each_index {  $list->append_column(Gtk2::TreeViewColumn->new_with_attributes(undef, Gtk2::CellRendererText->new, 'text' => $::i)) } 0..1;
+    $list->set_headers_visible(0);
+
+    foreach my $row ([ N("Authors: "), '' ],
+                     [ '', 'Chmouel Boudjnah' ],
+                     [ '', 'Damien "dam\'s" Krotkine', 
+                       #-PO "perl" here is the programming language
+                       N("(perl version)") ],
+                     [ '', 'Daouda Lo' ],
+                     [ '', 'Thierry Vignaud' ],
+                     [ '', 'Yves Duret' ],
+                     [ '', '' ],
+                     [ N("Artwork: "), '', '' ],
+                     [ '', 'Anh-Van Nguyen' ],
+
+                     [ '', 
+                       #-PO If your language allows it, use eacute for first "e" and egrave for 2nd one.
+                       N("Helene Durosini"), '<ln@mandriva.com>' ],
+                     ) {
+        $tree_model->append_set(undef, [ map_index { $::i => $_ } @$row ]);
+    }
+
+    my ($previous_type, $not_first_title, $not_first_block);
+    my $locale = lang::read;
+    require Gtk2::Pango;
+    foreach my $line (grep { $_ ne "\n" && !/^#/ } cat_(top(glob("/usr/share/doc/mandriva-release-*/CREDITS"), glob("/usr/share/doc/mandriva-release-*/CREDITS.$locale->{lang}")))) {
+        $line =~ s/ Limited Edition 2005 \|//;
+        if (my ($type, $comment, $contributor) = split(/\|/, $line, 3)) {
+            last if !$type;
+            $comment =~ s/^ //; # fix initial space of first section (CREDITS format should be enhanced to specify lines that really are sections)
+            chomp($contributor);
+            if ($previous_type ne $type) {
+                gtktext_append($credits, [ [ join('', if_($not_first_title, "\n"), translate(common::to_utf8($type)), "\n"),
+                                             { 'weight' => Gtk2::Pango->PANGO_WEIGHT_BOLD, scale => Gtk2::Pango->scale_large } ] ]);
+                $previous_type = $type;
+                $not_first_title = 1;
+            }
+            if ($contributor) {
+                gtktext_append($credits,
+                               #-PO: this is used as "language: translator" in credits part of the about dialog:
+                               N("- %s: %s\n", map { translate($_) } $comment, $contributor)
+                              );
+            } else {
+                $comment = $comment . "\n" if !$not_first_block;  # fix spacing before second title;
+                gtktext_append($credits, join('', if_($not_first_block, "- "), translate($comment)));
+                $not_first_block = 1;
+            }
+        }
+    }
+
+
+    # Give our translators the ability to show their family and
+    # friends that thez participated ...
+
+#-PO Add your Name here to find it in the About section in your language.
+    my $translator_name = N("_: NAME OF TRANSLATORS\nYour names");
+#-PO Add your E-Mail address here if you want to show it in the about doialog.
+    my $translator_email = N("_: EMAIL OF TRANSLATORS\nYour emails");
+    if ($translator_name ne "Your names" && 0) {
+        $tree_model->append_set(undef, [ 0 => $_->[0],  1 => $_->[1] ]) foreach [ '', '' ], [ N("Translator: ") ];
+        $tree_model->append_set(undef, [ 0 => $_->[0],  1 => $_->[1] ]) foreach [ '', $translator_name, $translator_email ];
+    }
+    $list->get_selection->set_mode('none');
+
+    gtkpack_($window_about->vbox,
+             (0, Gtk2::Banner->new('/usr/share/icons/large/drakconf.png',
+                                   #-PO: Here, first %s will be replaced by 'Mandriva Linux'
+                                   #-PO: second %s will be replaced by the version (eg: "Mandriva Linux 2007.1 (Discovery) Control Center")
+                                                       N("%s %s (%s) Control Center",
+                                                         $branding, @$release{qw(version product)}))),
+             0, Gtk2::Label->new(""),
+             0, Gtk2::Label->new(
+                 #-PO: here %s is eg: "1999-2008"
+                 N("Copyright (C) %s Mandriva SA", '1999-2008') . "\n"),
+             0, Gtk2::HSeparator->new,
+             0, Gtk2::Label->new(""),
+             1, my $n = Gtk2::Notebook->new,
+             );
+
+    add2notebook($n, N("Authors"), $list);
+    add2notebook($n, N("Mandriva Linux Contributors"), gtkset_size_request(create_scrolled_window($credits), 650, 50));
+    $n->set_current_page(0);
+
+    $window_about->show_all;
+}
+
+
+#-------------------------------------------------------------
+# mcc specific graphic functions:
+
+
+sub set_page {
+    my ($index) = @_;
+    start_logdrake();
+    set_page_raw($index);
+    hide_buttons();
+}
+
+sub hide_buttons() {
+    $buttons->hide;
+    $cancel->hide;
+}
+
+
+sub create_packtable2 {
+    my ($options, @l) = @_;
+    my $w = Gtk2::Table->new(0, 0, 1);
+    add2hash_($options, { xpadding => 5, ypadding => 0 });
+    each_index {
+	my ($i, $l) = ($::i, $_);
+	each_index {
+	    my $j = $::i;
+	    if ($_) {
+		ref $_ or $_ = gtknew('WrappedLabel', text => $_);
+          $w->attach($_, $j, $j + 1, $i, $i + 1, ['expand', 'fill'], ['expand', 'fill'], $options->{xpadding}, $options->{ypadding});
+		$_->show;
+	    }
+	} @$l;
+    } @l;
+    $w->set_col_spacings($options->{col_spacings} || 0);
+    $w->set_row_spacings($options->{row_spacings} || 0);
+    gtkset_border_width($w, $::isInstall ? 3 : 10);
+}
+
+#-------------------------------------------------------------
+# mcc specific graphic functions:
+
+sub render_shiner {
+    my ($pixbuf, $shine_value) = @_;
+    my $new_pixbuf = (mygtk2::_new_alpha_pixbuf($pixbuf))[2];
+    $pixbuf->saturate_and_pixelate($new_pixbuf, $shine_value, 0);
+    $new_pixbuf;
+}
+
+sub scale {
+    my ($pixbuf, $gain) = @_;
+    my ($width, $height) = ($pixbuf->get_height, $pixbuf->get_width);
+    $pixbuf->scale_simple($height+$gain, $width+$gain, 'hyper');
+}
+
+
+1;

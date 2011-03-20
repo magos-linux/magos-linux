@@ -109,9 +109,13 @@ mv dkms_dbversion var/lib/dkms
 
 echo "Изменение файлов дистрибутива"
 cd "$MYPATH"/work/$FLASHNAME-$VERREL
+rm -fr rootfs/etc/skel/tmp
 cp -pfR ../../loaded/$FLASHNAME-$VERREL/urpmi/* rootfs
+cd rootfs/boot
+ln -sf vmlinuz-* vmlinuz
+cd ../../
 for a in rootfs rootfs-$FLASHNAME rootfs-$FLASHNAME-$VERREL ;do
-    [ -d ../../files/patches/rootfs/$a ] && cp -pfR ../../files/patches/rootfs/$a rootfs
+    [ -d ../../files/patches/rootfs/$a ] && cp -pfR ../../files/patches/rootfs/$a/* rootfs
 done 
 cd rootfs
 for a in ../../../files/patches/rootfs/all-*.sh \
@@ -137,6 +141,11 @@ for a in  $INITDNEED  ;do
    chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --add $a
 done
 
+cd ../../../
+if ! [ -c dev/null ] ;then
+   rm -f dev/null
+   mknod -m 666 dev/null c 1 3
+fi
 
 cd "$MYPATH/work/$FLASHNAME-$VERREL"
 if grep -q cpio install_errors.log ;then 

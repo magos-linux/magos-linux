@@ -87,6 +87,11 @@ rm -fr ../kernel_nopae/bin 2>/dev/null
 mkdir -p ../kernel_nopae/bin
 cd ../kernel_nopae/bin || exit 1
 move_kernel
+for a in `find | grep [.]ko[.]gz$` ;do
+   gunzip $a
+done
+NEWKERNN=$(ls -d1 lib/modules/* | tail -1 | awk -F/ 'n=NF-1 {print $n}')
+depmod -a -b ./ $NEWKERNN
 
 echo "Cоздание каталога nopae_addon"
 cd "$MYPATH"
@@ -99,7 +104,7 @@ echo "Сжатие файлов в модуль"
 mksquashfs work/$FLASHNAME-$VERREL/kernel_nopae/bin flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base/00-kernel.lzm -b 256K -lzmadic 256K
 echo "Изменение initrd"
 cd work/$FLASHNAME-$VERREL/kernel_nopae/bin/
-find | grep .ko.gz$ | sed s-./-- >>"$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/all_modules.list
+find | grep [.]ko | sed s-./-- >>"$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/all_modules.list
 cd "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/
 mkdir loop
 gunzip initrd.gz
@@ -115,9 +120,9 @@ echo "Замена модулей"
 for a in `cat modules.list` ;do
     MODNAME=`echo $a | awk -F/ '{print $NF}'`
     echo -ne "\r$MODNAME                 \r"
-    SRCMOD=`grep /$MODNAME.gz$ all_modules.list | head -1`
+    SRCMOD=`grep /$MODNAME all_modules.list | head -1`
     rm -f $a
-    cat "$MYPATH"/work/$FLASHNAME-$VERREL/kernel_nopae/bin/$SRCMOD | gunzip >$a
+    cp -p "$MYPATH"/work/$FLASHNAME-$VERREL/kernel_nopae/bin/$SRCMOD $a
 done
 echo "Запуск depmod       "
 OLDKERNN=`grep /kernel/ modules.list | head -1 | sed 's|^.*/lib/modules/||' | sed 's|/kernel/.*$||'`

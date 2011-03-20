@@ -89,18 +89,6 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
    esac
 done
 
-debug_log "Making autologin for user"
-debug_shell
-
-grep -q " autologin=" /proc/cmdline && AUTOLOGINUSER=$(cmdline_value autologin)
-if [ "$AUTOLOGINUSER" != "" ]; then
-   [ "$AUTOLOGINUSER" = "none" ] && AUTOLOGINUSER=
-   sed -i s/^AutomaticLogin=.*/AutomaticLogin=$AUTOLOGINUSER/ etc/X11/gdm/custom.conf 2>/dev/null
-   sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/X11/slim/slim.conf 2>/dev/null
-   sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ var/lib/mandriva/kde4-profiles/flash/share/config/kdm/kdmrc 2>/dev/null
-   sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ var/lib/mandriva/kde4-profiles/common/share/config/kdm/kdmrc 2>/dev/null
-fi
-
 debug_log "Creating users and passwords"
 debug_shell
 
@@ -126,6 +114,18 @@ for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
    fi
 done
 sed -i s=^root::=root:"$DEFAULTROOTPASSWD":= etc/shadow
+
+debug_log "Making autologin for user"
+debug_shell
+
+grep -q " autologin=" /proc/cmdline && AUTOLOGINUSER=$(cmdline_value autologin)
+[ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(echo "$NEEDEDUSERS" | awk -F: '{print $1}')
+[ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(grep :500:500: etc/passwd | awk -F: '{print $1}')
+[ "$AUTOLOGINUSER" = "none" ] && AUTOLOGINUSER=
+sed -i s/^AutomaticLogin=.*/AutomaticLogin=$AUTOLOGINUSER/ etc/X11/gdm/custom.conf 2>/dev/null
+sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/X11/slim/slim.conf 2>/dev/null
+sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ var/lib/mandriva/kde4-profiles/flash/share/config/kdm/kdmrc 2>/dev/null
+sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ var/lib/mandriva/kde4-profiles/common/share/config/kdm/kdmrc 2>/dev/null
 
 debug_log "Setting up local time zone"
 debug_shell
@@ -217,7 +217,6 @@ if [ "$NETWORKIP" != "" ] ;then
    sed -i s/192.168.1./$NETWORKIP/g etc/exports
    sed -i s/192.168.1./$NETWORKIP/g etc/samba/smb.conf
 fi
-[ -z "$SAMBADOMAIN" ] || sed -i s/"workgroup = .*"/"workgroup = $SAMBADOMAIN"/ etc/samba/smb.conf
 
 debug_log "Setting iptables exceptions"
 debug_shell
@@ -241,6 +240,7 @@ if [ "$ROUTER" = "yes" ] ;then
     sed -i s/".* -A POSTROUTING   -j MASQUERADE.*"/'[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
     sed -i /net.ipv4.ip_forward/d etc/sysctl.conf
     echo "net.ipv4.ip_forward = 1" >>etc/sysctl.conf
+    sed -i '/-A FORWARD -i eth0 -o eth0 -j DROP/d' etc/sysconfig/iptables
 else
     sed -i s/"^\[.* -A POSTROUTING   -j MASQUERADE.*"/'#ROUTER#[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
 fi
@@ -259,6 +259,32 @@ if  ! [ -z "$HTTP_PROXY$FTP_PROXY" ] ;then
     echo "export http_proxy https_proxy ftp_proxy no_proxy" >> etc/profile.d/proxy.sh
     chmod 755 etc/profile.d/proxy.sh etc/profile.d/proxy.csh
 fi
+
+debug_log "Setting ntp servers"
+debug_shell
+if  ! [ -z "$NTPSERVERS" ] ;then 
+    sed -i '/127.1/! s/^server.*//' etc/ntp.conf
+    NTPSERVERS=$(echo ";$NTPSERVERS" | sed 's/[; ,]/\\nserver /g')
+    sed -i '/fudge.*127.1/ s/$/'"$NTPSERVERS"/ etc/ntp.conf
+fi
+
+if  ! [ -z "$ADSERVER" -o -z "$DOMAIN" ] ;then
+    [ -z "$KERBEROS_REALM" ] && KERBEROS_REALM=$(echo $DOMAIN | tr [a-z] [A-Z])
+    sed -i s/kerberos.local.magos-linux.ru/$ADSERVER/ etc/krb5.conf
+    sed -i s/LOCAL.MAGOS-LINUX.RU/$KERBEROS_REALM/ etc/krb5.conf
+    sed -i s/local.magos-linux.ru/$DOMAIN/ etc/krb5.conf
+    sed -i '/realm =/d' etc/samba/smb.conf
+    sed -i '/security =/d' etc/samba/smb.conf
+    sed -i '/password server =/d' etc/samba/smb.conf
+    sed -i '/\[global\]/ s/$/'"\n  realm = $KERBEROS_REALM\n  security = ADS\n  password server = $ADSERVER"/ etc/samba/smb.conf
+    [ -z "$SAMBADOMAIN" ] && SAMBADOMAIN=$(echo $KERBEROS_REALM | awk -F . '{print $1}')
+    sed -i s/'^passwd:.*$'/'passwd:     files winbind'/ etc/nsswitch.conf
+    sed -i s/'^shadow:.*$'/'shadow:     files winbind'/ etc/nsswitch.conf
+    sed -i s/'^group:.*$'/'group:     files winbind'/ etc/nsswitch.conf
+    cp -pf etc/pam.d/system-auth-krb etc/pam.d/system-auth
+fi
+
+[ -z "$SAMBADOMAIN" ] || sed -i s/"workgroup = .*"/"workgroup = $SAMBADOMAIN"/ etc/samba/smb.conf
 
 debug_log "Profile updating"
 debug_shell

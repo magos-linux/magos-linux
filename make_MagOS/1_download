@@ -42,8 +42,8 @@ cd loaded
 rm -fr $FLASHNAME-$VERREL/srpms $FLASHNAME-$VERREL/rpms $FLASHNAME-$VERREL/*.txt 2>/dev/null
 mkdir -p $FLASHNAME-$VERREL/rpms $FLASHNAME-$VERREL/srpms
 if cd ../files/rpms ;then
-   find -L | grep .rpm$ | sed s-^.-- > ../../loaded/$FLASHNAME-$VERREL/local_rpms.txt 
-   cd ../../loaded
+   find -L | grep .rpm$ | sed s-^.-- > "$MYPATH"/loaded/$FLASHNAME-$VERREL/local_rpms.txt
+   cd "$MYPATH"/loaded
 fi
 if ! [ -f linux-live-$VER_LL.tar.gz ]  ;then
    echo "Загрузка скриптов linux-live"

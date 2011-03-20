@@ -159,3 +159,5 @@ libusbmuxd1-
 usbmuxd-
 gtk-recordmydesktop-
 evolution-data-server-
+python-vte-
+guake-

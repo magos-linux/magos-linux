@@ -183,3 +183,5 @@ gvfs-gphoto2-
 gvfs-iphone-
 gvfs-smb-
 evolution-data-server-
+python-vte-
+guake-

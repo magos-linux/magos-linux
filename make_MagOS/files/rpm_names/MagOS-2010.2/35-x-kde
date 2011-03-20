@@ -171,7 +171,7 @@ libkscreensaver5-
 libksgrd4-
 libksieve4-
 libkslox4-
-libktcore11-
+libktcore12-
 libktexteditor4-
 libktnef4-
 libkttsd4-
@@ -299,6 +299,7 @@ libkontactinterface4-
 libknewstuff34-
 libboost_program_options1.42.0-
 libktorrent1-
+libktorrent3-
 libkunitconversion4-
 libkalarm_calendar4-
 libkrfbprivate4-
@@ -341,3 +342,4 @@ plasma-applet-pastebin-
 plasma-dataengine-pastebin-
 keepassx-
 kopete-cryptography-
+libktorrent-common-

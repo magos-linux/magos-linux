@@ -1,6 +1,6 @@
 diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
 --- linux-live-6.3.0/build	2008-02-14 13:52:22.000000000 +0300
-+++ linux-live-6.3.0_patched/build	2011-01-14 13:30:49.000000000 +0300
++++ linux-live-6.3.0_patched/build	2011-03-18 14:56:30.000000000 +0300
 @@ -18,20 +18,17 @@ allow_only_root
  
  # live CD name
@@ -18,7 +18,7 @@ diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
  
  # search for kernel
 -VMLINUZ=$ROOT/boot/vmlinuz
-+VMLINUZ=$KROOT/boot/vmlinuz
++VMLINUZ=$ROOT/../rootfs/boot/vmlinuz
  if [ -L "$VMLINUZ" ]; then VMLINUZ=$(readlink -f $VMLINUZ); fi
  echo -ne "Enter path for the kernel you'd like to use [hit enter for $VMLINUZ]: "
 -read NEWKERNEL
@@ -147,7 +147,7 @@ diff -auprN linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c linux-live-6.3.0_pat
      end:
 diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initrd/initrd_create
 --- linux-live-6.3.0/initrd/initrd_create	2009-08-29 23:47:30.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/initrd_create	2011-01-14 13:30:49.000000000 +0300
++++ linux-live-6.3.0_patched/initrd/initrd_create	2011-03-19 17:32:29.000000000 +0300
 @@ -139,34 +139,59 @@ ln -sf bin $INITRD_TREE/sbin
  # necessary modules and dependency files
  mkdir -p $INITRD_TREE/$LMK/kernel/fs
@@ -182,7 +182,7 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
 +rcopy_ex $ROOT/$LMK/kernel/fs/fscache $INITRD_TREE 2>>$DEBUG
 +rcopy_ex $ROOT/$LMK/kernel/net/sunrpc/sunrpc.* $INITRD_TREE 2>>$DEBUG
 +rcopy_ex $ROOT/$LMK/kernel/net/sunrpc/auth_gss/auth_rpcgss.* $INITRD_TREE 2>>$DEBUG
-+rcopy_ex $ROOT/$LMK/kernel/net/packet/af_packet.ko.* $INITRD_TREE 2>>$DEBUG
++rcopy_ex $ROOT/$LMK/kernel/net/packet/af_packet.* $INITRD_TREE 2>>$DEBUG
 +
  # add language support for filesystems
 -rcopy_ex $ROOT/$LMK/kernel/fs/nls $INITRD_TREE 2>>$DEBUG
@@ -222,10 +222,9 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
 +
  # network modules
  for mod in $(list_network_drivers); do
--   cat $ROOT/$LMK/modules.dep | fgrep /$mod.ko | while read LINE; do
+    cat $ROOT/$LMK/modules.dep | fgrep /$mod.ko | while read LINE; do
 -      for dep in $(echo $LINE | tr -d ":"); do
 -         rcopy_ex $ROOT/$dep $INITRD_TREE 2>>$DEBUG
-+   cat $ROOT/$LMK/modules.dep | fgrep /$mod.ko.gz | while read LINE; do
 +      for dep in $(echo $LINE | tr -d ":" ); do
 +         rcopy_ex $ROOT/$LMK/$dep $INITRD_TREE 2>>$DEBUG
        done
@@ -260,7 +259,7 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
 diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linuxrc
 --- linux-live-6.3.0/initrd/linuxrc	2009-04-24 19:38:32.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/linuxrc	2011-01-14 13:30:49.000000000 +0300
++++ linux-live-6.3.0_patched/initrd/linuxrc	2011-03-18 12:15:28.000000000 +0300
 @@ -1,6 +1,9 @@
  #!/bin/ash
  # Initial script for Linux Live operating system
@@ -403,7 +402,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
     echolog $CHANGESMNT
  fi
  
-@@ -147,9 +178,26 @@ else
+@@ -147,9 +178,27 @@ else
     fi
  fi
  
@@ -413,6 +412,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +LOCAL_REP=$(cmdline_value local_rep)
 +
 +if [ "$LOCAL_REP" ]; then
++      mkdir -p $COPY2REP
 +      LOCAL_REPMNT=$(find_in_computer $LOCAL_REP $COPY2REP)
 +      [ -f "$LOCAL_REPMNT" ] && mount_device $LOCAL_REPMNT $COPY2REP  # mount again, it may be loop device
 +      [ -b "$LOCAL_REPMNT" ] && mount_device $LOCAL_REPMNT $COPY2REP  # mount block device
@@ -432,7 +432,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  mkdir -p $CHANGES
  mkdir -p $IMAGES
  
-@@ -162,7 +210,12 @@ if [ "$XINO" != "$MEMORY" ]; then
+@@ -162,7 +211,12 @@ if [ "$XINO" != "$MEMORY" ]; then
  fi
  
  # mount aufs using the writable branch as the first one (leftmost/topmost)
@@ -446,7 +446,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
  
  debug_shell
-@@ -170,32 +223,76 @@ debug_shell
+@@ -170,32 +224,76 @@ debug_shell
  # If toram or copy2ram boot parameter is present, copy all fs modules to RAM.
  # (skip modules from /optional/ which are not listed in load= boot option)
  # Finaly modify DATA variable so it will point to correct directory
@@ -533,7 +533,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -207,6 +304,51 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
+@@ -207,6 +305,51 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
  #    rm from memory once ??
  #fi
  
@@ -543,8 +543,8 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +    OLDPC=$(cmdline_value oldpc)
 +    dir_imgs="$IMAGES"
 +    mask="$OLDPC"
-+    fd=$COPY2REP/sqms
-+    echolog "converting images dirs to LZMs (no compression) for old PCs && netbooks"
++    fd=$COPY2REP/modules/sqms
++    echolog "Converting images dirs to LZMs (no compression) for old PCs && netbooks"
 +    for a in `ls -d $dir_imgs/$mask*`; do
 +	mn=$(basename $a)
 +	echo -ne \\n"     $mn --> $mn (no compression)"\\n
@@ -555,7 +555,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +    done
 +    
 +    echo -ne \\n "--> done." \\n "Total size: $(du -s -h $fd | tr -d $fd)"\\n\\n
-+    echo "After reboot setup parameters in bootloader cfg: noload=/base/ repository=[local_rep]"
++    echo "After reboot setup parameters in bootloader cfg: noload=/base/ repository=$COPY2REP"
 +    echo -ne \\n"Press ENTER to reboot..."
 +    read enter
 +    /bin/reboot -f
@@ -585,7 +585,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  echolog "copying liblinuxlive library to union"
  cp -af /liblinuxlive $UNION/usr/lib/
  
-@@ -216,6 +358,9 @@ echolog "recreating /etc/fstab and /mnt
+@@ -216,6 +359,9 @@ echolog "recreating /etc/fstab and /mnt
  touch $UNION/etc/fstab
  rmdir $UNION/mnt/* 2>/dev/null
  fstab_update $UNION
@@ -595,7 +595,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  # everything is ready now, so we may unload unused kernel modules
  # and do some cleanup, unmount few things which are no longer needed.
-@@ -231,10 +376,25 @@ mkdir -p $UNION/sys
+@@ -231,10 +377,25 @@ mkdir -p $UNION/sys
  mkdir -p $UNION/dev
  mkdir -p $UNION/tmp
  chmod 1777 $UNION/tmp
@@ -622,7 +622,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -274,7 +434,11 @@ header "linux live end, starting $LIVECD
+@@ -274,7 +435,11 @@ header "linux live end, starting $LIVECD
  
  debug_shell
  
@@ -665,21 +665,97 @@ diff -auprN linux-live-6.3.0/install linux-live-6.3.0_patched/install
  echo "Linux Live scripts were $N""ed successfuly in $1/"
 diff -auprN linux-live-6.3.0/tools/activate linux-live-6.3.0_patched/tools/activate
 --- linux-live-6.3.0/tools/activate	2008-04-21 21:18:13.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/activate	2011-01-14 22:52:50.000000000 +0300
-@@ -77,3 +77,9 @@ if [ -e "$MOD/etc/ld.so.conf" -o -e "$MO
++++ linux-live-6.3.0_patched/tools/activate	2011-03-18 12:28:46.000000000 +0300
+@@ -3,6 +3,8 @@
+ # Include it into live directory structure on the fly
+ #
+ # Author: Tomas M. <http://www.linux-live.org>
++#
++# Author: Anton Goroshkin <http://magos-linux.ru>
+ 
+ if [ "$1" = "-k" ]; then
+    CALLED_BY_KDE_HELPER=1
+@@ -18,13 +20,13 @@ MODULE=$(readlink -f "$1")
+ if [ "$MODULE" = "" -o ! -e "$MODULE" -o -d "$MODULE" ]; then
+    echo
+    echo "Activate a module on the fly while running Linux Live"
+-   echo "Usage: $0 module.lzm"
++   echo "Usage: $0 module.[lzm|rwm|rom|enc]"
+    exit 1
+ fi
+ 
+-if [ "$(echo $MODULE | fgrep -i .lzm)" = "" ]; then
+-   echo
+-   echo "$(basename $MODULE): Module must end with .lzm"
++if [ "$(echo $MODULE | fgrep -i .lzm)$(echo $MODULE | fgrep -i .rwm)$(echo $MODULE | fgrep -i .rom)$(echo $MODULE | fgrep -i .enc)" = "" ]; then
++   echo 
++   echo "$(basename $MODULE): Module must end with .lzm .rwm .rom .enc"
+    exit 2
+ fi
+ 
+@@ -36,7 +38,7 @@ IMAGES=/mnt/live/memory/images
+ MODULES=/mnt/live/memory/modules
+ 
+ # are we even using union?
+-if [ "$(grep '^aufs / ' /proc/mounts)" = "" ]; then
++if [ "$(grep '^aufs / ' /proc/mounts)$(grep '^unionfs / ' /proc/mounts)" = "" ]; then
+    echo "not in the live mode, can't continue. Try lzm2dir $MODULE /"
+    exit 4
+ fi
+@@ -56,8 +58,9 @@ if [ -e "/mnt/live/memory/changes/$(read
+    fi
+    MODULE="$TARGET"
+ fi
+-
++echo "$MODULE"
+ MOD=$(union_insert_module / "$MODULE" $IMAGES)
++echo $MOD
+ if [ $? -ne 0 ]; then echo "error inserting module to live filesystem" >&2; exit 3; fi
+ 
+ # All executables (but symlinks) in /etc/rc.d/init.d/ from this module will be started
+@@ -77,3 +80,10 @@ if [ -e "$MOD/etc/ld.so.conf" -o -e "$MO
     echo "Module contains ld.so.conf or ld.so.cache, updating libs cache..."
     /sbin/ldconfig
  fi
 +
-+# update menus
++# update menus and icons
 +if [ -e "$MOD/usr/share/applications" ]; then
-+   ps -A -F | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
++   gtk-update-icon-cache -fit /usr/share/icons/hicolor
++   ps -A | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
 +   touch /usr/share/applications
 +fi
 diff -auprN linux-live-6.3.0/tools/deactivate linux-live-6.3.0_patched/tools/deactivate
 --- linux-live-6.3.0/tools/deactivate	2008-04-21 21:34:41.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/deactivate	2011-01-14 22:52:57.000000000 +0300
-@@ -35,6 +35,8 @@ if [ -e "$IMAGES/$MODULE/var/lock/deacti
++++ linux-live-6.3.0_patched/tools/deactivate	2011-03-18 12:30:23.000000000 +0300
+@@ -4,6 +4,9 @@
+ # - for example if you have files open from the module yet.
+ #
+ # Author: Tomas M. <http://www.linux-live.org>
++#
++# Author: Anton Goroshkin <http://magos-linux.ru>
++
+ 
+ if [ "$1" = "-k" ]; then
+    CALLED_BY_KDE_HELPER=1
+@@ -18,14 +21,15 @@ PATH=.:$(dirname $0):/usr/lib:$PATH
+ . liblinuxlive || exit 5
+ 
+ allow_only_root
+-MODULE=$(basename "$1" .lzm).lzm
++MODULE="$(basename "$1")"
++
+ IMAGES=/mnt/live/memory/images
+ IPREV=empty
+ 
+ if [ "$MODULE" = "" -o ! -e "$IMAGES/$MODULE" ]; then
+    echo
+    echo "Deactivate module from the root filesystem while running Linux Live"
+-   echo "Usage: $0 module.lzm"
++   echo "Usage: $0 module.[lzm|rwm|rom|enc]"
+    exit 1
+ fi
+ 
+@@ -35,9 +39,15 @@ if [ -e "$IMAGES/$MODULE/var/lock/deacti
     exit 2
  fi
  
@@ -687,20 +763,52 @@ diff -auprN linux-live-6.3.0/tools/deactivate linux-live-6.3.0_patched/tools/dea
 +
  try_remount()
  {
++if [ $(cmdline_parameter unionfs) ];then
++   mount -t unionfs -o remount,del=$IMAGES/$MODULE unionfs / 2>/dev/null
++else
     mount -t aufs -o remount,verbose,del:$IMAGES/$MODULE aufs / 2>/dev/null
-@@ -76,3 +78,9 @@ if [ $? -ne 0 ]; then
++fi
+ }
+ 
+ # Try to simply remove the dir first. If succeeds, finish
+@@ -76,3 +86,9 @@ if [ $? -ne 0 ]; then
  fi
  losetup -d "$LOOP" 2>/dev/null # sometimes it's freed by umount automatically
  rmdir "$IMAGES/$MODULE" # if not empty or busy, a message will be shown
 +
 +# update menus
 +if [ "$UPDATE_MENUS" = "yes" ] ;then
-+   ps -A -F | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
++   ps -A | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
 +   touch /usr/share/applications
 +fi
+diff -auprN linux-live-6.3.0/tools/dir2nolzm linux-live-6.3.0_patched/tools/dir2nolzm
+--- linux-live-6.3.0/tools/dir2nolzm	1970-01-01 03:00:00.000000000 +0300
++++ linux-live-6.3.0_patched/tools/dir2nolzm	2011-03-18 12:31:14.000000000 +0300
+@@ -0,0 +1,21 @@
++#!/bin/bash
++# convert directory tree into .lzm compressed file
++# which can be used as a LiveCD module
++#
++# Author: Tomas M. <http://www.linux-live.org>
++#
++# Author: Anton Goroshkin <http://magos-linux.ru>
++
++PATH=.:$(dirname $0):/usr/lib:$PATH
++. liblinuxlive || exit 1
++
++if [ ! -d "$1" -o "$2" = "" ]; then
++   echo
++   echo "Convert directory tree into .lzm nocompressed module"
++   echo "usage: $0 source_directory output_file.lzm"
++   exit 1
++fi
++
++create_module "$1" "$2" -noI -noD -noF -nolzma
++#create_module "$1" "$2"
++if [ $? != 0 ]; then echo "error building compressed image"; exit 1; fi
 diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/liblinuxlive
 --- linux-live-6.3.0/tools/liblinuxlive	2009-02-10 14:42:05.000000000 +0300
-+++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-02-19 11:28:34.000000000 +0300
++++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-03-18 12:35:45.000000000 +0300
 @@ -3,6 +3,8 @@
  # Functions library :: for Linux Live scripts 6
  # Author: Tomas M. <http://www.linux-live.org>
@@ -939,7 +1047,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
 -# Find LZM modules in given dir
-+# Find LZM,RWM,ROM modules in given dir
++# Find LZM,RWM,ROM,ENC modules in given dir
  # $1 = root directory of mounted DATAdir
  #
  find_modules()

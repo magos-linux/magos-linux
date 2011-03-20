@@ -28,7 +28,7 @@ echo Распаковка пакета linux-live-$VER_LL.tar.gz
 tar -xf ../../loaded/linux-live-$VER_LL.tar.gz || exit 1
 
 echo Правка linux-live-$VER_LL
-cat ../../files/patches/linux-live/linux-live-$VER_LL.diff | patch -d linux-live-$VER_LL -p1 || exit 1
+patch -d linux-live-$VER_LL -p1 < ../../files/patches/linux-live/linux-live-$VER_LL.diff || exit 1
 cat <<EOF >> linux-live-$VER_LL/.config
 LIVECDNAME=$FLASHNAME
 KERNEL=`ls -1 rootfs/lib/modules | tr -d / | tail -1`

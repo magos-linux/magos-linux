@@ -67,6 +67,9 @@ for MODULE in * ;do
    if ! echo $MODULE | grep -q -- -int- ;then
       movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/locale/.*/' ../../../files/locales
       movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/gnome/help/.*/' ../../../files/locales
+      movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/man/[abd-kn-z].*/' ../../../files/locales
+      movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/man/.*/'
+      movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/info/.*/'
       movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/gnome/help/.*/'
       movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/doc/'
    fi
@@ -107,6 +110,13 @@ movefiles modules_filelist/93-international modules_filelist/*-x-kde 'usr/share/
 #movefiles modules_filelist/93-international modules_filelist/*-office 'usr/share/scribus/translations/scribus.ru.qm'
 movefiles modules_filelist/*-applications modules_filelist/93-international 'usr/share/playonlinux/lang/'
 movefiles modules_filelist/93-international modules_filelist/*-applications 'usr/share/playonlinux/lang/.*/ru.*'
+movefiles modules_filelist/*-x-gnome modules_filelist/92-documentation 'usr/share/inkscape/examples/.*'
+movefiles modules_filelist/*-x-gnome modules_filelist/93-international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
+movefiles modules_filelist/*-x-gnome modules_filelist/93-international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
+movefiles modules_filelist/*-x-gnome modules_filelist/92-documentation 'usr/share/inkscape/tutorials/.*'
+movefiles modules_filelist/*-x-gnome modules_filelist/93-international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
+movefiles modules_filelist/*-x-applications modules_filelist/93-international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
+movefiles modules_filelist/*-x-network modules_filelist/92-documentation 'usr/share/vpnpptp/wiki/.*.doc'
 
 for a in modules_filelist/*-int-* ;do
    LOCALES=`grep usr/share/locale/ $a | sed 's|usr/share/locale/||' | sed 's|[-_@/].*$||' | sort -u `
@@ -144,6 +154,7 @@ mv *-core/lib/modules/*/* *kernel*/lib/modules/*/ 2>/dev/null
 mv *-core/var/lib/dkms-binary/* *kernel*/var/lib/dkms-binary 2>/dev/null
 mv *-core/usr/share/mdk/screensaver/* *x-base*/usr/share/mdk/screensaver 2>/dev/null
 
+echo "Изменение модулей"
 for a in `grep var/lib/rpm/ ../rootfs_list | grep -v var/lib/rpm/modules` ;do
     mv -n *-core/$a 91-fullrpmbase/var/lib/rpm 2>/dev/null
 done
@@ -160,8 +171,17 @@ if [ -d *-x-gnome ] ;then
    sed -i s/KDE4/GNOME/ etc/sysconfig/desktop
    cd ../
 fi
+
 cd *kernel*/boot
-ln -s `ls -1 vmlinuz-* | head -1` vmlinuz
+rm -f vmlinuz*
+cd ../
+for a in `find | grep .ko.gz$` ;do
+   gunzip $a
+done
+cd lib/modules
+KERNVER=$(ls -1 | tail -1 | sed 's-/$--')
+cd ../../
+depmod -a -b ./ $KERNVER
 cd "$MYPATH"
 cp -pR files/patches/modules/* work/$FLASHNAME-$VERREL/modules
 

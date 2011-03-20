@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# /usr/sbin/rpmdrake2lzm
+#
+# Description: create LZM using rpmdrake (& dependences)
+# Author : Anton Goroshkin ( http://magos-linux.ru )
+
+
+if [ "$(id -un)" != "root" ] ;then
+   gksu -g "/bin/bash '$0' $@"
+   exit 0
+fi
+
+PATH=.:$(dirname $0):/usr/lib:$PATH
+ 
+mod_br=/mnt/live/memory/tmp/_fly_mods
+root_br=/mnt/live/memory/tmp/_fly_rootfs
+mod_path=/mnt/live/memory/images
+ 
+mount_br=$mod_br
+ 
+rm -rf $mount_br $root_br
+mkdir -p $mount_br $root_br
+ 
+for a in `ls -d $mod_path/??-*`; do
+    mount_br="$mount_br:$a=rr"
+done
+ 
+mount -t aufs -o br:$mount_br wiz_fly $root_br
+mkdir -p $root_br/tmp
+/usr/sbin/rpmdrake --rpm-root=$root_br
+umount wiz_fly
+
+
+mod_name=$(dbus-launch mdialog --getsavefilename *.lzm)
+[ "$mod_name" = "" ] && exit -1
+
+dbus-launch mdialog --passivepopup "Внимание!!! Данный процесс может занимать длительное время. Остановка прогрессбара - не признак зависания. Просто необходимо немного подождать"
+
+#dbus-launch mdialog --progressbar dir2lzm:$mod_br/var/lib/rpm:"$mod_name-rpmbase.lzm" chmod:666:"$mod_name-rpmbase.lzm" rm:-rf:$mod_br/var/lib/rpm rm:-rf:$mod_br/tmp dir2lzm:$mod_br:"$mod_name.lzm" chmod:666:"$mod_name.lzm"
+dbus-launch mdialog --progressbar rm:-rf:$mod_br/var/lib/rpm rm:-rf:$mod_br/tmp dir2lzm:$mod_br:"$mod_name.lzm" chmod:666:"$mod_name.lzm"
+
+dbus-launch mdialog --msgbox "Создание модуля [$mod_name.lzm] завершено :)"
+
+rm -rf $mod_br

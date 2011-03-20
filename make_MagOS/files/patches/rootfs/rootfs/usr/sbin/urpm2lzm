@@ -19,17 +19,29 @@ rm -rf $mount_br $root_br
 mkdir -p $mount_br $root_br
  
 for a in `ls -d $mod_path/??-*`; do
-    mount_br="$mount_br:$a=rr+nowh"
+    mount_br="$mount_br:$a=rr"
 done
  
 mount -t aufs -o br:$mount_br wiz_fly $root_br
+
+mount -o bind /dev $root_br/dev
+mount -o bind /proc $root_br/proc
+mount -o bind /sys $root_br/sys
+
 mkdir -p $root_br/tmp
 /usr/sbin/urpmi --root=$root_br $@
+
+umount $root_br/sys
+umount $root_br/proc
+umount $root_br/dev
+
 umount wiz_fly
+
+#dir2lzm $mod_br/var/lib/rpm $1_rpmbase.lzm
+
 rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/tmp
 
 dir2lzm $mod_br $1.lzm
 
 rm -rf $mod_br
-   

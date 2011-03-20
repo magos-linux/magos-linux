@@ -108,3 +108,5 @@ libsasl2-plug-gssapi-
 hostap-utils-
 hostapd-
 screen-
+krb5-workstation-
+tcsh-
