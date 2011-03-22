@@ -1,0 +1,293 @@
+#!/bin/ash
+# Initial script for Linux Live operating system
+# Author: Tomas M <http://www.linux-live.org/>
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+mount -n -t proc proc /proc
+mount -n -t sysfs sysfs /sys
+mount -n -o remount,rw /         # for the case we forgot rw boot option
+ln -sf /proc/mounts /etc/mtab    # this allows us to use umount -a
+
+. liblinuxlive # it requires proc to be mounted
+
+header "starting Linux Live scripts <http://www.linux-live.org/>"
+
+# Don't print kernel messages to konsole now.
+# Syslog will reset printk settings, no need to remember it here anymore.
+echo "0" >/proc/sys/kernel/printk
+
+# Load essential drivers, like CDROM drivers, aufs/squashfs etc,
+# use mdev to create /dev/ devices and setup it as a hotplug-handler
+modprobe_essential_modules
+
+# /usr and some drivers are compressed in initrd 
+# so it must be mounted from .lzm files
+mount_initrd_loops
+
+# start hotplugging before hw drivers load
+mdev_start_hotplug
+
+# Then load drivers for data storage and input devices
+modprobe_usb_modules
+modprobe_pcmcia_modules
+
+debug_shell
+
+# make sure ext3 partitions are not mounted using ext2 driver,
+# and vfat partitions are not mounted using msdos driver
+echo -e "ext3\next2\nvfat\n*" >/etc/filesystems
+
+mkdir -p $UNION
+mkdir -p $MEMORY
+
+debug_shell
+
+# Find livecd data directory by searching for livecd.sgn file
+SGN=$(cmdline_value sgnfile)
+if [ "$SGN" = "" ]; then SGN=livecd.sgn; fi
+echolog "looking for '$LIVECDNAME' data directory (searching for $SGN file)"
+
+# First, try from= boot argument, if given
+DATAFROM=$(cmdline_value from)
+
+# If ip= parameter is present, assume we're booted over PXE
+# In that case, we have to initialize network very soon (now)
+# ip=<client-ip>:<boot-server-ip>:<gw-ip>:<netmask>
+# Nevertheless, from= parameter won't be overwritten by this
+IP=$(cmdline_value ip)
+if [ "$IP" != "" -a "$DATAFROM" = "" ]; then
+   DATAFROM="http://"$(echo $IP | cut -d : -f 2)
+fi
+
+if [ "$DATAFROM" ]; then
+   if [ "$(echo $DATAFROM | cut -b 1-7 | tr "[:upper:]" "[:lower:]")" = "http://" ]; then
+      init_dhcp $(modprobe_network_modules)
+      mount_httpfs $DATAFROM $MOUNTDIR/httpfs
+      # if mountdir/httpfs/livecdname is found, set DATA=, else umount httpfs
+      # - currently this part works even without the above mentioned, but livecd.sgn is required now untill it's uncommented
+   else
+      DATAFROM=$(find_in_computer $DATAFROM)
+      if [ "$DATAFROM" ]; then
+         mount_device $DATAFROM $LOOPMOUNT # mount again, it may be loop device
+         if [ $? -eq 0 -a "$(find_modules $LOOPMOUNT/$LIVECDNAME)" != "" ]; then
+            echolog "found in $DATAFROM"
+            DATA=$LOOPMOUNT/$LIVECDNAME
+         else
+            fumount $LOOPMOUNT
+            fumount $MOUNTDIR/*
+         fi
+      fi
+   fi
+fi
+
+if [ "$DATA" = "" ]; then
+   # from= is not used or it didn't contain valid data
+   DATA=$(find_in_computer $LIVECDNAME/$SGN)
+   DATA=$(dirname $DATA 2>/dev/null)
+fi
+
+if [ "$DATA" = "" ]; then fatal \
+"$LIVECDNAME data not found.
+You are maybe using an unsupported boot device (eg. SCSI or old PCMCIA).
+Workaround: Copy the directory $LIVECDNAME from your boot device to an IDE/SATA
+disk, eg. to /mnt/hda1/$LIVECDNAME or C:\\$LIVECDNAME. Then try to boot again."
+fi
+
+echolog "using $LIVECDNAME data from $DATA"
+
+debug_shell
+
+echolog "setting up directory for changes"
+CHANGESVAL=$(cmdline_value changes)
+
+if [ "$CHANGESVAL" ]; then
+   CHANGESMNT=$(find_in_computer $CHANGESVAL)
+   echolog $CHANGESMNT
+fi
+
+debug_shell
+
+mount_device "$CHANGESMNT" $MEMORY # removes $MEMORY if CHANGESMNT is wrong
+
+# test if the filesystem is writable so changes can be stored to it
+touch $MEMORY/empty 2>/dev/null && \
+rm -f $MEMORY/empty 2>/dev/null
+
+# if changes can't be mounted or the filesystem is not writable,
+# fallback to the default: tmpfs
+if [ $? -ne 0 ]; then
+   echolog "changes not used or not writable, using memory only"
+   fumount $MEMORY
+   mkdir -p $MEMORY # mount_device might removed it
+
+   RAMSIZE=$(cmdline_value ramsize)
+   if [ "$RAMSIZE" = "" ]; then RAMSIZE="60%"; fi
+   mount -t tmpfs -o "size=$RAMSIZE" tmpfs $MEMORY
+   XINO=$MEMORY
+else
+   # So it is writable, we will keep the filesystem mounted.
+   # Check if it supports links and chmod.
+   # If not, overmount CHANGES using posixovl
+   echolog "testing the filesystem for posix compatibility"
+   touch $MEMORY/.empty1 && \
+   ln -sf $MEMORY/.empty1 $MEMORY/.empty2 2>/dev/null && \
+   chmod +x $MEMORY/.empty1 2>/dev/null  && \
+   test -x $MEMORY/.empty1 && \
+   chmod -x $MEMORY/.empty1 2>/dev/null  && \
+   test ! -x $MEMORY/.empty1 && \
+   rm $MEMORY/.empty1 $MEMORY/.empty2 2>/dev/null
+
+   if [ $? -ne 0 ]; then
+      echolog "not compatible - starting posixovl"
+      rm $MEMORY/.empty1 $MEMORY/.empty2 2>/dev/null
+      mkdir -p $CHANGES
+      posixovl -F $CHANGES -- -o attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache,allow_other
+      find $CHANGES >/dev/null 2>&1 # cache everything now
+   fi
+fi
+
+# $UNION will be used as a root directory, livecd modules will be added soon
+echolog "setup union directory (using aufs)"
+
+mkdir -p $CHANGES
+mkdir -p $IMAGES
+
+debug_shell
+
+# store the xino file in memory in all cases, it's faster and safer
+if [ "$XINO" != "$MEMORY" ]; then
+   mkdir -p $XINO
+   mount -n -t tmpfs tmpfs $XINO
+fi
+
+# mount aufs using the writable branch as the first one (leftmost/topmost)
+mount -t aufs -o nowarn_perm,xino=$XINO/.aufs.xino,br:$CHANGES=rw aufs $UNION
+if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
+
+debug_shell
+
+# If toram or copy2ram boot parameter is present, copy all fs modules to RAM.
+# (skip modules from /optional/ which are not listed in load= boot option)
+# Finaly modify DATA variable so it will point to correct directory
+if [ "$(cmdline_parameter toram)" != "" -o "$(cmdline_parameter copy2ram)" != "" ]; then
+   echolog "copying $LIVECDNAME data to RAM, this may take some time..."
+   mkdir -p $COPY2RAM
+
+   # make sure it's in RAM even with changes= parameter
+   if [ "$CHANGESMNT" ]; then mount -t tmpfs -o "size=$RAMSIZE" tmpfs $COPY2RAM; fi
+   copy_to_ram $DATA $COPY2RAM
+
+   cd_autoeject 1
+   fumount $DATA
+   fumount $MOUNTDIR/*
+   rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
+   DATA=$COPY2RAM
+   cd_autoeject 0
+fi
+
+debug_shell
+
+# DATA contains path to the base directory of all fs modules which need
+# to be mounted and inserted into live filesystem. Do it now.
+echolog "inserting all modules and creating live filesystem"
+union_insert_modules $UNION $DATA $IMAGES
+
+# the $MEMORY directory can contain $MEMORY/modules too
+# in the case if changes= boot argument is used. If not, it doesn't hurt
+union_insert_modules $UNION $MEMORY $IMAGES
+
+debug_shell
+
+echolog "copying content of rootcopy directory"
+cp -af $DATA/rootcopy/* $UNION 2>/dev/null # may be empty
+
+# TODO: if copy2ram is used, there is no need to preserve the original in memory anymore
+#if [ "$DATA" = "$COPY2RAM" ]; then 
+#    rm from memory once ??
+#fi
+
+echolog "copying liblinuxlive library to union"
+cp -af /liblinuxlive $UNION/usr/lib/
+
+debug_shell
+
+echolog "recreating /etc/fstab and /mnt directories"
+touch $UNION/etc/fstab
+rmdir $UNION/mnt/* 2>/dev/null
+fstab_update $UNION
+
+# everything is ready now, so we may unload unused kernel modules
+# and do some cleanup, unmount few things which are no longer needed.
+rmmod_unused_modules
+fumount /usr
+fumount /sys
+
+# More likely these directories aren't there.
+# Even if they are, this won't hurt.
+mkdir -p $UNION/boot
+mkdir -p $UNION/proc
+mkdir -p $UNION/sys
+mkdir -p $UNION/dev
+mkdir -p $UNION/tmp
+chmod 1777 $UNION/tmp
+
+# Boot will contain whatever was in ./boot directory in the bootable media
+# Error output goes to null, as nothing is mounted with copy2ram
+mount -n -o rbind $(dirname $DATA)/boot $UNION/boot 2>/dev/null
+
+debug_shell
+
+# Union contains all the files and directories unioned from all modules.
+# Change root directory to it, and move initrd's root to /mnt/live/initramdisk
+# Finaly execute /sbin/init to start the distribution.
+echolog "changing root directory..."
+
+cd $UNION
+mkdir -p $INITRAMDISK
+
+# make sure some devices are there
+if [ ! -e dev/console ]; then mknod dev/console c 5 1; fi
+if [ ! -e dev/null ]; then mknod dev/null c 1 3; fi
+
+# If a boot parameter nohotplug is used, copy all dev files (found by mdev)
+# to the unioned dev directory, your Linux may need them since most likely
+# udev will not be started in that case
+if [ "$(cmdline_parameter nohotplug)" != "" ]; then
+   cp -fdR /dev . 2>/dev/null
+fi
+
+# find chroot and init
+if [ -x bin/chroot ]; then  CHROOT=bin/chroot; fi
+if [ -x sbin/chroot ]; then  CHROOT=sbin/chroot; fi
+if [ -x usr/bin/chroot ]; then  CHROOT=usr/bin/chroot; fi
+if [ -x usr/sbin/chroot ]; then CHROOT=usr/sbin/chroot; fi
+if [ "$CHROOT" = "" ]; then fatal "Can't find executable chroot command"; fi
+
+if [ -x bin/init ]; then INIT=bin/init; fi
+if [ -x sbin/init ]; then INIT=sbin/init; fi
+if [ "$INIT" = "" ]; then fatal "Can't find executable init command"; fi
+
+# time to end Linux Live scripts and start the distribution itself,
+# using /sbin/init or whatever was found.
+header "linux live end, starting $LIVECDNAME"
+
+debug_shell
+
+mount -n -o remount,ro aufs .
+
+# We will copy init from the distro to initrd (there should be 2MB free)
+# This allows us to use the cleanup script during reboot, as init will be
+# started from memory and not from the union and /union will not be busy.
+
+cp -af $INIT /bin
+if [ $? -eq 0 ]; then
+   pivot_root . $INITRAMDISK
+   exec $CHROOT . $INITRAMDISK/bin/init <dev/console >dev/console 2>&1
+else # If copying fails, start init directly.
+   pivot_root . $INITRAMDISK
+   exec $CHROOT . $INIT <dev/console >dev/console 2>&1
+fi
+
+header "!!ERROR!!"
+fatal "You are not supposed to be here, something went wrong!"

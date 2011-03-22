@@ -1,0 +1,32 @@
+#!/bin/bash
+# Install/Uninstall Linux Live scripts to /usr/bin and /usr/lib
+# so the user is able to use all these commands while running his/her 
+# Live Linux. This installer is automatically executed by build script.
+#
+# Why to install Linux Live scripts to your distribution? Well, you don't have to.
+# You only have to, if you wish to use linux-live functions while you
+# actually run the LiveCD created by these scripts.
+#
+# Author: Tomas M. <http://www.linux-live.org>
+#
+
+N=$(basename $0)
+
+if [ "$N" = "build" ]; then
+   N=install
+else
+   . ./.config || exit 1
+   if [ "$1" ]; then ROOT="$1"; fi
+fi
+
+if [ "$N" != "uninstall" ]; then
+   mkdir -p $ROOT/usr/bin
+   mkdir -p $ROOT/usr/lib
+   ls -1 ./tools | egrep -v "^lib" | while read FILE; do cp ./tools/$FILE $ROOT/usr/bin; done
+   cat ./tools/liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $ROOT/usr/lib/liblinuxlive
+else
+   ls -1 ./tools | egrep -v "^lib" | while read FILE; do rm -v $ROOT/usr/bin/$FILE; done
+   ls -1 ./tools | egrep "^lib" | while read FILE; do rm -v $ROOT/usr/lib/$FILE; done
+fi
+
+echo "Linux Live scripts were $N""ed successfuly in $1/"

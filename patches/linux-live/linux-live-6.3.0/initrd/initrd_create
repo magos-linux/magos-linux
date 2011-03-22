@@ -1,0 +1,250 @@
+#!/bin/bash
+# initrd_create:  make initrd rootdisk by using busybox
+#
+# Author:	  Tomas M. <http://www.linux-live.org>
+
+. ../.config || exit 1
+. ./liblinuxlive || exit 1
+
+if [ "$1" != "" ]; then
+   LIVECDNAME="$1"
+fi
+
+if [ "$2" != "" ]; then
+   ADDLOCALE="$2"
+fi
+
+if [ "$3" != "" ]; then
+   ROOT="$3"
+fi
+
+# rcopy is a recursive cp, which copies also symlink's real source
+# $1 = source (may be a regular file or symlink)
+# $2 = target PARENT
+#
+rcopy()
+{
+   debug "rcopy $1 $2"
+   CWD=$(pwd)
+   if [ "$ROOT" = "" ]; then cd /; else cd $ROOT; fi
+   SOURCE="./${1:${#ROOT}}"
+   echo $SOURCE
+   DEST="$2"
+   if [ -L "$SOURCE" ]; then
+      REALPATH=$(readlink -f "$SOURCE")
+      cp --parent -a "$REALPATH" "$DEST"
+      ln -sf "$REALPATH" "$DEST/$SOURCE"
+   else
+      cp --parent -a "$SOURCE" "$DEST"
+   fi
+   if [ "$?" -ne 0 ]; then
+      echo ""
+      echo "---------------------------"
+      echo "Error occured while trying to copy \"$SOURCE\""
+      echo "Possible reason: not enough free space in initrd OR source doesn't exist."
+      echo "If space is your issue, see '.config' file to increase size of initrd."
+      echo "If source file doesn't exist, it's a big problem. See DOC/requirements.txt"
+      echo "---------------------------"
+      exit 1
+   fi
+   cd $CWD
+}
+
+# copy file/dir only if it exists, else skip with no error
+# $1 = source (may not exist)
+# $2 = target PARENT
+#
+rcopy_ex()
+{
+   debug "rcopy_ex $1 $2"
+   if [ -a "$1" ]; then
+      rcopy "$1" "$2"
+   fi
+}
+
+debug()
+{
+   echo "$@" >>$DEBUG
+   return 0
+}
+
+##################################################
+# Create INITRD image now:
+
+MOUNTDIR=/tmp/initrd_mountdir_$$
+INITRD_TREE=/tmp/initrd_tree_$$
+INITRDIMG=initrd
+
+if [ ! -d $ROOT/$LMK ]; then
+   echo "cannot find your kernel modules (*.ko) in $ROOT/$LMK"
+   exit 1
+fi
+
+if [ "$(ls -1 rootfs/lib)" = "" ]; then
+   echo "cannot find essential libc libraries."
+   echo "please add ld-linux and libc.so to $(pwd)./rootfs/lib"
+   exit 1
+fi
+
+debug "creating empty directory $INITRD_TREE"
+rm -Rf $INITRD_TREE
+mkdir $INITRD_TREE
+
+debug "creating directories"
+mkdir -p $INITRD_TREE/{etc,dev,bin,mnt,proc,lib,sys,tmp,var/log}
+
+debug "creating some essential devices in rootdisk"
+mknod $INITRD_TREE/dev/console c 5 1
+mknod $INITRD_TREE/dev/fb0 c 29 0
+mknod $INITRD_TREE/dev/null c 1 3
+mknod $INITRD_TREE/dev/zero c 1 5
+mknod $INITRD_TREE/dev/ram b 1 1
+mknod $INITRD_TREE/dev/systty c 4 0
+mknod $INITRD_TREE/dev/tty c 5 0
+mknod $INITRD_TREE/dev/fuse c 10 229
+for i in 1 2 3 4 5 6; do
+  mknod $INITRD_TREE/dev/tty$i c 4 $i;
+done
+
+debug "copying files to the rootdisk"
+touch $INITRD_TREE/etc/{m,fs}tab
+cat liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $INITRD_TREE/liblinuxlive
+cp {linuxrc,cleanup} $INITRD_TREE
+chmod ago+x $INITRD_TREE/{linuxrc,cleanup}
+
+#cp -a bootsplash/* $INITRD_TREE
+
+# handle the fuse filesystems here
+#
+cp -a fuse/* $INITRD_TREE
+cp -a httpfs/* $INITRD_TREE
+
+if [ "$USEPOSIXOVL" = "yes" ]; then
+   cp -a posixovl/* $INITRD_TREE
+fi
+
+if [ "$USENTFS3G" = "yes" ]; then
+   cp -a ntfs-3g/* $INITRD_TREE
+fi
+
+cp -a rootfs/* $INITRD_TREE
+
+# build links to busybox's functions from busybox's own help text
+for i in $(rootfs/bin/busybox --help | grep -v Copyright | grep , | tr , " "); do
+   ln -s busybox $INITRD_TREE/bin/$i
+done
+
+ln -sf bin $INITRD_TREE/sbin
+
+# necessary modules and dependency files
+mkdir -p $INITRD_TREE/$LMK/kernel/fs
+rcopy $ROOT/$LMK/kernel/fs/aufs $INITRD_TREE
+rcopy $ROOT/$LMK/kernel/fs/squashfs $INITRD_TREE
+
+# copy filesystem modules, if not directly copied into kernel
+rcopy_ex $ROOT/$LMK/kernel/lib/zlib_inflate $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/lib/zlib_deflate $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/block/loop.* $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/fs/fuse/fuse.* $INITRD_TREE 2>>$DEBUG
+
+rcopy_ex $ROOT/$LMK/kernel/fs/isofs $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/fs/fat $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/fs/vfat $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/fs/ntfs $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/fs/ext3 $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/fs/reiserfs $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/fs/xfs $INITRD_TREE 2>>$DEBUG
+
+# add language support for filesystems
+rcopy_ex $ROOT/$LMK/kernel/fs/nls $INITRD_TREE 2>>$DEBUG
+
+# usb modules
+rcopy_ex $ROOT/$LMK/kernel/drivers/usb/storage $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/usb/host/ehci-hcd.* $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/usb/host/ohci-hcd.* $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/usb/host/uhci-hcd.* $INITRD_TREE 2>>$DEBUG
+
+# pci modules
+rcopy_ex $ROOT/$LMK/kernel/drivers/cdrom $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/ide $INITRD_TREE 2>>$DEBUG
+
+# pcmcia modules
+rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/pcmcia_core.* $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/pcmcia.* $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/rsrc_nonstatic.* $INITRD_TREE 2>>$DEBUG
+rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/yenta_socket.* $INITRD_TREE 2>>$DEBUG
+
+# network modules
+for mod in $(list_network_drivers); do
+   cat $ROOT/$LMK/modules.dep | fgrep /$mod.ko | while read LINE; do
+      for dep in $(echo $LINE | tr -d ":"); do
+         rcopy_ex $ROOT/$dep $INITRD_TREE 2>>$DEBUG
+      done
+   done
+done
+
+if [ "$ADDLOCALE" != "" ]; then
+   . ./addlocaleslib
+   debug "copylocales $ROOT/ $INITRD_TREE $ADDLOCALE"
+   copylocales $ROOT/ $INITRD_TREE $ADDLOCALE
+fi
+
+debug "unpacking all kernel modules for initrd"
+find $INITRD_TREE -noleaf -name "*.ko.gz" | xargs -r gunzip
+
+debug "generating module dependency files"
+depmod -b $INITRD_TREE $KERNEL
+
+debug "compressing usr in initrd"
+mksquashfs $INITRD_TREE/usr $INITRD_TREE/usr.lzm >/dev/null 2>&1
+chmod ago-x $INITRD_TREE/usr.lzm
+rm -Rf $INITRD_TREE/usr/*
+
+debug "compressing net in initrd"
+mksquashfs $INITRD_TREE/$LMK/kernel/drivers $INITRD_TREE/drivers.lzm >/dev/null 2>&1
+chmod ago-x $INITRD_TREE/drivers.lzm
+rm -Rf $INITRD_TREE/$LMK/kernel/drivers/*
+
+debug "creating empty image file for initrd"
+dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
+
+debug "making filesystem"
+mkfs -t ext2 -F -m 0 -b 1024 -i 1024 $INITRDIMG >>$DEBUG 2>&1
+tune2fs -i 120m $INITRDIMG >>$DEBUG 2>&1
+
+debug "creating empty directory $MOUNTDIR"
+rm -Rf $MOUNTDIR
+mkdir $MOUNTDIR
+
+debug "mounting $INITRDIMG to it"
+modprobe loop 2>>$DEBUG
+mount -o loop -t ext2 $INITRDIMG $MOUNTDIR
+if [ "$?" -ne 0 ]; then
+   echo "Error mounting initrd! Not enough free loop devices?"
+   exit 1
+fi
+
+debug "copying content of $INITRD_TREE to $MOUNTDIR"
+rmdir $MOUNTDIR/lost+found
+cp -R --preserve $INITRD_TREE/* $MOUNTDIR 2>/dev/null
+if [ $? -ne 0 ]; then
+   debug "error copying data to mounted initrd. Increase RAM0SIZE"
+   echo "Not enough free space in initrd. Edit .config and increase RAM0SIZE !"
+   umount $MOUNTDIR
+   rm $INITRDIMG
+   exit 1
+fi
+
+debug "unmounting $MOUNTDIR"
+umount $MOUNTDIR
+
+debug "gzipping $INITRDIMG"
+gzip --best $INITRDIMG
+
+debug "deleting directory $MOUNTDIR"
+rmdir $MOUNTDIR
+
+debug "deleting directory $INITRD_TREE"
+rm -Rf $INITRD_TREE
+
+debug "$INITRDIMG.gz created"
