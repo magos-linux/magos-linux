@@ -6,6 +6,7 @@
 # 
 #
 
+
 PREFIX=none
 [ -f /usr/bin/zenity ] && PREFIX=NONKDE
 if [ -n "$KDE_SESSION_UID"  ] ; then
@@ -13,8 +14,13 @@ if [ -n "$KDE_SESSION_UID"  ] ; then
 else
 [ $PREFIX == none ] &&  [ -f /usr/bin/kdialog ] && PREFIX=KDE
 fi
-[ $PREFIX == none ] && exit 3
-#PREFIX=NONKDE
+[ $PREFIX == none ] && exit -1
+
+if ! qdbus &> /dev/null ; then
+[ $PREFIX == KDE ] && dbus-launch $0 "$@" 
+exit
+fi 
+
 KDE--msgbox () {
 kdialog --msgbox "$2"
 } 
@@ -138,7 +144,8 @@ inc=`expr $inc + 1`
 done
 qdbus $dbusRef Set "" value $inc
 sleep 1
-qdbus $dbusRef close
+qdbus $dbusRef close 
+exit 0
 } 
 
 NONKDE--progressbar () {
@@ -177,8 +184,9 @@ echo  "--getopenfilename   Диалог открытия существующе�
 echo  "--getsavefilename [filter]  Диалог сохранения файла (начальный каталог - текущий)"
 echo  "--getexistingdirectory  Диалог выбора существующего каталога (начальный каталог - текущий)"
 echo  "--progressbar Отличается от zenity/kdialog. mdialog --progressbar команда1:параметр1:параметр2 команда2:параметр1 и т.д."
-echo  "              Избегайте пробелов в именах файлов. Варинт не идеален, предложите лучше изменим :-)"  
+echo  "              Избегайте пробелов в именах файлов. Варинт не идеален, предложите лучше изменим :-)"
 echo  "--calendar      Диалог с календарём, возвращает выбранную дату."
+exit
 }
 
 TEST () {
@@ -186,16 +194,18 @@ echo "команда mdialog --msgbox \"error и sorry использовать 
 mdialog --msgbox "error и sorry использовать аналогично"
 echo "команда mdialog --yesno \"возвращает 0 либо 1 зависимо от нажатой кнопки\""
 mdialog --yesno "возвращает 0 либо 1 зависимо от нажатой кнопки"
+echo $?
 echo "команда mdialog --inputbox \"заголовок\" \"строка\""
 mdialog --inputbox "заголовок" "строка"
-echo "команда mdialog --textbox /usr/bin/mdialog" 
+echo "команда mdialog --textbox /usr/sbin/mdialog" 
 mdialog --textbox /usr/sbin/mdialog
-echo "команда mdialog --textinputbox /usr/bin/mdialog"
+echo "команда mdialog --textinputbox /usr/sbin/mdialog"
 mdialog --textinputbox /usr/sbin/mdialog
 echo "команда mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc" 
 mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc
 echo "команда mdialog --passivepopup \"тест окончен\"" 
 mdialog --passivepopup "тест завершен"
+exit
 }
 
 case $1 in
@@ -206,6 +216,5 @@ HELP ;;
 TEST ;;
 
 * )
-$PREFIX$1 "$@"  || echo "Упс, косяк, либо у Вас с параметрами, либо у разработчика со скриптом" ;;
+$PREFIX$1 "$@";;
 esac
-exit

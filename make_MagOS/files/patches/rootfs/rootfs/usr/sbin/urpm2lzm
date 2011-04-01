@@ -24,6 +24,8 @@ done
  
 mount -t aufs -o br:$mount_br wiz_fly $root_br
 
+mkdir -p $root_br/{dev,proc,sys}
+
 mount -o bind /dev $root_br/dev
 mount -o bind /proc $root_br/proc
 mount -o bind /sys $root_br/sys
@@ -34,6 +36,8 @@ mkdir -p $root_br/tmp
 umount $root_br/sys
 umount $root_br/proc
 umount $root_br/dev
+
+#rm -rf $root_br/{dev,proc,sys}
 
 umount wiz_fly
 
