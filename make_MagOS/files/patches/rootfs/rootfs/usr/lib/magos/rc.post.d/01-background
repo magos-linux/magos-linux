@@ -36,3 +36,6 @@ else
 fi
 
 [ -f /usr/share/mdk/backgrounds/default.jpg ] || ln -sf "$SOURCE" /usr/share/mdk/backgrounds/default.jpg
+
+[ -d "/usr/share/apps/ksplash/Themes/Default/$XORG_RES" ] || mkdir "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
+convert /usr/share/mdk/backgrounds/default.jpg "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"

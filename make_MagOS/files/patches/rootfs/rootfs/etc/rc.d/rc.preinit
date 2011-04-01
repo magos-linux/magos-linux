@@ -206,18 +206,6 @@ if [ "$PARTITIONSSHARE" = "yes" ];then
    done
 fi
 
-debug_log "Changing network parameters"
-debug_shell
-. etc/sysconfig/network
-grep -q " $HOSTNAME$" etc/hosts || echo "127.0.0.1             $HOSTNAME" >> etc/hosts
-[ -z "$MAGOSSERVER" ] || sed -i s/.*MagOS-Server.*/"$MAGOSSERVER             MagOS-Server"/ etc/hosts
-if [ "$NETWORKIP" != "" ] ;then
-   sed -i s/192.168.1./$NETWORKIP/g etc/dhcpd.conf
-   sed -i s/192.168.1./$NETWORKIP/g etc/pdnsd.conf
-   sed -i s/192.168.1./$NETWORKIP/g etc/exports
-   sed -i s/192.168.1./$NETWORKIP/g etc/samba/smb.conf
-fi
-
 debug_log "Setting iptables exceptions"
 debug_shell
 [ -z "$IPTABLESTRUSTEDIP" ] || sed -i s-192.168.1.0/24-$IPTABLESTRUSTEDIP- etc/exports
@@ -243,6 +231,28 @@ if [ "$ROUTER" = "yes" ] ;then
     sed -i '/-A FORWARD -i eth0 -o eth0 -j DROP/d' etc/sysconfig/iptables
 else
     sed -i s/"^\[.* -A POSTROUTING   -j MASQUERADE.*"/'#ROUTER#[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
+fi
+
+debug_log "Changing network parameters"
+debug_shell
+. etc/sysconfig/network
+grep -q " $HOSTNAME$" etc/hosts || echo "127.0.0.1             $HOSTNAME" >> etc/hosts
+if [ "$MAGOSSERVER" != "" ] ;then
+   sed -i s/.*MagOS-Server.*/"$MAGOSSERVER             MagOS-Server"/ etc/hosts
+   sed -i s/192.168.1.31/$MAGOSSERVER/g etc/dhcpd.conf
+fi
+if [ "$NETWORKIP" != "" ] ;then
+   sed -i s/192.168.1./$NETWORKIP/g etc/dhcpd.conf
+   sed -i s/192.168.1./$NETWORKIP/g etc/pdnsd.conf
+   sed -i s/192.168.1./$NETWORKIP/g etc/samba/smb.conf
+   sed -i s/192.168.1.0/${NETWORKIP}0/g etc/exports
+   sed -i s/192.168.1.0/${NETWORKIP}0/g etc/polipo/config
+   sed -i s/192.168.1.0/${NETWORKIP}0/g etc/ntp.conf
+   sed -i s/192.168.1.0/${NETWORKIP}0/g etc/sysconfig/iptables
+fi
+if [ "$DOMAIN" != "" ] ;then
+   sed -i s/"option domain-name .*"/"option domain-name \"$DOMAIN\";"/g etc/dhcpd.conf
+   sed -i s/"option nis-domain .*"/"option nis-domain \"$DOMAIN\";"/g etc/dhcpd.conf
 fi
 
 debug_log "Setting system proxy"
