@@ -3,7 +3,7 @@
 # /usr/sbin/mdialog
 #
 # Helper Library for scripts
-# 
+# Author: Alexandr Betkher <http://magos-linux.ru>
 #
 
 
@@ -17,8 +17,7 @@ fi
 [ $PREFIX == none ] && exit -1
 
 if ! qdbus &> /dev/null ; then
-[ $PREFIX == KDE ] && dbus-launch $0 "$@" 
-exit
+dbus-launch $0 "$@" ; exit
 fi 
 
 KDE--msgbox () {

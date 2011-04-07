@@ -3,7 +3,7 @@
 # /usr/sbin/urpm2lzm
 #
 # Description: create LZM from RPM (& dependences)
-# Author : Anton Goroshkin ( http://magos-linux.ru )
+# Author : Anton Goroshkin <http://magos-linux.ru>
 #
 # $1=RPM file or name program
  
