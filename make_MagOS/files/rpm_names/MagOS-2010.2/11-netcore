@@ -111,3 +111,5 @@ hostapd-
 screen-
 vnstat-
 krb5-workstation-
+proxychains-
+libproxychains3-

@@ -110,3 +110,5 @@ hostapd-
 screen-
 krb5-workstation-
 tcsh-
+proxychains-
+libproxychains3-
