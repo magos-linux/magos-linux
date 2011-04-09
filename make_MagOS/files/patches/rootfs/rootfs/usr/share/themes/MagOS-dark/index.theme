@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=MagOS_Dark
+Type=X-GNOME-Metatheme
+Comment=
+
+[X-GNOME-Metatheme]
+GtkTheme=MagOS_Dark
+MetacityTheme=MagOS_Dark

@@ -30,7 +30,7 @@ lockfile=${LOCKFILE-/var/lock/subsys/ntlmaps}
 logdir=${LOGDIR-/var/log/ntlmaps}
 pwddir=$PWD
 port=5865
-TIMEOUT=${TIMEOUT-1}
+TIMEOUT=${TIMEOUT-10}
 RETVAL=0
 
 
@@ -47,8 +47,12 @@ start() {
         cd $logdir
         gprintf "Starting %s: " "$prog"
         daemon $ntlmaps -c $config </dev/null >/dev/null 2>/dev/null &
-        sleep $TIMEOUT
-        PRPID=$(lsof 2>/dev/null| grep ":$port .LISTEN." | awk '{print $2}')
+        while [ "$TIMEOUT" != "0" ] ;do
+            PRPID=$(/usr/sbin/lsof 2>/dev/null| grep ":$port .LISTEN." | awk '{print $2}')
+            [ -z "$PRPID" ] || break
+            sleep 1
+            TIMEOUT=$(( $TIMEOUT - 1 ))
+        done
         if [ "$PRPID" = "" ] ;then
             RETVAL=1
             failure

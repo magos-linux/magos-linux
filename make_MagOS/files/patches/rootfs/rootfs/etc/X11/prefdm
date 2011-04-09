@@ -3,11 +3,11 @@
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 if echo "$DMFASTBOOT" | egrep -qi 'no|off|false' ;then
   while ! [ -f /var/lock/subsys/local ] ;do
-    sleep 3s
+    sleep 1s
   done
-  sleep 3s
+#  sleep 3s
   # cashing network accounts
-  getent passwd > /dev/null
+#  getent passwd > /dev/null
 fi
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin

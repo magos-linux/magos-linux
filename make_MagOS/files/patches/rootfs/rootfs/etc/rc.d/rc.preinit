@@ -294,7 +294,10 @@ if  ! [ -z "$ADSERVER" -o -z "$DOMAIN" ] ;then
     cp -pf etc/pam.d/system-auth-krb etc/pam.d/system-auth
 fi
 
-[ -z "$SAMBADOMAIN" ] || sed -i s/"workgroup = .*"/"workgroup = $SAMBADOMAIN"/ etc/samba/smb.conf
+if ! [ -z "$SAMBADOMAIN" ] ;then
+    sed -i s/"workgroup = .*"/"workgroup = $SAMBADOMAIN"/ etc/samba/smb.conf
+    sed -i s/"^NT_DOMAIN=.*"/"NT_DOMAIN=$SAMBADOMAIN"/ etc/ntlmaps.cfg
+fi
 
 debug_log "Profile updating"
 debug_shell

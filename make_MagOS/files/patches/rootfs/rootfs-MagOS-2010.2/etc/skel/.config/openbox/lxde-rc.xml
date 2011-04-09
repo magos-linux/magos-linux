@@ -36,7 +36,7 @@
        the active window is -->
   </placement>
   <theme>
-    <name>Onyx</name>
+    <name>Default</name>
     <titleLayout>NLIMC</titleLayout>
     <!--
       available characters are NDSLIMC, each can occur at most once.

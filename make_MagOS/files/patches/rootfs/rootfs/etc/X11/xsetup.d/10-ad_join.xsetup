@@ -7,7 +7,8 @@
 [ -z "$ADSERVER" ] && exit 0
 echo -e "\n\n\n" | net ads testjoin && exit 0
 /etc/X11/xsetup.d/10-ad_join.pl && exit 1
+xsetroot -cursor_name left_ptr
 /sbin/service smb restart
 /sbin/service winbind restart
-getent passwd >/dev/null
+#getent passwd >/dev/null
 exit 0
