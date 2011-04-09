@@ -3,7 +3,7 @@
 # /usr/sbin/rpmdrake2lzm
 #
 # Description: create LZM using rpmdrake (& dependences)
-# Author : Anton Goroshkin ( http://magos-linux.ru )
+# Author : Anton Goroshkin <http://magos-linux.ru>
 
 
 if [ "$(id -un)" != "root" ] ;then
@@ -31,9 +31,9 @@ mkdir -p $root_br/tmp
 /usr/sbin/rpmdrake --rpm-root=$root_br
 umount wiz_fly
 
-
-mod_name=$(dbus-launch mdialog --getsavefilename *.lzm)
-[ "$mod_name" = "" ] && exit -1
+while [ "$mod_name" = ""  -o  -f "$mod_name"  ]; do # если файл с таким именем существует либо нет имени окошко появится снова 
+mod_name=$(dbus-launch mdialog --getsavefilename *.lzm) || exit -1 # при закрытии окошка mdialog вернет 1 и скрипт завершится
+done 
 
 dbus-launch mdialog --passivepopup "Внимание!!! Данный процесс может занимать длительное время. Остановка прогрессбара - не признак зависания. Просто необходимо немного подождать"
 
