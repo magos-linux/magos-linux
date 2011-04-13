@@ -3,7 +3,7 @@ update_info=kded.upd:kde3.0
 
 [General]
 widgetStyle=oxygen
-Name=Norway
+Name=MagOS
 shadeSortColumn=true
 BrowserApplication=firefox
 
@@ -27,6 +27,9 @@ DoubleClickInterval=400
 contrast=7
 colorScheme=Norway
 ShowIconsOnPushButtons=true
+
+[Icon]
+Theme=oxygen
 
 [ColorEffects:Disabled]
 Color=197,179,153

@@ -1,6 +1,6 @@
 diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
---- linux-live-6.3.0/build	2008-02-14 13:52:22.000000000 +0300
-+++ linux-live-6.3.0_patched/build	2011-03-18 14:56:30.000000000 +0300
+--- linux-live-6.3.0/build	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/build	2011-04-09 21:50:17.000000000 +0400
 @@ -18,20 +18,17 @@ allow_only_root
  
  # live CD name
@@ -75,8 +75,8 @@ diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
 -read junk
 +#read junk
 diff -auprN linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c linux-live-6.3.0_patched/initrd/httpfs/usr/src/httpfs.c
---- linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c	2008-08-28 00:33:25.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/httpfs/usr/src/httpfs.c	2011-01-14 13:30:49.000000000 +0300
+--- linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/httpfs/usr/src/httpfs.c	2011-04-09 21:50:17.000000000 +0400
 @@ -15,7 +15,7 @@
  #define BUFSIZE 1024
  #define BIGBUFSIZE 64*BUFSIZE
@@ -146,8 +146,8 @@ diff -auprN linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c linux-live-6.3.0_pat
      i = w;
      end:
 diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initrd/initrd_create
---- linux-live-6.3.0/initrd/initrd_create	2009-08-29 23:47:30.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/initrd_create	2011-03-19 17:32:29.000000000 +0300
+--- linux-live-6.3.0/initrd/initrd_create	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/initrd_create	2011-04-09 21:50:17.000000000 +0400
 @@ -139,34 +139,59 @@ ln -sf bin $INITRD_TREE/sbin
  # necessary modules and dependency files
  mkdir -p $INITRD_TREE/$LMK/kernel/fs
@@ -258,8 +258,8 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  debug "creating empty image file for initrd"
  dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
 diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linuxrc
---- linux-live-6.3.0/initrd/linuxrc	2009-04-24 19:38:32.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/linuxrc	2011-03-18 12:15:28.000000000 +0300
+--- linux-live-6.3.0/initrd/linuxrc	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/linuxrc	2011-04-10 14:04:14.000000000 +0400
 @@ -1,6 +1,9 @@
  #!/bin/ash
  # Initial script for Linux Live operating system
@@ -595,11 +595,10 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  # everything is ready now, so we may unload unused kernel modules
  # and do some cleanup, unmount few things which are no longer needed.
-@@ -231,10 +377,25 @@ mkdir -p $UNION/sys
+@@ -231,10 +377,24 @@ mkdir -p $UNION/sys
  mkdir -p $UNION/dev
  mkdir -p $UNION/tmp
  chmod 1777 $UNION/tmp
-+#[ "$XINO" != "$MEMORY" ] && mount -t tmpfs tmpfs $UNION/tmp 
 +mkdir -p $UNION/media
 +for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" ;do
 +   if losetupfunc | grep -q "$a/" || grep -q "^$a/" /proc/mounts ;then
@@ -622,7 +621,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -274,7 +435,11 @@ header "linux live end, starting $LIVECD
+@@ -274,7 +434,11 @@ header "linux live end, starting $LIVECD
  
  debug_shell
  
@@ -636,8 +635,8 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  # We will copy init from the distro to initrd (there should be 2MB free)
  # This allows us to use the cleanup script during reboot, as init will be
 diff -auprN linux-live-6.3.0/install linux-live-6.3.0_patched/install
---- linux-live-6.3.0/install	2007-05-14 20:50:44.000000000 +0400
-+++ linux-live-6.3.0_patched/install	2011-01-14 13:30:49.000000000 +0300
+--- linux-live-6.3.0/install	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/install	2011-04-09 21:50:17.000000000 +0400
 @@ -16,17 +16,17 @@ if [ "$N" = "build" ]; then
     N=install
  else
@@ -664,8 +663,8 @@ diff -auprN linux-live-6.3.0/install linux-live-6.3.0_patched/install
  
  echo "Linux Live scripts were $N""ed successfuly in $1/"
 diff -auprN linux-live-6.3.0/tools/activate linux-live-6.3.0_patched/tools/activate
---- linux-live-6.3.0/tools/activate	2008-04-21 21:18:13.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/activate	2011-03-18 12:28:46.000000000 +0300
+--- linux-live-6.3.0/tools/activate	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/tools/activate	2011-04-09 21:50:17.000000000 +0400
 @@ -3,6 +3,8 @@
  # Include it into live directory structure on the fly
  #
@@ -725,8 +724,8 @@ diff -auprN linux-live-6.3.0/tools/activate linux-live-6.3.0_patched/tools/activ
 +   touch /usr/share/applications
 +fi
 diff -auprN linux-live-6.3.0/tools/deactivate linux-live-6.3.0_patched/tools/deactivate
---- linux-live-6.3.0/tools/deactivate	2008-04-21 21:34:41.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/deactivate	2011-03-18 12:30:23.000000000 +0300
+--- linux-live-6.3.0/tools/deactivate	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/tools/deactivate	2011-04-09 21:50:17.000000000 +0400
 @@ -4,6 +4,9 @@
  # - for example if you have files open from the module yet.
  #
@@ -783,7 +782,7 @@ diff -auprN linux-live-6.3.0/tools/deactivate linux-live-6.3.0_patched/tools/dea
 +fi
 diff -auprN linux-live-6.3.0/tools/dir2nolzm linux-live-6.3.0_patched/tools/dir2nolzm
 --- linux-live-6.3.0/tools/dir2nolzm	1970-01-01 03:00:00.000000000 +0300
-+++ linux-live-6.3.0_patched/tools/dir2nolzm	2011-03-18 12:31:14.000000000 +0300
++++ linux-live-6.3.0_patched/tools/dir2nolzm	2011-04-09 21:50:17.000000000 +0400
 @@ -0,0 +1,21 @@
 +#!/bin/bash
 +# convert directory tree into .lzm compressed file
@@ -806,9 +805,65 @@ diff -auprN linux-live-6.3.0/tools/dir2nolzm linux-live-6.3.0_patched/tools/dir2
 +create_module "$1" "$2" -noI -noD -noF -nolzma
 +#create_module "$1" "$2"
 +if [ $? != 0 ]; then echo "error building compressed image"; exit 1; fi
+diff -auprN linux-live-6.3.0/tools/gactivate linux-live-6.3.0_patched/tools/gactivate
+--- linux-live-6.3.0/tools/gactivate	1970-01-01 03:00:00.000000000 +0300
++++ linux-live-6.3.0_patched/tools/gactivate	2011-04-09 22:08:48.000000000 +0400
+@@ -0,0 +1,52 @@
++#!/bin/bash
++if [ "$(id -un)" != "root" ] ;then
++   gksu -g "/bin/bash $0 $@"
++   exit 0
++fi
++
++MSG_MOVE="was moved into MagOS/optional"
++MSG_NOMOVE="was not moved into MagOS/optional"
++MSG_ACT="ACTIVATED"
++MSG_ACT_ERR="ERROR while activating module"
++MSG_DEACT="DEACTIVATED"
++MSG_MOD="module"
++
++if [ "$LANG" = "ru_RU.UTF-8" ] ;then
++   MSG_MOVE="перенесен в MagOS/optional"
++   MSG_NOMOVE="перенести в MagOS/optional не удалось"
++   MSG_ACT="ПОДКЛЮЧЕН"
++   MSG_ACT_ERR="ОШИБКА при активации модуля"
++   MSG_DEACT="ОТКЛЮЧЕН"
++   MSG_MOD="модуль"
++fi
++
++for module in $@ ; do
++   FILENAME=`echo $module | awk -F/ '{ print $NF }'`
++   FULLNAME=$module
++   DESNAME=/mnt/livemedia/MagOS/optional/$FILENAME
++   MSG1=
++   if [ `echo $module | grep -i /tmp` ] ;then
++      mv $module $DESNAME
++      if [ $? -eq 0 ] ;then
++         FULLNAME=$DESNAME
++         MSG1="$MSG_MOVE"
++      else
++         MSG1="$MSG_NOMOVE"
++      fi
++   fi
++
++   deactivate $FULLNAME
++   if [ $? -eq 0 ] ;then
++    mdialog --msgbox "$MSG_MOD $FILENAME $MSG_DEACT"
++   else
++      activate $FULLNAME 2> /var/log/lzm.log
++     if [ $? -ne 0 ] ;then
++         ERROR=`cat /var/log/lzm.log`
++      mdialog --error "$MSG_ACT_ERR \n $ERROR"
++     else
++      [ -f /mnt/live/memory/modules/$FILENAME ] && ln /mnt/live/memory/modules/$FILENAME $module || ln -s /mnt/live/memory/modules/$FILENAME $module
++      mdialog --msgbox "$MSG_MOD $FILENAME $MSG_ACT \n $MSG1 "
++      fi
++   fi
++done
++exit 0
 diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/liblinuxlive
---- linux-live-6.3.0/tools/liblinuxlive	2009-02-10 14:42:05.000000000 +0300
-+++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-03-18 12:35:45.000000000 +0300
+--- linux-live-6.3.0/tools/liblinuxlive	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-04-10 14:05:23.000000000 +0400
 @@ -3,6 +3,8 @@
  # Functions library :: for Linux Live scripts 6
  # Author: Tomas M. <http://www.linux-live.org>
@@ -1437,10 +1492,10 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fstab_add_line $FSTABTMP sysfs /sys sysfs defaults
     fstab_add_line $FSTABTMP devpts /dev/pts devpts gid=5,mode=620
 -   fstab_add_line $FSTABTMP tmpfs /dev/shm tmpfs defaults
-+   if [ "$XINO" != "$MEMORY" ] ;then
++#   if [ "$XINO" != "$MEMORY" ] ;then
 +#      fstab_add_line $FSTABTMP tmpfs /dev/shm tmpfs defaults
-+      fstab_add_line $FSTABTMP tmpfs /tmp tmpfs defaults
-+   fi
++#      fstab_add_line $FSTABTMP tmpfs /tmp tmpfs defaults
++#   fi
 +   for a in "/$MOUNTDIR/$LIVEMEDIA" "/$MOUNTDIR/$LIVECHANGES" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVEHOME" ;do
 +      grep -q " $a " /proc/mounts || continue
 +      fstab_add_line $FSTABTMP $(grep " $a " /proc/mounts | head -1 | awk '{ print $1 " " $2 " " $3 " noauto," $4 }')

@@ -12,3 +12,6 @@ dkms-broadcom-wl-
 dkms-psb-
 dkms-libafs-
 dkms-vboxadditions-
+dkms-lirc-
+dkms-lirc-parallel-
+dkms-lirc-gpio-

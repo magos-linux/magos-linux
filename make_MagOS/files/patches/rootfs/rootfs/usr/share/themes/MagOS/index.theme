@@ -6,3 +6,4 @@ Comment=
 [X-GNOME-Metatheme]
 GtkTheme=MagOS
 MetacityTheme=MagOS
+IconTheme=gnome

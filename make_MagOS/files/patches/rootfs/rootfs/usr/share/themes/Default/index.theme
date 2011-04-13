@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Default
+Type=X-GNOME-Metatheme
+Comment=
+
+[X-GNOME-Metatheme]
+GtkTheme=Default
+MetacityTheme=Default
+IconTheme=gnome

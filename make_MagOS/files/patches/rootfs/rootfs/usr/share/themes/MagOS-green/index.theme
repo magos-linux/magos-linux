@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=MagOS-green
+Type=X-GNOME-Metatheme
+Comment=
+
+[X-GNOME-Metatheme]
+GtkTheme=MagOS-green
+MetacityTheme=MagOS-green
+IconTheme=gnome

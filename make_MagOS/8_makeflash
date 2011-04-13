@@ -170,5 +170,7 @@ cp -pR files/patches/flash/* $DESTDIR
 CVERREL=`echo $VERREL | tr -d .`
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international 2>/dev/null
 mv $DESTDIR/$FLASHNAME/optional/??-int-*.lzm flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
+chmod a+x $DESTDIR/$FLASHNAME/tools/*
+chmod a-x $DESTDIR/$FLASHNAME/tools/liblinuxlive
 
 echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"

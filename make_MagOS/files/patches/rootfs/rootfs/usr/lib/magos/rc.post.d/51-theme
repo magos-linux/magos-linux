@@ -11,52 +11,75 @@ DIROPENBOX=openbox-3
 . /usr/lib/magos/functions
 
 if ! [ -z "$THEME" ] ;then
-   case $THEME
-       "MagOS"   ) 
-           THEMEGTK=${THEMEGTK-MagOS}
-           THEMEMETACITY=${THEMEMETACITY-MagOS}
-           THEMEOPENBOX=${THEMEOPENBOX-MagOS}
-           THEMEEMERALD=${THEMEEMERALD-MagOS}
-           THEMEKDE=${THEMEKDE-MagOS}
-           THEMEPLASMA=${THEMEPLASMA-Aya}
-           ;;
-        "MagOS-dark" )
-           THEMEGTK=${THEMEGTK-MagOS-dark}
-           THEMEMETACITY=${THEMEMETACITY-MagOS-dark}
-           THEMEOPENBOX=${THEMEOPENBOX-MagOS-dark}
-           THEMEEMERALD=${THEMEEMERALD-MagOS-dark}
-           THEMEKDE=${THEMEKDE-MagOS-dark}
+   case "$THEME" in
+       "MagOS" | "MagOS-dark" | "MagOS-green" )
+           THEMEGTK=${THEMEGTK-$THEME}
+           THEMEMETACITY=${THEMEMETACITY-$THEME}
+           THEMEOPENBOX=${THEMEOPENBOX-$THEME}
+           THEMEEMERALD=${THEMEEMERALD-$THEME}
+           THEMEKDE=${THEMEKDE-$THEME}
+           THEMEKDEWIDGET=${THEMEKDEWIDGET-oxygen}
+           THEMEKWIN=${THEMEKWIN-kwin3_oxygen}
            THEMEPLASMA=${THEMEPLASMA-Aya}
            ;;
         "Mandriva" )
            THEMEGTK=${THEMEGTK-"Ia Ora Steel"}
            THEMEMETACITY=${THEMEMETACITY-"Ia Ora Steel"}
-           THEMEOPENBOX=${THEMEOPENBOX-}
+           THEMEOPENBOX=${THEMEOPENBOX-Clearlooks}
            THEMEEMERALD=${THEMEEMERALD-Adonis_Mod}
            THEMEKDE=${THEMEKDE-"Ia Ora Smooth"}
+           THEMEKDEWIDGET=${THEMEKDEWIDGET-iaorakde}
+           THEMEKWIN=${THEMEKWIN-kwin3_oxygen}
            THEMEPLASMA=${THEMEPLASMA-Mandriva}
            ;;
     esac
 fi
 
 if [ "$THEMEGTK" != "" -a -d "/usr/share/themes/$THEMEGTK/$DIRGTK" ]  ;then
+   rm -fr "/usr/share/themes/Default/$DIRGTK"
    ln -sf "../$THEMEGTK/$DIRGTK"  "/usr/share/themes/Default/$DIRGTK"
 fi
 if [ "$THEMEMETACITY" != "" -a -d "/usr/share/themes/$THEMEMETACITY/$DIRMETACITY" ] ;then
+   rm -fr "/usr/share/themes/Default/$DIRMETACITY"
    ln -sf "../$THEMEMETACITY/$DIRMETACITY" "/usr/share/themes/Default/$DIRMETACITY"
 fi
 if [ "$THEMEOPENBOX" != "" -a -d "/usr/share/themes/$THEMEOPENBOX/$DIROPENBOX" ] ;then
+   rm -fr "/usr/share/themes/Default/$DIROPENBOX"
    ln -sf "../$THEMEOPENBOX/$DIROPENBOX" "/usr/share/themes/Default/$DIROPENBOX"
 fi
 if [ "$THEMEEMERALD" != "" -a -d "/usr/share/emerald/themes/$THEMEEMERALD" ] ;then
    rm -fr /usr/share/emerald/theme
    ln -sf "themes/$THEMEEMERALD" /usr/share/emerald/theme
 fi
-if [ "$THEMEPLASMA" != "" -a -d "/usr/share/apps/desktoptheme/$THEMEPLASMA" ] ;then
-   echo -e "[Theme]\nname=Aya" > /var/lib/mandriva/kde4-profiles/common/share/config/plasmarc
-   grep -q "defaultWallpaperTheme" "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop" || \
-   echo -e  "\n[Wallpaper]\ndefaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg" >> "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
+if [ "$THEMEPLASMA" != ""  ] ;then
+   echo -e "[Theme]\nname=$THEMEPLASMA" > /var/lib/mandriva/kde4-profiles/common/share/config/plasmarc
+   if [ -d "/usr/share/apps/desktoptheme/$THEMEPLASMA" ] ;then
+     if ! grep -q "defaultWallpaperTheme" "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop" ;then
+       echo -e  "\n[Wallpaper]\ndefaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg" >> "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
+     else
+       sed -i 's|defaultWallpaperTheme=.*|defaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg|' "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
+     fi
+   fi
 fi
 if [ "$THEMEKDE" != "" -a -f "/usr/share/apps/color-schemes/$THEMEKDE.colors" ] ;then
    concatenate_ini /var/lib/mandriva/kde4-profiles/common/share/config/kdeglobals "/usr/share/apps/color-schemes/$THEMEKDE.colors"
+fi
+if [ "$THEMEKDEWIDGET" != "" ] ;then
+   sed -i s/widgetStyle=.*/widgetStyle=$THEMEKDEWIDGET/ /var/lib/mandriva/kde4-profiles/common/share/config/kdeglobals
+fi
+
+if [ "$THEMEKWIN" != "" ] ;then
+   sed -i s/PluginLib=.*/"PluginLib=$THEMEKWIN"/ /var/lib/mandriva/kde4-profiles/common/share/config/kwinrc
+fi
+
+if [ "$THEMEICONKDE" != "" ] ;then
+   sed -i s/"Theme=.*"/"Theme=$THEMEICONKDE"/ /var/lib/mandriva/kde4-profiles/common/share/config/kdeglobals
+fi
+
+if [ "$THEMEICONGNOME" != "" ] ;then
+   sed -i s/"IconTheme=.*"/"IconTheme=$THEMEICONGNOME"/ /usr/share/themes/Default/index.theme
+fi
+
+if [ "$THEMEICONLXDE" != "" ] ;then
+   sed -i 's|sNet/IconThemeName=.*|sNet/IconThemeName='"$THEMEICONLXDE"'|' /var/lib/mandriva/lxde-profiles/Powerpack/desktop.conf
 fi

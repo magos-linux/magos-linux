@@ -1202,10 +1202,10 @@ fstab_update()
    fstab_add_line $FSTABTMP proc /proc proc defaults
    fstab_add_line $FSTABTMP sysfs /sys sysfs defaults
    fstab_add_line $FSTABTMP devpts /dev/pts devpts gid=5,mode=620
-   if [ "$XINO" != "$MEMORY" ] ;then
+#   if [ "$XINO" != "$MEMORY" ] ;then
 #      fstab_add_line $FSTABTMP tmpfs /dev/shm tmpfs defaults
-      fstab_add_line $FSTABTMP tmpfs /tmp tmpfs defaults
-   fi
+#      fstab_add_line $FSTABTMP tmpfs /tmp tmpfs defaults
+#   fi
    for a in "/$MOUNTDIR/$LIVEMEDIA" "/$MOUNTDIR/$LIVECHANGES" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVEHOME" ;do
       grep -q " $a " /proc/mounts || continue
       fstab_add_line $FSTABTMP $(grep " $a " /proc/mounts | head -1 | awk '{ print $1 " " $2 " " $3 " noauto," $4 }')

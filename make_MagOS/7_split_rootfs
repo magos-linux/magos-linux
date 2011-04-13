@@ -58,14 +58,14 @@ echo
 
 for MODULE in * ;do
    echo -e \\r$MODULE
-   for RPM in `cat $MODULE`;do
+   for RPM in `cat $MODULE | grep -v ^locales-` ;do
        FRPM=`ls -1 ../../../loaded/$FLASHNAME-$VERREL/rpms/$RPM* | sort | grep /$RPM[0-9._a-zA-Z]*-[0-9._a-zA-Z]*.[${ARCH}noarch]*.rpm  | tail -1 | tr -d @`
-       echo -ne \\r $FRPM \\r 
+       echo -ne \\r $FRPM \\r
        rpm -qlp $FRPM | grep -vi "^(" | sed s-^/-- >> ../modules_filelist/$MODULE
        echo -ne \\r $FRPM \\r | tr [:print:] " "
    done
-   if ! echo $MODULE | grep -q -- -int- ;then
-      movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/locale/.*/' ../../../files/locales
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/locale/.*/' ../../../files/locales
+   if ! echo $MODULE | grep  -q -- -int- ;then
       movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/gnome/help/.*/' ../../../files/locales
       movefiles ../modules_filelist/$MODULE ../modules_filelist/93-international 'usr/share/man/[abd-kn-z].*/' ../../../files/locales
       movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/man/.*/'
@@ -73,6 +73,12 @@ for MODULE in * ;do
       movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/gnome/help/.*/'
       movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/doc/'
    fi
+   for RPM in `cat $MODULE | grep ^locales-` ;do
+       FRPM=`ls -1 ../../../loaded/$FLASHNAME-$VERREL/rpms/$RPM* | sort | grep /$RPM[0-9._a-zA-Z]*-[0-9._a-zA-Z]*.[${ARCH}noarch]*.rpm  | tail -1 | tr -d @`
+       echo -ne \\r $FRPM \\r
+       rpm -qlp $FRPM | grep -vi "^(" | sed s-^/-- >> ../modules_filelist/$MODULE
+       echo -ne \\r $FRPM \\r | tr [:print:] " "
+   done
    deletefiles ../ost_list ../modules_filelist/$MODULE
 done
 cd ../

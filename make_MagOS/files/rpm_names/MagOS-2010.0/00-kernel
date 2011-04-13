@@ -12,4 +12,6 @@ dkms-vpnclient-
 dkms-broadcom-wl-
 dkms-psb-
 dkms-libafs-
-
+dkms-lirc-
+dkms-lirc-parallel-
+dkms-lirc-gpio-

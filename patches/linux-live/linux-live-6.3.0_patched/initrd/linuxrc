@@ -377,7 +377,6 @@ mkdir -p $UNION/sys
 mkdir -p $UNION/dev
 mkdir -p $UNION/tmp
 chmod 1777 $UNION/tmp
-#[ "$XINO" != "$MEMORY" ] && mount -t tmpfs tmpfs $UNION/tmp 
 mkdir -p $UNION/media
 for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" ;do
    if losetupfunc | grep -q "$a/" || grep -q "^$a/" /proc/mounts ;then

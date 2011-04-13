@@ -174,6 +174,9 @@ fi
 
 debug_log "Creating partitions in /etc/fstab"
 debug_shell
+if [ "$TMPFS" != "no" ] ;then
+   grep -q "/memory tmpfs" /proc/mounts || echo "tmpfs /tmp tmpfs defaults 0 0 # AutoUpdate" >>etc/fstab
+fi
 if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
    sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
    blkid | grep -v loop | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do
@@ -193,7 +196,7 @@ if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
    done
 fi
 
-#If none swap founded launch compcache if available
+debug_log "Enable compcache if it is needed"
 [ "$(grep " swap " etc/fstab)$(echo $SERVICESNOSTART | grep compcache)" = "" ] && chroot . chkconfig --add compcache >/dev/null 2<&1
 
 debug_log "Exporting partitions"
