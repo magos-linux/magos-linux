@@ -4,6 +4,7 @@
 #
 # Helper Library for scripts
 # Author: Alexandr Betkher <http://magos-linux.ru>
+# Author: Anton Goroshkin <http://magos-linux.ru>
 #
 
 
@@ -16,9 +17,15 @@ else
 fi
 [ $PREFIX == none ] && exit -1
 
-if ! qdbus &> /dev/null ; then
-dbus-launch $0 "$@" ; exit
-fi 
+if [ "$(id -un)" != "root" ] ;then
+   dbus-launch $0 "$@"
+   exit 0
+fi
+
+
+#if ! qdbus &> /dev/null ; then
+#dbus-launch $0 "$@" ; exit
+#fi 
 
 KDE--msgbox () {
 kdialog --msgbox "$2"
@@ -123,8 +130,8 @@ kdialog --menu $@
 NONKDE--menu () {
 text=$2
 shift 2
-#zenity --list --text=$text --column=1  --column=2 --hide-header --print-column=1 --hide-column=1 $@
-zenity --list --text=$text  --column=1 --hide-header --print-column=1  $@
+zenity --list --text=$text --column=1  --column=2 --hide-header --print-column=1 --hide-column=1 $@
+#zenity --list --text=$text  --column=1 --hide-header --print-column=1  $@
 exit 
 } 
 
