@@ -21,7 +21,7 @@ FrameBorder=Normal
 SizeGripMode=Show Extra Size Grip When Needed
 TabsEnabled=true
 TitleAlignment=Center
-UseAnimations=true
+UseAnimations=false
 UseOxygenShadows=false
 
 [Windeco Exception 0]
@@ -40,6 +40,10 @@ SizeGripMode=Show Extra Size Grip When Needed
 TabsEnabled=true
 TitleAlignment=Center
 Type=Window Class Name
-UseAnimations=true
+UseAnimations=false
 UseNarrowButtonSpacing=false
 UseOxygenShadows=true
+
+[Style]
+UseAnimations=false
+
