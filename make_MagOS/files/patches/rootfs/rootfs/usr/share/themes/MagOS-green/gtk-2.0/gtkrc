@@ -144,9 +144,9 @@ style "theme-default" {
         scrollbarstyle      = 0 # 0 = normal, 1 = glassy, 2 = normal with handles, 3 = glassy with handles, 4 = flat
         scalesliderstyle    = 1 # 0 = normal, 1 = glassy, 2 = normal with bullet
         checkradiostyle     = 0 # 0 = normal, 1 = glassy
-        progressbarstyle    = 1 # 0 = normal, 1 = glassy
+        progressbarstyle    = 0 # 0 = normal, 1 = glassy
         separatorstyle    	= 1 # 0 = solid, 1 = gradient
-        animation           = TRUE # FALSE = disabled, TRUE = enabled
+        animation           = FALSE # FALSE = disabled, TRUE = enabled
         arrowsize           = 0.1 # controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
     }
 }
