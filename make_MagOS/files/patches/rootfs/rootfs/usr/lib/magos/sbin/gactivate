@@ -1,3 +1,11 @@
+#
+# Description: Activate & Deactivate LZM modules
+
+# Author : Alexandr Betkher <http://magos-linux.ru>
+# Author:  Mikhail Zaripov <http://magos-linux.ru>
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+
 #!/bin/bash
 if [ "$(id -un)" != "root" ] ;then
    gksu -g "/bin/bash $0 $@"
