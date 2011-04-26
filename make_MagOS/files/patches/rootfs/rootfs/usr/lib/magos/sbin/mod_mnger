@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# /usr/lib/magos/sbin/mod_mnger
+#
+# Description: Modules Manager 
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+PATH=.:$(dirname $0):/usr/lib/magos/sbin:$PATH
+
+mdialog --msgbox "Утилита управления модулями находится в разработке "

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/magos/sbin/urpm2lzm
+# /usr/sbin/urpm2lzm
 #
 # Description: create LZM from RPM (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>

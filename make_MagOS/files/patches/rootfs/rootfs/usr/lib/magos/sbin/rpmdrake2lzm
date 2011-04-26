@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/magos/sbin/rpmdrake2lzm
+# /usr/sbin/rpmdrake2lzm
 #
 # Description: create LZM using rpmdrake (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
