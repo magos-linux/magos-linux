@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/sbin/mdialog
+# /usr/lib/magos/sbin/mdialog
 #
 # Helper Library for scripts
 #
