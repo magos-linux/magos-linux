@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# /usr/sbin/mdialog
+#
+# Helper Library for scripts
+#
+# Author: Alexandr Betkher <http://magos-linux.ru>
+# Author: Anton Goroshkin <http://magos-linux.ru>
+#
+
+if [ -z $DISPLAY ]
+then
+        DIALOG=dialog
+    else
+        DIALOG=Xdialog
+fi
+
+#$DIALOG --yesno "Забавно, не правда ли?" 0 0
+
+HELP () {
+echo  "Скрипт $0, автоматически использует для создания графического интерфеса"
+
+echo  "--yesno <text>            Вопросительный диалог с кнопками да/нет"
+echo  "--error <text>            Диалог "Ошибка""
+echo  "--msgbox <text>           Информационный диалог"
+echo  "--inputbox <text> <init>  Диалог ввода"
+echo  "--textbox <file>  Диалог с текстом"
+echo  "--textinputbox <text> <file> Диалог ввода текста (отличается от kdialog)"
+echo  "--menu <text> [tag item] [tag item] ... Диалог с меню"
+echo  "--passivepopup <text>  Пассивное всплывающее окно"
+echo  "--getopenfilename   Диалог открытия существующего файла (начальный каталог - текущий)"
+echo  "--getsavefilename [filter]  Диалог сохранения файла (начальный каталог - текущий)"
+echo  "--getexistingdirectory [dir] Диалог выбора существующего каталога (начальный каталог - текущий или [dir])"
+echo  "--progressbar Отличается от zenity/kdialog. mdialog --progressbar команда1:параметр1:параметр2 команда2:параметр1 и т.д."
+echo  "              Избегайте пробелов в именах файлов. Варинт не идеален, предложите лучше изменим :-)"
+echo  "--calendar      Диалог с календарём, возвращает выбранную дату."
+exit
+}
+
+cmd=$1
+if [ "$cmd" = "" ]; then
+    cmd="-h" 
+fi
+
+case $cmd in
+-h | --help )
+HELP ;;
+
+* )
+shift 
+$DIALOG --stdout --title "" $cmd "$@" 0 0
+;;
+
+esac
