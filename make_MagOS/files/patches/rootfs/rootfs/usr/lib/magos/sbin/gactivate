@@ -1,15 +1,16 @@
 #!/bin/bash
+
+#
+# Description: Activate & Deactivate LZM modules
+
+# Author : Alexandr Betkher <http://magos-linux.ru>
+# Author:  Mikhail Zaripov <http://magos-linux.ru>
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+
 if [ "$(id -un)" != "root" ] ;then
    gksu -g "/bin/bash $0 $@"
    exit 0
-fi
-
-if [ -n "$KDE_SESSION_UID" ] ;then
-   MSG='kdialog --msgbox '
-   ERR='kdialog --error '
-else
-   MSG='zenity --info --text='
-   ERR='zenity --error --text='
 fi
 
 MSG_MOVE="was moved into MagOS/optional"
@@ -45,14 +46,15 @@ for module in $@ ; do
 
    deactivate $FULLNAME
    if [ $? -eq 0 ] ;then
-      $MSG" $MSG_MOD $FILENAME $MSG_DEACT"
+    mdialog --msgbox "$MSG_MOD $FILENAME $MSG_DEACT"
    else
       activate $FULLNAME 2> /var/log/lzm.log
-      if [ $? -ne 0 ] ;then
+     if [ $? -ne 0 ] ;then
          ERROR=`cat /var/log/lzm.log`
-         $ERR" $MSG_ACT_ERR \n $ERROR"
-      else
-         $MSG" $MSG_MOD $FILENAME $MSG_ACT \n $MSG1 "
+      mdialog --error "$MSG_ACT_ERR \n $ERROR"
+     else
+      [ -f /mnt/live/memory/modules/$FILENAME ] && ln /mnt/live/memory/modules/$FILENAME $module || ln -s /mnt/live/memory/modules/$FILENAME $module
+      mdialog --msgbox "$MSG_MOD $FILENAME $MSG_ACT \n $MSG1 "
       fi
    fi
 done

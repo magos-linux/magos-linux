@@ -65,7 +65,7 @@ DATAFROM=$(cmdline_value from)
 # In that case, we have to initialize network very soon (now)
 # ip=<client-ip>:<boot-server-ip>:<gw-ip>:<netmask>
 # Nevertheless, from= parameter won't be overwritten by this
-IP=$(cmdline_value ip)
+#IP=$(cmdline_value ip)
 
 if [ "$DATAFROM" ]; then
    DATA=$MOUNTDIR/$LIVEMEDIA
@@ -133,13 +133,27 @@ echolog "setting up directory for changes"
 CHANGESVAL=$(cmdline_value changes)
 
 if [ "$CHANGESVAL" ]; then
-   CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
+#   CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
+#  echolog $CHANGESMNT
+
+   if [ "$(echo $CHANGESVAL | grep "://")" != ""  ]; then
+      init_dhcp $(modprobe_network_modules)
+      echo $CHANGESVAL | grep -iq ^"nfs://" && CHANGESMNT=$(mount_nfs $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
+   else
+      CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
+      [ -b "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount block device
+   fi
+   [ -f "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount again, it may be loop device
+   [ -d "$CHANGESMNT" ] && mount -o rbind $CHANGESMNT $MEMORY # mount dir
    echolog $CHANGESMNT
+
+
+
 fi
 
 debug_shell
 
-mount_device "$CHANGESMNT" $MEMORY # removes $MEMORY if CHANGESMNT is wrong
+#mount_device "$CHANGESMNT" $MEMORY # removes $MEMORY if CHANGESMNT is wrong
 
 # test if the filesystem is writable so changes can be stored to it
 touch $MEMORY/empty 2>/dev/null && \

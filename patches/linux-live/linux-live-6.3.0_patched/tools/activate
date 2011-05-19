@@ -60,7 +60,7 @@ if [ -e "/mnt/live/memory/changes/$(readlink -f "$MODULE")" ]; then
 fi
 echo "$MODULE"
 MOD=$(union_insert_module / "$MODULE" $IMAGES)
-echo $MOD
+#echo $MOD
 if [ $? -ne 0 ]; then echo "error inserting module to live filesystem" >&2; exit 3; fi
 
 # All executables (but symlinks) in /etc/rc.d/init.d/ from this module will be started
