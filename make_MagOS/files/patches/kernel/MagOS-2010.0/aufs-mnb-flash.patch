@@ -63,7 +63,7 @@ diff -auprN 2.6.31.5-mnb1.orig/configs/i386.config 2.6.31.5-mnb1/configs/i386.co
 +# CONFIG_AUFS_HINOTIFY is not set
 +# CONFIG_AUFS_EXPORT is not set
 +# CONFIG_AUFS_RDU is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BDEV_LOOP=y
@@ -115,7 +115,7 @@ diff -auprN 2.6.31.5-mnb1.orig/configs/powerpc.config 2.6.31.5-mnb1/configs/powe
 +# CONFIG_AUFS_HINOTIFY is not set
 +# CONFIG_AUFS_EXPORT is not set
 +# CONFIG_AUFS_RDU is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BDEV_LOOP=y
@@ -147,7 +147,7 @@ diff -auprN 2.6.31.5-mnb1.orig/configs/sparc.config 2.6.31.5-mnb1/configs/sparc.
 +# CONFIG_AUFS_HINOTIFY is not set
 +# CONFIG_AUFS_EXPORT is not set
 +# CONFIG_AUFS_RDU is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BDEV_LOOP=y
@@ -179,9 +179,9 @@ diff -auprN 2.6.31.5-mnb1.orig/configs/x86_64.config 2.6.31.5-mnb1/configs/x86_6
 +# CONFIG_AUFS_BRANCH_MAX_1023 is not set
 +# CONFIG_AUFS_BRANCH_MAX_32767 is not set
 +# CONFIG_AUFS_HINOTIFY is not set
-+# CONFIG_AUFS_EXPORT is not set
++# CONFIG_AUFS_EXPORT is not set 
 +# CONFIG_AUFS_RDU is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BDEV_LOOP=y

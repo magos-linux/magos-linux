@@ -178,6 +178,13 @@ else
    fi
 fi
 
+#In case we using lzm as changes= parameter
+if echo "$CHANGESMNT" | grep -q [.][Ll][Zz][Mm]$ ;then
+   echolog "unpacking $CHANGESMNT to memory"
+   unsquashfs -f -dest $CHANGES "$CHANGESMNT" >/dev/null 2>&1
+   echo "$CHANGESMNT" > $CHANGES/.savetomodule
+fi
+
 echolog "setting up modules local repository"
 LOCAL_REP=$(cmdline_value local_rep)
 
@@ -379,11 +386,12 @@ mkdir -p $UNION/tmp
 chmod 1777 $UNION/tmp
 mkdir -p $UNION/media
 for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" ;do
-   if losetupfunc | grep -q "$a/" || grep -q "^$a/" /proc/mounts ;then
+   grep -q " $a " /proc/mounts || continue
+   if [ "$(cmdline_parameter nofreemedia)$(losetupfunc | grep -m 1 $a/)$(grep -m 1 ^$a/ /proc/mounts)" ] ;then
        mkdir -p $UNION$a
        mount --move $a $UNION$a
    else
-       [ "$(cmdline_parameter nofreemedia)" ] || fumount $a
+       fumount $a
    fi
 done
 for a in "/$MOUNTDIR/$LIVECHANGES" "/$MOUNTDIR/$LIVEHOME" ;do

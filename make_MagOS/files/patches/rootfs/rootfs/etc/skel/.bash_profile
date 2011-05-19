@@ -7,7 +7,7 @@ fi
 
 # User specific environment and startup programs
 
-PATH=$PATH:$HOME/bin
+PATH=/usr/lib/magos/scripts:$PATH:$HOME/bin
 XDG_CONFIG_HOME=$HOME/.config
 
 export XDG_CONFIG_HOME

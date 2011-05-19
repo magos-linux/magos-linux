@@ -259,7 +259,7 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
 diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linuxrc
 --- linux-live-6.3.0/initrd/linuxrc	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/linuxrc	2011-04-10 14:04:14.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/linuxrc	2011-05-18 21:12:36.000000000 +0400
 @@ -1,6 +1,9 @@
  #!/bin/ash
  # Initial script for Linux Live operating system
@@ -402,12 +402,19 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
     echolog $CHANGESMNT
  fi
  
-@@ -147,9 +178,27 @@ else
+@@ -147,9 +178,34 @@ else
     fi
  fi
  
 -# $UNION will be used as a root directory, livecd modules will be added soon
 -echolog "setup union directory (using aufs)"
++#In case we using lzm as changes= parameter
++if echo "$CHANGESMNT" | grep -q [.][Ll][Zz][Mm]$ ;then
++   echolog "unpacking $CHANGESMNT to memory"
++   unsquashfs -f -dest $CHANGES "$CHANGESMNT" >/dev/null 2>&1
++   echo "$CHANGESMNT" > $CHANGES/.savetomodule
++fi
+ 
 +echolog "setting up modules local repository"
 +LOCAL_REP=$(cmdline_value local_rep)
 +
@@ -421,7 +428,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +else 
 +	COPY2REP=$MEMORY/modules
 +fi
- 
++
 +
 +# $UNION will be used as a root directory, livecd modules will be added soon
 +if [ $(cmdline_parameter unionfs) ];then
@@ -432,7 +439,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  mkdir -p $CHANGES
  mkdir -p $IMAGES
  
-@@ -162,7 +211,12 @@ if [ "$XINO" != "$MEMORY" ]; then
+@@ -162,7 +218,12 @@ if [ "$XINO" != "$MEMORY" ]; then
  fi
  
  # mount aufs using the writable branch as the first one (leftmost/topmost)
@@ -446,7 +453,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
  
  debug_shell
-@@ -170,32 +224,76 @@ debug_shell
+@@ -170,32 +231,76 @@ debug_shell
  # If toram or copy2ram boot parameter is present, copy all fs modules to RAM.
  # (skip modules from /optional/ which are not listed in load= boot option)
  # Finaly modify DATA variable so it will point to correct directory
@@ -533,7 +540,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -207,6 +305,51 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
+@@ -207,6 +312,51 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
  #    rm from memory once ??
  #fi
  
@@ -585,7 +592,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  echolog "copying liblinuxlive library to union"
  cp -af /liblinuxlive $UNION/usr/lib/
  
-@@ -216,6 +359,9 @@ echolog "recreating /etc/fstab and /mnt
+@@ -216,6 +366,9 @@ echolog "recreating /etc/fstab and /mnt
  touch $UNION/etc/fstab
  rmdir $UNION/mnt/* 2>/dev/null
  fstab_update $UNION
@@ -595,17 +602,18 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  # everything is ready now, so we may unload unused kernel modules
  # and do some cleanup, unmount few things which are no longer needed.
-@@ -231,10 +377,24 @@ mkdir -p $UNION/sys
+@@ -231,10 +384,25 @@ mkdir -p $UNION/sys
  mkdir -p $UNION/dev
  mkdir -p $UNION/tmp
  chmod 1777 $UNION/tmp
 +mkdir -p $UNION/media
 +for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" ;do
-+   if losetupfunc | grep -q "$a/" || grep -q "^$a/" /proc/mounts ;then
++   grep -q " $a " /proc/mounts || continue
++   if [ "$(cmdline_parameter nofreemedia)$(losetupfunc | grep -m 1 $a/)$(grep -m 1 ^$a/ /proc/mounts)" ] ;then
 +       mkdir -p $UNION$a
 +       mount --move $a $UNION$a
 +   else
-+       [ "$(cmdline_parameter nofreemedia)" ] || fumount $a
++       fumount $a
 +   fi
 +done
 +for a in "/$MOUNTDIR/$LIVECHANGES" "/$MOUNTDIR/$LIVEHOME" ;do
@@ -621,7 +629,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -274,7 +434,11 @@ header "linux live end, starting $LIVECD
+@@ -274,7 +442,11 @@ header "linux live end, starting $LIVECD
  
  debug_shell
  
@@ -863,7 +871,7 @@ diff -auprN linux-live-6.3.0/tools/gactivate linux-live-6.3.0_patched/tools/gact
 +exit 0
 diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/liblinuxlive
 --- linux-live-6.3.0/tools/liblinuxlive	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-04-10 14:05:23.000000000 +0400
++++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-04-25 11:15:40.000000000 +0400
 @@ -3,6 +3,8 @@
  # Functions library :: for Linux Live scripts 6
  # Author: Tomas M. <http://www.linux-live.org>

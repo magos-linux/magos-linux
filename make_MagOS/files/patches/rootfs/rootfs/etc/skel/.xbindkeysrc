@@ -60,6 +60,10 @@
 " keyscripts info "
   Mod4 + i
 
+# информация о пользовательских сетевых соединения
+" keyscripts network "
+  Mod4 + n
+
 # увеличить громкость (колесом мышки)
 "amixer -q set Master 5+"
   Mod4 + b:4

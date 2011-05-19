@@ -1,4 +1,7 @@
 #!/bin/bash
+. /mnt/live/liblinuxlive
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+
 swapoff -a >/dev/null 2>/dev/null
 
 # umount any lzm from /media
@@ -14,16 +17,45 @@ for a in /home `grep /media/ /proc/mounts  | awk '{print $2}'` `grep " /mnt/" /p
     mkdir -p /mnt/live/mnt/unmounted$a
     mount --move $a /mnt/live/mnt/unmounted$a
 done
-sync
-
-# Save2module mode parser
-grep -q save2module /proc/cmdline || exit 0
-. /mnt/live/liblinuxlive
-[ -w /mnt/livemedia/$LIVECDNAME/modules ] || exit 0
+# some cleanups
 rm -fr /tmp/*
 for a in /media/* ;do rmdir $a >/dev/null 2>&1 ;done
+sync
+
+# save2module mode parser
 SRC=/mnt/live/memory/changes
-DEST=/mnt/livemedia/$LIVECDNAME/modules/save-`date +%Y%m%d-%H%M%S`.lzm
-echo "Please wait. Saving changes to module $DEST"
-dir2lzm $SRC $DEST
-echo
+SAVETOMODULENAME=${SAVETOMODULENAME-/mnt/livemedia/$LIVECDNAME/modules/zz-save.lzm}
+grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
+SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
+FILELIST=/.savelist
+[ -f /.savetomodule ] && SAVETOMODULE=${SAVETOMODULE-yes}
+grep -q save2module /proc/cmdline && SAVETOMODULE=${SAVETOMODULE-yes}
+if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
+   # if old module exists we have to concatenate it
+   if [ -d /mnt/live/memory/images/${SAVETOMODULENAME##*/} ]; then
+      SRC=/mnt/live/tmp/save2module
+      mkdir $SRC $SRC-rw
+      mount -t aufs -o shwh,br:$SRC-rw=rw:/mnt/live/memory/changes=rr:/mnt/live/memory/images/${SAVETOMODULENAME##*/}=rr aufs $SRC
+   fi
+   # preparing excluded files list
+   echo -e "/tmp/includedfiles\n/tmp/excludedfiles" > /tmp/excludedfiles
+   if [ -f "$FILELIST" ] ;then
+      echo -ne >/tmp/includedfiles
+      find $SRC/ -type l | sed 's|'$SRC'||' | grep -vf $FILELIST >> /tmp/excludedfiles
+      find $SRC/ -type f | sed 's|'$SRC'||' | grep -vf $FILELIST >> /tmp/excludedfiles
+      find $SRC/ -type l | sed 's|'$SRC'||' | grep -f $FILELIST >> /tmp/includedfiles
+      find $SRC/ -type f | sed 's|'$SRC'||' | grep -f $FILELIST >> /tmp/includedfiles
+      find $SRC/ -type d | sed 's|'$SRC'||' | grep -vf $FILELIST | while read a ;do
+          grep -q "^$a" /tmp/includedfiles || echo "$a" >> /tmp/excludedfiles
+      done
+   fi
+   sed -i 's|^/||' /tmp/excludedfiles
+   # backuping old module
+   [ -f "$SAVETOMODULENAME" ] && mv -f "$SAVETOMODULENAME" "${SAVETOMODULENAME}.bak"
+   # making module
+   echo "Please wait. Saving changes to module $SAVETOMODULENAME"
+   create_module $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles
+   echo
+   [ "$SRC" = "/mnt/live/memory/changes" ] || umount "$SRC"
+fi
+sync

@@ -42,6 +42,16 @@ done
 
 [ -f etc/sysconfig/MagOS ] && . etc/sysconfig/MagOS
 
+debug_log "Boot parameter save2module processing"
+debug_shell
+
+if [ $(cmdline_value savelist) ] ;then
+   echo -ne .savelist
+   for a in $(cmdline_value savelist | tr , " " ) ;do
+       echo $a >>.savelist
+   done
+fi
+
 debug_log "Boot parameter desktop= processing"
 debug_shell
 
@@ -111,6 +121,9 @@ for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
         cp -a etc/skel home/$NEEDEDUSER
         chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
         chmod 700 home/$NEEDEDUSER
+   elif [ "$UPDATEHOME" = "yes" ] ;then
+	rsync  -rlpt --ignore-existing etc/skel/ home/$NEEDEDUSER
+        chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
    fi
 done
 sed -i s=^root::=root:"$DEFAULTROOTPASSWD":= etc/shadow

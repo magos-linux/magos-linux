@@ -44,7 +44,7 @@ diff -auprN 2.6.33.5-mnb2/configs/i386.config 2.6.33.5-mnb2_flash/configs/i386.c
 +# CONFIG_AUFS_EXPORT is not set
 +# CONFIG_AUFS_RDU is not set
 +# CONFIG_AUFS_SP_IATTR is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BR_HFSPLUS=y
@@ -98,7 +98,7 @@ diff -auprN 2.6.33.5-mnb2/configs/powerpc.config 2.6.33.5-mnb2_flash/configs/pow
 +# CONFIG_AUFS_EXPORT is not set
 +# CONFIG_AUFS_RDU is not set
 +# CONFIG_AUFS_SP_IATTR is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BR_HFSPLUS=y
@@ -152,7 +152,7 @@ diff -auprN 2.6.33.5-mnb2/configs/sparc.config 2.6.33.5-mnb2_flash/configs/sparc
 +# CONFIG_AUFS_EXPORT is not set
 +# CONFIG_AUFS_RDU is not set
 +# CONFIG_AUFS_SP_IATTR is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BR_HFSPLUS=y
@@ -177,7 +177,7 @@ diff -auprN 2.6.33.5-mnb2/configs/x86_64.config 2.6.33.5-mnb2_flash/configs/x86_
 +# CONFIG_AUFS_EXPORT is not set
 +# CONFIG_AUFS_RDU is not set
 +# CONFIG_AUFS_SP_IATTR is not set
-+# CONFIG_AUFS_SHWH is not set
++CONFIG_AUFS_SHWH=y
 +# CONFIG_AUFS_BR_RAMFS is not set
 +# CONFIG_AUFS_BR_FUSE is not set
 +CONFIG_AUFS_BR_HFSPLUS=y

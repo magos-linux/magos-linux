@@ -1,5 +1,5 @@
 #!/bin/bash
-# deprecated MagOS-Linux
+# deprecated in MagOS-Linux
 exit 0
 
 # this script is to be called when a locale is installed for first time;

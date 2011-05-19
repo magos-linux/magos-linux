@@ -133,7 +133,9 @@ cd linux-live-$VER_LL
     cp -pR ../../../../../files/patches/linux-live/initrd/* ./
     cp -p ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/rsync usr/bin
     cp -f ../../tools/mksquashfs   usr/bin
+    cp -f ../../tools/unsquashfs   usr/bin
     ln -sf /usr/bin/mksquashfs /bin/mksquashfs
+    ln -sf /usr/bin/unsquashfs /bin/unsquashfs
     cp -p "$MYPATH"/work/$FLASHNAME-$VERREL/VERSION ./
 
   cd ../../

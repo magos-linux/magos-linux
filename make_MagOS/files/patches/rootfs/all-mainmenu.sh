@@ -50,6 +50,7 @@ update_app kde4/sweeper.desktop "Qt;KDE;Utility;Security;"
 update_app kde4/okular.desktop "Qt;KDE;Office;Viewer;"
 update_app kde4/knotes.desktop "Qt;KDE;Utility;TextTools;"
 update_app kde4/Kjots.desktop "Qt;KDE;Utility;TextTools;"
+update_app kde4/irkick.desktop "Qt;KDE;X-KDE-settings-peripherals;"
 
 sed -i /NoDisplay=true/d usr/share/applications/gnomecc.desktop
 sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор GNOME'/ usr/share/applications/gnome-system-monitor.desktop

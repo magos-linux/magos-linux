@@ -18,7 +18,7 @@ function get_rpm()
   [ "$FNAME" = "" ] && return 1
   [ -f ../../cached_$VERREL/$FNAME ] && ln -s ../../cached_$VERREL/$FNAME $FNAME 
   [ -f $FNAME ] && return 0
-  grep -q /${FNAME}$ ../local_rpms.txt && ln -s ../../../files/rpms`grep /${FNAME}$ ../local_rpms.txt | head -1` $FNAME
+  grep -q /${FNAME}$ ../local_rpms.txt && ln -s ../../../files/rpms`grep -m 1 /${FNAME}$ ../local_rpms.txt ` $FNAME
   [ -f $FNAME ] && return 0
 
   URL=`grep " $2 " ../../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $1}'`/$FNAME
@@ -100,7 +100,7 @@ for a in `ls -1 ../../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
      echo $a | awk -F/ '{ print "\rЗагрузка пакетов для модуля " $NF}'
      for b in `cat $a` ;do 
         echo -ne \\r$b\\r 
-        MEDIA_LIST="`grep ^$b[[:space:]] ../../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred | head -1 | sed s/^$b.// ` $MEDIA_DEFAULT"
+        MEDIA_LIST="`grep -m 1 ^$b[[:space:]] ../../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred | sed s/^$b.// ` $MEDIA_DEFAULT"
         ERR_FLAG=1
         for c in $MEDIA_LIST ;do 
             get_rpm $b $c && ERR_FLAG=0 && break
