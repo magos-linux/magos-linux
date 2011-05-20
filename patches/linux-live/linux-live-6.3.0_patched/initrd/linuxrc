@@ -369,10 +369,10 @@ if [ "$HOME" ]; then
 fi
 [ -d $UNION/home ] || mkdir $UNION/home
 
-debug_shell
-
-echolog "copying liblinuxlive library to union"
-cp -af /liblinuxlive $UNION/usr/lib/
+#debug_shell
+#
+#echolog "copying liblinuxlive library to union"
+#cp -af /liblinuxlive $UNION/usr/lib/magos/scripts
 
 debug_shell
 

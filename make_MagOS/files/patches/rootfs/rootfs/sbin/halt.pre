@@ -2,6 +2,8 @@
 . /mnt/live/liblinuxlive
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 
+PATH=/usr/lib/magos/scripts:$PATH
+
 swapoff -a >/dev/null 2>/dev/null
 
 # umount any lzm from /media

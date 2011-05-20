@@ -115,9 +115,9 @@ gtkflush();
 my $more_wizard_dir = "/etc/wizard.d/";
 
 #neobht patch start
-my $isRpmDrake2lzm = -e "/usr/lib/magos/sbin/rpmdrake2lzm";
-my $isConv4mod = -e "/usr/lib/magos/sbin/conv4mod";
-my $isModMan = -e "/usr/lib/magos/sbin/mod_mnger";
+my $isRpmDrake2lzm = -e "/usr/lib/magos/scripts/rpmdrake2lzm";
+my $isConv4mod = -e "/usr/lib/magos/scripts/conv4mod";
+my $isModMan = -e "/usr/lib/magos/scripts/mod_mnger";
 #neobht patch end
 my $isWiz = -e "/usr/sbin/drakwizard";
 my $isRpmDrake = -e "/usr/sbin/rpmdrake";
@@ -166,7 +166,7 @@ my @tree = (
                                 my ($id, $icon, $op, $description, $long_description) = @$_;
                                 $programs{$id} =
                                   {
-                                      binary => "/usr/lib/magos/sbin/rpmdrake2lzm $op",
+                                      binary => "/usr/lib/magos/scripts/rpmdrake2lzm $op",
                                       embedded => -1, # too big
                                       description => $description,
                                       long_description => $long_description,
@@ -184,7 +184,7 @@ my @tree = (
                                 my ($id, $icon, $op, $description, $long_description) = @$_;
                                 $programs{$id} =
                                   {
-                                      binary => "/usr/lib/magos/sbin/conv4mod $op",
+                                      binary => "/usr/lib/magos/scripts/conv4mod $op",
                                       embedded => -1, # too big
                                       description => $description,
                                       long_description => $long_description,
@@ -202,7 +202,7 @@ my @tree = (
                                 my ($id, $icon, $op, $description, $long_description) = @$_;
                                 $programs{$id} =
                                   {
-                                      binary => "/usr/lib/magos/sbin/mod_mnger $op",
+                                      binary => "/usr/lib/magos/scripts/mod_mnger $op",
                                       embedded => -1, # too big
                                       description => $description,
                                       long_description => $long_description,
