@@ -706,7 +706,7 @@ list_network_drivers()
    r8169 8139too 8139cp via-rhine forcedeth \
    e2100 eepro eexpress pcnet32  \
    3c501 3c503 3c505 3c507 3c509 3c515 tg3 \
-   | tr " " "\n"
+   virtio_net atl1 atl2 igb | tr " " "\n"
 }
 
 # List all CD-ROMs

@@ -27,7 +27,7 @@ sync
 # save2module mode parser
 SRC=/mnt/live/memory/changes
 SAVETOMODULENAME=${SAVETOMODULENAME-/mnt/livemedia/$LIVECDNAME/modules/zz-save.lzm}
-grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
+[ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
 SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
 FILELIST=/.savelist
 [ -f /.savetomodule ] && SAVETOMODULE=${SAVETOMODULE-yes}

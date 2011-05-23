@@ -171,7 +171,7 @@ libkscreensaver5-
 libksgrd4-
 libksieve4-
 libkslox4-
-libktcore12-
+libktcore11-
 libktexteditor4-
 libktnef4-
 libkttsd4-
@@ -298,12 +298,11 @@ libakonadi-contact4-
 libkontactinterface4-
 libknewstuff34-
 libboost_program_options1.42.0-
+libkupnp4-
 libktorrent1-
-libktorrent3-
 libkunitconversion4-
 libkalarm_calendar4-
 libkrfbprivate4-
-libkupnp4-
 soprano-plugin-virtuoso-
 shared-desktop-ontologies-
 libcv2-
@@ -341,6 +340,5 @@ qt-recordmydesktop-
 plasma-applet-pastebin-
 plasma-dataengine-pastebin-
 kopete-cryptography-
-libktorrent-common-
 kdelirc-
 libkdelirc_shared1-

@@ -259,7 +259,7 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
 diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linuxrc
 --- linux-live-6.3.0/initrd/linuxrc	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/linuxrc	2011-05-20 14:43:01.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/linuxrc	2011-05-22 12:11:47.000000000 +0400
 @@ -1,6 +1,9 @@
  #!/bin/ash
  # Initial script for Linux Live operating system
@@ -364,7 +364,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
     DATA=$(dirname $DATA 2>/dev/null)
  fi
  
-@@ -98,17 +102,58 @@ echolog "using $LIVECDNAME data from $DA
+@@ -98,18 +102,57 @@ echolog "using $LIVECDNAME data from $DA
  
  debug_shell
  
@@ -400,32 +400,33 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  if [ "$CHANGESVAL" ]; then
 -   CHANGESMNT=$(find_in_computer $CHANGESVAL)
-+#   CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
-+#  echolog $CHANGESMNT
-+
+-   echolog $CHANGESMNT
 +   if [ "$(echo $CHANGESVAL | grep "://")" != ""  ]; then
 +      init_dhcp $(modprobe_network_modules)
 +      echo $CHANGESVAL | grep -iq ^"nfs://" && CHANGESMNT=$(mount_nfs $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
 +   else
 +      CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
-+      [ -b "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount block device
 +   fi
-+   [ -f "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount again, it may be loop device
-+   [ -d "$CHANGESMNT" ] && mount -o rbind $CHANGESMNT $MEMORY # mount dir
-    echolog $CHANGESMNT
-+
-+
-+
++   if [ -r "$CHANGESMNT" ] ;then
++      [ -b "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount block device
++      [ -f "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount again, it may be loop device
++      [ -d "$CHANGESMNT" ] && mount -o rbind $CHANGESMNT $MEMORY # mount dir
++      echolog $CHANGESMNT
++   else
++      rmdir $MEMORY
++   fi
++else
++   rmdir $MEMORY
  fi
  
  debug_shell
  
 -mount_device "$CHANGESMNT" $MEMORY # removes $MEMORY if CHANGESMNT is wrong
-+#mount_device "$CHANGESMNT" $MEMORY # removes $MEMORY if CHANGESMNT is wrong
- 
+-
  # test if the filesystem is writable so changes can be stored to it
  touch $MEMORY/empty 2>/dev/null && \
-@@ -147,9 +192,34 @@ else
+ rm -f $MEMORY/empty 2>/dev/null
+@@ -147,9 +190,34 @@ else
     fi
  fi
  
@@ -462,7 +463,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  mkdir -p $CHANGES
  mkdir -p $IMAGES
  
-@@ -162,7 +232,12 @@ if [ "$XINO" != "$MEMORY" ]; then
+@@ -162,7 +230,12 @@ if [ "$XINO" != "$MEMORY" ]; then
  fi
  
  # mount aufs using the writable branch as the first one (leftmost/topmost)
@@ -476,7 +477,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
  
  debug_shell
-@@ -170,32 +245,76 @@ debug_shell
+@@ -170,32 +243,76 @@ debug_shell
  # If toram or copy2ram boot parameter is present, copy all fs modules to RAM.
  # (skip modules from /optional/ which are not listed in load= boot option)
  # Finaly modify DATA variable so it will point to correct directory
@@ -563,7 +564,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -207,8 +326,53 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
+@@ -207,8 +324,53 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
  #    rm from memory once ??
  #fi
  
@@ -619,7 +620,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -216,6 +380,9 @@ echolog "recreating /etc/fstab and /mnt
+@@ -216,6 +378,9 @@ echolog "recreating /etc/fstab and /mnt
  touch $UNION/etc/fstab
  rmdir $UNION/mnt/* 2>/dev/null
  fstab_update $UNION
@@ -629,7 +630,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  # everything is ready now, so we may unload unused kernel modules
  # and do some cleanup, unmount few things which are no longer needed.
-@@ -231,10 +398,25 @@ mkdir -p $UNION/sys
+@@ -231,10 +396,25 @@ mkdir -p $UNION/sys
  mkdir -p $UNION/dev
  mkdir -p $UNION/tmp
  chmod 1777 $UNION/tmp
@@ -656,7 +657,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -274,7 +456,11 @@ header "linux live end, starting $LIVECD
+@@ -274,7 +454,11 @@ header "linux live end, starting $LIVECD
  
  debug_shell
  
@@ -815,7 +816,7 @@ diff -auprN linux-live-6.3.0/tools/deactivate linux-live-6.3.0_patched/tools/dea
 +fi
 diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/liblinuxlive
 --- linux-live-6.3.0/tools/liblinuxlive	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-04-25 11:15:40.000000000 +0400
++++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-05-21 09:07:25.000000000 +0400
 @@ -3,6 +3,8 @@
  # Functions library :: for Linux Live scripts 6
  # Author: Tomas M. <http://www.linux-live.org>
@@ -1167,7 +1168,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  # ===========================================================
  # discovery functions
  # ===========================================================
-@@ -605,12 +702,10 @@ list_network_drivers()
+@@ -605,13 +702,11 @@ list_network_drivers()
     # so I'll be happy if you report any particular one to be not working
     # (eg. causing hangups) in order to remove it from this list.
  
@@ -1177,13 +1178,15 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
 -   ac3200 acenic at1700 cosa cs89x0 de4x5 de600 de620 e2100 eepro eexpress \
 -   es3210 eth16i ewrk3 fmv18x forcedeth hostess_sv11 hp-plus hp lne390 ne3210 \
 -   ni5010 ni52 ni65 sb1000 sealevel smc-ultra sis900 smc-ultra32 smc9194 wd \
+-   | tr " " "\n"
 +   echo 3c59x e100 eepro100 e1000 hp100 ne2k-pci \
 +   r8169 8139too 8139cp via-rhine forcedeth \
 +   e2100 eepro eexpress pcnet32  \
 +   3c501 3c503 3c505 3c507 3c509 3c515 tg3 \
-    | tr " " "\n"
++   virtio_net atl1 atl2 igb | tr " " "\n"
  }
  
+ # List all CD-ROMs
 @@ -689,7 +784,19 @@ list_block_devices()
  device_mountdir()
  {

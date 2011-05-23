@@ -39,7 +39,7 @@ initrd /MagOS/initrd.gz
 
 title MagOS_failsafe
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz ramdisk_size=12000 root=/dev/ram0 rw noapic nolapic acpi=off nopat no3ddesktop xdriver=free noload=save-*
+kernel /MagOS/vmlinuz ramdisk_size=12000 root=/dev/ram0 rw noapic nolapic acpi=off nopat no3ddesktop xdriver=free noload=/modules/
 initrd /MagOS/initrd.gz
 
 title MagOS_copy2ram

@@ -133,27 +133,25 @@ echolog "setting up directory for changes"
 CHANGESVAL=$(cmdline_value changes)
 
 if [ "$CHANGESVAL" ]; then
-#   CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
-#  echolog $CHANGESMNT
-
    if [ "$(echo $CHANGESVAL | grep "://")" != ""  ]; then
       init_dhcp $(modprobe_network_modules)
       echo $CHANGESVAL | grep -iq ^"nfs://" && CHANGESMNT=$(mount_nfs $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
    else
       CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
-      [ -b "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount block device
    fi
-   [ -f "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount again, it may be loop device
-   [ -d "$CHANGESMNT" ] && mount -o rbind $CHANGESMNT $MEMORY # mount dir
-   echolog $CHANGESMNT
-
-
-
+   if [ -r "$CHANGESMNT" ] ;then
+      [ -b "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount block device
+      [ -f "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount again, it may be loop device
+      [ -d "$CHANGESMNT" ] && mount -o rbind $CHANGESMNT $MEMORY # mount dir
+      echolog $CHANGESMNT
+   else
+      rmdir $MEMORY
+   fi
+else
+   rmdir $MEMORY
 fi
 
 debug_shell
-
-#mount_device "$CHANGESMNT" $MEMORY # removes $MEMORY if CHANGESMNT is wrong
 
 # test if the filesystem is writable so changes can be stored to it
 touch $MEMORY/empty 2>/dev/null && \
