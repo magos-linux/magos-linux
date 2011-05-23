@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# /usr/lib/magos/scripts/urpm2lzm
+#
+# Description: create LZM from RPM (& dependences)
+# Author : Anton Goroshkin <http://magos-linux.ru>
+#
+# $1=RPM file or name program
+ 
+[ "$1" = "" ] && exit -1
+ 
+mod_br=/mnt/live/memory/tmp/_fly_mods
+root_br=/mnt/live/memory/tmp/_fly_rootfs
+mod_path=/mnt/live/memory/images
+ 
+mount_br=$mod_br
+ 
+rm -rf $mount_br $root_br
+mkdir -p $mount_br $root_br
+ 
+for a in `ls -d $mod_path/??-*`; do
+    mount_br="$mount_br:$a=rr"
+done
+ 
+mount -t aufs -o br:$mount_br wiz_fly $root_br
+
+mkdir -p $root_br/{dev,proc,sys}
+
+mount -o bind /dev $root_br/dev
+mount -o bind /proc $root_br/proc
+mount -o bind /sys $root_br/sys
+
+mkdir -p $root_br/tmp
+/usr/sbin/urpmi --root=$root_br $@
+
+umount $root_br/sys
+umount $root_br/proc
+umount $root_br/dev
+
+#rm -rf $root_br/{dev,proc,sys}
+
+umount wiz_fly
+
+#dir2lzm $mod_br/var/lib/rpm $1_rpmbase.lzm
+
+rm -rf $mod_br/var/lib/rpm
+rm -rf $mod_br/tmp
+
+dir2lzm $mod_br $1.lzm
+
+rm -rf $mod_br

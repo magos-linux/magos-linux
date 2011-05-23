@@ -1,0 +1,7 @@
+#!/bin/bash
+if [ "${1##*.}" = "lzm" ] ; then
+   mkdir "${1%.*}"
+   gksu lzm2dir "$1" "${1%.*}"
+else
+   notify-send "операция доступна только для модулей .lzm"
+fi
