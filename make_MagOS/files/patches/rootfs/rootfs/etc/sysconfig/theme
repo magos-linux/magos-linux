@@ -1,6 +1,6 @@
 # Background wallpaper
 # Available: BlueC4D bluesth bluesth-green bluesth-red KStarboard
-#BACKGROUND=bluesth
+BACKGROUND=bluesth
 
 # Global system theme 
 # It modifies THEMEGTK,THEMEMETACITY,THEMEOPENBOX,THEMEKDE,THEMEKWIN,THEMEPLASMA,THEMEKDEWIDGET,THEMEEMERALD
