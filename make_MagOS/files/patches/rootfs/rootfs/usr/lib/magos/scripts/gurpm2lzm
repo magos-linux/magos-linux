@@ -19,6 +19,9 @@ if [ "$(id -un)" != "root" ] ;then
    gksu -g "/bin/bash '$0' $@"
    exit 0
 fi
+
+export PATH=/usr/lib/magos/scripts:$PATH
+
 string=--progressbar
     for arg in "$@" ; do
      progs=$(echo $arg | sed -e 's/^ \+//' -e 's/ \+$//' -e 's/ \+/:/g') 

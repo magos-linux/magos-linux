@@ -3,6 +3,9 @@ if [ "$(id -un)" != "root" ] ;then
    gksu -g "/bin/bash $0 $@"
    exit 0
 fi
+
+export PATH=/usr/lib/magos/scripts:$PATH
+
 . liblinuxlive || exit 2
 case $1 in
    --nocompress | --oldpc )

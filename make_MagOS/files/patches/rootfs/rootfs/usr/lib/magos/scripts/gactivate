@@ -13,6 +13,9 @@ if [ "$(id -un)" != "root" ] ;then
    exit 0
 fi
 
+export PATH=/usr/lib/magos/scripts:$PATH
+
+
 MSG_MOVE="was moved into MagOS/optional"
 MSG_NOMOVE="was not moved into MagOS/optional"
 MSG_ACT="ACTIVATED"

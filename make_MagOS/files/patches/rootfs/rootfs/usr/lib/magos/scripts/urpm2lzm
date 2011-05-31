@@ -8,7 +8,9 @@
 # $1=RPM file or name program
  
 [ "$1" = "" ] && exit -1
- 
+
+export PATH=/usr/lib/magos/scripts:$PATH
+
 mod_br=/mnt/live/memory/tmp/_fly_mods
 root_br=/mnt/live/memory/tmp/_fly_rootfs
 mod_path=/mnt/live/memory/images
