@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# /usr/lib/magos/scripts/umountloop
+#
+# Description: Umount loop
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+dl=$(grep $1 /proc/mounts | cut -d " " -f 1)
+umount $1
+losetup -d $dl

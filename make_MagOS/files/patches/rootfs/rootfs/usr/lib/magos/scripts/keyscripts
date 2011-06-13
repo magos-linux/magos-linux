@@ -42,10 +42,12 @@ info ()
   GLXINFO=$(glxinfo | sed '2,3!d')
   AUDIO=$(lspci | sed -e '/Audio/!d' -e 's/^.*://')
   CMDLINE=$(cat /proc/cmdline)
+  PROF_SIZE=$(df -h / |grep aufs | awk '{print " ["$5"] total - "$2", free - "$4}')
   echo "UPTIME: $UPTIME" > ~/info.txt
   echo "KERNEL: $KERNEL" >> ~/info.txt
   echo "RAM: $RAM" >> ~/info.txt
   echo "SWAP: $SWAP" >> ~/info.txt
+  [ "$(cat /proc/cmdline | grep changes= )" ] && echo "PROFILE: $PROF_SIZE" >> ~/info.txt
   echo -e "CPU: ($CPUARCH) \n$CPU" >> ~/info.txt
   echo "VIDEO: $VIDEO" >> ~/info.txt
   echo "$GLXINFO" >> ~/info.txt

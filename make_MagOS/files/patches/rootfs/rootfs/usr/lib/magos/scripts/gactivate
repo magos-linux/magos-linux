@@ -51,7 +51,7 @@ for module in $@ ; do
    if [ $? -eq 0 ] ;then
     mdialog --msgbox "$MSG_MOD $FILENAME $MSG_DEACT"
    else
-      activate $FULLNAME 2> /var/log/lzm.log
+     xterm -e activate $FULLNAME 2> /var/log/lzm.log
      if [ $? -ne 0 ] ;then
          ERROR=`cat /var/log/lzm.log`
       mdialog --error "$MSG_ACT_ERR \n $ERROR"
