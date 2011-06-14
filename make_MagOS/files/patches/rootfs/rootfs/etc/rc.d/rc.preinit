@@ -42,6 +42,13 @@ done
 
 [ -f etc/sysconfig/MagOS ] && . etc/sysconfig/MagOS
 
+debug_log "Processing depmod -a"
+debug_shell
+
+[ $(cmdline_parameter depmod) ] && DEPMOD="yes"
+[ "$DEPMOD"=="yes" ] && depmod -a ./
+
+
 debug_log "Boot parameter save2module processing"
 debug_shell
 
