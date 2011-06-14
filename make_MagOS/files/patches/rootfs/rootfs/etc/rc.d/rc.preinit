@@ -46,7 +46,7 @@ debug_log "Processing depmod -a"
 debug_shell
 
 [ $(cmdline_parameter depmod) ] && DEPMOD="yes"
-[ "$DEPMOD"=="yes" ] && depmod -a ./
+[ "$DEPMOD"=="yes" ] && depmod -a -b ./
 
 
 debug_log "Boot parameter save2module processing"
