@@ -7,9 +7,9 @@ fi
 case $1 in
    --nocompress | --oldpc )
       shift
-      create_module $1 $1.oldpc.lzm  -noI -noD -noF -nolzma  ;;
+      create_module "$1" "$1.oldpc.lzm"  -noI -noD -noF -nolzma  ;;
    * )
-      create_module $1 $1.lzm  ;;
+      create_module "$1" "$1.lzm"  ;;
 esac
 if [ $? -eq 0 ] ; then
    mdialog --msgbox "Модуль готов"

@@ -72,6 +72,22 @@
 "amixer -q set Master 5-"
   Mod4 + b:5
 
+# поворот экрана 90 град. против часовой
+"xrandr --orientation left"
+  Mod4 + Left
+
+# поворот экрана 180 град. 
+"xrandr --orientation inverted"
+  Mod4 + Up
+
+# поворот экрана 90 град. по часовой
+"xrandr --orientation right"
+  Mod4 + Right
+ 
+# поворот экрана 0 град.
+"xrandr --orientation normal"
+  Mod4 + Down
+
 ##################################
 # End of xbindkeys configuration #
 ##################################

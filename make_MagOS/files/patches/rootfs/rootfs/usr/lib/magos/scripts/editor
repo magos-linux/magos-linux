@@ -1,0 +1,26 @@
+#!/bin/sh
+
+detectDE()
+{
+    if [ x"$KDE_FULL_SESSION" = x"true" ]; then DE=kde;
+    elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
+    else DE=lxde;
+    fi
+}
+
+detectDE
+
+case "$DE" in
+    kde)
+    kwrite "$1"
+    ;;
+
+    gnome)
+    gedit "$1"
+    ;;
+
+    lxde)
+    leafpad "$1"
+    ;;
+
+esac

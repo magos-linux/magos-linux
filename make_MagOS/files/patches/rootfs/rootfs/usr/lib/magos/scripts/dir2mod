@@ -15,10 +15,10 @@ echo "Converting DIRs to LZMs:"
 for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
     echo -ne \\n"	converting $mn --> $mn.lzm "\\n
-    mkdir -p $2/lzm
-    fd=$2/lzm/$mn.lzm
+    mkdir -p "$2/lzm"
+    fd="$2/lzm/$mn.lzm"
 
-    dir2lzm $a $fd
+    dir2lzm "$a" "$fd"
 done
 }
 
@@ -33,10 +33,10 @@ echo "Converting DIRs to LZMs nocompression:"
 for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
     echo -ne \\n"	converting $mn --> $mn.lzm (no compression)"\\n
-    mkdir -p $2/nolzm
-    fd=$2/nolzm/$mn.lzm
+    mkdir -p "$2/nolzm"
+    fd="$2/nolzm/$mn.lzm"
 
-    dir2nolzm $a $fd
+    dir2nolzm "$a" "$fd"
 done
 }
 
@@ -53,14 +53,14 @@ for a in `ls -d $1/$3*`; do
     st=`du -s -m $a ` 
     size_mod=${st%%$a}
     size_mod=$[$size_mod+100]
-    mkdir -p $2/roms $2/roms/$mn
-    dd if=/dev/zero of=$2/roms/$mn.rom bs=1M count=0 seek=$size_mod 2>/dev/null
-    echo y | mkfs.ext3 -q $2/roms/$mn.rom >/dev/null
+    mkdir -p "$2/roms" "$2/roms/$mn"
+    dd if=/dev/zero of="$2/roms/$mn.rom" bs=1M count=0 seek=$size_mod 2>/dev/null
+    echo y | mkfs.ext3 -q "$2/roms/$mn.rom" >/dev/null
     echo "virtual size: [$size_mod"."M]"
-    mount -o loop $2/roms/$mn.rom $2/roms/$mn
-    cp -a $a/* $2/roms/$mn 2>/dev/null
-    umount $2/roms/$mn
-    rm -rf $2/roms/$mn
+    mount -o loop "$2/roms/$mn.rom" "$2/roms/$mn"
+    cp -a "$a/*" "$2/roms/$mn" 2>/dev/null
+    umount "$2/roms/$mn"
+    rm -rf "$2/roms/$mn"
 
 done
 

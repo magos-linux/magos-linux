@@ -1,5 +1,5 @@
 #!/bin/sh
-gksu deactivate $1
+gksu deactivate "$1"
 
 
 

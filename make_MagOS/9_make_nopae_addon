@@ -43,7 +43,9 @@ cd boot
 ln -sf vmlinuz-* vmlinuz
 cd ..
 echo "Установка dkms модулей"
-LC_ALL=C rpm $OPTS --noscripts --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -ihv "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm
+for a in  "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm ;do
+    rpm --noscripts --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -ih "$a"
+done
 echo "Создание модулей ядра средствами dkms"
 # вытаскиваем скрипты при установке модулей dkms, делаем из них скрипт
 rpm -qp --triggers --scripts ../../../loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm \
@@ -95,7 +97,7 @@ depmod -a -b ./ $NEWKERNN
 
 echo "Cоздание каталога nopae_addon"
 cd "$MYPATH"
-DISTRVERSION=$(date +%Y%m%d)
+[ "$DISTRVERSION" ] || DISTRVERSION=$(date +%Y%m%d)
 rm -fr flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae 2>/dev/null
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base
 cp -p work/$FLASHNAME-$VERREL/kernel_nopae/bin/boot/vmlinuz-* flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/vmlinuz

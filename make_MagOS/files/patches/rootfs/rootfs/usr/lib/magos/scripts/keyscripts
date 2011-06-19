@@ -32,6 +32,7 @@ list ()
 
 info ()
 {
+  . liblinuxlive
   UPTIME=$(uptime | awk '{print "time - "$1", up - "$3}') 
   RAM=$(free -m | grep Mem | awk '{ print "total - "$2",  free - "$4}')
   SWAP=$(free -m | grep Swap | awk '{ print "total - "$2",  free - "$4}')
@@ -42,7 +43,9 @@ info ()
   GLXINFO=$(glxinfo | sed '2,3!d')
   AUDIO=$(lspci | sed -e '/Audio/!d' -e 's/^.*://')
   CMDLINE=$(cat /proc/cmdline)
-  echo "UPTIME: $UPTIME" > ~/info.txt
+  VERSION=$(cat /etc/magos-release)
+  echo "$LIVECDNAME $VERSION" > ~/info.txt
+  echo "UPTIME: $UPTIME" >> ~/info.txt
   echo "KERNEL: $KERNEL" >> ~/info.txt
   echo "RAM: $RAM" >> ~/info.txt
   echo "SWAP: $SWAP" >> ~/info.txt

@@ -19,4 +19,4 @@
 #	0,7,0	  7) *
 #
 # I chose dev=0,1,0.  speed can also be adjusted to suit your needs.
-cdrecord -v -data dev=0,1,0 speed=8 $1
+cdrecord -v -data dev=0,1,0 speed=8 "$1"

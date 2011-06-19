@@ -493,3 +493,6 @@ scim-common-
 scim-gtk-
 scim-tables-
 imagemagick-
+conky-
+libtolua++5.1-
+tolua++-

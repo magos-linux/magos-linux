@@ -3,8 +3,8 @@
 par=start
 end=stop
 service smb status | grep pid  && par=restart end=restart
-fullpath="$(readlink -f $1)"
-confname=$(basename $fullpath | tr [:punct:][:space:] _ )
+fullpath=$(readlink -f "$1")
+confname=$(basename "$fullpath" | tr [:punct:][:space:] _ )
 confname=${confname%%_}
 cp -f /etc/samba/smb.conf /etc/samba/smb.conf.bak
 cat >>/etc/samba/smb.conf <<EOF

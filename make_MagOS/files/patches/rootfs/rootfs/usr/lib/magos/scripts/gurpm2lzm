@@ -21,7 +21,7 @@ if [ "$(id -un)" != "root" ] ;then
 fi
 string=--progressbar
     for arg in "$@" ; do
-     progs=$(echo $arg | sed -e 's/^ \+//' -e 's/ \+$//' -e 's/ \+/:/g') 
+     progs=$(echo $arg | sed -e 's/^ \+//' -e 's/ \+$//' -e 's/ \+/:/g')
      string="$string urpm2lzm:$progs"
     done
 mdialog $string

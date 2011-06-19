@@ -33,6 +33,7 @@ FILELIST=/.savelist
 [ -f /.savetomodule ] && SAVETOMODULE=${SAVETOMODULE-yes}
 grep -q save2module /proc/cmdline && SAVETOMODULE=${SAVETOMODULE-yes}
 if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
+   echo "Please wait. Saving changes to module $SAVETOMODULENAME"
    # if old module exists we have to concatenate it
    if [ -d /mnt/live/memory/images/${SAVETOMODULENAME##*/} ]; then
       SRC=/mnt/live/tmp/save2module
@@ -42,20 +43,26 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    # preparing excluded files list
    echo -e "/tmp/includedfiles\n/tmp/excludedfiles" > /tmp/excludedfiles
    if [ -f "$FILELIST" ] ;then
-      echo -ne >/tmp/includedfiles
-      find $SRC/ -type l | sed 's|'$SRC'||' | grep -vf $FILELIST >> /tmp/excludedfiles
-      find $SRC/ -type f | sed 's|'$SRC'||' | grep -vf $FILELIST >> /tmp/excludedfiles
-      find $SRC/ -type l | sed 's|'$SRC'||' | grep -f $FILELIST >> /tmp/includedfiles
-      find $SRC/ -type f | sed 's|'$SRC'||' | grep -f $FILELIST >> /tmp/includedfiles
-      find $SRC/ -type d | sed 's|'$SRC'||' | grep -vf $FILELIST | while read a ;do
-          grep -q "^$a" /tmp/includedfiles || echo "$a" >> /tmp/excludedfiles
+      grep ^! "$FILELIST" | cut -c 2- >/tmp/savelist.black
+      grep -v ^! "$FILELIST" >/tmp/savelist.white
+      grep -q . /tmp/savelist.white || echo '.' > /tmp/savelist.white
+      find $SRC/ -type l >/tmp/allfiles
+      find $SRC/ -type f >>/tmp/allfiles
+      sed -i 's|'$SRC'||' /tmp/allfiles
+      grep -f /tmp/savelist.white /tmp/allfiles | grep -vf /tmp/savelist.black > /tmp/includedfiles
+      grep -q . /tmp/savelist.black && grep -f /tmp/savelist.black /tmp/allfiles >> /tmp/excludedfiles
+      grep -vf /tmp/savelist.white /tmp/allfiles >> /tmp/excludedfiles
+      find $SRC/ -type d | sed 's|'$SRC'||' | while read a ;do
+          grep -q "^$a" /tmp/includedfiles && continue
+          echo "$a" | grep -vf /tmp/savelist.black | grep -qf /tmp/savelist.white && continue
+          echo "$a" >> /tmp/excludedfiles
       done
+      rm -f /tmp/savelist* /tmp/allfiles /tmp/includedfiles
    fi
    sed -i 's|^/||' /tmp/excludedfiles
    # backuping old module
    [ -f "$SAVETOMODULENAME" ] && mv -f "$SAVETOMODULENAME" "${SAVETOMODULENAME}.bak"
    # making module
-   echo "Please wait. Saving changes to module $SAVETOMODULENAME"
    create_module $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles
    echo
    [ "$SRC" = "/mnt/live/memory/changes" ] || umount "$SRC"
