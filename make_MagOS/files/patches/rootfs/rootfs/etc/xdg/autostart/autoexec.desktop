@@ -1,14 +1,14 @@
 [Desktop Entry]
 Categories=
-Comment=Hotkeys for MagOS
-Comment[ru]=Горячие кнопки для MagOS
-Exec=xbindkeys
+Comment=Run applications at system start
+Comment[ru]=Автозапуск приложений при старте
+Exec=autoexec
 GenericName[ru]=
 GenericName=
 Icon=
 MimeType=
-Name[ru]=Xbindkeys
-Name=Xbindkeys
+Name[ru]=MagOS autoexec
+Name=Автозапуск MagOS
 Path=
 StartupNotify=false
 Terminal=false

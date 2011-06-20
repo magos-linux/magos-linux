@@ -60,13 +60,11 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
        3d)
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
-         cp -pf usr/share/applications/fusion-icon.desktop etc/xdg/autostart/fusion-icon.desktop
          sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
        ;;
        no3d)
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
-         rm -f etc/xdg/autostart/fusion-icon.desktop
          sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
        ;;
        none)
