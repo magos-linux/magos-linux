@@ -13,6 +13,9 @@ if [ "$(id -un)" != "root" ] ;then
    exit 0
 fi
 
+export PATH=/usr/lib/magos/scripts:$PATH
+
+
 MSG_MOVE="was moved into MagOS/optional"
 MSG_NOMOVE="was not moved into MagOS/optional"
 MSG_ACT="ACTIVATED"
@@ -32,6 +35,8 @@ fi
 for module in $@ ; do
    FILENAME=$(echo $module | awk -F/ '{ print $NF }')
    FULLNAME="$module"
+   TERM=""
+   [ "$(echo $FULLNAME | grep .enc )" ] && TERM="xterm -e"
    DESNAME="/mnt/livemedia/MagOS/optional/$FILENAME"
    MSG1=
    if [ `echo $module | grep -i /tmp` ] ;then
@@ -48,7 +53,7 @@ for module in $@ ; do
    if [ $? -eq 0 ] ;then
     mdialog --msgbox "$MSG_MOD $FILENAME $MSG_DEACT"
    else
-      activate "$FULLNAME" 2> /var/log/lzm.log
+     $TERM activate "$FULLNAME" 2> /var/log/lzm.log
      if [ $? -ne 0 ] ;then
          ERROR=`cat /var/log/lzm.log`
       mdialog --error "$MSG_ACT_ERR \n $ERROR"

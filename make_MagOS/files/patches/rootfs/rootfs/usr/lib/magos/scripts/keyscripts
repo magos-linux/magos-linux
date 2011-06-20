@@ -44,11 +44,13 @@ info ()
   AUDIO=$(lspci | sed -e '/Audio/!d' -e 's/^.*://')
   CMDLINE=$(cat /proc/cmdline)
   VERSION=$(cat /etc/magos-release)
+  PROF_SIZE=$(df -h / |grep aufs | awk '{print " ["$5"] total - "$2", free - "$4}')
   echo "$LIVECDNAME $VERSION" > ~/info.txt
   echo "UPTIME: $UPTIME" >> ~/info.txt
   echo "KERNEL: $KERNEL" >> ~/info.txt
   echo "RAM: $RAM" >> ~/info.txt
   echo "SWAP: $SWAP" >> ~/info.txt
+  [ "$(cat /proc/cmdline | grep changes= )" ] && echo "PROFILE: $PROF_SIZE" >> ~/info.txt
   echo -e "CPU: ($CPUARCH) \n$CPU" >> ~/info.txt
   echo "VIDEO: $VIDEO" >> ~/info.txt
   echo "$GLXINFO" >> ~/info.txt

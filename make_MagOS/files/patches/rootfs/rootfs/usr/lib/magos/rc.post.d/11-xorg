@@ -15,3 +15,8 @@ fi
 if echo $DPMS | egrep -qi 'no|off|false' ;then
    sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
 fi
+if [ "$PNP_MONITOR" = "yes" ] ;then
+    sed -i s/HorizSync.*/"HorizSync 30-96"/ /etc/X11/xorg.conf
+    sed -i s/VertRefresh.*/"VertRefresh 60-150"/ /etc/X11/xorg.conf
+    sed -i s/VendorName.*/"VendorName \"Plug'n Play\""/ /etc/X11/xorg.conf
+fi

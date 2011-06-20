@@ -8,6 +8,9 @@
 # Author: Anton Goroshkin <http://magos-linux.ru>
 #
 
+export PATH=/usr/lib/magos/scripts:$PATH
+
+
 PREFIX=none
 [ -f /usr/bin/zenity ] && PREFIX=NONKDE
 if [ -n "$KDE_SESSION_UID"  ] ; then
