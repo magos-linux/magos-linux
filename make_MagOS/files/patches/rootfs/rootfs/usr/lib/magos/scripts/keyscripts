@@ -1,17 +1,16 @@
 #!/bin/bash
 
-DE=OTHER
-set | grep -qi ^gnome_ &&  DE=GNOME
-[ "$XDG_CURRENT_DESKTOP" = "LXDE" ] && DE=LXDE
-[ -z "$KDE_SESSION_VERSION" ] || DE=KDE
+. /usr/lib/magos/functions
+
+DE=$(detectDE)
 
 run ()
 {
-  if [ $DE == KDE ] ; then
+  if [ "$DE" = "kde" ] ; then
     krunner
-  elif [  $DE == GNOME ] ; then
+  elif [  "$DE" = "gnome" ] ; then
     gnome-panel-control --run-dialog
-  elif [ $DE == LXDE ] ; then
+  else
     lxpanelctl run
   fi
 } 
@@ -20,11 +19,11 @@ run ()
 list ()
 {
   cat $HOME/.xbindkeysrc | sed -e 's/^".*"//' -e 's/Mod4/WIN/' -e s'/^#.*#//' -e 's/^#.*/&:/' -e '/^ *$/ d' > /tmp/listkeys
-  if [ $DE == KDE ] ; then
+  if [ "$DE" = "kde" ] ; then
     kdialog --textbox /tmp/listkeys 600 600
-  elif [  $DE == GNOME ] ; then
+  elif [ "$DE" = "gnome" ] ; then
     zenity --text-info --filename=/tmp/listkeys
-  elif [ $DE == LXDE ] ; then
+  else
     leafpad /tmp/listkeys
   fi
   rm -f /tmp/listkeys
@@ -58,11 +57,11 @@ info ()
   echo "CMDLINE: $CMDLINE" >> ~/info.txt
   echo "MODULES:" >> ~/info.txt
   grep squashfs /proc/mounts | awk '{print $2}' | sort >> ~/info.txt
-  if [ $DE == KDE ] ; then
+  if [ "$DE" = "kde" ] ; then
     kdialog --textbox $HOME/info.txt 600 250
-  elif [ $DE == GNOME ] ; then
+  elif [ "$DE" = "gnome" ] ; then
     zenity --text-info --filename=$HOME/info.txt
-  elif [ $DE == LXDE ] ; then
+  else
     leafpad $HOME/info.txt
   fi
   rm -f $HOME/info.txt
@@ -72,7 +71,7 @@ touchpad ()
 {
   if [ $(synclient -l | grep TouchpadOff | awk '{ print $3 }') -eq 0 ] ; then
     synclient TouchpadOff=1
-    if [ $DE == KDE ] ; then
+    if [ "$DE" = "kde" ] ; then
       kdialog --passivepopup "touсhpad отключен, WIN+t чтобы включить"
     else
       notify-send "touсhpad отключен, WIN+t чтобы включить"
@@ -89,7 +88,7 @@ rfswitch ()
     rfkill unblock all
   else
     rfkill block all
-    if [ $DE == KDE ] ; then
+    if [ "$DE" = "kde" ] ; then
       kdialog --passivepopup "радиоинтерфейсы отключены, WIN+w чтобы включить"
     else
       notify-send "радиоинтерфейсы отключены, WIN+w чтобы включить"
@@ -102,10 +101,12 @@ record()
   killall xbindkeys
   recordmydesktop --stop-shortcut Mod4+Print
   xbindkeys
-  if [ $DE == KDE ] ; then
+  if [ "$DE" = "kde" ] ; then
     kdialog --passivepopup "запись завершена"
-  elif [ $DE == GNOME ] ; then
+  elif [ "$DE" = "gnome" ] ; then
     zenity --notification --text="запись завершена"
+  else
+    notify-send "запись завершена"
   fi
 }
 
@@ -115,11 +116,11 @@ network ()
   netstat --inet  >> ~/network.txt
   echo -e "\nlsof -i" >> ~/network.txt
   /usr/sbin/lsof -i >> ~/network.txt
-  if [ $DE == KDE ] ; then
+  if [ "$DE" = "kde" ] ; then
     kdialog --textbox $HOME/network.txt 600 250
-  elif [ $DE == GNOME ] ; then
+  elif [ "$DE" = "gnome" ] ; then
     zenity --text-info --filename=$HOME/network.txt
-  elif [ $DE == LXDE ] ; then
+  else
     leafpad $HOME/network.txt
   fi
   rm -f $HOME/info.txt

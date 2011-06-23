@@ -23,6 +23,7 @@ ps | grep ntfsmount | awk '{ print $1 }' >> var/run/sendsigs.omit
 
 # MagOS.ini processing
 FNAME=etc/sysconfig/MagOS
+touch $FNAME
 gunzip -c /tmp/MagOS.ini.gz | egrep '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
 [ -f /tmp/.credential ] && . /tmp/.credential && rm -f /tmp/.credential
 gunzip -c /tmp/MagOS.ini.gz | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
@@ -40,7 +41,7 @@ gunzip -c /tmp/MagOS.ini.gz | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDE
    fi
 done
 
-[ -f etc/sysconfig/MagOS ] && . etc/sysconfig/MagOS
+. etc/sysconfig/MagOS
 
 debug_log "Processing depmod -a"
 debug_shell

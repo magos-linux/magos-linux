@@ -153,6 +153,10 @@ if grep -q cpio install_errors.log ;then
 else
     echo "Проверьте файл work/$FLASHNAME-$VERREL/install_errors.log, как правило там некритичные ошибки"
 fi
-cd ../../
+
+if [ -d ../../localpatches ] ;then
+    cp -pfR ../../localpatches/* rootfs
+fi
 
 echo "Работа скрипта завершена, в work/$FLASHNAME-$VERREL/rootfs наш дистр, в work/$FLASHNAME-$VERREL/kernel/dkms должны быть сторонние модули ядра"
+

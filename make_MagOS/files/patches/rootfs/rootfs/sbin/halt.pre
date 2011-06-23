@@ -63,7 +63,8 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    # backuping old module
    [ -f "$SAVETOMODULENAME" ] && mv -f "$SAVETOMODULENAME" "${SAVETOMODULENAME}.bak"
    # making module
-   create_module $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles
+   [ "$SAVETONOLZMA" = "yes" ] && SAVETOMODULEOPTIONS="$SAVETOMODULEOPTIONS -noI -noD -noF -nolzma"
+   create_module $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS
    echo
    [ "$SRC" = "/mnt/live/memory/changes" ] || umount "$SRC"
 fi

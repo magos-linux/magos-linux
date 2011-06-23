@@ -5,20 +5,25 @@
 [ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 [ -z "$BACKGROUND" ] && exit 0
+DEFAULTDIR=/usr/share/mdk/backgrounds
 
 grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
 [ -z "$XORG_RES" -o "$XORG_RES" = "auto" ] && XORG_RES=$(monitor-edid | awk '/ModeLine/ { print $2 }' | sed -e 's/"//g' -e '2,$d')
 echo "$XORG_RES" | grep -q ^[0-9]*x[0-9]*$ || XORG_RES=1024x768
 
 SOURCE="$BACKGROUND"
-[ "$BACKTODATE" != "no" -a -f "/usr/share/mdk/backgrounds/todate-$(date +%Y%m%d).jpg" ] && SOURCE="/usr/share/mdk/backgrounds/todate-$(date +%Y%m%d).jpg"
 [ -d "$SOURCE" ] && SOURCE=$(find "$SOURCE" | egrep -i "[.]jpeg$|[.]jpg$" | sort -R | head -1)
-[ -f "${SOURCE/.jpg/-wide.jpg}" ] && [ "$(echo $XORG_RES | awk -Fx '{print $1"*3/4" }' | bc )" -gt "$(echo $XORG_RES | awk -Fx '{print $2}')" ] && SOURCE="${SOURCE/.jpg/-wide.jpg}"
-[ -f "$SOURCE" ] || SOURCE="/usr/share/mdk/backgrounds/$BACKGROUND.jpg"
-[ -f "$SOURCE" ] || SOURCE="/usr/share/mdk/backgrounds/bluesth.jpg"
-rm -f /usr/share/mdk/backgrounds/default.jpg
+[ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/$BACKGROUND.jpg"
+[ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/bluesth.jpg"
 
-convert -resize $XORG_RES $SOURCE - | convert -background black -gravity center -extent $XORG_RES - /tmp/background.jpg
+rm -f $DEFAULTDIR/default.jpg
+if [ "$(dirname $SOURCE)" = "$DEFAULTDIR" ] ;then
+   [ "$BACKTODATE" != "no" -a -f "$DEFAULTDIR/todate-$(date +%Y%m%d).jpg" ] && SOURCE="$DEFAULTDIR/todate-$(date +%Y%m%d).jpg"
+   [ -f "${SOURCE/.jpg/-wide.jpg}" ] && [ "$(echo ${XORG_RES%x*}*3/4 | bc )" -gt "${XORG_RES#*x}" ] && SOURCE="${SOURCE/.jpg/-wide.jpg}"
+   convert -resize $XORG_RES! $SOURCE /tmp/background.jpg
+else
+   convert -resize $XORG_RES $SOURCE - | convert -background black -gravity center -extent $XORG_RES - /tmp/background.jpg
+fi
 
 if [ "$GRAFFITI" = "yes" ] ;then
    rm -f /tmp/graffiti-label.png 2>/dev/null
@@ -35,13 +40,13 @@ if [ "$GRAFFITI" = "yes" ] ;then
       fi
    done
    convert -resize x$(expr $(echo $XORG_RES | awk -Fx '{ print $2 }') / 10) /tmp/graffiti-label.png /tmp/logo.png
-   composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg /usr/share/mdk/backgrounds/default.jpg
+   composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg $DEFAULTDIR/default.jpg
    rm -f /tmp/background.jpg /tmp/logo.png /tmp/label.png
 else
-   mv /tmp/background.jpg /usr/share/mdk/backgrounds/default.jpg
+   mv /tmp/background.jpg $DEFAULTDIR/default.jpg
 fi
 
-[ -f /usr/share/mdk/backgrounds/default.jpg ] || ln -sf "$SOURCE" /usr/share/mdk/backgrounds/default.jpg
+[ -f $DEFAULTDIR/default.jpg ] || ln -sf "$SOURCE" $DEFAULTDIR/default.jpg
 
 [ -d "/usr/share/apps/ksplash/Themes/Default/$XORG_RES" ] || mkdir "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
-convert /usr/share/mdk/backgrounds/default.jpg "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"
+convert $DEFAULTDIR/default.jpg "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"

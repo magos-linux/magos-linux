@@ -7,16 +7,18 @@
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
 [ -z "$XORG_RES" ] || sed -i 's|.*Modes.*|        Modes "'$XORG_RES'"|' /etc/X11/xorg.conf
-if [ "$XORG_RES" != "" -a "$FLATPANEL" = "yes" ] ;then
-   HRH=90 ; [ $(echo "$XORG_RES" | awk -F x '{print $1}') -gt 1920 ] && HRH=100
+if [  "$MONITOR" != "" ] ;then
+   if [ "$MONITOR" = "FLATPANEL" ] ; then
+      VRH="" ; HRH=90 ; [ ${XORG_RES%%x*} -gt 1920 ] && HRH=100
+   elif [ "$MONITOR" = "PNP" ] ; then
+      VRH="-150" ; HRH=96 
+      STL=$(nl -ba /etc/X11/xorg.conf | grep -m 1 -i "Section.*Monitor" | awk '{ print $1}')
+      VNL=$(nl -ba /etc/X11/xorg.conf | sed -n $STL,1${STL}p | grep -m 1 -i VendorName | awk '{print $1}')
+      sed -i ${VNL}s/VendorName.*/"VendorName \"Plug'n Play\""/ /etc/X11/xorg.conf
+   fi
    sed -i s/HorizSync.*/"HorizSync 28.8-$HRH"/ /etc/X11/xorg.conf
-   sed -i s/VertRefresh.*/"VertRefresh 60"/ /etc/X11/xorg.conf
+   sed -i s/VertRefresh.*/"VertRefresh 60$VRH"/ /etc/X11/xorg.conf
 fi
 if echo $DPMS | egrep -qi 'no|off|false' ;then
    sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
-fi
-if [ "$PNP_MONITOR" = "yes" ] ;then
-    sed -i s/HorizSync.*/"HorizSync 30-96"/ /etc/X11/xorg.conf
-    sed -i s/VertRefresh.*/"VertRefresh 60-150"/ /etc/X11/xorg.conf
-    sed -i s/VendorName.*/"VendorName \"Plug'n Play\""/ /etc/X11/xorg.conf
 fi

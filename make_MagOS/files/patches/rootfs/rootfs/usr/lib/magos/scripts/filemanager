@@ -1,26 +1,20 @@
 #!/bin/sh
 
-detectDE()
-{
-    if [ x"$KDE_FULL_SESSION" = x"true" ]; then DE=kde;
-    elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
-    else DE=lxde;
-    fi
-}
+. /usr/lib/magos/functions
 
-detectDE
+DE=$(detectDE)
 
 case "$DE" in
     kde)
-    dolphin "$1"
+    dolphin $@
     ;;
 
     gnome)
-    nautilus "$1"
+    nautilus $@
     ;;
 
     lxde)
-    pcmanfm "$1"
+    pcmanfm $@
     ;;
 
 esac

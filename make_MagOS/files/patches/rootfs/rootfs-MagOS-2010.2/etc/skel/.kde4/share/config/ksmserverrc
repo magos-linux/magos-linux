@@ -1,6 +1,6 @@
 [General]
 confirmLogout=true
-excludeApps=/usr/bin/yakuake
+excludeApps=yakuake
 loginMode=restorePreviousLogout
 offerShutdown=true
 screenCount=1

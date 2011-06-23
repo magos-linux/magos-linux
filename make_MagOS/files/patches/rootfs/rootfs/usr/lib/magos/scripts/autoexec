@@ -1,37 +1,30 @@
 #!/bin/sh
 
-detectDE()
-{
-    if [ x"$KDE_FULL_SESSION" = x"true" ]; then DE=kde;
-    elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
-    else DE=lxde;
-    fi
-}
-
-detectDE
-
+. /usr/lib/magos/functions
 . /etc/sysconfig/MagOS
+
+DE=$(detectDE)
 cd $HOME
 
-[ -z "$AUTOEXEC" ] && AUTOEXEC="kde:yakuake;gnome:quake;xbindkeys"
+[ -z "$AUTOEXEC" ] && AUTOEXEC="kde:yakuake;gnome:guake;lxde:guake;xbindkeys"
 
 echo "$AUTOEXEC" | tr ',;' \\n | while read a ;do
      NEEDDE=$(echo $a | grep : | awk -F: '{print $1}' | tr A-Z a-z)
      PROGRAM=${a/*:/}
      [ "$NEEDDE" -a "$NEEDDE" != "$DE" ] && continue
-     [ -z "$PROGRAM" ] || echo "$PROGRAM" &
+     [ -z "$PROGRAM" ] || "$PROGRAM" &
 done
 
 . /etc/sysconfig/compositing-wm
 
-[ "$COMPOSITING_WM_START" = "yes" -a "$COMPOSITING_WM" = "compiz-fusion" ] && echo fusion-icon -n
+[ "$COMPOSITING_WM_START" = "yes" -a "$COMPOSITING_WM" = "compiz-fusion" ] && fusion-icon -n &
 
 . /etc/sound/profiles/current/profile.conf
 
 if [ "$SOUNDPROFILE" = "pulse" ] ;then
    if [ "$DE" = "kde" ] ;then
-      echo start-pulseaudio-kde &
+      start-pulseaudio-kde &
    else
-      echo start-pulseaudio-x11 &
+      start-pulseaudio-x11 &
    fi
 fi

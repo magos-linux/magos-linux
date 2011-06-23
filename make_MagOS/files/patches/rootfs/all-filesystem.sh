@@ -6,7 +6,7 @@ rm -fr var/tmp proc sys tmp etc/fstab etc/mtab ../null \
    usr/share/applications/kde4/Welcome.desktop \
    usr/share/locale/locale-archive \
    etc/locale /usr/share/vpnpptp/wiki/Help_uk.doc \
-   etc/xdg/autostart/pulseaudio*.desktop \
+   etc/xdg/autostart/pulseaudio*.desktop etc/xdg/autostart/guake.desktop \
    2>/dev/null
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 ln -sf ../tmp var/tmp

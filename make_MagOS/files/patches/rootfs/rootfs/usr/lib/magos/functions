@@ -83,3 +83,14 @@ function concatenate_ini()
  simple2ini "$1.tmp" >"$1"
  rm -f "$1.tmp" "$2.tmp"
 }
+
+detectDE()
+{
+    if [ x"$KDE_FULL_SESSION" = x"true" ]; then echo kde
+    elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then echo gnome
+    elif [ x"$DESKTOP_SESSION" = x"LXDE" ]; then echo lxde
+    elif ps -A | grep -q "kdeinit4" ; then echo kde
+    elif ps -A | grep -q "gnome-panel" ; then echo gnome
+    else echo lxde
+    fi
+}
