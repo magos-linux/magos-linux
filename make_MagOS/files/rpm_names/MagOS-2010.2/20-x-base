@@ -356,7 +356,7 @@ libtaglib1-
 sound-theme-freedesktop-
 libat-spi0-
 libgnome-vfs2_0-
-libxulrunner1.9.2.17-
+libxulrunner1.9.2.18-
 gnome-mime-data-
 libgnome2-
 libgnome2_0-
@@ -496,3 +496,4 @@ imagemagick-
 conky-
 libtolua++5.1-
 tolua++-
+xclip-

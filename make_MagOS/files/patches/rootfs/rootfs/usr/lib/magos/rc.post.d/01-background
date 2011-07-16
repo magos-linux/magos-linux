@@ -20,9 +20,13 @@ rm -f $DEFAULTDIR/default.jpg
 if [ "$(dirname $SOURCE)" = "$DEFAULTDIR" ] ;then
    [ "$BACKTODATE" != "no" -a -f "$DEFAULTDIR/todate-$(date +%Y%m%d).jpg" ] && SOURCE="$DEFAULTDIR/todate-$(date +%Y%m%d).jpg"
    [ -f "${SOURCE/.jpg/-wide.jpg}" ] && [ "$(echo ${XORG_RES%x*}*3/4 | bc )" -gt "${XORG_RES#*x}" ] && SOURCE="${SOURCE/.jpg/-wide.jpg}"
-   convert -resize $XORG_RES! $SOURCE /tmp/background.jpg
+fi
+if [ "$(dirname $SOURCE)" = "$DEFAULTDIR" -o "$BACKGROUNDMODE" = "1" ] ;then
+   convert -resize $XORG_RES! "$SOURCE" /tmp/background.jpg
+elif [ "$BACKGROUNDMODE" = "2" ] ;then
+   convert -resize $XORG_RES^ -gravity center -extent $XORG_RES "$SOURCE" /tmp/background.jpg
 else
-   convert -resize $XORG_RES $SOURCE - | convert -background black -gravity center -extent $XORG_RES - /tmp/background.jpg
+   convert -resize $XORG_RES -background black -gravity center -extent $XORG_RES "$SOURCE" /tmp/background.jpg
 fi
 
 if [ "$GRAFFITI" = "yes" ] ;then

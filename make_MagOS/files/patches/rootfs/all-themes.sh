@@ -15,6 +15,10 @@ rm -fr "usr/share/themes/Default/$DIRGTK" "usr/share/themes/Default/$DIRMETACITY
 ln -sf "../MagOS/$DIRGTK"  "usr/share/themes/Default/$DIRGTK"
 ln -sf "../MagOS/$DIRMETACITY" "usr/share/themes/Default/$DIRMETACITY"
 ln -sf "../MagOS/$DIROPENBOX" "usr/share/themes/Default/$DIROPENBOX"
+rm -fr "etc/$DIRGTK/gtkrc" "etc/$DIRGTK/apps" "etc/$DIRGTK/images" 2>/dev/null
+ln -sf "/usr/share/themes/Default/$DIRGTK/gtkrc"  "etc/$DIRGTK/gtkrc"
+ln -sf "/usr/share/themes/Default/$DIRGTK/apps"   "etc/$DIRGTK/apps"
+ln -sf "/usr/share/themes/Default/$DIRGTK/images" "etc/$DIRGTK/images"
 rm -f usr/share/emerald/theme/*
 cp -pf usr/share/emerald/themes/MagOS/* usr/share/emerald/theme
 

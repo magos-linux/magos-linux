@@ -97,6 +97,7 @@ depmod -a -b ./ $NEWKERNN
 
 echo "Cоздание каталога nopae_addon"
 cd "$MYPATH"
+#DISTRVERSION=20110715
 [ "$DISTRVERSION" ] || DISTRVERSION=$(date +%Y%m%d)
 rm -fr flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae 2>/dev/null
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base
