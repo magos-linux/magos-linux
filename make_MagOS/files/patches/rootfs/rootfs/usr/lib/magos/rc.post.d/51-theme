@@ -52,7 +52,7 @@ if [ "$THEMEEMERALD" != "" -a -d "/usr/share/emerald/themes/$THEMEEMERALD" ] ;th
    ln -sf "themes/$THEMEEMERALD" /usr/share/emerald/theme
 fi
 if [ "$THEMEPLASMA" != ""  ] ;then
-   echo -e "[Theme]\nname=$THEMEPLASMA" > /var/lib/mandriva/kde4-profiles/common/share/config/plasmarc
+   echo -e "[Theme]\nname=$THEMEPLASMA" > /usr/share/magos/kde4/common/share/config/plasmarc
    if [ -d "/usr/share/apps/desktoptheme/$THEMEPLASMA" ] ;then
      if ! grep -q "defaultWallpaperTheme" "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop" ;then
        echo -e  "\n[Wallpaper]\ndefaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg" >> "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
@@ -62,18 +62,18 @@ if [ "$THEMEPLASMA" != ""  ] ;then
    fi
 fi
 if [ "$THEMEKDE" != "" -a -f "/usr/share/apps/color-schemes/$THEMEKDE.colors" ] ;then
-   concatenate_ini /var/lib/mandriva/kde4-profiles/common/share/config/kdeglobals "/usr/share/apps/color-schemes/$THEMEKDE.colors"
+   concatenate_ini /usr/share/magos/kde4/common/share/config/kdeglobals "/usr/share/apps/color-schemes/$THEMEKDE.colors"
 fi
 if [ "$THEMEKDEWIDGET" != "" ] ;then
-   sed -i s/widgetStyle=.*/widgetStyle=$THEMEKDEWIDGET/ /var/lib/mandriva/kde4-profiles/common/share/config/kdeglobals
+   sed -i s/widgetStyle=.*/widgetStyle=$THEMEKDEWIDGET/ /usr/share/magos/kde4/common/share/config/kdeglobals
 fi
 
 if [ "$THEMEKWIN" != "" ] ;then
-   sed -i s/PluginLib=.*/"PluginLib=$THEMEKWIN"/ /var/lib/mandriva/kde4-profiles/common/share/config/kwinrc
+   sed -i s/PluginLib=.*/"PluginLib=$THEMEKWIN"/ /usr/share/magos/kde4/common/share/config/kwinrc
 fi
 
 if [ "$THEMEICONKDE" != "" ] ;then
-   sed -i s/"Theme=.*"/"Theme=$THEMEICONKDE"/ /var/lib/mandriva/kde4-profiles/common/share/config/kdeglobals
+   sed -i s/"Theme=.*"/"Theme=$THEMEICONKDE"/ /usr/share/magos/kde4/common/share/config/kdeglobals
 fi
 
 if [ "$THEMEICONGNOME" != "" ] ;then
@@ -81,5 +81,5 @@ if [ "$THEMEICONGNOME" != "" ] ;then
 fi
 
 if [ "$THEMEICONLXDE" != "" ] ;then
-   sed -i 's|sNet/IconThemeName=.*|sNet/IconThemeName='"$THEMEICONLXDE"'|' /var/lib/mandriva/lxde-profiles/Powerpack/desktop.conf
+   sed -i 's|sNet/IconThemeName=.*|sNet/IconThemeName='"$THEMEICONLXDE"'|' /etc/xdg/lxsession/LXDE/desktop.conf
 fi

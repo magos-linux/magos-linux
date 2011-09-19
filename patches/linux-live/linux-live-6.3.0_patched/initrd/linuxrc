@@ -457,8 +457,8 @@ debug_shell
 [ $(cmdline_parameter unionfs) ] && fs_type=unionfs || fs_type=aufs
 fumount /lib/modules/*/kernel >/dev/null 2>/dev/null
 umount /proc
-rm -f /drivers.lzm /usr.lzm >/dev/null 2>/dev/null
-mount -n -o remount,ro $fs_type .
+rm -f /drivers.lzm /usr.lzm /drivers.xzm /usr.xzm >/dev/null 2>/dev/null
+#mount -n -o remount,ro $fs_type .
 
 # We will copy init from the distro to initrd (there should be 2MB free)
 # This allows us to use the cleanup script during reboot, as init will be

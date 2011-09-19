@@ -1,6 +1,6 @@
 diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
 --- linux-live-6.3.0/build	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/build	2011-04-09 21:50:17.000000000 +0400
++++ linux-live-6.3.0_patched/build	2011-09-16 20:58:24.000000000 +0400
 @@ -18,20 +18,17 @@ allow_only_root
  
  # live CD name
@@ -54,7 +54,7 @@ diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
  
  for dir in $MKMOD; do
      if [ -d $ROOT/$dir ]; then
-       echo "base/$dir.lzm ..."
+-      echo "base/$dir.lzm ..."
 -      echo -ne > exclude.txt
 -      for i in $EXCLUDE; do
 -         part=$(echo "x/$i" | tr -s / | sed -r "s:x/[^/]+/::")
@@ -62,7 +62,8 @@ diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
 -      done
 -      cat exclude.txt
 -      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.lzm -keep-as-directory -ef exclude.txt
-+      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.lzm 
++      echo "base/$dir.$MODULEFORMAT ..."
++      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.$MODULEFORMAT
        if [ $? -ne 0 ]; then exit; fi
 -      rm exclude.txt
        echo
@@ -147,14 +148,15 @@ diff -auprN linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c linux-live-6.3.0_pat
      end:
 diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initrd/initrd_create
 --- linux-live-6.3.0/initrd/initrd_create	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/initrd_create	2011-04-09 21:50:17.000000000 +0400
-@@ -139,34 +139,59 @@ ln -sf bin $INITRD_TREE/sbin
++++ linux-live-6.3.0_patched/initrd/initrd_create	2011-09-16 21:01:17.000000000 +0400
+@@ -139,34 +139,60 @@ ln -sf bin $INITRD_TREE/sbin
  # necessary modules and dependency files
  mkdir -p $INITRD_TREE/$LMK/kernel/fs
  rcopy $ROOT/$LMK/kernel/fs/aufs $INITRD_TREE
 -rcopy $ROOT/$LMK/kernel/fs/squashfs $INITRD_TREE
-+rcopy $ROOT/$LMK/dkms-binary/fs/squashfs $INITRD_TREE
-+rcopy $ROOT/$LMK/dkms-binary/lib/lzma $INITRD_TREE
++[ -d $ROOT/$LMK/dkms-binary/fs/squashfs ] && rcopy $ROOT/$LMK/dkms-binary/fs/squashfs $INITRD_TREE
++[ -d $ROOT/$LMK/dkms-binary/lib/lzma ] && rcopy $ROOT/$LMK/dkms-binary/lib/lzma $INITRD_TREE
++[ -d $ROOT/$LMK/kernel/fs/squashfs ] && rcopy $ROOT/$LMK/kernel/fs/squashfs  $INITRD_TREE
  
  # copy filesystem modules, if not directly copied into kernel
  rcopy_ex $ROOT/$LMK/kernel/lib/zlib_inflate $INITRD_TREE 2>>$DEBUG
@@ -210,7 +212,7 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  
  # pcmcia modules
  rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/pcmcia_core.* $INITRD_TREE 2>>$DEBUG
-@@ -174,19 +199,25 @@ rcopy_ex $ROOT/$LMK/kernel/drivers/pcmci
+@@ -174,19 +200,25 @@ rcopy_ex $ROOT/$LMK/kernel/drivers/pcmci
  rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/rsrc_nonstatic.* $INITRD_TREE 2>>$DEBUG
  rcopy_ex $ROOT/$LMK/kernel/drivers/pcmcia/yenta_socket.* $INITRD_TREE 2>>$DEBUG
  
@@ -240,26 +242,34 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  fi
  
  debug "unpacking all kernel modules for initrd"
-@@ -201,9 +232,14 @@ chmod ago-x $INITRD_TREE/usr.lzm
+@@ -196,14 +228,19 @@ debug "generating module dependency file
+ depmod -b $INITRD_TREE $KERNEL
+ 
+ debug "compressing usr in initrd"
+-mksquashfs $INITRD_TREE/usr $INITRD_TREE/usr.lzm >/dev/null 2>&1
+-chmod ago-x $INITRD_TREE/usr.lzm
++mksquashfs $INITRD_TREE/usr $INITRD_TREE/usr.$MODULEFORMAT >/dev/null 2>&1
++chmod ago-x $INITRD_TREE/usr.$MODULEFORMAT
  rm -Rf $INITRD_TREE/usr/*
  
  debug "compressing net in initrd"
 -mksquashfs $INITRD_TREE/$LMK/kernel/drivers $INITRD_TREE/drivers.lzm >/dev/null 2>&1
+-chmod ago-x $INITRD_TREE/drivers.lzm
+-rm -Rf $INITRD_TREE/$LMK/kernel/drivers/*
 +mkdir -p $INITRD_TREE/tmp_lzm/fs $INITRD_TREE/tmp_lzm/drivers
 +mv $INITRD_TREE/$LMK/kernel/drivers/[ac-z]* $INITRD_TREE/tmp_lzm/drivers
 +mv $INITRD_TREE/$LMK/kernel/net $INITRD_TREE/tmp_lzm
-+mv $INITRD_TREE/$LMK/kernel/fs/[b-z]* $INITRD_TREE/tmp_lzm/fs
++mv $INITRD_TREE/$LMK/kernel/fs/[b-rt-z]* $INITRD_TREE/tmp_lzm/fs
 +cp -pr $INITRD_TREE/$LMK/kernel/* $INITRD_TREE/tmp_lzm
-+mksquashfs $INITRD_TREE/tmp_lzm $INITRD_TREE/drivers.lzm >/dev/null 2>&1
- chmod ago-x $INITRD_TREE/drivers.lzm
--rm -Rf $INITRD_TREE/$LMK/kernel/drivers/*
++mksquashfs $INITRD_TREE/tmp_lzm $INITRD_TREE/drivers.$MODULEFORMAT >/dev/null 2>&1
++chmod ago-x $INITRD_TREE/drivers.$MODULEFORMAT
 +rm -Rf $INITRD_TREE/tmp_lzm
  
  debug "creating empty image file for initrd"
  dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
 diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linuxrc
 --- linux-live-6.3.0/initrd/linuxrc	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/linuxrc	2011-05-22 12:11:47.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/linuxrc	2011-09-16 21:30:57.000000000 +0400
 @@ -1,6 +1,9 @@
  #!/bin/ash
  # Initial script for Linux Live operating system
@@ -665,15 +675,15 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +[ $(cmdline_parameter unionfs) ] && fs_type=unionfs || fs_type=aufs
 +fumount /lib/modules/*/kernel >/dev/null 2>/dev/null
 +umount /proc
-+rm -f /drivers.lzm /usr.lzm >/dev/null 2>/dev/null
-+mount -n -o remount,ro $fs_type .
++rm -f /drivers.lzm /usr.lzm /drivers.xzm /usr.xzm >/dev/null 2>/dev/null
++#mount -n -o remount,ro $fs_type .
  
  # We will copy init from the distro to initrd (there should be 2MB free)
  # This allows us to use the cleanup script during reboot, as init will be
 diff -auprN linux-live-6.3.0/install linux-live-6.3.0_patched/install
 --- linux-live-6.3.0/install	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/install	2011-05-20 14:44:22.000000000 +0400
-@@ -16,17 +16,15 @@ if [ "$N" = "build" ]; then
++++ linux-live-6.3.0_patched/install	2011-09-09 12:23:49.000000000 +0400
+@@ -16,17 +16,13 @@ if [ "$N" = "build" ]; then
     N=install
  else
     . ./.config || exit 1
@@ -686,137 +696,17 @@ diff -auprN linux-live-6.3.0/install linux-live-6.3.0_patched/install
 -   mkdir -p $ROOT/usr/lib
 -   ls -1 ./tools | egrep -v "^lib" | while read FILE; do cp ./tools/$FILE $ROOT/usr/bin; done
 -   cat ./tools/liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $ROOT/usr/lib/liblinuxlive
-+   mkdir -p $CROOT/usr/lib/magos/scripts
-+   ls -1 ./tools | egrep -v "^lib" | while read FILE; do cp ./tools/$FILE $CROOT/usr/lib/magos/scripts; done
-+   cat ./tools/liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $CROOT/usr/lib/magos/scripts/liblinuxlive
++   sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' ./tools/liblinuxlive > $CROOT/usr/lib/magos/scripts/liblinuxlive
  else
 -   ls -1 ./tools | egrep -v "^lib" | while read FILE; do rm -v $ROOT/usr/bin/$FILE; done
 -   ls -1 ./tools | egrep "^lib" | while read FILE; do rm -v $ROOT/usr/lib/$FILE; done
-+   ls -1 ./tools | while read FILE; do rm -v $CROOT/usr/lib/magos/scripts/$FILE; done
++   rm -v $CROOT/usr/lib/magos/scripts/liblinuxlive
  fi
  
  echo "Linux Live scripts were $N""ed successfuly in $1/"
-diff -auprN linux-live-6.3.0/tools/activate linux-live-6.3.0_patched/tools/activate
---- linux-live-6.3.0/tools/activate	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/activate	2011-05-19 14:53:35.000000000 +0400
-@@ -3,6 +3,8 @@
- # Include it into live directory structure on the fly
- #
- # Author: Tomas M. <http://www.linux-live.org>
-+#
-+# Author: Anton Goroshkin <http://magos-linux.ru>
- 
- if [ "$1" = "-k" ]; then
-    CALLED_BY_KDE_HELPER=1
-@@ -18,13 +20,13 @@ MODULE=$(readlink -f "$1")
- if [ "$MODULE" = "" -o ! -e "$MODULE" -o -d "$MODULE" ]; then
-    echo
-    echo "Activate a module on the fly while running Linux Live"
--   echo "Usage: $0 module.lzm"
-+   echo "Usage: $0 module.[lzm|rwm|rom|enc]"
-    exit 1
- fi
- 
--if [ "$(echo $MODULE | fgrep -i .lzm)" = "" ]; then
--   echo
--   echo "$(basename $MODULE): Module must end with .lzm"
-+if [ "$(echo $MODULE | fgrep -i .lzm)$(echo $MODULE | fgrep -i .rwm)$(echo $MODULE | fgrep -i .rom)$(echo $MODULE | fgrep -i .enc)" = "" ]; then
-+   echo 
-+   echo "$(basename $MODULE): Module must end with .lzm .rwm .rom .enc"
-    exit 2
- fi
- 
-@@ -36,7 +38,7 @@ IMAGES=/mnt/live/memory/images
- MODULES=/mnt/live/memory/modules
- 
- # are we even using union?
--if [ "$(grep '^aufs / ' /proc/mounts)" = "" ]; then
-+if [ "$(grep '^aufs / ' /proc/mounts)$(grep '^unionfs / ' /proc/mounts)" = "" ]; then
-    echo "not in the live mode, can't continue. Try lzm2dir $MODULE /"
-    exit 4
- fi
-@@ -56,8 +58,9 @@ if [ -e "/mnt/live/memory/changes/$(read
-    fi
-    MODULE="$TARGET"
- fi
--
-+echo "$MODULE"
- MOD=$(union_insert_module / "$MODULE" $IMAGES)
-+#echo $MOD
- if [ $? -ne 0 ]; then echo "error inserting module to live filesystem" >&2; exit 3; fi
- 
- # All executables (but symlinks) in /etc/rc.d/init.d/ from this module will be started
-@@ -77,3 +80,10 @@ if [ -e "$MOD/etc/ld.so.conf" -o -e "$MO
-    echo "Module contains ld.so.conf or ld.so.cache, updating libs cache..."
-    /sbin/ldconfig
- fi
-+
-+# update menus and icons
-+if [ -e "$MOD/usr/share/applications" ]; then
-+   gtk-update-icon-cache -fit /usr/share/icons/hicolor
-+   ps -A | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
-+   touch /usr/share/applications
-+fi
-diff -auprN linux-live-6.3.0/tools/deactivate linux-live-6.3.0_patched/tools/deactivate
---- linux-live-6.3.0/tools/deactivate	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/deactivate	2011-04-09 21:50:17.000000000 +0400
-@@ -4,6 +4,9 @@
- # - for example if you have files open from the module yet.
- #
- # Author: Tomas M. <http://www.linux-live.org>
-+#
-+# Author: Anton Goroshkin <http://magos-linux.ru>
-+
- 
- if [ "$1" = "-k" ]; then
-    CALLED_BY_KDE_HELPER=1
-@@ -18,14 +21,15 @@ PATH=.:$(dirname $0):/usr/lib:$PATH
- . liblinuxlive || exit 5
- 
- allow_only_root
--MODULE=$(basename "$1" .lzm).lzm
-+MODULE="$(basename "$1")"
-+
- IMAGES=/mnt/live/memory/images
- IPREV=empty
- 
- if [ "$MODULE" = "" -o ! -e "$IMAGES/$MODULE" ]; then
-    echo
-    echo "Deactivate module from the root filesystem while running Linux Live"
--   echo "Usage: $0 module.lzm"
-+   echo "Usage: $0 module.[lzm|rwm|rom|enc]"
-    exit 1
- fi
- 
-@@ -35,9 +39,15 @@ if [ -e "$IMAGES/$MODULE/var/lock/deacti
-    exit 2
- fi
- 
-+[ -e "$IMAGES/$MODULE/usr/share/applications" ] && UPDATE_MENUS=yes
-+
- try_remount()
- {
-+if [ $(cmdline_parameter unionfs) ];then
-+   mount -t unionfs -o remount,del=$IMAGES/$MODULE unionfs / 2>/dev/null
-+else
-    mount -t aufs -o remount,verbose,del:$IMAGES/$MODULE aufs / 2>/dev/null
-+fi
- }
- 
- # Try to simply remove the dir first. If succeeds, finish
-@@ -76,3 +86,9 @@ if [ $? -ne 0 ]; then
- fi
- losetup -d "$LOOP" 2>/dev/null # sometimes it's freed by umount automatically
- rmdir "$IMAGES/$MODULE" # if not empty or busy, a message will be shown
-+
-+# update menus
-+if [ "$UPDATE_MENUS" = "yes" ] ;then
-+   ps -A | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
-+   touch /usr/share/applications
-+fi
 diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/liblinuxlive
 --- linux-live-6.3.0/tools/liblinuxlive	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-05-21 09:07:25.000000000 +0400
++++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-09-16 21:33:48.000000000 +0400
 @@ -3,6 +3,8 @@
  # Functions library :: for Linux Live scripts 6
  # Author: Tomas M. <http://www.linux-live.org>
@@ -826,7 +716,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
  # ===========================================================
  # GLOBAL variables
-@@ -19,9 +21,14 @@ MOUNTDIR=mnt
+@@ -19,9 +21,15 @@ MOUNTDIR=mnt
  CHANGES=$MEMORY/changes
  XINO=$MEMORY/xino
  COPY2RAM=$MEMORY/copy2ram
@@ -839,19 +729,27 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
 +LIVEHOME=livehome
 +LIVECHANGES=livesave
 +LIVEREPOSITORY=$MOUNTDIR/liverepository
++MKSQOPT=
  
  # this will be replaced by build script, so never change the following line!
  LIVECDNAME="mylinux"
-@@ -177,7 +184,7 @@ mount_initrd_loops()
+@@ -176,8 +184,14 @@ mount_initrd_loops()
+    if [ -e /usr.lzm ]; then
        mount_device /usr.lzm /usr loop,ro squashfs
     fi
++   if [ -e /usr.xzm ]; then
++      mount_device /usr.xzm /usr loop,ro squashfs
++   fi
     if [ -e /drivers.lzm ]; then
 -      mount_device /drivers.lzm /lib/modules/*/kernel/drivers loop,ro squashfs
 +      mount_device /drivers.lzm /lib/modules/*/kernel loop,ro squashfs
++   fi
++   if [ -e /drivers.xzm ]; then
++      mount_device /drivers.xzm /lib/modules/*/kernel loop,ro squashfs
     fi
  }
  
-@@ -248,10 +255,7 @@ locale_id()
+@@ -248,10 +262,7 @@ locale_id()
     # but only if there is just ONE directory, nothing more
     # (so we are sure which one to use)
     if [ "$LOCALE" = "" ]; then
@@ -863,7 +761,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fi
  
     if [ "$LOCALE" != "" ]; then
-@@ -268,23 +272,23 @@ iocharset()
+@@ -268,23 +279,23 @@ iocharset()
     # if iocharset is explicitly set at the boot prompt,
     # return it regardless the locale settings
     IOCHARSET=$(cmdline_value iocharset)
@@ -903,7 +801,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Get filesystem options
-@@ -295,20 +299,25 @@ iocharset()
+@@ -295,20 +306,25 @@ iocharset()
  fs_options()
  {
     debug_log "fs_options" "$*"
@@ -933,7 +831,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
        fi
     fi
  
-@@ -327,7 +336,7 @@ fs_options()
+@@ -327,7 +343,7 @@ fs_options()
     fi
  
     if [ "$1" = "ntfs-3g" ]; then
@@ -942,7 +840,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fi
  }
  
-@@ -360,6 +369,24 @@ is_supported_filesystem()
+@@ -360,6 +376,24 @@ is_supported_filesystem()
     egrep -q "[[:space:]]$1\$" /proc/filesystems
  }
  
@@ -967,7 +865,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  # Mount device $1 to $2
  # If the device is using vfat or ntfs filesystem, use iocharset as a mount option
  # $1 = /dev device to mount, eg. /dev/hda1, or loop file, or directory
-@@ -375,6 +402,9 @@ mount_device()
+@@ -375,6 +409,9 @@ mount_device()
     # make sure we have enough arguments
     if [ "$2" = "" ]; then return 1; fi
     if [ "$1" = "" ]; then rmdir "$2" 2>/dev/null; return 1; fi
@@ -977,7 +875,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     mkdir -p "$2"
  
     DEV="$1"
-@@ -387,13 +417,32 @@ mount_device()
+@@ -387,13 +424,32 @@ mount_device()
     OPTIONS=$(echo "$OPTIONS" | sed -r "s/^,+//")
  
     if [ "$FS" = "-t ntfs-3g" ]; then
@@ -1010,7 +908,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     # not enough loop devices? try to create one.
     if [ $ERR -eq 2 ]; then
         LOOPDEV=$(mknod_next_loop_dev)
-@@ -426,7 +475,7 @@ mount_device()
+@@ -426,7 +482,7 @@ mount_device()
  fumount()
  {
     debug_log "fumount" "$*"
@@ -1019,7 +917,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
     while [ "$1" ]; do
        if [ "$1" = "-l" ]; then LAZY="yes"; shift; fi
-@@ -438,11 +487,13 @@ fumount()
+@@ -438,11 +494,13 @@ fumount()
        fi
  
        if [ "$TARGET" != "" ]; then
@@ -1033,7 +931,16 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
        fi
        shift
     done
-@@ -487,7 +538,7 @@ ismountpoint()
+@@ -462,7 +520,7 @@ create_module()
+ {
+    debug_log "create_module" "$*"
+    rm -f "$2" # overwrite, never append to existing file
+-   mksquashfs "$1" "$2" -b 256K -lzmadic 256K $3 $4 $5 $6 $7 $8 $9>/dev/null
++   mksquashfs "$1" "$2" $MKSQOPT $3 $4 $5 $6 $7 $8 $9>/dev/null
+    if [ $? -ne 0 ]; then return 1; fi
+    chmod a-wx "$2" # remove execute and write attrib
+    chmod a+r "$2" # add read for everyone
+@@ -487,7 +545,7 @@ ismountpoint()
  mount_module()
  {
     debug_log "mount_module" "$*"
@@ -1042,7 +949,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Insert a directory tree $2 to an union specified by $1
-@@ -499,16 +550,24 @@ mount_module()
+@@ -499,16 +557,24 @@ mount_module()
  union_insert_dir()
  {
     debug_log "union_insert_dir" "$*"
@@ -1055,7 +962,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
 -# Find LZM modules in given dir
-+# Find LZM,RWM,ROM,ENC modules in given dir
++# Find XZM,LZM,RWM,ROM,ENC modules in given dir
  # $1 = root directory of mounted DATAdir
  #
  find_modules()
@@ -1063,14 +970,14 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     debug_log "find_modules" "$*"
 -   find "$1/base" "$1/modules" "$1/optional" -name "*.lzm" 2>/dev/null | sort
 +   if [ $(cmdline_parameter unionfs) ]; then
-+	find "$1/base" "$1/modules" "$1/optional"  -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort -r
++	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort -r
 +    else
-+	find "$1/base" "$1/modules" "$1/optional" -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort
++	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort
 +    fi
  }
  
  # List all modules in all directories (base, modules, optional)
-@@ -521,8 +580,8 @@ list_modules()
+@@ -521,8 +587,8 @@ list_modules()
     debug_log "list_modules" "$*"
     local LOAD NOLOAD
  
@@ -1081,7 +988,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     find_modules "$1" | while read LINE; do
        MODNAME=$(echo $LINE | cut -b ${#1}- | cut -b 2-)
        if [ "$(echo $LINE | grep /optional/)" ]; then
-@@ -542,14 +601,24 @@ list_modules()
+@@ -542,14 +608,24 @@ list_modules()
  union_insert_module()
  {
     debug_log "union_insert_module" "$*"
@@ -1109,7 +1016,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     if [ $? -ne 0 ]; then echo "can't insert module to union" >&2; return 2; fi
     echo "$2" | cut -b $(($4+1))-
     echolog "$2" >/dev/null
-@@ -572,23 +641,51 @@ union_insert_modules()
+@@ -572,23 +648,51 @@ union_insert_modules()
     done
  }
  
@@ -1168,7 +1075,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  # ===========================================================
  # discovery functions
  # ===========================================================
-@@ -605,13 +702,11 @@ list_network_drivers()
+@@ -605,13 +709,11 @@ list_network_drivers()
     # so I'll be happy if you report any particular one to be not working
     # (eg. causing hangups) in order to remove it from this list.
  
@@ -1187,7 +1094,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # List all CD-ROMs
-@@ -689,7 +784,19 @@ list_block_devices()
+@@ -689,7 +791,19 @@ list_block_devices()
  device_mountdir()
  {
     debug_log "device_mountdir" "$*"
@@ -1208,7 +1115,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Find file-path on given device
-@@ -699,13 +806,14 @@ device_mountdir()
+@@ -699,13 +813,14 @@ device_mountdir()
  # If the device/dev_directory is already mounted, preserve it mounted
  # $1 = device
  # $2 = path/filename
@@ -1224,7 +1131,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     ismountpoint $DIR
     if [ $? -eq 0 ]; then
        PRESERVE="true"
-@@ -717,6 +825,10 @@ find_filepath()
+@@ -717,6 +832,10 @@ find_filepath()
  
     FOUND=$(ls -A1d $DIR/$2 2>/dev/null | head -n 1 | tr -s '/')
  
@@ -1235,7 +1142,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     if [ "$FOUND" = "" ]; then
        if [ "$PRESERVE" != "true" ]; then
           fumount $DIR
-@@ -742,6 +854,7 @@ find_filepath()
+@@ -742,6 +861,7 @@ find_filepath()
  # Find file in computer by mounting disks or other storage devices
  # and searching for $1 in the mounted directory
  # $1 = filename or device-path or devicepath/filename
@@ -1243,7 +1150,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  #
  find_file()
  {
-@@ -763,7 +876,7 @@ find_file()
+@@ -763,7 +883,7 @@ find_file()
        PATHPART="$FIND";
        for DEVICE in $(list_mounted_directories) $(list_block_devices); do
           if ! grep -q ":$DEVICE@$PATHPART:" /tmp/_findfile 2>/dev/null; then
@@ -1252,7 +1159,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
              if [ $? -eq 0 ]; then return 0; fi
              echo ":$DEVICE@$PATHPART:" >>/tmp/_findfile
           fi
-@@ -771,7 +884,7 @@ find_file()
+@@ -771,7 +891,7 @@ find_file()
     else
        # try to find PATHPART only on the given device
        PATHPART=$(echo "$FIND" | sed -r 's:^/dev/[^/]+(.*):\1:')
@@ -1261,7 +1168,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fi
  }
  
-@@ -780,6 +893,7 @@ find_file()
+@@ -780,6 +900,7 @@ find_file()
  # if nothing found, sleep for a while to allow devices to settle and try again.
  # (is there any way to find out if there are devices queued through /sys?)
  # $1 = file or directory to find
@@ -1269,7 +1176,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  #
  find_in_computer()
  {
-@@ -789,13 +903,13 @@ find_in_computer()
+@@ -789,13 +910,13 @@ find_in_computer()
     TIMEOUT=$(cmdline_value scantimeout | sed -r 's/[^0-9]*([0-9]+).*/\1/')
     if [ "$TIMEOUT" = "" ]; then TIMEOUT=10; fi
  
@@ -1285,7 +1192,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     done
  
     echo $RESULT
-@@ -840,7 +954,7 @@ mdev_start_hotplug()
+@@ -840,7 +961,7 @@ mdev_start_hotplug()
     debug_log "mdev_start_hotplug" "$*"
     echolog "creating /dev entries for block devices"
     mdev -s
@@ -1294,7 +1201,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     echo /bin/mdev > /proc/sys/kernel/hotplug # use mdev as a hotplug handler
  }
  
-@@ -855,47 +969,48 @@ modprobe_essential_modules()
+@@ -855,47 +976,48 @@ modprobe_essential_modules()
     echolog "starting cdrom filesystem support"
     modprobe_module isofs
     echolog "starting squashfs support"
@@ -1369,7 +1276,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Load drivers for PCMCIA CardBus devices
-@@ -942,7 +1057,7 @@ modprobe_network_modules()
+@@ -942,7 +1064,7 @@ modprobe_network_modules()
  init_dhcp()
  {
     debug_log "start_dhcp_client" "$*"
@@ -1378,7 +1285,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     if [ "$1" != "" ]; then
        ifconfig $1 up
        udhcpc -i $1 -q
-@@ -961,9 +1076,35 @@ mount_httpfs()
+@@ -961,9 +1083,35 @@ mount_httpfs()
     debug_log "mount_httpfs" "$*"
  
     mkdir -p $2
@@ -1415,7 +1322,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
  # Unload modules loaded to kernel which are not used
  # This function used to unload more modules, but it may cause
-@@ -973,7 +1114,7 @@ mount_httpfs()
+@@ -973,7 +1121,7 @@ mount_httpfs()
  rmmod_unused_modules()
  {
     debug_log "rmmod_unused_modules" "$*"
@@ -1424,7 +1331,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     rmmod yenta_socket rsrc_nonstatic pcmcia pcmcia_core 2>/dev/null
  }
  
-@@ -1017,7 +1158,7 @@ cd_autoeject()
+@@ -1017,7 +1165,7 @@ cd_autoeject()
  dev_is_in_fstab()
  {
     debug_log "dev_is_in_fstab" "$*"
@@ -1433,7 +1340,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # update given line in fstab, add new values only if the device is not found
-@@ -1053,11 +1194,24 @@ fstab_update()
+@@ -1053,11 +1201,24 @@ fstab_update()
     mkdir -p $1/etc $1/mnt
     cat $FSTAB 2>/dev/null | grep -v "$FSTABLLFLAG" >$FSTABTMP
  
@@ -1460,7 +1367,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
     list_cdrom_devices | while read DEVICE; do
        MNT=$(device_mountdir $DEVICE)
-@@ -1083,4 +1237,4 @@ fstab_update()
+@@ -1083,4 +1244,4 @@ fstab_update()
     done
  
     mv -f $FSTABTMP $FSTAB

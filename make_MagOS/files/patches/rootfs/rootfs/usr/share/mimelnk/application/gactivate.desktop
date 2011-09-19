@@ -2,4 +2,4 @@
 Type=MimeType
 Comment=LZM module
 MimeType=application/x-lzm;
-Patterns=*.lzm;
+Patterns=*.lzm;*.xzm;

@@ -2,6 +2,9 @@
 if [ "${1##*.}" = "lzm" ] ; then
    mkdir "${1%.lzm}"
    gksu lzm2dir "$1" "${1%.lzm}"
+elif [ "${1##*.}" = "xzm" ] ; then
+   mkdir "${1%.xzm}"
+   gksu lzm2dir "$1" "${1%.xzm}"
 else
-   notify-send "операция доступна только для модулей .lzm"
+   notify-send "операция доступна только для модулей .[lx]zm"
 fi

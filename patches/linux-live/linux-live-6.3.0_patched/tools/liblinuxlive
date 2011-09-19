@@ -29,6 +29,7 @@ LIVEMEDIA=livemedia
 LIVEHOME=livehome
 LIVECHANGES=livesave
 LIVEREPOSITORY=$MOUNTDIR/liverepository
+MKSQOPT=
 
 # this will be replaced by build script, so never change the following line!
 LIVECDNAME="mylinux"
@@ -183,8 +184,14 @@ mount_initrd_loops()
    if [ -e /usr.lzm ]; then
       mount_device /usr.lzm /usr loop,ro squashfs
    fi
+   if [ -e /usr.xzm ]; then
+      mount_device /usr.xzm /usr loop,ro squashfs
+   fi
    if [ -e /drivers.lzm ]; then
       mount_device /drivers.lzm /lib/modules/*/kernel loop,ro squashfs
+   fi
+   if [ -e /drivers.xzm ]; then
+      mount_device /drivers.xzm /lib/modules/*/kernel loop,ro squashfs
    fi
 }
 
@@ -513,7 +520,7 @@ create_module()
 {
    debug_log "create_module" "$*"
    rm -f "$2" # overwrite, never append to existing file
-   mksquashfs "$1" "$2" -b 256K -lzmadic 256K $3 $4 $5 $6 $7 $8 $9>/dev/null
+   mksquashfs "$1" "$2" $MKSQOPT $3 $4 $5 $6 $7 $8 $9>/dev/null
    if [ $? -ne 0 ]; then return 1; fi
    chmod a-wx "$2" # remove execute and write attrib
    chmod a+r "$2" # add read for everyone
@@ -557,16 +564,16 @@ union_insert_dir()
    fi
 }
 
-# Find LZM,RWM,ROM,ENC modules in given dir
+# Find XZM,LZM,RWM,ROM,ENC modules in given dir
 # $1 = root directory of mounted DATAdir
 #
 find_modules()
 {
    debug_log "find_modules" "$*"
    if [ $(cmdline_parameter unionfs) ]; then
-	find "$1/base" "$1/modules" "$1/optional"  -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort -r
+	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort -r
     else
-	find "$1/base" "$1/modules" "$1/optional" -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort
+	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort
     fi
 }
 

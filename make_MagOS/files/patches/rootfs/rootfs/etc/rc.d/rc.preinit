@@ -47,7 +47,7 @@ debug_log "Processing depmod -a"
 debug_shell
 
 [ $(cmdline_parameter depmod) ] && DEPMOD="yes"
-[ "$DEPMOD"=="yes" ] && chroot . sbin/depmod -a
+[ "$DEPMOD" = "yes" ] && chroot . sbin/depmod -a
 
 
 debug_log "Boot parameter save2module processing"
@@ -326,7 +326,12 @@ debug_shell
 grep -q -f /VERSION etc/magos-release 2>/dev/null || rm -fr /memory/changes/var/lib/rpm  /memory/changes/var/lib/urpmi 2>/dev/null
 cp -f /VERSION etc/magos-release
 
+debug_log "devtmpfs mounting"
+debug_shell
+[ -d run/udev/rules.d ] && mount -t devtmpfs none dev
+
 debug_log "The endpoint of /etc/rc.d/rc.preinit"
 debug_shell
 
 exit 0
+

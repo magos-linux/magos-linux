@@ -17,7 +17,9 @@ done
 
 . /etc/sysconfig/compositing-wm
 
-[ "$COMPOSITING_WM_START" = "yes" -a "$COMPOSITING_WM" = "compiz-fusion" ] && fusion-icon -n &
+if [ "$COMPOSITING_WM_START" = "yes" -a "$COMPOSITING_WM" = "compiz-fusion" ] ;then
+   fusion-icon -n &
+fi
 
 . /etc/sound/profiles/current/profile.conf
 

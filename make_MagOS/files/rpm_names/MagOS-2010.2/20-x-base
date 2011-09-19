@@ -356,7 +356,7 @@ libtaglib1-
 sound-theme-freedesktop-
 libat-spi0-
 libgnome-vfs2_0-
-libxulrunner1.9.2.18-
+libxulrunner1.9.2.22-
 gnome-mime-data-
 libgnome2-
 libgnome2_0-
@@ -383,7 +383,7 @@ libgnomeprint-
 libgnomeprint2-2_0-
 libgnomeprintui-
 libgnomeprintui2-2_0-
-libgnomecups-
+libgnomecups-0.
 libgnomecups-1.0_1-
 libieee1284_3-
 libgtksourceview-1.0_0-

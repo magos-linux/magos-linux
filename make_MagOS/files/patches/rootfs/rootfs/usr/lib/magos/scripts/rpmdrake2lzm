@@ -19,6 +19,8 @@ mod_path=/mnt/live/memory/images
 
 mount_br=$mod_br
 
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+
 rm -rf $mount_br $root_br
 mkdir -p $mount_br $root_br
  
@@ -35,7 +37,7 @@ umount wiz_fly
 cd /mnt/livemedia/MagOS/optional
 
 while [ "$mod_name" = ""  -o  -f "$mod_name"  ]; do # если файл с таким именем существует либо нет имени окошко появится снова 
-    mod_name=$(mdialog --getsavefilename *.lzm) || exit -1 # при закрытии окошка mdialog вернет 1 и скрипт завершится
+    mod_name=$(mdialog --getsavefilename *.$MODULEFORMAT) || exit -1 # при закрытии окошка mdialog вернет 1 и скрипт завершится
 done 
 
 #mdialog --passivepopup "Внимание!!! Данный процесс может занимать длительное время. Остановка прогрессбара - не признак зависания. Просто необходимо немного подождать"
@@ -45,9 +47,9 @@ done
 rm -rf $mod_br/var/lib/rpm 
 rm -rf $mod_br/tmp 
 
-xterm -e dir2lzm $mod_br "$mod_name.lzm"
+xterm -e dir2lzm $mod_br "$mod_name.$MODULEFORMAT"
 
-chmod 666 "$mod_name.lzm"
+chmod 666 "$mod_name.$MODULEFORMAT"
 
 #mdialog --msgbox "Создание модуля [$mod_name.lzm] завершено :)"
 
@@ -56,7 +58,7 @@ cXdialog --yesno "Создание модуля завершено :)\\n Под�
 case $? in
     0)
      echo "Выбрано 'Да'."
-     gactivate "$mod_name.lzm" 
+     gactivate "$mod_name.$MODULEFORMAT"
      ;;
     1)
      echo "Выбрано 'Нет'."

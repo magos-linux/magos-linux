@@ -14,11 +14,9 @@ cd "$MYPATH"
 function get_rpm()
 {
   [ "$2" = "" ] && return 1
-  FNAME=`grep ^$1[0-9._a-zA-Z]*-[0-9._a-zA-Z]*.rpm$ ../../lists/mdv${VERREL}_$2.txt | tail -1`
+  FNAME=`grep ^$1[0-9][-0-9._a-zA-Z]*.rpm$ ../../lists/mdv${VERREL}_$2.txt | tail -1`
   [ "$FNAME" = "" ] && return 1
-  [ -f ../../cached_$VERREL/$FNAME ] && ln -s ../../cached_$VERREL/$FNAME $FNAME 
-  [ -f $FNAME ] && return 0
-  grep -q /${FNAME}$ ../local_rpms.txt && ln -s ../../../files/rpms`grep -m 1 /${FNAME}$ ../local_rpms.txt ` $FNAME
+  [ -f ../../cached_$VERREL/$FNAME ] && ln -s ../../cached_$VERREL/$FNAME $FNAME
   [ -f $FNAME ] && return 0
 
   URL=`grep " $2 " ../../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $1}'`/$FNAME
@@ -41,10 +39,6 @@ function get_rpm()
 cd loaded 
 rm -fr $FLASHNAME-$VERREL/srpms $FLASHNAME-$VERREL/rpms $FLASHNAME-$VERREL/*.txt 2>/dev/null
 mkdir -p $FLASHNAME-$VERREL/rpms $FLASHNAME-$VERREL/srpms
-if cd ../files/rpms ;then
-   find -L | grep .rpm$ | sed s-^.-- > "$MYPATH"/loaded/$FLASHNAME-$VERREL/local_rpms.txt
-   cd "$MYPATH"/loaded
-fi
 if ! [ -f linux-live-$VER_LL.tar.gz ]  ;then
    echo "Загрузка скриптов linux-live"
    if [ "$INET" = "good" ] ;then

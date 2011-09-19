@@ -6,8 +6,8 @@ PATH=/usr/lib/magos/scripts:$PATH
 
 swapoff -a >/dev/null 2>/dev/null
 
-# umount any lzm from /media
-for a in `losetup -a | grep '(/media/.*.lzm)' | awk '{print $3}' | tr -d '()'` ;do
+# umount any modules from /media
+for a in `losetup -a | grep '(/media/.*.[lx]zm)' | awk '{print $3}' | tr -d '()'` ;do
     deactivate $a
 done
 # then free any /media
@@ -25,8 +25,9 @@ for a in /media/* ;do rmdir $a >/dev/null 2>&1 ;done
 sync
 
 # save2module mode parser
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
 SRC=/mnt/live/memory/changes
-SAVETOMODULENAME=${SAVETOMODULENAME-/mnt/livemedia/$LIVECDNAME/modules/zz-save.lzm}
+SAVETOMODULENAME=${SAVETOMODULENAME-/mnt/livemedia/$LIVECDNAME/modules/zz-save.$MODULEFORMAT}
 [ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
 SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
 FILELIST=/.savelist

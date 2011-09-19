@@ -400,3 +400,7 @@ librlog5-
 btrfs-progs-
 powertop-
 compcache-
+squashfs-tools-
+squashfs3-tools-
+obexfs-
+libobexftp0-

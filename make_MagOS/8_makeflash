@@ -16,6 +16,15 @@ fi
 
 DISTRVERSION=$(date +%Y%m%d)
 DESTDIR=flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
+if [ "SQFSVER" = "3" ] ;then
+  MKSQUASHFS=mksquashfs3
+  UNSQUASHFS=unsquashfs3
+  MODULEFORMAT=lzm
+else
+  MKSQUASHFS=mksquashfs
+  UNSQUASHFS=unsquashfs
+  MODULEFORMAT=xzm
+fi
 
 echo "Подготовка"
 [ -d $DESTDIR ] && rm -fr $DESTDIR
@@ -41,11 +50,13 @@ ADDLOCALE=ru_RU.UTF-8
 LMK=lib/modules/`ls -1 rootfs/lib/modules | tr -d / | tail -1`
 RAM0SIZE=$INIRAMDSIZE
 MKMOD="`ls -1 modules | tr -d / | tr [:cntrl:] ' '`"
+MODULEFORMAT=$MODULEFORMAT
 EOF
+[ "$MKSQOPT" != "" ] && sed -i s/MKSQOPT=.*/MKSQOPT=\'"$MKSQOPT"\'/ linux-live-$VER_LL/tools/liblinuxlive
 
 # Функция копирования библитек (назначение должно быть текущим каталогом)
 # $1 - имя библиотеки
-# $2 - путь до rootfs 
+# $2 - путь до rootfs
 function copy_lib()
 {
  echo -ne $1\\r
@@ -75,23 +86,6 @@ cd linux-live-$VER_LL
     [ -f $BusyBoxPath ] || BusyBoxPath=/mnt/live/bin/busybox
     cp -f $BusyBoxPath bin/busybox || exit 1
     mkdir -p etc/default usr/lib usr/bin
-    if [ "$USESPLASHY" = "yes" ] ;then
-      echo "Добавляем файлы splashy"
-      mkdir -p "etc/splashy/themes/$SPLASHYTHEME"
-      cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/splashy           bin || exit 1
-      cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/splashy_chvt      bin || exit 1
-      cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/splashy_update    bin || exit 1
-      cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/etc/default/splashy    etc/default || exit 1
-      cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/etc/splashy/config.xml etc/splashy || exit 1 
-      cp -f "../../../../../work/$FLASHNAME-$VERREL/rootfs/etc/splashy/themes/$SPLASHYTHEME/theme.xml" "etc/splashy/themes/$SPLASHYTHEME" || exit 1 
-      cp -f "../../../../../work/$FLASHNAME-$VERREL/rootfs/etc/splashy/themes/$SPLASHYTHEME/boot.png"  "etc/splashy/themes/$SPLASHYTHEME" || exit 1 
-      ln -sf boot.png  "etc/splashy/themes/$SPLASHYTHEME/error.png" || exit 1 
-      ln -sf boot.png  "etc/splashy/themes/$SPLASHYTHEME/suspend.png" || exit 1 
-      ln -sf boot.png  "etc/splashy/themes/$SPLASHYTHEME/shutdown.png" || exit 1 
-      ln -sf boot.png  "etc/splashy/themes/$SPLASHYTHEME/resume.png" || exit 1 
-      sed -i "s|/usr/share/splashy|/etc/splashy|" etc/splashy/config.xml
-      cp -r ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/lib/directfb-*     usr/lib   || exit 1
-    fi
     echo "Обновляем библиотеки"
     rm -f bin/eject
     cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/lspci          bin       || exit 1
@@ -104,7 +98,10 @@ cd linux-live-$VER_LL
     cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/fsck.ext2         usr/bin   || exit 1
     cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/fsck.reiser4      usr/bin   || exit 1
     cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/reiserfsck        usr/bin   || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/ntfsfix        usr/bin   || exit 1
+    [ -x ../../../../../work/$FLASHNAME-$VERREL/rootfs/bin/ntfsfix ] && \
+       cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/bin/ntfsfix         usr/bin
+    [ -x ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/ntfsfix ] && \
+       cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/ntfsfix     usr/bin
     cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/losetup usr/bin/losetup.real  || exit 1
     ln -sf dosfsck    usr/bin/fsck.msdos    || exit 1
     ln -sf dosfsck    usr/bin/fsck.vfat     || exit 1
@@ -121,23 +118,19 @@ cd linux-live-$VER_LL
           copy_lib $a "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" || exit 1
        done
     cd ../../
-#    echo "Создаём информацию о пользователе (для монтирования владельцем)"
-#    for a in passwd shadow group gshadow ;do
-#       grep ^root: ../../../../../work/$FLASHNAME-$VERREL/rootfs/etc/$a >  etc/$a || exit 1
-#       grep ^user: ../../../../../work/$FLASHNAME-$VERREL/rootfs/etc/$a >> etc/$a || exit 1
-#    done
     echo "Копируем файлы настройки для отображения русского языка"
-    mkdir -p usr/share/locale/ru_RU.UTF-8 usr/bin
-    cp -pHR ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/share/locale/ru_RU.UTF-8/* usr/share/locale/ru_RU.UTF-8
-    cp -fp ../../../../../files/patches/linux-live/locale.alias usr/share/locale
-    cp -pR ../../../../../files/patches/linux-live/initrd/* ./
-    cp -p ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/rsync usr/bin
-    cp -f ../../tools/mksquashfs   usr/bin
-    cp -f ../../tools/unsquashfs   usr/bin
-    ln -sf /usr/bin/mksquashfs /bin/mksquashfs
-    ln -sf /usr/bin/unsquashfs /bin/unsquashfs
+    mkdir -p usr/share/locale/ru_RU.UTF-8 usr/bin || exit 1
+    cp -pHR ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/share/locale/ru_RU.UTF-8/* usr/share/locale/ru_RU.UTF-8 || exit 1
+    cp -fp ../../../../../files/patches/linux-live/locale.alias usr/share/locale || exit 1
+    cp -pR ../../../../../files/patches/linux-live/initrd/* ./ || exit 1
+    cp -p ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/rsync usr/bin || exit 1
+    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$MKSQUASHFS   usr/bin || exit 1
+    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$UNSQUASHFS   usr/bin || exit 1
+    ln -sf /usr/bin/$MKSQUASHFS bin/mksquashfs
+    ln -sf /usr/bin/$UNSQUASHFS bin/unsquashfs
+    cp -pf /usr/bin/$MKSQUASHFS ../../tools/mksquashfs || exit 1
+    cp -pf /usr/bin/$UNSQUASHFS ../../tools/unsquashfs || exit 1
     cp -p "$MYPATH"/work/$FLASHNAME-$VERREL/VERSION ./
-
   cd ../../
 
   echo "Пересборка httpfs"
@@ -169,9 +162,10 @@ echo "Создание файлов для сохранения данных"
   rm -fr *.sh *.bat tools/WIN ../boot
 cd "$MYPATH"
 cp -pR files/patches/flash/* $DESTDIR
+cp -p work/$FLASHNAME-$VERREL/rootfs/usr/bin/*squashfs* $DESTDIR/$FLASHNAME/tools
 CVERREL=`echo $VERREL | tr -d .`
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international 2>/dev/null
-mv $DESTDIR/$FLASHNAME/optional/??-int-*.lzm flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
+mv $DESTDIR/$FLASHNAME/optional/??-int-*.[lx]zm flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
 chmod a+x $DESTDIR/$FLASHNAME/tools/*
 chmod a-x $DESTDIR/$FLASHNAME/tools/liblinuxlive
 

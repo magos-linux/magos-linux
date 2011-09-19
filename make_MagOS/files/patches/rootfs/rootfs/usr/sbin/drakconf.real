@@ -175,7 +175,7 @@ my @tree = (
 
                                 $id;
                             } ( # [ id, wizard file name, icon, description ]
-                                [ "rpmdrake2lzm", "software", "/mnt/livemedia/MagOS/optional/", N("Install Software & Create LZM module"), ""]
+                                [ "rpmdrake2lzm", "software", "/mnt/livemedia/MagOS/optional/", N("Install Software & Create LZM/XZM module"), ""]
                                 )
                         )
                         ),

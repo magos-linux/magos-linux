@@ -3,6 +3,13 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
+if [ "`id -u`" != "0" ] ;then
+   echo Для установки пакетов в каталог rootfs нужны права root, команда rpm будет запущена \
+с ключом --root rootfs, установочные скрипты от пакетов будут запущены с помощью chroot. \
+это не повредит вашей операционной системе, из под которой запускается этот скрипт.
+   exit 1
+fi
+
 if [ -f .config ] ;then
   . .config
 else
@@ -17,40 +24,46 @@ function install_rpms()
       echo $a
       rm -f rootfs/dev/null 2>/dev/null 
       echo -ne > rootfs/dev/null
-      LC_ALL=C rpm $2 --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -i ../../loaded/$FLASHNAME-$VERREL/rpms/$a.rpm 2>error.tmp
+      LC_ALL=C rpm $2 --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -i "$MYPATH/loaded/$FLASHNAME-$VERREL/rpms/$a" 2>error.tmp
       sed -i /"arning"/d error.tmp
       [ "`grep -v ^[[:space:]]*$ error.tmp  | nl | head -1`" = "" ] && continue
       echo $a >>install_errors.log
       cat error.tmp >>install_errors.log
    done
-
 }
 
 
 OVERWRITE=yes
 cd work/$FLASHNAME-$VERREL || exit 1
 echo "Создаём список пакетов для установки"
-mkcd -d --buildhdlist ../../loaded/$FLASHNAME-$VERREL/rpms || exit 1
+mkcd -d --buildhdlist ../../loaded/$FLASHNAME-$VERREL/rpms >/dev/null  2>&1 || exit 1
 
 echo "Обработка списка пакетов"
 rm -f depslist.ordered.*
-for a in ` awk '{ print $1}' depslist.ordered | awk -F: '{print $1}'`  ;do
-    if rpm -qp --scripts ../../loaded/$FLASHNAME-$VERREL/rpms/$a.rpm | grep -q . ;then
-       echo $a >> depslist.ordered.2.1
+sed -i s/mdv20.*// depslist.ordered
+sed -i s/plf.*// depslist.ordered
+sed -i s/mnb.*// depslist.ordered
+sed -i s/mib20.*// depslist.ordered
+sed -i s/\\.$// depslist.ordered
+for a in `cat depslist.ordered `  ;do
+    RPMNM=$(ls "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/$a*.rpm)
+    RPMSNM=${RPMNM##*/}
+    echo -ne \\r$RPMSNM
+    if ! [ -f "$RPMNM" ] ;then
+       echo -e \\r"Not founded $RPMSNM"
     else
-       echo $a >> depslist.ordered.1
+       if rpm -qp --scripts "$RPMNM" | grep -q . ;then
+          echo $RPMSNM >> depslist.ordered.2.1
+       else
+          echo $RPMSNM >> depslist.ordered.1
+       fi
+       echo -ne \\r$RPMSNM  | tr [:print:] " "
     fi
 done
 grep -f ../../files/rpm_names/$FLASHNAME-$VERREL/noscripts depslist.ordered.2.1 >> depslist.ordered.1
 grep -v -f ../../files/rpm_names/$FLASHNAME-$VERREL/noscripts depslist.ordered.2.1 >> depslist.ordered.2
 rm -f *hdlist1.cz compss provides depslist.ordered depslist.ordered.2.1 2>/dev/null
 
-if [ "`id -u`" != "0" ] ;then
-   echo Для установки пакетов в каталог rootfs нужны права root, команда rpm будет запущена \
-с ключом --root rootfs, установочные скрипты от пакетов будут запущены с помощью chroot. \
-это не повредит вашей операционной системе, из под которой запускается этот скрипт.
-   exit 1
-fi
 
 echo "Подготовка к установке пакетов"
 [ -d rootfs ] && rm -fr rootfs
@@ -58,7 +71,7 @@ echo "Подготовка к установке пакетов"
 mkdir -p rootfs/dev rootfs/proc
 mount --bind /proc rootfs/proc
 cd rootfs
-rpm2cpio ../../../loaded/$FLASHNAME-$VERREL/rpms/setup-*.rpm | cpio -i --make-directories
+rpm2cpio $MYPATH/loaded/$FLASHNAME-$VERREL/rpms/setup-*.rpm | cpio -i --make-directories
 cd ../
 
 echo "Установка пакетов"
@@ -97,16 +110,15 @@ rm -f dkms_scripts Module.symvers
 cd ../kernel/dkms
 for a in *.rpm ; do ln -sf ../../../work/$FLASHNAME-$VERREL/kernel/dkms/$a ../../../../loaded/$FLASHNAME-$VERREL/rpms  ;done
 # Устанавливаем пакеты с модулями
-rpm --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -ihv *.rpm
+rpm --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -ihv *.rpm
 # Удаляем dkms пакеты
 for a in `rpm --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -qa | grep dkms-[a-z] | grep -v dkms-minimal ` ;do
-    rpm -ev --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" $a
+    rpm --nodeps -ev --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" $a
 done
 cd ../../rootfs
 mv var/lib/dkms/dkms_dbversion ./
 rm -fr var/lib/dkms/*
 mv dkms_dbversion var/lib/dkms
-
 echo "Изменение файлов дистрибутива"
 cd "$MYPATH"/work/$FLASHNAME-$VERREL
 rm -fr rootfs/etc/skel/tmp
@@ -123,11 +135,27 @@ for a in ../../../files/patches/rootfs/all-*.sh \
          ../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh ;do
    [ -f $a ] || continue
    echo $a
-   bash $a $FLASHNAME $VERREL || exit 1
+   bash $a || exit 1
 done
+mkdir -p usr/lib/magos/rootfs-patches
+cp -p ../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
+cp -p ../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh usr/lib/magos/rootfs-patches
+if [ "SQFSVER" = "3" ] ;then
+  ln -sf /usr/bin/unsquashfs3 usr/lib/magos/scripts/unsquashfs
+  ln -sf /usr/bin/mksquashfs3 usr/lib/magos/scripts/mksquashfs
+else
+  ln -sf /usr/bin/unsquashfs usr/lib/magos/scripts/unsquashfs
+  ln -sf /usr/bin/mksquashfs usr/lib/magos/scripts/mksquashfs
+fi
 
 echo "Отключение всех служб"
-cd etc/rc.d/init.d
+cd etc/xinetd.d
+for a in * ;do
+   if grep -q service $a ;then
+      chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --del $a 2>/dev/null
+   fi
+done
+cd ../rc.d/init.d
 for a in * ;do
    if grep -q "chkconfig:" $a || grep -q "### BEGIN INIT INFO"  $a ;then
       chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --del $a 2>/dev/null

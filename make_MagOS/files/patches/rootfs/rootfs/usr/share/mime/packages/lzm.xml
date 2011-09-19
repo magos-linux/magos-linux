@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
   <mime-type type="application/x-lzm">
-    <comment>lzm module</comment>
-    <comment xml:lang="ru">модуль LZM</comment>
+    <comment>lzma module</comment>
+    <comment xml:lang="ru">модуль LZMA</comment>
     <icon name="package-x-generic"/>
     <glob pattern="*.LZM"/>
     <glob pattern="*.lzm"/>
+    <glob pattern="*.XZM"/>
+    <glob pattern="*.xzm"/>
   </mime-type>
 </mime-info>

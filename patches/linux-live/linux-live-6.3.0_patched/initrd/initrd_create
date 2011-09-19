@@ -139,8 +139,9 @@ ln -sf bin $INITRD_TREE/sbin
 # necessary modules and dependency files
 mkdir -p $INITRD_TREE/$LMK/kernel/fs
 rcopy $ROOT/$LMK/kernel/fs/aufs $INITRD_TREE
-rcopy $ROOT/$LMK/dkms-binary/fs/squashfs $INITRD_TREE
-rcopy $ROOT/$LMK/dkms-binary/lib/lzma $INITRD_TREE
+[ -d $ROOT/$LMK/dkms-binary/fs/squashfs ] && rcopy $ROOT/$LMK/dkms-binary/fs/squashfs $INITRD_TREE
+[ -d $ROOT/$LMK/dkms-binary/lib/lzma ] && rcopy $ROOT/$LMK/dkms-binary/lib/lzma $INITRD_TREE
+[ -d $ROOT/$LMK/kernel/fs/squashfs ] && rcopy $ROOT/$LMK/kernel/fs/squashfs  $INITRD_TREE
 
 # copy filesystem modules, if not directly copied into kernel
 rcopy_ex $ROOT/$LMK/kernel/lib/zlib_inflate $INITRD_TREE 2>>$DEBUG
@@ -227,18 +228,18 @@ debug "generating module dependency files"
 depmod -b $INITRD_TREE $KERNEL
 
 debug "compressing usr in initrd"
-mksquashfs $INITRD_TREE/usr $INITRD_TREE/usr.lzm >/dev/null 2>&1
-chmod ago-x $INITRD_TREE/usr.lzm
+mksquashfs $INITRD_TREE/usr $INITRD_TREE/usr.$MODULEFORMAT >/dev/null 2>&1
+chmod ago-x $INITRD_TREE/usr.$MODULEFORMAT
 rm -Rf $INITRD_TREE/usr/*
 
 debug "compressing net in initrd"
 mkdir -p $INITRD_TREE/tmp_lzm/fs $INITRD_TREE/tmp_lzm/drivers
 mv $INITRD_TREE/$LMK/kernel/drivers/[ac-z]* $INITRD_TREE/tmp_lzm/drivers
 mv $INITRD_TREE/$LMK/kernel/net $INITRD_TREE/tmp_lzm
-mv $INITRD_TREE/$LMK/kernel/fs/[b-z]* $INITRD_TREE/tmp_lzm/fs
+mv $INITRD_TREE/$LMK/kernel/fs/[b-rt-z]* $INITRD_TREE/tmp_lzm/fs
 cp -pr $INITRD_TREE/$LMK/kernel/* $INITRD_TREE/tmp_lzm
-mksquashfs $INITRD_TREE/tmp_lzm $INITRD_TREE/drivers.lzm >/dev/null 2>&1
-chmod ago-x $INITRD_TREE/drivers.lzm
+mksquashfs $INITRD_TREE/tmp_lzm $INITRD_TREE/drivers.$MODULEFORMAT >/dev/null 2>&1
+chmod ago-x $INITRD_TREE/drivers.$MODULEFORMAT
 rm -Rf $INITRD_TREE/tmp_lzm
 
 debug "creating empty image file for initrd"

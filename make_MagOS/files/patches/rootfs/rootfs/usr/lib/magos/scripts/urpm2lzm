@@ -7,6 +7,8 @@
 #
 # $1=RPM file or name program
 
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+
 [ "$1" = "" ] && exit -1
 
 export PATH=/usr/lib/magos/scripts:$PATH
@@ -48,6 +50,6 @@ umount wiz_fly
 rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/tmp
 
-dir2lzm $mod_br "$1.lzm"
+dir2lzm $mod_br "$1.$MODULEFORMAT"
 
 rm -rf $mod_br

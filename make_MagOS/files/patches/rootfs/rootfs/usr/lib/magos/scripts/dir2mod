@@ -9,17 +9,25 @@
 # $1 = directory images
 # $2 = directory of LZMs
 # $3 = mask of dirname (ex. - "??-" )
+
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+
 convert_dir2lzm()
 {
-echo "Converting DIRs to LZMs:"
+echo "Converting DIRs to module:"
 for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
-    echo -ne \\n"	converting $mn --> $mn.lzm "\\n
-    mkdir -p "$2/lzm"
-    fd="$2/lzm/$mn.lzm"
+    echo -ne \\n"	converting $mn --> $mn.$MODULEFORMAT "\\n
+    mkdir -p "$2/$MODULEFORMAT"
+    fd="$2/$MODULEFORMAT/$mn.$MODULEFORMAT"
 
     dir2lzm "$a" "$fd"
 done
+}
+
+convert_dir2xzm()
+{
+convert_dir2lzm "$@"
 }
 
 
@@ -29,12 +37,12 @@ done
 # $3 = mask of dirname (ex. - "??-" )
 convert_dir2nolzm()
 {
-echo "Converting DIRs to LZMs nocompression:"
+echo "Converting DIRs to module (no compression):"
 for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
     echo -ne \\n"	converting $mn --> $mn.lzm (no compression)"\\n
-    mkdir -p "$2/nolzm"
-    fd="$2/nolzm/$mn.lzm"
+    mkdir -p "$2/nolzma"
+    fd="$2/nolzma/$mn.$MODULEFORMAT"
 
     dir2nolzm "$a" "$fd"
 done
@@ -72,7 +80,7 @@ HELP()
    echo "#####################################"
    echo "Convert directory tree into modules" 
    echo
-   echo -ne "Usage:\\n	$0 lzm|nolzm|rom source_directory destination_directory mask \\n"
+   echo -ne "Usage:\\n	$0 xzm|lzm|nolzm|rom source_directory destination_directory mask \\n"
    echo -ne "Example:\\n	./dir2mod nolzm /mnt/live/memory/images /mnt/livemedia/MagOS/modules/ ??- \\n"
    echo
    echo "#####################################"   
@@ -92,7 +100,7 @@ TEST ;;
 * )
 
 cmd=$1
-[ "$cmd" != "lzm" -a "$cmd" != "nolzm" -a "$cmd" != "rom"  ] && cmd=
+[ "$cmd" != "xzm" -a "$cmd" != "lzm" -a "$cmd" != "nolzm" -a "$cmd" != "rom"  ] && cmd=
 shift
 
 if [ ! -d "$1" -o "$2" = "" -o "$cmd" = "" ]; then

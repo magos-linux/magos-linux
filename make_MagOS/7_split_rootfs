@@ -59,7 +59,7 @@ echo
 for MODULE in * ;do
    echo -e \\r$MODULE
    for RPM in `cat $MODULE | grep -v ^locales-` ;do
-       FRPM=`ls -1 ../../../loaded/$FLASHNAME-$VERREL/rpms/$RPM* | sort | grep /$RPM[0-9._a-zA-Z]*-[0-9._a-zA-Z]*.[${ARCH}noarch]*.rpm  | tail -1 | tr -d @`
+       FRPM=`ls -1 ../../../loaded/$FLASHNAME-$VERREL/rpms/$RPM* | sort | grep /$RPM[0-9][-0-9._a-zA-Z]*.rpm  | tail -1 | tr -d @`
        echo -ne \\r $FRPM \\r
        rpm -qlp $FRPM | grep -vi "^(" | sed s-^/-- >> ../modules_filelist/$MODULE
        echo -ne \\r $FRPM \\r | tr [:print:] " "
@@ -74,7 +74,7 @@ for MODULE in * ;do
       movefiles ../modules_filelist/$MODULE ../modules_filelist/92-documentation 'usr/share/doc/'
    fi
    for RPM in `cat $MODULE | grep ^locales-` ;do
-       FRPM=`ls -1 ../../../loaded/$FLASHNAME-$VERREL/rpms/$RPM* | sort | grep /$RPM[0-9._a-zA-Z]*-[0-9._a-zA-Z]*.[${ARCH}noarch]*.rpm  | tail -1 | tr -d @`
+       FRPM=`ls -1 ../../../loaded/$FLASHNAME-$VERREL/rpms/$RPM* | sort | grep /$RPM[0-9][-0-9._a-zA-Z]*.rpm  | tail -1 | tr -d @`
        echo -ne \\r $FRPM \\r
        rpm -qlp $FRPM | grep -vi "^(" | sed s-^/-- >> ../modules_filelist/$MODULE
        echo -ne \\r $FRPM \\r | tr [:print:] " "

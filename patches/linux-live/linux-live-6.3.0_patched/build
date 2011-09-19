@@ -69,8 +69,8 @@ echo "creating compressed images..."
 
 for dir in $MKMOD; do
     if [ -d $ROOT/$dir ]; then
-      echo "base/$dir.lzm ..."
-      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.lzm 
+      echo "base/$dir.$MODULEFORMAT ..."
+      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.$MODULEFORMAT
       if [ $? -ne 0 ]; then exit; fi
       echo
     fi

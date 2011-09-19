@@ -20,11 +20,9 @@ else
 fi
 
 if [ "$N" != "uninstall" ]; then
-   mkdir -p $CROOT/usr/lib/magos/scripts
-   ls -1 ./tools | egrep -v "^lib" | while read FILE; do cp ./tools/$FILE $CROOT/usr/lib/magos/scripts; done
-   cat ./tools/liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $CROOT/usr/lib/magos/scripts/liblinuxlive
+   sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' ./tools/liblinuxlive > $CROOT/usr/lib/magos/scripts/liblinuxlive
 else
-   ls -1 ./tools | while read FILE; do rm -v $CROOT/usr/lib/magos/scripts/$FILE; done
+   rm -v $CROOT/usr/lib/magos/scripts/liblinuxlive
 fi
 
 echo "Linux Live scripts were $N""ed successfuly in $1/"

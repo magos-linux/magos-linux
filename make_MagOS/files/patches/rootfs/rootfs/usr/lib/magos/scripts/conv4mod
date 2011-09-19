@@ -17,6 +17,6 @@ mod_dir=/mnt/live/memory/images
 
 mdialog --msgbox "Выберите директорию для сохранения модулей"
 dir_name=$(mdialog --getexistingdirectory /mnt/livemedia/ )
-format=$(mdialog --menu Формат_модулей lzm LZM nolzm LZM_nocompression)
+format=$(mdialog --menu Формат_модулей xzm XZM lzm LZM nolzm LZM_nocompression)
 mask=$(mdialog --inputbox "Введите маску модулей" "??-")
 xterm -e dir2mod $format $mod_dir $dir_name $mask
