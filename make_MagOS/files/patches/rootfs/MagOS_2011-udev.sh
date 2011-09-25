@@ -1,2 +1,2 @@
 #!/bin/bash
-sed -i s%'\[\[ "$UTC" == "false" || "$UTC" == "no" \]\]'%'\[ "$UTC" = "false" -a "$TOUCHDEV" = "yes" \]'% sbin/start_udev
+ln -sf ../usr/lib/magos/scripts/start_udev sbin/start_udev

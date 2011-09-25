@@ -16,7 +16,7 @@ fi
 
 DISTRVERSION=$(date +%Y%m%d)
 DESTDIR=flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
-if [ "SQFSVER" = "3" ] ;then
+if [ "$SQFSVER" = "3" ] ;then
   MKSQUASHFS=mksquashfs3
   UNSQUASHFS=unsquashfs3
   MODULEFORMAT=lzm
@@ -52,7 +52,7 @@ RAM0SIZE=$INIRAMDSIZE
 MKMOD="`ls -1 modules | tr -d / | tr [:cntrl:] ' '`"
 MODULEFORMAT=$MODULEFORMAT
 EOF
-[ "$MKSQOPT" != "" ] && sed -i s/MKSQOPT=.*/MKSQOPT=\'"$MKSQOPT"\'/ linux-live-$VER_LL/tools/liblinuxlive
+[ "$MKSQOPT" != "" ] && sed -i s/MKSQOPT=.*/MKSQOPT=\""$MKSQOPT"\"/ linux-live-$VER_LL/tools/liblinuxlive
 
 # Функция копирования библитек (назначение должно быть текущим каталогом)
 # $1 - имя библиотеки
@@ -126,10 +126,10 @@ cd linux-live-$VER_LL
     cp -p ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/rsync usr/bin || exit 1
     cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$MKSQUASHFS   usr/bin || exit 1
     cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$UNSQUASHFS   usr/bin || exit 1
+    cp -pf ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$MKSQUASHFS ../../tools/mksquashfs || exit 1
+    cp -pf ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$UNSQUASHFS ../../tools/unsquashfs || exit 1
     ln -sf /usr/bin/$MKSQUASHFS bin/mksquashfs
     ln -sf /usr/bin/$UNSQUASHFS bin/unsquashfs
-    cp -pf /usr/bin/$MKSQUASHFS ../../tools/mksquashfs || exit 1
-    cp -pf /usr/bin/$UNSQUASHFS ../../tools/unsquashfs || exit 1
     cp -p "$MYPATH"/work/$FLASHNAME-$VERREL/VERSION ./
   cd ../../
 

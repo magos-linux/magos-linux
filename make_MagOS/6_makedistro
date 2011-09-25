@@ -44,6 +44,7 @@ sed -i s/mdv20.*// depslist.ordered
 sed -i s/plf.*// depslist.ordered
 sed -i s/mnb.*// depslist.ordered
 sed -i s/mib20.*// depslist.ordered
+sed -i s/edm20.*// depslist.ordered
 sed -i s/\\.$// depslist.ordered
 for a in `cat depslist.ordered `  ;do
     RPMNM=$(ls "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/$a*.rpm)

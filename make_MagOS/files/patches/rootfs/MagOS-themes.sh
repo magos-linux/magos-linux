@@ -1,4 +1,6 @@
 #!/bin/bash
+sed -i s/NoDisplay=.*/NoDisplay=false/ usr/share/apps/kio_desktop/DesktopLinks/Home.desktop
+
 ln -sf magos-top.png usr/share/compositing-wm/mandriva-top.png
 ln -sf magos.png usr/share/icons/mandriva.png
 ln -sf magos.png usr/share/icons/mandriva-button-lxde.png

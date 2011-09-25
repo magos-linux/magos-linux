@@ -10,8 +10,8 @@ BACKGROUND=bluesth
 
 # Global system theme 
 # It modifies THEMEGTK,THEMEMETACITY,THEMEOPENBOX,THEMEKDE,THEMEKWIN,THEMEPLASMA,THEMEKDEWIDGET,THEMEEMERALD
-# Available: MagOS MagOS-dark MagOS-green Mandriva
-#THEME=Mandriva
+# Available: MagOS MagOS-dark MagOS-green
+#THEME=MagOS-green
 
 # GTK theme (Gnome,LXDE,KDE)
 #THEMEGTK="Ia Ora Steel"

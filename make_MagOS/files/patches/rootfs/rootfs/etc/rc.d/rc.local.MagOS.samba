@@ -12,7 +12,7 @@
 
 case "$1" in
   start)
-     if ! [ -f /etc/samba/secrets.tdb ] ;then
+     if ! grep -q nobody /etc/samba/passdb.tdb ;then
         echo -e \\n\\n | smbpasswd -Lsa nobody
         for a in `grep users /etc/group | awk -F: '{print $4}' | tr ';,' ' '` ;do
            PASS=`echo $a | cat - /mnt/live/VERSION /proc/cmdline | md5sum | cut -c 1-5`

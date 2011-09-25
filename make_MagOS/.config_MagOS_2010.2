@@ -38,7 +38,7 @@ INITDNEED=" rsyslog acpid udev-post messagebus haldaemon cpufreq laptop-mode als
  iptables network network-up pdnsd fuse dm resolvconf wine gpm xinetd"
 
 # Размер initrd.
-INIRAMDSIZE=12000
+INIRAMDSIZE=13000
 # Библиотеки из системы, которые положим в initrd в /lib (только ссылки)
 INIRAMDLIBS1="ld-linux.so.2 libblkid.so.1 libc.so.6 libdl.so.2 libgcc_s.so.1 libpthread.so.0 \
   librt.so.1 libuuid.so.1 libz.so.1"
@@ -49,5 +49,5 @@ INIRAMDLIBS2="libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 l
   libstdc++.so.6 "
 
 # ключи для команды mksquashfs при создании модулей
-MKSQOPT="-b 256K -lzmadic 256K"
+MKSQOPT="-b 256K -lzmadic 256K -lzma"
 SQFSVER=3

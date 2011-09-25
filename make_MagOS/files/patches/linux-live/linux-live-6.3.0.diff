@@ -148,7 +148,7 @@ diff -auprN linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c linux-live-6.3.0_pat
      end:
 diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initrd/initrd_create
 --- linux-live-6.3.0/initrd/initrd_create	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/initrd_create	2011-09-16 21:01:17.000000000 +0400
++++ linux-live-6.3.0_patched/initrd/initrd_create	2011-09-24 16:08:15.000000000 +0400
 @@ -139,34 +139,60 @@ ln -sf bin $INITRD_TREE/sbin
  # necessary modules and dependency files
  mkdir -p $INITRD_TREE/$LMK/kernel/fs
@@ -248,7 +248,7 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  debug "compressing usr in initrd"
 -mksquashfs $INITRD_TREE/usr $INITRD_TREE/usr.lzm >/dev/null 2>&1
 -chmod ago-x $INITRD_TREE/usr.lzm
-+mksquashfs $INITRD_TREE/usr $INITRD_TREE/usr.$MODULEFORMAT >/dev/null 2>&1
++create_module $INITRD_TREE/usr $INITRD_TREE/usr.$MODULEFORMAT
 +chmod ago-x $INITRD_TREE/usr.$MODULEFORMAT
  rm -Rf $INITRD_TREE/usr/*
  
@@ -261,7 +261,7 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
 +mv $INITRD_TREE/$LMK/kernel/net $INITRD_TREE/tmp_lzm
 +mv $INITRD_TREE/$LMK/kernel/fs/[b-rt-z]* $INITRD_TREE/tmp_lzm/fs
 +cp -pr $INITRD_TREE/$LMK/kernel/* $INITRD_TREE/tmp_lzm
-+mksquashfs $INITRD_TREE/tmp_lzm $INITRD_TREE/drivers.$MODULEFORMAT >/dev/null 2>&1
++create_module $INITRD_TREE/tmp_lzm $INITRD_TREE/drivers.$MODULEFORMAT
 +chmod ago-x $INITRD_TREE/drivers.$MODULEFORMAT
 +rm -Rf $INITRD_TREE/tmp_lzm
  
