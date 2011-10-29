@@ -1,6 +1,7 @@
 autoconf-
 automake-
 busybox-
+busybox-static-
 dkms-
 drakx-installer-advertising-
 drakx-installer-binaries-

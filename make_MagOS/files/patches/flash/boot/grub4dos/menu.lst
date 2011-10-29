@@ -14,37 +14,37 @@ default 0
 
 title MagOS_Clean
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  ramdisk_size=13000 root=/dev/ram0 rw vga=791 quiet noload=save-*
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 quiet noload=save-*
 initrd /MagOS/initrd.gz
 
 title MagOS_Home_profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  ramdisk_size=13000 root=/dev/ram0 rw vga=791 quiet changes=/MagOS/MagOS_save1.img splash=silent
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 quiet changes=MagOS_save1.img splash=silent
 initrd /MagOS/initrd.gz
 
 title MagOS_Work_profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  ramdisk_size=13000 root=/dev/ram0 rw vga=791 quiet changes=/MagOS/MagOS_save2.img splash=silent
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 quiet changes=MagOS_save2.img splash=silent
 initrd /MagOS/initrd.gz
 
 title MagOS_Gnome
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz ramdisk_size=13000 root=/dev/ram0 rw vga=788 quiet desktop=gnome
+kernel /MagOS/vmlinuz root=/dev/ram0 rw vga=788 quiet desktop=gnome
 initrd /MagOS/initrd.gz
 
 title MagOS_LXDE
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  ramdisk_size=13000 root=/dev/ram0 rw vga=788 quiet desktop=lxde
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=788 quiet desktop=lxde
 initrd /MagOS/initrd.gz
 
 title MagOS_failsafe
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz ramdisk_size=13000 root=/dev/ram0 rw noapic nolapic acpi=off nopat no3ddesktop xdriver=free noload=/modules/
+kernel /MagOS/vmlinuz root=/dev/ram0 rw noapic nolapic acpi=off nopat no3ddesktop xdriver=free noload=/modules/
 initrd /MagOS/initrd.gz
 
 title MagOS_copy2ram
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz ramdisk_size=13000 root=/dev/ram0 rw vga=791 quiet copy2ram ramsize=80%
+kernel /MagOS/vmlinuz root=/dev/ram0 rw vga=791 quiet copy2ram ramsize=80%
 initrd /MagOS/initrd.gz
 
 title Memtest

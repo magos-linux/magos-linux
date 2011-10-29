@@ -2,7 +2,6 @@ apmd-
 atk1.0-common-
 bitmap-
 bootloader-utils-
-bootsplash-
 cdialog-
 cdrdao-
 consolekit-x11-
@@ -155,15 +154,10 @@ libxcb-atom1-
 webkit-
 webkit1.0-
 libopenal1-
-plymouth-system-theme-
 libblas3-
 libgfortran3-
 openal-
 libxcb-aux0-
-plymouth-plugin-script-
-plymouth-scripts-
-plymouth-
-plymouth-plugin-label-
 liblapack3-
 libavutil50-
 libxslt1-
@@ -356,7 +350,7 @@ libtaglib1-
 sound-theme-freedesktop-
 libat-spi0-
 libgnome-vfs2_0-
-libxulrunner1.9.2.22-
+libxulrunner1.9.2.23-
 gnome-mime-data-
 libgnome2-
 libgnome2_0-

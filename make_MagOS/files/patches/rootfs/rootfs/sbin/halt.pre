@@ -27,7 +27,7 @@ sync
 # save2module mode parser
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
 SRC=/mnt/live/memory/changes
-SAVETOMODULENAME=${SAVETOMODULENAME-/mnt/livemedia/$LIVECDNAME/modules/zz-save.$MODULEFORMAT}
+[ -z "$SAVETOMODULENAME" ] && SAVETOMODULENAME=/mnt/livemedia/$LIVECDNAME-Data/modules/zz-save.$MODULEFORMAT
 [ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
 SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
 FILELIST=/.savelist

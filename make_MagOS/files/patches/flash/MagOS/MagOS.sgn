@@ -1,0 +1,9 @@
+Не удаляйте этот файл, иначе MagOS не сможет загрузиться
+Вы можете передать параметр 'sgnfile=...' чтобы указать другое имя,
+в отличие от оригинального. Это может быть полезно, если у вас 
+используется несколько разных вариантов MagOS.
+
+Don't delete this file, else MagOS won't work.
+You may use 'sgnfile=...' boot parameter to search for a different name
+than the default. This can be useful if you need to store several
+linux-live distros on one machine.

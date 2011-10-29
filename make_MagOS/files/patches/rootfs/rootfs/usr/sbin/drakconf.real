@@ -193,7 +193,7 @@ my @tree = (
 
                                 $id;
                             } ( # [ id, wizard file name, icon, description ]
-                                [ "conv4mod", "/usr/share/magos/icons/con4mod.png", "", N("Convert LZM modules"), ""]
+                                [ "conv4mod", "installremoverpm", "", N("Convert LZM modules"), ""]
                                 )
                         )
                         ),
@@ -211,7 +211,7 @@ my @tree = (
 
                                 $id;
                             } ( # [ id, wizard file name, icon, description ]
-                                [ "mod_mnger", "/usr/share/magos/icons/mod_mnger.png", "", N("Modules Manager"), ""]
+                                [ "mod_mnger", "installremoverpm", "", N("Modules Manager"), ""]
                                 )
                         )
                         ),

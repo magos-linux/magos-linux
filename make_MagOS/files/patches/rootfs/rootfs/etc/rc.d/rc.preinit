@@ -1,6 +1,6 @@
 #!/bin/bash
 # Initial script for MagOS-Linux Live operating system
-# This script are launching before startint init from linux-live script.
+# This script are launching before starting init from linux-live script.
 # Current dir allways must be set to root (/)
 # All system path must be relative, except initrd dirs
 
@@ -18,7 +18,6 @@ get_name()
 debug_log "starting /etc/rc.d/rc.preinit"
 debug_shell
 
-cp -af /bin/httpfs usr/bin/
 ps | grep ntfsmount | awk '{ print $1 }' >> var/run/sendsigs.omit
 
 # MagOS.ini processing
@@ -34,7 +33,7 @@ gunzip -c /tmp/MagOS.ini.gz | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDE
       nv=`echo $a | awk -F= '{print $1}'`
       [ "$nv" = "" ] && continue
       if ! grep -q "^[[:space:]]*$nv=" $FNAME 2>/dev/null ;then
-         echo "$a" >>$FNAME
+         grep -q "^$a$" $FNAME 2>/dev/null || echo "$a" >>$FNAME
       else
          sed -i 's|'"^[[:space:]]*$nv=.*$"'|'"$a"'|' $FNAME
       fi
@@ -152,7 +151,7 @@ debug_shell
 
 debug_log "Switching on/off services"
 debug_shell
-mkdir proc
+mkdir -p proc
 mount -o rbind /proc proc
 for a in $(echo $SERVICESSTART | tr , " ") ;do chroot . chkconfig --add $a ;done
 for a in $(echo $SERVICESNOSTART | tr , " ") ;do chroot . chkconfig --del $a ;done

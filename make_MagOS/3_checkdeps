@@ -1,0 +1,60 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+cd "$MYPATH"
+rm -fr "loaded/$FLASHNAME-$VERREL/rpms"
+mkdir "loaded/$FLASHNAME-$VERREL/rpms"
+
+echo "Добавляем ядро к пакетам дистрибутива." 
+[ -d work/$FLASHNAME-$VERREL/kernel ] ||    echo "Сначала нужно собрать ядро, чтобы готовые пакеты были в work/$FLASHNAME-$VERREL/kernel"
+cd work/$FLASHNAME-$VERREL/kernel || exit 1
+echo -ne > 00-kernel
+for a in kernel-desktop-*flash*.$ARCH.rpm kernel-2.*flash*.$ARCH.rpm ;do
+    echo $a ; echo $a >> 00-kernel
+    ln -sf ../../../work/$FLASHNAME-$VERREL/kernel/$a ../../../loaded/$FLASHNAME-$VERREL/rpms || exit 1
+done
+cd ../../../
+
+echo "Создаем источник для установки"
+cat loaded/$FLASHNAME-$VERREL/names/??-* | while read a ;do
+    ln -sf ../../cached_$VERREL/$a loaded/$FLASHNAME-$VERREL/rpms || exit 1
+done
+
+[ -d loaded/$FLASHNAME-$VERREL/rpms/media_info ] && rm -fr loaded/$FLASHNAME-$VERREL/rpms/media_info
+echo "Создание базы пакетов"
+genhdlist2 loaded/$FLASHNAME-$VERREL/rpms || exit 1
+echo "Проверка зависимостей"
+mkcd --checkdeps loaded/$FLASHNAME-$VERREL/rpms >loaded/$FLASHNAME-$VERREL/checkdeps.txt 2>/dev/null
+sed -i /^mkcd_build_hdlist/d loaded/$FLASHNAME-$VERREL/checkdeps.txt
+sed -i /^done$/d loaded/$FLASHNAME-$VERREL/checkdeps.txt
+if grep -q . loaded/$FLASHNAME-$VERREL/checkdeps.txt ;then
+   cat loaded/$FLASHNAME-$VERREL/checkdeps.txt
+   echo "Обнаружены ошибки зависимости пакетов. Нужно добавить или убрать пакеты в files/rpm_names/* и перезапустить сборку с начала"
+fi
+
+echo "Обновление базы данных о скриптах"
+mkdir -p loaded/rpmscripts_$VERREL
+touch loaded/rpmscripts_$VERREL/scripts loaded/rpmscripts_$VERREL/noscripts
+cat loaded/$FLASHNAME-$VERREL/names/??-* work/$FLASHNAME-$VERREL/kernel/00-kernel | LC_ALL=C sort >loaded/rpmscripts_$VERREL/rpms_$FLASHNAME-$VERREL
+cat loaded/rpmscripts_$VERREL/scripts loaded/rpmscripts_$VERREL/noscripts | LC_ALL=C sort > loaded/rpmscripts_$VERREL/processed
+diff loaded/rpmscripts_$VERREL/processed loaded/rpmscripts_$VERREL/rpms_$FLASHNAME-$VERREL | grep '> ' | sed s/^..// \
+    | while read a ;do
+    if ! rpm -qp --scripts "loaded/$FLASHNAME-$VERREL/rpms/$a" | grep -q . ;then
+       echo $a >> loaded/rpmscripts_$VERREL/noscripts
+    elif echo $a | grep -qf files/rpm_names/$FLASHNAME-$VERREL/noscripts ;then
+       echo $a >> loaded/rpmscripts_$VERREL/noscripts
+    else
+       echo $a >> loaded/rpmscripts_$VERREL/scripts
+    fi
+done
+
+echo "Работа скрипта завершена."
+exit 0

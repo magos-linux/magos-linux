@@ -14,7 +14,9 @@ if [ "`id -u`" != "0" ] ;then
    exit 1
 fi
 
+
 DISTRVERSION=$(date +%Y%m%d)
+SRCDIR="$MYPATH/work/$FLASHNAME-$VERREL/rootfs"
 DESTDIR=flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
 if [ "$SQFSVER" = "3" ] ;then
   MKSQUASHFS=mksquashfs3
@@ -26,147 +28,54 @@ else
   MODULEFORMAT=xzm
 fi
 
+function umountbranches()
+{
+ while grep -q "$1" /proc/mounts ;do
+    grep "$1" /proc/mounts | awk '{print $2}' | while read a ;do
+       echo umount "$a"
+       umount "$a" 2>/dev/null
+    done
+ done
+}
+
 echo "Подготовка"
-[ -d $DESTDIR ] && rm -fr $DESTDIR
-mkdir -p $DESTDIR || exit 1
+[ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
+mkdir -p "$DESTDIR" || exit 1
+cp -pR files/patches/flash/* "$DESTDIR"
+cp -L "$SRCDIR"/boot/vmlinuz "$DESTDIR"/$FLASHNAME
+echo $VERREL $DISTRVERSION  > "$DESTDIR"/$FLASHNAME/VERSION
 cd work/$FLASHNAME-$VERREL
 echo $VERREL $DISTRVERSION  > VERSION
 
-echo Распаковка пакета linux-live-$VER_LL.tar.gz
-[ -d linux-live-$VER_LL ] && rm -fr linux-live-$VER_LL
-tar -xf ../../loaded/linux-live-$VER_LL.tar.gz || exit 1
+echo "Cоздание initrd"
+umountbranches "$(pwd)/initrd"
+rm -fr initrd 2>/dev/null
+mkdir -p initrd/rootfs initrd/changes
+mount -t aufs -o br:initrd/changes=rw:rootfs=ro aufs initrd/rootfs || exit 1
+mkdir -p initrd/rootfs/{tmp,proc,sys,dev,/mnt/live} || exit 1
+cp -p VERSION initrd/rootfs/mnt/live || exit 1
+mount -o bind /dev initrd/rootfs/dev || exit 1
+mount -o bind /proc initrd/rootfs/proc || exit 1
+chroot initrd/rootfs /usr/lib/magos/scripts/mkinitrd /boot/initrd.gz || exit 1
+mv initrd/rootfs/boot/initrd.gz "$MYPATH/$DESTDIR/${FLASHNAME}" || exit 1
+umountbranches "$(pwd)/initrd"
+rm -fr initrd
 
-echo Правка linux-live-$VER_LL
-patch -d linux-live-$VER_LL -p1 < ../../files/patches/linux-live/linux-live-$VER_LL.diff || exit 1
-cat <<EOF >> linux-live-$VER_LL/.config
-LIVECDNAME=$FLASHNAME
-KERNEL=`ls -1 rootfs/lib/modules | tr -d / | tail -1`
-CDDATA=$MYPATH/$DESTDIR
-ROOT=$MYPATH/work/$FLASHNAME-$VERREL/modules
-CROOT=$MYPATH/work/$FLASHNAME-$VERREL/modules/`ls -1 modules | grep core | tr -d / | head -1`
-KROOT=$MYPATH/work/$FLASHNAME-$VERREL/modules/`ls -1 modules | grep kernel | tr -d / | head -1`
-DEBUG=$MYPATH/work/$FLASHNAME-$VERREL/linux-live-debug.log
-ADDLOCALE=ru_RU.UTF-8
-LMK=lib/modules/`ls -1 rootfs/lib/modules | tr -d / | tail -1`
-RAM0SIZE=$INIRAMDSIZE
-MKMOD="`ls -1 modules | tr -d / | tr [:cntrl:] ' '`"
-MODULEFORMAT=$MODULEFORMAT
-EOF
-[ "$MKSQOPT" != "" ] && sed -i s/MKSQOPT=.*/MKSQOPT=\""$MKSQOPT"\"/ linux-live-$VER_LL/tools/liblinuxlive
+echo "Создание модулей"
+cd "$MYPATH/work/$FLASHNAME-$VERREL/modules" || exit 1
+for a in * ;do
+    echo $a
+    $MKSQUASHFS $a "$MYPATH/$DESTDIR/$FLASHNAME/base/$a.$MODULEFORMAT" $MKSQOPT >/dev/null 2>/dev/null || exit 1
+done
 
-# Функция копирования библитек (назначение должно быть текущим каталогом)
-# $1 - имя библиотеки
-# $2 - путь до rootfs
-function copy_lib()
-{
- echo -ne $1\\r
- if [ -h ./$1 ] ;then
-    rm -f ./`readlink $1 | awk -F/ '{ print $(NF)}'`
-    rm -f ./$1
- fi
- REALLIB=
- [ -h "$2/usr/lib/$1" ] && REALLIB=`readlink "$2/usr/lib/$1" | awk -F/ '{ print $(NF)}'`
- [ -h "$2/lib/$1" ] && REALLIB=`readlink "$2/lib/$1" | awk -F/ '{ print $(NF)}'`
- if [ "$REALLIB" = "" ] ;then echo "$1 - symlink not found" ; exit 1 ;fi
- [ -f "$2/usr/lib/$REALLIB" ] && cp -p "$2/usr/lib/$REALLIB" ./
- [ -f "$2/lib/$REALLIB" ] && cp -p "$2/lib/$REALLIB" ./
- if ! [ -f ./$REALLIB ] ;then echo "$1 - file $REALLIB not found" ; exit 1 ;fi
- ln -sf $REALLIB $1
- echo -ne $1\\r | tr [:print:] " "
-}
-
-
-cd linux-live-$VER_LL
-
-  cd initrd/rootfs
-
-    echo "Замена busybox на пакет из мандривы"
-    BusyBoxPath=../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/busybox-static
-    [ -f $BusyBoxPath ] || BusyBoxPath=../../../../../files/busybox
-    [ -f $BusyBoxPath ] || BusyBoxPath=/mnt/live/bin/busybox
-    cp -f $BusyBoxPath bin/busybox || exit 1
-    mkdir -p etc/default usr/lib usr/bin
-    echo "Обновляем библиотеки"
-    rm -f bin/eject
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/lspci          bin       || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/share/pci.ids      usr/share || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/lib/libbdevid.so.* usr/lib   || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/lib/libnash.so.*   usr/lib   || exit 1
-
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/dosfsck           usr/bin   || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/fsck              usr/bin   || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/fsck.ext2         usr/bin   || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/fsck.reiser4      usr/bin   || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/reiserfsck        usr/bin   || exit 1
-    [ -x ../../../../../work/$FLASHNAME-$VERREL/rootfs/bin/ntfsfix ] && \
-       cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/bin/ntfsfix         usr/bin
-    [ -x ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/ntfsfix ] && \
-       cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/ntfsfix     usr/bin
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/sbin/losetup usr/bin/losetup.real  || exit 1
-    ln -sf dosfsck    usr/bin/fsck.msdos    || exit 1
-    ln -sf dosfsck    usr/bin/fsck.vfat     || exit 1
-    ln -sf fsck.ext2  usr/bin/fsck.ext3     || exit 1
-    ln -sf fsck.ext2  usr/bin/fsck.ext4     || exit 1
-    ln -sf fsck.ext2  usr/bin/fsck.ext4dev  || exit 1
-    ln -sf reiserfsck usr/bin/fsck.reiserfs || exit 1
-    cd lib
-       for a in $INIRAMDLIBS1 ;do
-          copy_lib $a "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" || exit 1
-       done
-    cd ../usr/lib
-       for a in $INIRAMDLIBS2 ;do
-          copy_lib $a "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" || exit 1
-       done
-    cd ../../
-    echo "Копируем файлы настройки для отображения русского языка"
-    mkdir -p usr/share/locale/ru_RU.UTF-8 usr/bin || exit 1
-    cp -pHR ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/share/locale/ru_RU.UTF-8/* usr/share/locale/ru_RU.UTF-8 || exit 1
-    cp -fp ../../../../../files/patches/linux-live/locale.alias usr/share/locale || exit 1
-    cp -pR ../../../../../files/patches/linux-live/initrd/* ./ || exit 1
-    cp -p ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/rsync usr/bin || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$MKSQUASHFS   usr/bin || exit 1
-    cp -f ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$UNSQUASHFS   usr/bin || exit 1
-    cp -pf ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$MKSQUASHFS ../../tools/mksquashfs || exit 1
-    cp -pf ../../../../../work/$FLASHNAME-$VERREL/rootfs/usr/bin/$UNSQUASHFS ../../tools/unsquashfs || exit 1
-    ln -sf /usr/bin/$MKSQUASHFS bin/mksquashfs
-    ln -sf /usr/bin/$UNSQUASHFS bin/unsquashfs
-    cp -p "$MYPATH"/work/$FLASHNAME-$VERREL/VERSION ./
-  cd ../../
-
-  echo "Пересборка httpfs"
-  cd initrd/httpfs/usr/src
-     make || exit 1
-     mv -f  httpfs ../../../rootfs/bin ; rm -f ../bin/httpfs
-  cd ../../../../
-
-rm -fr initrd/httpfs/usr/src initrd/posixovl/usr/src
-
-echo "Запуск скриптов Linux-live.org"
-  ./build
-
-echo "Создание файлов для сохранения данных" 
-  cd "$MYPATH"/$DESTDIR || exit 1
-  cd $FLASHNAME
-  cp -p "$MYPATH"/work/$FLASHNAME-$VERREL/VERSION ./
-  if [ "$DATASIZE1" != "" ] ;then
-     dd if=/dev/zero of=${FLASHNAME}_save1.img bs=1M count=$DATASIZE1
-     mkfs.ext3 -F -j ${FLASHNAME}_save1.img
-  fi 
-  if [ "$DATASIZE2" != "" ] ;then
-     dd if=/dev/zero of=${FLASHNAME}_save2.img bs=1M count=$DATASIZE2
-     mkfs.ext3 -F -j ${FLASHNAME}_save2.img
-  fi
-  mv base/*experimental* optional 2>/dev/null
-  mv base/*optional* optional 2>/dev/null
-  mv base/*-int-* optional 2>/dev/null
-  rm -fr *.sh *.bat tools/WIN ../boot
 cd "$MYPATH"
-cp -pR files/patches/flash/* $DESTDIR
-cp -p work/$FLASHNAME-$VERREL/rootfs/usr/bin/*squashfs* $DESTDIR/$FLASHNAME/tools
-CVERREL=`echo $VERREL | tr -d .`
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international 2>/dev/null
-mv $DESTDIR/$FLASHNAME/optional/??-int-*.[lx]zm flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
-chmod a+x $DESTDIR/$FLASHNAME/tools/*
-chmod a-x $DESTDIR/$FLASHNAME/tools/liblinuxlive
+mv "$DESTDIR/$FLASHNAME/"base/??-int-* flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
+
+cd "$MYPATH"
+echo "Создание файлов для сохранения данных" 
+cd "$MYPATH"/$DESTDIR/$FLASHNAME-Data || exit 1
+[ "$DATASIZE1" != "" ] && dd if=/dev/zero of=${FLASHNAME}_save1.img bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j ${FLASHNAME}_save1.img >/dev/null 2>&1
+[ "$DATASIZE2" != "" ] && dd if=/dev/zero of=${FLASHNAME}_save2.img bs=1M count=$DATASIZE2 && mkfs.ext3 -F -j ${FLASHNAME}_save2.img >/dev/null 2>&1
 
 echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"

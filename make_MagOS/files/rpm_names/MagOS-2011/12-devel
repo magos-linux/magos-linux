@@ -1,6 +1,7 @@
 autoconf-
 automake-
 busybox-
+busybox-static-
 dkms-
 gcc-
 gcc-c++-
@@ -50,3 +51,4 @@ libppl9-
 libpwl5-
 cyrus-sasl-
 libfuse-devel-
+dkms-minimal-

@@ -147,15 +147,10 @@ libxcb-atom1-
 webkit-
 webkit1.0-
 libopenal1-
-plymouth-system-theme-
 libblas3-
 libgfortran3-
 openal-
 libxcb-aux0-
-plymouth-plugin-script-
-plymouth-scripts-
-plymouth-
-plymouth-plugin-label-
 liblapack3-
 libavutil50-
 libxslt1-
@@ -367,7 +362,7 @@ libgnomeprint2-2_0-
 libgnomeprintui-
 libgnomeprintui2-2_0-
 libgnomecups-0.
-libgnomecups-1.
+libgnomecups-1.0_
 libieee1284_3-
 libgtksourceview-1.0_0-
 libsane1-

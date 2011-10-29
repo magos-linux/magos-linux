@@ -1,0 +1,113 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+if [ "`id -u`" != "0" ] ;then
+   echo "Для доступа ко всем файлам work нужны права root"
+   exit 1
+fi
+
+function umountbranches()
+{
+ while grep -q "$1" /proc/mounts ;do
+   grep "$1" /proc/mounts | awk '{print $2}' | while read a ;do
+      echo umount "$a" ; umount "$a" 2>/dev/null
+   done
+ done
+}
+
+cd "$MYPATH"
+
+RTFSINSTALL=${RTFSINSTALL:-work/$FLASHNAME-$VERREL/rootfs}
+KRNLPATH=${KRNLPATH:-work/$FLASHNAME-$VERREL/kernel/dkms}
+RTFSDEFMAKE=work/$FLASHNAME-$VERREL/dkms
+
+echo "Установка сторонних модулей ядра"
+if [ -d "$KRNLPATH" ] ;then
+   echo "Используются существующие dkms модули. Чтобы собрать заново удалите папку work/$FLASHNAME-$VERREL/kernel_nopae/dkms"
+else
+   if [ -z "$RTFSMAKE" ] ;then
+      echo "Создание временной ветви rootfs для сборки"
+      umountbranches "$RTFSDEFMAKE"
+      [ -d "$RTFSDEFMAKE" ] && rm -fr "$RTFSDEFMAKE"
+      mkdir -p "$RTFSDEFMAKE/rootfs" "$RTFSDEFMAKE/changes" || exit 1
+      cd "$RTFSDEFMAKE" || exit 1
+      mount -t aufs -o br:changes=rw:../rootfs=ro aufs rootfs || exit 1
+      mkdir -p rootfs/dev rootfs/proc rootfs/sys || exit 1
+      mount -o bind /dev rootfs/dev || exit 1
+      mount -o bind /sys rootfs/sys || exit 1
+      mount -o bind /proc rootfs/proc || exit 1
+      RTFSMAKE="$RTFSDEFMAKE/rootfs"
+   fi
+   cd "$MYPATH" ; cd "$RTFSMAKE" || exit 1
+   echo "Установка dkms модулей"
+   for a in  "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm ;do
+      rpm --noscripts --nodeps --root "$(pwd)" -ih "$a"
+   done
+   echo "Создание модулей ядра средствами dkms"
+   # вытаскиваем скрипты при установке модулей dkms, делаем из них скрипт
+   rpm -qp --triggers --scripts "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm \
+      | grep "^[/usr/sbin/]*dkms " | grep -v " remove " \
+      | sed s/"--rpm_safe_upgrade"// |  sed s/"--force"// |  sed s/"--all"// \
+      | sed s/" install "/" mkrpm "/  | tr -d \& > dkms_scripts || exit 1
+   # надо указать ядро флешки
+   sed -i s/"dkms "/"dkms -k `ls -1 lib/modules/ | tail -1 | tr -d /` "/ dkms_scripts || exit 1
+   # Сборка rpm пакетов
+   chroot "$(pwd)" bash /dkms_scripts || exit 1
+
+   cd "$MYPATH"
+   echo "Вытаскиваем rpm пакеты"
+   mkdir "$KRNLPATH"
+   for a in ` find "$RTFSMAKE/var/lib/dkms" | grep [.]rpm$` ;do
+      cp $a "$KRNLPATH"
+   done
+
+   if [ "$RTFSMAKE" = "$RTFSDEFMAKE/rootfs" ] ;then
+      echo "Удаление временной ветви rootfs"
+      umountbranches "$RTFSDEFMAKE"
+      rm -fr "$RTFSDEFMAKE"
+   else
+      cd "$RTFSMAKE"
+      echo "Удаляем dkms пакеты"
+      for a in `rpm --root "$(pwd)" -qa | grep dkms-[a-z] | grep -v dkms-minimal ` ;do
+          rpm -ev --nodeps --root "$(pwd)" $a
+      done
+      mv var/lib/dkms/dkms_dbversion ./
+      rm -fr var/lib/dkms/* dkms_scripts Module.symvers
+      mv dkms_dbversion var/lib/dkms
+   fi
+fi
+
+cd "$MYPATH"
+
+echo "Устанавливаем пакеты с модулями"
+ls -1 $KRNLPATH/*.rpm | sed 's|.*/||' > $KRNLPATH/00-kernel
+if [ -f "$RTFSINSTALL/proc/cmdline" ] ;then
+   rpm --nodeps --root "$MYPATH/$RTFSINSTALL" -ihv $KRNLPATH/*.rpm || exit 1
+else
+   cd "$RTFSINSTALL"
+   mount -o bind /dev dev || exit 1
+   mount -o bind /sys sys || exit 1
+   mount -o bind /proc proc || exit 1
+   rpm --nodeps --root "$(pwd)" -ihv "$MYPATH/$KRNLPATH/*.rpm" || exit 1
+   umount dev sys proc || exit 1
+fi
+cd "$MYPATH" ; cd "$RTFSINSTALL"
+
+echo "Распаковка модулей ядра"
+for a in `find lib/modules var/lib/dkms-binary | grep [.]ko[.]gz$` ;do
+   gunzip $a
+done
+depmod -a -b ./ `ls -1 lib/modules/ | tail -1 | tr -d /` || exit 1
+
+echo "Работа скрипта завершена"
+cd "$MYPATH"
+
+exit 0
+

@@ -3,6 +3,7 @@ leafpad-
 libburn4-
 libmenu-cache1-
 libopenbox21-
+libopenbox27-
 libthunar1_2-
 libxfce4util4-
 libxfcegui4_4-
@@ -36,3 +37,8 @@ gtk-equinox-engine-
 equinox-abomination-
 gtk-icons-elementary-
 libgtk-equinox-engine-
+elementary-theme-
+murrine-
+libmurrine-
+libgtk-aurora-engine-
+gtk-aurora-engine-

@@ -1,6 +1,6 @@
 hsqldb-
 libwpd0.8_8-
-libwps0.1_1-
+libwps0.2_2-
 myspell-en_US-
 myspell-ru_RU-
 aspell-
@@ -21,3 +21,5 @@ libgs9-
 libmpfr4-
 libraptor2_0-
 librasqal3-
+libgraphite2_2-
+libtextcat0-

@@ -1,0 +1,95 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+RPMIOPT=" --ignoresize --nodigest --nosignature --nosuggest "
+RPMIOPT=" --ignoresize --nosignature --nosuggest "
+
+if [ "`id -u`" != "0" ] ;then
+   echo Для установки пакетов в каталог rootfs нужны права root, команда rpm будет запущена \
+с ключом --root rootfs, установочные скрипты от пакетов будут запущены с помощью chroot. \
+это не повредит вашей операционной системе, из под которой запускается этот скрипт.
+   exit 1
+fi
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+cd "$MYPATH"
+
+function umountbranches()
+{
+ while grep -q "$1" /proc/mounts ;do
+    grep "$1" /proc/mounts | awk '{print $2}' | while read a ;do
+          echo umount "$a" ; umount "$a" 2>/dev/null
+    done
+ done
+}
+
+function install_rpms()
+{
+   for a in `cat $1` ;do
+      echo $a
+      rm -f rootfs/dev/null 2>/dev/null
+      echo -ne > rootfs/dev/null
+      LC_ALL=C rpm $RPMIOPT $2 --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -i "$MYPATH/loaded/$FLASHNAME-$VERREL/rpms/$a" 2>error.tmp
+      sed -i /"arning"/d error.tmp
+      [ "`grep -v ^[[:space:]]*$ error.tmp  | nl | head -1`" = "" ] && continue
+      echo $a >>install_errors.log
+      cat error.tmp >>install_errors.log
+   done
+}
+
+
+cd work/$FLASHNAME-$VERREL || exit 1
+echo "Создаём список пакетов для установки"
+mkcd -d --buildhdlist ../../loaded/$FLASHNAME-$VERREL/rpms >/dev/null  2>&1 || exit 1
+
+echo "Обработка списка пакетов"
+rm -f depslist.ordered.* *hdlist1.cz compss provides 2>/dev/null
+awk '{print $1}' depslist.ordered | awk -F: '{print $1}' |  grep -v ^dkms-[a-ln-z] | while read a ;do
+   grep -m1 "^$a" ../../loaded/rpmscripts_$VERREL/scripts   >>depslist.ordered.2 && continue
+   grep -m1 "^$a" ../../loaded/rpmscripts_$VERREL/noscripts >>depslist.ordered.1 && continue
+   echo Not found $a ;exit 1
+done
+
+echo "Подготовка к установке пакетов"
+umountbranches "$(pwd)/rootfs"
+rm -fr rootfs install_errors.log 2>/dev/null
+mkdir rootfs  || exit 1
+rpm2cpio $MYPATH/loaded/$FLASHNAME-$VERREL/rpms/setup-*.rpm | cpio -i --make-directories rootfs || exit 1
+mkdir -p rootfs/dev rootfs/proc rootfs/sys  || exit 1
+mount --bind /proc rootfs/proc  || exit 1
+mount --bind /sys rootfs/sys  || exit 1
+
+echo "Установка пакетов"
+install_rpms depslist.ordered.1 --noscripts
+install_rpms depslist.ordered.2
+rm -f error.tmp
+umount rootfs/proc rootfs/sys  || exit 1
+
+echo "Импортирование ключей"
+for a in ../../loaded/pubkeys/$VERREL-*.pubkey ;do
+   rpm  --root "`pwd`/rootfs" --import $a 2>/dev/null  || exit 1
+done
+
+echo "Создание ссылок на исходники ядра"
+ln -sf $(ls -1 rootfs/boot/vmlinuz-*flash* | sed 's|.*/||' | tail -1) rootfs/boot/vmlinuz-desktop  || exit 1
+ln -sf $(ls -1 rootfs/boot/vmlinuz-*flash* | sed 's|.*/||' | tail -1) rootfs/boot/vmlinuz || exit 1
+ln -sf /usr/src/$(ls -1d rootfs/usr/src/linux-*flash* | sed 's|/$||' | sed 's|.*/||' | tail -1) $(ls -1d rootfs/lib/modules/*flash* | tail -1)/build  || exit 1
+ln -sf /usr/src/$(ls -1d rootfs/usr/src/linux-*flash* | sed 's|/$||' | sed 's|.*/||' | tail -1) $(ls -1d rootfs/lib/modules/*flash* | tail -1)/source  || exit 1
+
+echo "сжатие базы rpm"
+chroot rootfs /usr/lib/rpm/bin/dbconvert
+
+if grep -q cpio install_errors.log ;then 
+    echo "Обнаружены серьёзные ошибки при установке пакетов, см. файл work/$FLASHNAME-$VERREL/install_errors.log (ищите по cpio)"
+else
+    echo "Проверьте файл work/$FLASHNAME-$VERREL/install_errors.log, как правило там некритичные ошибки"
+fi
+
+echo "Работа скрипта завершена, в work/$FLASHNAME-$VERREL/rootfs установлен наш дистрибутив"

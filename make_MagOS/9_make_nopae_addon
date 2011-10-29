@@ -9,141 +9,103 @@ else
 fi
 cd "$MYPATH"
 
+#FIXME
+# скрипт пока не готов. Необходимо убрать запуск linux-live
+# и добавить сборку с помощью initrd.
+exit 0
+
 if [ "`id -u`" != "0" ] ;then
    echo "Для доступа ко всем файлам work нужны права root"
    exit 1
 fi
 
-function move_kernel()
+if [ "$SQFSVER" = "3" ] ;then
+  MKSQUASHFS=mksquashfs3
+  UNSQUASHFS=unsquashfs3
+  MODULEFORMAT=lzm
+else
+  MKSQUASHFS=mksquashfs
+  UNSQUASHFS=unsquashfs
+  MODULEFORMAT=xzm
+fi
+
+function umountbranches()
 {
-  mkdir -p lib/modules boot usr/src usr/share/doc var/lib/dkms-binary  2>/dev/null
-  mv ../../rootfs/boot/*flash* boot
-  mv ../../rootfs/lib/modules/*flash* lib/modules
-  mv ../../rootfs/usr/src/*flash* usr/src
-  mv ../../rootfs/usr/share/doc/kernel-*flash* usr/share/doc
-  mv ../../rootfs/var/lib/dkms-binary/* var/lib/dkms-binary
+ while grep -q "$1" /proc/mounts ;do
+   grep "$1" /proc/mounts | awk '{print $2}' | while read a ;do
+      echo umount "$a"
+      umount "$a" 2>/dev/null
+   done
+ done
 }
 
 echo "Сборка ядра"
-PAE=no ./3_makekernel
-echo "Перенос текущего ядра"
-rm -fr work/$FLASHNAME-$VERREL/kernel/bin 2>/dev/null
-mkdir -p work/$FLASHNAME-$VERREL/kernel/bin
-cd work/$FLASHNAME-$VERREL/kernel/bin || exit 1
-move_kernel
+PAE=no ./2_makekernel || exit 1
+
+echo "Создание временной ветви rootfs для сборки"
+umountbranches "work/$FLASHNAME-$VERREL/nopae"
+rm -fr work/$FLASHNAME-$VERREL/nopae 2>/dev/null || exit 1
+mkdir -p work/$FLASHNAME-$VERREL/nopae/changes work/$FLASHNAME-$VERREL/nopae/rootfs || exit 1
+cd work/$FLASHNAME-$VERREL/nopae || exit 1
+mount -t aufs -o br:changes=rw:../rootfs=ro aufs rootfs || exit 1
+cd rootfs
+
+echo "Удаление ядра pae"
+for a in `rpm --root "$(pwd)" -qa | grep kernel | grep -v firmware ` ;do
+    rpm --noscripts --nodeps -ev --root "$(pwd)" $a
+done
+rm -fr lib/modules/* var/lib/dkms-binary/*
 
 echo "Установка ядра nopae"
-cd "$MYPATH/work/$FLASHNAME-$VERREL/rootfs"
-rpm2cpio ../kernel_nopae/kernel-desktop-devel-2.6.*.$ARCH.rpm | cpio -i --make-directories
-rpm2cpio ../kernel_nopae/kernel-desktop-2.6.*.$ARCH.rpm | cpio -i --make-directories
-KERNVER=`ls -1d usr/src/linux-* | sed s/^.*linux-// | sed s/mnb.*$/mnb/`
-ln -sf /usr/src/linux-$KERNVER lib/modules/$KERNVER/build
-ln -sf /usr/src/linux-$KERNVER lib/modules/$KERNVER/source
-cd boot
-ln -sf vmlinuz-* vmlinuz
+ln -sf /bin/true sbin/mkinitrd 
+mkdir -p tmp proc sys dev
+mount -o bind /dev dev || exit 1
+mount -o bind /proc proc || exit 1
+mount -o bind /sys sys || exit 1
+rpm --root "$(pwd)" --nodeps -ihv ../../kernel_nopae/kernel-desktop-2.6.*.$ARCH.rpm ../../kernel_nopae/kernel-desktop-devel-2.6.*.$ARCH.rpm || exit 1
+KERNSVER=`ls -1d usr/src/linux-* | sed 's|/$||' | sed 's|.*/||'`
+KERNBVER=`ls -1d lib/modules/* | sed 's|/$||' | sed 's|.*/||'`
+ln -sf /usr/src/$KERNSVER lib/modules/$KERNBVER/build || exit 1
+ln -sf /usr/src/$KERNSVER lib/modules/$KERNBVER/source || exit 1
+cd boot || exit 1
+rm -f vmlinuz 2>/dev/null
+ln -sf $(ls -1 vmlinuz-*nopae* | tail -1) vmlinuz || exit 1
 cd ..
-echo "Установка dkms модулей"
-for a in  "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm ;do
-    rpm --noscripts --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -ih "$a"
-done
-echo "Создание модулей ядра средствами dkms"
-# вытаскиваем скрипты при установке модулей dkms, делаем из них скрипт
-rpm -qp --triggers --scripts ../../../loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm \
-    | grep "^[/usr/sbin/]*dkms " | grep -v remove \
-    | sed s/" install "/" mkrpm "/  | tr -d \& > dkms_scripts || exit 1
-# надо указать ядро флешки
-sed -i s/"dkms "/"dkms -k `ls -1 lib/modules/ | tail -1 | tr -d /` "/ dkms_scripts || exit 1
-# Сборка rpm пакетов
-rm -f dev/null 
-echo -ne >dev/null
-mkdir tmp var/tmp
-chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" bash /dkms_scripts || exit 1
 
-echo "Вытаскиваем rpm пакеты"
-[ -d ../kernel_nopae/dkms ] && rm -fr ../kernel_nopae/dkms
-mkdir ../kernel_nopae/dkms
-cd var/lib/dkms
-for a in ` find | grep .rpm$` ;do
-   cp $a ../../../../kernel_nopae/dkms
-done
-cd ../../../
-rm -f dkms_scripts Module.symvers
-
-echo "Удаляем dkms пакеты"
-for a in `rpm --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -qa | grep dkms-[a-z] | grep -v dkms-minimal ` ;do
-     rpm -ev --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" $a
-done
-
-echo "Устанавливаем пакеты с модулями"
-cd ../kernel_nopae/dkms
-rpm --nodeps --root "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" -ihv *.rpm
-
-cd "$MYPATH/work/$FLASHNAME-$VERREL/rootfs"
-mv var/lib/dkms/dkms_dbversion ./
-rm -fr var/lib/dkms/* tmp dev/null
-mv dkms_dbversion var/lib/dkms
-mknod dev/null c 1 3
-
-echo "Перенос ядра nopae"
-rm -fr ../kernel_nopae/bin 2>/dev/null
-mkdir -p ../kernel_nopae/bin
-cd ../kernel_nopae/bin || exit 1
-move_kernel
-for a in `find | grep [.]ko[.]gz$` ;do
-   gunzip $a
-done
-NEWKERNN=$(ls -d1 lib/modules/* | tail -1 | awk -F/ 'n=NF-1 {print $n}')
-depmod -a -b ./ $NEWKERNN
+cd "$MYPATH"
+RTFSINSTALL="work/$FLASHNAME-$VERREL/nopae/rootfs" \
+RTFSMAKE="$RTFSINSTALL" \
+KRNLPATH="work/$FLASHNAME-$VERREL/kernel_nopae/dkms" \
+./5_makedkms || exit 1
 
 echo "Cоздание каталога nopae_addon"
-cd "$MYPATH"
-#DISTRVERSION=20110715
-[ "$DISTRVERSION" ] || DISTRVERSION=$(date +%Y%m%d)
+DISTRVERSION=$(find flash  -maxdepth 3 -type f | grep $FLASHNAME.sgn | tail -1 | awk -F/ '{print $2}' | awk -F_ '{print $3}' )
+[ -z "$DISTRVERSION" ] && exit 1
+
 rm -fr flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae 2>/dev/null
-mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base
-cp -p work/$FLASHNAME-$VERREL/kernel_nopae/bin/boot/vmlinuz-* flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/vmlinuz
-cp -p flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}/$FLASHNAME/initrd.gz flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/initrd.gz
-echo "Сжатие файлов в модуль"
-mksquashfs work/$FLASHNAME-$VERREL/kernel_nopae/bin flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base/00-kernel.lzm -b 256K -lzmadic 256K
-echo "Изменение initrd"
-cd work/$FLASHNAME-$VERREL/kernel_nopae/bin/
-find | grep [.]ko | sed s-./-- >>"$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/all_modules.list
-cd "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/
-mkdir loop
-gunzip initrd.gz
-mount -o loop initrd loop
-mv loop/drivers.lzm ./
-mkdir drivers src
-mount -t squashfs -o loop drivers.lzm src
-cp -pR src/* drivers
-umount src
-rm -fr drivers.lzm src
-find | grep .ko$ > modules.list
-echo "Замена модулей"
-for a in `cat modules.list` ;do
-    MODNAME=`echo $a | awk -F/ '{print $NF}'`
-    echo -ne "\r$MODNAME                 \r"
-    SRCMOD=`grep /$MODNAME all_modules.list | head -1`
-    rm -f $a
-    cp -p "$MYPATH"/work/$FLASHNAME-$VERREL/kernel_nopae/bin/$SRCMOD $a
-done
-echo "Запуск depmod       "
-OLDKERNN=`grep /kernel/ modules.list | head -1 | sed 's|^.*/lib/modules/||' | sed 's|/kernel/.*$||'`
-NEWKERNN=`grep /kernel/ all_modules.list | head -1 | sed 's|^.*lib/modules/||' | sed 's|/kernel/.*$||'`
-mv loop/lib/modules/$OLDKERNN loop/lib/modules/$NEWKERNN || exit 1
-mount -o bind drivers loop/lib/modules/*/kernel/drivers
-depmod -a -b loop/ $NEWKERNN
-umount loop/lib/modules/*/kernel/drivers
-mksquashfs drivers drivers.lzm -b 256K -lzmadic 256K || exit 1
-mv drivers.lzm loop || exit 1
-umount loop
-gzip initrd
-rm -fr drivers *.list loop
+mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base || exit 1
+cp -p $(ls -1 work/$FLASHNAME-$VERREL/nopae/rootfs/boot/vmlinuz-*nopae*) flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/vmlinuz || exit 1
 
+cd work/$FLASHNAME-$VERREL/linux-live-$VER_LL/initrd || exit 1
+cp -pf ../.config ../.config.bak
+echo "LMK=lib/modules/$KERNBVER" >> ../.config
+echo "ROOT=$MYPATH/work/$FLASHNAME-$VERREL/nopae/rootfs" >> ../.config
+echo "KERNEL=$KERNBVER" >> ../.config
+./initrd_create || exit 1
+mv -f ../.config.bak ../.config
 cd "$MYPATH"
-cp -pfR work/$FLASHNAME-$VERREL/kernel/bin/* work/$FLASHNAME-$VERREL/rootfs
-rm -fr work/$FLASHNAME-$VERREL/kernel/bin  work/$FLASHNAME-$VERREL/kernel_nopae/bin
+cp -p work/$FLASHNAME-$VERREL/linux-live-$VER_LL/initrd/initrd.gz flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/initrd.gz || exit 1
 
+echo "Сжатие файлов в модуль"
+mkdir -p work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/{boot,lib,var/lib,usr/src}
+mv work/$FLASHNAME-$VERREL/nopae/rootfs/boot/System.map-*nopae* work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/boot
+mv work/$FLASHNAME-$VERREL/nopae/rootfs/boot/config-*nopae* work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/boot
+mv work/$FLASHNAME-$VERREL/nopae/rootfs/boot/symvers-*nopae* work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/boot
+mv work/$FLASHNAME-$VERREL/nopae/rootfs/lib/modules work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/lib
+mv work/$FLASHNAME-$VERREL/nopae/rootfs/var/lib/dkms-binary work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/var/lib
+mv work/$FLASHNAME-$VERREL/nopae/rootfs/usr/src/$KERNSVER work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/usr/src
+$MKSQUASHFS work/$FLASHNAME-$VERREL/nopae/rootfs/kernel flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base/00-kernel.$MODULEFORMAT $MKSQOPT >/dev/null 2>&1
+umountbranches "work/$FLASHNAME-$VERREL/nopae" && rm -fr "work/$FLASHNAME-$VERREL/nopae"
 echo "Работа скрипта завершена"
 
 exit 0

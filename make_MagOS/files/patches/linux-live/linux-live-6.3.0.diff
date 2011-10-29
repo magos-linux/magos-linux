@@ -1,151 +1,3 @@
-diff -auprN linux-live-6.3.0/build linux-live-6.3.0_patched/build
---- linux-live-6.3.0/build	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/build	2011-09-16 20:58:24.000000000 +0400
-@@ -18,20 +18,17 @@ allow_only_root
- 
- # live CD name
- echo -ne "Name of your live distro [hit enter for $LIVECDNAME]: "
--read NEWLIVECDNAME
-+#read NEWLIVECDNAME
- if [ "$NEWLIVECDNAME" != "" ]; then LIVECDNAME=$NEWLIVECDNAME; fi
- LIVECDNAME=$(echo $LIVECDNAME | tr -d ' ')
- 
--. ./install
--if [ "$ROOT" -a "$ROOT" != "/" ]; then 
--   . ./install $ROOT
--fi
-+. ./install $CROOT
- 
- # search for kernel
--VMLINUZ=$ROOT/boot/vmlinuz
-+VMLINUZ=$ROOT/../rootfs/boot/vmlinuz
- if [ -L "$VMLINUZ" ]; then VMLINUZ=$(readlink -f $VMLINUZ); fi
- echo -ne "Enter path for the kernel you'd like to use [hit enter for $VMLINUZ]: "
--read NEWKERNEL
-+#read NEWKERNEL
- if [ "$NEWKERNEL" != "" ]; then VMLINUZ="$NEWKERNEL"; fi
- if [ "$(ls $VMLINUZ 2>>$DEBUG)" = "" ]; then echo "cannot find $VMLINUZ"; exit 1; fi
- 
-@@ -52,32 +49,29 @@ mkdir -p $CDDATA/$LIVECDNAME
- cp -R cd-root/linux/* $CDDATA/$LIVECDNAME
- cp tools/* $CDDATA/$LIVECDNAME/tools
- cp -R DOC/LICENSE $CDDATA/$LIVECDNAME
--cp $VMLINUZ $CDDATA/boot/vmlinuz
-+cp $VMLINUZ $CDDATA/$LIVECDNAME/vmlinuz
- 
- echo "creating initrd image..."
--echo "Using kernel modules from $ROOT/$LMK"
-+echo "Using kernel modules from $KROOT/$LMK"
- cd initrd
--./initrd_create $LIVECDNAME
-+./initrd_create $LIVECDNAME $ADDLOCALE $KROOT
- if [ "$?" -ne 0 ]; then exit; fi
- cd ..
- 
--cp initrd/initrd.gz $CDDATA/boot/initrd.gz
-+cp initrd/initrd.gz $CDDATA/$LIVECDNAME/initrd.gz
- rm initrd/initrd.gz
- 
-+
-+
-+mv $CDDATA/$LIVECDNAME/livecd.sgn $CDDATA/$LIVECDNAME/$LIVECDNAME.sgn
-+
- echo "creating compressed images..."
- 
- for dir in $MKMOD; do
-     if [ -d $ROOT/$dir ]; then
--      echo "base/$dir.lzm ..."
--      echo -ne > exclude.txt
--      for i in $EXCLUDE; do
--         part=$(echo "x/$i" | tr -s / | sed -r "s:x/[^/]+/::")
--         if [ -e "$ROOT/$dir/$part" ]; then echo "$ROOT/$dir/$part" >> exclude.txt; fi
--      done
--      cat exclude.txt
--      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.lzm -keep-as-directory -ef exclude.txt
-+      echo "base/$dir.$MODULEFORMAT ..."
-+      create_module $ROOT/$dir $CDDATA/$LIVECDNAME/base/$dir.$MODULEFORMAT
-       if [ $? -ne 0 ]; then exit; fi
--      rm exclude.txt
-       echo
-     fi
- done
-@@ -90,4 +84,4 @@ echo "* or copy content of $CDDATA to yo
- echo "and run ./boot/bootinst.sh (from the device!) to setup boot sector"
- echo
- echo "Now press Enter..."
--read junk
-+#read junk
-diff -auprN linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c linux-live-6.3.0_patched/initrd/httpfs/usr/src/httpfs.c
---- linux-live-6.3.0/initrd/httpfs/usr/src/httpfs.c	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/httpfs/usr/src/httpfs.c	2011-04-09 21:50:17.000000000 +0400
-@@ -15,7 +15,7 @@
- #define BUFSIZE 1024
- #define BIGBUFSIZE 64*BUFSIZE
- #define RESP_STATUS_LEN 12 // sizeof "HTTP/1.1 200"
--#define VERSION "for-slax-6.0.7"
-+#define VERSION "for-MagOS"
- 
- #define MIN(a,b) \
-     ({ __typeof__ (a) _a = (a); \
-@@ -132,12 +132,14 @@ static int parse_url(char *url) {
- 
-     if (port < path && port != NULL) { // a semicolon is sooner than slash for path - that specifies port number
- 	http_port = (unsigned short) atoi(port + 1);
-+	strncpy(http_host, pos, port - pos);
-     } else {
- 	http_port = 80;
-+	strncpy(http_host, pos, path - pos);
-     }
- 
-     if (path != NULL) {
--	strncpy(http_host, pos, path - pos);
-+//	strncpy(http_host, pos, path - pos);
- 	file = strrchr(path, '/');
- 	strncpy(http_path, path, file == path ? 1 : file - path);
- 	strncpy(http_file, file + 1, strlen(file) - 1);
-@@ -170,7 +172,7 @@ static int open_client_socket() {
- 
-     he = gethostbyname(http_host);
-     if (he == NULL) {
--	fprintf(stderr, "%s: unknown host - %s\n", myself, http_host);
-+	fprintf(stderr, "%s: unknown host - %s port=%d\n", myself, http_host,http_port);
- 	return -1;
-     }
- 
-@@ -411,14 +413,16 @@ static int httpfs_readdir(const char *pa
- 	    len--;
- 	}
- 	len = MIN(len, strcspn(i, "/"));
--	if (len > 0) {
-+	if (len > 0) 
-+	{
-     	    strncpy(file, i, len);
-     	    file[len] = '\0';
--fprintf(stderr,"file: %s\n", file);
--fprintf(stderr,"http_file: %s\n", http_file);
--fprintf(stderr,"path: %s\n", path);
--fprintf(stderr,"http_path: %s\n", http_path);
--
-+/*
-+	    fprintf(stderr,"file: %s\n", file);
-+	    fprintf(stderr,"http_file: %s\n", http_file);
-+	    fprintf(stderr,"path: %s\n", path);
-+	    fprintf(stderr,"http_path: %s\n", http_path);
-+  */
-     	    if (! (strncmp(file, http_file, strlen(http_file)) == 0
-     	    && strlen(http_file)>0
-             && strncmp(path, http_path, strlen(http_path)) == 0) ) {
-@@ -427,8 +431,8 @@ fprintf(stderr,"http_path: %s\n", http_p
- 	}
-     }
- 
--    if (strcmp(path, "/") == 0 && strlen(http_file) > 0)
--	(*filler)(buffer, http_file, NULL, 0);
-+//    if (strcmp(path, "/") == 0 && strlen(http_file) > 0)
-+//	    (*filler)(buffer, http_file, NULL, 0);
- 
-     i = w;
-     end:
 diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initrd/initrd_create
 --- linux-live-6.3.0/initrd/initrd_create	2011-04-09 21:50:17.000000000 +0400
 +++ linux-live-6.3.0_patched/initrd/initrd_create	2011-09-24 16:08:15.000000000 +0400
@@ -269,8 +121,8 @@ diff -auprN linux-live-6.3.0/initrd/initrd_create linux-live-6.3.0_patched/initr
  dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >>$DEBUG 2>&1
 diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linuxrc
 --- linux-live-6.3.0/initrd/linuxrc	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/initrd/linuxrc	2011-09-16 21:30:57.000000000 +0400
-@@ -1,6 +1,9 @@
++++ linux-live-6.3.0_patched/initrd/linuxrc	2011-10-25 17:11:24.000000000 +0400
+@@ -1,13 +1,16 @@
  #!/bin/ash
  # Initial script for Linux Live operating system
  # Author: Tomas M <http://www.linux-live.org/>
@@ -279,6 +131,15 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +# Author: Anton Goroshkin <http://magos-linux.ru>
  
  export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+ 
+-mount -n -t proc proc /proc
++mount -n -t proc proc /proc 2>/dev/null
++ln -sf /proc/mounts /etc/mtab    # this allows us to use umount -a
+ mount -n -t sysfs sysfs /sys
+ mount -n -o remount,rw /         # for the case we forgot rw boot option
+-ln -sf /proc/mounts /etc/mtab    # this allows us to use umount -a
+ 
+ . liblinuxlive # it requires proc to be mounted
  
 @@ -17,14 +20,17 @@ header "starting Linux Live scripts <htt
  # Syslog will reset printk settings, no need to remember it here anymore.
@@ -374,10 +235,52 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
     DATA=$(dirname $DATA 2>/dev/null)
  fi
  
-@@ -98,18 +102,57 @@ echolog "using $LIVECDNAME data from $DA
+@@ -93,22 +97,76 @@ You are maybe using an unsupported boot
+ Workaround: Copy the directory $LIVECDNAME from your boot device to an IDE/SATA
+ disk, eg. to /mnt/hda1/$LIVECDNAME or C:\\$LIVECDNAME. Then try to boot again."
+ fi
+-
+ echolog "using $LIVECDNAME data from $DATA"
  
  debug_shell
  
++SGN=$(cmdline_value sgndatafile)
++[ -z "$SGN" ] && SGN=$LIVECDNAME-Data.sgn
++if [ "$SGN" != "no" -a "$SGN" != "off" ] ;then
++   echolog "looking for '$LIVECDNAME-Data' directory (searching for $SGN file)"
++   DATAMNT=$(find_in_computer ${LIVECDNAME}-Data/$SGN $MOUNTDIR/$LIVEDATA)
++   DATAMNT=$(dirname $DATAMNT 2>/dev/null)
++   [ -z "$DATAMNT" ] || echolog "using $LIVECDNAME data from $DATAMNT"
++fi
++
++debug_shell
++
+ echolog "setting up directory for changes"
+ CHANGESVAL=$(cmdline_value changes)
+ 
+ if [ "$CHANGESVAL" ]; then
+-   CHANGESMNT=$(find_in_computer $CHANGESVAL)
+-   echolog $CHANGESMNT
++   if [ "$(echo $CHANGESVAL | grep "://")" != ""  ]; then
++      init_dhcp $(modprobe_network_modules)
++      echo $CHANGESVAL | grep -iq ^"nfs://" && CHANGESMNT=$(mount_nfs $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
++   else
++      [ -r "$DATAMNT/$CHANGESVAL" ] && CHANGESMNT="$DATAMNT/$CHANGESVAL"
++      [ -z "$CHANGESMNT" ] &&  CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
++   fi
++   if [ -r "$CHANGESMNT" ] ;then
++      [ -b "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount block device
++      [ -f "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount again, it may be loop device
++      [ -d "$CHANGESMNT" ] && mount -o rbind $CHANGESMNT $MEMORY # mount dir
++      echolog $CHANGESMNT
++   else
++      rmdir $MEMORY
++   fi
++else
++   rmdir $MEMORY
++fi
++
++debug_shell
 +
 +echolog "setting up modules repository"
 +REPOSITORY=$(cmdline_value repository)
@@ -393,50 +296,27 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +   mount_device $REPOSITORYMNT $LIVEREPOSITORY
 +   echolog $REPOSITORYMNT
 +   fi
-+fi
-+
-+
-+debug_shell
-+
-+INIFILE=$(cmdline_value config)
-+[ "$INIFILE" = "" ] && INIFILE=$LIVECDNAME.ini
-+[ -f "$DATA/$INIFILE" ] && egrep -v '^#|^$' "$DATA/$INIFILE" | sed s-\\\\r-- | gzip > /tmp/$LIVECDNAME.ini.gz
-+chmod 400 /tmp/$LIVECDNAME.ini.gz
-+
-+debug_shell
-+
- echolog "setting up directory for changes"
- CHANGESVAL=$(cmdline_value changes)
- 
- if [ "$CHANGESVAL" ]; then
--   CHANGESMNT=$(find_in_computer $CHANGESVAL)
--   echolog $CHANGESMNT
-+   if [ "$(echo $CHANGESVAL | grep "://")" != ""  ]; then
-+      init_dhcp $(modprobe_network_modules)
-+      echo $CHANGESVAL | grep -iq ^"nfs://" && CHANGESMNT=$(mount_nfs $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
-+   else
-+      CHANGESMNT=$(find_in_computer $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
-+   fi
-+   if [ -r "$CHANGESMNT" ] ;then
-+      [ -b "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount block device
-+      [ -f "$CHANGESMNT" ] && mount_device $CHANGESMNT $MEMORY # mount again, it may be loop device
-+      [ -d "$CHANGESMNT" ] && mount -o rbind $CHANGESMNT $MEMORY # mount dir
-+      echolog $CHANGESMNT
-+   else
-+      rmdir $MEMORY
-+   fi
 +else
-+   rmdir $MEMORY
++   REPOSITORYMNT=$DATAMNT
++   LIVEREPOSITORY=$DATAMNT
  fi
  
  debug_shell
  
 -mount_device "$CHANGESMNT" $MEMORY # removes $MEMORY if CHANGESMNT is wrong
--
++INIFILE=$(cmdline_value config)
++[ -z "$INIFILE" ] && INIFILE=$LIVECDNAME.ini
++PATHINI="$DATAMNT/$INIFILE"
++[ -f "$PATHINI" ] || PATHINI="$REPOSITORYMNT/$INIFILE"
++[ -f "$PATHINI" ] || PATHINI="$DATA/$INIFILE"
++[ -f "$PATHINI" ] && egrep -v '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /tmp/$LIVECDNAME.ini.gz
++chmod 400 /tmp/$LIVECDNAME.ini.gz
++
++debug_shell
+ 
  # test if the filesystem is writable so changes can be stored to it
  touch $MEMORY/empty 2>/dev/null && \
- rm -f $MEMORY/empty 2>/dev/null
-@@ -147,9 +190,34 @@ else
+@@ -147,9 +205,38 @@ else
     fi
  fi
  
@@ -459,8 +339,12 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +      [ -b "$LOCAL_REPMNT" ] && mount_device $LOCAL_REPMNT $COPY2REP  # mount block device
 +      [ -d "$LOCAL_REPMNT" ] && mount -o rbind $LOCAL_REPMNT $COPY2REP # mount dir
 +      echolog $LOCAL_REPMNT
-+else 
-+	COPY2REP=$MEMORY/modules
++else
++      if [ -z "$DATAMNT" ] ;then
++         COPY2REP=$MEMORY/modules
++      else
++         COPY2REP=$DATAMNT
++      fi
 +fi
 +
 +
@@ -473,7 +357,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  mkdir -p $CHANGES
  mkdir -p $IMAGES
  
-@@ -162,7 +230,12 @@ if [ "$XINO" != "$MEMORY" ]; then
+@@ -162,7 +249,12 @@ if [ "$XINO" != "$MEMORY" ]; then
  fi
  
  # mount aufs using the writable branch as the first one (leftmost/topmost)
@@ -487,7 +371,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
  
  debug_shell
-@@ -170,32 +243,76 @@ debug_shell
+@@ -170,45 +262,138 @@ debug_shell
  # If toram or copy2ram boot parameter is present, copy all fs modules to RAM.
  # (skip modules from /optional/ which are not listed in load= boot option)
  # Finaly modify DATA variable so it will point to correct directory
@@ -501,17 +385,14 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
     copy_to_ram $DATA $COPY2RAM
 +   copy_to_ram $LIVEREPOSITORY $COPY2RAM
 +   cp -a "$DATA/rootcopy" "$COPY2RAM" 2>/dev/null  # could be empty
- 
--   cd_autoeject 1
--   fumount $DATA
--   fumount $MOUNTDIR/*
--   rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
--   DATA=$COPY2RAM
--   cd_autoeject 0
++   [ -z "$DATAMNT" ] || cp -a "$DATAMNT/rootcopy" "$COPY2RAM" 2>/dev/null  # could be empty
++
 +   if [ "$(cmdline_parameter nofreemedia)$(cmdline_value toram)$(cmdline_value copy2ram)" = "" ] && ! losetupfunc | egrep -q "$DATA/"'|'"$LIVEREPOSITORY/" ;then
++     cp "$DATA/vmlinuz" "$COPY2RAM"
 +     cd_autoeject 1
 +     fumount $DATA
 +     fumount $MOUNTDIR/$LIVEMEDIA
++     fumount $DATAMNT
 +     fumount $LIVEREPOSITORY
 +     rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
 +     DATA=$COPY2RAM
@@ -519,7 +400,13 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +   fi
 +fi
 +debug_shell
-+
+ 
+-   cd_autoeject 1
+-   fumount $DATA
+-   fumount $MOUNTDIR/*
+-   rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
+-   DATA=$COPY2RAM
+-   cd_autoeject 0
 +if [ "$(cmdline_parameter copy2rep)$(cmdline_value copy2rep)" != "" ]; then
 +   echolog "copying $LIVECDNAME data to LOCAL_REP, this may take some time..."
 +   mkdir -p $COPY2REP
@@ -574,7 +461,17 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -207,8 +324,53 @@ cp -af $DATA/rootcopy/* $UNION 2>/dev/nu
+ echolog "copying content of rootcopy directory"
+ cp -af $DATA/rootcopy/* $UNION 2>/dev/null # may be empty
++[ -z "$DATAMNT" ] || cp -a "$DATAMNT/rootcopy" "$COPY2RAM" 2>/dev/null  # could be empty
++if echo $DATA | grep -q copy2 ;then
++   mv -f "$DATA/vmlinuz" $UNION/boot
++else
++   ln -sf "/$DATA/vmlinuz" $UNION/boot
++fi
+ 
+ # TODO: if copy2ram is used, there is no need to preserve the original in memory anymore
+ #if [ "$DATA" = "$COPY2RAM" ]; then 
  #    rm from memory once ??
  #fi
  
@@ -622,15 +519,10 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
 +   echolog $HOMEMNT
 +fi
 +[ -d $UNION/home ] || mkdir $UNION/home
-+
-+#debug_shell
-+#
-+#echolog "copying liblinuxlive library to union"
-+#cp -af /liblinuxlive $UNION/usr/lib/magos/scripts
  
  debug_shell
  
-@@ -216,6 +378,9 @@ echolog "recreating /etc/fstab and /mnt
+@@ -216,6 +401,9 @@ echolog "recreating /etc/fstab and /mnt
  touch $UNION/etc/fstab
  rmdir $UNION/mnt/* 2>/dev/null
  fstab_update $UNION
@@ -640,7 +532,7 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  # everything is ready now, so we may unload unused kernel modules
  # and do some cleanup, unmount few things which are no longer needed.
-@@ -231,10 +396,25 @@ mkdir -p $UNION/sys
+@@ -231,10 +419,25 @@ mkdir -p $UNION/sys
  mkdir -p $UNION/dev
  mkdir -p $UNION/tmp
  chmod 1777 $UNION/tmp
@@ -667,46 +559,22 @@ diff -auprN linux-live-6.3.0/initrd/linuxrc linux-live-6.3.0_patched/initrd/linu
  
  debug_shell
  
-@@ -274,7 +454,11 @@ header "linux live end, starting $LIVECD
+@@ -274,7 +477,11 @@ header "linux live end, starting $LIVECD
  
  debug_shell
  
 -mount -n -o remount,ro aufs .
 +[ $(cmdline_parameter unionfs) ] && fs_type=unionfs || fs_type=aufs
 +fumount /lib/modules/*/kernel >/dev/null 2>/dev/null
-+umount /proc
++umount /proc 2>/dev/null
 +rm -f /drivers.lzm /usr.lzm /drivers.xzm /usr.xzm >/dev/null 2>/dev/null
 +#mount -n -o remount,ro $fs_type .
  
  # We will copy init from the distro to initrd (there should be 2MB free)
  # This allows us to use the cleanup script during reboot, as init will be
-diff -auprN linux-live-6.3.0/install linux-live-6.3.0_patched/install
---- linux-live-6.3.0/install	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/install	2011-09-09 12:23:49.000000000 +0400
-@@ -16,17 +16,13 @@ if [ "$N" = "build" ]; then
-    N=install
- else
-    . ./.config || exit 1
--   if [ "$1" ]; then ROOT="$1"; fi
-+   if [ "$1" ]; then CROOT="$1"; fi
- fi
- 
- if [ "$N" != "uninstall" ]; then
--   mkdir -p $ROOT/usr/bin
--   mkdir -p $ROOT/usr/lib
--   ls -1 ./tools | egrep -v "^lib" | while read FILE; do cp ./tools/$FILE $ROOT/usr/bin; done
--   cat ./tools/liblinuxlive | sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' > $ROOT/usr/lib/liblinuxlive
-+   sed -r 's/^LIVECDNAME=.*/LIVECDNAME="'$LIVECDNAME'"/' ./tools/liblinuxlive > $CROOT/usr/lib/magos/scripts/liblinuxlive
- else
--   ls -1 ./tools | egrep -v "^lib" | while read FILE; do rm -v $ROOT/usr/bin/$FILE; done
--   ls -1 ./tools | egrep "^lib" | while read FILE; do rm -v $ROOT/usr/lib/$FILE; done
-+   rm -v $CROOT/usr/lib/magos/scripts/liblinuxlive
- fi
- 
- echo "Linux Live scripts were $N""ed successfuly in $1/"
 diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/liblinuxlive
 --- linux-live-6.3.0/tools/liblinuxlive	2011-04-09 21:50:17.000000000 +0400
-+++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-09-16 21:33:48.000000000 +0400
++++ linux-live-6.3.0_patched/tools/liblinuxlive	2011-10-24 17:42:49.000000000 +0400
 @@ -3,6 +3,8 @@
  # Functions library :: for Linux Live scripts 6
  # Author: Tomas M. <http://www.linux-live.org>
@@ -716,7 +584,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
  # ===========================================================
  # GLOBAL variables
-@@ -19,9 +21,15 @@ MOUNTDIR=mnt
+@@ -19,9 +21,16 @@ MOUNTDIR=mnt
  CHANGES=$MEMORY/changes
  XINO=$MEMORY/xino
  COPY2RAM=$MEMORY/copy2ram
@@ -728,12 +596,13 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
 +LIVEMEDIA=livemedia
 +LIVEHOME=livehome
 +LIVECHANGES=livesave
++LIVEDATA=livedata
 +LIVEREPOSITORY=$MOUNTDIR/liverepository
 +MKSQOPT=
  
  # this will be replaced by build script, so never change the following line!
  LIVECDNAME="mylinux"
-@@ -176,8 +184,14 @@ mount_initrd_loops()
+@@ -176,8 +185,14 @@ mount_initrd_loops()
     if [ -e /usr.lzm ]; then
        mount_device /usr.lzm /usr loop,ro squashfs
     fi
@@ -749,7 +618,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fi
  }
  
-@@ -248,10 +262,7 @@ locale_id()
+@@ -248,10 +263,7 @@ locale_id()
     # but only if there is just ONE directory, nothing more
     # (so we are sure which one to use)
     if [ "$LOCALE" = "" ]; then
@@ -761,7 +630,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fi
  
     if [ "$LOCALE" != "" ]; then
-@@ -268,23 +279,23 @@ iocharset()
+@@ -268,23 +280,23 @@ iocharset()
     # if iocharset is explicitly set at the boot prompt,
     # return it regardless the locale settings
     IOCHARSET=$(cmdline_value iocharset)
@@ -801,7 +670,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Get filesystem options
-@@ -295,20 +306,25 @@ iocharset()
+@@ -295,20 +307,25 @@ iocharset()
  fs_options()
  {
     debug_log "fs_options" "$*"
@@ -831,7 +700,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
        fi
     fi
  
-@@ -327,7 +343,7 @@ fs_options()
+@@ -327,7 +344,7 @@ fs_options()
     fi
  
     if [ "$1" = "ntfs-3g" ]; then
@@ -840,7 +709,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fi
  }
  
-@@ -360,6 +376,24 @@ is_supported_filesystem()
+@@ -360,6 +377,24 @@ is_supported_filesystem()
     egrep -q "[[:space:]]$1\$" /proc/filesystems
  }
  
@@ -865,7 +734,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  # Mount device $1 to $2
  # If the device is using vfat or ntfs filesystem, use iocharset as a mount option
  # $1 = /dev device to mount, eg. /dev/hda1, or loop file, or directory
-@@ -375,6 +409,9 @@ mount_device()
+@@ -375,6 +410,9 @@ mount_device()
     # make sure we have enough arguments
     if [ "$2" = "" ]; then return 1; fi
     if [ "$1" = "" ]; then rmdir "$2" 2>/dev/null; return 1; fi
@@ -875,7 +744,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     mkdir -p "$2"
  
     DEV="$1"
-@@ -387,13 +424,32 @@ mount_device()
+@@ -387,13 +425,32 @@ mount_device()
     OPTIONS=$(echo "$OPTIONS" | sed -r "s/^,+//")
  
     if [ "$FS" = "-t ntfs-3g" ]; then
@@ -908,7 +777,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     # not enough loop devices? try to create one.
     if [ $ERR -eq 2 ]; then
         LOOPDEV=$(mknod_next_loop_dev)
-@@ -426,7 +482,7 @@ mount_device()
+@@ -426,7 +483,7 @@ mount_device()
  fumount()
  {
     debug_log "fumount" "$*"
@@ -917,7 +786,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
     while [ "$1" ]; do
        if [ "$1" = "-l" ]; then LAZY="yes"; shift; fi
-@@ -438,11 +494,13 @@ fumount()
+@@ -438,11 +495,13 @@ fumount()
        fi
  
        if [ "$TARGET" != "" ]; then
@@ -931,7 +800,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
        fi
        shift
     done
-@@ -462,7 +520,7 @@ create_module()
+@@ -462,7 +521,7 @@ create_module()
  {
     debug_log "create_module" "$*"
     rm -f "$2" # overwrite, never append to existing file
@@ -940,7 +809,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     if [ $? -ne 0 ]; then return 1; fi
     chmod a-wx "$2" # remove execute and write attrib
     chmod a+r "$2" # add read for everyone
-@@ -487,7 +545,7 @@ ismountpoint()
+@@ -487,7 +546,7 @@ ismountpoint()
  mount_module()
  {
     debug_log "mount_module" "$*"
@@ -949,7 +818,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Insert a directory tree $2 to an union specified by $1
-@@ -499,16 +557,24 @@ mount_module()
+@@ -499,16 +558,24 @@ mount_module()
  union_insert_dir()
  {
     debug_log "union_insert_dir" "$*"
@@ -977,7 +846,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # List all modules in all directories (base, modules, optional)
-@@ -521,8 +587,8 @@ list_modules()
+@@ -521,8 +588,8 @@ list_modules()
     debug_log "list_modules" "$*"
     local LOAD NOLOAD
  
@@ -988,7 +857,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     find_modules "$1" | while read LINE; do
        MODNAME=$(echo $LINE | cut -b ${#1}- | cut -b 2-)
        if [ "$(echo $LINE | grep /optional/)" ]; then
-@@ -542,14 +608,24 @@ list_modules()
+@@ -542,14 +609,26 @@ list_modules()
  union_insert_module()
  {
     debug_log "union_insert_module" "$*"
@@ -1010,13 +879,15 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
 +    fi
 +   
 +   mount_module $MODPREF $TARGET $mod $fs
++   #Second attempt to avoid bug when activating module
++   if [ $? -ne 0 ]; then mount_module $MODPREF $TARGET $mod $fs ;fi
     if [ $? -ne 0 ]; then echo "Cannot read module data. corrupted download?" >&2; return 1; fi
 -   union_insert_dir $1 $TARGET
 +   union_insert_dir $1 $TARGET $mod
     if [ $? -ne 0 ]; then echo "can't insert module to union" >&2; return 2; fi
     echo "$2" | cut -b $(($4+1))-
     echolog "$2" >/dev/null
-@@ -572,23 +648,51 @@ union_insert_modules()
+@@ -572,23 +651,53 @@ union_insert_modules()
     done
  }
  
@@ -1057,6 +928,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
 +#
 +copy_to_ram()
 +{
++   [ "$2" = "" ] && return
 +   debug_log "copy_to_ram" "$*"
 +   copy_to $1 $2 RAM "$(cmdline_value copy2ram)$(cmdline_value toram)"
 +}
@@ -1068,6 +940,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
 +#
 +copy_to_rep()
 +{
++   [ "$2" = "" ] && return
 +   debug_log "copy_to_rep" "$*"
 +   copy_to $1 $2 LOCAL_REPOSITORY "$(cmdline_value copy2rep)"
 +}
@@ -1075,7 +948,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  # ===========================================================
  # discovery functions
  # ===========================================================
-@@ -605,13 +709,11 @@ list_network_drivers()
+@@ -605,13 +714,11 @@ list_network_drivers()
     # so I'll be happy if you report any particular one to be not working
     # (eg. causing hangups) in order to remove it from this list.
  
@@ -1094,7 +967,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # List all CD-ROMs
-@@ -689,7 +791,19 @@ list_block_devices()
+@@ -689,7 +796,19 @@ list_block_devices()
  device_mountdir()
  {
     debug_log "device_mountdir" "$*"
@@ -1115,7 +988,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Find file-path on given device
-@@ -699,13 +813,14 @@ device_mountdir()
+@@ -699,13 +818,14 @@ device_mountdir()
  # If the device/dev_directory is already mounted, preserve it mounted
  # $1 = device
  # $2 = path/filename
@@ -1131,7 +1004,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     ismountpoint $DIR
     if [ $? -eq 0 ]; then
        PRESERVE="true"
-@@ -717,6 +832,10 @@ find_filepath()
+@@ -717,6 +837,10 @@ find_filepath()
  
     FOUND=$(ls -A1d $DIR/$2 2>/dev/null | head -n 1 | tr -s '/')
  
@@ -1142,7 +1015,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     if [ "$FOUND" = "" ]; then
        if [ "$PRESERVE" != "true" ]; then
           fumount $DIR
-@@ -742,6 +861,7 @@ find_filepath()
+@@ -742,6 +866,7 @@ find_filepath()
  # Find file in computer by mounting disks or other storage devices
  # and searching for $1 in the mounted directory
  # $1 = filename or device-path or devicepath/filename
@@ -1150,7 +1023,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  #
  find_file()
  {
-@@ -763,7 +883,7 @@ find_file()
+@@ -763,7 +888,7 @@ find_file()
        PATHPART="$FIND";
        for DEVICE in $(list_mounted_directories) $(list_block_devices); do
           if ! grep -q ":$DEVICE@$PATHPART:" /tmp/_findfile 2>/dev/null; then
@@ -1159,7 +1032,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
              if [ $? -eq 0 ]; then return 0; fi
              echo ":$DEVICE@$PATHPART:" >>/tmp/_findfile
           fi
-@@ -771,7 +891,7 @@ find_file()
+@@ -771,7 +896,7 @@ find_file()
     else
        # try to find PATHPART only on the given device
        PATHPART=$(echo "$FIND" | sed -r 's:^/dev/[^/]+(.*):\1:')
@@ -1168,7 +1041,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     fi
  }
  
-@@ -780,6 +900,7 @@ find_file()
+@@ -780,6 +905,7 @@ find_file()
  # if nothing found, sleep for a while to allow devices to settle and try again.
  # (is there any way to find out if there are devices queued through /sys?)
  # $1 = file or directory to find
@@ -1176,7 +1049,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  #
  find_in_computer()
  {
-@@ -789,13 +910,13 @@ find_in_computer()
+@@ -789,13 +915,13 @@ find_in_computer()
     TIMEOUT=$(cmdline_value scantimeout | sed -r 's/[^0-9]*([0-9]+).*/\1/')
     if [ "$TIMEOUT" = "" ]; then TIMEOUT=10; fi
  
@@ -1192,7 +1065,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     done
  
     echo $RESULT
-@@ -840,7 +961,7 @@ mdev_start_hotplug()
+@@ -840,7 +966,7 @@ mdev_start_hotplug()
     debug_log "mdev_start_hotplug" "$*"
     echolog "creating /dev entries for block devices"
     mdev -s
@@ -1201,7 +1074,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     echo /bin/mdev > /proc/sys/kernel/hotplug # use mdev as a hotplug handler
  }
  
-@@ -855,47 +976,48 @@ modprobe_essential_modules()
+@@ -855,47 +981,48 @@ modprobe_essential_modules()
     echolog "starting cdrom filesystem support"
     modprobe_module isofs
     echolog "starting squashfs support"
@@ -1276,7 +1149,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # Load drivers for PCMCIA CardBus devices
-@@ -942,7 +1064,7 @@ modprobe_network_modules()
+@@ -942,7 +1069,7 @@ modprobe_network_modules()
  init_dhcp()
  {
     debug_log "start_dhcp_client" "$*"
@@ -1285,7 +1158,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     if [ "$1" != "" ]; then
        ifconfig $1 up
        udhcpc -i $1 -q
-@@ -961,9 +1083,35 @@ mount_httpfs()
+@@ -961,9 +1088,35 @@ mount_httpfs()
     debug_log "mount_httpfs" "$*"
  
     mkdir -p $2
@@ -1322,7 +1195,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
  # Unload modules loaded to kernel which are not used
  # This function used to unload more modules, but it may cause
-@@ -973,7 +1121,7 @@ mount_httpfs()
+@@ -973,7 +1126,7 @@ mount_httpfs()
  rmmod_unused_modules()
  {
     debug_log "rmmod_unused_modules" "$*"
@@ -1331,7 +1204,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
     rmmod yenta_socket rsrc_nonstatic pcmcia pcmcia_core 2>/dev/null
  }
  
-@@ -1017,7 +1165,7 @@ cd_autoeject()
+@@ -1017,7 +1170,7 @@ cd_autoeject()
  dev_is_in_fstab()
  {
     debug_log "dev_is_in_fstab" "$*"
@@ -1340,7 +1213,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  }
  
  # update given line in fstab, add new values only if the device is not found
-@@ -1053,11 +1201,24 @@ fstab_update()
+@@ -1053,11 +1206,24 @@ fstab_update()
     mkdir -p $1/etc $1/mnt
     cat $FSTAB 2>/dev/null | grep -v "$FSTABLLFLAG" >$FSTABTMP
  
@@ -1367,7 +1240,7 @@ diff -auprN linux-live-6.3.0/tools/liblinuxlive linux-live-6.3.0_patched/tools/l
  
     list_cdrom_devices | while read DEVICE; do
        MNT=$(device_mountdir $DEVICE)
-@@ -1083,4 +1244,4 @@ fstab_update()
+@@ -1083,4 +1249,4 @@ fstab_update()
     done
  
     mv -f $FSTABTMP $FSTAB

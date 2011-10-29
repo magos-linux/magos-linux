@@ -253,7 +253,6 @@ libmagic1-
 libmodprobe0-
 libncurses5-
 libpam_userpass1-
-libplymouth2-
 libstdc++6-
 libtcb0-
 libtpctl2-
@@ -410,3 +409,5 @@ squashfs3-tools-
 squashfs-tools-
 obexfs-
 libobexftp0-
+libmysql18-
+libplymouth2-

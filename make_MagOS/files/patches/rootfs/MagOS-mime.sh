@@ -10,6 +10,7 @@ function update_mime
   echo "$1=$2;" >> etc/skel/.local/share/applications/mimeapps.list
 }
 
+sed -i /'inode\/directory='/d usr/share/applications/mimeapps.list
 mkdir -p etc/skel/.local/share/applications 2>/dev/null
 echo '[Default Applications]' > etc/skel/.local/share/applications/defaults.list
 echo '[Added Associations]' > etc/skel/.local/share/applications/mimeapps.list
