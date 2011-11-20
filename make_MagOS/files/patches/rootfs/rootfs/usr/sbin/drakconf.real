@@ -194,7 +194,7 @@ my @tree = (
 
                                 $id;
                             } ( # [ id, wizard file name, icon, description ]
-                                [ "conv4mod", "installremoverpm", "", N("Convert LZM modules"), ""]
+                                [ "conv4mod", "installremoverpm", "", N("Convert LZM/XZM modules"), ""]
                                 )
                         )
                         ),
