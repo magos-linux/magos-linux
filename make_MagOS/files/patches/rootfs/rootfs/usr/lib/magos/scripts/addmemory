@@ -40,7 +40,7 @@ fi
 }
 ADDMEMORY () {
 # провeрки
-cat /proc/cmdline | grep changes && die "Error: Only Clean mode supoprted"
+cat /proc/cmdline | grep changes && die "Error: Only Clean mode supported"
 df ./ | grep aufs && die "Error:Non block device selected."
 [ $1 -gt  $(df -m ./ | sed 1d | awk '{print $4}') ] && die "Error: Not enough free space!"
 # создавать swap или использовать готовый
