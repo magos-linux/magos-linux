@@ -22,6 +22,9 @@ cp -pfR ../../loaded/$FLASHNAME-$VERREL/urpmi/* rootfs
 for a in rootfs rootfs-$FLASHNAME rootfs-$FLASHNAME-$VERREL ;do
     [ -d ../../files/patches/rootfs/$a ] && cp -pfR ../../files/patches/rootfs/$a/* rootfs
 done
+if [ -d ../../localpatches ] ;then
+    cp -pfR ../../localpatches/* rootfs
+fi
 cd rootfs
 mkdir -p usr/lib/magos/rootfs-patches
 cp -p ../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
@@ -64,9 +67,6 @@ for a in  $INITDNEED  ;do
    chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --add $a
 done
 
-if [ -d ../../localpatches ] ;then
-    cp -pfR ../../localpatches/* rootfs
-fi
 
 echo "Работа скрипта завершена"
 exit 0

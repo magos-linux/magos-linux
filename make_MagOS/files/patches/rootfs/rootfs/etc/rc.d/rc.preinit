@@ -107,7 +107,7 @@ done
 debug_log "Creating users and passwords"
 debug_shell
 
-grep -q " users=" /proc/cmdline && NEEDEDUSERS=$(cmdline_value users)
+[ -z "$(cmdline_value users)" ] || NEEDEDUSERS=$(cmdline_value users)
 [ -z "$DEFAULTPASSWD" ] && DEFAULTPASSWD='$2a$08$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2'
 [ -z "$DEFAULTROOTPASSWD" ] && DEFAULTROOTPASSWD='$2a$08$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji'
 [ -z "$DEFAULTUSER" ] && DEFAULTUSER=user
@@ -136,7 +136,7 @@ sed -i s=^root::=root:"$DEFAULTROOTPASSWD":= etc/shadow
 debug_log "Making autologin for user"
 debug_shell
 
-grep -q " autologin=" /proc/cmdline && AUTOLOGINUSER=$(cmdline_value autologin)
+[ -z "$(cmdline_value autologin)" ] || AUTOLOGINUSER=$(cmdline_value autologin)
 [ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(echo "$NEEDEDUSERS" | awk -F: '{print $1}')
 [ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(grep :500:500: etc/passwd | awk -F: '{print $1}')
 [ "$AUTOLOGINUSER" = "none" ] && AUTOLOGINUSER=
@@ -163,7 +163,7 @@ FSCKFLAG=0
 
 debug_log "Find and use swap partition. If not, use window$ swapfile."
 debug_shell
-if grep -q findswap /proc/cmdline ;then
+if [ "$(cmdline_parameter findswap)" ] ;then
     sed -i /FINDSWAP/d etc/fstab
     debug_log "Find linux native patitions"
     FSWAP=$(blkid -t TYPE="swap" -l | awk -F: '{print $1}')
@@ -328,7 +328,6 @@ debug_log "devfs support"
 debug_shell
 if [ -d run/udev/rules.d ] ;then
   mount -t devtmpfs none dev
-  
 fi
 
 debug_log "The endpoint of /etc/rc.d/rc.preinit"

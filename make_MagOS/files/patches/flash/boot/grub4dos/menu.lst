@@ -14,7 +14,7 @@ default 0
 
 title MagOS_Clean
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 quiet noload=save-*
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 quiet *
 initrd /MagOS/initrd.gz
 
 title MagOS_Home_profile

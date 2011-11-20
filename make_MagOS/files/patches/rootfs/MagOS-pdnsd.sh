@@ -32,7 +32,8 @@ global {
 
 server {
 	label= "ISP";
-	ip = 192.168.1.1;  # Put your ISP's DNS-server address(es) here.
+#	ip = 192.168.1.1;  # Put your ISP's DNS-server address(es) here.
+        file="/var/cache/pdnsd/pdnsd.servers";
 	proxy_only=on;     # Do not query any name servers beside your ISP's.
 	timeout=4;         # Server timeout; this may be much shorter
 			   # that the global timeout option.

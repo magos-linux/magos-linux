@@ -2,20 +2,14 @@
 PFP=$(ls -d1 usr/lib/thunderbird-* | tail -1)
 [ -d "$PFP"/defaults ] || exit 0
 mkdir -p "$PFP"/defaults/profile
-cat >"$PFP"/defaults/profile/prefs.js <<EOF
-# Mozilla User Preferences
-user_pref("browser.download.folderList", 2);
-user_pref("extensions.update.enabled", false);
-user_pref("mail.attachment.store.version", 1);
-user_pref("mail.folder.views.version", 1);
-user_pref("mail.forward_message_mode", 2);
-user_pref("mail.preferences.compose.selectedTabIndex", 2);
-user_pref("mail.preferences.display.selectedTabIndex", 1);
-user_pref("mail.preferences.privacy.selectedTabIndex", 3);
-user_pref("mail.showCondensedAddresses", false);
-user_pref("mailnews.quotingPrefs.version", 1);
-user_pref("mailnews.start_page.enabled", false);
-user_pref("mailnews.ui.threadpane.version", 5);
-user_pref("spellchecker.dictionary", "ru");
+ln -sf /usr/share/magos/mozilla/thunderbird-prefs.js "$PFP"/defaults/profile/prefs.js
+LIGHTNINGP='usr/lib/mozilla/extensions/{3550f703-e582-4d05-9a08-453d09bdfdc6}/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
+if [ -f $LIGHTNINGP/chrome/lightning-ru.jar ] ;then
+  if ! grep -q lightning-ru $LIGHTNINGP/chrome.manifest ;then
+cat >>$LIGHTNINGP/chrome.manifest <<EOF 
+locale calendar ru jar:chrome/calendar-ru.jar!/locale/ru/calendar/
+locale lightning ru jar:chrome/lightning-ru.jar!/locale/ru/lightning/
 EOF
+  fi
+fi
 exit 0

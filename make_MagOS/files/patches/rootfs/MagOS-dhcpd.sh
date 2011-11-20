@@ -23,7 +23,7 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 
         # PXE-specific configuration directives...
         next-server 192.168.1.31;
-        filename "/MagOS/pxelinux.0";
+        filename "/pxelinux.0";
 }
 
 subnet 192.168.2.0 netmask 255.255.255.0 {
@@ -44,7 +44,7 @@ subnet 192.168.2.0 netmask 255.255.255.0 {
 
         # PXE-specific configuration directives...
         next-server 192.168.1.31;
-        filename "/MagOS/pxelinux.0";
+        filename "/pxelinux.0";
 }
 EOF
 exit 0

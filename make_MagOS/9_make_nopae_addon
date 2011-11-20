@@ -9,11 +9,6 @@ else
 fi
 cd "$MYPATH"
 
-#FIXME
-# скрипт пока не готов. Необходимо убрать запуск linux-live
-# и добавить сборку с помощью initrd.
-exit 0
-
 if [ "`id -u`" != "0" ] ;then
    echo "Для доступа ко всем файлам work нужны права root"
    exit 1
@@ -86,15 +81,12 @@ rm -fr flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae 2>/dev/null
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/base || exit 1
 cp -p $(ls -1 work/$FLASHNAME-$VERREL/nopae/rootfs/boot/vmlinuz-*nopae*) flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/vmlinuz || exit 1
 
-cd work/$FLASHNAME-$VERREL/linux-live-$VER_LL/initrd || exit 1
-cp -pf ../.config ../.config.bak
-echo "LMK=lib/modules/$KERNBVER" >> ../.config
-echo "ROOT=$MYPATH/work/$FLASHNAME-$VERREL/nopae/rootfs" >> ../.config
-echo "KERNEL=$KERNBVER" >> ../.config
-./initrd_create || exit 1
-mv -f ../.config.bak ../.config
-cd "$MYPATH"
-cp -p work/$FLASHNAME-$VERREL/linux-live-$VER_LL/initrd/initrd.gz flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/initrd.gz || exit 1
+
+echo "Cоздание initrd"
+mkdir -p "work/$FLASHNAME-$VERREL/nopae/rootfs/mnt/live"
+echo "$VERREL $DISTRVERSION" > "work/$FLASHNAME-$VERREL/nopae/rootfs/mnt/live/VERSION"
+chroot "work/$FLASHNAME-$VERREL/nopae/rootfs" /usr/lib/magos/scripts/mkinitrd /boot/initrd.gz || exit 1
+mv work/$FLASHNAME-$VERREL/nopae/rootfs/boot/initrd.gz flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-nopae/$FLASHNAME/initrd.gz || exit 1
 
 echo "Сжатие файлов в модуль"
 mkdir -p work/$FLASHNAME-$VERREL/nopae/rootfs/kernel/{boot,lib,var/lib,usr/src}

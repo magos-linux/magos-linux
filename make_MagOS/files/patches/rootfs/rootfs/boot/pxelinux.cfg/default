@@ -6,4 +6,4 @@ TIMEOUT 2
 
 label linux
 KERNEL vmlinuz
-APPEND initrd=initrd.gz ramdisk_size=12000 root=/dev/ram0 rw vga=788 quiet from=nfs://192.168.1.31:/mnt/livemedia desktop=lxde
+APPEND initrd=initrd.gz root=/dev/ram0 rw vga=788 quiet from=nfs://192.168.1.31:/mnt/livemedia desktop=lxde
