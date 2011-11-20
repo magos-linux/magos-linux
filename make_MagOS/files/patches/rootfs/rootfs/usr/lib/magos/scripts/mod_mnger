@@ -7,5 +7,5 @@
 
 export PATH=/usr/lib/magos/scripts:$PATH
 
-mdialog --msgbox "Утилита управления модулями находится в разработке. Вы можете использовать менеджер файлов для управления файлами."
+cXdialog --msgbox "Утилита управления модулями находится в разработке. \n Вы можете использовать менеджер файлов для управления файлами."
 filemanager_root /mnt/livemedia/MagOS/modules /mnt/livemedia/MagOS/optional

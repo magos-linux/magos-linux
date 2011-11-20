@@ -118,6 +118,7 @@ my $more_wizard_dir = "/etc/wizard.d/";
 my $isRpmDrake2lzm = -e "/usr/lib/magos/scripts/rpmdrake2lzm";
 my $isConv4mod = -e "/usr/lib/magos/scripts/conv4mod";
 my $isModMan = -e "/usr/lib/magos/scripts/mod_mnger";
+my $isCfgMan = -e "/usr/lib/magos/scripts/cfg_mnger";
 #neobht patch end
 my $isWiz = -e "/usr/sbin/drakwizard";
 my $isRpmDrake = -e "/usr/sbin/rpmdrake";
@@ -220,12 +221,12 @@ my @tree = (
                     {
                         title => N("Configs Management"),
                         list => [
-                    	    if_(0,
+                    	    if_($isCfgMan,
                             (map {
                                 my ($id, $icon, $op, $description, $long_description) = @$_;
                                 $programs{$id} =
                                   {
-                                      binary => "/usr/bin/zenity $op",
+                                      binary => "/usr/lib/magos/scripts/cfg_mnger $op",
                                       embedded =>-1, # too big
                                       description => $description,
                                       long_description => $long_description,
@@ -234,7 +235,7 @@ my @tree = (
 
                                 $id;
                         	} ( # [ id, wizard file name, icon, description ]
-                            	    [ "zenity", "", "--info --text='Настройка системы'", N("Config MagOS"), ""]
+                            	    [ "cfg_mnger", "", "/mnt/livemedia/MagOS-Data/MagOS.ini", N("Configs Manager"), ""]
                             	    )
                             )
                     	    ),

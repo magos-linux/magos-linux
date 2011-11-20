@@ -2,7 +2,7 @@
 #
 # /usr/lib/magos/scripts/rpmdrake2lzm
 #
-# Description: create LZM using rpmdrake (& dependences)
+# Description: create LZM/XZM using rpmdrake (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
 
 

@@ -2,7 +2,7 @@
 #
 # /usr/lib/magos/scripts/urpm2lzm
 #
-# Description: create LZM from RPM (& dependences)
+# Description: create LZM/XZM from RPM (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
 #
 # $1=RPM file or name program
@@ -45,7 +45,7 @@ umount $root_br/dev
 
 umount wiz_fly
 
-#dir2lzm $mod_br/var/lib/rpm $1_rpmbase.lzm
+#dir2lzm $mod_br/var/lib/rpm $1_rpmbase.$MODULEFORMAT
 
 rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/tmp
