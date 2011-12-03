@@ -1,10 +1,11 @@
 #!/bin/sh
 [ -f /var/lock/subsys/pdnsd ] || exit 0
-NAMESRV=$(cat /etc/ppp/resolv.conf /var/run/resolvconf/interface/$1 2>/dev/null | grep -m 1 nameserver | awk '{print $2}')
-if [ "$NAMESRV" = "" ] ;then
-   [ -r /etc/sysconfig/network-scripts/ifcfg-$1 ] &&  . /etc/sysconfig/network-scripts/ifcfg-$1
-   NAMESRV=${DNS1}
+cat /etc/ppp/resolv.conf /var/run/resolvconf/interface/$1 2>/dev/null | grep ^nameserver > /var/cache/pdnsd/pdnsd.servers.up || \
+grep ^DNS1= /etc/sysconfig/network-scripts/ifcfg-$1 2>/dev/null | sed s/^DNS1=/"nameserver "/  > /var/cache/pdnsd/pdnsd.servers.up
+if grep -q nameserver /var/cache/pdnsd/pdnsd.servers.up ;then
+   mv -f /var/cache/pdnsd/pdnsd.servers.up /var/cache/pdnsd/pdnsd.servers
+   /etc/rc.d/init.d/pdnsd reload >/dev/null 2>&1
+else
+   rm -f /var/cache/pdnsd/pdnsd.servers.up
 fi
-[ "$NAMESRV" = "" ]  && exit 0
-pdnsd-ctl server ISP up $NAMESRV >/dev/null 2>&1
 true

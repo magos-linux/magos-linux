@@ -44,8 +44,7 @@ debug_shell
 # and vfat partitions are not mounted using msdos driver
 echo -e "ext4\next3\next2\nvfat\n*" >/etc/filesystems
 
-mkdir -p $UNION
-mkdir -p $MEMORY
+mkdir -p $UNION $MEMORY
 
 MUID=$(cmdline_value users | awk -F: '{print $2}')
 [ "$MUID" = "" ] || sed -i s/:500:500:/:$MUID:$MUID:/g /etc/passwd
@@ -112,6 +111,18 @@ fi
 
 debug_shell
 
+INIFILE=$(cmdline_value config)
+[ -z "$INIFILE" ] && INIFILE=$LIVECDNAME.ini
+[ -f "$DATA/$INIFILE" ] && PATHINI="$DATA/$INIFILE"
+[ -f "$DATAMNT/$INIFILE" ] && PATHINI="$DATAMNT/$INIFILE"
+[ -z "$PATHINI" ] || echolog "using $PATHINI config file"
+[ -z "$PATHINI" ] && PATHINI=/dev/null
+egrep -v '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /tmp/$LIVECDNAME.ini.gz
+grep '^CMDLINE=' "$PATHINI" | sed s/^CMDLINE=// | tr -d [:cntrl:]\'\" >/tmp/cmdline
+chmod 400 /tmp/$LIVECDNAME.ini.gz /tmp/cmdline 2>/dev/null
+
+debug_shell
+
 echolog "setting up directory for changes"
 CHANGESVAL=$(cmdline_value changes)
 
@@ -158,16 +169,6 @@ fi
 
 debug_shell
 
-INIFILE=$(cmdline_value config)
-[ -z "$INIFILE" ] && INIFILE=$LIVECDNAME.ini
-PATHINI="$DATAMNT/$INIFILE"
-[ -f "$PATHINI" ] || PATHINI="$REPOSITORYMNT/$INIFILE"
-[ -f "$PATHINI" ] || PATHINI="$DATA/$INIFILE"
-[ -f "$PATHINI" ] && egrep -v '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /tmp/$LIVECDNAME.ini.gz
-chmod 400 /tmp/$LIVECDNAME.ini.gz
-
-debug_shell
-
 # test if the filesystem is writable so changes can be stored to it
 touch $MEMORY/empty 2>/dev/null && \
 rm -f $MEMORY/empty 2>/dev/null
@@ -205,7 +206,7 @@ else
    fi
 fi
 
-#In case we using lzm as changes= parameter
+#In case we using lzm|xzm as changes= parameter
 if echo "$CHANGESMNT" | grep -q [.][XxLl][Zz][Mm]$ ;then
    echolog "unpacking $CHANGESMNT to memory"
    unsquashfs -f -dest $CHANGES "$CHANGESMNT" >/dev/null 2>&1
@@ -230,152 +231,71 @@ else
       fi
 fi
 
-
-# $UNION will be used as a root directory, livecd modules will be added soon
-if [ $(cmdline_parameter unionfs) ];then
-    echolog "setup union directory (using unionfs)"
-else
-    echolog "setup union directory (using aufs)"
-fi
-mkdir -p $CHANGES
-mkdir -p $IMAGES
+mkdir -p $CHANGES $IMAGES
 
 debug_shell
 
-# store the xino file in memory in all cases, it's faster and safer
-if [ "$XINO" != "$MEMORY" ]; then
-   mkdir -p $XINO
-   mount -n -t tmpfs tmpfs $XINO
-fi
-
-# mount aufs using the writable branch as the first one (leftmost/topmost)
-if [ $(cmdline_parameter unionfs) ];then
-    mount -t unionfs -o dirs=$CHANGES=rw unionfs $UNION
-else
-    mount -t aufs -o nowarn_perm,xino=$XINO/.aufs.xino,br:$CHANGES=rw aufs $UNION
-fi
-
-if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
-
-debug_shell
-
+DATAINSMOD=$DATA
 # If toram or copy2ram boot parameter is present, copy all fs modules to RAM.
 # (skip modules from /optional/ which are not listed in load= boot option)
 # Finaly modify DATA variable so it will point to correct directory
 if [ "$(cmdline_parameter toram)$(cmdline_parameter copy2ram)$(cmdline_value toram)$(cmdline_value copy2ram)" != "" ]; then
-   echolog "copying $LIVECDNAME data to RAM, this may take some time..."
-   mkdir -p $COPY2RAM
-
    # make sure it's in RAM even with changes= parameter
    if [ "$CHANGESMNT" ]; then mount -t tmpfs -o "size=$RAMSIZE" tmpfs $COPY2RAM; fi
+   echolog "copying $LIVECDNAME data to RAM, this may take some time..."
+   mkdir -p $COPY2RAM
    copy_to_ram $DATA $COPY2RAM
    copy_to_ram $LIVEREPOSITORY $COPY2RAM
-   cp -a "$DATA/rootcopy" "$COPY2RAM" 2>/dev/null  # could be empty
-   [ -z "$DATAMNT" ] || cp -a "$DATAMNT/rootcopy" "$COPY2RAM" 2>/dev/null  # could be empty
-
-   if [ "$(cmdline_parameter nofreemedia)$(cmdline_value toram)$(cmdline_value copy2ram)" = "" ] && ! losetupfunc | egrep -q "$DATA/"'|'"$LIVEREPOSITORY/" ;then
-     cp "$DATA/vmlinuz" "$COPY2RAM"
-     cd_autoeject 1
-     fumount $DATA
-     fumount $MOUNTDIR/$LIVEMEDIA
-     fumount $DATAMNT
-     fumount $LIVEREPOSITORY
-     rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
-     DATA=$COPY2RAM
-     cd_autoeject 0
-   fi
+   DATAINSMOD=$COPY2RAM
 fi
 debug_shell
 
 if [ "$(cmdline_parameter copy2rep)$(cmdline_value copy2rep)" != "" ]; then
    echolog "copying $LIVECDNAME data to LOCAL_REP, this may take some time..."
    mkdir -p $COPY2REP
-
    copy_to_rep $DATA $COPY2REP
    copy_to_rep $LIVEREPOSITORY $COPY2REP
-
-   if [ "$(cmdline_parameter nofreemedia)$(cmdline_value copy2rep)" = "" ] && ! losetupfunc | egrep -q "$DATA/"'|'"$LIVEREPOSITORY/" ;then
-     cd_autoeject 1
-     fumount $DATA
-     fumount $MOUNTDIR/$LIVEMEDIA
-     fumount $LIVEREPOSITORY
-     rmdir $MOUNTDIR/* 2>/dev/null # mounted device names are empty, remove them
-     DATA=$COPY2REP
-     cd_autoeject 0
-   fi
+   DATAINSMOD=$COPY2REP
 fi
 
 debug_shell
 
-echolog "inserting all modules and creating live filesystem"
-
-
+# mount aufs using the writable branch as the first one (leftmost/topmost)
 if [ $(cmdline_parameter unionfs) ];then
-# the $LIVEREPOSITORY directory can contain $LIVEREPOSITORY/modules too
-    union_insert_modules $UNION $LIVEREPOSITORY $IMAGES
-
-# the $MEMORY directory can contain $MEMORY/modules too
-# in the case if changes= boot argument is used. If not, it doesn't hurt
-    union_insert_modules $UNION $MEMORY $IMAGES
-
-# DATA contains path to the base directory of all fs modules which need
-# to be mounted and inserted into live filesystem. Do it now.
-    union_insert_modules $UNION $DATA $IMAGES
-
+    echolog "setup union directory (using unionfs)"
+    INSMODORDER="$LIVEREPOSITORY $MEMORY $DATAINSMOD"
+    mount -t unionfs -o dirs=$CHANGES=rw unionfs $UNION
 else
+    echolog "setup union directory (using aufs)"
+    # store the xino file in memory in all cases, it's faster and safer
+    if [ "$XINO" != "$MEMORY" ]; then
+       mkdir -p $XINO
+       mount -n -t tmpfs tmpfs $XINO
+    fi
+    INSMODORDER="$DATAINSMOD $MEMORY $LIVEREPOSITORY"
+    mount -t aufs -o nowarn_perm,xino=$XINO/.aufs.xino,br:$CHANGES=rw aufs $UNION
+fi
+if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
+
+debug_shell
 
 # DATA contains path to the base directory of all fs modules which need
 # to be mounted and inserted into live filesystem. Do it now.
-    union_insert_modules $UNION $DATA $IMAGES
-
 # the $MEMORY directory can contain $MEMORY/modules too
 # in the case if changes= boot argument is used. If not, it doesn't hurt
-    union_insert_modules $UNION $MEMORY $IMAGES
-
 # the $LIVEREPOSITORY directory can contain $LIVEREPOSITORY/modules too
-    union_insert_modules $UNION $LIVEREPOSITORY $IMAGES
-fi
+echolog "inserting all modules and creating live filesystem"
+for a in $INSMODORDER ;do
+    union_insert_modules $UNION $a $IMAGES
+done
 
 debug_shell
 
 echolog "copying content of rootcopy directory"
 cp -af $DATA/rootcopy/* $UNION 2>/dev/null # may be empty
-[ -z "$DATAMNT" ] || cp -a "$DATAMNT/rootcopy" "$UNION" 2>/dev/null  # could be empty
-if echo $DATA | grep -q copy2 ;then
-   mv -f "$DATA/vmlinuz" $UNION/boot
-else
-   ln -sf "/$DATA/vmlinuz" $UNION/boot
-fi
-
-# TODO: if copy2ram is used, there is no need to preserve the original in memory anymore
-#if [ "$DATA" = "$COPY2RAM" ]; then 
-#    rm from memory once ??
-#fi
-
-#converting images dirs to LZM/ROM
-if [ "$(cmdline_parameter oldpc)$(cmdline_value oldpc)" != "" ]; then
-
-    OLDPC=$(cmdline_value oldpc)
-    dir_imgs="$IMAGES"
-    mask="$OLDPC"
-    fd=$COPY2REP/modules/sqms
-    echolog "Converting images dirs to LZMs (no compression) for old PCs && netbooks"
-    for a in `ls -d $dir_imgs/$mask*`; do
-	mn=$(basename $a)
-	echo -ne \\n"     $mn --> $mn (no compression)"\\n
-	mkdir -p $fd
-	fm=$fd/$mn
-
-	create_module $a $fm -noI -noD -noF -nolzma
-    done
-    
-    echo -ne \\n "--> done." \\n "Total size: $(du -s -h $fd | tr -d $fd)"\\n\\n
-    echo "After reboot setup parameters in bootloader cfg: noload=/base/ repository=$COPY2REP"
-    echo -ne \\n"Press ENTER to reboot..."
-    read enter
-    /bin/reboot -f
-    
-fi
+[ -z "$DATAMNT" ] || cp -a $DATAMNT/rootcopy/* "$UNION" 2>/dev/null  # may be empty
+cp /$DATA/initrd.gz $UNION/boot
+cp /$DATA/vmlinuz   $UNION/boot
 
 # find and mount /home
 echolog "setting up /home directory"
@@ -397,6 +317,16 @@ fi
 
 debug_shell
 
+# freeing unused media
+if [ -z "$(cmdline_parameter nofreemedia)" ] ;then
+  cd_autoeject 1
+  for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVEDATA" ;do
+     grep -q " $a " /proc/mounts || continue
+     [ -z "$(losetupfunc | grep -m 1 $a/)$(grep -m 1 ^$a/ /proc/mounts)" ] && fumount $a
+  done
+  cd_autoeject 0
+fi
+
 echolog "recreating /etc/fstab and /mnt directories"
 touch $UNION/etc/fstab
 rmdir $UNION/mnt/* 2>/dev/null
@@ -413,23 +343,12 @@ fumount /sys
 
 # More likely these directories aren't there.
 # Even if they are, this won't hurt.
-mkdir -p $UNION/boot
-mkdir -p $UNION/proc
-mkdir -p $UNION/sys
-mkdir -p $UNION/dev
-mkdir -p $UNION/tmp
+mkdir -p $UNION/boot $UNION/proc $UNION/sys $UNION/dev $UNION/tmp $UNION/media
 chmod 1777 $UNION/tmp
-mkdir -p $UNION/media
-for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" ;do
-   grep -q " $a " /proc/mounts || continue
-   if [ "$(cmdline_parameter nofreemedia)$(losetupfunc | grep -m 1 $a/)$(grep -m 1 ^$a/ /proc/mounts)" ] ;then
-       mkdir -p $UNION$a
-       mount --move $a $UNION$a
-   else
-       fumount $a
-   fi
-done
-for a in "/$MOUNTDIR/$LIVECHANGES" "/$MOUNTDIR/$LIVEHOME" ;do
+
+# Reattach media to new root
+for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVECHANGES" "/$MOUNTDIR/$LIVEHOME" "/$MOUNTDIR/$LIVEDATA" ;do
+   [ "$a" = "/" -o "$a" = "//" ] && continue
    grep -q " $a " /proc/mounts || continue
    mkdir -p $UNION$a
    mount --move $a $UNION$a

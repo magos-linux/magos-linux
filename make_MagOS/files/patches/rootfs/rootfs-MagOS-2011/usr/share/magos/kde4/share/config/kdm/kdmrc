@@ -7,7 +7,7 @@ ServerVTs=-7
 StaticServers=:0
 
 [Shutdown]
-BootManager=Grub
+BootManager=None
 HaltCmd=/sbin/poweroff
 RebootCmd=/usr/bin/reboot
 
@@ -41,7 +41,7 @@ GreetFont=Droid Sans,24,-1,5,50,0,0,0,0,0
 GreetString=Welcome to %n
 GreeterPos=50,50
 HiddenUsers=nobody,root
-Language=en_US
+Language=ru_RU
 LogoArea=None
 LogoPixmap=/usr/share/apps/kdm/pics/kdm-mdk-logo.png
 MaxShowUID=65000
@@ -53,7 +53,7 @@ SelectedUsers=
 ShowUsers=NotHidden
 SortUsers=true
 StdFont=Droid Sans,12,-1,5,50,0,0,0,0,0
-Theme=/usr/share/apps/kdm/themes/mandriva-kde4
+Theme=/usr/share/apps/kdm/themes/oxygen-magos
 UseBackground=true
 UseTheme=true
 UserCompletion=false

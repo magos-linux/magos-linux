@@ -1,9 +1,10 @@
 #!/bin/sh
 [ -f /var/lock/subsys/pdnsd ] || exit 0
-NAMESRV=$( cat /var/run/resolvconf/interface/* 2>/dev/null | grep -m 1 nameserver | awk '{print $2}')
-if [ "$NAMESRV" = "" ] ;then
-    pdnsd-ctl server ISP down >/dev/null 2>&1
+cat /var/run/resolvconf/interface/* 2>/dev/null | grep nameserver > /var/cache/pdnsd/pdnsd.servers.down
+if grep -q nameserver /var/cache/pdnsd/pdnsd.servers.down ;then
+   mv -f /var/cache/pdnsd/pdnsd.servers.down /var/cache/pdnsd/pdnsd.servers
+   /etc/rc.d/init.d/pdnsd reload >/dev/null 2>&1
 else
-    pdnsd-ctl server ISP up $NAMESRV >/dev/null 2>&1
+   rm -f /var/cache/pdnsd/pdnsd.servers.down
 fi
 true
