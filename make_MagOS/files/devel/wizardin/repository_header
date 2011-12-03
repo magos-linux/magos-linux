@@ -1,0 +1,16 @@
+#!/bin/bash
+
+MOD_REP=repository/optional
+fname=HEADER.html
+
+for a in `ls -1 mod_names/??-add-*$1*`; do
+    dname=$MOD_REP/$(basename $a)
+    mkdir -p $dname
+    echo "<pre>"> $dname/$fname
+    echo "Наименование модуля		Содержимое модуля" >> $dname/$fname
+    echo "	$(basename $a).lzm" >> $dname/$fname
+    for b in `cat $a`; do
+        echo "				$b" >> $dname/$fname
+    done
+    echo "</pre>">> $dname/$fname
+done
