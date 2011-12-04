@@ -1,6 +1,0 @@
-root=/dev/ram0
-init=linuxrc
-load_ramdisk=1
-prompt_ramdisk=0
-ramdisk_size=11000
-rw
