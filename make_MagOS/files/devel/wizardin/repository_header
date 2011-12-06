@@ -6,11 +6,11 @@ fname=HEADER.html
 for a in `ls -1 mod_names/??-add-*$1*`; do
     dname=$MOD_REP/$(basename $a)
     mkdir -p $dname
-    echo "<pre>"> $dname/$fname
-    echo "Наименование модуля		Содержимое модуля" >> $dname/$fname
-    echo "	$(basename $a).lzm" >> $dname/$fname
+    echo "<table><tr>"> $dname/$fname
+    echo "<td>Наименование модуля</td><td>Содержимое модуля</td>" >> $dname/$fname
+    echo "<tr><td><pre>$(basename $a)-$(date +%Y%m%d).xzm</pre></td><td align='center'><pre>" >> $dname/$fname
     for b in `cat $a`; do
-        echo "				$b" >> $dname/$fname
+        echo "$b" >> $dname/$fname
     done
-    echo "</pre>">> $dname/$fname
+    echo "</pre></td></tr></table>">> $dname/$fname
 done

@@ -39,7 +39,8 @@ function make_mod_pack ()
 
 MOD_REP=repository/optional
 MOD_NAMES_DIR=mod_names
-URPMI_PARAM="--no-verify-rpm --excludemedia MIB"
+#URPMI_PARAM="--no-verify-rpm --excludemedia MIB"
+URPMI_PARAM="--no-verify-rpm "
 
 mkdir -p  $MOD_REP
 mask=$1
@@ -61,7 +62,7 @@ for mod in `ls -1 $MOD_NAMES_DIR/??-add-*$mask` ;do
 #        urpmi --root=$rootfs --noclean --download-all $MOD_LOADED $1 $pak
 #        urpmi --root=$rootfs --noclean $1 $pak
      done
-     make_mod_pack $MOD_REP/$(basename $mod)/$(basename $mod).xzm $pak_list
+     make_mod_pack $MOD_REP/$(basename $mod)/$(basename $mod)-$(date +%Y%m%d).xzm $pak_list
 #--------------
     echo -ne \\n "---> OK."\\n
 done
