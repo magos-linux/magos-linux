@@ -240,13 +240,13 @@ DATAINSMOD=$DATA
 # (skip modules from /optional/ which are not listed in load= boot option)
 # Finaly modify DATA variable so it will point to correct directory
 if [ "$(cmdline_parameter toram)$(cmdline_parameter copy2ram)$(cmdline_value toram)$(cmdline_value copy2ram)" != "" ]; then
-   # make sure it's in RAM even with changes= parameter
-   if [ "$CHANGESMNT" ]; then mount -t tmpfs -o "size=$RAMSIZE" tmpfs $COPY2RAM; fi
    echolog "copying $LIVECDNAME data to RAM, this may take some time..."
    mkdir -p $COPY2RAM
+   # make sure it's in RAM even with changes= parameter
+   if [ "$CHANGESMNT" ]; then mount -t tmpfs -o "size=$RAMSIZE" tmpfs $COPY2RAM; fi
    copy_to_ram $DATA $COPY2RAM
    copy_to_ram $LIVEREPOSITORY $COPY2RAM
-   DATAINSMOD=$COPY2RAM
+#   DATAINSMOD=$COPY2RAM
 fi
 debug_shell
 
@@ -255,7 +255,7 @@ if [ "$(cmdline_parameter copy2rep)$(cmdline_value copy2rep)" != "" ]; then
    mkdir -p $COPY2REP
    copy_to_rep $DATA $COPY2REP
    copy_to_rep $LIVEREPOSITORY $COPY2REP
-   DATAINSMOD=$COPY2REP
+#   DATAINSMOD=$COPY2REP
 fi
 
 debug_shell
