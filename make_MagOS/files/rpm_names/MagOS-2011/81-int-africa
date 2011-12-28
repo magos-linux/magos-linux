@@ -18,9 +18,8 @@ myspell-nr_ZA-
 locales-nr-
 aspell-af-
 firefox-af-
-mozilla-thunderbird-af-
 myspell-af_ZA-
-openoffice.org-l10n-af-
+libreoffice-l10n-af-
 locales-af-
 aspell-am-
 myspell-am_AM-
@@ -37,3 +36,5 @@ aspell-sw-
 myspell-sw_KE-
 myspell-sw_TZ-
 locales-sw-
+firefox-lg-
+firefox-nso-

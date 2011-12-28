@@ -17,7 +17,7 @@ echo "Добавляем ядро к пакетам дистрибутива."
 [ -d work/$FLASHNAME-$VERREL/kernel ] ||    echo "Сначала нужно собрать ядро, чтобы готовые пакеты были в work/$FLASHNAME-$VERREL/kernel"
 cd work/$FLASHNAME-$VERREL/kernel || exit 1
 echo -ne > 00-kernel
-for a in kernel-desktop-*flash*.$ARCH.rpm kernel-2.*flash*.$ARCH.rpm ;do
+for a in `ls -1 | egrep 'kernel-desktop-[2-3]|kernel-desktop-devel-[2-3]|kernel-[2-3]' | grep $ARCH.rpm$ | sed s-^./--` ;do
     echo $a ; echo $a >> 00-kernel
     ln -sf ../../../work/$FLASHNAME-$VERREL/kernel/$a ../../../loaded/$FLASHNAME-$VERREL/rpms || exit 1
 done

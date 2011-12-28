@@ -1,7 +1,8 @@
 #!/bin/bash
 PFP=usr/share/locale/ru/LC_MESSAGES/drakconf
 msgunfmt $PFP.mo -o drakconf.po
-cat >>drakconf.po <<EOF
+if ! grep -q XZM drakconf.po ;then
+  cat >>drakconf.po <<EOF
 
 msgid "Modules Management"
 msgstr "Управление модулями"
@@ -22,7 +23,7 @@ msgid "Configs Manager"
 msgstr "Менеджер конфигурационными файлами"
 
 EOF
-
-msgfmt drakconf.po -o $PFP.mo 
-
+  msgfmt drakconf.po -o $PFP.mo 
+fi
+rm -f drakconf.po
 exit 0

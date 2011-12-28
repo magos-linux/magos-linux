@@ -1,72 +1,33 @@
---- a/kernel.spec	2011-05-22 21:44:13.000000000 +0400
-+++ b/kernel.spec	2011-09-02 15:11:35.000000000 +0400
-@@ -12,7 +12,8 @@
- %define sublevel	38
+--- a/kernel-desktop.spec	2011-12-13 20:13:17.000000000 +0400
++++ b/kernel-desktop.spec	2011-12-13 22:22:55.000000000 +0400
+@@ -5,13 +5,17 @@ Name:          kernel-desktop
+ Summary:       The Linux Kernel for Mandriva systems
+ License:       GPLv2
+ Version:       2.6.39.4
+-Release:       %mkrel 4.2
++Release:       %mkrel 4.2flash
+ URL:           http://www.kernel.org
+ Source:        kernel-desktop-2.6.39.4-4.tar.bz2
+ ExclusiveArch: %ix86 x86_64 
+ BuildRoot:     %{_tmppath}/%{name}-%{version}-root
++Patch1:        logo_magos.patch
++Patch2:        aufs2-linux.patch
++Patch3:        config.patch
++Patch4:        devel_rpm.patch
  
- # Package release
--%define mnbrel		1
-+%define mnbrel		1flash_nopae_
-+%define realmnbrel      1
+-%global __debug_package 1
++%global __debug_package 0
+ %define debug_package %{nil}
+ %define __check_files %{nil}
  
- # kernel Makefile extraversion is substituted by 
- # kpatch/kgit/kstable wich are either 0 (empty), rc (kpatch), git (kgit) 
-@@ -74,10 +75,10 @@
- %else
- %define tar_ver	  	%{kernelversion}.%{patchlevel}.%(expr %{sublevel} - 1)
- %endif
--%define patch_ver 	%{kversion}-%{kpatch}-%{ktag}%{mnbrel}
-+%define patch_ver 	%{kversion}-%{kpatch}-%{ktag}%{realmnbrel}
- %else
- %define tar_ver   	%{kernelversion}.%{patchlevel}.%{sublevel}
--%define patch_ver 	%{kversion}-%{ktag}%{mnbrel}
-+%define patch_ver 	%{kversion}-%{ktag}%{realmnbrel}
- %endif
- %if %kstable
- %define kversion  	%{kernelversion}.%{patchlevel}.%{sublevel}.%{kstable}
-@@ -119,19 +120,19 @@
- # disable debug rpms for backports, it's enough already having them on cooker/stable
- %define build_debug 		0
- %else
--%define build_debug 		1
-+%define build_debug 		0
- %endif
+@@ -55,6 +59,10 @@ by some binary object tools like kgdb, p
  
- # Build desktop i586 / 4GB
- %ifarch %{ix86}
--%define build_desktop586	1
-+%define build_desktop586	0
- %endif
- 
- # Build desktop (i686 / 4GB) / x86_64 / sparc64 sets
- %define build_desktop		1
- 
- # Build server (i686 / 64GB)/x86_64 / sparc64 sets
--%define build_server		1
-+%define build_server		0
- 
- # End of user definitions
- %{?_without_desktop586: %global build_desktop586 0}
-@@ -237,7 +238,9 @@ Patch1:   	ftp://ftp.kernel.org/pub/linu
- Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.bz2.sign
- %endif
- %endif
--
-+#Patch3:         aufs-linux-flash.patch
-+Patch4:         aufs-mnb-flash.patch
-+Patch5:         logo_mdk_clut224.patch
- #END
- ####################################################################
- 
-@@ -646,6 +649,12 @@ cd %src_dir
- %endif
- 
- %{patches_dir}/scripts/apply_patches
-+#%patch3 -p1
-+rm -f drivers/video/logo/logo_mdk_clut224.ppm
-+cd %{patches_dir}
+ %prep
+ %setup -q -n kernel-desktop-2.6.39.4-4
++%patch1 -p1
++%patch2 -p1
++%patch3 -p1
 +%patch4 -p1
-+cd %src_dir
-+%patch5 -p1
  
- # PATCH END
- 
+ %build
+ make defconfig

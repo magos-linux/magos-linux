@@ -35,7 +35,6 @@ spec-helper-
 perl-File-Slurp-
 syslinux-
 unicorn-
-linux-userspace-headers-
 perl-File-NCopy-
 flex-
 perl-List-MoreUtils-
@@ -52,3 +51,4 @@ libpwl5-
 cyrus-sasl-
 libfuse-devel-
 dkms-minimal-
+linux-userspace-headers-

@@ -67,6 +67,9 @@ for a in * ;do
     echo $a
     $MKSQUASHFS $a "$MYPATH/$DESTDIR/$FLASHNAME/base/$a.$MODULEFORMAT" $MKSQOPT >/dev/null 2>/dev/null || exit 1
 done
+cd "$MYPATH/$DESTDIR/$FLASHNAME/base"
+chmod 444 *
+md5sum *.$MODULEFORMAT >MD5SUM
 
 cd "$MYPATH"
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international 2>/dev/null

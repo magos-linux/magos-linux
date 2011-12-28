@@ -8,7 +8,6 @@ locales-kw-
 locales-ast-
 aspell-yi-
 locales-yi-
-kde-l10n-se-
 locales-se-
 aspell-sc-
 locales-sc-
@@ -24,7 +23,7 @@ aspell-gv-
 locales-gv-
 myspell-fur_IT-
 locales-fur-
-openoffice.org-l10n-bs-
+libreoffice-l10n-bs-
 locales-bs-
 aspell-gd-
 myspell-gd_GB-
@@ -33,7 +32,6 @@ aspell-hr-
 kde-l10n-hr-
 myspell-hr_HR-
 locales-hr-
-mozilla-thunderbird-ka-
 locales-ka-
 aspell-nds-
 kde-l10n-nds-
@@ -45,7 +43,6 @@ aspell-fo-
 myspell-fo_FO-
 locales-fo-
 firefox-fy-
-kde-l10n-fy-
 mozilla-thunderbird-fy-
 myspell-fy_NL-
 locales-fy-
@@ -75,7 +72,9 @@ kde-l10n-ga-
 mozilla-thunderbird-ga-
 myspell-ga_IE-
 locales-ga-
-mozilla-sunbird-ga-
-mozilla-sunbird-is-
-mozilla-sunbird-ka-
-mozilla-sunbird-lt-
+mozilla-thunderbird-gd-
+firefox-ast-
+firefox-bs-
+firefox-gd-
+firefox-hr-
+firefox-hy-

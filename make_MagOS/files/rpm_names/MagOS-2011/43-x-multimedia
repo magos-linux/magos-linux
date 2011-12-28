@@ -167,3 +167,8 @@ swftools-
 vobcopy-
 alac_decoder-
 libcrystalhd2-
+libexiv2_10-
+gstreamer0.10-plugins-base-
+gstreamer0.10-plugins-good-
+gstreamer0.10-plugins-ugly-
+libsamplerate0-

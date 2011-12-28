@@ -196,8 +196,6 @@ which-
 xinetd-
 xz-
 zcip-
-zd1201-firmware-
-zd1211-firmware-
 zip-
 zlib1-
 libmpg123_0-
@@ -210,8 +208,6 @@ kpartx-
 libdevmapper-event1.02-
 hddtemp-
 htop-
-kernel-firmware-
-kernel-firmware-extra-
 perl-base-
 perl-Locale-gettext-
 perl-MDK-Common-
@@ -412,3 +408,4 @@ libobexftp0-
 libmysql18-
 libplymouth2-
 libnuma1-
+speedtouch-firmware-extractor-

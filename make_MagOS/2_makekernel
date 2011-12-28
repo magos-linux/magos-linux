@@ -22,33 +22,47 @@ if [ -d  "work/$FLASHNAME-$VERREL/kernel$DESTP" ] ;then
 fi
 
 mkdir -p work
-   echo "Сборка средствами запущенной сейчас ОС"
-   [ "$RPMBPATH" = "" ] && RPMBPATH=`rpm -ql rpm-build | grep SPECS | sed s/SPECS//`
-   [ "$RPMBPATH" = "" ] && RPMBPATH="$HOME/rpmbuild"
-   if ! [ -d "$RPMBPATH" ] ;then
-      mkdir -p work/rpmbuild
-      ln -sf "$MYPATH/work/rpmbuild" $HOME/rpmbuild
-   fi
-   echo "Устанавливаем исходники ядра"
-   rm -fr loaded/$FLASHNAME-$VERREL/srpms
-   mkdir -p loaded/$FLASHNAME-$VERREL/srpms
-   ln -sf ../../cached_2011/$(cat loaded/MagOS-2011/names/kernel-source) loaded/$FLASHNAME-$VERREL/srpms
-   rpm -ihv `ls -1 loaded/$FLASHNAME-$VERREL/srpms/kernel-*.src.rpm | tail -1` || exit 1
-   echo "Изменение исходников ядра"
-   cp -f files/patches/kernel/$FLASHNAME-$VERREL/aufs-*-flash.patch  $RPMBPATH/SOURCES || exit 1
-   cp -f files/patches/kernel/$FLASHNAME-$VERREL/logo_mdk_clut224.patch  $RPMBPATH/SOURCES || exit 1
-   cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec.patch | patch -d $RPMBPATH/SPECS -p1 || exit 1
-   [ "$PAE" = "yes" ] && cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec_pae.patch | patch -d $RPMBPATH/SPECS -p1
-   echo "Сборка ядра"
-   rm -f $RPMBPATH/RPMS/i586/kernel-*flash*.rpm 2>/dev/null
-   rpmbuild -bb $RPMBPATH/SPECS/kernel.spec || exit 1
-   rm -f $RPMBPATH/SRPMS/kernel-*flash*.src.rpm 2>/dev/null
-   rpmbuild -bs $RPMBPATH/SPECS/kernel.spec || exit 1
 
-   echo "Удачно (странно...).  Копируем готовые пакеты в work/$FLASHNAME-$VERREL/kernel$DESTP"
-   mkdir -p work/$FLASHNAME-$VERREL/kernel$DESTP ; cd work/$FLASHNAME-$VERREL/kernel$DESTP
-   cp -p $RPMBPATH/RPMS/i586/kernel-*flash*.rpm ./ || exit 1
-   cp -p $RPMBPATH/SRPMS/kernel-*flash*.src.rpm ./ || exit 1
+echo "Сборка ядра"
+[ "$RPMBPATH" = "" ] && RPMBPATH=`rpm -ql rpm-build | grep SPECS | sed s/SPECS//`
+[ "$RPMBPATH" = "" ] && RPMBPATH="$HOME/rpmbuild"
+if ! [ -d "$RPMBPATH" ] ;then
+   mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS
+   ln -sf "$MYPATH/work/rpmbuild" $HOME/rpmbuild
+fi
+
+echo "Устанавливаем исходники ядра"
+rm -fr loaded/$FLASHNAME-$VERREL/srpms
+mkdir -p loaded/$FLASHNAME-$VERREL/srpms
+ln -sf ../../cached_$VERREL/$(cat loaded/$FLASHNAME-$VERREL/names/kernel-source) loaded/$FLASHNAME-$VERREL/srpms
+if grep -q kernel-desktop loaded/$FLASHNAME-$VERREL/names/kernel-source ;then
+   #2011 kernel
+   cd work/rpmbuild/SOURCES
+   rpm2cpio `ls -1 ../../../loaded/$FLASHNAME-$VERREL/srpms/kernel-*.src.rpm | tail -1` | cpio -i || exit 1
+   mv *.spec ../SPECS
+   cd ../../../
+else
+   #2010 kernel
+   rpm -ihv `ls -1 loaded/$FLASHNAME-$VERREL/srpms/kernel-*.src.rpm | tail -1` || exit 1
+fi
+
+echo "Изменение исходников ядра"
+cp -f files/patches/kernel/$FLASHNAME-$VERREL/*.patch  $RPMBPATH/SOURCES || exit 1
+cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec.patch | patch -d $RPMBPATH/SPECS -p1 || exit 1
+#FIXME 
+#[ "$PAE" = "yes" ] && cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec_pae.patch | patch -d $RPMBPATH/SPECS -p1
+
+echo "Сборка ядра"
+[ -f $RPMBPATH/SPECS/kernel.spec ] || ln -s kernel-desktop.spec $RPMBPATH/SPECS/kernel.spec
+rm -f $RPMBPATH/RPMS/i586/kernel-*flash*.rpm 2>/dev/null
+rpmbuild -bb $RPMBPATH/SPECS/kernel.spec || exit 1
+rm -f $RPMBPATH/SRPMS/kernel-*flash*.src.rpm 2>/dev/null
+rpmbuild -bs $RPMBPATH/SPECS/kernel.spec || exit 1
+
+echo "Удачно (странно...).  Копируем готовые пакеты в work/$FLASHNAME-$VERREL/kernel$DESTP"
+mkdir -p work/$FLASHNAME-$VERREL/kernel$DESTP ; cd work/$FLASHNAME-$VERREL/kernel$DESTP
+cp -p $RPMBPATH/RPMS/i586/kernel-*flash*.rpm ./ || exit 1
+cp -p $RPMBPATH/SRPMS/kernel-*flash*.src.rpm ./ || exit 1
 cd ../../../
 echo "Удаление временных файлов"
 rm -fr work/rpmbuild
