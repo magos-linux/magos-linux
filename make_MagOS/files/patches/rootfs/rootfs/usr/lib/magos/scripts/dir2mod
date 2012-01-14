@@ -41,12 +41,19 @@ echo "Converting DIRs to module (no compression):"
 for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
     echo -ne \\n"	converting $mn --> $mn.$MODULEFORMAT (no compression)"\\n
-    mkdir -p "$2/nolzma"
+    mkdir -p "$2/nocomp_$MODULEFORMAT"
     fd="$2/nolzma/$mn.$MODULEFORMAT"
 
     dir2nolzm "$a" "$fd"
 done
 }
+
+convert_dir2noxzm()
+{
+convert_dir2nolzm "$@"
+}
+
+
 
 #convert DIRs to ROMs 
 # $1 = directory images
@@ -80,8 +87,8 @@ HELP()
    echo "#####################################"
    echo "Convert directory tree into modules" 
    echo
-   echo -ne "Usage:\\n	$0 xzm|lzm|nolzm|rom source_directory destination_directory mask \\n"
-   echo -ne "Example:\\n	./dir2mod nolzm /mnt/live/memory/images /mnt/livemedia/MagOS/modules/ ??- \\n"
+   echo -ne "Usage:\\n	$0 xzm|lzm|nolzm|noxzm|rom source_directory destination_directory mask \\n"
+   echo -ne "Example:\\n	./dir2mod noxzm /mnt/live/memory/images /mnt/livemedia/MagOS/modules/ ??- \\n"
    echo
    echo "#####################################"   
    echo
