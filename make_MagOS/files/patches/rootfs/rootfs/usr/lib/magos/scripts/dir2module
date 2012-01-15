@@ -7,12 +7,16 @@ fi
 export PATH=/usr/lib/magos/scripts:$PATH
 
 . liblinuxlive || exit 2
+
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && addparam="" || addparam="-nolzma"
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+
 case $1 in
    --nocompress | --oldpc )
       shift
-      create_module "$1" "$1.oldpc.lzm"  -noI -noD -noF -nolzma  ;;
+      create_module "$1" "$1.oldpc.$MODULEFORMAT"  -noI -noD -noF $addparam  ;;
    * )
-      create_module "$1" "$1.lzm"  ;;
+      create_module "$1" "$1.$MODULEFORMAT"  ;;
 esac
 if [ $? -eq 0 ] ; then
    mdialog --msgbox "Модуль готов"
