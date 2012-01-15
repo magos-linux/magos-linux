@@ -1,0 +1,45 @@
+#!/bin/bash
+
+function addmod()
+{
+ [ "$4" = "" -o "$6" != "" ] && die "addmod:invalid parameters"
+ MODNAME="$1"
+ MODURL="$2"
+ MODARH="$3"
+ MODDIR="$4"
+ MODMAN="$5"
+ echo -e "\nAdding mod $MODNAME ($MODARH/${MODDIR##*/} ${MODMAN##*/})"
+ cantdownload "$MODURL" "$MODARH"
+ unpack "$MODARH" "$MODNAME"
+ echo "Moving $MODARH content"
+ if [ "$MODMAN" ] ;then
+    MODMANT=${MODMAN##*.}
+    [ "$MODMANT" ] || MODMANT=txt
+    moveas "$MODNAME/$MODMAN" "rootfs/opt/Oolite/doc/$NAME/$MODNAME.$MODMANT"
+ fi
+ moveas "$MODNAME/$MODDIR" "rootfs/opt/Oolite/AddOns/$MODNAME.oxp"
+ rmdir --ignore-fail-on-non-empty "$MODNAME"
+}
+
+function cantdownload()
+{
+ [ "$2" = "" -o "$3" != "" ] && die "cantdownload:invalid parameters"
+# if ! [ -f "$CACHE/$2" ] ;then
+#    echo "Cant download $2 from $1. Download $1 youself and place it into "$CACHE/$2""
+#    firefox "$1"
+# fi
+ [ -f "$CACHE/$2" ] || die "cantdownload:not found $CACHE/$2"
+ cp "$CACHE/$2" ./ || die "cantdownload:cant copy $CACHE/$2 to $PWD"
+}
+
+function patch_shipdata_plist()
+{
+ [ "$1" = "" -o "$2" != "" ] && die "patch_shipdata_plist:invalid parameters"
+ grep -q 'griff_explosionScript.js' "$FILE" && exit 0
+ grep 'roles = ' $FILE | egrep 'hunter|trader|buoy|miner|escort|shuttle|police|interceptor|wingman|pirate' | \
+   sort -u | while read a ;do
+      STR=$(echo "$a"| sed s/\"/./g)
+      echo $STR
+      sed -i /"$STR"/s/$/'\n		script = "griff_explosionScript.js";'/ "$FILE"
+   done
+}

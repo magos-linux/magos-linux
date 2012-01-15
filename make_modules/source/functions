@@ -1,0 +1,131 @@
+#!/bin/bash
+
+MODULEFORMAT=xzm
+[ "$DISTR" = "2010.2" ] && MODULEFORMAT=lzm
+DIRNAME=$NUM-$NAME
+[ "$VERSION" ] && DIRNAME=$DIRNAME-$VERSION
+[ "$DISTR" ] && DIRNAME=$DIRNAME-$DISTR
+[ "$AUTHOR" ] && DIRNAME=$DIRNAME-$AUTHOR
+DIRNAME=$DIRNAME-$RELEASE
+MAKEROOT="${PWD%/source*}"
+BUILDROOT="$MAKEROOT/buildroot/$DIRNAME"
+CACHE="$MAKEROOT/cache/$NAME"
+
+function die ()
+{
+  echo $@
+  exit 1
+}
+
+function clean()
+{
+ echo Cleaning build tree
+ rm -fr "$BUILDROOT" 2>/dev/null
+}
+
+function prepare()
+{
+ echo Entering into build tree
+ mkdir -p "$BUILDROOT" || die "prepare:cant create $BUILDROOT"
+ [ -d "$NAME" ] && cp -pr "$NAME"/* "$BUILDROOT"
+ cd "$BUILDROOT" || die "prepare:cant cd to $BUILDROOT"
+}
+
+function download()
+{
+  [ "$1" = "" -o "$2" != "" ] && die "download: invalid parameters $@"
+  URL=$1
+  FNAME=${URL##*/}
+  if ! [ -f "$CACHE/$FNAME" ] ;then 
+      echo Downloading $URL
+      mkdir -p "$CACHE"
+      curl -o "$CACHE/$FNAME" -# --retry-delay 2 --retry 5 $URL || exit -1
+  fi
+  cp -p "$CACHE/$FNAME" ./ || die "download: cant copy $CACHE/$FNAME to $PWD"
+}
+
+function unpack()
+{
+  [ "$2" = "" ] && die "unpack: invalid parameters $@"
+  FNAME=$(readlink -f "$1")
+  DDIR="$2"
+  MDIR="$PWD"
+  shift; shift
+  echo "Unpacking ${FNAME##*/}"
+  EXT=${FNAME##*.}
+  EXT=$(echo $EXT | tr A-Z a-z)
+  echo $FNAME | grep -q [.]tar[.] &&  EXT=${FNAME/*.tar./tar.}
+  mkdir -p "$DDIR"
+  case "$EXT" in
+  run)
+      bash "$FNAME" $@ || die "unpack: error in $FNAME $@"
+      ;;
+  tgz|tar.gz)
+      tar -C "$DDIR" $@ -xf "$FNAME" >/dev/null || die "unpack: untar error"
+      ;;
+  zip)
+      unzip -qd "$DDIR" $@ "$FNAME" || die "unpack: unzip error"
+      ;;
+  rar)
+      unrar x -inul  $@ "$FNAME" "$DDIR" || die "unpack: unrar error"
+      ;;
+  *)
+      die "unpack: cant unpack $FNAME - unknown type $EXT"
+  esac
+}
+
+function pack()
+{
+  [ "$2" = "" -o "$3" != "" ] && die "pack: invalid parameters $@"
+  echo Packing into module $2
+  dir2$MODULEFORMAT "$1" "../../$MODULEFORMAT/$2.$MODULEFORMAT" || die "pack: dir2$MODULEFORMAT error"
+}
+
+
+function move()
+{
+  [ "$2" = "" -o "$3" != "" ] && die "move: invalid parameters $@"
+  [ -d "$2" ] || mkdir -p "$2"
+  [ -d "$2" ] || die "move: dir $2 not exists"
+  mv -f "$1" "$2" || die "move: cant move $1 to $2"
+}
+
+function moveas()
+{
+  [ "$2" = "" -o "$3" != "" ] && die "moveas: invalid parameters $@"
+  DIRM=$(dirname "$2")
+  [ -d "$DIRM" ] || mkdir -p "$DIRM"
+  [ -d "$DIRM" ] || die "move: dir $DIRM not exists" 
+  mv -f "$1" "$2" || die "move: cant move $1 to $2"
+}
+
+function checkrights()
+{
+  [ "$1" = "" -o "$2" != "" ] && die "checkrights: invalid parameters $@"
+  echo Setting correct rights to "$1"
+  chown -R 0.0 "$1"
+  for a in $(echo $PATH | tr : " ") ;do
+      chmod 755 "$1$a/"* 2>/dev/null
+  done
+}
+
+function defaultrights()
+{
+  [ "$1" = "" -o "$2" != "" ] && die "defaultrights: invalid parameters $@"
+  echo Setting default rights to "$1"
+  chown -R 0.0 "$1" || die "defaultrights: chown -R 0.0 $1"
+  chmod -R 755 "$1" || die "defaultrights: chmod -R 755 $1"
+  find "$1" -type f | while read a ; do chmod a-x "$a" ; done
+  for a in $(echo $PATH | tr : " ") ;do
+      chmod 755 "$1$a/"* 2>/dev/null
+  done
+}
+
+function applypatch()
+{
+  [ "$2" = "" -o "$3" != "" ] && die "applypatch: invalid parameters $@"
+  DIRM=$(pwd)
+  cd "$1" || die "applypatch: cant cd to $1"
+  patch -p1 -i "$DIRM/$2" || die "applypatch: error patching patch -p1 -i $DIRM/$2"
+  cd "$DIRM"
+}

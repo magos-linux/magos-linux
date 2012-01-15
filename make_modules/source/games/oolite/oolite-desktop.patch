@@ -1,0 +1,33 @@
+diff -auprN a/usr/bin/oolite b/usr/bin/oolite
+--- a/usr/bin/oolite	1970-01-01 03:00:00.000000000 +0300
++++ b/usr/bin/oolite	2012-01-07 22:20:57.491002567 +0400
+@@ -0,0 +1,3 @@
++#!/bin/sh
++/opt/Oolite/oolite.app/oolite-wrapper $@
++exit $?
+diff -auprN a/usr/share/applications/oolite-documentation.org.desktop b/usr/share/applications/oolite-documentation.org.desktop
+--- a/usr/share/applications/oolite-documentation.org.desktop	1970-01-01 03:00:00.000000000 +0300
++++ b/usr/share/applications/oolite-documentation.org.desktop	2012-01-07 20:08:37.000000000 +0400
+@@ -0,0 +1,10 @@
++[Desktop Entry]
++Name=Oolite Documentation
++Name[ru]=Oolite - Руководства
++Comment=Documentation to oolite
++Comment[ru]=Документация и руководства к игре Oolite
++Exec=filemanager /opt/Oolite/doc
++Icon=oolite-icon
++Terminal=false
++Type=Application
++Categories=Game;Simulation;
+diff -auprN a/usr/share/applications/oolite.org.desktop b/usr/share/applications/oolite.org.desktop
+--- a/usr/share/applications/oolite.org.desktop	1970-01-01 03:00:00.000000000 +0300
++++ b/usr/share/applications/oolite.org.desktop	2012-01-07 20:08:37.000000000 +0400
+@@ -0,0 +1,8 @@
++[Desktop Entry]
++Name=Oolite (oolite.org)
++Comment=An OpenGL Elite-like space game
++Exec=/usr/bin/oolite
++Icon=oolite-icon
++Terminal=false
++Type=Application
++Categories=Game;Simulation;

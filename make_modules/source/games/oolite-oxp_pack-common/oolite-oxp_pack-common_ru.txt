@@ -1,0 +1,3 @@
+В этом пакете содержатся дополнения, необходимые для других пакетов
+
+1. Cabal_Common_Library http://wiki.alioth.net/index.php/Cabal_Common_Library
