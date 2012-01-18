@@ -40,8 +40,8 @@ done
 rm -fr modules* dir_list files_notfounded rootfs_dirs* split_errors.txt 2>/dev/null
 mkdir -p "$MYPATH/loaded/rpmfiles_$VERREL" modules_list  modules_filelist || exit 1
 cp "$MYPATH/loaded/$FLASHNAME-$VERREL/names/"??-* modules_list
-cat kernel/00-kernel kernel/dkms/00-kernel | grep -v devel-  >> modules_list/00-kernel || exit 1
-grep devel- kernel/00-kernel >> modules_list/*-devel || exit 1
+cat kernel/00-kernel kernel/dkms/00-kernel | egrep -v 'devel|header'  >> modules_list/00-kernel || exit 1
+egrep 'devel|header' kernel/00-kernel >> modules_list/*-devel || exit 1
 sed -i /^dkms-[a-ln-z]/d modules_list/00-kernel || exit 1
 
 cat modules_list/??-* | LC_ALL=C sort > modules_list/$FLASHNAME-$VERREL
@@ -86,6 +86,7 @@ movefiles ost_list modules_filelist/*-core '^/root'
 movefiles ost_list modules_filelist/*-drakconf 'var/lib/rpm'
 movefiles ost_list modules_filelist/*-drakconf 'var/lib/urpmi'
 movefiles ost_list modules_filelist/*-x-base 'usr/share/mdk/screensaver/'
+movefiles modules_filelist/*-kernel modules_filelist/*-firmware  '^lib/firmware/'
 
 cat ost_list >> modules_filelist/*-core
 

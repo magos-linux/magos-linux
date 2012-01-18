@@ -246,7 +246,7 @@ if [ "$(cmdline_parameter toram)$(cmdline_parameter copy2ram)$(cmdline_value tor
    if [ "$CHANGESMNT" ]; then mount -t tmpfs -o "size=$RAMSIZE" tmpfs $COPY2RAM; fi
    copy_to_ram $DATA $COPY2RAM
    copy_to_ram $LIVEREPOSITORY $COPY2RAM
-#   DATAINSMOD=$COPY2RAM
+   DATAINSMOD=$COPY2RAM
 fi
 debug_shell
 
@@ -255,15 +255,16 @@ if [ "$(cmdline_parameter copy2rep)$(cmdline_value copy2rep)" != "" ]; then
    mkdir -p $COPY2REP
    copy_to_rep $DATA $COPY2REP
    copy_to_rep $LIVEREPOSITORY $COPY2REP
-#   DATAINSMOD=$COPY2REP
+   DATAINSMOD=$COPY2REP
 fi
 
 debug_shell
 
+echo "MODULESPATH=\"/$DATAINSMOD /$DATA $LIVEREPOSITORY\"" > /etc/modules
 # mount aufs using the writable branch as the first one (leftmost/topmost)
 if [ $(cmdline_parameter unionfs) ];then
     echolog "setup union directory (using unionfs)"
-    INSMODORDER="$LIVEREPOSITORY $MEMORY $DATAINSMOD"
+    INSMODORDER="$LIVEREPOSITORY $MEMORY $DATA $DATAINSMOD"
     mount -t unionfs -o dirs=$CHANGES=rw unionfs $UNION
 else
     echolog "setup union directory (using aufs)"
@@ -272,7 +273,7 @@ else
        mkdir -p $XINO
        mount -n -t tmpfs tmpfs $XINO
     fi
-    INSMODORDER="$DATAINSMOD $MEMORY $LIVEREPOSITORY"
+    INSMODORDER="$DATAINSMOD $DATA $MEMORY $LIVEREPOSITORY"
     mount -t aufs -o nowarn_perm,xino=$XINO/.aufs.xino,br:$CHANGES=rw aufs $UNION
 fi
 if [ $? -ne 0 ]; then dmesg | tail -n 1; fatal "can't setup union (aufs)"; fi
