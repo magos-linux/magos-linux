@@ -574,7 +574,7 @@ int main(int argc, char *argv[]) {
 
     fusev[0] = myself;
     fusev[1] = "-s"; // disable multi threaded support (to make HTTP work)
-    fusev[2] = "-ononempty,attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache";
+    fusev[2] = "-ononempty,attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache,allow_other";
     fusev[3] = arg_mnt;
     return fuse_main(argc+1, fusev, &httpfs_oper);
     /*    close(sockfd);	*/
