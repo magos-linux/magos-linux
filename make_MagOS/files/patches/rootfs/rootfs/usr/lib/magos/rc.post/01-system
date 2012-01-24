@@ -13,4 +13,3 @@ for a in `grep /mnt/ /proc/mounts | grep -v '/mnt/live[ /]' | awk '{print $2}'` 
    grep -q " $a " /etc/mtab || grep " $a " /proc/mounts >> /etc/mtab
 done
 
-
