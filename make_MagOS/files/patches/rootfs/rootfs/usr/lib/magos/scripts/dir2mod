@@ -42,7 +42,7 @@ for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
     echo -ne \\n"	converting $mn --> $mn.$MODULEFORMAT (no compression)"\\n
     mkdir -p "$2/nocomp_$MODULEFORMAT"
-    fd="$2/nolzma/$mn.$MODULEFORMAT"
+    fd="$2/nocomp_$MODULEFORMAT/$mn.$MODULEFORMAT"
 
     dir2nolzm "$a" "$fd"
 done
@@ -107,7 +107,7 @@ TEST ;;
 * )
 
 cmd=$1
-[ "$cmd" != "xzm" -a "$cmd" != "lzm" -a "$cmd" != "nolzm" -a "$cmd" != "rom"  ] && cmd=
+[ "$cmd" != "xzm" -a "$cmd" != "lzm" -a "$cmd" != "nolzm" -a "$cmd" != "noxzm" -a "$cmd" != "rom"  ] && cmd=
 shift
 
 if [ ! -d "$1" -o "$2" = "" -o "$cmd" = "" ]; then
