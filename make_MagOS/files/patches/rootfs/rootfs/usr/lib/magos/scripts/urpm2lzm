@@ -50,6 +50,6 @@ umount wiz_fly
 rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/tmp
 
-dir2lzm $mod_br "$1.$MODULEFORMAT"
+dir2lzm $mod_br "$(basename $1).$MODULEFORMAT"
 
 rm -rf $mod_br
