@@ -323,6 +323,7 @@ debug_log "Profile updating"
 debug_shell
 grep -q -f /VERSION etc/magos-release 2>/dev/null || rm -fr /memory/changes/var/lib/rpm  /memory/changes/var/lib/urpmi 2>/dev/null
 cp -f /VERSION etc/magos-release
+[ ! -f etc/sysconfig/harddrake2/previous_hw ] && ! grep -q XORG_RES etc/sysconfig/MagOS && echo XORG_RES=auto >>etc/sysconfig/MagOS
 
 debug_log "devfs support"
 debug_shell

@@ -327,6 +327,7 @@ libbonobo-
 libwmf0.2_7-
 libsoup-2.4_1-
 libproxy0-
+libproxy1-
 libproxy-webkit-
 libgtkmm2.4_1-
 libaudiofile0-
@@ -350,7 +351,7 @@ libtaglib1-
 sound-theme-freedesktop-
 libat-spi0-
 libgnome-vfs2_0-
-libxulrunner1.9.2.24-
+libxulrunner1.9.2.26-
 gnome-mime-data-
 libgnome2-
 libgnome2_0-
@@ -490,3 +491,5 @@ conky-
 libtolua++5.1-
 tolua++-
 xclip-
+libvpx0-
+libmodman1-

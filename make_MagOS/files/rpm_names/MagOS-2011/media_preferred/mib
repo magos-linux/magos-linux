@@ -153,3 +153,9 @@ firefox-zu-
 libsqlite3_0-
 kde-thunderbird-attach-servicemenu-
 mozilla-thunderbird-lightning-
+dkms-virtualbox-
+virtualbox-
+virtualbox-guest-additions-
+dkms-vboxadditions-
+x11-driver-input-vboxmouse-
+x11-driver-video-vboxvideo-

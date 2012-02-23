@@ -1,4 +1,8 @@
 #!/bin/bash
+PFP=usr/lib/libDrakX/network/connection.pm
+sed -i s/'{ifcfg}{ACCOUNTING}'/'get_ifcfg_bool('\''ACCOUNTING'\'')'/ $PFP
+sed -i s/'{ifcfg}{NM_CONTROLLED}'/'get_ifcfg_bool('\''NM_CONTROLLED'\'')'/ $PFP
+
 PFP=usr/share/locale/ru/LC_MESSAGES/drakconf
 msgunfmt $PFP.mo -o drakconf.po
 if ! grep -q XZM drakconf.po ;then
@@ -20,7 +24,7 @@ msgid "Configs Management"
 msgstr "Управление конфигурациями"
 
 msgid "Configs Manager"
-msgstr "Менеджер конфигурационными файлами"
+msgstr "Менеджер управления конфигурационными файлами"
 
 EOF
   msgfmt drakconf.po -o $PFP.mo 

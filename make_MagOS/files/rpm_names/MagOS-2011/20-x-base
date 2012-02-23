@@ -171,6 +171,7 @@ libprojectm-data-
 libdrm-psb2-
 libva1-
 libmagick4-
+libmagick5-
 libgphoto2-
 libgphoto-common-
 libdmx1-
@@ -370,7 +371,7 @@ libcheck0-
 libdrm2-
 libdrm-common-
 libmalaga7-
-libmtp8-
+libmtp9-
 libmtp-utils-
 libxkbui1-
 libxmlsec1_1-
