@@ -235,7 +235,7 @@ my @tree = (
 
                                 $id;
                         	} ( # [ id, wizard file name, icon, description ]
-                            	    [ "cfg_mnger", "", "/mnt/livemedia/MagOS-Data/MagOS.ini", N("Configs Manager"), ""]
+                            	    [ "cfg_mnger", "leafpad", "/mnt/livemedia/MagOS-Data/MagOS.ini", N("Configs Manager"), ""]
                             	    )
                             )
                     	    ),
