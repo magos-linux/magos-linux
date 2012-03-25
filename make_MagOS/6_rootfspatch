@@ -29,6 +29,15 @@ cd rootfs
 mkdir -p usr/lib/magos/rootfs-patches
 cp -p ../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
 cp -p ../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh usr/lib/magos/rootfs-patches
+
+
+for a in "$MYPATH"/loaded/$FLASHNAME-$VERREL/names/*-int-* ;do
+    cat $a >>rpmsoutofbase
+done
+for a in $(cat rpmsoutofbase) ;do
+    chroot ./ rpm -e --nodeps --noscripts --notriggers --justdb ${a%.rpm} 2>/dev/null
+done
+rm -f var/lib/rpm/files-awaiting-filetriggers rpmsoutofbase
 for a in usr/lib/magos/rootfs-patches/*.sh ;do
    [ -f $a ] || continue
    echo $a

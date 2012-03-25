@@ -1,3 +1,7 @@
 #!/bin/bash
 # преоброазует список файлов с полного имени dkms-lzma-4.43-27mdv2009.1.i586.rpm до названия пакета dkms-lzma-
-ls -1 | awk -F- '{ for (i=1 ; i < ( NF - 1 ) ; i++) {  printf $i "-" }  print "" }' 
+rm -fr out
+mkdir out
+for a in ??-* ;do 
+   cat $a | awk -F- '{ for (i=1 ; i < ( NF - 1 ) ; i++) {  printf $i "-" }  print "" }' | sed s/-[\.0-9]*-$/-/ | grep . > out/$a
+done

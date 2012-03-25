@@ -1,2 +1,3 @@
-KERNEL=="ttyACM[0-9]", ACTION=="add", SYMLINK="modem"
-KERNEL=="ttyUSB[0-9]", ACTION=="add", SYMLINK="modem"
+KERNEL=="ttyACM[0-9]", ACTION=="add", SYMLINK="modem", RUN+="/usr/lib/magos/udev/modem_connect"
+KERNEL=="ttyUSB0", ACTION=="add", SYMLINK="modem", RUN+="/usr/lib/magos/udev/modem_connect"
+KERNEL=="ppp[0-9]", ACTION=="remove", RUN="/usr/lib/magos/udev/shownetstat"

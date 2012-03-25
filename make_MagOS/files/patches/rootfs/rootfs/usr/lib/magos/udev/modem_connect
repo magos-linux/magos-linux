@@ -1,0 +1,102 @@
+#!/bin/bash
+export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
+export DISPLAY=:0.0
+export HOME=/root
+export XAUTHORITY=`/bin/ls -1 /var/run/xauth/* | /usr/bin/head -1`
+INTERACTIVE=yes
+TIMEOUT=60
+INETAUTOUP=no
+STAT=yes
+. /etc/sysconfig/i18n
+. /etc/sysconfig/modem
+
+get_op()
+{
+   gnokii --getnetworkinfo 2>/dev/null| sed 's/.*/\L&/ ;/^network *:/!d;s/^.*: *//;s/ .*//'
+}
+
+get_new_ppp_if()
+{
+   ifconfig | grep ^ppp | awk '{ print $1 }' | grep -vf /tmp/ppp_if
+}
+
+ignore()
+{
+   true
+}
+
+sendsms()
+{
+   text=$(mdialog --inputbox "enter text" "Hello...")
+   echo  $text | gnokii --sendsms $(mdialog --inputbox "enter phone nomber" "+7")
+}
+
+inetup()
+{
+   ifconfig | grep ^ppp | awk '{ print $1 }' > /tmp/ppp_if
+   if  grep -q $operator /etc/wvdial.conf ;then
+      wvdial $operator &
+   else 
+      apn=$(mdialog --inputbox "APN" "internet.operator.ru")
+      login=$(mdialog --inputbox "login" "login")
+      pass=$(mdialog --inputbox "password" "password")
+      echo -e " \n" >> /etc/wvdial.conf 
+      echo "[Dialer $operator]" >> /etc/wvdial.conf
+      echo "Init3 = AT+CGDCONT=1,\"IP\",\"$apn\"" >> /etc/wvdial.conf
+      echo "Username = $login" >> /etc/wvdial.conf
+      echo "Password  = $pass" >> /etc/wvdial.conf
+      echo "Phone =*99#" >> /etc/wvdial.conf
+      wvdial $operator &
+   fi
+   if [ "$STAT" = "yes" ] ;then
+      counter=$TIMEOUT
+      while [ ! "$(get_new_ppp_if)" -a "$counter" != "0" ] ;do
+           sleep 1
+           counter=$(($counter - 1))
+      done
+      NEWIF=$(get_new_ppp_if)
+      # creating database
+      if [ ! -f "/var/lib/vnstat/$NEWIF" -a "$NEWIF" ] ;then
+         vnstat -u -i $NEWIF > /dev/null
+      fi
+      vnstat -r --enable -i $NEWIF
+      service vnstat restart > /dev/null
+   fi
+}
+
+[ "$INTERACTIVE" = "yes"  ] || exit 0
+[ ! -f "$XAUTHORITY" ] && echo "modem_connect: Can't connect to X server! " && exit 1
+
+killall wvdial
+wvdialconf
+
+if [ -z "$PORT" -o ! -e "$PORT" ] ;then
+   PORT=$(grep -m 1 "^Modem =" /etc/wvdial.conf | awk '{print $3}')
+else
+   sed -i 's|^Modem =.*|Modem='$PORT'|' /etc/wvdial.conf
+fi
+
+sed -i '0,/^port = /s|^port=.*|port='$PORT'|' /etc/gnokiirc
+
+operator=$(get_op)
+[ "$operator" == "unknown" ] && mdialog --passivepopup "Мodem is recognized. Please wait GSM connection..."
+
+counter=$TIMEOUT
+while [ "$operator" == "unknown" -a "$counter" != "0" ] ; do
+   operator=$(get_op)
+   sleep 1
+   counter=$(($counter - 1))
+done
+
+[ -z "${operator}" ] && mdialog --error "Cannot open $PORT, device is busy or removed" && exit 1
+
+mdialog --passivepopup "GSM connection - OK, operator is - $operator"
+
+if [ "$INETAUTOUP" == "yes" ] ; then
+   inetup
+else
+   a=$(mdialog --menu New_modem_detected inetup Connect_to_Internet sendsms Send_SMS sendsms)
+   $a
+fi
+
+exit 0

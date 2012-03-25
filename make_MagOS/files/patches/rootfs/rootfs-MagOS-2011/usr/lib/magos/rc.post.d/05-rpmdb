@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Helper script for MagOS Linux Live.
+#
+# Authors:	Mikhail Zaripov <m3for@mail.ru>
+#
+
+# RPM5 vs ext3 bug workaround
+if ! grep -q /var/lib/rpmdb /proc/mounts ;then
+   [ -d /var/lib/rpmdb ] || mkdir -p /var/lib/rpmdb
+   # Removing all except Packages
+   if [ -f /var/lib/rpm/__db.001 ] ;then
+      /usr/lib/rpm/bin/dbconvert
+   fi
+   mount -o bind /var/lib/rpm /var/lib/rpmdb
+   mount -t tmpfs tmpfs /var/lib/rpm
+   ln -s ../rpmdb/Packages /var/lib/rpm
+   ln -s ../rpmdb/alternatives /var/lib/rpm
+   ln -s ../rpmdb/filetriggers /var/lib/rpm
+   ln -s ../rpmdb/modules /var/lib/rpm
+   ln -s ../rpmdb/log /var/lib/rpm
+   ln -s ../rpmdb/DB_CONFIG /var/lib/rpm
+fi

@@ -1,6 +1,9 @@
 aica-firmware-
 asihpi-firmware-
 atmel-firmware-
+b43-fwcutter-
+bcm43xx-fwcutter-
+bluez-firmware-
 emagic-firmware-
 emu1010-firmware-
 ipw2100-firmware-
@@ -28,8 +31,8 @@ rt3090-firmware-
 rt61-firmware-
 rt73-firmware-
 speedtouch-firmware-
+speedtouch-firmware-extractor-
 turtlebeach-firmware-
 ueagle-firmware-
 zd1201-firmware-
 zd1211-firmware-
-bluez-firmware-

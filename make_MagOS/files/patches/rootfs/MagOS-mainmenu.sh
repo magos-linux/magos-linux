@@ -86,5 +86,6 @@ sed -i s/^Exec=.*/'Exec=fusion-icon -n'/ usr/share/applications/fusion-icon.desk
 sed -i s/^Exec=.*/'Exec=gksu -lg gparted'/ usr/share/applications/gparted.desktop
 sed -i s/'Name.ru.=.*'/'Name[ru]=GParted - управление разделами'/ usr/share/applications/gparted.desktop
 sed -i s/'Comment.ru.=.*'/'Comment[ru]=GParted - управление разделами'/ usr/share/applications/gparted.desktop
+sed -i s/'Name.ru.=.*'/'Name[ru]=Правка настроек GConf'/ usr/share/applications/gconf-editor.desktop
 
 exit 0

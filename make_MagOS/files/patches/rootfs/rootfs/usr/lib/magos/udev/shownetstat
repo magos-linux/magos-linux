@@ -1,0 +1,21 @@
+#!/bin/bash
+export DISPLAY=:0.0
+export HOME=/root
+export XAUTHORITY=`/bin/ls -1 /var/run/xauth/* | /usr/bin/head -1` 
+export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
+INTERACTIVE=yes
+STAT=yes
+. /etc/sysconfig/i18n
+. /etc/sysconfig/modem
+
+[ "$INTERACTIVE" = "yes" ] || exit 0
+[ ! -f "$XAUTHORITY" ] && echo "shownetstat: Can't connect to X server! " && exit 1
+
+if [ "$STAT" == "yes" ] ; then
+   total=`vnstat -i ppp0 | awk '/total:/{print $8 " " $9}'`
+   today=`vnstat -i ppp0 | awk '/today/{print $8 " " $9}'`
+   vnstat -r --disable -i $NEWIF
+   service vnstat restart > /dev/null
+   mdialog --msgbox "Total - $total \n today - $today"
+fi
+exit 0

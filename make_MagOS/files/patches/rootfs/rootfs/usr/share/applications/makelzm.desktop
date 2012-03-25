@@ -1,0 +1,20 @@
+[Desktop Entry]
+Categories=X-MandrivaLinux-CrossDesktop;GTK;System;PackageManager;
+Comment[ru]=Менеджер модулей MagOS
+Comment=Magos modules manager
+Exec=/usr/bin/gksu /usr/lib/magos/scripts/mod_mnger
+GenericName[ru]=
+GenericName=
+Icon=/usr/share/icons/module-icon.png
+MimeType=
+Name[ru]=Менеджер модулей
+Name=Module manager
+Path=
+StartupNotify=false
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=

@@ -12,9 +12,4 @@ for PFP in etc/udev/rules.d/50-udev-default.rules lib/udev/rules.d/50-udev-defau
    sed -i /usb_device...MODE/s/66./666/ $PFP
 done
 
-grep -q " loop127 " etc/udev/devices.d/default.nodes 2>/dev/null || \
-   for a in $(seq 0 127) ;do
-       echo "M loop$a         b 7 $a" >>etc/udev/devices.d/default.nodes 
-   done
-
 exit 0

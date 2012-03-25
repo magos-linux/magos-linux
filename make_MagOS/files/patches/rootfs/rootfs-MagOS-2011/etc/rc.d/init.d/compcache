@@ -25,7 +25,7 @@ NUM_DEVICES=${NUM_DEVICES:-4}
 case "$1" in
   start)
         gprintf "Loading compcache: "
-        /sbin/modprobe zram num_devices=$NUM_DEVICES && \
+        /sbin/modprobe zram zram_num_devices=$NUM_DEVICES && \
            echo $ZRAMSIZE > /sys/block/zram0/disksize && \
            mkswap /dev/zram0 >/dev/null 2>&1 && \
            swapon /dev/zram0

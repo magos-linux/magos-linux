@@ -21,6 +21,18 @@ function movefiles()
    rm -f "$2".tmp
 }
 
+function findmodbyfile()
+{
+   echo $(basename $(grep "$1" "$MYPATH/work/$FLASHNAME-$VERREL/"modules_filelist/??-* | sort | head -1 | awk -F: '{print $1}'))
+}
+
+function findmodbyrpm()
+{
+   echo $(basename $(grep "^$1" "$MYPATH/work/$FLASHNAME-$VERREL/"modules_list/??-* | sort | head -1 | awk -F: '{print $1}'))
+}
+
+
+
 if [ "`id -u`" != "0" ] ;then
    echo "Для доступа ко всем файлам каталога rootfs нужны права root" ; exit 1
 fi
@@ -96,20 +108,34 @@ echo etc/sysconfig/desktop >> modules_filelist/*-x-gnome
 echo etc/sysconfig/desktop >> modules_filelist/*-x-lxde
 
 #echo "Формирование модулей локализаций"
-movefiles modules_filelist/*-core modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
-movefiles modules_filelist/international modules_filelist/*-core 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
-movefiles modules_filelist/international modules_filelist/*-x-kde 'usr/share/locale/currency'
-movefiles modules_filelist/international modules_filelist/*-x-kde 'usr/share/locale/l10n'
-movefiles modules_filelist/*-applications modules_filelist/international 'usr/share/playonlinux/lang/'
-movefiles modules_filelist/international modules_filelist/*-applications 'usr/share/playonlinux/lang/.*/ru.*'
-movefiles modules_filelist/*-x-gnome modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
-movefiles modules_filelist/*-x-gnome modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
-movefiles modules_filelist/*-x-gnome modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
-movefiles modules_filelist/*-x-gnome modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
-movefiles modules_filelist/*-x-gnome modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
-movefiles modules_filelist/*-x-applications modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
-movefiles modules_filelist/international modules_filelist/*-x-applications '.*_ru.qm'
-movefiles modules_filelist/*-x-network modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
+MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
+echo Debug found module $MODULE
+movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
+movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
+MODULE=$(findmodbyrpm 'kdebase4-runtime-')
+echo Debug found module $MODULE
+movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
+movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
+MODULE=$(findmodbyrpm 'playonlinux-')
+echo Debug found module $MODULE
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
+movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
+MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
+echo Debug found module $MODULE
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
+MODULE=$(findmodbyrpm 'inkscape-')
+echo Debug found module $MODULE
+movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
+movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
+MODULE=$(findmodbyrpm 'libgweather-')
+echo Debug found module $MODULE
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
+MODULE=$(findmodbyrpm 'vpnpptp-allde-')
+echo Debug found module $MODULE
+movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
+movefiles modules_filelist/international modules_filelist/20-x-base '.*_ru.qm'
 
 for a in modules_filelist/*-int-* ;do
    LOCALES=`grep usr/share/locale/ $a | sed 's|usr/share/locale/||' | sed 's|[-_@/].*$||' | sort -u `
@@ -142,6 +168,11 @@ mkdir -p -m 755 var/lib/rpm/modules
 cp ../../modules_list/??-* var/lib/rpm/modules
 chmod 444 var/lib/rpm/modules/*
 cd ../
+for a in * ;do
+    [ -d $a ] || continue
+    mkdir -p $a/var/lib/rpm/modules
+    cp -p *-core//var/lib/rpm/modules/$a $a/var/lib/rpm/modules 2>/dev/null
+done
 sed -i s/KDM/slim/ *-x-lxde/etc/sysconfig/desktop
 sed -i s/KDE4/LXDE/ *-x-lxde/etc/sysconfig/desktop
 sed -i s/KDM/GDM/ *-x-gnome/etc/sysconfig/desktop

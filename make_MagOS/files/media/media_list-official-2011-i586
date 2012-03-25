@@ -7,9 +7,9 @@ ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/contrib/backports contr
 ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/main/updates main-updates 22458a98 update
 ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/non-free/updates nonfree-updates 22458a98 update
 ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/contrib/updates contrib-updates 26752624 update
-ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/main/release main-release 26752624
-ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/non-free/release nonfree-release 26752624
-ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/contrib/release contrib-release 26752624
+ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/main/release main-release 70771ff3
+ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/non-free/release nonfree-release 70771ff3
+ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/contrib/release contrib-release 78d019f5
 http://mib.pianetalinux.org/MIB/2011.0/32/basic mib 0 update ignore
 ftp://mirror.yandex.ru/mandriva/official/2011/SRPMS/main/updates src-updates 0 skip
 ftp://mirror.yandex.ru/mandriva/official/2011/SRPMS/main/release src-release 0 skip

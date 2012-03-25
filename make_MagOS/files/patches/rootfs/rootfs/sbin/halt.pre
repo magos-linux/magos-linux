@@ -45,7 +45,7 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo -e "/tmp/includedfiles\n/tmp/excludedfiles" > /tmp/excludedfiles
    if [ -f "$FILELIST" ] ;then
       grep ^! "$FILELIST" | cut -c 2- >/tmp/savelist.black
-      grep -v ^! "$FILELIST" >/tmp/savelist.white
+      grep -v '^[!#]' "$FILELIST" | grep . >/tmp/savelist.white
       grep -q . /tmp/savelist.white || echo '.' > /tmp/savelist.white
       find $SRC/ -type l >/tmp/allfiles
       find $SRC/ -type f >>/tmp/allfiles

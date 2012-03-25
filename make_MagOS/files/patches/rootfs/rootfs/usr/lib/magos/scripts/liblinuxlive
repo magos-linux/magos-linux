@@ -31,7 +31,7 @@ LIVECHANGES=livesave
 LIVEDATA=livedata
 LIVEREPOSITORY=$MOUNTDIR/liverepository
 MKSQOPT=
-MODULEFORMAT=xzm
+MODULEFORMAT="xzm"
 
 # this will be replaced by build script, so never change the following line!
 LIVECDNAME="MagOS"
@@ -896,7 +896,7 @@ find_file()
       done
    else
       # try to find PATHPART only on the given device
-      PATHPART=$(echo "$FIND" | sed -r 's:^/dev/[^/]+(.*):\1:')
+      PATHPART=$(echo "$FIND" | sed -r 's:^/dev/[^/]+(.*):\1:') #'
       find_filepath "$DEVPART" "$PATHPART" "$2"
    fi
 }
@@ -913,7 +913,7 @@ find_in_computer()
    debug_log "find_in_computer" "$*"
    local TIMEOUT RESULT
 
-   TIMEOUT=$(cmdline_value scantimeout | sed -r 's/[^0-9]*([0-9]+).*/\1/')
+   TIMEOUT=$(cmdline_value scantimeout | sed -r 's/[^0-9]*([0-9]+).*/\1/') #'
    if [ "$TIMEOUT" = "" ]; then TIMEOUT=10; fi
 
    RESULT=$(find_file "$1" "$2")
@@ -933,7 +933,7 @@ find_in_computer()
 # is already started, not during live setup
 # $1 = mounted module full path
 # $2..$n = optional arguments for the scripts, eg. 'start'
-#
+# 
 find_n_run_scripts()
 {
    debug_log "find_n_run_scripts" "$*"
@@ -941,19 +941,21 @@ find_n_run_scripts()
 
    MOD="$1"
    shift
+   
+   RCPATH=/etc/rc.d/init.d
+   RUNLEVEL=$(runlevel | awk '{print $2}')
+   [ -z "$RUNLEVEL" ] || RCPATH=/etc/rc.d/rc$RUNLEVEL.d
+   RUNSCRIPTS="$MOD$RCPATH|$MOD/usr/lib/magos/rc.local|$MOD/usr/lib/magos/rc.post"
+   echo $@ | grep -q start || RUNSCRIPTS=$MOD$RCPATH
 
-   if [ -d $MOD/etc/rc.d -o -d $MOD/etc/rc.d/init.d -o -d $MOD/etc/init.d ]; then
-      ( find $MOD/etc/rc.d -type f -maxdepth 1 2>/dev/null ; \
-        find $MOD/etc/init.d -type f -maxdepth 1 2>/dev/null  ; \
-        find $MOD/etc/rc.d/init.d -type f -maxdepth 1 2>/dev/null \
-      ) | cut -b ${#MOD}- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | while read SCRIPT; do
+   find $MOD | egrep $RUNSCRIPTS | cut -b ${#MOD}- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
+       while read SCRIPT; do
          if [ "$SCRIPT" != "" -a -x "$SCRIPT" -a ! -d "$SCRIPT" ]; then
             # call the script by real path, not from the module
             log "starting '$SCRIPT $@'"
             ${SCRIPT} "$@"
          fi
-      done
-   fi
+       done
 }
 
 # ===========================================================
