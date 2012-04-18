@@ -36,6 +36,7 @@ if [ "$GRAFFITI" = "yes" ] ;then
    cat /proc/cmdline | grep -q changes && LABEL= || LABEL=clean.png
    cat /proc/cmdline | egrep -q 'copy2ram|toram' && LABEL="$LABEL copy2ram.png"
    cat /proc/cmdline | grep -q save2module && LABEL="$LABEL save2module.png"
+   cat /proc/cmdline | grep -q home= && LABEL="$LABEL home.png"
    [ -z "$LABEL" ] && LABEL=magos.png
    for a in $LABEL ; do
       if [ -f /tmp/graffiti-label.png ] ;then

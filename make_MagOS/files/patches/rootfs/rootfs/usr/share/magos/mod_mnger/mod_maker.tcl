@@ -113,7 +113,10 @@ proc Log {} {
     $log tag configure error -foreground red
     $log tag configure blue -foreground red
     }
+    $log insert end \n
+    $log see end
 catch {close $input}
+catch {send mod_mnger full-update} 
     } else {
     gets $input line
     $log insert end $line\n
