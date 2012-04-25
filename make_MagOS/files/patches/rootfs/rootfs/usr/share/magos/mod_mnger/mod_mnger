@@ -137,7 +137,7 @@ $ww.frame_$item.list itemconfigure $a -foreground grey
 }
 }
 
-foreach item [ split [ exec cat /proc/mounts | grep squashfs ] "\n" ] {
+foreach item [ split [ exec cat /proc/mounts | grep \.xzm.*squashfs.*ro ] "\n" ] {
 regexp {/mnt.*xzm} $item b
 set active [ file tail $b ]  
 lappend allactive $active
