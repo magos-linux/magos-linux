@@ -73,7 +73,7 @@ rm -f error.tmp
 umount rootfs/proc rootfs/sys  || exit 1
 
 echo "Импортирование ключей"
-for a in ../../loaded/pubkeys/$VERREL-*.pubkey ;do
+for a in ../../loaded/$FLASHNAME-$VERREL/pubkeys/*.pubkey ;do
    rpm  --root "`pwd`/rootfs" --import $a 2>/dev/null  || exit 1
 done
 

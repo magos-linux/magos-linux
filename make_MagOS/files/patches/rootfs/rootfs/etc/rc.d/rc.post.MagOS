@@ -14,7 +14,11 @@ for a in /usr/lib/magos/rc.post/* ;do
 done
 
 # We have to launch some rc scripts from external modules
-for a in /etc/rc.d/rc.post.MagOS.* ;do
-   [ -x $a ] && $a start 2>/dev/null
+LOCKDIR=/var/lock/magos/rc.runonce
+[ -d "$LOCKDIR" ] || mkdir -p "$LOCKDIR"
+for a in /usr/lib/magos/rc.runonce/* ;do
+   [ -f "$LOCKDIR/$(basename $a)" -o ! -x "$a" ] && continue
+   $a start 2>/dev/null
+   touch "$LOCKDIR/$(basename $a)"
 done
 

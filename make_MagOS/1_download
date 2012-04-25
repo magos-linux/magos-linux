@@ -32,32 +32,32 @@ for a in `gawk '{print $2}' ../../../files/media/media_list-$STATUS-$VERREL-$ARC
         if ! [ -f "$a" ] ;then
            curl -# --retry-delay 2 --retry 5 -o .listing -l "$MEDIAURL/" || exit 1
            if grep -q -i "a href=" .listing ;then 
-               awk -F'<[Aa] [Hh][Rr][Ee][Ff]=["]?'  '{ print $2 }' .listing | awk -F'[" ]' '{print $1}' | grep .rpm >> "$a"
+               awk -F'<[Aa] [Hh][Rr][Ee][Ff]=["]?'  '{ print $2 }' .listing | awk -F'[" ]' '{print $1}' | grep .rpm | LC_ALL=C sort -V >> "$a"
            else
-               grep .rpm .listing >> "$a"
+               grep .rpm .listing | LC_ALL=C sort -V >> "$a"
            fi
            rm -f .listing
            if [ "$MEDIAKEY" != "" -a "$MEDIAKEY" != "0" ] ;then
                curl -# --retry-delay 2 --retry 5 -o ../pubkeys/$a.pubkey "$MEDIAURL/media_info/pubkey" || exit 1
            fi
-           if [ "$MEDIAUPD" != "skip" ] ;then
+           if [ "$MEDIAUPD" != "skip" -a "$MEDIAUPD" != "nomediainfo" ] ;then
                mkdir ../urpmi/var/lib/urpmi/$a
                curl -# --retry-delay 2 --retry 5 -o ../urpmi/var/lib/urpmi/$a/MD5SUM "$MEDIAURL/media_info/MD5SUM" || exit 1
                curl -# --retry-delay 2 --retry 5 -o ../urpmi/var/lib/urpmi/$a/synthesis.hdlist.cz "$MEDIAURL/media_info/synthesis.hdlist.cz" || exit 1
            fi
            echo
         fi
-        cat "$a" | awk '{ print "'$MEDIAURL/'" $1 }' | LC_ALL=C sort > "../urls/$a"
+        cat "$a" | awk '{ print "'$MEDIAURL/'" $1 }' | LC_ALL=C sort -V > "../urls/$a"
         if [ "$MEDIAUPD" != "skip" ] ;then
             echo "$a $MEDIAURL {" >>../urpmi/etc/urpmi/urpmi.cfg
             [ "$MEDIAKEY" != "0" ] && echo "  key-ids: $MEDIAKEY" >>../urpmi/etc/urpmi/urpmi.cfg
-            [ "$MEDIAUPD" != "" ] && echo "  $MEDIAUPD" >>../urpmi/etc/urpmi/urpmi.cfg
+            [ "$MEDIAUPD" != "" -a  "$MEDIAUPD" != "nomediainfo" ] && echo "  $MEDIAUPD" >>../urpmi/etc/urpmi/urpmi.cfg
             [ "$MEDIAADD" != "" ] && echo "  $MEDIAADD" >>../urpmi/etc/urpmi/urpmi.cfg
             echo -e "}\n"  >>../urpmi/etc/urpmi/urpmi.cfg
         fi
 done
 cd ../
-echo 
+echo
 
 # создаём список уже загруженных пакетов
 ls -1 ../cached_$VERREL | grep [.]rpm$ > re/local_rpms.txt
@@ -65,10 +65,10 @@ ls -1 ../cached_$VERREL | grep [.]rpm$ > re/local_rpms.txt
 # создание списка пакетов в истониках в соответствии с их приоритетом
 touch re/names_default_media.txt re/urls_default_media.txt
 for a in $MEDIA_DEFAULT ;do
-    cat media/$a | LC_ALL=C sort -r >re/tmp.txt || exit 1
+    cat media/$a | LC_ALL=C sort -rV >re/tmp.txt || exit 1
     cat re/names_default_media.txt re/tmp.txt >re/tmp2.txt || exit 1
     mv re/tmp2.txt re/names_default_media.txt || exit 1
-    cat urls/$a | LC_ALL=C sort -r >re/tmp.txt || exit 1
+    cat urls/$a | LC_ALL=C sort -rV >re/tmp.txt || exit 1
     cat re/urls_default_media.txt re/tmp.txt >re/tmp2.txt || exit 1
     mv re/tmp2.txt re/urls_default_media.txt || exit 1
 done
@@ -78,8 +78,8 @@ rm -f re/tmp.txt
 for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred/*` ;do
     awk '{ print "^" $1 "$" }' "$a" >  re/preferred/${a##*/} || exit 1
     awk '{ print "^" $1 "$" }' "$a" >> re/excluded.txt || exit 1
-    cat media/${a##*/} | LC_ALL=C sort -r >re/names_${a##*/}.txt || exit 1
-    cat urls/${a##*/} | LC_ALL=C sort -r >re/urls_${a##*/}.txt || exit 1
+    cat media/${a##*/} | LC_ALL=C sort -rV >re/names_${a##*/}.txt || exit 1
+    cat urls/${a##*/} | LC_ALL=C sort -rV >re/urls_${a##*/}.txt || exit 1
 done
 
 echo "Создание списков rpm пакетов"

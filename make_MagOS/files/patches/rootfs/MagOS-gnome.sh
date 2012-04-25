@@ -1,4 +1,8 @@
 #!/bin/bash
+PFP=etc/gconf/gconf.xml.defaults/%gconf-tree.xml
+sed -i s/evolution.desktop/gcalctool.desktop/ $PFP
+PFP=/etc/gconf/schemas/panel-default-setup.entries
+sed -i s/evolution.desktop/gcalctool.desktop/ $PFP
 PFP=etc/xdg/gnome/menus/settings.menu
 grep -q MagOS $PFP && exit 0
 cat >$PFP <<EOF
