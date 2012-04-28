@@ -109,31 +109,30 @@ echo etc/sysconfig/desktop >> modules_filelist/*-x-lxde
 
 #echo "Формирование модулей локализаций"
 MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
-echo Debug found module $MODULE
 movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
 movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
+
 MODULE=$(findmodbyrpm 'kdebase4-runtime-')
-echo Debug found module $MODULE
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
+
 MODULE=$(findmodbyrpm 'playonlinux-')
-echo Debug found module $MODULE
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
+
 MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
-echo Debug found module $MODULE
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
+
 MODULE=$(findmodbyrpm 'inkscape-')
-echo Debug found module $MODULE
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
+
 MODULE=$(findmodbyrpm 'libgweather-')
-echo Debug found module $MODULE
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
+
 MODULE=$(findmodbyrpm 'vpnpptp-allde-')
-echo Debug found module $MODULE
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
 movefiles modules_filelist/international modules_filelist/20-x-base '.*_ru.qm'
 

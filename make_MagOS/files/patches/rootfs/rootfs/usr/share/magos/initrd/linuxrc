@@ -413,7 +413,7 @@ rm -f /drivers.lzm /usr.lzm /drivers.xzm /usr.xzm >/dev/null 2>/dev/null
 # This allows us to use the cleanup script during reboot, as init will be
 # started from memory and not from the union and /union will not be busy.
 
-cp -af $INIT /bin
+cp -aHf $INIT /bin
 if [ $? -eq 0 ]; then
    pivot_root . $INITRAMDISK
    exec $CHROOT . $INITRAMDISK/bin/init <dev/console >dev/console 2>&1
