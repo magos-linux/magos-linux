@@ -19,6 +19,10 @@
 " xkill "
   Mod4 + Escape
 
+# менеджер модулей
+" mod_mnger "
+  Mod4 + m 
+
 # погасить экран
 " xset dpms force off "
   Mod4 + space
@@ -31,9 +35,22 @@
 " xdg-open ~/ "
   Mod4 + e
 
-# google
-" firefox http://google.com "
+# поиск по содержимому буфера обмена в google 
+" keyscripts search "
   Mod4 + g
+
+# перейти по адресу в буфере обмена
+" keyscripts url "
+  Mod4 + u
+
+# google-перевод en -> rus содержимого буфера обмена (win+>)
+" keyscripts enrus "
+  Mod4 + period
+
+# google-перевод rus -> en содержимого буфера обмена (win+<)
+" keyscripts rusen "
+  Mod4 + comma
+
 
 # заблокировать экран
 " dbus-send --session --dest=org.freedesktop.ScreenSaver --type=method_call --print-reply /ScreenSaver org.freedesktop.ScreenSaver.Lock "
@@ -87,6 +104,26 @@
 # поворот экрана 0 град.
 "xrandr --orientation normal"
   Mod4 + Down
+
+# Хоткеи для пользователей
+" keyscripts mykeys 1 "
+  Mod4 + F1
+" keyscripts mykeys 2 "
+  Mod4 + F2
+" keyscripts mykeys 3 "
+  Mod4 + F3
+" keyscripts mykeys 4 "
+  Mod4 + F4
+" keyscripts mykeys 5 "
+  Mod4 + F5
+" keyscripts mykeys 6 "
+  Mod4 + F6
+" keyscripts mykeys 7 "
+  Mod4 + F7
+" keyscripts mykeys 8 "
+  Mod4 + F8
+" keyscripts mykeys 9 "
+  Mod4 + F9
 
 ##################################
 # End of xbindkeys configuration #
