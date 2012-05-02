@@ -1,6 +1,9 @@
 #!/bin/bash
+# root test \
+[ "$(id -un)" != "root" ] &&  gksu -g "/bin/bash $0 $@" && exit 0
 # exec wish \
 exec wish8.6 "$0" "$@"
+
 package require msgcat
 proc _ {s} {return [::msgcat::mc $s]}
 ::msgcat::mcload /usr/share/magos/mod_mnger/msg/
@@ -41,7 +44,7 @@ set help_fromdir [ _ "Compress directory to lzm/xzm module. Please choose input/
   set path /mnt/livemedia/MagOS
   set test_exist [file exists $datapath]
     if {$test_exist == 0} {
-    set path /mnt/livemedia/???
+    set path /mnt/livemedia/MagOS
     } else {
   set datapath_read [open $datapath r]
   seek $datapath_read 0 start
@@ -49,17 +52,15 @@ set help_fromdir [ _ "Compress directory to lzm/xzm module. Please choose input/
       if { [string match *MagOS-Data* $datapath_string] eq "1" }  {
       set path /mnt/livemedia/MagOS-Data
       } 
-
     
 # каталоги по умолчанию
 set filter "??-"
 set indir_path /home/user
 set outdir_path $path/optional
-#set outfile $path/optional/new.lzm
 set infile /home/user/program.rpm
-set mod_type "lzm"
+set mod_type "nolzm"
 set lzmname ""
-set savename $path/modules/zz-save.xzm
+
 
 # получаем имя файла
 proc getinfile {} {
@@ -337,6 +338,7 @@ ttk::frame .base.note.fromchanges.help_fromchanges
     set enable_button [ ttk::button .base.note.fromchanges.ok -text [ 
     set status [ split [ exec /usr/lib/magos/scripts/save2module  ] ]
     set test [ lindex $status 0 ]
+    set savename [ lindex $status 1 ]
       if {$test == {disabled}} {	
       set a [ _ "Enable save2module" ]
       } else {
