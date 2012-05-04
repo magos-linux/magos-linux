@@ -52,6 +52,8 @@ else
    mv /tmp/background.jpg $DEFAULTDIR/default.jpg
 fi
 
+[ "$GRAFFITI" != "no" -a -z "$DEFAULTROOTPASSWD" -a -z "$DEFAULTPASSWD" ] && convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg 
+
 [ -f $DEFAULTDIR/default.jpg ] || ln -sf "$SOURCE" $DEFAULTDIR/default.jpg
 
 [ -d "/usr/share/apps/ksplash/Themes/Default/$XORG_RES" ] || mkdir "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
