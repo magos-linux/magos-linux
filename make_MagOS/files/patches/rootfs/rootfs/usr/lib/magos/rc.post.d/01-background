@@ -52,7 +52,7 @@ else
    mv /tmp/background.jpg $DEFAULTDIR/default.jpg
 fi
 
-[ "$GRAFFITI" != "no" -a -z "$DEFAULTROOTPASSWD" -a -z "$DEFAULTPASSWD" ] && convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg 
+[ "$GRAFFITI" != "no" ] && cat /etc/shadow | egrep  '^root\:\$2a\$08\$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji|^user\:\$2a\$08\$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2' &&  convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg 
 
 [ -f $DEFAULTDIR/default.jpg ] || ln -sf "$SOURCE" $DEFAULTDIR/default.jpg
 
