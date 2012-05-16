@@ -39,7 +39,14 @@ function download()
   if ! [ -f "$CACHE/$FNAME" ] ;then 
       echo Downloading $URL
       mkdir -p "$CACHE"
-      curl -o "$CACHE/$FNAME" -# --retry-delay 2 --retry 5 $URL || exit -1
+      if [ -z "$DOWNLOADER" ] ;then 
+         curl -o "$CACHE/$FNAME" -# --retry-delay 2 --retry 5 $URL || exit -1
+      else
+         CPWD="$PWD"
+         cd "$CACHE"
+         $DOWNLOADER "$URL" || exit -1
+         cd "$CPWD"
+      fi
   fi
   cp -p "$CACHE/$FNAME" ./ || die "download: cant copy $CACHE/$FNAME to $PWD"
 }
@@ -69,6 +76,9 @@ function unpack()
   rar)
       unrar x -inul  $@ "$FNAME" "$DDIR" || die "unpack: unrar error"
       ;;
+  rpm)
+      rpm2cpio "$FNAME" | cpio -i --make-directories "$DDIR" || die "unpack: rpm2cpio error"
+      ;;
   *)
       die "unpack: cant unpack $FNAME - unknown type $EXT"
   esac
@@ -78,6 +88,7 @@ function pack()
 {
   [ "$2" = "" -o "$3" != "" ] && die "pack: invalid parameters $@"
   echo Packing into module $2
+  mkdir -p "../../$MODULEFORMAT/"
   dir2$MODULEFORMAT "$1" "../../$MODULEFORMAT/$2.$MODULEFORMAT" || die "pack: dir2$MODULEFORMAT error"
 }
 

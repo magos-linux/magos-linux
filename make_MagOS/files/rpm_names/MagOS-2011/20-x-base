@@ -31,6 +31,7 @@ laptop-mode-tools-
 lesstif-
 libaa1-
 libacr38u0-
+libafpclient0-
 libalsa2-
 libalsa-data-
 libao4-
@@ -145,6 +146,7 @@ libmpfr4-
 libmpg123_0-
 libmysql18-
 libnice10-
+libnfs1-
 libnm-glib2-
 libnm-util1-
 libnotify-
@@ -187,6 +189,7 @@ libSDL1.2_0-
 libSDL_image1.2_0-
 libSDL_net1.2_0-
 libsgutils2-
+libshairport1-
 libsigc++2.0_0-
 libslang2-
 libsm6-
@@ -259,6 +262,7 @@ libxvmc1-
 libxxf86dga1-
 libxxf86misc1-
 libxxf86vm1-
+libyajl2-
 lilo-
 lm_sensors-
 lockdev-baudboy-

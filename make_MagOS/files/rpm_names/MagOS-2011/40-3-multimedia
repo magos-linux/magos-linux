@@ -48,11 +48,13 @@ libass4-
 libavc1394_0-
 libavfilter1-
 libbluray0-
+libbluray1-
 libbs2b0-
 libcaca0-
 libcdaudio1-
 libcdda0-
 libcddb2-
+libcec1-
 libcelt0_1-
 libcheese-gtk18-
 libcrystalhd1-
@@ -154,6 +156,7 @@ paprefs-
 pavucontrol-
 pulseaudio-
 pulseaudio-esound-compat-
+pulseaudio-module-bluetooth-
 pulseaudio-module-gconf-
 pulseaudio-module-x11-
 pulseaudio-utils-
