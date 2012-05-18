@@ -57,13 +57,7 @@ info ()
   echo "CMDLINE: $CMDLINE" >> ~/info.txt
   echo "MODULES:" >> ~/info.txt
   grep squashfs /proc/mounts | awk '{print $2}' | sort >> ~/info.txt
-  if [ "$DE" = "kde" ] ; then
-    kdialog --textbox $HOME/info.txt 600 250
-  elif [ "$DE" = "gnome" ] ; then
-    zenity --text-info --filename=$HOME/info.txt
-  else
-    leafpad $HOME/info.txt
-  fi
+  mdialog --textbox $HOME/info.txt 
   rm -f $HOME/info.txt
 }
 
@@ -71,12 +65,8 @@ touchpad ()
 {
   if [ $(synclient -l | grep TouchpadOff | awk '{ print $3 }') -eq 0 ] ; then
     synclient TouchpadOff=1
-    if [ "$DE" = "kde" ] ; then
-      kdialog --passivepopup "touсhpad отключен, WIN+t чтобы включить"
+    mdialog --passivepopup "touсhpad отключен, WIN+t чтобы включить"
     else
-      notify-send "touсhpad отключен, WIN+t чтобы включить"
-    fi
-  else
     synclient TouchpadOff=0
   fi
 }
@@ -88,11 +78,7 @@ rfswitch ()
     rfkill unblock all
   else
     rfkill block all
-    if [ "$DE" = "kde" ] ; then
-      kdialog --passivepopup "радиоинтерфейсы отключены, WIN+w чтобы включить"
-    else
-      notify-send "радиоинтерфейсы отключены, WIN+w чтобы включить"
-    fi
+    mdialog --passivepopup "радиоинтерфейсы отключены, WIN+w чтобы включить" 
   fi 
 } 
 
@@ -101,13 +87,7 @@ record()
   killall xbindkeys
   recordmydesktop --stop-shortcut Mod4+Print
   xbindkeys
-  if [ "$DE" = "kde" ] ; then
-    kdialog --passivepopup "запись завершена"
-  elif [ "$DE" = "gnome" ] ; then
-    zenity --notification --text="запись завершена"
-  else
-    notify-send "запись завершена"
-  fi
+  mdialog --passivepopup "запись завершена"  
 }
 
 network ()
@@ -116,15 +96,42 @@ network ()
   netstat --inet  >> ~/network.txt
   echo -e "\nlsof -i" >> ~/network.txt
   /usr/sbin/lsof -i >> ~/network.txt
-  if [ "$DE" = "kde" ] ; then
-    kdialog --textbox $HOME/network.txt 600 250
-  elif [ "$DE" = "gnome" ] ; then
-    zenity --text-info --filename=$HOME/network.txt
-  else
-    leafpad $HOME/network.txt
-  fi
+  mdialog --textbox $HOME/network.txt 600 250
   rm -f $HOME/info.txt
 }
 
-$1
+search ()
+{
+xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "http://www.google.ru/search?hl=ru&q=" $1}' | xargs firefox -new-tab
+}
+
+enrus ()
+{
+xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=ru#en|ru|" $1}' | xargs firefox -new-tab
+}
+
+rusen ()
+{
+xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=ru#ru|en|" $1}' | xargs firefox -new-tab
+}
+
+url ()
+{
+xclip -o | sed -n 1p | xargs firefox -new-tab
+}
+
+mykeys ()
+{
+string=$(head -n $1 $HOME/.mykeys | tail -n 1)
+> /tmp/tmpkey
+echo "#!/bin/bash" > /tmp/tmpkey
+echo "$string" >> /tmp/tmpkey
+chmod +x /tmp/tmpkey
+/tmp/tmpkey
+rm -f /tmp/tmpkey 
+
+}
+
+
+$1 $2
 exit
