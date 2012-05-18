@@ -6,8 +6,6 @@
 #
 
 # RPM5 vs ext3 bug workaround
-RPMDBITEMS="alternatives Packages filetriggers modules log DB_CONFIG"
-[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 
 grep -q "tmpfs /mnt/live/memory tmpfs" /proc/mounts && exit 0
 
@@ -18,8 +16,5 @@ if ! grep -q /var/lib/rpmdb /proc/mounts ;then
    [ -f /var/lib/rpm/__db.001 ] && /usr/lib/rpm/bin/dbconvert
    mount -o bind /var/lib/rpm /var/lib/rpmdb
    mount -t tmpfs tmpfs /var/lib/rpm
-#   for a in $RPMDBITEMS ;do
-#       ln -s /var/lib/rpmdb/$a /var/lib/rpm
-#   done
-    cp -R  /var/lib/rpmdb/* /var/lib/rpm
+   rsync -a /var/lib/rpmdb/ /var/lib/rpm
 fi

@@ -22,6 +22,11 @@ done
 # some cleanups
 rm -fr /tmp/*
 for a in /media/* ;do rmdir $a >/dev/null 2>&1 ;done
+
+# RPM5 vs EXTFS workaround
+[ -d /var/lib/rpmdb -a -f /var/lib/rpm/__db.001 ] && /usr/lib/rpm/bin/dbconvert
+[ -d /var/lib/rpmdb ] && rsync -a --del /var/lib/rpm/ /var/lib/rpmdb
+
 sync
 
 # save2module mode parser
