@@ -4,5 +4,7 @@
 #
 # Authors:	Anton Goroshkin <http://magos-linux.ru>
 #
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
 
-gtk-update-icon-cache -fit /usr/share/icons/hicolor
+gtk-update-icon-cache -fit /usr/share/icons/hicolor >/dev/null 2>&1

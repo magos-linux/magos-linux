@@ -5,5 +5,8 @@
 # Authors:	Mikhail Zaripov <m3for@mail.ru>
 # Authors:	Anton Goroshkin <http://magos-linux.ru>
 #
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 [ "$MNT_BLOCK" = "yes" ] && chmod 600 /mnt

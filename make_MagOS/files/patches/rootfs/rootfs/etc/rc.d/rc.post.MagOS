@@ -22,3 +22,4 @@ for a in /usr/lib/magos/rc.runonce/* ;do
    touch "$LOCKDIR/$(basename $a)"
 done
 
+[ -x /bin/systemd ] && wait

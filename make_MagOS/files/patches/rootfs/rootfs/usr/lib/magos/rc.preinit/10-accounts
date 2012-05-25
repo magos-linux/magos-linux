@@ -1,0 +1,40 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /liblinuxlive
+. etc/sysconfig/MagOS
+[ -f /tmp/.credential ] && . /tmp/.credential && rm -f /tmp/.credential
+
+[ -z "$(cmdline_value users)" ] || NEEDEDUSERS=$(cmdline_value users)
+[ -z "$DEFAULTPASSWD" ] && DEFAULTPASSWD='$2a$08$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2'
+[ -z "$DEFAULTROOTPASSWD" ] && DEFAULTROOTPASSWD='$2a$08$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji'
+[ -z "$DEFAULTUSER" ] && DEFAULTUSER=user
+[ -z "$NEEDEDUSERS" ] && NEEDEDUSERS="$DEFAULTUSER:500:$DEFAULTPASSWD"
+for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
+   NEEDEDUSER=$(echo $a | awk -F: '{ print $1 }')
+   NEEDEDUID=$(echo $a | awk -F: '{ print $2 }')
+   NEEDEDPASS=$(echo $a | awk -F: '{ print $3 }')
+   if ! grep -q ^$NEEDEDUSER: etc/passwd ;then
+        chroot . usr/sbin/adduser -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1
+        chroot . usr/bin/passwd -uf $NEEDEDUSER >/dev/null  2>&1
+        [ "$NEEDEDPASS" = "x" ] && NEEDEDPASS="$DEFAULTPASSWD"
+        [ "$NEEDEDPASS" = "" ] || sed -i s=^$NEEDEDUSER::=$NEEDEDUSER:"$NEEDEDPASS":= etc/shadow
+   fi
+   if ! [ -d home/$NEEDEDUSER ] ;then
+        cp -a etc/skel home/$NEEDEDUSER
+        chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
+        chmod 700 home/$NEEDEDUSER
+   elif [ "$UPDATEHOME" = "yes" ] ;then
+	rsync  -rlpt --ignore-existing etc/skel/ home/$NEEDEDUSER
+        chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
+   fi
+done
+sed -i s=^root::=root:"$DEFAULTROOTPASSWD":= etc/shadow

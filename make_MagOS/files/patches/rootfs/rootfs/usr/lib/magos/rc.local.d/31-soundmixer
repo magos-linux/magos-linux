@@ -5,10 +5,13 @@
 # Authors:	Mikhail Zaripov <m3for@mail.ru>
 #
 
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
 SNDMIXSET=yes
 SNDMIX_MASTER_N=Master
-SNDMIX_MASTER_VOL=75%
-SNDMIX_DEFAULT_VOL=100%
+SNDMIX_MASTER_VOL=50%
+SNDMIX_DEFAULT_VOL=90%
 SNDMIX_SWITCH_ON="IEC958 Playback Default,IEC958 Playback Switch"
 SNDMIX_SWITCH_OFF="Beep Playback Switch,Mic Playback Switch"
 DEBUG=off

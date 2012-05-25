@@ -150,6 +150,15 @@ done
 movefiles modules_filelist/international modules_filelist/*-core '.'
 rm -f modules_filelist/international
 
+# Перенос ссылок на службы в модули
+for a in modules_filelist/* ;do
+    echo "$a" | grep -q '..-core$' && continue
+    for b in $(grep etc/rc.d/init.d $a) ;do
+        SERVICE=${b##*/}
+        movefiles modules_filelist/*-core "$a" etc/rc.d/rc..d/...$SERVICE
+    done
+done
+
 echo "Раскидываем файлы по модулям"
 cd modules_filelist
 for MODULE in ??-* ;do

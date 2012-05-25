@@ -137,7 +137,9 @@ cmdline_parameter()
 {
    debug_log "cmdline_parameter" "$*"
    log "searching for bootparam: $1"
-   cat /proc/cmdline /tmp/cmdline 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
+   ADDFILE=/tmp/cmdline
+   [ -f /liblinuxlive ] || ADDFILE=/mnt/live$ADDFILE 
+   cat /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
 }
 
 # look into cmdline and echo value of $1 option
@@ -147,7 +149,9 @@ cmdline_value()
 {
    debug_log "cmdline_value" "$*"
    log "searching for bootparam value: $1"
-   cat /proc/cmdline /tmp/cmdline 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
+   ADDFILE=/tmp/cmdline
+   [ -f /liblinuxlive ] || ADDFILE=/mnt/live$ADDFILE
+   cat /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
 }
 
 # Make sure the part of a script after 'mutex_lock' call is atomic,
