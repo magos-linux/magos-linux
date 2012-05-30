@@ -24,7 +24,7 @@
   Mod4 + m 
 
 # погасить экран
-" xset dpms force off "
+" sleep 1 && xset dpms force off "
   Mod4 + space
 
 # спящий режим
