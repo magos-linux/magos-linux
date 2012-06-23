@@ -160,3 +160,8 @@ libcrystalhd-common-
 libmicrohttpd5-
 librtmp0-
 libmp3splt0-
+python-pyxdg-
+gstreamer0.10-plugins-bad-
+gstreamer0.10-voip-
+gstreamer0.10-mms-
+gstreamer0.10-faad-

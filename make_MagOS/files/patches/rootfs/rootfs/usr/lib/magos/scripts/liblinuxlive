@@ -1103,6 +1103,46 @@ mount_httpfs()
    fi
 }
 
+# Mount curlftpfs filesystem from the given server
+# $1 = server
+# $2 = mountdir
+#
+mount_curlftpfs()
+{
+   local OPTIONS
+   debug_log "mount_curlftpfs" "$*"
+   OPTIONS=
+   [ "$(cmdline_value netfsoptions)" ] && OPTIONS="-o $(cmdline_value netfsoptions)"
+
+   mkdir -p $2
+   /usr/bin/curlftpfs $OPTIONS $1 $2 || return
+   if [ -f $2/$(basename $1) ] ;then
+      echo $2/$(basename $1)
+   else
+      echo $2
+   fi
+}
+
+# Mount sshfs filesystem from the given server
+# $1 = server
+# $2 = mountdir
+#
+mount_sshfs()
+{
+   local OPTIONS
+   debug_log "mount_sshfs" "$*"
+   OPTIONS=
+   [ "$(cmdline_value netfsoptions)" ] && OPTIONS="-o $(cmdline_value netfsoptions)"
+   
+   mkdir -p $2
+   /usr/bin/sshfs $OPTIONS $1 $2 || return
+   if [ -f $2/$(basename $1) ] ;then
+      echo $2/$(basename $1)
+   else
+      echo $2
+   fi
+}
+
 # Mount nfs filesystem from the given server
 # $1 = server
 # $2 = mountdir

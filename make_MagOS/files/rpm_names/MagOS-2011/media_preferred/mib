@@ -159,3 +159,4 @@ virtualbox-guest-additions-
 dkms-vboxadditions-
 x11-driver-input-vboxmouse-
 x11-driver-video-vboxvideo-
+python-pyxdg-

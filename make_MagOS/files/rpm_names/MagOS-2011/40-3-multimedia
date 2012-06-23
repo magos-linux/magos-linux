@@ -27,6 +27,7 @@ gstreamer0.10-flac-
 gstreamer0.10-mms-
 gstreamer0.10-plugins-bad-
 gstreamer0.10-plugins-base-
+gstreamer0.10-faad-
 gstreamer0.10-plugins-good-
 gstreamer0.10-plugins-ugly-
 gstreamer0.10-pulse-
@@ -100,7 +101,7 @@ libmjpegtools2.0_0-
 libmms0-
 libmodplug1-
 libmp3splt0-
-libmp4v2_1-
+libmp4v2_2-
 libmpcdec5-
 libmpeg2dec0-
 libmtp9-
@@ -160,6 +161,7 @@ pulseaudio-module-bluetooth-
 pulseaudio-module-gconf-
 pulseaudio-module-x11-
 pulseaudio-utils-
+python-pyxdg-
 qmmp-
 qmmp-plugins-
 qmmp-wavpack-

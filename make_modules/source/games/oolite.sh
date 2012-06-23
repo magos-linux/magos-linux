@@ -21,7 +21,7 @@ download $SOURCE1
 
 unpack ${SOURCE0##*/} ./
 unpack ${SOURCE1##*/} ./
-unpack oolite-$VERSION.linux-x86.run ./ --noexec --target tmp
+unpack oolite-$VERSION.linux-x86.run ./ --noexec --target ./
 unpack tmp/oolite.installer.tmp/addons.tar.gz rootfs/opt/Oolite
 unpack tmp/oolite.installer.tmp/freedesktop.tar.gz tmp
 unpack tmp/oolite.installer.tmp/oolite.deps.tar.gz rootfs/opt/Oolite/oolite-deps
@@ -42,4 +42,4 @@ checkrights rootfs
 
 pack rootfs $DIRNAME
 
-clean
+#clean

@@ -19,7 +19,7 @@ INIRAMDLIBS2='libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 l
 INIRAMDBIN1="busybox.static lspci httpfs blkid blockdev"
 # binaries for /usr/bin
 INIRAMDBIN2='dosfsck fsck fsck.ext2 fsck.reiser4 reiserfsck rsync losetup ntfsfix mksquashfs unsquashfs
-  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server resume'
+  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server resume sshfs'
 
 INITRDMODULES='kernel/fs/aufs dkms-binary/fs/squashfs dkms-binary/lib/lzma /kernel/fs/squashfs
   kernel/lib/zlib_inflate kernel/lib/zlib_deflate kernel/lib/crc-t10dif. kernel/lib/crc16.

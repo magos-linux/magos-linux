@@ -18,7 +18,7 @@ Updating MBR on|Замена MBR на|
 Setting up boot record for|Настройка загрузочного сектора для|
 Disk|Устройство|
 should be bootable now. Installation finished.|теперь должно быть загрузочным. Установка завершена.|
-Read the information above and then press Enter to exit...|Прочтите информацию и нажмите Вввод для завершения...|
+Read the information above and then press Enter to exit...|Прочтите информацию и нажмите Ввод для завершения...|
 This script will create bootable ISO|Этот скрипт создаст загрузочный ISO образ|
 Target ISO file name|Укажите имя ISO образа|
 Hit enter for|Нажмите Ввод чтобы выбрать|

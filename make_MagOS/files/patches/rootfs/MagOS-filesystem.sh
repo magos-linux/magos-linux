@@ -9,6 +9,7 @@ rm -fr etc/skel/tmp var/tmp proc sys tmp etc/fstab etc/mtab \
 rm -f dev/null
 ln -sf ../tmp var/tmp
 ln -sf /bin/true sbin/fsck.aufs
+ln -sf /usr/sbin/mount.davfs sbin/mount.davfs
 mknod -m 666 dev/null c 1 3
 ln -sf $(ls boot/vmlinuz-* | tail -1 | sed 's|boot/||') boot/vmlinuz
 ln -s /usr/bin/busybox sbin/udhcpc

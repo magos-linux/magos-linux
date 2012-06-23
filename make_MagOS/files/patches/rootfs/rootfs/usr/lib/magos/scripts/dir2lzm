@@ -114,7 +114,8 @@ if [ $# -eq 1 ] ; then
    makename
 else
    modname="$2"
-   rootname=$(basename $(echo $modname | awk -F. '{ print $(NF-1)}')) #'
+   rootname=${modname%.*}
+   rootname=${rootname##*/}
 fi
 
 ls "$dirname"/usr/share/doc/modules/*  >/dev/null 2>&1 && updateDocDate

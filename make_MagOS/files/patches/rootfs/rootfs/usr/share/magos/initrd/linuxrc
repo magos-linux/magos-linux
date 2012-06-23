@@ -77,6 +77,8 @@ if [ "$DATAFROM" ]; then
    if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
       init_dhcp $(modprobe_network_modules)
       echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
+      echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
+      echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
       echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
    else
       DATAFROM=$(find_in_computer $DATAFROM $MOUNTDIR/$LIVEMEDIA)
@@ -162,6 +164,8 @@ if [ "$REPOSITORY" ]; then
       init_dhcp $(modprobe_network_modules)
        mkdir -p $LIVEREPOSITORY
       echo $REPOSITORY | grep -iq ^"http://" && mount_httpfs $REPOSITORY $LIVEREPOSITORY
+      echo $REPOSITORY | grep -iq ^"ftp://" && mount_curlftpfs $REPOSITORY $LIVEREPOSITORY
+      echo $REPOSITORY | grep -iq ^"ssh://" && mount_sshfs $REPOSITORY $LIVEREPOSITORY
       echo $REPOSITORY | grep -iq ^"nfs://" && mount_nfs $REPOSITORY $LIVEREPOSITORY
    else
    REPOSITORYMNT=$(find_in_computer $REPOSITORY $LIVEREPOSITORY)

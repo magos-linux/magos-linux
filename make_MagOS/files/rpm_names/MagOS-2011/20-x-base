@@ -296,6 +296,7 @@ pm-utils-
 pulseaudio-client-config-
 python-cairo-
 python-dbus-
+python-distribute-
 python-gobject-
 python-numpy-
 python-sip-

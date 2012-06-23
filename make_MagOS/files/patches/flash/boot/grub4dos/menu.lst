@@ -47,6 +47,9 @@ title MagOS_copy2ram
 kernel /MagOS/vmlinuz root=/dev/ram0 rw vga=791 quiet copy2ram ramsize=80%
 initrd /MagOS/initrd.gz
 
+title MagOS_netlive
+kernel /boot/tools/ipxe.krn
+
 title Memtest
 kernel /boot/tools/memtest
 
