@@ -403,9 +403,10 @@ set check enable
     set repodir [ tk_chooseDirectory -initialdir /home/user -parent .addrepo ]     
    }
     ttk::combobox .addrepo.frame.entry  -values {
-      http://
-      ftp://
       ftp://magos.sibsau.ru/modules/2011/optional/
+      http://magos.sibsau.ru/repository/modules/2011/optional/
+      ftp://mirror.yandex.ru/mirrors/magos/modules/2011/optional/
+      http://mirror.yandex.ru/mirrors/magos/modules/2011/optional/
       } -textvariable repodir 
     label .addrepo.frame.label -text [ _ "set repository name =>" ] -bg [ lindex $bgcolors 1 ] 
   set reponame repository_1
