@@ -76,6 +76,7 @@ if [ "$DATAFROM" ]; then
    DATA=$MOUNTDIR/$LIVEMEDIA
    if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
       init_dhcp $(modprobe_network_modules)
+      debug_shell
       echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
       echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)
       echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $MOUNTDIR/$LIVEMEDIA)

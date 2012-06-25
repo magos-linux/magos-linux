@@ -13,7 +13,7 @@ INIRAMDLIBS1='ld-linux.so.2 libblkid.so.1 libc.so.6 libdl.so.2 libgcc_s.so libpt
 INIRAMDLIBS2='libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 libpopt.so.0 libsysfs.so.2 libpci.so.3
   libresolv.so.2 libnss_files.so.2 libnss_dns.so.2 libattr.so.1 libacl.so.1
   libaal-1.0.so.5 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libreadline.so.6 libreiser4-1.0.so.7 librepair-1.0.so.7 libntfs.so.10 
-  libstdc++.so.6 libntfs-3g.so.83 libntfs-3g.so.80 libply-splash-core.so.2 libply.so.2'
+  libstdc++.so.6 libntfs-3g.so.83 libntfs-3g.so.80 libply-splash-core.so.2 libply.so.2 libgthread-2.0.so.0 libutil.so.1'
 
 # binaries for /bin
 INIRAMDBIN1="busybox.static lspci httpfs blkid blockdev"

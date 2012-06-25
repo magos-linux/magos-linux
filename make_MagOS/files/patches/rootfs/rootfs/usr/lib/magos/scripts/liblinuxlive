@@ -1059,7 +1059,7 @@ modprobe_network_modules()
    if [ "$(cmdline_parameter nohotplug)" ]; then return 0; fi
 
    # probe all drivers. Start by the ones mentioned in pcimodules' output
-   for module in $(list_network_drivers | egrep "$(pcimodules | tr "\n" "|")!") $(list_network_drivers); do
+   for module in $(list_network_drivers | egrep "$(pcimodules | tr "\n" "|")!") $(list_network_drivers); do #"
       modprobe_module $module
       ETH=$(cat /proc/net/dev | grep : | grep -v lo: | cut -d : -f 1 | tr -d " ")
       if [ "$ETH" != "" ]; then
@@ -1115,7 +1115,7 @@ mount_curlftpfs()
    [ "$(cmdline_value netfsoptions)" ] && OPTIONS="-o $(cmdline_value netfsoptions)"
 
    mkdir -p $2
-   /usr/bin/curlftpfs $OPTIONS $1 $2 || return
+   /usr/bin/curlftpfs $OPTIONS $1 $2 </dev/console >/dev/console 2>/dev/console || return
    if [ -f $2/$(basename $1) ] ;then
       echo $2/$(basename $1)
    else
@@ -1133,9 +1133,15 @@ mount_sshfs()
    debug_log "mount_sshfs" "$*"
    OPTIONS=
    [ "$(cmdline_value netfsoptions)" ] && OPTIONS="-o $(cmdline_value netfsoptions)"
-   
    mkdir -p $2
-   /usr/bin/sshfs $OPTIONS $1 $2 || return
+   times=3
+   while [ $times -gt 0 ]; do
+     /usr/bin/sshfs ${1/ssh:??/} $2 $OPTIONS </dev/console >/dev/console 2>/dev/console
+     ERR=$?
+     [ $ERR -eq 0 ] && break
+     times=$(expr $times - 1)
+   done
+   [ $ERR -eq 0 ] || return
    if [ -f $2/$(basename $1) ] ;then
       echo $2/$(basename $1)
    else
