@@ -35,8 +35,8 @@ done
 
 mount -t aufs -o br:$mount_br wiz_fly $root_br
 
-mount -t tmpfs tmpfs_rpmdb $root_br/var/lib/rpm
-cp -R /var/lib/rpmdb/* $root_br/var/lib/rpm
+#mount -t tmpfs tmpfs_rpmdb $root_br/var/lib/rpm
+#cp -R /var/lib/rpm/* $root_br/var/lib/rpm
 
 mkdir -p $root_br/{dev,proc,sys}
 
@@ -46,7 +46,7 @@ for tm in {dev,proc,sys}; do
 done
 
 mkdir -p $root_br/tmp
-/usr/sbin/rpmdrake --rpm-root=$root_br $@
+/usr/sbin/rpmdrake --rpm-root=$root_br --urpmi-root=$root_br  $@
 err=0
 if [ $? != 0 ]; then 
     echo "Error rpmdrake RPMs install";
@@ -63,9 +63,9 @@ done
 
 rm -rf $root_br/{dev,proc,sys}
 
-while (grep -q tmpfs_rpmdb /proc/mounts ) ; do
-    umount tmpfs_rpmdb
-done
+#while (grep -q tmpfs_rpmdb /proc/mounts ) ; do
+#    umount tmpfs_rpmdb
+#done
 
 while (grep -q wiz_fly /proc/mounts ) ; do
     umount wiz_fly
@@ -75,7 +75,7 @@ done
 #dir2lzm $mod_br/var/lib/rpm $1_rpmbase.$MODULEFORMAT
 
 #rm -rf $mod_br/var/lib/rpm
-rm -rf $mod_br/tmp
+rm -rf $mod_br/tmp $mod_br/var/lib/urpmi $mod_br/var/lib/rpm $mod_br/var/cache/urpmi $mod_br/.wh*
 
 cd /mnt/livemedia/MagOS-Data/optional
 
