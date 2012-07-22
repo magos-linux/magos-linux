@@ -70,6 +70,7 @@ update_app kde4/knotes.desktop "Qt;KDE;Utility;TextTools;"
 update_app kde4/Kjots.desktop "Qt;KDE;Utility;TextTools;"
 update_app kde4/irkick.desktop "Qt;KDE;X-KDE-settings-peripherals;"
 update_app kde4/KFloppy.desktop "Qt;KDE;X-KDE-settings-peripherals;"
+update_app PlayOnLinux.desktop "Emulator;"
 
 sed -i /NoDisplay=true/d usr/share/applications/gnomecc.desktop
 sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор GNOME'/ usr/share/applications/gnome-system-monitor.desktop
