@@ -62,7 +62,7 @@ chroot initrd/rootfs /usr/lib/magos/scripts/mkinitrd /boot/initrd.gz || exit 1
 mv initrd/rootfs/boot/initrd.gz "$MYPATH/$DESTDIR/${FLASHNAME}" || exit 1
 umountbranches "$(pwd)/initrd"
 rm -fr initrd
-exit 0
+
 echo "Создание модулей"
 cd "$MYPATH/work/$FLASHNAME-$VERREL/modules" || exit 1
 for a in * ;do
