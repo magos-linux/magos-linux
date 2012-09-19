@@ -62,8 +62,8 @@ echo
 # создаём список уже загруженных пакетов
 ls -1 ../cached_$VERREL | grep [.]rpm$ > re/local_rpms.txt
 
-# создание списка пакетов в истониках в соответствии с их приоритетом
-touch re/names_default_media.txt re/urls_default_media.txt
+# создание списка пакетов в источниках в соответствии с их приоритетом
+touch re/names_default_media.txt re/urls_default_media.txt re/preferred/null
 for a in $MEDIA_DEFAULT ;do
     cat media/$a | LC_ALL=C sort -rV >re/tmp.txt || exit 1
     cat re/names_default_media.txt re/tmp.txt >re/tmp2.txt || exit 1
@@ -74,7 +74,7 @@ for a in $MEDIA_DEFAULT ;do
 done
 rm -f re/tmp.txt
 
-# создание списка исключений 
+# создание списка исключений
 for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred/*` ;do
     awk '{ print "^" $1 "$" }' "$a" >  re/preferred/${a##*/} || exit 1
     awk '{ print "^" $1 "$" }' "$a" >> re/excluded.txt || exit 1

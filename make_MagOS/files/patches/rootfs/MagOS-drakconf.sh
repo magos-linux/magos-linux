@@ -1,10 +1,11 @@
 #!/bin/bash
+# copy icons
 cp -pf usr/share/pixmaps/leafpad.png usr/share/mcc/themes/default
-
+# bug fix. obsolete for 2012lts. need check for 2010.2 2011
 PFP=usr/lib/libDrakX/network/connection.pm
 sed -i s/'{ifcfg}{ACCOUNTING}'/'get_ifcfg_bool('\''ACCOUNTING'\'')'/ $PFP
 sed -i s/'{ifcfg}{NM_CONTROLLED}'/'get_ifcfg_bool('\''NM_CONTROLLED'\'')'/ $PFP
-
+# locale file fixes
 PFP=usr/share/locale/ru/LC_MESSAGES/drakconf
 msgunfmt $PFP.mo -o drakconf.po
 if ! grep -q XZM drakconf.po ;then
@@ -32,7 +33,7 @@ msgid "Configs Manager"
 msgstr "Правка настроек"
 
 EOF
-  msgfmt drakconf.po -o $PFP.mo 
+  msgfmt drakconf.po -o $PFP.mo
 fi
 rm -f drakconf.po
 exit 0
