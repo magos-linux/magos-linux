@@ -34,5 +34,5 @@ INITDNEED=" rsyslog acpid udev-post messagebus haldaemon alsa sound resolvconf  
  iptables network network-up pdnsd dm resolvconf wine gpm xinetd"
 
 # ключи для команды mksquashfs при создании модулей
-MKSQOPT=
+MKSQOPT=" -b 512K "
 SQFSVER=4

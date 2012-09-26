@@ -14,6 +14,8 @@ sed -i /'inode\/directory='/d usr/share/applications/mimeapps.list
 mkdir -p etc/skel/.local/share/applications 2>/dev/null
 echo '[Default Applications]' > etc/skel/.local/share/applications/defaults.list
 echo '[Added Associations]' > etc/skel/.local/share/applications/mimeapps.list
+update_mime application/x-visio libreoffice-draw.desktop
+update_mime application/x-mimearchive firefox.desktop
 update_mime application/x-lzm gactivate.desktop
 update_mime application/x-ms-dos-executable wine.desktop
 update_mime application/pdf epdfview.desktop

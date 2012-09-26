@@ -2,7 +2,7 @@
 
 # Name of this version of winetricks (YYYYMMDD)
 # (This doesn't change often, use the sha1sum of the file when reporting problems)
-WINETRICKS_VERSION=20120819
+WINETRICKS_VERSION=20120912
 
 # This is a utf-8 file
 # You should see an o with two dots over it here [ö]
@@ -44,7 +44,7 @@ WINETRICKS_VERSION=20120819
 #   Copyright (C) 2007-2012 Dan Kegel <dank!kegel.com>
 #   Copyright (C) 2008-2012 Austin English <austinenglish!gmail.com>
 #   Copyright (C) 2010-2011 Phil Blankenship <phillip.e.blankenship!gmail.com>
-#   Copyright (C) 2010-2011 Shannon VanWagner <shannon.vanwagner!gmail.com>
+#   Copyright (C) 2010-2012 Shannon VanWagner <shannon.vanwagner!gmail.com>
 #   Copyright (C) 2010 Belhorma Bendebiche <amro256!gmail.com>
 #   Copyright (C) 2010 Eleazar Galano <eg.galano!gmail.com>
 #   Copyright (C) 2010 Travis Athougies <iammisc!gmail.com>
@@ -2029,7 +2029,9 @@ winetricks_detect_gui()
         echo "Zenity not found!  Using kdialog as poor substitute."
         WINETRICKS_GUI=kdialog
     else
-        echo "Please install zenity if you want a graphical interface."
+        echo "No arguments given, so tried to start GUI, but zenity not found."
+        echo "Please install zenity if you want a graphical interface, or "
+        echo "run with --help for more options."
         exit 1
     fi
 }
@@ -4586,9 +4588,7 @@ load_dotnet20()
     # and http://bugs.winehq.org/show_bug.cgi?id=30845#c10
     w_set_winver win2k
 
-    cd "$W_CACHE"/dotnet20
-
-    if test ! -f l_intl.nls && w_workaround_wine_bug 10467 "Install l_intl.nls" 1.1.44,
+    if test ! -f "$W_CACHE"/dotnet20/l_intl.nls && w_workaround_wine_bug 10467 "Install l_intl.nls" 1.1.44,
     then
         # See http://kegel.com/wine/l_intl-sh.txt for how l_intl.nls was generated
         # Use zip rather than naked file to get past strange web proxies
@@ -4615,6 +4615,7 @@ load_dotnet20()
         $WINE reg add 'HKLM\Software\Microsoft\.NETFramework' /v InstallRoot /d 'C:\Windows\Microsoft.NET\Framework\' /f
     fi
 
+    cd "$W_CACHE"/dotnet20
     if w_workaround_wine_bug 30845 "Using native fusion while installing..." ,1.5.6
     then
         w_try env WINEDLLOVERRIDES=mscoree,fusion=n $WINE dotnetfx.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
@@ -5030,8 +5031,8 @@ w_metadata flash dlls \
     media="download" \
     file1="install_flash_player_10_plugin.exe" \
     file2="install_flash_player_10_active_x.exe" \
-    installed_file1="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil10ze_Plugin.exe" \
-    installed_file2="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil10ze_ActiveX.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil10zf_Plugin.exe" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil10zf_ActiveX.exe" \
     homepage="http://www.adobe.com/products/flashplayer/"
 
 load_flash()
@@ -5055,7 +5056,8 @@ load_flash()
     # 2012-03-08: sha1sum ccbf24ab0dfa3635fb12d895eb55c5e888879c5d
     # 2012-05-02: sha1sum d86ca46afc312b14375aad483d1c7e5f12c707a4
     # 2012-05-11: sha1sum 4020135dfbfe4b49067bb679000e0a6b7c7ed8bc
-    w_download http://fpdownload.macromedia.com/get/flashplayer/current/licensing/win/install_flash_player_10_active_x.exe 4020135dfbfe4b49067bb679000e0a6b7c7ed8bc
+    # 2012-08-12: sha1sum 3cd65d71ba26b829255e44a1af708fc060282bc6
+    w_download http://fpdownload.macromedia.com/get/flashplayer/current/licensing/win/install_flash_player_10_active_x.exe 3cd65d71ba26b829255e44a1af708fc060282bc6
     cd "$W_CACHE"/flash
 
     w_try $WINE install_flash_player_10_active_x.exe ${W_OPT_UNATTENDED:+ /install}
@@ -5075,7 +5077,8 @@ load_flash()
     # 2012-03-08: sha1sum aeddca4eddb0ad91c1b8bc32f8c543069b519325
     # 2102-05-02: sha1sum 0a7a7b9b8b6b834e452b456205e33210fb3b544c, name change
     # 2102-05-11: sha1sum 060f11d5479863af609272a24dea82e6b04e0641
-    w_download http://fpdownload.macromedia.com/get/flashplayer/current/licensing/win/install_flash_player_10_plugin.exe 060f11d5479863af609272a24dea82e6b04e0641
+    # 2012-08-12: sha1sum 3909ee6078bdae2157f595b8d7c4f1484fef710b
+    w_download http://fpdownload.macromedia.com/get/flashplayer/current/licensing/win/install_flash_player_10_plugin.exe 3909ee6078bdae2157f595b8d7c4f1484fef710b
 
     w_try $WINE install_flash_player_10_plugin.exe ${W_OPT_UNATTENDED:+ /install}
 }
@@ -6180,8 +6183,9 @@ load_shockwave() {
     # 2011-11-10 sha1sum: b55974b471c516f13fb032424247c07390baf380
     # 2012-03-07 sha1sum: 3b10f645ba1a6815fa97924a6bde4eda3177ff68
     # 2012-04-26 sha1sum: 48b1a44b2c12c486916d641f3b4e20abffb3d6e4
-
-    w_download http://fpdownload.macromedia.com/get/shockwave/default/english/win95nt/latest/sw_lic_full_installer.msi 48b1a44b2c12c486916d641f3b4e20abffb3d6e4
+    # 2012-08-08 sha1sum: 3c4d531ccf0bb5788f1c197c63e9c0aa89885ee6
+ 
+    w_download http://fpdownload.macromedia.com/get/shockwave/default/english/win95nt/latest/sw_lic_full_installer.msi 3c4d531ccf0bb5788f1c197c63e9c0aa89885ee6 
     cd "$W_CACHE"/shockwave
     w_try $WINE msiexec /i sw_lic_full_installer.msi $W_UNATTENDED_SLASH_Q
 }
@@ -7870,7 +7874,7 @@ w_metadata firefox36 apps \
 
 load_firefox36()
 {
-    w_download "http://releases.mozilla.org/pub/mozilla.org/firefox/releases/3.6.28/win32/en-US/Firefox%20Setup%203.6.28.exe" 3657287c2cff34f5edc237de954a9cc6f2ca465a "$file1"
+    w_download "ftp://ftp.mozilla.org/pub/firefox/releases/3.6.28/win32/en-US/Firefox%20Setup%203.6.28.exe" 3657287c2cff34f5edc237de954a9cc6f2ca465a "$file1"
     cd "$W_CACHE"/firefox36
     w_try $WINE "$file1" ${W_OPT_UNATTENDED:+ -ms}
 
@@ -8027,46 +8031,6 @@ load_irfanview()
         w_try "$WINE" $file1
     fi
     w_declare_exe "$W_PROGRAMS_X86_WIN\\IrfanView" "i_view32.exe"
-}
-
-#----------------------------------------------------------------
-
-w_metadata ie3 dlls \
-    title="Internet Explorer 3" \
-    publisher="Microsoft" \
-    year="1996" \
-    media="download" \
-    file1="msie302m95.exe" \
-    installed_file1="c:/Program Files/Internet Explorer/INST32.DLL"
-    
-load_ie3()
-{
-    w_warn "This is for debugging purposes only, DO NOT INSTALL."
-
-    w_set_winver win95
-
-    # FIXME: /q is quiet, but still has some promps..
-    w_download http://www.mirrorservice.org/sites/browsers.evolt.org/browsers/ie/win32/3.02/win95full/msie302m95.exe a55c3834860347342c0b91e0f572124b440eb195
-    
-    cat > "$W_TMP"/override-dll.reg <<_EOF_
-REGEDIT4
-
-[HKEY_CURRENT_USER\Software\Wine\AppDefaults\infinst2.exe\DllOverrides]
-"shell32"="native"
-   
-_EOF_
-    w_try_regedit "$W_TMP_WIN"\\override-dll.reg
-
-    cd "$W_CACHE/$W_PACKAGE"
-    $WINE msie302m95.exe
-    # IE3 exits with 194 to signal a reboot
-    status=$?
-    case $status in
-        0|194) ;;
-        *) w_die ie6 installation failed
-    esac
-
-    # FIXME: installer reboots and has a failure, not sure how to detect that cleanly.
 }
 
 #----------------------------------------------------------------
@@ -8845,14 +8809,14 @@ _EOF_
 w_metadata sketchup apps \
     title="Sketchup 8" \
     publisher="Google" \
-    year="2010" \
+    year="2012" \
     media="download" \
     file1="GoogleSketchUpWEN.exe" \
     installed_exe1="$W_PROGRAMS_X86_WIN/Google/Google SketchUp 8/SketchUp.exe"
 
 load_sketchup()
 {
-    w_download http://dl.google.com/sketchup/GoogleSketchUpWEN.exe 8a7e270c54eb3b6def797547becd02809ef6e439
+    w_download http://dl.google.com/sketchup/GoogleSketchUpWEN.exe f0628e6f05241f91e4f36d6be3b8685a408ad12b
 
     cd "$W_CACHE/$W_PACKAGE"
     w_ahk_do "
@@ -9383,7 +9347,7 @@ load_wmp10()
     w_call wsh57
 
     # http://www.microsoft.com/downloads/en/details.aspx?FamilyID=b446ae53-3759-40cf-80d5-cde4bbe07999
-    w_download_manual http://www.softpedia.com/progDownload/Windows-Media-Player-Download-4121.html MP10Setup.exe 69862273a5d9d97b4a2e5a3bd93898d259e86657
+    w_download_manual http://www.softpedia.com/get/Multimedia/Audio/Audio-Players/Windows-Media-Player.shtml MP10Setup.exe 69862273a5d9d97b4a2e5a3bd93898d259e86657
 
     # Crashes on exit, but otherwise ok; see http://bugs.winehq.org/show_bug.cgi?id=12633
     cd "$W_CACHE"/wmp10
@@ -16960,6 +16924,52 @@ _EOF_
     w_try_regedit "$W_TMP"/set-gfs.reg
 }
 
+w_metadata windowmanagerdecorated=y settings \
+    title="Allow the window manager to decorate windows (default)"
+w_metadata windowmanagerdecorated=n settings \
+    title="Prevent the window manager from decorating windows"
+
+load_windowmanagerdecorated()
+{
+    case $1 in
+    y|n) arg=$1;;
+    *) w_die "illegal value $1 for Decorated";;
+    esac
+
+    echo "Setting Decorated to $arg"
+    cat > "$W_TMP"/set-wmd.reg <<_EOF_
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Wine\X11 Driver]
+"Decorated"="$arg"
+
+_EOF_
+    w_try_regedit "$W_TMP"/set-wmd.reg
+}
+
+w_metadata windowmanagermanaged=y settings \
+    title="Allow the window manager to control windows (default)"
+w_metadata windowmanagermanaged=n settings \
+    title="Prevent the window manager from controling windows"
+
+load_windowmanagermanaged()
+{
+    case $1 in
+    y|n) arg=$1;;
+    *) w_die "illegal value $1 for Managed";;
+    esac
+
+    echo "Setting Managed to $arg"
+    cat > "$W_TMP"/set-wmm.reg <<_EOF_
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Wine\X11 Driver]
+"Managed"="$arg"
+
+_EOF_
+    w_try_regedit "$W_TMP"/set-wmm.reg
+}
+
 #----------------------------------------------------------------
 # Other settings
 
@@ -17866,6 +17876,12 @@ then
         winetricks_volname ${1#volnameof=}
         ;;
     "")
+        if test x"$DISPLAY" = x""
+        then
+            echo "DISPLAY not set, not defaulting to gui"
+            winetricks_usage
+            exit 0
+        fi
         # GUI case
         # No non-option arguments given, so read them from GUI, and loop until user quits
         winetricks_detect_gui
