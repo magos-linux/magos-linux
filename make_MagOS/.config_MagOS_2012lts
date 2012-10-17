@@ -23,7 +23,7 @@ ARCH=i586
 
 # приоритет источников
 MEDIA_DEFAULT="\
-local mib \
+mib \
 restricted-updates main-updates contrib-updates nonfree-updates \
 restricted-release main-release contrib-release nonfree-release \
 "
