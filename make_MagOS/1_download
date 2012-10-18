@@ -32,7 +32,7 @@ for a in `gawk '{print $2}' ../../../files/media/media_list-$STATUS-$VERREL-$ARC
         if ! [ -f "$a" ] ;then
            curl -# --retry-delay 2 --retry 5 -o .listing -l "$MEDIAURL/" || exit 1
            if grep -q -i "a href=" .listing ;then 
-               awk -F'<[Aa] [Hh][Rr][Ee][Ff]=["]?'  '{ print $2 }' .listing | awk -F'[" ]' '{print $1}' | grep .rpm | LC_ALL=C sort -V >> "$a"
+               awk -F'<[Aa] [Hh][Rr][Ee][Ff]=["]?'  '{ print $2 }' .listing | awk -F'[" ]' '{print $1}' | grep .rpm |  sed s/'%2b'/'+'/g | sed s/'%25'/'%'/g | LC_ALL=C sort -V >> "$a"
            else
                grep .rpm .listing | LC_ALL=C sort -V >> "$a"
            fi
