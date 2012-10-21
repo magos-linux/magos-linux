@@ -111,9 +111,9 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
     done
 done
 
-SRPMNM=$(cat media/src-release media/src-updates | egrep '^kernel-[0-9]|^kernel-desktop-[0-9]' | tail -1)
-grep -q ^"$SRPMNM"$ re/local_rpms.txt || cat urls/src-release urls/src-updates | grep /"$SRPMNM"$ >> urls/$FLASHNAME-$VERREL 
-echo $SRPMNM > names/kernel-source
+#SRPMNM=$(cat media/src-release media/src-updates | egrep '^kernel-[0-9]|^kernel-desktop-[0-9]' | tail -1)
+#grep -q ^"$SRPMNM"$ re/local_rpms.txt || cat urls/src-release urls/src-updates | grep /"$SRPMNM"$ >> urls/$FLASHNAME-$VERREL 
+#echo $SRPMNM > names/kernel-source
 
 
 if grep -q . urls/$FLASHNAME-$VERREL 2>/dev/null ;then 

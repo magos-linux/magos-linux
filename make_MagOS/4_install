@@ -61,7 +61,7 @@ echo "Подготовка к установке пакетов"
 umountbranches "$(pwd)/rootfs"
 rm -fr rootfs install_errors.log 2>/dev/null
 mkdir rootfs  || exit 1
-rpm2cpio $MYPATH/loaded/$FLASHNAME-$VERREL/rpms/setup-*.rpm | cpio -i --make-directories rootfs || exit 1
+rpm2cpio $MYPATH/loaded/$FLASHNAME-$VERREL/rpms/setup-*.rpm | cpio -i --make-directories "$pwd"/rootfs || exit 1
 mkdir -p rootfs/dev rootfs/proc rootfs/sys  || exit 1
 mount --bind /proc rootfs/proc  || exit 1
 mount --bind /sys rootfs/sys  || exit 1
@@ -80,9 +80,9 @@ done
 echo "Создание ссылок на исходники ядра"
 ln -sf $(ls -1 rootfs/boot/vmlinuz-* | sed 's|.*/||' | tail -1) rootfs/boot/vmlinuz || exit 1
 ln -sf $(ls -1 rootfs/boot/vmlinuz-* | sed 's|.*/||' | tail -1) rootfs/boot/vmlinuz-desktop  || exit 1
-ln -sf /usr/src/$(ls -1d rootfs/usr/src/linux-*flash* | sed 's|/$||' | sed 's|.*/||' | tail -1) $(ls -1d rootfs/lib/modules/* | tail -1)/build  || \
-ln -sf /usr/src/devel/$(ls -1d rootfs/usr/src/linux-*flash* | sed 's|/$||' | sed 's|.*/||' | tail -1) $(ls -1d rootfs/lib/modules/* | tail -1)/build  || exit 1
-ln -sf build $(ls -1d rootfs/lib/modules/* | tail -1)/source  || exit 1
+#ln -sf /usr/src/$(ls -1d rootfs/usr/src/linux-*flash* | sed 's|/$||' | sed 's|.*/||' | tail -1) $(ls -1d rootfs/lib/modules/* | tail -1)/build  || \
+#ln -sf /usr/src/devel/$(ls -1d rootfs/usr/src/linux-*flash* | sed 's|/$||' | sed 's|.*/||' | tail -1) $(ls -1d rootfs/lib/modules/* | tail -1)/build  || exit 1
+#ln -sf build $(ls -1d rootfs/lib/modules/* | tail -1)/source  || exit 1
 
 #echo "сжатие базы rpm"
 #when making dkms in 2011 it corrupt rpm5 evil base

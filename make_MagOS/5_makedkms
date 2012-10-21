@@ -48,8 +48,20 @@ else
    cd "$MYPATH" ; cd "$RTFSMAKE" || exit 1
    echo "Установка dkms модулей"
    for a in  "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm ;do
-      rpm --noscripts --nodeps --root "$(pwd)" -ih "$a"
+       echo $(basename $a)
+       rpm2cpio "$a" | cpio -i -d $pwd 2>/dev/null
+#      rpm --noscripts --nodeps --root "$(pwd)" -ih "$a"
    done
+   if [ -d "$MYPATH"/files/patches/dkms/$FLASHNAME-$VERREL ] ;then
+      echo "Наложение заплат для сборки"
+      cp -prf "$MYPATH"/files/patches/dkms/$FLASHNAME-$VERREL/* ./
+      for a in *.patch *.diff ;do
+          [ -f $a ] && patch -p1 -i $a
+      done
+      for a in *.sh ;do
+          [ -x "$a" ] && chroot ./ bash "$a"
+      done
+   fi
    echo "Создание модулей ядра средствами dkms"
    # вытаскиваем скрипты при установке модулей dkms, делаем из них скрипт
    rpm -qp --triggers --scripts "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm \

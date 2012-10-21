@@ -11,8 +11,7 @@ else
   echo "Не вижу файла .config" ;  exit 1
 fi
 
-[ "$PAE" = "" ] && PAE=yes
-[ "$PAE" != "yes" ] && DESTP=_nopae
+[ "$PAE" = "no" ] && DESTP=_nopae
 
 cd "$MYPATH"
 
@@ -21,52 +20,43 @@ if [ -d  "work/$FLASHNAME-$VERREL/kernel$DESTP" ] ;then
    exit 0
 fi
 
-mkdir -p work
-
-echo "Сборка ядра"
-[ "$RPMBPATH" = "" ] && RPMBPATH=`rpm -ql rpm-build | grep SPECS | sed s/SPECS//`
+rm -fr work/rpmbuild 2>/dev/null
+mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS
+. files/patches/kernel/$FLASHNAME-$VERREL/version
+[ "$VERKERNEL" = "" ] && exit 1
 [ "$RPMBPATH" = "" ] && RPMBPATH="$HOME/rpmbuild"
-if ! [ -d "$RPMBPATH" ] ;then
-   mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS
-   ln -sf "$MYPATH/work/rpmbuild" $HOME/rpmbuild
-fi
+[ -d "$RPMBPATH" -a ! -h "$RPMBPATH" ] && mv "$RPMBPATH" "$RPMBPATH".bak
+[ -d "$RPMBPATH" ] || ln -sf "$MYPATH/work/rpmbuild" $HOME/rpmbuild
 
 echo "Устанавливаем исходники ядра"
-rm -fr loaded/$FLASHNAME-$VERREL/srpms
-mkdir -p loaded/$FLASHNAME-$VERREL/srpms
-ln -sf ../../cached_$VERREL/$(cat loaded/$FLASHNAME-$VERREL/names/kernel-source) loaded/$FLASHNAME-$VERREL/srpms
-if grep -q kernel-magos loaded/$FLASHNAME-$VERREL/names/kernel-source ;then
-   #2011 kernel
-   cd work/rpmbuild/SOURCES
-   rpm2cpio `ls -1 ../../../loaded/$FLASHNAME-$VERREL/srpms/kernel-*.src.rpm | tail -1` | cpio -i || exit 1
-   mv *.spec ../SPECS
-   cd ../../../
-else
-   #2010 kernel
-   rpm -ihv `ls -1 loaded/$FLASHNAME-$VERREL/srpms/kernel-*.src.rpm | tail -1` || exit 1
+if [ ! -f loaded/linux-$VERKERNEL.tar.bz2 ] ;then 
+  cd loaded
+  wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.bz2
+  cd ..
 fi
+[ -f loaded/linux-$VERKERNEL.tar.bz2 ] || exit 1
+cp -pf loaded/linux-$VERKERNEL.tar.bz2 $RPMBPATH/SOURCES || exit 1
+cp -pf files/patches/kernel/$FLASHNAME-$VERREL/* $RPMBPATH/SOURCES || exit 1
+mv -f  $RPMBPATH/SOURCES/*.spec $RPMBPATH/SPECS || exit 1
 
-if [ -d files/patches/kernel/$FLASHNAME-$VERREL ] ;then
-   echo "Изменение исходников ядра"
-   cp -f files/patches/kernel/$FLASHNAME-$VERREL/*.patch  $RPMBPATH/SOURCES || exit 1
-   cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec.patch | patch -d $RPMBPATH/SPECS -p1 || exit 1
+if [ ! -z "$DESTP" ] ;then
+   cp -pf files/patches/kernel$DESTP/$FLASHNAME-$VERREL/* $RPMBPATH/SOURCES || exit 1
+   cat files/patches/kernel$DESTP/$FLASHNAME-$VERREL/kernel_spec_pae.patch | patch -d $RPMBPATH/SPECS -p1 || exit 1
 fi
-#FIXME 
-#[ "$PAE" = "yes" ] && cat files/patches/kernel/$FLASHNAME-$VERREL/kernel_spec_pae.patch | patch -d $RPMBPATH/SPECS -p1
 
 echo "Сборка ядра"
-[ -f $RPMBPATH/SPECS/kernel.spec ] || ln -s kernel-desktop.spec $RPMBPATH/SPECS/kernel.spec
-rm -f $RPMBPATH/RPMS/i586/kernel-*flash*.rpm 2>/dev/null
-rpmbuild -bb $RPMBPATH/SPECS/kernel.spec || exit 1
-rm -f $RPMBPATH/SRPMS/kernel-*flash*.src.rpm 2>/dev/null
-rpmbuild -bs $RPMBPATH/SPECS/kernel.spec || exit 1
+rm -f $RPMBPATH/RPMS/i586/kernel-*.rpm $RPMBPATH/SRPMS/kernel-*.src.rpm 2>/dev/null
+rpmbuild -bs $RPMBPATH/SPECS/kernel-magos.spec || exit 1
+rpmbuild -bb $RPMBPATH/SPECS/kernel-magos.spec || exit 1
 
-echo "Удачно (странно...).  Копируем готовые пакеты в work/$FLASHNAME-$VERREL/kernel$DESTP"
-mkdir -p work/$FLASHNAME-$VERREL/kernel$DESTP ; cd work/$FLASHNAME-$VERREL/kernel$DESTP
-cp -p $RPMBPATH/RPMS/i586/kernel-*flash*.rpm ./ || exit 1
-cp -p $RPMBPATH/SRPMS/kernel-*flash*.src.rpm ./ || exit 1
-cd ../../../
+echo "Переносим готовые пакеты в work/$FLASHNAME-$VERREL/kernel$DESTP"
+mkdir -p work/$FLASHNAME-$VERREL/kernel$DESTP/src
+mv $RPMBPATH/RPMS/i586/kernel-*.rpm work/$FLASHNAME-$VERREL/kernel$DESTP || exit 1
+mv $RPMBPATH/RPMS/noarch/kernel-*.rpm work/$FLASHNAME-$VERREL/kernel$DESTP 2>/dev/null
+mv $RPMBPATH/SRPMS/kernel-*.src.rpm work/$FLASHNAME-$VERREL/kernel$DESTP/src || exit 1
+
 echo "Удаление временных файлов"
-rm -fr work/rpmbuild
-echo "Работа скрипта завершена, ядро ищите в work/$FLASHNAME-$VERREL/kernel$DESTP"
+rm -fr work/rpmbuild $HOME/rpmbuild
+[ -d "$RPMBPATH.bak" ] && mv "$RPMBPATH.bak" "$RPMBPATH"
 
+echo "Работа скрипта завершена, готовые пакеты лежат в work/$FLASHNAME-$VERREL/kernel$DESTP"
