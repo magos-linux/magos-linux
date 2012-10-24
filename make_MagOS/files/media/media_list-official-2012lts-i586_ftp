@@ -7,9 +7,6 @@ ftp://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/main/release main-releas
 ftp://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/contrib/release contrib-release 0
 ftp://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/non-free/release nonfree-release f53e9db116a853e7
 http://mib.pianetalinux.org/MIB/rosa2012lts/32/basic mib 0 update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/contrib/backports 2011_contrib-backports 0 skip
 ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/contrib/release 2011_contrib-release 0 skip
 ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/main/release 2011_main-release 0 skip
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/main/updates 2011_main-updates 0 skip
-http://mib.pianetalinux.org/MIB/2011.0/32/basic 2011_mib 0 skip
 ftp://mirror.yandex.ru/rosa/rosa2012.1/repository/i586/non-free/release 2012.1_nonfree-release 0 skip

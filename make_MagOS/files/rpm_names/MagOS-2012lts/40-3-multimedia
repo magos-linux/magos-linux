@@ -148,7 +148,6 @@ mp3splt-
 mpg123-
 mplayer-
 mplayer-gui-
-mplayerplugin-
 normalize-
 openal-
 paprefs-
@@ -186,3 +185,4 @@ libjson0-
 libpulsecommon2.1-
 libpulsecore2.1-
 bluez-alsa-
+gecko-mediaplayer-
