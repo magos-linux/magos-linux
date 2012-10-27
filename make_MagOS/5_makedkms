@@ -50,7 +50,6 @@ else
    for a in  "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm ;do
        echo $(basename $a)
        rpm2cpio "$a" | cpio -i -d $pwd 2>/dev/null
-#      rpm --noscripts --nodeps --root "$(pwd)" -ih "$a"
    done
    if [ -d "$MYPATH"/files/patches/dkms/$FLASHNAME-$VERREL ] ;then
       echo "Наложение заплат для сборки"
@@ -80,6 +79,8 @@ else
       cp $a "$KRNLPATH"
    done
 
+cd "$MYPATH"
+
    if [ "$RTFSMAKE" = "$RTFSDEFMAKE/rootfs" ] ;then
       echo "Удаление временной ветви rootfs"
       umountbranches "$RTFSDEFMAKE"
@@ -95,8 +96,6 @@ else
       mv dkms_dbversion var/lib/dkms
    fi
 fi
-
-cd "$MYPATH"
 
 echo "Устанавливаем пакеты с модулями"
 ls -1 $KRNLPATH/*.rpm | sed 's|.*/||' > $KRNLPATH/00-kernel

@@ -150,7 +150,6 @@ mp3splt-
 mpg123-
 mplayer-
 mplayer-gui-
-mplayerplugin-
 normalize-
 openal-
 paprefs-
@@ -183,3 +182,4 @@ vorbis-tools-
 wavpack-
 wildmidi-
 win32-codecs-
+gecko-mediaplayer-

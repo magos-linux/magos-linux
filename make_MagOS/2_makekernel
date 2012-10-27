@@ -28,8 +28,8 @@ mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS
 [ -d "$RPMBPATH" -a ! -h "$RPMBPATH" ] && mv "$RPMBPATH" "$RPMBPATH".bak
 [ -d "$RPMBPATH" ] || ln -sf "$MYPATH/work/rpmbuild" $HOME/rpmbuild
 
-echo "Устанавливаем исходники ядра"
 if [ ! -f loaded/linux-$VERKERNEL.tar.bz2 ] ;then 
+  echo "Устанавливаем исходники ядра"
   cd loaded
   wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.bz2
   cd ..
