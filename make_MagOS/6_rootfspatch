@@ -15,7 +15,7 @@ else
 fi
 
 
-echo "Изменение файлов дистрибутива"
+echo "Добавление файлов в дистрибутив"
 cd "$MYPATH"/work/$FLASHNAME-$VERREL
 rm -fr rootfs/etc/skel/tmp
 cp -pfR ../../loaded/$FLASHNAME-$VERREL/urpmi/* rootfs
@@ -30,6 +30,11 @@ mkdir -p usr/lib/magos/rootfs-patches
 cp -p ../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
 cp -p ../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh usr/lib/magos/rootfs-patches
 
+echo "Уменьшение базы rpm"
+mv var/lib/rpm var/lib/rpmbase || exit 1
+mkdir var/lib/rpm || exit 1
+mount -t tmpfs tmpfs var/lib/rpm || exit 1
+cp -pr var/lib/rpmbase/* var/lib/rpm || exit 1
 
 for a in "$MYPATH"/loaded/$FLASHNAME-$VERREL/names/*-int-* ;do
     cat $a >>rpmsoutofbase
@@ -37,12 +42,21 @@ done
 for a in $(cat rpmsoutofbase) ;do
     chroot ./ rpm -e --nodeps --noscripts --notriggers --justdb ${a%.rpm} 2>/dev/null
 done
+
+echo "Изменение файлов дистрибутива"
 rm -f var/lib/rpm/files-awaiting-filetriggers rpmsoutofbase
 for a in usr/lib/magos/rootfs-patches/*.sh ;do
    [ -f $a ] || continue
    echo $a
    bash $a || exit 1
 done
+
+rm -fr var/lib/rpmbase/* || exit 1
+mv var/lib/rpm/* var/lib/rpmbase || exit 1
+umount var/lib/rpm || exit 1
+rmdir var/lib/rpm || exit 1
+mv var/lib/rpmbase var/lib/rpm || exit 1
+
 if [ "$SQFSVER" = "3" ] ;then
   ln -sf /usr/bin/unsquashfs3 usr/lib/magos/scripts/unsquashfs
   ln -sf /usr/bin/mksquashfs3 usr/lib/magos/scripts/mksquashfs
@@ -75,7 +89,6 @@ for a in  $INITDNEED  ;do
    echo $a
    chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --add $a
 done
-
 
 echo "Работа скрипта завершена"
 exit 0
