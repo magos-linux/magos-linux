@@ -5,7 +5,7 @@
 
 %define kernelversion	3
 %define patchlevel	6
-%define sublevel	3
+%define sublevel	4
 
 # kernel.org -rcX patch (only the number after "rc")
 %define krc		0
