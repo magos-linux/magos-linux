@@ -16,19 +16,24 @@ PREFIX=none
 if [ -n "$KDE_SESSION_UID"  ] ; then
 [ -f /usr/bin/kdialog ] && PREFIX=KDE
 else
+
+# if session is not KDE, but zenity is not exist - use kdialog
 [ $PREFIX == none ] &&  [ -f /usr/bin/kdialog ] && PREFIX=KDE
 fi
-[ $PREFIX == none ] && exit -1
 
-#if [ "$(id -un)" = "root" ] ;then
-#   dbus-launch $0 "$@"
-#   exit 0
-#fi
+[ $PREFIX == none ] && echo "no zenity and kdialog in system" && exit -1
 
+if [ "$(id -un)" = "root" ] ;then
+    echo exec_by_root
+    if ! /usr/lib/qt4/bin/qdbus &> /dev/null ;then    
+    echo launch_dbus
+    dbus-launch $0 "$@" ; exit 
+    fi
+[ -z $XAUTHORITY ] && export XAUTHORITY=/home/$(who | grep "[[:space:](]:0[[:space:])]" | awk  '{ print $1 }')/.Xauthority && echo set_xauth
+[ -z $DISPLAY ] && export DISPLAY=:0.0 && echo set_display 	
+fi
 
-#if ! qdbus &> /dev/null ; then
-#dbus-launch $0 "$@" ; exit
-#fi 
+ 
 
 KDE--msgbox () {
 kdialog --msgbox "$2"
@@ -218,9 +223,9 @@ echo $?
 echo "команда mdialog --inputbox \"заголовок\" \"строка\""
 mdialog --inputbox "заголовок" "строка"
 echo "команда mdialog --textbox mdialog" 
-mdialog --textbox mdialog
+mdialog --textbox /usr/lib/magos/scripts/mdialog
 echo "команда mdialog --textinputbox mdialog"
-mdialog --textinputbox mdialog
+mdialog --textinputbox /usr/lib/magos/scripts/mdialog
 echo "команда mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc" 
 mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc
 echo "команда mdialog --passivepopup \"тест окончен\"" 
