@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Описание: Собирает базовые модули для MagOS на основе unionfs
-# Дата модификации: 06.11.2012
+# Дата модификации: 07.11.2012
 # Автор: Горошкин Антон
 
 #MOD_LOADED=loaded
@@ -10,8 +10,10 @@ MOD_ROOTFS_DIR=mod_rootfs
 mod_prev=$MOD_ROOTFS_DIR/ro
 rootfs=$MOD_ROOTFS_DIR/rootfs
 
-#mkdir -p $rootfs $MOD_LOADED
+mkdir -p $rootfs 
+#mkdir -p $MOD_LOADED
 
+modprobe unionfs
 
 mount -t unionfs -o dirs=$mod_prev wiz_fly $rootfs
 
