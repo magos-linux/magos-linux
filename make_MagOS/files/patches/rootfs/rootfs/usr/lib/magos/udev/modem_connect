@@ -1,8 +1,8 @@
 #!/bin/bash
 export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
-export DISPLAY=:0.0
+#export DISPLAY=:0.0
 export HOME=/root
-export XAUTHORITY=`/bin/ls -1 /var/run/xauth/* | /usr/bin/head -1`
+#export XAUTHORITY=`/bin/ls -1 /var/run/xauth/* | /usr/bin/head -1`
 INTERACTIVE=yes
 TIMEOUT=60
 INETAUTOUP=no
@@ -65,7 +65,7 @@ inetup()
 }
 
 [ "$INTERACTIVE" = "yes"  ] || exit 0
-[ ! -f "$XAUTHORITY" ] && echo "modem_connect: Can't connect to X server! " && exit 1
+[ ! -f "$XAUTHORITY" ] && echo "modem_connect: Can't connect to X server! " # && exit 1
 
 killall wvdial
 wvdialconf
