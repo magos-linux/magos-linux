@@ -19,6 +19,8 @@ else
 
 # if session is not KDE, but zenity is not exist - use kdialog
 [ $PREFIX == none ] &&  [ -f /usr/bin/kdialog ] && PREFIX=KDE
+
+
 fi
 
 [ $PREFIX == none ] && echo "no zenity and kdialog in system" && exit -1
@@ -29,8 +31,11 @@ if [ "$(id -un)" = "root" ] ;then
     echo launch_dbus
     dbus-launch $0 "$@" ; exit 
     fi
-[ -z $XAUTHORITY ] && export XAUTHORITY=/home/$(who | grep "[[:space:](]:0[[:space:])]" | awk  '{ print $1 }')/.Xauthority && echo set_xauth
-[ -z $DISPLAY ] && export DISPLAY=:0.0 && echo set_display 	
+		if [ -z $XAUTHORITY ] ; then
+		ps -A | grep -q startkde  && PREFIX=KDE 
+		export XAUTHORITY=/home/$(who | grep "[[:space:](]:0[[:space:])]" | awk  '{ print $1 }')/.Xauthority && echo set_xauth
+		fi
+	[ -z $DISPLAY ] && export DISPLAY=:0.0 && echo set_display 	
 fi
 
  
@@ -86,7 +91,7 @@ zenity --text-info --editable --filename="$2"
 } 
 
 KDE--passivepopup () {
-kdialog --passivepopup "$2"
+kdialog --passivepopup "$2" 5
 } 
 NONKDE--passivepopup () {
 if [ -f /usr/bin/notify-send ] ; then
@@ -223,9 +228,9 @@ echo $?
 echo "команда mdialog --inputbox \"заголовок\" \"строка\""
 mdialog --inputbox "заголовок" "строка"
 echo "команда mdialog --textbox mdialog" 
-mdialog --textbox /usr/lib/magos/scripts/mdialog
+mdialog --textbox /mnt/livemedia/MagOS/VERSION
 echo "команда mdialog --textinputbox mdialog"
-mdialog --textinputbox /usr/lib/magos/scripts/mdialog
+mdialog --textinputbox /mnt/livemedia/MagOS/MagOS.sgn
 echo "команда mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc" 
 mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc
 echo "команда mdialog --passivepopup \"тест окончен\"" 
