@@ -7,11 +7,11 @@
 # Author: Anton Goroshkin <http://magos-linux.ru>
 #
 
-export PATH=/usr/lib/magos/scripts:$PATH
+export PATH=/usr/lib/magos/scripts:/usr/lib/qt4/bin:$PATH
 
 PREFIX=none
 [ -f /usr/bin/zenity ] && PREFIX=NONKDE
-if [ -n "$KDE_SESSION_UID"  ] ; then
+if [ -n "$KDE_SESSION_UID" -o -n "$(ps -A |grep startkde)" ] ; then
 [ -f /usr/bin/kdialog ] && PREFIX=KDE
 else
 
@@ -24,12 +24,12 @@ fi
 # if mdialog starts by root restart it by user in display :0.0
 XUSER=$(who | grep "[[:space:](]:0[[:space:])]" | awk  '{ print $1 }')
 if [ "$(id -un)" = "root" ] ;then
-    # пробовал su user -с "$0 $@", но как бы не группировал скобками позиционные параметры передаются криво.
+    ps -A | grep -q startkde  && export KDE_SESSION_UID=500
+    export XAUTHORITY=/home/$XUSER/.Xauthority 
     sudo -u $XUSER  $0 "$@" ; exit 
 fi
-
 if [ -z $XAUTHORITY ] ; then
-	ps -A | grep -q startkde  && PREFIX=KDE 
+	#ps -A | grep -q startkde  && PREFIX=KDE 
 	export XAUTHORITY=/home/$XUSER/.Xauthority 
 fi
 [ -z $DISPLAY ] && export DISPLAY=:0.0
