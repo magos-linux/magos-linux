@@ -7,15 +7,17 @@ INTERACTIVE=yes
 STAT=yes
 . /etc/sysconfig/i18n
 . /etc/sysconfig/modem
+IF=ppp0
+[ -f /tmp/modem_ppp_if ] && . /tmp/modem_ppp_if
 
 [ "$INTERACTIVE" = "yes" ] || exit 0
-[ ! -f "$XAUTHORITY" ] && echo "shownetstat: Can't connect to X server! " # && exit 1
+#[ ! -f "$XAUTHORITY" ] && echo "shownetstat: Can't connect to X server! " # && exit 1
 
 if [ "$STAT" == "yes" ] ; then
-   total=`vnstat -i ppp0 | awk '/total:/{print $8 " " $9}'`
-   today=`vnstat -i ppp0 | awk '/today/{print $8 " " $9}'`
-   vnstat -r --disable -i $NEWIF
+   total=`vnstat -i $IF | awk '/total:/{print $8 " " $9}'`
+   today=`vnstat -i $IF | awk '/today/{print $8 " " $9}'`
+   vnstat -r --disable -i $IF
    service vnstat restart > /dev/null
-   mdialog --passivepopup "Total - $total, today - $today" || exit 1
+   mdialog --passivepopup "Total $IF - $total, today - $today" || exit 1
 fi
 exit 0

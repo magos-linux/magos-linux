@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # /usr/lib/magos/scripts/mdialog
 #
 # Helper Library for scripts
@@ -10,7 +9,6 @@
 
 export PATH=/usr/lib/magos/scripts:$PATH
 
-
 PREFIX=none
 [ -f /usr/bin/zenity ] && PREFIX=NONKDE
 if [ -n "$KDE_SESSION_UID"  ] ; then
@@ -19,25 +17,22 @@ else
 
 # if session is not KDE, but zenity is not exist - use kdialog
 [ $PREFIX == none ] &&  [ -f /usr/bin/kdialog ] && PREFIX=KDE
-
-
 fi
 
 [ $PREFIX == none ] && echo "no zenity and kdialog in system" && exit -1
 
+# if mdialog starts by root restart it by user in display :0.0
+XUSER=$(who | grep "[[:space:](]:0[[:space:])]" | awk  '{ print $1 }')
 if [ "$(id -un)" = "root" ] ;then
-    echo exec_by_root
-    if ! /usr/lib/qt4/bin/qdbus &> /dev/null ;then    
-    echo launch_dbus
-    dbus-launch $0 "$@" ; exit 
-    fi
-		if [ -z $XAUTHORITY ] ; then
-		ps -A | grep -q startkde  && PREFIX=KDE 
-		export XAUTHORITY=/home/$(who | grep "[[:space:](]:0[[:space:])]" | awk  '{ print $1 }')/.Xauthority && echo set_xauth
-		fi
-	[ -z $DISPLAY ] && export DISPLAY=:0.0 && echo set_display 	
+    # пробовал su user -с "$0 $@", но как бы не группировал скобками позиционные параметры передаются криво.
+    sudo -u $XUSER  $0 "$@" ; exit 
 fi
 
+if [ -z $XAUTHORITY ] ; then
+	ps -A | grep -q startkde  && PREFIX=KDE 
+	export XAUTHORITY=/home/$XUSER/.Xauthority 
+fi
+[ -z $DISPLAY ] && export DISPLAY=:0.0
  
 
 KDE--msgbox () {
@@ -94,11 +89,7 @@ KDE--passivepopup () {
 kdialog --passivepopup "$2" 5
 } 
 NONKDE--passivepopup () {
-if [ -f /usr/bin/notify-send ] ; then
-notify-send "$2"
-else 
-zenity --notification --text="$2"
-fi
+notify-send "$2" || zenity --notification --text="$2"
 } 
 
 KDE--getopenfilename () {
@@ -198,7 +189,7 @@ rm -f /tmp/progress.tmp
 
 HELP () {
 echo  "Скрипт $0, автоматически использует для создания графического интерфеса"
-echo  "zenity либо kdialog, в зависимости от их наличия и среды (KDE. GNOME, etc)"
+echo  "zenity либо kdialog, в зависимости от их наличия и среды KDE. GNOME, etc"
 echo  "Синтаксис максимально повторяет kdialog, но есть и расхождения."
 
 echo  "--yesno <text>            Вопросительный диалог с кнопками да/нет"

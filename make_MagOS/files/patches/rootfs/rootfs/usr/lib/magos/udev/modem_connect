@@ -1,8 +1,6 @@
 #!/bin/bash
 export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
-#export DISPLAY=:0.0
 export HOME=/root
-#export XAUTHORITY=`/bin/ls -1 /var/run/xauth/* | /usr/bin/head -1`
 INTERACTIVE=yes
 TIMEOUT=60
 INETAUTOUP=no
@@ -59,13 +57,12 @@ inetup()
       if [ ! -f "/var/lib/vnstat/$NEWIF" -a "$NEWIF" ] ;then
          vnstat -u -i $NEWIF > /dev/null
       fi
-      vnstat -r --enable -i $NEWIF
+      vnstat -r --enable -i $NEWIF && echo "IF=$NEWIF" > /tmp/modem_ppp_if
       service vnstat restart > /dev/null
    fi
 }
 
-[ "$INTERACTIVE" = "yes"  ] || exit 0
-[ ! -f "$XAUTHORITY" ] && echo "modem_connect: Can't connect to X server! " # && exit 1
+[ "$INTERACTIVE" = "yes"  ] || exit 0 
 
 killall wvdial
 wvdialconf
@@ -76,10 +73,10 @@ else
    sed -i 's|^Modem =.*|Modem='$PORT'|' /etc/wvdial.conf
 fi
 
-sed -i '0,/^port = /s|^port=.*|port='$PORT'|' /etc/gnokiirc
+sed -i '0,/^port.*/s|^port.*=.*|port='$PORT'|' /etc/gnokiirc
 
 operator=$(get_op)
-[ "$operator" == "unknown" ] && mdialog --passivepopup "Мodem is recognized. Please wait GSM connection..."
+[ "$operator" == "unknown" ] && mdialog --passivepopup "Please wait GSM connection..."
 
 counter=$TIMEOUT
 while [ "$operator" == "unknown" -a "$counter" != "0" ] ; do
