@@ -11,4 +11,4 @@ echo $dist_root
 mkdir -p $dist_root
 
 urpmi.addmedia --distrib --urpmi-root $dist_root $dist_mirror
-urpmi.addmedia --distrib --urpmi-root $dist_root $dist_mirror_mrc
+urpmi.addmedia --distrib --curl --urpmi-root $dist_root $dist_mirror_mrc
