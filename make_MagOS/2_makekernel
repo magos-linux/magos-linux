@@ -31,14 +31,17 @@ mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS loaded
 [ -d "$RPMBPATH" -a ! -h "$RPMBPATH" ] && mv "$RPMBPATH" "$RPMBPATH".bak
 [ -d "$RPMBPATH" ] || ln -sf "$MYPATH/work/rpmbuild" $HOME/rpmbuild
 
-if [ ! -f loaded/linux-$VERKERNEL.tar.bz2 ] ;then 
-  echo "Устанавливаем исходники ядра"
-  cd loaded
-  wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.bz2
-  cd ..
-fi
-[ -f loaded/linux-$VERKERNEL.tar.bz2 ] || exit 1
-cp -pf loaded/linux-$VERKERNEL.tar.bz2 $RPMBPATH/SOURCES || exit 1
+cd loaded
+echo "Закачиваем исходники ядра"
+[ ! -f linux-$VERKERNEL.tar.xz ] &&  wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.xz
+[ ! -f linux-$VERKERNEL.tar.sign ] &&  wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.sign
+[ ! -z "$VERKPATCH" -a ! -f patch-$VERKPATCH.xz  ] && wget http://www.kernel.org/pub/linux/kernel/v3.x/patch-$VERKPATCH.xz
+[ ! -z "$VERKPATCH" -a ! -f patch-$VERKPATCH.sign  ] && wget http://www.kernel.org/pub/linux/kernel/v3.x/patch-$VERKPATCH.sign
+cd ..
+
+[ -f loaded/linux-$VERKERNEL.tar.xz ] || exit 1
+cp -pf loaded/linux-$VERKERNEL.tar.* $RPMBPATH/SOURCES || exit 1
+[ -z "$VERKPATCH" ] || cp -pf loaded/patch-$VERKPATCH.* $RPMBPATH/SOURCES
 cp -pf files/patches/kernel/$FLASHNAME-$VERREL/* $RPMBPATH/SOURCES || exit 1
 mv -f  $RPMBPATH/SOURCES/*.spec $RPMBPATH/SPECS || exit 1
 
@@ -49,8 +52,8 @@ fi
 
 echo "Сборка ядра"
 rm -f $RPMBPATH/RPMS/i586/kernel-*.rpm $RPMBPATH/SRPMS/kernel-*.src.rpm 2>/dev/null
-rpmbuild -bs $RPMBPATH/SPECS/kernel-magos.spec || exit 1
-rpmbuild -bb $RPMBPATH/SPECS/kernel-magos.spec || exit 1
+rpmbuild -bs $RPMBPATH/SPECS/kernel*.spec || exit 1
+rpmbuild -bb $RPMBPATH/SPECS/kernel*.spec --with=build_for_magos || exit 1
 
 echo "Переносим готовые пакеты в work/$FLASHNAME-$VERREL/kernel$DESTP"
 mkdir -p work/$FLASHNAME-$VERREL/kernel$DESTP/src
