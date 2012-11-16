@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # /usr/lib/magos/scripts/mdialog
 #
 # Helper Library for scripts
@@ -8,27 +7,33 @@
 # Author: Anton Goroshkin <http://magos-linux.ru>
 #
 
-export PATH=/usr/lib/magos/scripts:$PATH
-
+export PATH=/usr/lib/magos/scripts:/usr/lib/qt4/bin:$PATH
 
 PREFIX=none
 [ -f /usr/bin/zenity ] && PREFIX=NONKDE
-if [ -n "$KDE_SESSION_UID"  ] ; then
+if [ -n "$KDE_SESSION_UID" -o -n "$(ps -A |grep startkde)" ] ; then
 [ -f /usr/bin/kdialog ] && PREFIX=KDE
 else
+
+# if session is not KDE, but zenity is not exist - use kdialog
 [ $PREFIX == none ] &&  [ -f /usr/bin/kdialog ] && PREFIX=KDE
 fi
-[ $PREFIX == none ] && exit -1
 
-#if [ "$(id -un)" = "root" ] ;then
-#   dbus-launch $0 "$@"
-#   exit 0
-#fi
+[ $PREFIX == none ] && echo "no zenity and kdialog in system" && exit -1
 
-
-#if ! qdbus &> /dev/null ; then
-#dbus-launch $0 "$@" ; exit
-#fi 
+# if mdialog starts by root restart it by user in display :0.0
+XUSER=$(who | grep "[[:space:](]:0[[:space:])]" | awk  '{ print $1 }')
+if [ "$(id -un)" = "root" ] ;then
+    ps -A | grep -q startkde  && export KDE_SESSION_UID=500
+    export XAUTHORITY=/home/$XUSER/.Xauthority 
+    sudo -u $XUSER  $0 "$@" ; exit 
+fi
+if [ -z $XAUTHORITY ] ; then
+	#ps -A | grep -q startkde  && PREFIX=KDE 
+	export XAUTHORITY=/home/$XUSER/.Xauthority 
+fi
+[ -z $DISPLAY ] && export DISPLAY=:0.0
+ 
 
 KDE--msgbox () {
 kdialog --msgbox "$2"
@@ -81,14 +86,10 @@ zenity --text-info --editable --filename="$2"
 } 
 
 KDE--passivepopup () {
-kdialog --passivepopup "$2"
+kdialog --passivepopup "$2" 5
 } 
 NONKDE--passivepopup () {
-if [ -f /usr/bin/notify-send ] ; then
-notify-send "$2"
-else 
-zenity --notification --text="$2"
-fi
+notify-send "$2" || zenity --notification --text="$2"
 } 
 
 KDE--getopenfilename () {
@@ -188,7 +189,7 @@ rm -f /tmp/progress.tmp
 
 HELP () {
 echo  "Скрипт $0, автоматически использует для создания графического интерфеса"
-echo  "zenity либо kdialog, в зависимости от их наличия и среды (KDE. GNOME, etc)"
+echo  "zenity либо kdialog, в зависимости от их наличия и среды KDE. GNOME, etc"
 echo  "Синтаксис максимально повторяет kdialog, но есть и расхождения."
 
 echo  "--yesno <text>            Вопросительный диалог с кнопками да/нет"
@@ -218,9 +219,9 @@ echo $?
 echo "команда mdialog --inputbox \"заголовок\" \"строка\""
 mdialog --inputbox "заголовок" "строка"
 echo "команда mdialog --textbox mdialog" 
-mdialog --textbox mdialog
+mdialog --textbox /mnt/livemedia/MagOS/VERSION
 echo "команда mdialog --textinputbox mdialog"
-mdialog --textinputbox mdialog
+mdialog --textinputbox /mnt/livemedia/MagOS/MagOS.sgn
 echo "команда mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc" 
 mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc
 echo "команда mdialog --passivepopup \"тест окончен\"" 
