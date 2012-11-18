@@ -23,10 +23,9 @@ ARCH=i586
 
 # приоритет источников
 MEDIA_DEFAULT="\
-mib \
 restricted-updates main-updates contrib-updates nonfree-updates \
 restricted-release main-release contrib-release nonfree-release \
-"
+mib"
 
 # Службы которые будут загружаться при загрузке. Порядок перечисления важен.
 INITDNEED=" rsyslog acpid udev-post messagebus haldaemon alsa sound resolvconf  \

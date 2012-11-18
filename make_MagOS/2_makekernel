@@ -20,9 +20,6 @@ if [ -d  "work/$FLASHNAME-$VERREL/kernel$DESTP" ] ;then
    exit 0
 fi
 
-echo "Обновление источников urpmi"
-urpmi.update -a 
-
 rm -fr work/rpmbuild 2>/dev/null
 mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS loaded
 . files/patches/kernel/$FLASHNAME-$VERREL/version

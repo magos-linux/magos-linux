@@ -310,29 +310,29 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %define build_for_magos 0
 %{?_with_build_for_magos: %global build_for_magos 1}
 %if %build_for_magos
-%define build_desktop	0
-%define build_netbook	0
-%define build_server	0
-%define build_desktop_pae	0
-%define build_netbook_pae	0
-%define build_nrj_desktop	0
-%define build_nrj_realtime	0
-%define build_nrj_laptop	0
-%define build_nrj_netbook	0
-%define build_nrj_realtime_pae	0
-%define build_nrj_laptop_pae	0
-%define build_nrj_netbook_pae	0
-%define build_nrj_netbook_atom	0
+%define build_desktop			0
+%define build_netbook			0
+%define build_server			0
+%define build_desktop_pae		0
+%define build_netbook_pae		0
+%define build_nrj_desktop		0
+%define build_nrj_realtime		0
+%define build_nrj_laptop		0
+%define build_nrj_netbook		0
+%define build_nrj_realtime_pae		0
+%define build_nrj_laptop_pae		0
+%define build_nrj_netbook_pae		0
+%define build_nrj_netbook_atom		0
 %define build_nrj_netbook_atom_pae	0
-%define build_nrj_desktop_core2	0
+%define build_nrj_desktop_core2		0
 %define build_nrj_desktop_core2_pae	0
-%define build_doc	0
-%define build_source	0
-%define build_debug	0
-%define build_perf	0
-%define build_cpupower	0
-%define build_modxz	0
-%define build_modgz	0
+%define build_doc			0
+%define build_source			0
+%define build_debug			0
+%define build_perf			0
+%define build_cpupower			0
+%define build_modxz			0
+%define build_modgz			0
 %endif
 
 # For the .nosrc.rpm

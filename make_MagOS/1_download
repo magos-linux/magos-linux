@@ -63,7 +63,7 @@ echo
 ls -1 ../cached_$VERREL | grep [.]rpm$ > re/local_rpms.txt
 
 # создание списка пакетов в источниках в соответствии с их приоритетом
-touch re/names_default_media.txt re/urls_default_media.txt re/preferred/null
+touch re/names_default_media.txt re/urls_default_media.txt re/preferred/null re/excluded.txt
 for a in $MEDIA_DEFAULT ;do
     cat media/$a | LC_ALL=C sort -rV >re/tmp.txt || exit 1
     cat re/names_default_media.txt re/tmp.txt >re/tmp2.txt || exit 1
@@ -75,12 +75,14 @@ done
 rm -f re/tmp.txt
 
 # создание списка исключений
-for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred/*` ;do
-    awk '{ print "^" $1 "$" }' "$a" >  re/preferred/${a##*/} || exit 1
-    awk '{ print "^" $1 "$" }' "$a" >> re/excluded.txt || exit 1
-    cat media/${a##*/} | LC_ALL=C sort -rV >re/names_${a##*/}.txt || exit 1
-    cat urls/${a##*/} | LC_ALL=C sort -rV >re/urls_${a##*/}.txt || exit 1
-done
+if [ -d ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred ];then
+   for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred/*` ;do
+       awk '{ print "^" $1 "$" }' "$a" >  re/preferred/${a##*/} || exit 1
+       awk '{ print "^" $1 "$" }' "$a" >> re/excluded.txt || exit 1
+       cat media/${a##*/} | LC_ALL=C sort -rV >re/names_${a##*/}.txt || exit 1
+       cat urls/${a##*/} | LC_ALL=C sort -rV >re/urls_${a##*/}.txt || exit 1
+   done
+fi
 
 echo "Создание списков rpm пакетов"
 for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
@@ -94,7 +96,8 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
             echo "$b" >> re/not_founded.txt
          else
             echo $RPMNM >> names/$SHNM || exit 1
-            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL 
+            grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL.list
+            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL
          fi
     done
     #поиск пакетов с указанных источников
@@ -106,7 +109,8 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
             echo "$b" >> re/not_founded.txt
          else
             echo $RPMNM >> names/$SHNM || exit 1
-            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_$EXMD.txt >> urls/$FLASHNAME-$VERREL 
+            grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL.list
+            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_$EXMD.txt >> urls/$FLASHNAME-$VERREL
          fi
     done
 done
@@ -116,7 +120,7 @@ done
 #echo $SRPMNM > names/kernel-source
 
 
-if grep -q . urls/$FLASHNAME-$VERREL 2>/dev/null ;then 
+if grep -q . urls/$FLASHNAME-$VERREL 2>/dev/null ;then
    if [ "$INET" = "good" ] ;then
        echo "Закачка файлов"
        cd ../cached_$VERREL
