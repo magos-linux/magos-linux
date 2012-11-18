@@ -4,11 +4,13 @@ dist_root=mod_rootfs/ro
 
 #mageia
 #dist_mirror=http://mageia.unige.ch/mirror/distrib/cauldron/i586/
-dist_mirror=http://mirrors.kernel.org/mageia/distrib/2/i586/
+#dist_mirror=http://mirrors.kernel.org/mageia/distrib/2/i586/
+dist_mirror=http://mirror.yandex.ru/mageia/distrib/2/i586/
 dist_mirror_mrc=http://packages.mageialinux.ru/mageia2/RPMS/i586/
 #######################################
 echo $dist_root
 mkdir -p $dist_root
 
-urpmi.addmedia --distrib --urpmi-root $dist_root $dist_mirror
-urpmi.addmedia --distrib --curl --urpmi-root $dist_root $dist_mirror_mrc
+urpmi.addmedia --distrib $dist_mirror
+#urpmi.addmedia --distrib --urpmi-root $dist_root $dist_mirror
+#urpmi.addmedia --distrib --wget --urpmi-root $dist_root $dist_mirror_mrc

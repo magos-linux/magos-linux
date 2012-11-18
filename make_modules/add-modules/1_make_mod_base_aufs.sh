@@ -14,6 +14,11 @@ mkdir -p $rootfs
 
 mount -t aufs wiz_fly -o br:$mod_prev $rootfs
 
+mkdir -p $rootfs/{proc,dev,sys}
+mount -o bind /proc $rootfs/proc
+mount -o bind /dev $rootfs/dev
+mount -o bind /sys $rootfs/sys
+
 for mod in `ls -1 $MOD_NAMES_DIR/??-base*` ;do 
     echo "Генерация rootfs для модуля $(basename $mod)"
     if [ -d $MOD_ROOTFS_DIR/$(basename $mod) ] ;then 
@@ -37,4 +42,5 @@ for mod in `ls -1 $MOD_NAMES_DIR/??-base*` ;do
 #--------------
     echo -ne \\n "---> OK."\\n
 done
+    umount $rootfs/{proc,dev,sys}
      umount $rootfs
