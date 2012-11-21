@@ -159,21 +159,6 @@
 %{?_without_kirkwood: %global build_kirkwood 0}
 %{?_without_versatile: %global build_versatile 0}
 
-%define build_modgz	0
-%{?_with_modgz: %global build_modgz 1}
-# MagOS Linux settings
-%define build_for_magos 0
-%{?_with_build_for_magos: %global build_for_magos 1}
-%if %build_for_magos
-%define mgaver          _magos
-%define build_modxz     0
-%define build_doc       0
-%define build_source    0
-%define build_debug     0
-%define build_perf      0
-%define build_cpupower  0
-%endif
-
 # For the .nosrc.rpm
 %define build_nosrc 	0
 %{?_with_nosrc: %global build_nosrc 1}
@@ -267,10 +252,6 @@ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}
 %endif
 %endif
 
-%if %build_for_magos
-Patch101:       linux-%{patch_ver}-magos.patch
-%endif
-
 #END
 ####################################################################
 
@@ -300,8 +281,6 @@ processor mode, use the "nosmp" boot parameter.
 
 Autoreqprov: 		no
 
-%if %build_for_magos
-%else
 BuildRequires: 		gcc kmod >= 7-6
 # for perf, cpufreq and other tools
 BuildRequires:		elfutils-devel
@@ -318,7 +297,6 @@ BuildRequires:		docbook-style-xsl
 BuildRequires:		pkgconfig(gtk+-2.0)
 BuildRequires:		flex
 BuildRequires:		bison
-%endif
 
 %ifarch %{arm}
 BuildRequires:		uboot-mkimage
@@ -710,9 +688,6 @@ cd %src_dir
 %endif
 %if %kgit
 %patch2 -p1
-%endif
-%if %build_for_magos
-%patch101 -p1 -d %{patches_dir}
 %endif
 
 %{patches_dir}/scripts/apply_patches
@@ -1259,8 +1234,7 @@ rm -rf %{target_source}/.tmp_depmod/
 # compressing modules
 %if %{build_modxz}
 find %{target_modules} -name "*.ko" | %kxargs xz -6e
-%endif
-%if %{build_modgz}
+%else
 find %{target_modules} -name "*.ko" | %kxargs gzip -9
 %endif
 
