@@ -1,0 +1,76 @@
+diff -auprN a/curlftpfs.spec b/curlftpfs.spec
+--- a/curlftpfs.spec	2010-12-09 14:05:07.000000000 +0300
++++ b/curlftpfs.spec	2012-06-22 15:10:38.000000000 +0400
+@@ -13,6 +13,7 @@ BuildRoot:	%{_tmppath}/%{name}-root
+ BuildRequires:	curl-devel, fuse-devel, glib2-devel
+ Requires:	fuse
+ Source:		%{name}-%{version}.tar.gz
++Patch0:         %{name}-nossl-magos.patch
+ %description
+ CurlFtpFS is a filesystem for accessing FTP hosts based on FUSE and libcurl.
+ 
+@@ -25,10 +26,11 @@ CurlFtpFS diferentiates itself from othe
+ 
+ %prep
+ %setup -q
++%patch0 -p1
+ 
+ %build
+ autoreconf -fi
+-%configure2_5x
++%configure2_5x --without-ssl
+ %make
+ 
+ %install
+diff -auprN a/curl.spec b/curl.spec
+--- a/curl.spec	2012-04-13 12:13:03.000000000 +0400
++++ b/curl.spec	2012-06-22 15:15:58.000000000 +0400
+@@ -21,12 +21,7 @@ Patch8:		curl-7.21.7-CVE-2011-3389-1.dif
+ Patch9:		curl-7.21.7-CVE-2011-3389-2.diff
+ Patch10:	curl-7.21.7-CVE-2012-0036.diff
+ BuildRequires:	groff-for-man
+-BuildRequires:	openssl-devel
+ BuildRequires:	zlib-devel
+-BuildRequires:	libidn-devel
+-BuildRequires:	libssh2-devel
+-BuildRequires:	openldap-devel
+-BuildRequires:	krb5-devel
+ #BuildRequires:	c-ares-devel
+ # (misc) required for testing
+ BuildRequires:	stunnel
+@@ -100,19 +95,21 @@ autoreconf -fiv
+ 	--with-ssl \
+ 	--without-gnutls \
+ 	--with-zlib \
+-	--with-libidn \
+-	--with-ssh2 \
++	--without-libidn \
++	--without-libssh2 \
+ 	--with-random \
+ 	--enable-hidden-symbols \
+ 	--enable-optimize \
+ 	--enable-nonblocking \
+ 	--enable-thread \
+-	--enable-crypto-auth \
++	--disable-crypto-auth \
+ 	--enable-libgcc \
+-	--enable-ldaps \
++	--disable-ldap \
++	--disable-ldaps \
+ 	--enable-ipv6 \
+ 	--with-ca-bundle=%{_sysconfdir}/pki/tls/certs/ca-bundle.crt \
+-	--with-gssapi=%{_prefix} \
++	--without-gssapi \
++	--without-ssl \
+ 	--disable-ares
+ 
+ # we don't want them in curl-examples:
+@@ -122,7 +119,7 @@ rm -r docs/examples/.deps
+ 
+ # disable tests that want to connect/run sshd, which is quite impossible
+ %check
+-make test TEST_Q='-a -p -v !SCP !SFTP !SOCKS4 !SOCKS5 !TFTP !198' 
++#make test TEST_Q='-a -p -v !SCP !SFTP !SOCKS4 !SOCKS5 !TFTP !198' 
+ 
+ %install
+ rm -rf %{buildroot}

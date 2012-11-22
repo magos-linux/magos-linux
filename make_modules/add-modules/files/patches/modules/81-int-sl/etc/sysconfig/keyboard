@@ -1,0 +1,5 @@
+XkbModel=pc105
+XkbLayout=si
+KEYBOARD=si
+XkbOptions=compose:rwin
+KEYTABLE=slovene

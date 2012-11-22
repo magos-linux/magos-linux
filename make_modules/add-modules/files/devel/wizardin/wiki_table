@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "^ Наименование модуля ^ Содержимое модуля ^"
+for a in `ls -1 ./??-*`; do
+    echo "|$(basename $a)|<code>"
+    cat $a
+    echo "</code>|"
+done

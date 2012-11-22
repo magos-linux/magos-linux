@@ -1,6 +1,5 @@
 xterm
 xdm
-x11-driver-video-vboxvideo
 x11-driver-input
 x11-driver-input-acecad
 x11-driver-input-aiptek
@@ -42,4 +41,3 @@ x11-driver-video-v4l
 x11-driver-video-vboxvideo
 x11-driver-video-vesa
 x11-driver-video-vmware
-

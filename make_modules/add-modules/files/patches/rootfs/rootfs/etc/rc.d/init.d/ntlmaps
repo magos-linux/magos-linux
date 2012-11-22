@@ -1,0 +1,108 @@
+#!/bin/sh
+#
+# Polipo Startup script for the NTLM Authorization Proxy Server
+#
+# chkconfig: - 95 15
+# description: NTLMAPS is a proxy-like software, that will authorize you at MS proxy server\
+#              and at web servers (ISS especially) using MS proprietary NTLM authorization method
+# processname: ntlmaps
+### BEGIN INIT INFO
+# Provides: ntlmaps
+# Required-Start: $local_fs $network $named winbind
+# Required-Stop: $local_fs $network $named winbind
+# Short-Description: NTLM Authorization Proxy Server
+# Default-Start: 3 4 5
+# Description: NTLMAPS is a proxy-like software, that will authorize you at MS proxy server
+#              and at web servers (ISS especially) using MS proprietary NTLM authorization method.
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+ntlmaps=${NTLMAPS-/usr/share/ntlmaps/ntlmaps}
+prog=ntlmaps
+config=${CONFIG-/etc/ntlmaps.cfg}
+pidfile=${PIDFILE-/var/run/ntlmaps.pid}
+lockfile=${LOCKFILE-/var/lock/subsys/ntlmaps}
+logdir=${LOGDIR-/var/log/ntlmaps}
+pwddir=$PWD
+port=5865
+TIMEOUT=${TIMEOUT-10}
+RETVAL=0
+
+
+start() {
+	# Check that networking is up.
+	[ ${NETWORKING} = "no" ] && exit 1
+	[ -x $ntlmaps ] || exit 1
+	[ `id -u` -ne 0 ] && exit 4
+	# check if the config is present
+	[ -f $config ] || exit 6
+	[ -f $pidfile ] && exit 1
+	[ -d $logdir ] || mkdir $logdir
+	chmod 700 $logdir
+        cd $logdir
+        gprintf "Starting %s: " "$prog"
+        daemon $ntlmaps -c $config </dev/null >/dev/null 2>/dev/null &
+        while [ "$TIMEOUT" != "0" ] ;do
+            PRPID=$(/usr/sbin/lsof 2>/dev/null| grep ":$port .LISTEN." | awk '{print $2}')
+            [ -z "$PRPID" ] || break
+            sleep 1
+            TIMEOUT=$(( $TIMEOUT - 1 ))
+        done
+        if [ "$PRPID" = "" ] ;then
+            RETVAL=1
+            failure
+        else
+            RETVAL=0
+            success
+            touch ${lockfile}
+            echo -ne $PRPID > ${pidfile}
+        fi
+        echo
+        cd $pwddir
+        return $RETVAL
+}
+stop() {
+	gprintf "Stopping %s: " "$prog"
+	PRPID=$(cat $pidfile 2>/dev/null)
+	if [ "$PRPID" = "" ] ;then
+	    failure
+	else
+	    kill $PRPID >/dev/null 2>&1 && success || failure
+	fi
+	echo
+	rm -f ${lockfile} ${pidfile} 2>/dev/null
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+        status -p ${pidfile} $prog
+	RETVAL=$?
+	;;
+  restart)
+	stop
+	start
+	;;
+  condrestart|try-restart)
+	if status -p ${pidfile} $ntlmaps >&/dev/null; then
+		stop
+		start
+	fi
+	;;
+  *)
+	gprintf "Usage: %s {start|stop|restart|condrestart|status}\n" "$prog"
+	RETVAL=3
+esac
+
+exit $RETVAL

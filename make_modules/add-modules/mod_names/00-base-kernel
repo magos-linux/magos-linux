@@ -1,0 +1,9 @@
+kernel-server
+dkms-broadcom-wl
+dkms-fglrx
+dkms-nvidia173
+dkms-nvidia96xx
+dkms-nvidia-current
+dkms-vboxadditions
+dkms-virtualbox
+dkms-vpnclient

@@ -1,0 +1,2 @@
+#!/bin/bash
+gksu -l profiler_helper create "$(pwd)/${1-empty}"

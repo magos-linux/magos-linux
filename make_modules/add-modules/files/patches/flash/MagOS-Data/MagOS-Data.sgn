@@ -1,0 +1,9 @@
+Не удаляйте этот файл, иначе MagOS не сможет найти данные локальных настроек.
+Вы можете передать параметр 'sgndatafile=...' чтобы указать другое имя,
+в отличие от оригинального. Это может быть полезно, если у вас 
+используется несколько разных вариантов MagOS.
+
+Don't delete this file, else MagOS won't find local data files.
+You may use 'sgndatafile=...' boot parameter to search for a different name
+than the default. This can be useful if you need to store several
+linux-live distros on one machine.

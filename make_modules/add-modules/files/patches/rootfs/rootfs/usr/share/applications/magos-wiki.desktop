@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=MagOS documentation
+Name[ru]=Справочная информация о MagOS
+Exec=firefox /usr/share/magos/doc/magos-wiki.html
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=GTK;Help;Documentation
+MimeType=;
+NoDisplay=false
+Icon=documentation_section

@@ -1,0 +1,6 @@
+XkbModel=pc105
+GRP_TOGGLE=ctrl_shift_toggle
+XkbLayout=us,il
+KEYBOARD=il
+KEYTABLE=il-8859_8
+XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin

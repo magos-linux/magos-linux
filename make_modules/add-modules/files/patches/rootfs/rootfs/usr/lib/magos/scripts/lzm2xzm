@@ -1,0 +1,47 @@
+#!/bin/bash
+# convert compressed file  from .lzm squashfs3 into .xzm squashfs4 format
+# Author: Mikhail Zaripov <http://www.magos-linux.ru>
+#
+
+if [ "$1" = "" -o  "$1" = "--help" ]; then
+   echo 
+   echo "Convert compressed file  from .lzm squashfs3 into .xzm squashfs4 format"
+   echo "usage: $0 source_file.lzm [destination_file.xzm]"
+   echo "       $0 source_dir destination_dir"
+   echo "       $0 source_regular_expression"
+   exit 1
+fi
+
+if ! cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ ;then
+   echo 
+   echo "Error: Squashfs_xz does not supported by kernel"
+   exit 1
+fi
+
+PATH=.:$(dirname $0):/usr/lib:$PATH
+. liblinuxlive || exit 1
+
+if echo $2 | grep -q [.]lzm$ ;then
+   DESTP= ;   INS="$@"
+elif [ -d "$1" -a -d "$2" ] ;then
+   DESTP="$2" ;   INS="$1/*.lzm"
+else
+   DESTP="$2";    INS="$1"
+fi
+
+for SRC in $INS ;do
+    DEST=${DESTP:-${SRC/.lzm/.xzm}}
+    [ -d "$DEST" ] && DEST="$DEST/$(basename ${SRC/.lzm/.xzm})"
+    if [ -e "$DEST" ]; then echo "Error: $DEST allready exists "; exit 1; fi
+    mkdir "$DEST.tmp" || exit 1
+    echo -n "$SRC -> $DEST "
+    unsquashfs3 -f -dest "$DEST.tmp" "$SRC" >/dev/null
+    if [ $? != 0 ]; then echo "error uncompressing module"; exit 1; fi
+    echo -n "."
+    create_module "$DEST.tmp" "$DEST"
+    if [ $? != 0 ]; then echo "error building compressed image"; exit 1; fi
+    echo -n "."
+    rm -fr "$DEST.tmp"
+    echo -n "."
+    echo "  [OK]"
+done

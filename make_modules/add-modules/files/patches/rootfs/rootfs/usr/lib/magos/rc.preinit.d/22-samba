@@ -1,0 +1,35 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /liblinuxlive
+. etc/sysconfig/MagOS
+
+if  ! [ -z "$ADSERVER" -o -z "$DOMAIN" ] ;then
+    [ -z "$KERBEROS_REALM" ] && KERBEROS_REALM=$(echo $DOMAIN | tr [a-z] [A-Z])
+    sed -i s/kerberos.local.magos-linux.ru/$ADSERVER/ etc/krb5.conf
+    sed -i s/LOCAL.MAGOS-LINUX.RU/$KERBEROS_REALM/ etc/krb5.conf
+    sed -i s/local.magos-linux.ru/$DOMAIN/ etc/krb5.conf
+    sed -i '/realm =/d' etc/samba/smb.conf
+    sed -i '/security =/d' etc/samba/smb.conf
+    sed -i '/password server =/d' etc/samba/smb.conf
+    sed -i '/\[global\]/ s/$/'"\n  realm = $KERBEROS_REALM\n  security = ADS\n  password server = $ADSERVER"/ etc/samba/smb.conf
+    [ -z "$SAMBADOMAIN" ] && SAMBADOMAIN=$(echo $KERBEROS_REALM | awk -F . '{print $1}')
+    sed -i s/'^passwd:.*$'/'passwd:     files winbind'/ etc/nsswitch.conf
+    sed -i s/'^shadow:.*$'/'shadow:     files winbind'/ etc/nsswitch.conf
+    sed -i s/'^group:.*$'/'group:     files winbind'/ etc/nsswitch.conf
+    cp -pf etc/pam.d/system-auth-krb etc/pam.d/system-auth
+fi
+
+if ! [ -z "$SAMBADOMAIN" ] ;then
+    sed -i s/"workgroup = .*"/"workgroup = $SAMBADOMAIN"/ etc/samba/smb.conf
+    sed -i s/"^NT_DOMAIN=.*"/"NT_DOMAIN=$SAMBADOMAIN"/ etc/ntlmaps.cfg
+fi
+

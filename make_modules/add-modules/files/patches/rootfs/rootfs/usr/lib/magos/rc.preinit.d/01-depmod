@@ -1,0 +1,17 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /liblinuxlive
+. etc/sysconfig/MagOS
+
+[ $(cmdline_parameter depmod) ] && DEPMOD="yes"
+[ "$DEPMOD" = "yes" ] && chroot . sbin/depmod -a
+

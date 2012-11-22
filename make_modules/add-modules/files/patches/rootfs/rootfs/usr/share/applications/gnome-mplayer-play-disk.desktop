@@ -1,0 +1,12 @@
+
+[Desktop Entry]
+Version=1.0
+Name=Play with GNOME MPlayer
+Name[ru]=Просмотр с помощью GNOME MPlayer
+Exec=gnome-mplayer %u
+Icon=gnome-mplayer
+StartupNotify=true
+Terminal=false
+Type=Application
+MimeType=x-content/video-dvd;x-content/video-vcd;x-content/video-svcd;x-content/video-blueray;x-content/video-hddvd;
+NoDisplay=true

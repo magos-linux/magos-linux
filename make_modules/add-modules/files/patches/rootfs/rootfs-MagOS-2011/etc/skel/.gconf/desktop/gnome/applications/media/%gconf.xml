@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="exec" mtime="1246217985" type="string">
+		<stringvalue>gmplayer</stringvalue>
+	</entry>
+</gconf>

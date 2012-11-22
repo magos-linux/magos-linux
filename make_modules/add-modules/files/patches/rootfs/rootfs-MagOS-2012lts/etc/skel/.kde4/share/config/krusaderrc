@@ -1,0 +1,161 @@
+First Time=false
+Version=2.0.0
+
+[Archives]
+Supported Packers=tar,gzip,bzip2,lzma,unzip,zip,lha,cpio,unrar,arj,7z,rpm
+
+[Custom Selection Mode]
+Immediate Context Menu=false
+Left Selects=false
+Right Preserves=true
+Right Selects=true
+ShiftCtrl Left Selects=false
+Space Moves Down=true
+
+[Dependencies]
+7z=/usr/bin/7z
+arj=/usr/bin/arj
+bzip2=/usr/bin/bzip2
+checksum utility=/usr/bin/md5sum
+cpio=/bin/cpio
+diff utility=/usr/bin/kdiff3
+gzip=/usr/bin/gzip
+kdesu=/usr/bin/kdesu
+kdiff3=/usr/bin/kdiff3
+kget=/usr/bin/kget
+kmail=/usr/bin/kmail
+krename=/usr/bin/krename
+krusader=/usr/bin/krusader
+lha=/usr/bin/lha
+locate=/usr/bin/locate
+lzma=/usr/bin/lzma
+mailer=/usr/bin/thunderbird
+md5sum=/usr/bin/md5sum
+mount=/bin/mount
+rpm=/bin/rpm
+sha1sum=/usr/bin/sha1sum
+sha224sum=/usr/bin/sha224sum
+sha256sum=/usr/bin/sha256sum
+sha384sum=/usr/bin/sha384sum
+sha512sum=/usr/bin/sha512sum
+tar=/bin/tar
+thunderbird=/usr/bin/thunderbird
+umount=/bin/umount
+unace=/usr/bin/unace
+unrar=/usr/bin/unrar
+unzip=/usr/bin/unzip
+updatedb=/usr/bin/updatedb
+zip=/usr/bin/zip
+
+[General]
+Mimetype Magic=false
+
+[Kate Document Defaults]
+Allow End of Line Detection=true
+Allow Simple Mode=true
+Backup Config Flags=1
+Backup Prefix=
+Backup Suffix=~
+Basic Config Flags=11010080
+Encoding=UTF-8
+End of Line=0
+Indentation Mode=
+Indentation Width=2
+PageUp/PageDown Moves Cursor=false
+ProberType for Encoding Autodetection=7
+Search Dir Config Depth=3
+Tab Handling=2
+Tab Width=8
+Word Wrap=false
+Word Wrap Column=80
+
+[Kate Renderer Defaults]
+Schema=krusader - Normal
+Show Indentation Lines=false
+Show Whole Bracket Expression=false
+Word Wrap Marker=false
+
+[Kate View Defaults]
+Auto Center Lines=0
+Auto Completion=true
+Bookmark Menu Sorting=0
+Default Mark Type=1
+Dynamic Word Wrap=false
+Dynamic Word Wrap Align Indent=80
+Dynamic Word Wrap Indicators=1
+Folding Bar=true
+Icon Bar=false
+Line Numbers=false
+Persistent Selection=false
+Replacement Text History=
+Scroll Bar Marks=false
+Search Pattern History=
+Search/Replace Flags=140
+Vi Input Mode=false
+Vi Input Mode Hide Status Bar=false
+Vi Input Mode Steal Keys=false
+
+[Konfigurator]
+Window Height=680
+Window Maximized=false
+Window Width=960
+
+[KrDetailedViewLeft]
+ColumnOrder=0,1,2,3,4
+ColumnWidths=380,44,80,100,30
+SortAscending=true
+SortColumn=0
+
+[KrDetailedViewRight]
+ColumnOrder=0,1,2,3,4
+ColumnWidths=380,44,80,100,30
+SortAscending=true
+SortColumn=0
+
+[KrViewerWindow]
+Window Height=-1
+Window Maximized=true
+Window Width=-1
+
+[Look&Feel]
+Equal Button Visible=true
+Filelist Icon Size=12
+Home Button Visible=true
+Mouse Selection=3
+Open Button Visible=true
+
+[Private]
+Height 1024=1025
+Height 800=801
+Left PanelPopup Splitter Sizes=100,100
+Maximized=true
+PopularUrls=file:///media/,file:///home/,file:///
+PopularUrlsRank=20,19,19
+Right PanelPopup Splitter Sizes=100,100
+Splitter Sizes=636,636
+Width 1280=1281
+cmdline history=
+
+[Protocols]
+Handled Protocols=tar,krarc,iso
+Mimes For iso=application/x-cd-image
+Mimes For krarc=application/zip,application/x-rpm,application/x-rar,application/x-lha,application/x-gzip,application/x-deb,application/x-cpio,application/x-arj,application/x-ace,application/x-7z-compressed
+Mimes For tar=application/x-tarz,application/x-tar,application/x-compressed-tar,application/x-bzip-compressed-tar
+
+[QueueManager]
+Active=0
+Queues=default
+
+[Startup]
+Left Active Tab=0
+Left Panel Popup=0
+Left Side Is Active=true
+Left Tab Bar[$e]=/media
+Left Tab Bar Props=0
+Left Tab Bar Types=0
+Right Active Tab=0
+Right Panel Popup=0
+Right Tab Bar[$e]=/home
+Right Tab Bar Props=0
+Right Tab Bar Types=0
+Vertical Mode=false

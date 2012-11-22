@@ -1,0 +1,27 @@
+# -*- Mode: shell-script -*-
+# Specify here if you want add the splash logo to initrd when
+# generating an initrd. You can specify :
+#
+# SPLASH=no to don't have a splash screen
+#
+# SPLASH=auto to make autodetect the splash screen
+#
+# SPLASH=INT When Integer could be 800x600 1024x768 1280x1024 1600x1200
+#
+SPLASH=auto
+
+# Choose the themes. The should be based in
+# /usr/share/bootsplash/themes/
+THEME=fingerprint
+
+# Say yes here if you want to leave the logo on the console.
+# Three options :
+#
+# LOGO_CONSOLE=no don't display logo under console.
+#
+# LOGO_CONSOLE=yes display logo under console.
+#
+# LOGO_CONSOLE=theme leave the theme to decide.
+#
+LOGO_CONSOLE=theme
+text_size=20
