@@ -13,7 +13,7 @@ DATASIZE2=256
 
 #STATUS=devel
 STATUS=official
-VERREL=2
+VERREL=Mageia2
 # на 64 бит врядли стоит собирать, теряется универсальность
 # но под конкретную машину может и есть смысл. Тогда будьте готовы к возможным проблемам 
 # со скриптами linux-live, там бинарники собраны под 32бита
@@ -34,7 +34,7 @@ ROOTFS=$MOD_ROOTFS_DIR/rootfs
 MOD_PREV=work/urpmi_root
 
 #Файловая система unionfs или aufs
-FS_ROOTFS=unionfs
+FS_ROOTFS=aufs
 
 # Список репозиториев
 DIST_MIRROR_0=http://mirror.yandex.ru/mageia/distrib/2/i586/

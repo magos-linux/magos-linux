@@ -16,7 +16,7 @@ else
   echo "Не вижу файла config" ;  exit 1
 fi
 
-rm -rf $MOD_PREV
+#rm -rf $MOD_PREV
 
 mkdir -p $MOD_PREV
 

@@ -18,7 +18,7 @@ if [ "`id -u`" != "0" ] ;then
 fi
 
 echo "Создание ссылок на исходники ядра"
-cd "$MYPATH"/work/$FLASHNAME-$VERREL/00-base-kernel/boot
+cd "$MYPATH"/work/$FLASHNAME-$VERREL/11-base-kernel/boot
 ln -sf $(ls -1 vmlinuz-*-* | sed 's|.*/||' | tail -1) vmlinuz || exit 1
 
 echo "Патчи rootfs"

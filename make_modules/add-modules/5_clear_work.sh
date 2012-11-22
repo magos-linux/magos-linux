@@ -29,4 +29,4 @@ function umountbranches()
 
 umountbranches "$ROOTFS"
 
-rm -rf work
+#rm -rf work
