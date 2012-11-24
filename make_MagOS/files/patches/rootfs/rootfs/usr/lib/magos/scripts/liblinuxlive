@@ -1025,7 +1025,7 @@ modprobe_usb_modules()
 {
    debug_log "modprobe_hardware_modules" "$*"
    depmod
-   local MODULES="sd_mod sr_mod ehci-hcd ohci-hcd uhci-hcd usb-storage hid usbhid \
+   local MODULES="sd_mod sr_mod ehci-hcd ohci-hcd uhci-hcd xhci-hcd usb-storage hid usbhid \
         `lspci -v | grep -i modules | tr -d , | sort -u `" 
    for a in $MODULES ;do 
       modprobe_module $a
