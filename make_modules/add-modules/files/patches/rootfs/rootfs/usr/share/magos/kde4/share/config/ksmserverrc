@@ -1,0 +1,8 @@
+[General]
+confirmLogout=true
+excludeApps=yakuake,/usr/bin/yakuake
+loginMode=restorePreviousLogout
+offerShutdown=true
+screenCount=1
+shutdownType=0
+

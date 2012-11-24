@@ -1,0 +1,138 @@
+<HTML>
+    <head>
+        <title>MBR Fix - Fix MBR problems</title>
+    </head>
+    <body>
+        <P align="center">MbrFix.exe
+        </P>
+        <P align="center">Copyright (C) 2004, 2005 Systemintegrasjon AS
+        </P>
+        <P align="center"><A href="http://www.sysint.no">http://www.sysint.no</A></P>
+        <P>
+            <h3>Usage:</h3>
+            <PRE>    MbrFix /drive &lt;num&gt; &lt;command&gt; { /yes } { /byte }
+</PRE>
+            <h3>Requirements:</h3>
+        <P>The program is made for Windows NT, Windows 2000, Windows XP, Windows Server 
+            2003 and Windows PE.
+        </P>
+        <P>You need administrative privileges to make it work!</P>
+        <H3>Commands:</H3>
+        <PRE>
+    MbrFix /drive &lt;num&gt; driveinfo              Display drive information
+    MbrFix /drive &lt;num&gt; drivesize              Returns drive size in MB as return value
+    MbrFix /drive &lt;num&gt; listpartitions         Display partition information
+    MbrFix /drive &lt;num&gt; savembr &lt;file&gt;         Save MBR and partitions to file
+    MbrFix /drive &lt;num&gt; restorembr &lt;file&gt;      Restore MBR and partitions from file
+    MbrFix /drive &lt;num&gt; fixmbr                 Update MBR code to W2K/XP/2003
+    MbrFix /drive &lt;num&gt; clean                  Delete partitions in MBR
+    MbrFix /drive &lt;num&gt; readsignature {/byte}  Read disk signature from MBR
+    MbrFix /drive &lt;num&gt; writesignature hex     Write disk signature from MBR
+    MbrFix /drive &lt;num&gt; generatesignature      Generate disk signature in MBR
+    MbrFix /drive &lt;num&gt; readstate              Read state from byte 0x1b0 in MBR
+    MbrFix /drive &lt;num&gt; writestate &lt;state&gt;     Write state to byte 0x1b0 in MBR
+    MbrFix volumeinformation driveletter       Get volume information for partition
+</PRE>
+        <P></P>
+        <p>
+            Drive numbering &lt;num&gt; starts on 0.</p>
+        <p>
+            Commands restorembr, fixmbr, generatesignature, writestate and clean will ask 
+            for confirmation unless /yes is included.</p>
+        <p>
+            If the /byte option is given for the readsignature command, the signature is 
+            returned as a byte array instead of as a DWORD.</p>
+        <H3>Return codes:</H3>
+        <P>
+            The program reports an errorlevel as 0 for OK and other values for errors.<br>
+            The exception to this is the ReadState command which returns the state as a 
+            return code as well as printing to stdout. Any errors for this command&nbsp;are 
+            returned as negative values because of this. The DriveSize command returns 
+            the&nbsp;drive size in MB, and 0 in case of error.
+        </P>
+        <h3>Why do I need this utility?</h3>
+        <P>Well, I was testing Windows Embedded XP using a virtual PC, and was booting 
+            Windows PE from a CD-ROM to partition a brand new harddisk (quite cheap, since 
+            it was virtual <STRONG><EM>!</EM></STRONG>). Using the diskpart.exe utility 
+            (found in Windows XP and Windows Server 2003, available as a download for 
+            Windows 2000), I created the partition, made it Active, assigned it a drive 
+            letter. I then used the format.exe utility to format it to NTFS (format C: 
+            /fs:ntfs).</P>
+        <pre>
+DISKPART&gt; detail part
+Partition 1
+Type: 07
+Hidden: No
+Active: Yes
+
+ Volume ###  Letter  Lable       Fs     Type        Size     Status     Info.
+ ----------  ---  -----------  -----  ----------  -------   ---------  --------
+* Volume 1     C    WinXP        NTFS   Partition    149 MB   OK        System            
+            </pre>
+        <P>I then mounted a network drive to my physical computer and copied the boot.ini, 
+            ntldr, ntdetect.com, windows folder, program files folder, etc. from the 
+            Windows Embedded XP image directory. Everything to make it boot.</P>
+        <P>Well everything should be OK, so I rebooted the (virtual) computer and expected 
+            it to boot up Windows Embedded XP.</P>
+        <P>But not so! It just sat there with a nice black screen. No error message at all.</P>
+        <P>Some investigation later on the Internet, I found this very informative page by 
+            Daniel B. Sedory: <A href="http://www.geocities.com/thestarman3/asm/mbr/MBR_in_detail.htm">
+                http://www.geocities.com/thestarman3/asm/mbr/MBR_in_detail.htm</A>, 
+            containing a wealth of MBR info. The info on one of the pages states that the 
+            MBR code is installed on the drive when the Windows setup program runs and no 
+            MBR code exists already. Hmm.., seemed to be&nbsp;right on the mark.</P>
+        <P>I searched further on the Internet, but the only utilities I found which could 
+            install MBR code was for other operating systems, like FDISK.exe /MBR for DOS 
+            (but I wouldn't boot to DOS...) or the fixmbr command in the Windows 
+            2000/XP/2003 Recovery Console. Didn't want that either. Wanted something to 
+            work on a Windows 32 bit platform, to be able to fix the problem in other cases 
+            when using Win PE and just plain copying in the operating system 
+            files.&nbsp;So, then I was left to make the utility myself!</P>
+        <P>Problem solved: After booting up Windows PE from CD again, the command &nbsp; <FONT face="Courier New" size="2">
+                <STRONG>MBRFix /drive 0 fixmbr /yes</STRONG></FONT> &nbsp; solved it all. 
+            Embedded XP booted&nbsp;like a charm.</P>
+        <H3>Samples:</H3>
+        <pre>
+C:\&gt; MbrFix /drive 0 listpartitions
+# Boot Size (MB) Type
+1  Yes     151001    6  DOS 3.31+ 16-bit FAT (over 32M)
+2          1623   12  WIN95 OSR2 32-bit FAT, LBA-mapped
+3             0    0  None
+4             0    0  None
+
+C:\&gt; MbrFix /drive 0 savembr Backup_MBR_0.bin
+
+C:\&gt; MbrFix /drive 0 restorembr Backup_MBR_0.bin
+You are about to Restore MBR,
+are you sure (Y/N)? <b>Y</b>
+
+C:\&gt; MbrFix /drive 0 fixmbr /yes
+        </pre>
+        <H3>Readstate and Writestate:</H3>
+        <P>The commands <EM>readstate</EM> and <EM>writestate</EM> use a byte at offset 
+            0x1b0 to store state. The commands&nbsp;are only useful in a scenario where you 
+            use Windows PE to roll out other MS operating systems, and you <EM>have no other 
+                place</EM> to store information about where you are in the installation 
+            process. This location in the MBR is unused as far as known.
+        </P>
+        <p>
+            <h3>Credits:</h3>
+        <P>Daniel B. Sedory, for his compilation of information on <A href="http://www.geocities.com/thestarman3/asm/mbr/MBR_in_detail.htm">
+                http://www.geocities.com/thestarman3/asm/mbr/MBR_in_detail.htm</A> and for 
+            his feedback on the program.</P>
+        <H3>User License Agreement:</H3>
+        <p>
+            The program is delivered AS-IS, that is without any form of guarantee. You may 
+            freely use the program for any legal purpose, and you may 
+            freely&nbsp;distribute it as long as this file is distributed along the program 
+            file.</p>
+        <P>Incorrect use of this program <STRONG>may</STRONG> cause <STRONG>loss of all data</STRONG>
+            on your disk-drives. All use of this program is&nbsp;at the risk of the user. 
+            Systemintegrasjon AS does not accept any liability for any damage the program 
+            might cause.</P>
+        <p><b>If you do not accept these terms, you must delete the 
+                program,&nbsp;MbrFix.exe,&nbsp;at once!</b></p>
+        <P align="right"><EM>Developed by Kåre Smith, 21. april 2005</EM></P>
+        <!-- Comment: Developed by Kåre Smith, 28. November 2004 -->
+    </body>
+</HTML>

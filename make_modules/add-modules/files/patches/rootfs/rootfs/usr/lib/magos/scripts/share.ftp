@@ -1,0 +1,27 @@
+#!/bin/bash
+begin=start
+end=stop
+[ -d /media/public ] || mkdir -m 777 /media/public
+service proftpd status | grep pid  && begin=restart end=restart
+
+if [ -d "$1" ] ; then
+  dir=$(basename "$1")
+  mkdir -m 777 "/media/public/$dir"
+  mount --bind "$1" "/media/public/$dir"
+  file=
+ else
+  folder=$(dirname "$1")
+  file=$(basename "$1")
+  dir=$(basename "$folder")
+  mkdir -m 777 "/media/public/$dir"
+  mount --bind "$folder" "/media/public/$dir"
+fi
+mdialog --passivepopup "$(CONSOLETYPE=serial service proftpd $begin)"
+for arg in $(ifconfig |  grep "inet addr" | grep -v 127.0.0.1 | awk -F: ' { print $2 } ' | awk '{ print $1 }') ; do
+   ip="$ip ftp://$arg/$dir/$file \n"
+done
+echo "$ip"
+dbus-launch kdialog --msgbox  "Открыт временный доступ по ftp к $dir. При закрытии этого окна доступ будет прекращен \n Адрес для подключения $ip"
+umount "/media/public/$dir" && rmdir "/media/public/$dir"
+mdialog --passivepopup "$(CONSOLETYPE=serial service proftpd $end)"
+exit

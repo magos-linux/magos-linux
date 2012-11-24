@@ -1,0 +1,42 @@
+#!/bin/bash
+[ "$2" ] || exit 0
+rm -f /tmp/profiler.log 2>/dev/null
+
+par="$2"
+cd "$(dirname $par)"
+
+resize()
+{
+   a=$(mdialog --inputbox "Введите новый размер файла в мегабайтах" "512")
+   profiler resize "$1" "$a" > /tmp/profiler.log && mdialog --msgbox "resize OK"
+}
+
+max()
+{
+   profiler resize "$1" max && mdialog --msgbox "resize to max size OK"
+   exit
+}
+
+format()
+{
+   mdialog --yesno "Вы уверены что хотите полностью очистить профиль?" && profiler format "$1" > /tmp/profiler.log && mdialog --msgbox "format OK"
+}
+
+create()
+{
+   echo $(mdialog --inputbox "имя файла, пробел, размер в мегабайтах" "MagOS_save_3.img 256") | xargs profiler create > /tmp/profiler.log && mdialog --msgbox "create OK" 
+   exit
+}
+
+mount()
+{
+   profiler mount "$1"  > /tmp/profiler.log && mdialog --msgbox "mount OK"
+}
+
+umount()
+{
+   profiler umount "$1"  > /tmp/profiler.log && mdialog --msgbox "umount OK"
+}
+
+"$1" "$par" || mdialog --error "$(cat /tmp/profiler.log)"
+exit

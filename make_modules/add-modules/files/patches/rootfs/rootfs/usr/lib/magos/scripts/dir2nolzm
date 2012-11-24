@@ -1,0 +1,23 @@
+#!/bin/bash
+# convert directory tree into .lzm compressed file
+# which can be used as a LiveCD module
+#
+# Author: Tomas M. <http://www.linux-live.org>
+#
+# Author: Anton Goroshkin <http://magos-linux.ru>
+
+. liblinuxlive || exit 1
+
+if [ ! -d "$1" -o "$2" = "" ]; then
+   echo
+   echo "Convert directory tree into .lzm nocompressed module"
+   echo "usage: $0 source_directory output_file.lzm"
+   exit 1
+fi
+
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && addparam= || addparam=-nolzma
+
+
+create_module "$1" "$2" -noI -noD -noF $addparam
+#create_module "$1" "$2"
+if [ $? != 0 ]; then echo "error building compressed image"; exit 1; fi

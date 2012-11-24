@@ -1,0 +1,90 @@
+Hello Mandriva Users,
+
+kernel-headers contains the headers for the source code of Linux kernel.
+All source code necessary to compile a new kernel is included in two
+packages kernel-headers, and kernel-source. You will need to install
+both kernel-headers (needed for general Linux compilation), and
+kernel-source in order to compile a new kernel.
+
+The kernel is the central process of your Linux machine, the mediator
+between the hardware and your programs. It is responsible for memory
+allocations, process managing, device access...
+
+Although modern kernels are very flexible thanks to dynamic modules, you
+may need to compile your own kernel for various reasons: your found a
+new module which need a more recent kernel, you need a feature of a new
+kernel, etc...
+Anyway, all the new kernels may be found in the cooker distrib (look for
+mirrors at http://qa.mandriva.com/twiki/bin/view/Main/CookerMirrors).
+
+Here is a short sum-up of what you can find in the Kernel-HOWTO. Consult
+it in case of a problem or if the shortcut here provided does not meet
+your needs. You should also consult the README of kernel-sources.
+
+
+
+1. Configure your new kernel
+
+You should never build a kernel as root, so as a normal user:
+Copy the source in /usr/src/linux/ to ~/kernel/
+Change to ~/kernel/ and clean-up previous compilations, by issuing 
+"make mrproper",
+In console mode, run "make menuconfig",
+Under X11, run "make xconfig".
+
+Then configure all sections of your kernel making each feature you need
+available constantly or as a module. Note that you should compile most
+features as a module, as it consume less memory, taking into account
+that some of them cannot be modules as you may need them at boot time,
+before dynamic modules be loaded...
+
+
+
+2. Compile it
+
+Just issue "make" to create a compressed kernel image and the modules you 
+configured.
+
+
+
+3. install your new kernel
+
+Now you need root privilegies, so:
+Issue "su" and enter root password.
+Issue "make modules_install"
+
+This will copy your modules and needed files to /lib/modules/
+
+Issue "make install"
+
+This will copy your new kernel and system.map to boot dir (/boot/) with
+correct names including version, and change respective links.
+
+It finally runs lilo to take into account your new kernel.
+
+
+
+4. Modify Lilo to allow your booting on old kernel
+
+* This step is optional, although recommended *
+See lilo.conf man page.
+Your are encouraged during this step to create a new section in your
+lilo.conf file, in order to enable you to boot on your both kernels, the
+old and the new one.
+You need to run lilo then to take your changes into account.
+You may also use linuxconf to do all that with a nice GUI.
+
+
+
+5. Reboot your machine...
+
+And pray.
+Anyway if something goes wrong, you just need to reboot and choose your
+old kernel with lilo.
+
+Enjoy!
+
+
+========================================================================
+(c) 1999-2006 Mandriva, Camille Bégnis <camille@mandriva.com>
+(c) 2006 Thomas Backlund <tmb@mandriva.org> 

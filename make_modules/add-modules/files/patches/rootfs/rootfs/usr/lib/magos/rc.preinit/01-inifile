@@ -1,0 +1,32 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /liblinuxlive
+
+# MagOS.ini processing
+FNAME=etc/sysconfig/MagOS
+touch $FNAME
+gunzip -c /tmp/MagOS.ini.gz | egrep '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
+gunzip -c /tmp/MagOS.ini.gz | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
+   echo $a | egrep -q '^[:space:]*#|^[:space:]*$' && continue
+   if echo $a | grep -q "^\[.*\][:space:]*" ;then
+      FNAME=`echo "$a" | tr -d '[ ]' | sed s-^/--`
+   else
+      nv=`echo $a | awk -F= '{print $1}'`
+      [ "$nv" = "" ] && continue
+      if ! grep -q "^[[:space:]]*$nv=" $FNAME 2>/dev/null ;then
+         grep -q "^$a$" $FNAME 2>/dev/null || echo "$a" >>$FNAME
+      else
+         sed -i 's|'"^[[:space:]]*$nv=.*$"'|'"$a"'|' $FNAME
+      fi
+   fi
+done
+

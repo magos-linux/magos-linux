@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#
+# Description: create LZM from RPM (& dependences)
+# Author : Anton Goroshkin <http://magos-linux.ru>
+# Author : Alexandr Betkher <http://magos-linux.ru>
+
+# $1=RPM file or name program
+
+##########################
+# мысль такая 
+# gurpm2lzm "прога1 прога2 прога3" прога4 "прога5 прога6"
+# создаст три модуля   проги1-3 прога4 проги5-6
+# имхо удобно, работоспособность не проверял, т.к. С телефона
+# еще help надо сделать
+###########################
+
+if [ "$(id -un)" != "root" ] ;then
+   gksu -g "/bin/bash '$0' $@"
+   exit 0
+fi
+
+export PATH=/usr/lib/magos/scripts:$PATH
+
+string=--progressbar
+    for arg in "$@" ; do
+     progs=$(echo $arg | sed -e 's/^ \+//' -e 's/ \+$//' -e 's/ \+/:/g')
+     string="$string urpm2lzm:$progs"
+    done
+mdialog $string
+mdialog --passivepopup "Преобразование завершено :)."
+exit

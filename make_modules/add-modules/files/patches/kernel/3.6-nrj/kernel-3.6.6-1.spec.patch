@@ -1,0 +1,152 @@
+--- kernel-3.6.6-1.spec_orig	2012-11-08 01:47:31.000000000 +0400
++++ kernel-3.6.6-1.spec	2012-11-16 20:26:22.348522025 +0400
+@@ -207,9 +207,11 @@ Packager: Nicolo' Costanza <abitrules@ya
+ 
+ # compress modules with xz
+ %if %{mdvver} >= 201200
+-%define build_modxz		0
++%define build_modxz		1
++%define build_modgz		0
+ %else
+ %define build_modxz		0
++%define build_modgz		1
+ %endif
+ 
+ # ARM builds
+@@ -224,6 +226,7 @@ Packager: Nicolo' Costanza <abitrules@ya
+ %define build_cpupower		0
+ # arm is currently not using xz
+ %define build_modxz		0
++%define build_modgz		1
+ %endif
+ # End of user definitions
+ 
+@@ -259,6 +262,7 @@ Packager: Nicolo' Costanza <abitrules@ya
+ %{?_without_perf: %global build_perf 0}
+ %{?_without_cpupower: %global build_cpupower 0}
+ %{?_without_modxz: %global build_modxz 0}
++%{?_without_modgz: %global build_modgz 0}
+ 
+ 
+ %{?_with_desktop586: %global build_desktop586 1}
+@@ -292,6 +296,7 @@ Packager: Nicolo' Costanza <abitrules@ya
+ %{?_with_perf: %global build_perf 1}
+ %{?_with_cpupower: %global build_cpupower 1}
+ %{?_with_modxz: %global build_modxz 1}
++%{?_with_modgz: %global build_modgz 1}
+ 
+ # ARM builds
+ %{?_with_iop32x: %global build_iop32x 1}
+@@ -301,6 +306,35 @@ Packager: Nicolo' Costanza <abitrules@ya
+ %{?_without_kirkwood: %global build_kirkwood 0}
+ %{?_without_versatile: %global build_versatile 0}
+ 
++# MagOS Linux settings
++%define build_for_magos 0
++%{?_with_build_for_magos: %global build_for_magos 1}
++%if %build_for_magos
++%define build_desktop	0
++%define build_netbook	0
++%define build_server	0
++%define build_desktop_pae	0
++%define build_netbook_pae	0
++%define build_nrj_desktop	0
++%define build_nrj_realtime	0
++%define build_nrj_laptop	0
++%define build_nrj_netbook	0
++%define build_nrj_realtime_pae	0
++%define build_nrj_laptop_pae	0
++%define build_nrj_netbook_pae	0
++%define build_nrj_netbook_atom	0
++%define build_nrj_netbook_atom_pae	0
++%define build_nrj_desktop_core2	0
++%define build_nrj_desktop_core2_pae	0
++%define build_doc	0
++%define build_source	0
++%define build_debug	0
++%define build_perf	0
++%define build_cpupower	0
++%define build_modxz	0
++%define build_modgz	0
++%endif
++
+ # For the .nosrc.rpm
+ %define build_nosrc 	0
+ %{?_with_nosrc: %global build_nosrc 1}
+@@ -371,30 +405,34 @@ Source100: 	linux-%{patch_ver}.tar.xz
+ 
+ %if %kpatch
+ %if %sublevel
+-Patch2:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/stable-review/patch-%{kversion}-%{kpatch}.bz2
++Patch2:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/stable-review/patch-%{kversion}-%{kpatch}.xz
+ Source11:	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/stable-review/patch-%{kversion}-%{kpatch}.sign
+ %else
+-Patch1:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/testing/patch-%{kernelversion}.%{patchlevel}-%{kpatch}.bz2
++Patch1:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/testing/patch-%{kernelversion}.%{patchlevel}-%{kpatch}.xz
+ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/testing/patch-%{kernelversion}.%{patchlevel}-%{kpatch}.sign
+ %endif
+ %endif
+ %if %kgit
+-Patch2:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/snapshots/patch-%{kernelversion}.%{patchlevel}-%{kpatch}-git%{kgit}.bz2
++Patch2:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/snapshots/patch-%{kernelversion}.%{patchlevel}-%{kpatch}-git%{kgit}.xz
+ Source11: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/snapshots/patch-%{kernelversion}.%{patchlevel}-%{kpatch}-git%{kgit}.sign
+ %endif
+ %if %sublevel
+ %if %kpatch
+ %define prev_sublevel %(expr %{sublevel} - 1)
+ %if %prev_sublevel
+-Patch1:   	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kernelversion}.%{patchlevel}.%{prev_sublevel}.bz2
++Patch1:   	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kernelversion}.%{patchlevel}.%{prev_sublevel}.xz
+ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kernelversion}.%{patchlevel}.%{prev_sublevel}.sign
+ %endif
+ %else
+-Patch1:   	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.bz2
++Patch1:   	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.xz
+ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.sign
+ %endif
+ %endif
+ 
++%if %build_for_magos
++Patch101:       linux-%{patch_ver}-magos.patch
++%endif
++
+ #END
+ ####################################################################
+ 
+@@ -458,6 +496,8 @@ BuildRequires:	module-init-tools
+ BuildRequires: 	gcc 
+ 
+ # for perf, cpufreq and other tools
++%if %build_for_magos
++%else
+ BuildRequires:		elfutils-devel
+ BuildRequires:		zlib-devel
+ BuildRequires:		binutils-devel
+@@ -472,6 +512,7 @@ BuildRequires:		docbook-style-xsl
+ BuildRequires:		pkgconfig(gtk+-2.0)
+ BuildRequires:		flex
+ BuildRequires:		bison
++%endif
+ 
+ %ifarch %{arm}
+ BuildRequires:		uboot-mkimage
+@@ -1079,6 +1120,9 @@ cd %src_dir
+ %if %kgit
+ %patch2 -p1
+ %endif
++%if %build_for_magos
++%patch101 -p1 -d %{patches_dir}
++%endif
+ 
+ %{patches_dir}/scripts/apply_patchesQL
+ %{patches_dir}/scripts/apply_patches
+@@ -1707,7 +1751,8 @@ rm -rf %{target_source}/.tmp_depmod/
+ # compressing modules
+ %if %{build_modxz}
+ find %{target_modules} -name "*.ko" | %kxargs xz -6e
+-%else
++%endif
++%if %{build_modgz}
+ find %{target_modules} -name "*.ko" | %kxargs gzip -9
+ %endif
+ 
