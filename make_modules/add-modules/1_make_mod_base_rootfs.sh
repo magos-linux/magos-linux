@@ -57,9 +57,9 @@ for MOD in `ls -1 $MOD_NAMES_DIR/??-base*` ;do
        then
          if [ "$(basename $MOD)" = "00-base-kernel" ]
             then
-              urpmi --no-suggests --urpmi-root=$ROOTFS --root=$ROOTFS --noclean ./kernel/*
+              urpmi $URPMI_PARAM  --urpmi-root=$ROOTFS --root=$ROOTFS ./kernel/*
          fi
     fi
-    urpmi --no-suggests --urpmi-root=$ROOTFS --root=$ROOTFS --noclean $1 `cat $MOD`
+    urpmi $URPMI_PARAM --urpmi-root=$ROOTFS --root=$ROOTFS `cat $MOD`
     echo -ne \\n "---> OK."\\n
 done

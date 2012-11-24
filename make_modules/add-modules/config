@@ -33,6 +33,9 @@ MOD_NAMES_DIR=mod_names
 ROOTFS=$MOD_ROOTFS_DIR/rootfs
 MOD_PREV=work/urpmi_root
 
+#Параметры urpmi
+URPMI_PARAM=" --noclean "
+
 #Файловая система unionfs или aufs
 FS_ROOTFS=aufs
 
