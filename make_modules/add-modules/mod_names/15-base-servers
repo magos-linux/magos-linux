@@ -1,0 +1,14 @@
+cpqarrayd
+dhcp-server
+hostapd
+nfs-utils
+ntp
+nut-server
+nxagent
+nxproxy
+openssh-server
+proftpd
+screen
+tmux
+tftp-server
+xinetd

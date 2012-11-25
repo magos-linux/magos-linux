@@ -37,7 +37,8 @@ MOD_PREV=work/urpmi_root
 URPMI_PARAM=" --noclean --no-suggests "
 
 #Файловая система unionfs или aufs
-FS_ROOTFS=unionfs
+FS_ROOTFS=aufs
+#FS_ROOTFS=unionfs
 
 # Список репозиториев
 DIST_MIRROR_0=http://mirror.yandex.ru/mageia/distrib/2/i586/

@@ -8,5 +8,5 @@ suspend
 sshfs-fuse
 mkinitrd-devel
 libntfs10
-httpfs
 git
+vim-enhanced
