@@ -1,0 +1,22 @@
+#summary Сборка дистрибутива
+
+Директория files берется из архива: https://github.com/magos-linux/magos-linux/downloads
+
+В директории kernel может быть ядро
+
+В директории mod_names создаются текстовые файлы с именем модуля и с содержимым модуля (без зависимостей)
+
+В директории noupstream_patches лежат патчи, не включенные в MagOS
+
+Файл config содержит параметры для скриптов
+
+Файл urpmi.cfg определяет источники, приоритет источников
+
+Для сборки дистрибутива подлежит выполнить по очереди скрипты:
+
+ * 0_urpmi_root.sh
+ * 1_make_mod_base_rootfs.sh
+ * 2_rootfspatch.sh
+ * 3_make_mod_base_modules.sh
+ * 4_makeflash.sh
+ * 5_clear_work.sh

@@ -1,0 +1,49 @@
+#!/bin/bash
+echo "Этот сркипт для разработчиков, запускать для сборки его не нужно"
+exit 0
+
+VERREL=2009.1
+MYPATH="`pwd`"
+[ -d work/rpms_sort ] && rm -fr work/rpms_sort 
+cd files/rpm_names
+for b in * ;do
+  [ -f $b ] || continue
+  mkdir -p "$MYPATH/work/rpms_sort/$b"
+  for a in `cat $b`; do
+    echo $b - $a
+    FN=`grep ^$a ../../loaded/lists/mdv${VERREL}_release.txt | sort | head -1  | awk '{print $1}'`
+    [ "$FN" = "" ] &&  FN=`grep ^$a ../../loaded/lists/mdv${VERREL}_plf.txt | sort | head -1 | awk '{ print $1}'`
+    if [ "$FN" = "" -o ! -f ../../loaded/rpms/$FN ] ;then
+        echo ОШИБКА $a - не найден !
+        exit 1
+    fi
+    ln -s "$MYPATH/loaded/rpms/$FN" "$MYPATH/work/rpms_sort/$b"
+  done
+done
+
+cd  "$MYPATH/work/kernel/"
+for a in kernel-desktop-2*flash*.i586.rpm kernel-desktop-latest-2*flash*.i586.rpm kernel-2.*flash*.i586.rpm ;do
+    echo $a.
+    ln -sf "$MYPATH/work/kernel/$a" ../rpms_sort/00-kernel || exit 1
+done
+
+cd "$MYPATH/work/rpms_sort/"
+
+mkcd --checkdeps 00-kernel 10-core 
+
+
+exit 0
+
+cd "$MYPATH/work/rpms_sort/"
+
+for b in * ;do
+  [ -d "$b" ] || continue
+  cd "$b" 
+  for a in `ls -1 | grep .rpm$`; do
+     echo $b - $a
+     GR="`rpm -qip $a | grep -i ^Group | tr " " _ | tr / - | awk -F "_:_" '{print $2}' | awk -F __ '{ print $1}'`"
+     mkdir "$GR" 2>/dev/null >/dev/null
+     [ -d "$GR" ] && mv $a $GR
+  done
+  cd ../
+done

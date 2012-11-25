@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">
+<head>
+<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
+  
+<title>Содержимое модулей репозитория</title>
+</head>
+<body>"
+
+
+echo "<table border='1'>"
+echo "<tr><td> Наименование модуля </td> <td>Содержимое модуля </td></tr>"
+for a in `ls -1 mod_names/??-add-*`; do
+    echo "<tr><td>$(basename $a)</td><td>"
+    cat $a
+    echo "</td></tr>"
+done
+echo "</table></body>"

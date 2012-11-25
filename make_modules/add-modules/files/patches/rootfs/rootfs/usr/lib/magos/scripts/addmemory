@@ -1,0 +1,84 @@
+#!/bin/bash
+die()
+{
+ echo $@
+ exit 1
+}
+
+HELP () {
+
+if echo $LANG | grep -q ru_RU ;then
+cat <<EOF
+Cкрипт $0 увеличивает размер корневого раздела MagOS в чистом режиме.
+
+использовать так: $0 <размер на который вы хотите увеличить корневой раздел в мегабайтах>
+либо: $0 <имя существующего не смонтированнного swap файла>
+
+Cкрипт создает в текущем каталоге swap файл, за счет которого будет увеличиваться объем памяти.
+Поэтому перед использованием убедитесь, что в текущем каталоге достаточно места и он не в tmpfs
+Вы можете использовать скрипт повторно если вам вновь понадобится увеличить память.
+
+пример 1: $0 1000 - увеличит размер tmpfs на 1G и создаст в текущем каталоге файл-swap того же размера
+пример 2: $0 my.swap - подключит файл my.swap и увеличит корневой раздел на размер файла my.swap
+EOF
+else
+cat <<EOF
+$0 increases root filesysytem for MagOS (only Clean mode supported)
+
+Usage: $0 <Size_in_Mb>
+       $0 <name of existing swap file>
+
+This script makes swap file in current directory and when increases memory on root tmpfs.
+Before launching be shure where are enought free space in current directory.
+You may run script again in the same directory.
+
+Examples: $0 1000  # will increase root tmpfs filesystem on 1G by creating swap file with same size
+          $0 my.swap # will activate existing swap file and increase root on size of my.swap
+
+EOF
+fi
+}
+ADDMEMORY () {
+# провeрки
+cat /proc/cmdline | grep changes && die "Error: Only Clean mode supported"
+df ./ | grep aufs && die "Error:Non block device selected."
+[ $1 -gt  $(df -m ./ | sed 1d | awk '{print $4}') ] && die "Error: Not enough free space!"
+# создавать swap или использовать готовый
+if ! [ -f $1 ] ; then
+  # создаем swap
+  name=$$.swap
+  > ./$name 
+  dd if=/dev/zero of=./$name bs=1M count=$1
+  mkswap ./$name
+  swapon ./$name
+  size=$1
+else
+  name=$1
+  swapon ./$name
+  size=$(du -m $1 |  awk '{print $1}')
+fi
+# увеличиваем tmpfs
+newsize=$(expr $size + $(df -m | grep aufs | awk '{print $2}'))
+echo $(cat /proc/mounts | grep "tmpfs /mnt/live/memory") >> /etc/fstab
+mount -o remount,size=${newsize}M /mnt/live/memory 
+# удаляем строку из fstab
+sed '/^tmpfs.*\/mnt\/live\/memory/d' /etc/fstab > /tmp/fstab
+mv -f /tmp/fstab /etc/fstab
+# результат
+df -t aufs -BM
+swapon -s
+}
+
+cmd=$1
+if [ "$cmd" = "" -o "$cmd" = "--help" ]; then
+    cmd="-h"
+fi
+
+case $cmd in
+    -h | --help )
+      HELP ;;
+    * )
+      ADDMEMORY $1;;
+esac
+
+exit 0

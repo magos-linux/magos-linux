@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# /usr/lib/magos/scripts/mdialog
+#
+# Helper Library for scripts
+#
+# Author: Alexandr Betkher <http://magos-linux.ru>
+# Author: Anton Goroshkin <http://magos-linux.ru>
+#
+
+if [ -z $DISPLAY ]
+then
+        DIALOG=dialog
+    else
+        DIALOG=Xdialog
+fi
+
+HELP () {
+echo  "Скрипт $0, автоматически используется для создания графического интерфейса"
+
+echo  "--yesno <text>			 	Вопросительный диалог с кнопками да/нет"
+echo  "--fselect <filepath> 			Диалог выбора файла"
+echo  "--dselect <directory> 			Диалог выбора директории"
+echo  "--textbox <filename> 			Вывод содержимого файла"
+echo  "--infobox <text> 			Вывод информационного сообщения"
+echo  "--msgbox <text> 				Вывод сообщения"
+echo  "--gauge <text> 				Прогрессбар"
+exit
+}
+
+cmd=$1
+if [ "$cmd" = "" ]; then
+    cmd="-h" 
+fi
+
+case $cmd in
+-h | --help )
+HELP ;;
+
+* )
+shift 
+$DIALOG --stdout --title "" $cmd "$@" 0 0
+;;
+
+esac

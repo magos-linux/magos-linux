@@ -1,0 +1,21 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+cd "$MYPATH"
+echo "Ищем крайние ветки в древе зависимости базы пакетов "
+for a in `rpm -qa --root "$MYPATH/work/rootfs"`; do
+    echo -ne $a\\r
+    rpm -e --root "$MYPATH/work/rootfs" --quiet --test 2>/dev/null $a && echo $a >> work/rpm_branches.tmp
+    echo -ne $a\\r | tr [:print:] " "
+done
+cat work/rpm_branches.tmp | sort > work/rpm_branches.txt
+rm -f work/rpm_branches.tmp
+echo "Работа скрипта завершена, проверьте, может есть ненужные файлы в  work/rpm_branches.txt"

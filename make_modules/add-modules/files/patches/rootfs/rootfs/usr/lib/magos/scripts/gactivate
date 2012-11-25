@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#
+# Description: Activate & Deactivate LZM modules
+
+# Author : Alexandr Betkher <http://magos-linux.ru>
+# Author:  Mikhail Zaripov <http://magos-linux.ru>
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+
+if [ "$(id -un)" != "root" ] ;then
+   gksu -g "/bin/bash $0 $@"
+   exit 0
+fi
+
+export PATH=/usr/lib/magos/scripts:$PATH
+
+
+MSG_MOVE="was moved into MagOS/optional"
+MSG_NOMOVE="was not moved into MagOS/optional"
+MSG_ACT="ACTIVATED"
+MSG_ACT_ERR="ERROR while activating module"
+MSG_DEACT="DEACTIVATED"
+MSG_MOD="module"
+
+if [ "$LANG" = "ru_RU.UTF-8" ] ;then
+   MSG_MOVE="перенесен в MagOS/optional"
+   MSG_NOMOVE="перенести в MagOS/optional не удалось"
+   MSG_ACT="ПОДКЛЮЧЕН"
+   MSG_ACT_ERR="ОШИБКА при активации модуля"
+   MSG_DEACT="ОТКЛЮЧЕН"
+   MSG_MOD="модуль"
+fi
+
+for module in $@ ; do
+   FILENAME=$(echo $module | awk -F/ '{ print $NF }')
+   FULLNAME="$module"
+   TERM=""
+   [ "$(echo $FULLNAME | grep .enc )" ] && TERM="xterm -e"
+   DESNAME="/mnt/livemedia/MagOS/optional/$FILENAME"
+   MSG1=
+   if [ `echo $module | grep -i /tmp` ] ;then
+      mv "$module" "$DESNAME"
+      if [ $? -eq 0 ] ;then
+         FULLNAME="$DESNAME"
+         MSG1="$MSG_MOVE"
+      else
+         MSG1="$MSG_NOMOVE"
+      fi
+   fi
+
+   deactivate "$FULLNAME"
+   if [ $? -eq 0 ] ;then
+    mdialog --msgbox "$MSG_MOD $FILENAME $MSG_DEACT"
+   else
+     $TERM activate "$FULLNAME" 2> /var/log/lzm.log
+     if [ $? -ne 0 ] ;then
+         ERROR=`cat /var/log/lzm.log`
+      mdialog --error "$MSG_ACT_ERR \n $ERROR"
+     else
+      [ -f "/mnt/live/memory/modules/$FILENAME" ] && ln "/mnt/live/memory/modules/$FILENAME" "$module" || ln -s "/mnt/live/memory/modules/$FILENAME" "$module"
+      mdialog --msgbox "$MSG_MOD $FILENAME $MSG_ACT \n $MSG1 "
+      fi
+   fi
+done
+exit 0

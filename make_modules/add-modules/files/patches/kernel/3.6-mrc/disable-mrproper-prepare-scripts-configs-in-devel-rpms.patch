@@ -1,0 +1,112 @@
+
+ Makefile                 |   19 ++++++++++---------
+ scripts/kconfig/Makefile |   18 ------------------
+ 2 files changed, 10 insertions(+), 27 deletions(-)
+
+diff -Nurp linux-3.5.0-1.mga3/Makefile linux-3.5.0-1.mga3-mrproper/Makefile
+--- linux-3.5.0-1.mga3/Makefile	2012-07-27 23:16:37.675388630 +0300
++++ linux-3.5.0-1.mga3-mrproper/Makefile	2012-07-27 23:18:19.350231258 +0300
+@@ -499,8 +499,7 @@ ifeq ($(KBUILD_EXTMOD),)
+ # Carefully list dependencies so we do not try to build scripts twice
+ # in parallel
+ PHONY += scripts
+-scripts: scripts_basic include/config/auto.conf include/config/tristate.conf
+-	$(Q)$(MAKE) $(build)=$(@)
++scripts:
+ 
+ # Objects we will link into vmlinux / subdirs we need to visit
+ init-y		:= init/
+@@ -815,7 +814,7 @@ prepare0: archprepare FORCE
+ 	$(Q)$(MAKE) $(build)=.
+ 
+ # All the preparing..
+-prepare: prepare0
++prepare:
+ 
+ # Generate some files
+ # ---------------------------------------------------------------------------
+@@ -991,11 +990,13 @@ endif # CONFIG_MODULES
+ CLEAN_DIRS  += $(MODVERDIR)
+ 
+ # Directories & files removed with 'make mrproper'
+-MRPROPER_DIRS  += include/config usr/include include/generated          \
+-                  arch/*/include/generated
+-MRPROPER_FILES += .config .config.old .version .old_version             \
+-                  include/linux/version.h                               \
+-		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
++#MRPROPER_DIRS  += include/config usr/include include/generated          \
++#                  arch/*/include/generated
++#MRPROPER_FILES += .config .config.old .version .old_version             \
++#                  include/linux/version.h                               \
++#		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
++MRPROPER_DIRS  += ""
++MRPROPER_FILES += ""
+ 
+ # clean - Delete most, but leave enough to build external modules
+ #
+@@ -1013,7 +1014,7 @@ clean: archclean
+ #
+ mrproper: rm-dirs  := $(wildcard $(MRPROPER_DIRS))
+ mrproper: rm-files := $(wildcard $(MRPROPER_FILES))
+-mrproper-dirs      := $(addprefix _mrproper_,Documentation/DocBook scripts)
++mrproper-dirs      := $(addprefix _mrproper_,Documentation/DocBook)
+ 
+ PHONY += $(mrproper-dirs) mrproper archmrproper
+ $(mrproper-dirs):
+diff -Nurp linux-3.5.0-1.mga3/scripts/kconfig/Makefile linux-3.5.0-1.mga3-mrproper/scripts/kconfig/Makefile
+--- linux-3.5.0-1.mga3/scripts/kconfig/Makefile	2012-07-27 23:16:37.676388639 +0300
++++ linux-3.5.0-1.mga3-mrproper/scripts/kconfig/Makefile	2012-07-27 23:18:19.350231258 +0300
+@@ -12,26 +12,18 @@ Kconfig := Kconfig
+ endif
+ 
+ xconfig: $(obj)/qconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ gconfig: $(obj)/gconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ menuconfig: $(obj)/mconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ config: $(obj)/conf 3rdparty/Makefile
+-	$< --oldaskconfig $(Kconfig)
+ 
+ nconfig: $(obj)/nconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ oldconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ silentoldconfig: $(obj)/conf 3rdparty/Makefile
+-	$(Q)mkdir -p include/generated
+-	$< --$@ $(Kconfig)
+ 
+ localyesconfig localmodconfig: $(obj)/streamline_config.pl $(obj)/conf 3rdparty/Makefile
+ 	$(Q)mkdir -p include/generated
+@@ -74,26 +66,16 @@ update-po-config: $(obj)/kxgettext $(obj
+ PHONY += allnoconfig allyesconfig allmodconfig alldefconfig randconfig
+ 
+ allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ PHONY += listnewconfig oldnoconfig savedefconfig defconfig
+ 
+ listnewconfig oldnoconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ savedefconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@=defconfig $(Kconfig)
+ 
+ defconfig: $(obj)/conf 3rdparty/Makefile
+-ifeq ($(KBUILD_DEFCONFIG),)
+-	$< --defconfig $(Kconfig)
+-else
+-	@echo "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
+-	$(Q)$< --defconfig=arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG) $(Kconfig)
+-endif
+ 
+ %_defconfig: $(obj)/conf 3rdparty/Makefile
+-	$(Q)$< --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
+ 
+ # Help text used by make help
+ help:

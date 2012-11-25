@@ -1,0 +1,5 @@
+XkbModel=pc105
+XkbLayout=hu
+KEYBOARD=hu
+KEYTABLE=hu-latin2
+XkbOptions=compose:rwin

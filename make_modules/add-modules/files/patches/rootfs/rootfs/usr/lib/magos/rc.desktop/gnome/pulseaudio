@@ -1,0 +1,7 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /etc/sound/profiles/current/profile.conf
+
+[ "$SOUNDPROFILE" = "pulse" ] && start-pulseaudio-x11 &

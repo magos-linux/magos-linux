@@ -1,0 +1,4 @@
+# Give users access to timer. Needed for audio perfomance to play MIDI.
+#
+KERNEL=="rtc0", GROUP="users"
+KERNEL=="hpet", GROUP="users"

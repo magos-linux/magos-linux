@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+
+###############################################################################
+# Display the MD5 sums of the selected files
+###############################################################################
+#
+# AUTHOR:	Brian Connelly <pub@bconnelly.net>
+#
+# DESCRIPTION:	This script displays the names and MD5 sums of the selected
+#		files
+#
+# REQUIREMENTS:	Nautilus file manager
+#		gdialog, which is included in the gnome-utils package
+#		Perl
+#
+# INSTALLATION:	GNOME 1.4.x: copy this script to the ~/Nautilus/scripts
+#			directory
+#		GNOME 2.x: copy to the ~/.gnome2/nautilus-scripts directory
+#		
+# USAGE:	Select the files that you would like to display in Nautilus,
+#		right click, go to Scripts, and then select this script. 
+#		A dialog window will then appear with the results for the
+#		selected files.
+#
+# VERSION INFO:	
+#		0.1 (20021009) - Initial public release
+#
+# COPYRIGHT:	Copyright (C) 2002 Brian Connelly <connelly@purdue.edu>
+#
+# LICENSE:	GNU GPL
+#
+###############################################################################
+
+$script_title="MD5 Sum";
+$temp_file = "/tmp/md5" . "-" . `date +'%s'`;
+
+if(!@ARGV)
+{
+	system("gdialog --title \"$SCRIPT_TITLE Error\" --msgbox \"No files have been selected\" 400 400 2>&1");
+	exit;
+}
+
+$num_files = @ARGV;
+
+if($num_files < 30)
+{
+  $num_rows = $num_files * 5;
+}
+elsif($num_files < 100)
+{
+  $num_rows = $num_files
+}
+else
+{
+  # just to make sure that the output window can't be too large
+  $num_rows = 80;
+}
+
+foreach $file (@ARGV)
+{
+	if(-d $file)
+	{
+		system("echo \"Cannot calculate MD5 sum for directory '$file'\" 2>&1 >> $temp_file");
+	}
+	else
+	{
+		system("md5sum \"$file\" 2>&1 >> $temp_file");
+	}
+}
+
+chomp($temp_file);
+system("gdialog --title \"$script_title Results\" --textbox $temp_file $num_rows 80 2>&1");
+
+system("rm $temp_file");
+

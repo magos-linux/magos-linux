@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+# re-run this script as often as possible (e.g. daily)
+# It will update pci.ids to recognize USB controllers
+# and it copies /usr/share/locale.alias in here
+<?php
+   // copy locale.alias
+   $aliases=file_get_contents("/usr/share/locale/locale.alias");
+   $fp=fopen("locale/locale.alias","wb");
+   fwrite($fp,$aliases);
+   fclose($fp);   
+
+   // update pci.ids
+   $url='http://pciids.sourceforge.net/pci.ids';
+   $lasth0=""; $lasth1="";
+   
+   $ids="# Hacked list of PCI ID's for 'lspci' command for linux live scripts.\n";
+   $ids.="# This list only contains [EUO]HCI controllers from $url\n";
+   $ids.="# It's used only in Linux Live scripts during system startup\n";
+   $ids.="# to recognize which USB controllers should be loaded (EHCI | OHCI | UHCI).\n";
+   $ids.="#\n";
+
+   $pci=file($url);
+   foreach($pci as $line)
+   {
+      if (substr($line,0,1)=='#') continue;
+      if (!ereg("^\t",$line)) $h0=$line;
+      if (ereg("^\t[^\t]",$line)) $h1=$line;
+      if (eregi("[euo]hci",$line))
+      {
+          if ($lasth0!=$h0) { $ids.=$h0; $lasth0=$h0; }
+          if ($lasth1!=$h1) { $ids.=$h1; $lasth1=$h1; }
+          if ($line!=$lasth0 && $line!=$lasth1) $ids.=$line;
+      }
+   }
+
+   $fp=fopen('pci.ids','wb');
+   fwrite($fp,$ids);
+   fclose($fp);
+?>

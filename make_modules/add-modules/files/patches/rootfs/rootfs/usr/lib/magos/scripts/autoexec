@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# magosctl      Helper script for MagOS Linux Live.
+#
+# Authors:	Mikhail Zaripov <m3for@mail.ru>
+#
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /usr/lib/magos/functions
+
+DE=$(detectDE)
+cd $HOME
+
+# We have to launch some rc scripts
+for a in /usr/lib/magos/rc.desktop/$DE/* ;do
+   [ -x $a ] && $a 2>/dev/null
+done
+for a in /usr/lib/magos/rc.desktop/all/* ;do
+   [ -x $a ] && $a 2>/dev/null
+done
+

@@ -1,0 +1,21 @@
+[Desktop Entry]
+Categories=
+Comment=Run applications at system start
+Comment[ru]=Автозапуск приложений при старте
+Exec=autoexec
+GenericName[ru]=
+GenericName=
+Icon=
+MimeType=
+Name[ru]=MagOS autoexec
+Name=Автозапуск MagOS
+Path=
+StartupNotify=false
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=unique
+X-KDE-StartupNotify=false
+X-KDE-SubstituteUID=false
+X-KDE-Username=

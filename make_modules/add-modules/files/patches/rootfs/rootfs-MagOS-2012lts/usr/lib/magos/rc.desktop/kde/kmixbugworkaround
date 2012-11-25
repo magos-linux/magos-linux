@@ -1,0 +1,15 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+if [ "$1" != "fork" ] ;then
+   $0 fork &
+   exit 0
+fi
+
+sleep 15
+while [ "$(pidof kmix)" = "" ] ;do
+   kmix --keepvisibility &
+   sleep 15
+done
+

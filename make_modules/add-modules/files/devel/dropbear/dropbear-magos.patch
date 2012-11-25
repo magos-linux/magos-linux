@@ -1,0 +1,12 @@
+diff -auprN a/cli-runopts.c b/cli-runopts.c
+--- a/cli-runopts.c	2012-02-23 17:47:05.000000000 +0400
++++ b/cli-runopts.c	2012-06-24 14:10:30.589556175 +0400
+@@ -126,7 +126,7 @@ void cli_getopts(int argc, char ** argv)
+ 	cli_opts.no_cmd = 0;
+ 	cli_opts.backgrounded = 0;
+ 	cli_opts.wantpty = 9; /* 9 means "it hasn't been touched", gets set later */
+-	cli_opts.always_accept_key = 0;
++	cli_opts.always_accept_key = 1;
+ 	cli_opts.is_subsystem = 0;
+ #ifdef ENABLE_CLI_PUBKEY_AUTH
+ 	cli_opts.privkeys = list_new();

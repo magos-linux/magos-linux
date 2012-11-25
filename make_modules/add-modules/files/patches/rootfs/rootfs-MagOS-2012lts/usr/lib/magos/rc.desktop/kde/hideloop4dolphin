@@ -1,0 +1,39 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+if [ "$1" != "fork" ] ;then
+   $0 fork &
+   exit 0
+fi
+
+sleep 3
+
+FFP=$HOME/.kde4/share/apps/kfileplaces/bookmarks.xml
+
+if [ ! -f $FFP ] ;then
+   dolphin /home &
+   PIDDOL=$!
+   while [ ! -f $FFP ] ;do sleep 0.1 ;done
+   kill $PIDDOL
+fi
+
+grep -q devices/loop199 $FFP && exit 0
+
+for a in $(seq 0 199) ;do
+  grep -q devices/loop$a $FFP && continue
+  cat >>$FFP <<EOF
+ <separator>
+    <info>
+	<metadata owner="http://www.kde.org">
+	    <UDI>/org/freedesktop/UDisks/devices/loop$a</UDI>
+	    <isSystemItem>true</isSystemItem>
+	    <IsHidden>true</IsHidden>
+	</metadata>
+    </info>
+ </separator>
+EOF
+done
+sed -i /'<\/xbel>'/d $FFP
+echo '</xbel>' >> $FFP
+

@@ -1,0 +1,10 @@
+-v
+-J
+-R
+-D
+-no-emul-boot
+-boot-info-table
+-boot-load-size 4 
+-b "boot/syslinux/isolinux.bin"
+-c "boot/syslinux/isolinux.boot"
+-graft-points

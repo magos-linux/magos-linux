@@ -1,0 +1,208 @@
+HOWTO_Linux_Logo_Hack http://www.gentoo-wiki.info/HOWTO_Linux_Logo_Hack
+
+
+This article is part of the HOWTO series.
+Installation • Kernel & Hardware • Networks • Portage • Software • System • X Server • Gaming • Non-x86 • Emulators • Misc
+Contents
+
+    * 1 Basis
+    * 2 Kernel 2.4
+          o 2.1 Main article
+          o 2.2 Drawback
+          o 2.3 Custom Logo
+                + 2.3.1 Credits
+                + 2.3.2 Utilities
+          o 2.4 EZ Way
+    * 3 Kernel 2.6
+          o 3.1 Do it Fast
+          o 3.2 Do it Right
+          o 3.3 Finishing Up
+    * 4 Credits
+
+Basis
+
+This HOW-TO is written for those that want to hack the linux bootup logo. The main files in the kernel for the vesa frame buffer bootup logo are: /usr/src/linux/drivers/video/* & /usr/src/linux/include/linux/linux_logo.h Those files are responsible for the bootup logo when the kernel starts in debug or quiet mode. If we want to change this logo we have to modify the files, by using the program that is appended at the end of this text.The image file that we have to use is a PCX image file with no more than 256 colors and not bigger than 786432 pixels(1024x768).
+
+For more information you can also read the /usr/src/linux/Documentation/fb/vesafb.txt
+Kernel 2.4
+Main article
+
+http://www.cs.helsinki.fi/linux/linux-kernel/2003-19/0648.html
+Drawback
+
+You can not use Bootup Logo with Bootsplash
+Custom Logo
+
+It can be customised by changing the file linux_logo.h in include/linux directory. its a c header and pretty hard to change by hand however there is a plugin available for gimp that will create one for you. all you need is a picture 80x80 with less than 224 colours. you can either let the plug in create the 3 varieties (2,16,224) or create them yourself and use them with the plug-in. it will ask you where you want to store the file and if you are game you can put it in ($SRCDIR)/include/linux/linux_logo.h. once that is finished all you need to do is recompile the kernel as usual, reboot, and if framebuffer is working you will see your new logo upon bootup.
+Credits
+
+http://www.tldp.org/HOWTO/Framebuffer-HOWTO-19.html
+Utilities
+
+http://users.telenet.be/geertu/Linux/fbdev/logo.html
+
+Tools for logo conversion
+
+    * logo_2_2: Extract logo's from an `old' (2.2.x style) kernel
+    * logo_2_4: Extract logo's from a `new' (2.4.x style + patches) kernel
+    * pnmtologo: Convert a logo in PNM format to C source suitable for inclusion in the Linux kernel
+
+EZ Way
+
+Nice little program can help you to create bootup logo: media-gfx/fblogo
+
+#emerge fblogo
+
+Kernel 2.6
+
+It seems that there's a fair bit of information out there on how to do this for older kernels, but not much for the latest (2.6) series. Gentoo is different :)
+
+As Gentoo is all about choice, you have the option of doing it fast, or doing it right!
+
+
+Do it Fast
+
+This method simply replaces the Tux image with one of your own devising. It'll work, but you won't be able to get Tux back without reinstalling the kernel sources. However, it's very easy!
+
+Let's go:
+
+    * Create the image
+    * Convert the image with the netpbm tools (media-libs/netpbm):
+
+pngtopnm logo.png | pnmtoplainpnm > logo_linux_clut224.ppm
+cp logo_linux_clut224.ppm /usr/src/linux/drivers/video/logo/
+
+If the kernel compilation yields an error about "too many colors", you can try:
+
+pngtopnm logo.png | ppmquant -fs 223 | pnmtoplainpnm > logo_linux_clut224.ppm
+
+    * Configure the kernel:
+
+Linux Kernel Configuration: Kernel 2.6
+
+Device Drivers ->
+    Graphics Support ->
+        [*] Support for frame buffer devices
+        [*] VESA VGA graphics support
+            VESA driver type ->
+
+        Console display driver support ->
+            [*] Video mode selection support
+            <*> Framebuffer Console support
+
+        Logo configuration->
+            [*]Bootup logo
+            [*] Standard 224-color Linux logo
+
+...and run make. (There is no need to run make modules_install.)
+
+    * Finish up.
+
+
+Do it Right
+
+As far as I know, this is the least "hacky" way you can get a custom logo. It preserves all the previous available logos, and lets you choose between them in the Kernel config.
+
+It requires you to edit three files in the /usr/src/linux/drivers/video/logo directory, and (obviously) create the image(s) you want to appear. It only covers 224-colour logos - if you want 16-colour or black&white ones, you'll have to figure that out on your own. I did all this yesterday, and the kernel booted fine this morning with my new logo. I changed Tux to Larry, so that's the example I'll be using throughout this tutorial. Of course you can change this to whatever you want - just make sure you're consistant with your names (eg. don't accidentally switch from "LARRY" to "BARRY" for one file).
+
+OK, let's get down to it.
+
+    * Create your image, (I used the GIMP), and save it as a PNG (mine's called larry.png). It might be a good idea to convert it to indexed (223 colours) first - this is going to happen later anyway, so you may as well get it how you like it now (whether you want it dithered, any custom palettes, etc). I should also point out that the default images are all 80x80 pixels, but you don't have to abide by that. As far as I know, you can go as big as you want (within reason).
+
+    * Change to root, and put yourself in the directory we're working in:
+
+su -
+cd /usr/src/linux/drivers/video/logo/
+
+    * Convert the image with the netpbm tools (media-libs/netpbm):
+
+pngtopnm /path/to/larry.png | ppmquant -fs 223 | pnmtoplainpnm > logo_larry_clut224.ppm
+
+Don't worry if the existing images seem to have more than one file each - the *.c and *.o ones get created automatically when you compile the kernel.
+
+    * Open Kconfig in your favourite editor, and insert the following section (editing the first two lines as appropriate):
+
+File: /usr/src/linux/drivers/video/logo/Kconfig
+
+config LOGO_LARRY_CLUT224
+	bool "Gentoo-ised 224-colour logo"
+	depends on LOGO
+	default y
+
+I put it underneath the entry for LOGO_LINUX_CLUT224, so it'll appear below the default logos in the kernel setup.
+
+    * Open logo.c in your favourite editor, and insert the following sections. Everything's a bit more cosily packed in this file, so make sure you get them in the right place. Again, change everything that says "larry" to your chosen name. The bit between /* these parentheses */ is a comment, and doesn't make any difference. I changed it anyway.
+
+File: /usr/src/linux/drivers/video/logo/logo.c
+
+Add this to the block of similar definitions at the top of the file:
+
+extern const struct linux_logo logo_larry_clut224;
+
+Add this to the section headed by "if (depth >= 8) {":
+
+#ifdef CONFIG_LOGO_LARRY_CLUT224
+		/* Gentoo-ised logo */
+		logo = &logo_larry_clut224;
+#endif
+
+    * Open Makefile ...blahblahblah... and add the following line to that big block of definitions at the top. You know the drill by now.
+
+File: /usr/src/linux/drivers/video/logo/Makefile
+
+obj-$(CONFIG_LOGO_LARRY_CLUT224)	+= logo_larry_clut224.o
+
+    * You should be able to repeat those steps however many times you like if you want to add more than one image.
+
+    * Save all the files, cd down to /usr/src/linux, and follow your normal kernel-rolling procedure - making sure that you select your new image in the configuration:
+
+Linux Kernel Configuration: Kernel 2.6
+
+Device Drivers ->
+    Graphics Support ->
+        [*] Support for frame buffer devices
+        [*] VESA VGA graphics support
+            VESA driver type ->
+
+        Console display driver support ->
+            [*] Video mode selection support
+            <*> Framebuffer Console support
+
+        Logo configuration->
+            [*] Bootup logo
+            [ ] <More logos>
+            [*] Your Custom Logo
+
+...and run make. (There is no need to run make modules_install.)
+
+    * Finish up.
+
+Finishing Up
+
+This section is common to both methods.
+
+    * Stick your newly customised kernel in its usual place under /boot
+
+    * Make sure you've got a decent framebuffer by adding vga=0x318 or similar to your kernel's command-line:
+
+NOTE: You can ignore this step if you selected vesafb-tng under "VESA driver type".
+File: /boot/grub/menu.lst or /boot/grub/grub.conf
+
+kernel (hd0,0)/vmlinuz root=/dev/sda3 vga=0x318
+
+    * When you boot into the new kernel, you should see the fruit of your labours!
+
+
+Credits
+
+Mike Mandel <mandel at stud dot fh-hannover de>
+Nanakos Chrysostomos < nanakos at wired-net dot gr>
+Tom Lloyd
+Retrieved from "http://www.gentoo-wiki.info/HOWTO_Linux_Logo_Hack"
+Category: Boot
+
+Browse categories > Boot
+Last modified: Sat, 06 Sep 2008 09:06:00 +1000 Hits: 48,510
+
+Created by NickStallman.net, His Dark Materials - The Golden Compass, Luxury Homes Australia
+Real estate agents should be using interactive floor plans. 

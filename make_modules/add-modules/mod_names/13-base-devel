@@ -1,0 +1,12 @@
+busybox-static
+dosfstools
+reiser4progs
+reiserfsprogs
+rsync
+ntfs-3g
+suspend
+sshfs-fuse
+mkinitrd-devel
+libntfs10
+httpfs
+git
