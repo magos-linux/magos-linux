@@ -18,7 +18,7 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %define kernelversion	3
 %define patchlevel	6
 # sublevel is now used for -stable patches
-%define sublevel	6
+%define sublevel	7
 
 # Package release
 %define mibrel		1
@@ -1866,6 +1866,19 @@ rm -rf %{buildroot}
 
 
 %changelog
+
+* Tue Nov 20 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.7-1
++ update to 3.6.7-1 (89 fixes all over)
+- updated all patches for kernel 3.6.7: AUFS3, OverlayFS, TOI
+- re-add cpufreq_ondemand_performance_optimise_default_settings.patch
+- small modifies and fixes to "create_configs" and "kernel.spec" files
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
 
 * Mon Nov 05 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.6-1
 + update to 3.6.6-1

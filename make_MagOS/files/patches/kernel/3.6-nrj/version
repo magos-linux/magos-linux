@@ -1,3 +1,3 @@
 VERKERNEL=3.6
-VERKPATCH=3.6.6
+VERKPATCH=3.6.7
 URL=http://abf.rosalinux.ru/downloads/kernels_36x_personal/repository/rosa2012lts/SRPMS/main/release

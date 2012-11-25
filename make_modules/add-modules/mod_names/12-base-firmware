@@ -7,7 +7,6 @@ ipw2200-firmware
 iwlwifi-3945-ucode
 iwlwifi-4965-ucode
 iwlwifi-agn-ucode
-kernel-firmware
 radeon-firmware
 speedtouch-firmware
 speedtouch-firmware-extractor

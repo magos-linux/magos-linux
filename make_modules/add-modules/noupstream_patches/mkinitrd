@@ -32,7 +32,7 @@ INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/drivers/scsi/scsi_mod. kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/sr_mod.
   kernel/drivers/ata kernel/drivers/scsi/vmw_pvscsi.
   kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage
-  kernel/drivers/usb/host/ehci-hcd. kernel/drivers/usb/host/ohci-hcd. kernel/drivers/usb/host/uhci-hcd.
+  kernel/drivers/usb/host/ehci-hcd. kernel/drivers/usb/host/ohci-hcd. kernel/drivers/usb/host/uhci-hcd. kernel/drivers/usb/host/xhci-hcd.
   kernel/drivers/hid/hid. kernel/drivers/hid/usbhid/usbhid.
   kernel/drivers/pcmcia/pcmcia_core. kernel/drivers/pcmcia/pcmcia. kernel/drivers/pcmcia/yenta_socket.
   kernel/net/sunrpc/sunrpc. kernel/net/sunrpc/auth_gss/auth_rpcgss. kernel/net/packet/af_packet.
@@ -204,7 +204,9 @@ echo "unpacking all kernel modules for initrd"
 find lib -noleaf -name "*.ko.gz" | xargs -r gunzip || exit 1
 
 echo "generating module dependency files"
-depmod -b ./ $KERNEL || exit 1
+copy_mod modules.order $KERNEL || exit 1
+copy_mod modules.builtin $KERNEL || exit 1
+depmod -b "$INITRDFOLD" $KERNEL || exit 1
 
 echo "compressing usr in initrd"
 create_module usr usr.$MODULEFORMAT || exit 1
@@ -251,8 +253,8 @@ umount $MOUNTDIR
 
 echo "moving $INITRDIMG.gz to $FILENAME"
 gzip --best $INITRDIMG
-mv -f $INITRDIMG.gz $FILENAME
 cd "$MYPATH"
+mv -f $INITRDIMG.gz $FILENAME
 rm -Rf "$MOUNTDIR" "$INITRDFOLD"
 
 exit 0

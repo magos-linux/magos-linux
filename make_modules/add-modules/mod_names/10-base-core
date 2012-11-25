@@ -1,5 +1,8 @@
 basesystem
-urpmi
-mc
+kernel-server
+kernel-server-devel
+kernel-firmware
 locales-ru
+mc
 squashfs-tools
+urpmi

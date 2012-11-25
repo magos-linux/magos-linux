@@ -2,7 +2,7 @@
 
 # Лицензия: GPL последней версии
 # Описание: Подключает и настраивает источники
-# Дата модификации: 21.11.2012
+# Дата модификации: 22.11.2012
 # Авторы: Горошкин Антон, Логинов Алексей
 
 if [ "`id -u`" != "0" ] ;then
@@ -10,7 +10,7 @@ if [ "`id -u`" != "0" ] ;then
    exit 1
 fi
 
-if [ -f config ] ;then 
+if [ -f config ] ;then
   . config
 else
   echo "Не вижу файла config" ;  exit 1
@@ -22,6 +22,7 @@ mkdir -p $MOD_PREV
 
 urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_0
 urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_1
+urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_2
   
 if [ -f urpmi.cfg ]
 then
