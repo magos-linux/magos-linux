@@ -2,7 +2,7 @@
 
 # Лицензия: GPL последней версии
 # Описание: Собирает базовые модули
-# Дата модификации: 21.11.2012
+# Дата модификации: 22.11.2012
 # Авторы: Горошкин Антон, Логинов Алексей
 
 if [ "`id -u`" != "0" ] ;then
@@ -57,9 +57,11 @@ for MOD in `ls -1 $MOD_NAMES_DIR/??-base*` ;do
        then
          if [ "$(basename $MOD)" = "00-base-kernel" ]
             then
-              urpmi $URPMI_PARAM  --urpmi-root=$ROOTFS --root=$ROOTFS ./kernel/*
+             urpmi $URPMI_PARAM --urpmi-root=$ROOTFS --root=$ROOTFS ./kernel/* 2>>$MYPATH/work/errors_urpmi.txt
          fi
     fi
-    urpmi $URPMI_PARAM --urpmi-root=$ROOTFS --root=$ROOTFS `cat $MOD`
+    urpmi $URPMI_PARAM --urpmi-root=$ROOTFS --root=$ROOTFS `cat $MOD` 2>>$MYPATH/work/errors_urpmi.txt
     echo -ne \\n "---> OK."\\n
 done
+
+echo "В файле work/errors_urpmi.txt содержатся ошибки установки"

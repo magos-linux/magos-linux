@@ -2,7 +2,7 @@
 
 # Лицензия: GPL последней версии
 # Описание: Создает XZM для базовых модулей
-# Дата модификации: 21.11.2012
+# Дата модификации: 25.11.2012
 # Авторы: Горошкин Антон, Логинов Алексей
 
 if [ "`id -u`" != "0" ] ;then
@@ -31,8 +31,11 @@ mkdir -p $ROOTFS
 rm -f $MOD_ROOTFS_DIR/*.$MODULEFORMAT
 
 for MOD in `ls -1 $MOD_NAMES_DIR/??-base$1*` ;do 
-    echo "Создание XZM для модуля $(basename $MOD)"
     MOD_LINE=$MOD_ROOTFS_DIR/$(basename $MOD)
+
+    echo "Перенос rpms для модуля $(basename $MOD)"
+    mv $MOD_LINE/var/cache/urpmi/rpms/* $URPMI_ROOT/var/cache/urpmi/rpms 2>/dev/null
+    echo "Создание XZM для модуля $(basename $MOD)"
     mksquashfs $MOD_LINE $MOD_LINE.$MODULEFORMAT $MKSQOPT
 #--------------
     echo -ne \\n "---> OK."\\n
