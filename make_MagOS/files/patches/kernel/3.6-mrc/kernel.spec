@@ -269,6 +269,7 @@ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}
 
 %if %build_for_magos
 Patch101:       linux-%{patch_ver}-magos.patch
+Patch102:       patch_wireless-add_back_sysfs_directory.patch
 %endif
 
 #END
@@ -713,6 +714,7 @@ cd %src_dir
 %endif
 %if %build_for_magos
 %patch101 -p1 -d %{patches_dir}
+%patch102 -p1
 %endif
 
 %{patches_dir}/scripts/apply_patches
