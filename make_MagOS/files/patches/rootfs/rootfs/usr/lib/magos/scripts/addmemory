@@ -58,7 +58,7 @@ else
   size=$(du -m $1 |  awk '{print $1}')
 fi
 # увеличиваем tmpfs
-newsize=$(expr $size + $(df -m | grep aufs | awk '{print $2}'))
+newsize=$(expr $size + $(df -m | grep -m 1 aufs | awk '{print $2}'))
 echo $(cat /proc/mounts | grep "tmpfs /mnt/live/memory") >> /etc/fstab
 mount -o remount,size=${newsize}M /mnt/live/memory 
 # удаляем строку из fstab
