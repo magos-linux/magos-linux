@@ -22,8 +22,5 @@ http://mirror.yandex.ru/mirrors/EduMandriva/educontrib/rolling/i586/media/mdva/ 
 http://ftp.surfnet.nl/pub/os/Linux/distr/mandrakeclubnl/2011/i586/release MCNL32 0 update ignore
 http://ftp.blogdrake.net/mandriva/2011.0/free/i586 BDK-free 0 update ignore
 http://ftp.blogdrake.net/mandriva/2011.0/free/noarch BDK-free-noarvh 0 update ignore
-http://www.mdvrb-factory.de/mandriva/2011.0/i586/release mdvrb-factory.de 0 update ignore
-http://www.mdvrb-factory.de/mandriva/2011.0/i586/non-free mdvrb-factory.de-nonfree 0 update ignore
-http://www.mdvrb-factory.de/mandriva/2011.0/i586/testing mdvrb-factory.de-testing 0 nomediainfo ignore
 http://mrb.mandrivausers.ro/MRB/2011.0/i686/MRB-rpms MRB 0 update ignore
 http://abf.rosalinux.ru/downloads/dsilakov_personal/repository/rosa2012lts/i586/main/release/ personal_ds 0 skip

@@ -1,0 +1,61 @@
+From 38c1a01cf10c6e4049b4ffbd4a6af655df2a46e1 Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Fri, 16 Nov 2012 20:46:19 +0100
+Subject: [PATCH 1/1] wireless: add back sysfs directory
+
+commit 35b2a113cb0298d4f9a1263338b456094a414057 broke (at least)
+Fedora's networking scripts, they check for the existence of the
+wireless directory. As the files aren't used, add the directory
+back and not the files. Also do it for both drivers based on the
+old wireless extensions and cfg80211, regardless of whether the
+compat code for wext is built into cfg80211 or not.
+
+Cc: stable@vger.kernel.org [3.6]
+Reported-by: Dave Airlie <airlied@gmail.com>
+Reported-by: Bill Nottingham <notting@redhat.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+ net/core/net-sysfs.c |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
+
+diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
+index bcf02f6..017a8ba 100644
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -429,6 +429,17 @@ static struct attribute_group netstat_group = {
+ 	.name  = "statistics",
+ 	.attrs  = netstat_attrs,
+ };
++
++#if IS_ENABLED(CONFIG_WIRELESS_EXT) || IS_ENABLED(CONFIG_CFG80211)
++static struct attribute *wireless_attrs[] = {
++	NULL
++};
++
++static struct attribute_group wireless_group = {
++	.name = "wireless",
++	.attrs = wireless_attrs,
++};
++#endif
+ #endif /* CONFIG_SYSFS */
+ 
+ #ifdef CONFIG_RPS
+@@ -1409,6 +1420,15 @@ int netdev_register_kobject(struct net_device *net)
+ 		groups++;
+ 
+ 	*groups++ = &netstat_group;
++
++#if IS_ENABLED(CONFIG_WIRELESS_EXT) || IS_ENABLED(CONFIG_CFG80211)
++	if (net->ieee80211_ptr)
++		*groups++ = &wireless_group;
++#if IS_ENABLED(CONFIG_WIRELESS_EXT)
++	else if (net->wireless_handlers)
++		*groups++ = &wireless_group;
++#endif
++#endif
+ #endif /* CONFIG_SYSFS */
+ 
+ 	error = device_add(dev);
+-- 
+1.7.7.6
+

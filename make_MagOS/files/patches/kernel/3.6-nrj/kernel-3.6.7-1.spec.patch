@@ -1,79 +1,45 @@
---- kernel-3.6.6-1.spec_orig	2012-11-08 01:47:31.000000000 +0400
-+++ kernel-3.6.6-1.spec	2012-11-18 11:00:06.793259631 +0400
-@@ -207,9 +207,11 @@ Packager: Nicolo' Costanza <abitrules@ya
- 
- # compress modules with xz
- %if %{mdvver} >= 201200
--%define build_modxz		0
-+%define build_modxz		1
-+%define build_modgz		0
- %else
- %define build_modxz		0
-+%define build_modgz		1
- %endif
- 
- # ARM builds
-@@ -224,6 +226,7 @@ Packager: Nicolo' Costanza <abitrules@ya
- %define build_cpupower		0
- # arm is currently not using xz
- %define build_modxz		0
-+%define build_modgz		1
- %endif
- # End of user definitions
- 
-@@ -259,6 +262,7 @@ Packager: Nicolo' Costanza <abitrules@ya
- %{?_without_perf: %global build_perf 0}
- %{?_without_cpupower: %global build_cpupower 0}
- %{?_without_modxz: %global build_modxz 0}
-+%{?_without_modgz: %global build_modgz 0}
- 
- 
- %{?_with_desktop586: %global build_desktop586 1}
-@@ -292,6 +296,7 @@ Packager: Nicolo' Costanza <abitrules@ya
- %{?_with_perf: %global build_perf 1}
- %{?_with_cpupower: %global build_cpupower 1}
- %{?_with_modxz: %global build_modxz 1}
-+%{?_with_modgz: %global build_modgz 1}
- 
- # ARM builds
- %{?_with_iop32x: %global build_iop32x 1}
-@@ -301,6 +306,35 @@ Packager: Nicolo' Costanza <abitrules@ya
+--- kernel-3.6.7-1.spec_orig	2012-11-21 00:21:05.000000000 +0400
++++ kernel-3.6.7-1.spec	2012-11-25 18:50:54.828023364 +0400
+@@ -301,6 +301,38 @@ Packager: Nicolo' Costanza <abitrules@ya
  %{?_without_kirkwood: %global build_kirkwood 0}
  %{?_without_versatile: %global build_versatile 0}
  
++%define build_modgz                     0
++%{?_with_modgz: %global build_modgz 1}
 +# MagOS Linux settings
 +%define build_for_magos 0
 +%{?_with_build_for_magos: %global build_for_magos 1}
 +%if %build_for_magos
-+%define build_desktop			0
-+%define build_netbook			0
-+%define build_server			0
-+%define build_desktop_pae		0
-+%define build_netbook_pae		0
-+%define build_nrj_desktop		0
-+%define build_nrj_realtime		0
-+%define build_nrj_laptop		0
-+%define build_nrj_netbook		0
-+%define build_nrj_realtime_pae		0
-+%define build_nrj_laptop_pae		0
-+%define build_nrj_netbook_pae		0
-+%define build_nrj_netbook_atom		0
-+%define build_nrj_netbook_atom_pae	0
-+%define build_nrj_desktop_core2		0
-+%define build_nrj_desktop_core2_pae	0
-+%define build_doc			0
-+%define build_source			0
-+%define build_debug			0
-+%define build_perf			0
-+%define build_cpupower			0
-+%define build_modxz			0
-+%define build_modgz			0
++%define build_desktop                   0
++%define build_netbook                   0
++%define build_server                    0
++%define build_desktop_pae               0
++%define build_netbook_pae               0
++%define build_nrj_desktop               0
++%define build_nrj_realtime              0
++%define build_nrj_laptop                0
++%define build_nrj_netbook               0
++%define build_nrj_realtime_pae          0
++%define build_nrj_laptop_pae            0
++%define build_nrj_netbook_pae           0
++%define build_nrj_netbook_atom          0
++%define build_nrj_netbook_atom_pae      0
++%define build_nrj_desktop_core2         0
++%define build_nrj_desktop_core2_pae     0
++%define build_doc                       0
++%define build_source                    0
++%define build_debug                     0
++%define build_perf                      0
++%define build_cpupower                  0
++%define build_modxz                     0
++%define build_modgz                     0
++%define aufs_version                    3.6-20121119
 +%endif
 +
  # For the .nosrc.rpm
  %define build_nosrc 	0
  %{?_with_nosrc: %global build_nosrc 1}
-@@ -371,30 +405,34 @@ Source100: 	linux-%{patch_ver}.tar.xz
+@@ -371,30 +403,35 @@ Source100: 	linux-%{patch_ver}.tar.xz
  
  %if %kpatch
  %if %sublevel
@@ -108,21 +74,22 @@
  
 +%if %build_for_magos
 +Patch101:       linux-%{patch_ver}-magos.patch
++Patch102:       patch_wireless-add_back_sysfs_directory.patch
 +%endif
 +
  #END
  ####################################################################
  
-@@ -458,6 +496,8 @@ BuildRequires:	module-init-tools
+@@ -457,6 +494,8 @@ BuildRequires:	module-init-tools
+ 
  BuildRequires: 	gcc 
  
- # for perf, cpufreq and other tools
 +%if %build_for_magos
 +%else
+ # for perf, cpufreq and other tools
  BuildRequires:		elfutils-devel
  BuildRequires:		zlib-devel
- BuildRequires:		binutils-devel
-@@ -472,6 +512,7 @@ BuildRequires:		docbook-style-xsl
+@@ -472,6 +511,7 @@ BuildRequires:		docbook-style-xsl
  BuildRequires:		pkgconfig(gtk+-2.0)
  BuildRequires:		flex
  BuildRequires:		bison
@@ -130,17 +97,24 @@
  
  %ifarch %{arm}
  BuildRequires:		uboot-mkimage
-@@ -1079,6 +1120,9 @@ cd %src_dir
+@@ -1079,6 +1119,16 @@ cd %src_dir
  %if %kgit
  %patch2 -p1
  %endif
 +%if %build_for_magos
 +%patch101 -p1 -d %{patches_dir}
++%patch102 -p1
++cp -pf "%{patches_dir}queue/new for %{kversion}/AUFS3/aufs3-%{aufs_version}.patch"            %{patches_dir}patchesQL/AU01_aufs3-%{aufs_version}.patch
++cp -pf "%{patches_dir}queue/new for %{kversion}/AUFS3/aufs3-base-%{aufs_version}.patch"       %{patches_dir}patchesQL/AU02_aufs3-base-%{aufs_version}.patch
++cp -pf "%{patches_dir}queue/new for %{kversion}/AUFS3/aufs3-kbuild-%{aufs_version}.patch"     %{patches_dir}patchesQL/AU03_aufs3-kbuild-%{aufs_version}.patch
++cp -pf "%{patches_dir}queue/new for %{kversion}/AUFS3/aufs3-loopback-%{aufs_version}.patch"   %{patches_dir}patchesQL/AU04_aufs3-loopback-%{aufs_version}.patch
++cp -pf "%{patches_dir}queue/new for %{kversion}/AUFS3/aufs3-proc_map-%{aufs_version}.patch"   %{patches_dir}patchesQL/AU05_aufs3-proc_map-%{aufs_version}.patch
++cp -pf "%{patches_dir}queue/new for %{kversion}/AUFS3/aufs3-standalone-%{aufs_version}.patch" %{patches_dir}patchesQL/AU06_aufs3-standalone-%{aufs_version}.patch
 +%endif
  
  %{patches_dir}/scripts/apply_patchesQL
  %{patches_dir}/scripts/apply_patches
-@@ -1707,7 +1751,8 @@ rm -rf %{target_source}/.tmp_depmod/
+@@ -1707,7 +1757,8 @@ rm -rf %{target_source}/.tmp_depmod/
  # compressing modules
  %if %{build_modxz}
  find %{target_modules} -name "*.ko" | %kxargs xz -6e
