@@ -78,6 +78,6 @@ sync
 
 losetup -a | grep '(.*.[lx]zm)' | awk '{print $3}' | tr -d '()' | sort -r | grep -v /10-core | \
    while read a ;do
-	deactivate $a
+	deactivate $a >/dev/null 2>&1
    done
 

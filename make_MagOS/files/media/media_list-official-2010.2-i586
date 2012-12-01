@@ -1,20 +1,20 @@
-ftp://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/i586/free/release edu-free-i586 249ee58f update
-ftp://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/i586/non-free/release edu-nonfree-i586 249ee58f update
-ftp://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/noarch/free/release edu-free-noarch 249ee58f update
-ftp://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/noarch/non-free/release edu-nonfree-noarch 249ee58f update
-ftp://mirror.yandex.ru/mandriva/plf/2010.2/free/release/binary/i586 plf-free caba22ae update
-ftp://mirror.yandex.ru/mandriva/plf/2010.2/non-free/release/binary/i586 plf-nonfree caba22ae update
-ftp://mirror.yandex.ru/mandriva/plf/2010.2/free/backports/binary/i586 plf-free-backports caba22ae update
-ftp://mirror.yandex.ru/mandriva/plf/2010.2/non-free/backports/binary/i586 plf-nonfree-backports caba22ae update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/main/backports main-backports 26752624 update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/non-free/backports nonfree-backports 26752624 update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/contrib/backports contrib-backports 26752624 update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/main/updates main-updates 22458a98 update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/non-free/updates nonfree-updates 22458a98 update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/contrib/updates contrib-updates 26752624 update
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/main/release main-release 70771ff3
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/non-free/release nonfree-release 70771ff3
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/contrib/release contrib-release 78d019f5
+http://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/i586/free/release edu-free-i586 249ee58f update
+http://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/i586/non-free/release edu-nonfree-i586 249ee58f update
+http://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/noarch/free/release edu-free-noarch 249ee58f update
+http://mirror.yandex.ru/mirrors/EduMandriva/educontrib/2010.1/noarch/non-free/release edu-nonfree-noarch 249ee58f update
+http://mirror.yandex.ru/mandriva/plf/2010.2/free/release/binary/i586 plf-free caba22ae update
+http://mirror.yandex.ru/mandriva/plf/2010.2/non-free/release/binary/i586 plf-nonfree caba22ae update
+http://mirror.yandex.ru/mandriva/plf/2010.2/free/backports/binary/i586 plf-free-backports caba22ae update
+http://mirror.yandex.ru/mandriva/plf/2010.2/non-free/backports/binary/i586 plf-nonfree-backports caba22ae update
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/main/backports main-backports 26752624 update
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/non-free/backports nonfree-backports 26752624 update
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/contrib/backports contrib-backports 26752624 update
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/main/updates main-updates 22458a98 update
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/non-free/updates nonfree-updates 22458a98 update
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/contrib/updates contrib-updates 26752624 update
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/main/release main-release 70771ff3
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/non-free/release nonfree-release 70771ff3
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/i586/media/contrib/release contrib-release 78d019f5
 http://mib.pianetalinux.org/MIB/2010.2/32/basic mib 0 update ignore
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/SRPMS/main/updates src-updates 0 skip
-ftp://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/SRPMS/main/release src-release 0 skip
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/SRPMS/main/updates src-updates 0 skip
+http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2010.2/SRPMS/main/release src-release 0 skip

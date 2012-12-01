@@ -1,0 +1,3 @@
+.x86_64.rpm$
+^libtdb1-4.0.0
+^libtalloc2-4
