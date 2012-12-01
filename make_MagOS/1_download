@@ -97,6 +97,7 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
     #поиск обычных пакетов
     grep -v -f re/excluded.txt "$a" | while read b ;do
          [ -z "$b" ] && continue
+         RPMNM=
          [ -f ../../files/rpm_names/$FLASHNAME-$VERREL/special ] && RPMNM=$(grep -m1 "^$b[0-9]" ../../files/rpm_names/$FLASHNAME-$VERREL/special)
          [ -z "$RPMNM" ] &&  RPMNM=$(grep -m1 "^$b[0-9]" re/names_default_media.txt)
          if [ -z "$RPMNM" ] ;then
@@ -111,6 +112,7 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
     grep -f re/excluded.txt "$a" | while read b ;do
          EXMD=$( grep -m1 "\\^$b\\$" re/preferred/* | awk -F: '{print $1}' | sed 's|.*/||') 
          [ -z "$EXMD" ] && exit 1
+         RPMNM=
          [ -f ../../files/rpm_names/$FLASHNAME-$VERREL/special ] && RPMNM=$(grep -m1 "^$b[0-9]" ../../files/rpm_names/$FLASHNAME-$VERREL/special)
          [ -z "$RPMNM" ] && RPMNM=$(grep -m1 "^$b[0-9]" re/names_"$EXMD".txt)
          if [ -z "$RPMNM" ] ;then

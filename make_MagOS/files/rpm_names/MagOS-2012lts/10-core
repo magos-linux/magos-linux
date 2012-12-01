@@ -345,3 +345,5 @@ bootsplash-
 dracut-
 microcode-
 iperf-
+libffi4-
+libpq5-

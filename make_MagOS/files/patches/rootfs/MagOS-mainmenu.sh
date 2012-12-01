@@ -48,6 +48,7 @@ update_app java-1.6.0-sun-policytool.desktop "Settings;X-MandrivaLinux-CrossDesk
 update_app gparted.desktop "GTK;System;Filesystem;Settings;HardwareSettings;X-MandrivaLinux-System-Configuration;"
 update_app rawtherapee.desktop "GTK;Graphics;2DGraphics;RasterGraphics;X-MandrivaLinux-CrossDesktop;"
 update_app nautilus-browser.desktop "GNOME;GTK;System;Utility;Core;FileManager;"
+update_app PlayOnLinux.desktop "Emulator;"
 
 update_app kde4/akonaditray.desktop "Qt;KDE;X-KDE-Utilities-PIM;"
 update_app kde4/dolphin.desktop "Qt;KDE;System;Utility;Core;FileManager;"
@@ -70,7 +71,8 @@ update_app kde4/knotes.desktop "Qt;KDE;Utility;TextTools;"
 update_app kde4/Kjots.desktop "Qt;KDE;Utility;TextTools;"
 update_app kde4/irkick.desktop "Qt;KDE;X-KDE-settings-peripherals;"
 update_app kde4/KFloppy.desktop "Qt;KDE;X-KDE-settings-peripherals;"
-update_app PlayOnLinux.desktop "Emulator;"
+update_app kde4/bluedevil-monolithic.desktop "Qt;KDE;X-Bluetooth;Network;X-KDE-settings-peripherals;"
+update_app kde4/kruler.desktop "Qt;KDE;Graphics;Scanning;"
 
 sed -i /NoDisplay=true/d usr/share/applications/gnomecc.desktop
 sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор GNOME'/ usr/share/applications/gnome-system-monitor.desktop

@@ -49,7 +49,7 @@ fi
 
 echo "Сборка ядра"
 rm -f $RPMBPATH/RPMS/i586/kernel-*.rpm $RPMBPATH/SRPMS/kernel-*.src.rpm 2>/dev/null
-rpmbuild -bs $RPMBPATH/SPECS/kernel*.spec || exit 1
+rpmbuild -bs $RPMBPATH/SPECS/kernel*.spec --with=build_for_magos || exit 1
 rpmbuild -bb $RPMBPATH/SPECS/kernel*.spec --with=build_for_magos || exit 1
 
 echo "Переносим готовые пакеты в work/$FLASHNAME-$VERREL/kernel$DESTP"

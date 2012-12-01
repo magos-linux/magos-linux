@@ -1,2 +1,12 @@
 dkms-fglrx-
 x11-driver-video-fglrx-
+busybox-
+busybox-static-
+systemd-
+systemd-gtk-
+systemd-sysvinit-
+systemd-units-
+libsystemd-daemon0-
+libsystemd-id1280-
+libsystemd-journal0-
+libsystemd-login0-

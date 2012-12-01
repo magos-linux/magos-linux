@@ -9,4 +9,5 @@ http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/non-free/release nonfre
 http://mib.pianetalinux.org/MIB/rosa2012lts/32/basic mib 0 update
 http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/contrib/release 2011_contrib-release 0 skip
 http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/main/release 2011_main-release 0 skip
-http://abf.rosalinux.ru/downloads/dsilakov_personal/repository/rosa2012lts/i586/main/release/ abf_personal_ds 0 skip
+http://abf.rosalinux.ru/downloads/dsilakov_personal/repository/rosa2012lts/i586/main/release abf_personal_ds 0 skip
+http://abf.rosalinux.ru/downloads/kernels_testing_personal/repository/mandriva2011/i586/main/release abf_personal_kernel 0 skip
