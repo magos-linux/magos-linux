@@ -36,7 +36,7 @@ for MOD in `ls -1 $MOD_NAMES_DIR/??-base$1*` ;do
     echo "Перенос rpms для модуля $(basename $MOD)"
     mv $MOD_LINE/var/cache/urpmi/rpms/* $URPMI_ROOT/var/cache/urpmi/rpms 2>/dev/null
     echo "Создание XZM для модуля $(basename $MOD)"
-    mksquashfs $MOD_LINE $MOD_LINE.$MODULEFORMAT $MKSQOPT
+#    mksquashfs $MOD_LINE $MOD_LINE.$MODULEFORMAT $MKSQOPT
 #--------------
     echo -ne \\n "---> OK."\\n
 done

@@ -9,6 +9,7 @@ x11-driver-input-hyperpen
 x11-driver-input-joystick
 x11-driver-input-keyboard
 x11-driver-input-mouse
+x11-driver-input-vmmouse
 x11-driver-input-mutouch
 x11-driver-input-penmount
 x11-driver-input-synaptics
