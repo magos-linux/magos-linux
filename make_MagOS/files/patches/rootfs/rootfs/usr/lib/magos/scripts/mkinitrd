@@ -3,6 +3,8 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
+export PATH=/usr/lib/magos/scripts:$PATH 
+
 . liblinuxlive || exit 1
 
 # libraries to be placed in initrd/lib (links)
@@ -43,7 +45,7 @@ MYPATH="$(pwd)"
 INITRDFOLD=/tmp/mkinitrd-$$
 INITRDIMG=/tmp/initrd.img-$$
 MOUNTDIR=/tmp/mkinitrd_mountdir_$$
-RAM0SIZE=13000
+RAM0SIZE=14000
 
 # Copy librarries
 # $1 - filename

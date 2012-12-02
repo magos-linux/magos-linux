@@ -22,7 +22,7 @@
 %define kgit		0
 
 # kernel base name (also name of srpm)
-%define kname 		kernel
+%define kname 		kernel-magos
 
 # Patch tarball tag
 %define ktag		mga
@@ -294,7 +294,8 @@ processor mode, use the "nosmp" boot parameter.
 %define requires5	kernel-firmware >= 20111229-1
 %define requires6	carl9170-firmware >= 1.9.4-1
 
-%define kprovides 	%{kname} = %{kverrel}, kernel = %{tar_ver}, alsa = 1.0.24
+%define kprovides 	%{kname} = %{kverrel}, kernel = %{tar_ver}, alsa = 1.0.24, kernel-magos = %{tar_ver}
+
 %define kprovides_server drbd-api = 88
 
 %define	kobsoletes	dkms-r8192se <= 0019.1207.2010-2, dkms-lzma <= 4.43-32, dkms-psb <= 4.41.1-7
@@ -370,7 +371,7 @@ Release:	%{fakerel}				\
 Requires:	glibc-devel ncurses-devel make gcc perl	\
 Summary:	The kernel-devel files for %{kname}-%{1}-%{buildrel} \
 Group:		Development/Kernel			\
-Provides:	%{kname}-devel = %{kverrel} 		\
+Provides:	%{kname}-devel = %{kverrel}, kernel-devel = %{kverrel}\
 Provides:	%{kname}-%{1}-devel			\
 %ifarch %{ix86}						\
 Conflicts:	arch(x86_64)				\
