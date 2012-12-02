@@ -31,7 +31,7 @@ else
 fi
 
 echo "Подготовка"
-[ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
+#[ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
 mkdir -p "$DESTDIR" || exit 1
 mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional,rootcopy}
 mkdir -p "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy}

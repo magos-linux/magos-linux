@@ -16,6 +16,8 @@ else
   echo "Не вижу файла config" ;  exit 1
 fi
 
-#rm -rf $MOD_PREV
-mkdir -p $MOD_PREV/var/cache/urpmi/rpms
+mkdir -p $MOD_RPMS $MOD_PREV/var/cache/urpmi/rpms
 mount -o bind $MOD_RPMS $MOD_PREV/var/cache/urpmi/rpms
+
+echo "Работа скрипта завершена"
+exit 0
