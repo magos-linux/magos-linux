@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# magosctl      Helper script for MagOS Linux Live.
+#
+# Authors:	Anton Goroshkin <http://magos-linux.ru>
+#
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ "$DNS_RENEW" = "yes" ] && cat /mnt/live/etc/resolv.conf >> /etc/resolvconf/resolv.conf.d/head
+

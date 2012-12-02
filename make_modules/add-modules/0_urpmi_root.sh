@@ -2,7 +2,7 @@
 
 # Лицензия: GPL последней версии
 # Описание: Подключает и настраивает источники
-# Дата модификации: 22.11.2012
+# Дата модификации: 02.12.2012
 # Авторы: Горошкин Антон, Логинов Алексей
 
 if [ "`id -u`" != "0" ] ;then
@@ -20,9 +20,9 @@ fi
 
 mkdir -p $MOD_PREV
 
-urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_0
-urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_1
-urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_2
+#urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_0
+#urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_1
+#urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_2
   
 if [ -f urpmi.cfg ]
 then

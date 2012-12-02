@@ -1,0 +1,9 @@
+[KSplash Theme: Default]
+Name = KDE MagOS Splash Screen
+Description = MagOS Splash Screen
+Version = 1.0
+Author = MagOS
+Homepage = http://www.magos-linux.ru
+
+# Theme behaviour settings.
+Engine = KSplashX

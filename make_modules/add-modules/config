@@ -32,6 +32,7 @@ MOD_ROOTFS_DIR=work/$FLASHNAME-$VERREL
 MOD_NAMES_DIR=mod_names
 ROOTFS=$MOD_ROOTFS_DIR/rootfs
 MOD_PREV=work/urpmi_root
+MOD_RPMS=work/rpms
 
 #Параметры urpmi
 URPMI_PARAM=" --noclean --no-suggests "

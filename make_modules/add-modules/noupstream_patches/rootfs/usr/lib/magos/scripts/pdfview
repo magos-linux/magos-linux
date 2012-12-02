@@ -1,0 +1,20 @@
+#!/bin/sh
+
+. /usr/lib/magos/functions
+
+DE=$(detectDE)
+
+case "$DE" in
+    kde)
+    okular "$1"
+    ;;
+
+    gnome)
+    epdfview "$1"
+    ;;
+
+    lxde)
+    xpdf "$1"
+    ;;
+
+esac

@@ -2,7 +2,7 @@
 
 # Лицензия: GPL последней версии
 # Описание: Накладывает патчи
-# Дата модификации: 21.11.2012
+# Дата модификации: 29.11.2012
 # Авторы: Горошкин Антон, Логинов Алексей
 
 if [ -f config ] ;then
@@ -18,18 +18,8 @@ if [ "`id -u`" != "0" ] ;then
 fi
 
 echo "Создание ссылок на исходники ядра"
-cd "$MYPATH"/work/$FLASHNAME-$VERREL/11-base-kernel/boot
+cd "$MYPATH"/work/$FLASHNAME-$VERREL/10-base-core/boot
 ln -sf $(ls -1 vmlinuz-*-* | sed 's|.*/||' | tail -1) vmlinuz || exit 1
 
-echo "Патчи rootfs"
-cd "$MYPATH"
-rm -fr work/$FLASHNAME-$VERREL/10-base-core/etc/skel/tmp
-cp -pfR files/patches/rootfs/rootfs/* work/$FLASHNAME-$VERREL/10-base-core/
-
-echo "Патчи, которые не вошли в апстрим"
-cd "$MYPATH"/noupstream_patches
-if [ -f mkinitrd ]
-then
-  mkdir -p "$MYPATH"/work/$FLASHNAME-$VERREL/10-base-core/usr/lib/magos/scripts
-  cp -f mkinitrd "$MYPATH"/work/$FLASHNAME-$VERREL/10-base-core/usr/lib/magos/scripts/
-fi
+echo "Работа скрипта завершена"
+exit 0

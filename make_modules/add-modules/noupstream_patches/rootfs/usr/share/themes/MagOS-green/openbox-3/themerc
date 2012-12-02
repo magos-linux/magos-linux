@@ -1,0 +1,85 @@
+!! MagOS-green by Mikhail Zaripov
+!! MagOS Theme
+
+!! Menu background
+menu.items.bg: flat gradient vertical
+menu.items.bg.color: #DCEBDF
+menu.items.bg.colorTo: #C1D7C5
+
+!! Menu text
+menu.items.text.color: #004A01
+menu.items.justify: left
+menu.items.disabled.text.color: #b8b8b8
+
+!! Menu headers
+menu.title.bg: raised splitvertical gradient
+menu.title.bg.color: #000000
+menu.title.bg.colorTo: #181818
+menu.title.text.color: white
+menu.title.text.justify: center
+
+!! Selected menu item
+menu.items.active.bg: raised splitvertical gradient
+menu.items.active.bg.color: #FC9228
+menu.items.active.bg.colorTo: #FC9228
+menu.items.active.text.color: #FFFFFF
+
+!! Titlebar!
+window.active.title.bg: raised splitvertical gradient
+window.active.title.bg.color: #C1D7C5
+window.active.title.bg.colorTo: #BCE3A0
+window.inactive.title.bg: gradient splitvertical gradient flat
+window.inactive.title.bg.color: #DCEBDF
+window.inactive.title.bg.colorTo: #DCEBDF
+
+!! Titlebar text!
+window.label.text.justify: center
+window.active.label.bg: parentrelative
+window.active.label.text.color: #004A01
+window.inactive.label.bg: parentrelative
+window.inactive.label.text.color: #c3c3c3
+
+!! Window buttons
+window.*.button.*.bg: parentrelative
+window.active.button.*.hover.bg: flat splitvertical gradient border
+window.inactive.button.*.hover.bg: parentrelative
+window.*.button.*.pressed.bg: flat splitvertical gradient border
+
+window.active.button.*.hover.bg.color: #E7B068
+window.active.button.*.hover.bg.colorTo: #E7B068
+window.active.button.*.hover.bg.border.color: #004A01
+
+window.active.button.*.pressed.bg.color: #235679
+window.active.button.*.pressed.bg.colorTo: #154350
+window.active.button.*.pressed.image.color: #898989
+window.active.button.*.pressed.bg.border.color: #154350
+window.inactive.button.*.pressed.bg.color: #4ab5ff
+window.inactive.button.*.pressed.bg.colorTo: #38b3d6
+window.inactive.button.*.pressed.image.color: #b7fdef
+window.inactive.button.*.pressed.bg.border.color: #38b3d6
+
+window.active.button.*.image.color: #004A01
+window.active.button.disabled.image.color: #FFFFFF
+window.inactive.button.*.image.color: #747474
+window.inactive.button.disabled.image.color: #c0c0c0
+
+!! Borders
+window.active.border.color: #004A01
+window.inactive.border.color: #004A01
+window.inactive.title.separator.color: #004A01
+border.width: 1
+padding.width: 2
+window.handle.width: 0
+window.active.client.color:  #C7E5A9
+window.inactive.client.color:  #C9E5A6
+window.client.padding.width: 1
+window.client.padding.height: 1
+menu.overlap: 0
+
+!! Font shadows
+menu.items.font:shadow=y:shadowtint=0
+
+!! On-screen displays
+osd.bg: gradient vertical flat
+osd.bg.color: #FC9228
+osd.bg.colorTo: #FC9228

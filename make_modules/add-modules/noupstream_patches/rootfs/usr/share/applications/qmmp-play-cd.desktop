@@ -1,0 +1,14 @@
+[Desktop Entry]
+X-Desktop-File-Install-Version=0.11
+Name=Qmmp
+Comment=Play Audio CD/DVD
+Comment[ru]=Прослушать Аудио диск
+GenericName=Play Audio CD/DVD
+GenericName[ru]=Прослушать Аудио диск
+Exec=qmmp %u
+Icon=qmmp
+Terminal=false
+Type=Application
+X-KDE-StartupNotify=false
+MimeType=x-content/audio-cdda;x-content/audio-dvd;
+NoDisplay=true
