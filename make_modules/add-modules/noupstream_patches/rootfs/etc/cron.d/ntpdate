@@ -1,0 +1,2 @@
+# Sync time every 10 minutes if enable
+*/10 * * * *  root /usr/lib/magos/cron/ntpdate.sh

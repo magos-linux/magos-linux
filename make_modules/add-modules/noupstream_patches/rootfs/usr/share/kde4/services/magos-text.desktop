@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+ServiceTypes=KonqPopupMenu/Plugin,text/plain
+Type=Service
+Actions=edit-as-root;
+X-KDE-Priority=TopLevel
+
+[Desktop Action edit-as-root]
+Name=edit-as-root
+Name[ru]=KWrite с правами root
+Icon=accessories-text-editor
+Exec=kdesu kwrite %f

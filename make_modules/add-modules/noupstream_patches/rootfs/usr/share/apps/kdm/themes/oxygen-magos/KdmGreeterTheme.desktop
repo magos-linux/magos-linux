@@ -1,0 +1,10 @@
+# This is not really a .desktop file like the rest, but it is useful to treat
+# it as such
+
+[KdmGreeterTheme]
+Greeter=oxygen-magos.xml
+Name=Oxygen-MagOS
+Description=Oxygen Theme for MagOs
+Author=Nuno Fernades Pinheiro, Urs Wolfer, Oswald Buddenhagen, Lazer2k (magos-linux.ru)
+Copyright=(c) 2011 magos-linux.ru
+Screenshot=screenshot.png

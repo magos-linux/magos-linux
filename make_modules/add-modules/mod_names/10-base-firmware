@@ -1,0 +1,13 @@
+atmel-firmware
+bluez-firmware
+ipw2100-firmware
+ipw2200-firmware
+radeon-firmware
+speedtouch-firmware
+speedtouch-firmware-extractor
+zd1211-firmware
+b43-fwcutter
+bcm43xx-fwcutter
+iwlwifi-3945-ucode
+iwlwifi-4965-ucode
+iwlwifi-agn-ucode

@@ -1,0 +1,37 @@
+[Desktop Entry]
+X-KDE-Solid-Predicate=[StorageVolume.ignored == false AND OpticalDisc.availableContent == 'Audio']
+Actions=GripRip;
+Type=Service
+X-KDE-Priority=TopLevel
+
+[Desktop Action GripRip]
+Name=Extract Digital Audio with Grip
+Name[ca]=Extreu àudio digital amb el Grip
+Name[ca@valencia]=Extreu àudio digital amb el Grip
+Name[cs]=Extrahovat digitální zvuk pomocí Grip
+Name[da]=Udtræk digital lyd med Grip
+Name[de]=Digital-Audio mit Grip auslesen
+Name[en_GB]=Extract Digital Audio with Grip
+Name[et]=Ekstrakti digiheli Grip abil
+Name[ga]=Bain Fuaim Dhigiteach Amach le Grip
+Name[hr]=Izdvoji digitalni zvuk pomoću Grip-a
+Name[hu]=Digitális hanganyag kimásolása a Grip-vel
+Name[ja]=Grip でデジタルオーディオを吸い出し
+Name[nb]=Trekk ut digital lyd med Grip
+Name[nds]=Digitaal Audiodaten mit Grip ruttrecken
+Name[nl]=Digitale audio rippen met Grip
+Name[nn]=Hent ut digitallyd med Grip
+Name[pt]=Extrair o Áudio Digital com o Grip
+Name[pt_BR]=Extrair áudio digital com o Grip
+Name[ru]=Извлечь звуковые дорожки, используя Grip
+Name[sk]=Extrahovať digitálny zvuk pomocou Grip
+Name[sr]=Издвоји дигитални звук К3бом
+Name[sr@ijekavian]=Издвоји дигитални звук К3бом
+Name[sr@ijekavianlatin]=Izdvoji digitalni zvuk Gripom
+Name[sr@latin]=Izdvoji digitalni zvuk Gripom
+Name[sv]=Lagra digitalljud med Grip
+Name[uk]=Витягти цифрове аудіо через Grip
+Name[x-test]=xxExtract Digital Audio with Gripxx
+Name[zh_TW]=用 Grip 解開數位音效
+Exec=grip --device=%d
+Icon=grip

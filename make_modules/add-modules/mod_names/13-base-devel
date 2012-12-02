@@ -9,4 +9,5 @@ sshfs-fuse
 mkinitrd-devel
 libntfs10
 git
+httpfs
 vim-enhanced

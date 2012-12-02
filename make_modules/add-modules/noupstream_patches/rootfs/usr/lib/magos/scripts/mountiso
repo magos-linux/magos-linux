@@ -1,0 +1,9 @@
+#!/bin/bash
+[ -f "$1" ] || exit 1
+point="${1%.*}"
+mkdir -m 666 "$point"
+mount -o loop -t iso9660 "$1" "$point"
+mdialog --msgbox  "Точка монтирования $point \n после закрытия этого окошка образ будет отмонтирован"
+umount "$point"
+rmdir "$point"
+exit 0

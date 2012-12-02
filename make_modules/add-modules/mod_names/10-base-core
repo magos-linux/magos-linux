@@ -1,7 +1,10 @@
 basesystem
-kernel-server
-kernel-server-devel
+mkinitrd
+kernel-magos-desktop-latest
+kernel-magos-desktop-devel-latest
+kernel-firmware-nonfree
 kernel-firmware
+locales
 locales-ru
 mc
 squashfs-tools

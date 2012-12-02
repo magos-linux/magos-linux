@@ -1,0 +1,25 @@
+[X11 settings]
+/etc/X11
+
+[autosave /.savelist]
+#save changes in /.savelist after reboot
+/.savelist
+
+[users configs saves]
+/home/.*/.*
+# you can drop one or more users by this string
+#! /home/drop_user_name/* 
+
+[save system configuration without user settings]
+/*
+!/home/*
+!/tmp/*
+!/proc/*
+!/run/*
+!/media/*
+
+[save programms installed to /opt dir]
+/opt
+
+[network settings save]
+/etc/sysconfig/network-scripts

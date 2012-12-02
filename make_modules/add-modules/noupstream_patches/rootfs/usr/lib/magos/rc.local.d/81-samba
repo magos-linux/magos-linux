@@ -1,0 +1,18 @@
+#!/bin/bash
+# Description: This script will generate initial passwords for samba users
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+if ! grep -q nobody /etc/samba/passdb.tdb ;then
+    echo -e \\n\\n | smbpasswd -Lsa nobody >/dev/null 2>&1
+    for a in `grep users /etc/group | awk -F: '{print $4}' | tr ';,' ' '` ;do
+       PASS=`echo $a | cat - /mnt/live/VERSION /proc/cmdline | md5sum | cut -c 1-5`
+       echo -e $PASS\\n$PASS\\n | smbpasswd -Lsa $a >/dev/null 2>&1
+    done
+else
+    echo "Default samba passwords:"
+    for a in `grep users /etc/group | awk -F: '{print $4}' | tr ';,' ' '` ;do
+           PASS=`echo $a | cat - /mnt/live/VERSION /proc/cmdline | md5sum | cut -c 1-5`
+           echo $a $PASS
+    done
+fi

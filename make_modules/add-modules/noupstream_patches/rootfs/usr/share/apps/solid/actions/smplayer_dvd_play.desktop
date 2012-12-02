@@ -1,0 +1,11 @@
+[Desktop Entry]
+X-KDE-Solid-Predicate=[StorageVolume.ignored == false AND OpticalDisc.availableContent & 'VideoDvd']
+Actions=SmplayerPlay;
+Type=Service
+X-KDE-Priority=TopLevel
+
+[Desktop Action SmplayerPlay]
+Name=Play disk
+Name[ru]=Смотреть диск
+Exec=smplayer %d
+Icon=smplayer

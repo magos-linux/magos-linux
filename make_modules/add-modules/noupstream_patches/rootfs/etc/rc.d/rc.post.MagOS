@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# magosctl      Helper script for MagOS Linux Live.
+#
+# Authors:	Mikhail Zaripov <m3for@mail.ru>
+#
+
+# We have to launch some rc scripts
+for a in /usr/lib/magos/rc.post.d/* ;do
+   [ -x $a ] && $a 2>/dev/null &
+done
+for a in /usr/lib/magos/rc.post/* ;do
+   [ -x $a ] && $a 2>/dev/null
+done
+
+# We have to launch some rc scripts from external modules
+LOCKDIR=/var/lock/magos/rc.runonce
+[ -d "$LOCKDIR" ] || mkdir -p "$LOCKDIR"
+for a in /usr/lib/magos/rc.runonce/* ;do
+   [ -f "$LOCKDIR/$(basename $a)" -o ! -x "$a" ] && continue
+   $a start 2>/dev/null
+   touch "$LOCKDIR/$(basename $a)"
+done
+
+[ -x /bin/systemd ] && wait

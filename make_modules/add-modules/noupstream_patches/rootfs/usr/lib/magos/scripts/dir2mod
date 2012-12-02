@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# /usr/lib/magos/scripts/dir2mod
+#
+# Description: Convert DIRs to Modules 
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+#convert DIRs to LZMs
+# $1 = directory images
+# $2 = directory of LZMs
+# $3 = mask of dirname (ex. - "??-" )
+
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+
+convert_dir2lzm()
+{
+echo "Converting DIRs to module:"
+for a in `ls -d $1/$3*`; do
+    mn=$(basename $a)
+    echo -ne \\n"	converting $mn --> $mn.$MODULEFORMAT "\\n
+    mkdir -p "$2/$MODULEFORMAT"
+    fd="$2/$MODULEFORMAT/$mn.$MODULEFORMAT"
+
+    dir2lzm "$a" "$fd"
+done
+}
+
+convert_dir2xzm()
+{
+convert_dir2lzm "$@"
+}
+
+
+#convert DIRs to LZMs nolzma
+# $1 = directory images
+# $2 = directory of LZMs
+# $3 = mask of dirname (ex. - "??-" )
+convert_dir2nolzm()
+{
+echo "Converting DIRs to module (no compression):"
+for a in `ls -d $1/$3*`; do
+    mn=$(basename $a)
+    echo -ne \\n"	converting $mn --> $mn.$MODULEFORMAT (no compression)"\\n
+    mkdir -p "$2/nocomp_$MODULEFORMAT"
+    fd="$2/nocomp_$MODULEFORMAT/$mn.$MODULEFORMAT"
+
+    dir2nolzm "$a" "$fd"
+done
+}
+
+convert_dir2noxzm()
+{
+convert_dir2nolzm "$@"
+}
+
+
+
+#convert DIRs to ROMs 
+# $1 = directory images
+# $2 = directory of ROMs
+# $3 = mask of dirname (ex. - "??-" )
+convert_dir2rom()
+{
+echo "Converting DIRs to ROMs:"
+for a in `ls -d $1/$3*`; do
+    mn=$(basename $a)
+    echo "	converting $mn --> $mn.rom"
+    st=`du -s -m $a ` 
+    size_mod=${st%%$a}
+    size_mod=$[$size_mod+100]
+    mkdir -p "$2/roms" "$2/roms/$mn"
+    dd if=/dev/zero of="$2/roms/$mn.rom" bs=1M count=0 seek=$size_mod 2>/dev/null
+    echo y | mkfs.ext3 -q "$2/roms/$mn.rom" >/dev/null
+    echo "virtual size: [$size_mod"."M]"
+    mount -o loop "$2/roms/$mn.rom" "$2/roms/$mn"
+    cp -a "$a/*" "$2/roms/$mn" 2>/dev/null
+    umount "$2/roms/$mn"
+    rm -rf "$2/roms/$mn"
+
+done
+
+}
+
+HELP()
+{
+   echo
+   echo "#####################################"
+   echo "Convert directory tree into modules" 
+   echo
+   echo -ne "Usage:\\n	$0 xzm|lzm|nolzm|noxzm|rom source_directory destination_directory mask \\n"
+   echo -ne "Example:\\n	./dir2mod noxzm /mnt/live/memory/images /mnt/livemedia/MagOS/modules/ ??- \\n"
+   echo
+   echo "#####################################"   
+   echo
+}
+
+. liblinuxlive || exit 1
+
+
+case $1 in
+-h | --help )
+HELP ;;
+
+--test )
+TEST ;;
+
+* )
+
+cmd=$1
+[ "$cmd" != "xzm" -a "$cmd" != "lzm" -a "$cmd" != "nolzm" -a "$cmd" != "noxzm" -a "$cmd" != "rom"  ] && cmd=
+shift
+
+if [ ! -d "$1" -o "$2" = "" -o "$cmd" = "" ]; then
+    HELP
+    exit 1
+fi
+
+convert_dir2$cmd "$@"
+if [ $? != 0 ]; then echo "error building modules "; exit 1; fi
+;;
+esac
+
+#convert_dir2rom "$1" "$2" "$3"
+#convert_dir2sqm "$1" "$2" "$3"

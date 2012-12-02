@@ -1,0 +1,77 @@
+style "nautilus-sidebar" {	
+	base[NORMAL]		= shade(1.175, @bg_color)
+
+   	GtkTreeView::odd_row_color		= shade(0.95, @base_color)
+	GtkTreeView::even_row_color		= shade(0.95, @base_color)
+	
+	GtkPaned::handle_size             = 1
+	GtkWidget::wide_separator		  = 1
+	GtkWidget::separator_width		  = 1
+	GtkWidget::separator_height		  = 1
+	GtkWidget::focus_line_width		  = 1 # Changed in 1.30
+	GtkWidget::draw_border            = {0,0,0,0}
+
+	GtkTreeView::vertical_separator           = 0 # Changed in 1.30
+	GtkTreeView::horizontal_separator         = 10 # Changed in 1.30
+	GtkTreeView::indent-expanders             = 1 # 1 means TRUE
+	GtkTreeView::expander-size                = 12
+	GtkExpander::expander_spacing             = 10
+	GtkButton::image_spacing                  = 4
+   	xthickness                                = 0
+	ythickness                                = 1
+
+	engine "equinox" {
+		separatorstyle = 0
+	}
+}
+
+style "nautilus-view" = "theme-default" {
+	xthickness		= 0
+}
+
+
+style "nautilus-sidebar-title" {
+	engine "pixmap" {
+		image {
+			function	= SHADOW
+		}
+	}
+}
+
+
+style "nautilus-window-base" {}
+
+style "nautilus-handle" {
+	GtkPaned::handle-size         = 1
+	engine "pixmap" {
+		image # for the thin gray line separating the sidepane and viewpane
+		{
+		    function	= HANDLE
+		    recolorable	= TRUE
+		    file		= "images/handle-nautilus.png"
+		    stretch		= TRUE
+		    border 		= { 0, 0, 0, 0 }
+		}
+	}
+}
+
+style "nautilus-extra-view" {
+	bg[NORMAL] = mix (0.4, @bg_color, @base_color)
+}
+
+style "smaller-text" {}
+
+style "handle" {}
+
+
+widget_class "*Nautilus*Window*"                		style "nautilus-window-base"
+widget "*Nautilus*Splitter"                     		style "nautilus-handle"
+widget_class "*NautilusSidePane.<GtkContainer>"			style "nautilus-sidebar-title"
+widget_class "*Nautilus*HPaned"                     	style "nautilus-handle"
+widget_class "*Nautilus*View*"							style "nautilus-view"
+widget_class "*Nautilus*Places*Sidebar*"				style "nautilus-sidebar"
+widget_class "*Nautilus*Scrollbar"   					style "theme-scrollbar"
+widget_class "*NautilusSidePane.*Scrollbar"   			style:highest "theme-scrollbar"
+
+widget "*.nautilus-extra-view-widget" 					style:highest "nautilus-extra-view"
+
