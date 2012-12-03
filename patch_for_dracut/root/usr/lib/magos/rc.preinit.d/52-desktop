@@ -1,0 +1,53 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. usr/lib/magos/functions
+
+for a in $(cmdline_value desktop | tr , " " ) ;do
+   case $a in
+       3d)
+         echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
+         echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+         sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+       ;;
+       no3d)
+         echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
+         echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+         sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+       ;;
+       none)
+         sed -i 's/id:.:initdefault:/id:3:initdefault:/' etc/inittab
+       ;;
+       kde)
+         echo -e "DISPLAYMANAGER=KDM\nDESKTOP=KDE4" >etc/sysconfig/desktop
+         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+       ;;
+       gnome)
+         echo -e "DISPLAYMANAGER=GDM\nDESKTOP=GNOME" >etc/sysconfig/desktop
+         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+       ;;
+       lxde)
+         echo -e "DISPLAYMANAGER=slim\nDESKTOP=LXDE" >etc/sysconfig/desktop
+         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+       ;;
+       kdm)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=KDM/' etc/sysconfig/desktop
+       ;;
+       gdm)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=GDM/' etc/sysconfig/desktop
+       ;;
+       slim)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=slim/' etc/sysconfig/desktop
+       ;;
+       lan)
+         sed -i s/ONBOOT=no/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null
+       ;;
+   esac
+done
+

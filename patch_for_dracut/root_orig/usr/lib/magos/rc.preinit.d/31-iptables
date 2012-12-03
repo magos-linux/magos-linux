@@ -1,0 +1,39 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /liblinuxlive
+. etc/sysconfig/MagOS
+
+[ -z "$IPTABLESTRUSTEDIP" ] || sed -i s-192.168.1.0/24-$IPTABLESTRUSTEDIP- etc/exports
+[ -z "$IPTABLESTRUSTEDIP" ] && sed -i s_"^\[.*-A INPUT   -s .* -j ACCEPT.*"_'#[0:0] -A INPUT   -s $IPTABLESTRUSTEDIP -j ACCEPT'_ etc/sysconfig/iptables
+[ -z "$IPTABLESTRUSTEDIP" ] || sed -i s_".*-A INPUT   -s .* -j ACCEPT.*"_"[0:0] -A INPUT   -s $IPTABLESTRUSTEDIP -j ACCEPT"_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSTCP" ] && sed -i s_"^\[.*-A INPUT   -p tcp -m multiport --dport.*-j ACCEPT.*"_'#[0:0] -A INPUT   -p tcp -m multiport --dport $IPTABLESOPENPORTSTCP -j ACCEPT'_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSTCP" ] || sed -i s_".*-A INPUT   -p tcp -m multiport --dport.*-j ACCEPT.*"_"[0:0] -A INPUT   -p tcp -m multiport --dport $IPTABLESOPENPORTSTCP -j ACCEPT"_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSUDP" ] && sed -i s_"^\[.*-A INPUT   -p udp -m multiport --dport.*-j ACCEPT.*"_'#[0:0] -A INPUT   -p udp -m multiport --dport $IPTABLESOPENPORTSUDP -j ACCEPT'_ etc/sysconfig/iptables
+[ -z "$IPTABLESOPENPORTSUDP" ] || sed -i s_".*-A INPUT   -p udp -m multiport --dport.*-j ACCEPT.*"_"[0:0] -A INPUT   -p udp -m multiport --dport $IPTABLESOPENPORTSUDP -j ACCEPT"_ etc/sysconfig/iptables
+if [ -z "$TORUSERS" ] ;then
+    sed -i s_"^\[.* -A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner .* -j RETURN.*"_'#TOR#[0:0] -A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner $TORUSERS -j RETURN'_ etc/sysconfig/iptables
+    sed -i s_"^\[.*-A OUTPUT -p udp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:5353.*"_'#TOR#[0:0] -A OUTPUT -p udp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:5353'_ etc/sysconfig/iptables
+    sed -i s_"^\[.*-A OUTPUT -p tcp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:9040.*"_'#TOR#[0:0] -A OUTPUT -p tcp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:9040'_ etc/sysconfig/iptables
+else
+    sed -i s_".*-A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner .* -j RETURN.*"_"[0:0] -A OUTPUT -d 192.168.1.0/16 -m owner --uid-owner $TORUSERS -j RETURN"_ etc/sysconfig/iptables
+    sed -i s_".*-A OUTPUT -p udp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:5353.*"_"[0:0] -A OUTPUT -p udp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:5353"_ etc/sysconfig/iptables
+    sed -i s_".*-A OUTPUT -p tcp -m owner --uid-owner .* -j DNAT --to-destination 127.0.0.1:9040.*"_"[0:0] -A OUTPUT -p tcp -m owner --uid-owner $TORUSERS -j DNAT --to-destination 127.0.0.1:9040"_ etc/sysconfig/iptables
+fi
+if [ "$ROUTER" = "yes" ] ;then
+    sed -i s/".* -A POSTROUTING   -j MASQUERADE.*"/'[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
+    sed -i /net.ipv4.ip_forward/d etc/sysctl.conf
+    echo "net.ipv4.ip_forward = 1" >>etc/sysctl.conf
+    sed -i '/-A FORWARD -i eth0 -o eth0 -j DROP/d' etc/sysconfig/iptables
+else
+    sed -i s/"^\[.* -A POSTROUTING   -j MASQUERADE.*"/'#ROUTER#[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
+fi
+

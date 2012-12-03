@@ -1,0 +1,117 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin:usr/sbin:usr/bin:sbin:bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. usr/lib/magos/functions || exit 1
+. etc/sysconfig/MagOS
+
+get_name()
+{
+  for b in "" $(seq 1 64) ;do
+    grep -q " /media/disk$b " etc/fstab || break
+  done
+  echo disk$b
+}
+
+# freeing unused media
+if [ "$(cmdline_parameter freemedia)" ] ;then
+  for a in /mnt/liveloop /mnt/livemedia /mnt/livesave ;do
+     grep -q " $a " /proc/mounts || continue
+     [ -z "$(losetup | grep -m 1 $a/)$(grep -m 1 ^$a/ /proc/mounts)" ] && umountloop $a
+  done
+fi
+
+# Update fstab
+sed -i /'# AutoUpdate'/d etc/fstab
+if [ $(cmdline_parameter unionfs) ]; then
+   fstab_add_line etc/fstab unionfs / unionfs defaults
+else
+   fstab_add_line etc/fstab aufs / aufs defaults
+fi
+fstab_add_line etc/fstab proc /proc proc defaults
+fstab_add_line etc/fstab sysfs /sys sysfs defaults
+fstab_add_line etc/fstab devpts /dev/pts devpts gid=5,mode=620
+for a in /mnt/liveloop /mnt/livemedia /mnt/livesave ;do
+     grep -q " $a " /proc/mounts || continue
+     fstab_add_line etc/fstab $(grep " $a " /proc/mounts | head -1 | awk '{ print $1 " " $2 " " $3 " noauto," $4 }')
+done
+
+# Reattach media to new root
+for a in mnt/livemedia mnt/liveloop mnt/livesave ;do
+   grep -q " /$a " /proc/mounts || continue
+   mkdir -p $a
+   mount --move /$a $a
+done
+
+
+[ -z "$PARTITIONSMOUNTUID" ] && PARTITIONSMOUNTUID=500
+FSCKFLAG=0
+[ $(cmdline_parameter fsck) ] && FSCKFLAG=2
+
+#Find and use swap partition. If not, use window$ swapfile.
+if [ "$(cmdline_parameter findswap)" ] ;then
+    sed -i /FINDSWAP/d etc/fstab
+    FSWAP=$(blkid -t TYPE="swap" -l | awk -F: '{print $1}')
+    if [ "$FSWAP" ] ;then 
+       echo "$FSWAP none swap defaults 0 0 #FINDSWAP" >> etc/fstab
+    else
+       FSWAP=$(find_in_computer /pagefile.sys /$UNION/mnt/windows)
+       if [ "$FSWAP" ] ;then
+          if [ -f "$FSWAP" ] ;then
+             mkswap "$FSWAP"
+             DSWAP=$(dirname $FSWAP)
+             DEV=$(grep /$UNION/mnt/windows /proc/mounts | awk '{ print $1 }')
+             DEVTYPE=$(blkid $DEV -s TYPE | awk -F\" '{print $2}' )
+             if [ "$DSWAP" = "/$UNION/mnt/windows" -a -b "$DEV" ] ;then
+                DEVOPTS=$(fs_options $DEV fstab),uid=$PARTITIONSMOUNTUID
+                echo "$DEV /mnt/windows $DEVTYPE $DEVOPTS 0 $FSCKFLAG # FINDSWAP" >>etc/fstab
+                umount /$UNION/mnt/windows 2>/dev/null
+             fi
+             echo "$FSWAP none swap defaults 0 0 # FINDSWAP" | sed s-/$UNION-- >> etc/fstab
+          fi
+       fi
+    fi
+fi
+
+#Creating partitions in /etc/fstab
+if [ "$TMPFS" != "no" ] ;then
+   grep -q "/memory tmpfs" /proc/mounts || echo "tmpfs /tmp tmpfs defaults 0 0 # AutoUpdate" >>etc/fstab
+fi
+if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
+   sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
+   blkid | grep -v loop | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do
+       grep -q "^$a " /proc/mounts etc/fstab && continue
+       DEVTYPE=$(blkid $a -s TYPE | awk -F\" '{print $2}' )
+       if [ "$DEVTYPE" != "" -a "$DEVTYPE" != "swap" -a "$DEVTYPE" != "udf" -a "$DEVTYPE" != "iso9660" ] ;then
+          DEVLABEL=$( blkid $a -s LABEL | awk -F\" '{print $2}' | tr -d [:cntrl:][:space:])
+          [ -z "$DEVLABEL" ] && DEVLABEL=$(get_name)
+          echo " $PARTITIONSNOMOUNT " | tr ',;' ' ' | grep -q " $DEVLABEL " && continue
+          DEVOPTS=$(fs_options $a fstab)
+          [ "$DEVTYPE" = "vfat" -o "$DEVTYPE" = "ntfs" ] && DEVOPTS="$DEVOPTS,uid=$PARTITIONSMOUNTUID"
+          echo "$a /media/$DEVLABEL $DEVTYPE $DEVOPTS 0 $FSCKFLAG #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+          [ -d media/$DEVLABEL ] || mkdir -p media/$DEVLABEL
+       elif [ "$DEVTYPE" = "swap" ] ;then
+          grep -q "^$a none swap" etc/fstab || echo "$a none swap defaults 0 0 #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+       fi
+   done
+fi
+
+#Enable compcache if it is needed
+[ "$(grep " swap " etc/fstab)$(echo $SERVICESNOSTART | grep compcache)" = "" ] && chroot . chkconfig --add compcache >/dev/null 2<&1
+
+#Exporting partitions
+if [ "$PARTITIONSSHARE" = "yes" ];then
+   for a in $(grep " /media/" etc/fstab | awk '{print $2}' | sed s-/media/--) ;do
+       grep -q "^/media/$a " etc/exports && continue
+       echo " $PARTITIONSNOSHARE " | tr ',;' ' ' | grep -q " $a " && continue
+       echo "/media/$a 192.168.1.0/24(all_squash,anonuid=500,anongid=100,async,secure,no_subtree_check,rw)" >>etc/exports
+   done
+fi
+

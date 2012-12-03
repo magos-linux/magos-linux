@@ -1,0 +1,18 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. usr/lib/magos/functions
+
+if [ $(cmdline_value savelist) ] ;then
+   echo -ne .savelist
+   for a in $(cmdline_value savelist | tr , " " ) ;do
+       echo $a >>.savelist
+   done
+fi
+
