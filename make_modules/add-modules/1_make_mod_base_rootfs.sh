@@ -2,7 +2,7 @@
 
 # Лицензия: GPL последней версии
 # Описание: Собирает базовые модули
-# Дата модификации: 22.11.2012
+# Дата модификации: 03.12.2012
 # Авторы: Горошкин Антон, Логинов Алексей
 
 if [ "`id -u`" != "0" ] ;then
@@ -10,10 +10,10 @@ if [ "`id -u`" != "0" ] ;then
    exit 1
 fi
 
-if [ -f config ] ;then
-  . config
+if [ -f .config ] ;then
+  . .config
 else
-  echo "Не вижу файла config" ;  exit 1
+  echo "Не вижу файла .config" ;  exit 1
 fi
 
 mkdir -p $ROOTFS
@@ -28,14 +28,15 @@ if [ "$FS_ROOTFS" = "aufs" ]
 then
   mount -t aufs wiz_fly -o br:$MOD_PREV $ROOTFS
   mkdir -p $ROOTFS/{proc,dev,sys}
+fi
+
   mount -o bind /proc $ROOTFS/proc
   mount -o bind /dev $ROOTFS/dev
   mount -o bind /sys $ROOTFS/sys
-fi
 
 DIR_KERNEL=`ls ./kernel`
 
-for MOD in `ls -1 $MOD_NAMES_DIR/??-base*` ;do 
+for MOD in `ls -1 $MOD_NAMES_DIR/??-*` ;do 
     echo "Генерация rootfs для модуля $(basename $MOD)"
     if [ -d $MOD_ROOTFS_DIR/$(basename $MOD) ] ;then 
 	echo "...директория уже создана"

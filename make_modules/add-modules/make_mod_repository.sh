@@ -1,10 +1,21 @@
 #!/bin/bash
 
+# Лицензия: GPL последней версии
 # Описание: Собирает модули в репозиторий для MagOS
-# Дата модификации: 18.09.2012
-# Автор: Горошкин Антон
+# Дата модификации: 03.12.2012
+# Авторы: Горошкин Антон
 
-#---------------
+if [ "`id -u`" != "0" ] ;then
+   echo "Нужны права root"
+   exit 1
+fi
+
+if [ -f config ] ;then
+  . config
+else
+  echo "Не вижу файла config" ;  exit 1
+fi
+
 function make_mod_pack ()
 {
     mod_name=$1
@@ -44,7 +55,7 @@ URPMI_PARAM="--no-verify-rpm "
 
 mkdir -p  $MOD_REP
 mask=$1
-for mod in `ls -1 $MOD_NAMES_DIR/??-add-*$mask` ;do 
+for mod in `ls -1 $MOD_NAMES_DIR/add/??-add-*$mask` ;do 
     echo "Генерация метамодуля $(basename $mod)"
     if [ -d $MOD_REP/$(basename $mod) ] ;then 
 	echo "...директория уже создана"

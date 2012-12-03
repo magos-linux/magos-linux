@@ -2,20 +2,21 @@
 
 # Лицензия: GPL последней версии
 # Описание: Очищает сборочную
-# Дата модификации: 29.11.2012
+# Дата модификации: 03.12.2012
 # Авторы: Горошкин Антон, Логинов Алексей
-
-if [ -f config ] ;then
-  . config
-else
-  echo "Не вижу файла config" ;  exit 1
-fi
-cd "$MYPATH"
 
 if [ "`id -u`" != "0" ] ;then
    echo "Нужны права root"
    exit 1
 fi
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+cd "$MYPATH"
+
 
 function umountbranches()
 {
