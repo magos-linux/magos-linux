@@ -22,6 +22,8 @@ fi
 
 rm -fr work/rpmbuild 2>/dev/null
 mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS loaded
+PATCHFORMAT=xz
+SOURCEFORMAT=xz
 . files/patches/kernel/$FLASHNAME-$VERREL/version
 [ "$VERKERNEL" = "" ] && exit 1
 [ "$RPMBPATH" = "" ] && RPMBPATH="$HOME/rpmbuild"
@@ -30,13 +32,13 @@ mkdir -p work/rpmbuild/SOURCES work/rpmbuild/SPECS loaded
 
 cd loaded
 echo "Закачиваем исходники ядра"
-[ ! -f linux-$VERKERNEL.tar.xz ] &&  wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.xz
+[ ! -f linux-$VERKERNEL.tar.$SOURCEFORMAT ] &&  wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.$SOURCEFORMAT
 [ ! -f linux-$VERKERNEL.tar.sign ] &&  wget http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERKERNEL.tar.sign
-[ ! -z "$VERKPATCH" -a ! -f patch-$VERKPATCH.xz  ] && wget http://www.kernel.org/pub/linux/kernel/v3.x/patch-$VERKPATCH.xz
+[ ! -z "$VERKPATCH" -a ! -f patch-$VERKPATCH.$PATCHFORMAT  ] && wget http://www.kernel.org/pub/linux/kernel/v3.x/patch-$VERKPATCH.$PATCHFORMAT
 [ ! -z "$VERKPATCH" -a ! -f patch-$VERKPATCH.sign  ] && wget http://www.kernel.org/pub/linux/kernel/v3.x/patch-$VERKPATCH.sign
 cd ..
 
-[ -f loaded/linux-$VERKERNEL.tar.xz ] || exit 1
+[ -f loaded/linux-$VERKERNEL.tar.$SOURCEFORMAT ] || exit 1
 cp -pf loaded/linux-$VERKERNEL.tar.* $RPMBPATH/SOURCES || exit 1
 [ -z "$VERKPATCH" ] || cp -pf loaded/patch-$VERKPATCH.* $RPMBPATH/SOURCES
 cp -pf files/patches/kernel/$FLASHNAME-$VERREL/* $RPMBPATH/SOURCES || exit 1

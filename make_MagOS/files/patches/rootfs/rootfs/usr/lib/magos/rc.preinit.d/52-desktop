@@ -11,8 +11,8 @@ ENABLED=yes
 
 . /liblinuxlive
 
-[ -f lib/systemd/system/graphical.target.wants/display-manager.service ] || \
-   ln -sf ../../../../lib/systemd/system/display-manager.service lib/systemd/system/graphical.target.wants
+sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+ln -sf /lib/systemd/system/graphical.target etc/systemd/system/default.target
 
 for a in $(cmdline_value desktop | tr , " " ) ;do
    case $a in
@@ -28,19 +28,16 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
        ;;
        none)
          sed -i 's/id:.:initdefault:/id:3:initdefault:/' etc/inittab
-         rm -f lib/systemd/system/graphical.target.wants/display-manager.service
+         ln -sf /lib/systemd/system/multi-user.target etc/systemd/system/default.target
        ;;
        kde)
          echo -e "DISPLAYMANAGER=KDM\nDESKTOP=KDE4" >etc/sysconfig/desktop
-         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
        ;;
        gnome)
          echo -e "DISPLAYMANAGER=GDM\nDESKTOP=GNOME" >etc/sysconfig/desktop
-         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
        ;;
        lxde)
          echo -e "DISPLAYMANAGER=slim\nDESKTOP=LXDE" >etc/sysconfig/desktop
-         sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
        ;;
        kdm)
          sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=KDM/' etc/sysconfig/desktop

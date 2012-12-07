@@ -1,13 +1,10 @@
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/restricted/updates restricted-updates f53e9db116a853e7 update
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/main/updates main-updates f53e9db116a853e7 update
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/contrib/updates contrib-updates 0 update
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/non-free/updates nonfree-updates f53e9db116a853e7 update
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/restricted/release restricted-release f53e9db116a853e7
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/main/release main-release f53e9db116a853e7
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/contrib/release contrib-release 0
-http://mirror.yandex.ru/rosa/rosa2012lts/repository/i586/non-free/release nonfree-release f53e9db116a853e7
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/restricted/updates restricted-updates f53e9db116a853e7 update
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/main/updates main-updates f53e9db116a853e7 update
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/contrib/updates contrib-updates 0 update
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/non-free/updates nonfree-updates f53e9db116a853e7 update
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/restricted/release restricted-release f53e9db116a853e7
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/main/release main-release f53e9db116a853e7
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/contrib/release contrib-release 0
+http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/non-free/release nonfree-release f53e9db116a853e7
 http://mib.pianetalinux.org/MIB/rosa2012lts/32/basic mib 0 update
-http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/contrib/release 2011_contrib-release 0 skip
-http://ftp.free.fr/mirrors/ftp.mandriva.com/MandrivaLinux/official/2011/i586/media/main/release 2011_main-release 0 skip
 http://abf.rosalinux.ru/downloads/dsilakov_personal/repository/rosa2012lts/i586/main/release abf_personal_ds 0 skip
-http://abf.rosalinux.ru/downloads/kernels_testing_personal/repository/mandriva2011/i586/main/release abf_personal_kernel 0 skip

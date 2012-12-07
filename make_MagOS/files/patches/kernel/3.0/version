@@ -1,0 +1,4 @@
+VERKERNEL=3.0
+VERKPATCH=3.0.28
+URL=http://mirror.yandex.ru/rosa/rosa2012lts/repository/SRPMS/main/release
+PATCHFORMAT=bz2
