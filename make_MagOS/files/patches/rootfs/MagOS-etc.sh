@@ -16,7 +16,7 @@ sed -i s/.audio.*memlock.*/'@audio          -       memlock          unlimited'/
 
 #Disable pulse and switch on alsa
 rm -f etc/alternatives/soundprofile
-ln -sf /etc/sound/profiles/pulse etc/alternatives/soundprofile
+ln -sf /etc/sound/profiles/alsa etc/alternatives/soundprofile
 PFP=etc/pulse/client.conf
 grep -q ^autospawn $PFP || echo "autospawn = no" >>$PFP
 
