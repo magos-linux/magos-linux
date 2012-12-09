@@ -21,12 +21,12 @@ rm -rf $MOD_PREV
 mkdir -p $MOD_PREV
 
 urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_0
-urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_1
-urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_2
+#urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_1
+#urpmi.addmedia --distrib --urpmi-root $MOD_PREV $DIST_MIRROR_2
   
-if [ -f urpmi.cfg ]
+if [ -f $MOD_NAMES_DIR/urpmi.cfg ]
 then
   mkdir -p $MOD_PREV/etc/urpmi
-  cp -f urpmi.cfg $MOD_PREV/etc/urpmi/
+  cp -f $MOD_NAMES_DIR/urpmi.cfg $MOD_PREV/etc/urpmi/
   urpmi.update -a --urpmi-root $MOD_PREV
 fi

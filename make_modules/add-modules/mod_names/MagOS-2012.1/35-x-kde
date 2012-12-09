@@ -136,3 +136,17 @@ libpowerdevilui4
 liboxygenstyleconfig4
 bluedevil
 libbluedevil1
+knetworkmanager
+knetworkmanager-common
+knetworkmanager-openvpn
+knetworkmanager-pptp
+knetworkmanager-vpnc
+libknmclient4
+libknminternals4
+libknm_nm
+libknmservice4
+libknmui4
+libsolidcontrolfuture4
+libsolidcontrolnm4
+libsolidcontrolnmifaces4
+plasma-applet-networkmanagement
