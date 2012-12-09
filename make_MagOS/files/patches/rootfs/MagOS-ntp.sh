@@ -1,4 +1,9 @@
 #!/bin/bash
+
+#ntpdate
+PFP=etc/cron.d/ntpdate
+[ -f $PFP ] || echo -e '# Sync time every 10 minutes if enable\n*/10 * * * *  root /usr/lib/magos/cron/ntpdate.sh' >$PFP
+
 PFP=etc/ntp.conf
 grep -q MagOS $PFP && exit 0
 cp -p $PFP ${PFP}_default

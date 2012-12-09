@@ -17,3 +17,6 @@ for a in `grep /mnt/ /proc/mounts | grep -v '/mnt/live[ /]' | awk '{print $2}'` 
 done
 
 grep -q usbfs.*devmode=664 /proc/mounts ||  mount -o remount,devmode=0664,devgid=43 /proc/bus/usb
+
+sort -u /etc/mtab > /etc/mtab.new
+mv -f /etc/mtab.new /etc/mtab

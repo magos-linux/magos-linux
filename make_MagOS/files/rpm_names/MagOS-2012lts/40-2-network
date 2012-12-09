@@ -80,3 +80,16 @@ wammu-
 python-gammu-
 gammu-
 libgammu7-
+libnm-glib-vpn1-
+libnm-gtk0-
+libopenconnect1-
+libpcks11-helper1-
+libproxy-networkmanager-
+networkmanager-applet-
+networkmanager-openconnect-
+networkmanager-openvpn-
+networkmanager-pptp-
+networkmanager-vpnc-
+openconnect-
+openvpn-
+vpnc-

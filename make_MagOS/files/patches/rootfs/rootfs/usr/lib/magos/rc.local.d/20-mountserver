@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# ifup-post-local       Helper script for MagOS Linux Live.
+#
+# Authors:	        Mikhail Zaripov <m3for@mail.ru>
+
+NFSMOUNTTM=10
+NFSMOUNTWAIT=6
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+
+# mount MagOS-Server
+if [ "$AUTOMOUNTSERVER" = "yes" ] ;then
+    while [ -z "$NFSMPLIST" -a "$NFSMOUNTTM" != "0" ] ;do
+	sleep $NFSMOUNTWAIT
+        NFSMPLIST=$(showmount --exports --no-headers MagOS-Server 2>/dev/null | awk '{print $1}' | grep ^/media/)
+        NFSMOUNTTM=$(expr $NFSMOUNTTM - 1)
+    done
+    for a in $NFSMPLIST ;do
+        MOUNTDEST=$(echo $a | sed s-/media-/mnt/server-)
+        mkdir -p $MOUNTDEST 2>/dev/null
+        [ -d "$MOUNTDEST" ] || continue
+        grep -q " $MOUNTDEST " /etc/fstab || echo "MagOS-Server:$a $MOUNTDEST nfs nolock,users,auto 0 0 #AUTOMOUNTSERVER=yes" >> /etc/fstab
+        grep -q " $MOUNTDEST " /proc/mounts ||  mount $MOUNTDEST 2>/dev/null &
+    done
+fi
+
+exit 0

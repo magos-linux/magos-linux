@@ -210,6 +210,11 @@ sourceAppletPluginName=notifications
 DialogHeight=57
 DialogWidth=173
 
+[Containments][2][Applets][20][Configuration][Applets][31]
+immutability=1
+plugin=org.kde.networkmanagement
+zvalue=0
+
 [Containments][2][Applets][20][Configuration][Shortcuts]
 Systemtray-Klipper-20=Ctrl+Alt+V
 
@@ -222,6 +227,7 @@ DialogWidth=16
 
 [Containments][2][Configuration][Applets][20][LayoutInformation]
 Order=9
+
 
 [Containments][2][Applets][21]
 geometry=3066,2,93,31

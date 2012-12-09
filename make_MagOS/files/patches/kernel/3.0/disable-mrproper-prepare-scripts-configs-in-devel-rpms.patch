@@ -1,0 +1,112 @@
+
+ Makefile                 |   19 ++++++++++---------
+ scripts/kconfig/Makefile |   18 ------------------
+ 2 files changed, 10 insertions(+), 27 deletions(-)
+
+diff -Nurp linux-3.0/Makefile linux-3.0-mrproper/Makefile
+--- linux-3.0/Makefile	2011-07-15 02:37:36.866554406 +0300
++++ linux-3.0-mrproper/Makefile	2011-07-15 14:14:32.143899236 +0300
+@@ -502,8 +502,7 @@ ifeq ($(KBUILD_EXTMOD),)
+ # Carefully list dependencies so we do not try to build scripts twice
+ # in parallel
+ PHONY += scripts
+-scripts: scripts_basic include/config/auto.conf include/config/tristate.conf
+-	$(Q)$(MAKE) $(build)=$(@)
++scripts:
+ 
+ # Objects we will link into vmlinux / subdirs we need to visit
+ init-y		:= init/
+@@ -986,7 +985,7 @@ prepare0: archprepare FORCE
+ 	$(Q)$(MAKE) $(build)=. missing-syscalls
+ 
+ # All the preparing..
+-prepare: prepare0
++prepare:
+ 
+ # Generate some files
+ # ---------------------------------------------------------------------------
+@@ -1158,11 +1157,13 @@ CLEAN_FILES +=	vmlinux System.map \
+                 .tmp_kallsyms* .tmp_version .tmp_vmlinux* .tmp_System.map
+ 
+ # Directories & files removed with 'make mrproper'
+-MRPROPER_DIRS  += include/config usr/include include/generated          \
+-                  arch/*/include/generated
+-MRPROPER_FILES += .config .config.old .version .old_version             \
+-                  include/linux/version.h                               \
+-		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
++#MRPROPER_DIRS  += include/config usr/include include/generated          \
++#                  arch/*/include/generated
++#MRPROPER_FILES += .config .config.old .version .old_version             \
++#                  include/linux/version.h                               \
++#		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
++MRPROPER_DIRS  += ""
++MRPROPER_FILES += ""
+ 
+ # clean - Delete most, but leave enough to build external modules
+ #
+@@ -1180,7 +1181,7 @@ clean: archclean
+ #
+ mrproper: rm-dirs  := $(wildcard $(MRPROPER_DIRS))
+ mrproper: rm-files := $(wildcard $(MRPROPER_FILES))
+-mrproper-dirs      := $(addprefix _mrproper_,Documentation/DocBook scripts)
++mrproper-dirs      := $(addprefix _mrproper_,Documentation/DocBook)
+ 
+ PHONY += $(mrproper-dirs) mrproper archmrproper
+ $(mrproper-dirs):
+diff -Nurp linux-3.0/scripts/kconfig/Makefile linux-3.0-mrproper/scripts/kconfig/Makefile
+--- linux-3.0/scripts/kconfig/Makefile	2011-07-15 02:37:27.265495491 +0300
++++ linux-3.0-mrproper/scripts/kconfig/Makefile	2011-07-15 14:13:12.384408058 +0300
+@@ -12,26 +12,18 @@ Kconfig := Kconfig
+ endif
+ 
+ xconfig: $(obj)/qconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ gconfig: $(obj)/gconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ menuconfig: $(obj)/mconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ config: $(obj)/conf 3rdparty/Makefile
+-	$< --oldaskconfig $(Kconfig)
+ 
+ nconfig: $(obj)/nconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ oldconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ silentoldconfig: $(obj)/conf 3rdparty/Makefile
+-	$(Q)mkdir -p include/generated
+-	$< --$@ $(Kconfig)
+ 
+ # if no path is given, then use src directory to find file
+ ifdef LSMOD
+@@ -99,26 +91,16 @@ update-po-config: $(obj)/kxgettext $(obj
+ PHONY += allnoconfig allyesconfig allmodconfig alldefconfig randconfig
+ 
+ allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ PHONY += listnewconfig oldnoconfig savedefconfig defconfig
+ 
+ listnewconfig oldnoconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ savedefconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@=defconfig $(Kconfig)
+ 
+ defconfig: $(obj)/conf 3rdparty/Makefile
+-ifeq ($(KBUILD_DEFCONFIG),)
+-	$< --defconfig $(Kconfig)
+-else
+-	@echo "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
+-	$(Q)$< --defconfig=arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG) $(Kconfig)
+-endif
+ 
+ %_defconfig: $(obj)/conf 3rdparty/Makefile
+-	$(Q)$< --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
+ 
+ # Help text used by make help
+ help:
