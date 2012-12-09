@@ -24,5 +24,6 @@ date +%N | md5sum | cut -c 1-16  > nx.pass
 chroot ./  /usr/bin/passwd -f --stdin nx <nx.pass >/dev/null 2>&1
 [ "$(pwd)" = "/" ] || umount dev
 rm -f nx.pass
+#BUGFIX
 grep -q 'COMMAND_NETCAT 2>/dev/null' usr/bin/nxserver || sed -i 's|COMMAND_NETCAT|COMMAND_NETCAT 2>/dev/null|' usr/bin/nxserver
 exit 0

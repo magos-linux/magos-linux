@@ -1,4 +1,4 @@
-Hello Mageia Users,
+Hello Mandriva, MIB and Rosa linux Users,
 
 linux-userspace-headers contains the headers for the source code of
 Linux kernel. All source code necessary to compile a new kernel is
@@ -88,3 +88,4 @@ Enjoy!
 (c) 1999-2006 Mandriva, Camille Bégnis <camille@mandriva.com>
 (c) 2006 Thomas Backlund <tmb@mandriva.org> 
 (c) 2011 Thomas Backlund <tmb@mageia.org> 
+(c) 2011 Nicolò Costanza <abitrules@yahoo.it> 

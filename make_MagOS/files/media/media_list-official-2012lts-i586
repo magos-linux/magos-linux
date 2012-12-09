@@ -8,3 +8,4 @@ http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/contrib/release con
 http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/non-free/release nonfree-release f53e9db116a853e7
 http://mib.pianetalinux.org/MIB/rosa2012lts/32/basic mib 0 update
 http://abf.rosalinux.ru/downloads/dsilakov_personal/repository/rosa2012lts/i586/main/release abf_personal_ds 0 skip
+http://abf.rosalinux.ru/downloads/mikhailz_personal/repository/rosa2012lts/i586/main/release abf_personal_mz 0 skip

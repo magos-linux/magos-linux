@@ -1,4 +1,5 @@
 #!/bin/bash
+#Kill big icons to save some space
 for a in `find usr/share/icons -type d | egrep -e '[x/]512$|[x/]256$|/128x128$' ` ;do
    rm -fr "$a"
 done
