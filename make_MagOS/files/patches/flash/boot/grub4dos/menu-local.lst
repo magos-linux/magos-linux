@@ -1,0 +1,105 @@
+# This is a sample menu.lst file. You should make some changes to it.
+# The old install method of booting via the stage-files has been removed.
+# Please install GRLDR boot strap code to MBR with the bootlace.com
+# utility under DOS/Win9x or Linux.
+
+#color blue/green yellow/red white/magenta white/magenta
+#gfxmenu /boot/grub4dos/gfxmenu
+
+graphicsmode -1 640 480
+font /boot/grub4dos/unifont.hex.gz
+splashimage /boot/grub4dos/boot_xpm.gz
+color white/black yellow/blue
+
+timeout 30
+default 0
+
+title MagOS_Clean
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent
+initrd /MagOS/initrd.gz
+
+title MagOS_Home_profile
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent changes=MagOS_save1.img
+initrd /MagOS/initrd.gz
+
+title MagOS_Work_profile
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent changes=MagOS_save2.img
+initrd /MagOS/initrd.gz
+
+title MagOS_Gnome
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz root=/dev/ram0 rw vga=788 slpash=silent desktop=gnome
+initrd /MagOS/initrd.gz
+
+title MagOS_LXDE
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=788 slpash=silent desktop=lxde
+initrd /MagOS/initrd.gz
+
+title MagOS_failsafe
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz root=/dev/ram0 rw noapic nolapic acpi=off nopat no3ddesktop xdriver=free noload=/modules/
+initrd /MagOS/initrd.gz
+
+title MagOS_copy2ram
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz root=/dev/ram0 rw vga=791 slpash=silent copy2ram ramsize=80%
+initrd /MagOS/initrd.gz
+
+title MagOS_netlive
+kernel /boot/tools/ipxe.krn
+
+title Memtest
+kernel /boot/tools/memtest
+
+title Hardware_Detection_Tool
+map /boot/tools/hdt.img (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+map --floppies=1
+
+title Windows NT/2K/XP 
+find --set-root --ignore-floppies --ignore-cd /ntldr
+map () (hd0)
+map (hd0) ()
+map --rehook
+find --set-root --ignore-floppies --ignore-cd /ntldr
+chainloader /ntldr
+savedefault --wait=2
+
+title Windows VISTA
+find --set-root --ignore-floppies --ignore-cd /bootmgr
+map () (hd0)
+map (hd0) ()
+map --rehook
+find --set-root --ignore-floppies --ignore-cd /bootmgr
+chainloader /bootmgr
+savedefault --wait=2
+
+title Windows 9x/Me
+find --set-root /io.sys
+chainloader /io.sys
+savedefault --wait=2
+
+#title NTpasswd
+#find --set-root /boot/extra/ntpasswd_080802.iso
+#map /boot/extra/ntpasswd_080802.iso (0xff) || map --mem /boot/extra/ntpasswd_080802.iso (0xff)
+#map --hook
+#chainloader (0xff)
+
+#title Victoria 3.5
+#find --set-root --ignore-floppies /boot/extra/vic35.img
+#map --mem /boot/extra/vic35.img (fd0)
+#map --hook
+#chainloader (fd0)+1
+#rootnoverify (fd0)
+
+title Reboot
+reboot
+
+
+
