@@ -1,6 +1,6 @@
 #!/bin/bash
 # exec wish \
-exec wish8.6 "$0" "$@"
+exec wish  "$0" "$@"
 package require msgcat
 proc _ {s} {return [::msgcat::mc $s]}
 ::msgcat::mcload /usr/share/magos/mod_mnger/msg/

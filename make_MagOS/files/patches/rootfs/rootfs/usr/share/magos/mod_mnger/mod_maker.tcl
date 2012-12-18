@@ -2,7 +2,7 @@
 # root test \
 [ "$(id -un)" != "root" ] &&  gksu -g "/bin/bash $0 $@" && exit 0
 # exec wish \
-exec wish8.6 "$0" "$@"
+exec wish  "$0" "$@"
 
 package require msgcat
 proc _ {s} {return [::msgcat::mc $s]}
