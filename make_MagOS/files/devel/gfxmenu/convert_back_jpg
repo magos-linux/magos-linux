@@ -1,0 +1,7 @@
+#!/bin/bash
+mogrify -strip back.jpg
+convert back.jpg -colors 24 back.jpg
+convert back.jpg -resize 1024x768\! back.jpg
+djpeg -bmp back.jpg > back.bmp
+cjpeg -quality 85 back.bmp > back.jpg
+rm -f back.bmp

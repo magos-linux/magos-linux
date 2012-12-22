@@ -11,27 +11,27 @@ splashimage /boot/grub4dos/boot_xpm.gz
 timeout 30
 default 0
 
-title MagOS Home profile
+title MagOS-С сохранением данных
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn home=home.img
 kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent
 initrd /MagOS/initrd.gz
 
-title MagOS Clean mode
+title MagOS-Чистый режим
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent
 initrd /MagOS/initrd.gz
 
-#title MagOS System profile
+#title MagOS-System profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent changes=MagOS_save1.img
 #initrd /MagOS/initrd.gz
 
-title MagOS Netlive
+title MagOS-Загрузка с Яндекса
 kernel /boot/tools/ipxe.krn
 
-title Additional software
-configfile /boot/grub4dos/menu-add.lst
+title Стороннее
+configfile /boot/grub4dos/local/menu-add.lst
 
-title Reboot
+title Перезагрузка
 reboot
 

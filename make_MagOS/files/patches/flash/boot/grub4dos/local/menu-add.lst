@@ -1,0 +1,65 @@
+# This is a sample menu.lst file. You may make some changes to it.
+# Please install GRLDR boot strap code to MBR with the bootlace.com
+# utility under DOS/Win9x or Linux.
+
+#color blue/green yellow/red white/magenta white/magenta
+gfxmenu /boot/grub4dos/gfxmenu
+
+color black/cyan yellow/cyan
+splashimage /boot/grub4dos/boot_xpm.gz
+
+timeout 30
+default 0
+
+title .. Назад в главное меню
+configfile /boot/grub4dos/local/menu.lst
+
+title Memtest - Проверка памяти
+kernel /boot/tools/memtest
+
+title Hardware_Detection_Tool - Определение оборудования
+map /boot/tools/hdt.img (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+map --floppies=1
+
+title Windows NT/2K/XP 
+find --set-root --ignore-floppies --ignore-cd /ntldr
+map () (hd0)
+map (hd0) ()
+map --rehook
+find --set-root --ignore-floppies --ignore-cd /ntldr
+chainloader /ntldr
+savedefault --wait=2
+
+title Windows VISTA/7
+find --set-root --ignore-floppies --ignore-cd /bootmgr
+map () (hd0)
+map (hd0) ()
+map --rehook
+find --set-root --ignore-floppies --ignore-cd /bootmgr
+chainloader /bootmgr
+savedefault --wait=2
+
+title Windows 9x/Me
+find --set-root /io.sys
+chainloader /io.sys
+savedefault --wait=2
+
+#title NTpasswd
+#find --set-root /boot/extra/ntpasswd_080802.iso
+#map /boot/extra/ntpasswd_080802.iso (0xff) || map --mem /boot/extra/ntpasswd_080802.iso (0xff)
+#map --hook
+#chainloader (0xff)
+
+#title Victoria 3.5
+#find --set-root --ignore-floppies /boot/extra/vic35.img
+#map --mem /boot/extra/vic35.img (fd0)
+#map --hook
+#chainloader (fd0)+1
+#rootnoverify (fd0)
+
+title Перезагрузка
+reboot
+
