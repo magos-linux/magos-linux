@@ -1,6 +1,6 @@
 #!/bin/bash
 # exec tclsh \
-exec tclsh8.6 "$0" "$@"
+exec tclsh  "$0" "$@"
 # цвета GTK ------------------------------------------------------------------------------ 
   #set theme_file [open /etc/gtk-2.0/gtkrc ]
   #seek $theme_file 0 start

@@ -1,8 +1,8 @@
 #!/bin/bash
 # exec wish \
-[ $1_ == "_" ] && exec wish8.6 "$0" "$@"
+[ $1_ == "_" ] && exec wish "$0" "$@"
 # exec tclsh \
-[ $1_ == "_" ] || exec tclsh8.6 "$0" "$@"
+[ $1_ == "_" ] || exec tclsh  "$0" "$@"
 
 package require msgcat
 proc _ {s} {return [::msgcat::mc $s]}
