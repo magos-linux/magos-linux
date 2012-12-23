@@ -16,8 +16,8 @@ diff -auprN a/preset_menu.lst b/preset_menu.lst
 -	find --set-root --ignore-floppies --ignore-cd /grub/menu.lst && configfile /grub/menu.lst
 -	errorcheck on
 +title find /boot/grub4dos/menu.lst
-+	find --set-root --ignore-floppies --ignore-cd /boot/grub4dos/local/menu.lst && configfile /boot/grub4dos/local/menu.lst
-+	find --set-root --ignore-floppies --ignore-cd /boot/grub4dos/menu.lst && configfile /boot/grub4dos/menu.lst
++	find --set-root --ignore-floppies /boot/grub4dos/local/menu.lst && configfile /boot/grub4dos/local/menu.lst
++	find --set-root --ignore-floppies /boot/grub4dos/menu.lst && configfile /boot/grub4dos/menu.lst
  	commandline
  
  title commandline
