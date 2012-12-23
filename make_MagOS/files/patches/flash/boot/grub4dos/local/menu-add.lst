@@ -2,14 +2,16 @@
 # Please install GRLDR boot strap code to MBR with the bootlace.com
 # utility under DOS/Win9x or Linux.
 
-#color blue/green yellow/red white/magenta white/magenta
-gfxmenu /boot/grub4dos/gfxmenu
-
-color black/cyan yellow/cyan
-splashimage /boot/grub4dos/boot_xpm.gz
-
 timeout 30
 default 0
+
+#color blue/green yellow/red white/magenta white/magenta
+gfxmenu /boot/grub4dos/local/gfxmenu
+
+graphicsmode -1 640 480
+font /boot/grub4dos/unifont.hex.gz
+color white/black yellow/blue
+splashimage /boot/grub4dos/boot_xpm.gz
 
 title .. Назад в главное меню
 configfile /boot/grub4dos/local/menu.lst
