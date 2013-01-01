@@ -9,6 +9,9 @@ if [ ! -z "$ADSERVER" ] ;then
       /usr/share/magos/ad_join/ad_join.pl && exit 1
    fi
    xsetroot -cursor_name left_ptr
+   /sbin/service smb restart
+   /sbin/service winbind restart
+   sleep 1
    # launch some rc scripts
    for a in /usr/lib/magos/rc.domain/* ;do
       [ -x $a ] && $a 2>/dev/null
@@ -16,8 +19,6 @@ if [ ! -z "$ADSERVER" ] ;then
    for a in /usr/lib/magos/rc.domain.d/* ;do
       [ -x $a ] && $a 2>/dev/null &
    done
-   /sbin/service smb restart &
-   /sbin/service winbind restart &
 fi
 
 exit 0

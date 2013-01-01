@@ -14,8 +14,8 @@ color white/black yellow/blue
 splashimage /boot/grub4dos/boot_xpm.gz
 
 title MagOS-С сохранением данных
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn home=home.img
-kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent home=home.img changes=xzm
 initrd /MagOS/initrd.gz
 
 title MagOS-Чистый режим
@@ -28,7 +28,7 @@ initrd /MagOS/initrd.gz
 #kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent changes=MagOS_save1.img
 #initrd /MagOS/initrd.gz
 
-title MagOS-Загрузка с Яндекса
+title MagOS-Загрузка с Интернет
 kernel /boot/tools/ipxe.krn
 
 title Стороннее

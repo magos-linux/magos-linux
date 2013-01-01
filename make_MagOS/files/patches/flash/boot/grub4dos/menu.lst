@@ -14,8 +14,8 @@ color black/cyan yellow/cyan
 splashimage /boot/grub4dos/boot_xpm.gz
 
 title MagOS Home profile
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn home=home.img
-kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 slpash=silent home=home.img changes=xzm
 initrd /MagOS/initrd.gz
 
 title MagOS Clean mode

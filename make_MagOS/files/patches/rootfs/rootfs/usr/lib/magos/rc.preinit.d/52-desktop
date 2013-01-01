@@ -14,14 +14,14 @@ ENABLED=yes
 sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
 ln -sf /lib/systemd/system/graphical.target etc/systemd/system/default.target
 
-function switch3don()
+switch3don()
 {
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
          sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
 }
 
-function switch3doff()
+switch3doff()
 {
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm

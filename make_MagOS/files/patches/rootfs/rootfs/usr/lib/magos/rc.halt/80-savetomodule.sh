@@ -1,33 +1,12 @@
 #!/bin/bash
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
 . /mnt/live/liblinuxlive
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 
 PATH=/usr/lib/magos/scripts:$PATH
-
-swapoff -a >/dev/null 2>/dev/null
-
-# umount any modules from /media
-for a in `losetup -a | grep '(/media/.*.[lx]zm)' | awk '{print $3}' | tr -d '()'` ;do
-    deactivate $a
-done
-# then free any /media
-for a in /home `grep /media/ /proc/mounts  | awk '{print $2}'` `grep " /mnt/" /proc/mounts | grep -v /mnt/live | awk '{print $2}'` ;do
-    grep -q " $a " /proc/mounts || continue
-    umount $a
-    grep -q " $a " /proc/mounts || continue
-    #move unmounted partitions
-    mkdir -p /mnt/live/mnt/unmounted$a
-    mount --move $a /mnt/live/mnt/unmounted$a
-done
-# some cleanups
-rm -fr /tmp/*
-for a in /media/* ;do rmdir $a >/dev/null 2>&1 ;done
-
-# RPM5 vs EXTFS bug workaround
-[ -d /var/lib/rpmdb -a -f /var/lib/rpm/__db.001 ] && /usr/lib/rpm/bin/dbconvert
-[ -d /var/lib/rpmdb ] && rsync -a --del /var/lib/rpm/ /var/lib/rpmdb
-
-sync
 
 # save2module mode parser
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
@@ -38,6 +17,7 @@ SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
 FILELIST=/.savelist
 [ -f /.savetomodule ] && SAVETOMODULE=${SAVETOMODULE-yes}
 grep -q save2module /proc/cmdline && SAVETOMODULE=${SAVETOMODULE-yes}
+grep -q /machines/dynamic/ /.savetomodule 2>/dev/null  && [ -f $(sed s=dynamic=static= /.savetomodule) ] && exit 0
 if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo "Please wait. Saving changes to module $SAVETOMODULENAME"
    # if old module exists we have to concatenate it
@@ -74,10 +54,5 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo
    [ "$SRC" = "/mnt/live/memory/changes" ] || umount "$SRC"
 fi
+
 sync
-
-losetup -a | grep '(.*.[lx]zm)' | awk '{print $3}' | tr -d '()' | sort -r | grep -v /10-core | \
-   while read a ;do
-	deactivate $a >/dev/null 2>&1
-   done
-

@@ -135,7 +135,7 @@ debug_shell
 echolog "setting up directory for changes"
 CHANGESVAL=$(cmdline_value changes)
 
-if [ "$CHANGESVAL" ]; then
+if [ "$CHANGESVAL" -a "$CHANGESVAL" != "xzm" ]; then
    if [ "$(echo $CHANGESVAL | grep "://")" != ""  ]; then
       init_dhcp $(modprobe_network_modules)
       echo $CHANGESVAL | grep -iq ^"nfs://" && CHANGESMNT=$(mount_nfs $CHANGESVAL $MOUNTDIR/$LIVECHANGES)
@@ -217,11 +217,26 @@ else
    fi
 fi
 
+mkdir -p $CHANGES $IMAGES
+
 #In case we using lzm|xzm as changes= parameter
-if echo "$CHANGESMNT" | grep -q [.][XxLl][Zz][Mm]$ ;then
-   echolog "unpacking $CHANGESMNT to memory"
-   unsquashfs -f -dest $CHANGES "$CHANGESMNT" >/dev/null 2>&1
-   echo "$CHANGESMNT" > $CHANGES/.savetomodule
+if echo "$CHANGESVAL" | grep -q [XxLl][Zz][Mm]$ ;then
+   if [ "$CHANGESVAL" = "xzm" ] ;then
+      MUID=mac-$(cat /sys/class/net/eth0/address | tr -d :)
+      [ "$MUID" = "mac-" ] && MUID=vga-$(lspci -mm | grep -i vga | md5sum | cut -c 1-12)
+      [ -d "$DATAMNT/machines" ] && CHANGESMNT=$DATAMNT/machines
+      [ -z "$CHANGESMNT" ] && CHANGESMNT=$DATA/machines
+      if [ -f "$CHANGESMNT/static/$MUID.xzm"  ] ;then 
+         CHANGESMNT=$CHANGESMNT/static/$MUID.xzm
+      else
+         CHANGESMNT=$CHANGESMNT/dynamic/$MUID.xzm
+      fi
+   fi
+   if [ -f "$CHANGESMNT" ] ;then
+      echolog "unpacking $CHANGESMNT to memory"
+      unsquashfs -f -dest $CHANGES "$CHANGESMNT" >/dev/null 2>&1
+   fi
+   echo "$CHANGESMNT" | sed s=/machines/static/=/machines/dynamic/= > $CHANGES/.savetomodule
 fi
 
 echolog "setting up modules local repository"
@@ -241,8 +256,6 @@ else
          COPY2REP=$DATAMNT
       fi
 fi
-
-mkdir -p $CHANGES $IMAGES
 
 debug_shell
 
@@ -306,8 +319,8 @@ debug_shell
 echolog "copying content of rootcopy directory"
 cp -af $DATA/rootcopy/* $UNION 2>/dev/null # may be empty
 [ -z "$DATAMNT" ] || cp -a $DATAMNT/rootcopy/* "$UNION" 2>/dev/null  # may be empty
-cp /$DATA/initrd.gz $UNION/boot
-cp /$DATA/vmlinuz   $UNION/boot
+#cp /$DATA/initrd.gz $UNION/boot
+#cp /$DATA/vmlinuz   $UNION/boot
 
 # find and mount /home
 echolog "setting up /home directory"
@@ -318,7 +331,9 @@ if [ "$HOME" ]; then
       init_dhcp $(modprobe_network_modules)
       echo $HOME | grep -iq ^"nfs://" && HOMEMNT=$(mount_nfs $HOME $MOUNTDIR/$LIVEHOME)
    else
-      HOMEMNT=$(find_in_computer $HOME $MOUNTDIR/$LIVEHOME)
+      [ -w "$DATAMNT/$HOME" ] && HOMEMNT=$DATAMNT/$HOME
+      [ -w "$DATA/$HOME" ] && HOMEMNT=$DATA/$HOME
+      [ -z "$HOMEMNT" ] && HOMEMNT=$(find_in_computer $HOME $MOUNTDIR/$LIVEHOME)
       [ -b "$HOMEMNT" ] && mount_device $HOMEMNT $UNION/home # mount block device
    fi
    [ -f "$HOMEMNT" ] && mount_device $HOMEMNT $UNION/home # mount again, it may be loop device
@@ -330,7 +345,7 @@ fi
 debug_shell
 
 # freeing unused media
-if [ -z "$(cmdline_parameter nofreemedia)" ] ;then
+if [ "$(cmdline_parameter freemedia)" ] ;then
   cd_autoeject 1
   for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVEDATA" ;do
      grep -q " $a " /proc/mounts || continue

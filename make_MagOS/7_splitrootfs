@@ -172,6 +172,8 @@ cd ../
 
 echo "Изменение модулей"
 cd modules/*-core
+rm -f boot/vmlinuz
+ln -sf /mnt/livemedia/MagOS/vmlinuz boot/vmlinuz
 mkdir -p -m 755 var/lib/rpm/modules
 cp ../../modules_list/??-* var/lib/rpm/modules
 chmod 444 var/lib/rpm/modules/*

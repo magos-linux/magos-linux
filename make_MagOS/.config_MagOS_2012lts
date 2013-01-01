@@ -10,8 +10,7 @@ FLASHNAME=MagOS
 # см. в каталоге loaded
 INET=good
 # Размер в Мб для данных и изменений системы для каждого профиля
-DATASIZE1=512
-DATASIZE2=256
+DATASIZE1=756
 
 #STATUS=devel
 STATUS=official

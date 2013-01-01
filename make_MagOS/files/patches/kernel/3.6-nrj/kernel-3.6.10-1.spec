@@ -18,7 +18,7 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %define kernelversion	3
 %define patchlevel	6
 # sublevel is now used for -stable patches
-%define sublevel	7
+%define sublevel	10
 
 # Package release
 %define mibrel		1
@@ -109,22 +109,22 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %endif
 
 # Build desktop (i686 / 4GB) / x86_64 / sparc64 sets
-%define build_desktop			1
+%define build_desktop			0
 
 # Build netbook (i686 / 4GB) / x86_64
-%define build_netbook			1
+%define build_netbook			0
 
 # Build server (i686 / 64GB)/x86_64 / sparc64 sets
-%define build_server			1
+%define build_server			0
 
 # Build desktop686 pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_desktop_pae		1
+%define build_desktop_pae		0
 %endif
 
 # Build netbook686 pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_netbook_pae		1
+%define build_netbook_pae		0
 %endif
 
 #
@@ -140,32 +140,32 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %define build_nrj_desktop		1
 
 # Build nrj realtime (i686 / 4GB) / x86_64
-%define build_nrj_realtime		1
+%define build_nrj_realtime		0
 
 # Build nrj laptop (i686 / 4GB) / x86_64
-%define build_nrj_laptop		1
+%define build_nrj_laptop		0
 
 # Build nrj netbook (i686 / 4GB) / x86_64
-%define build_nrj_netbook		1
+%define build_nrj_netbook		0
 
 # Build nrj desktop pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_desktop_pae		1
+%define build_nrj_desktop_pae		0
 %endif
 
 # Build nrj realtime pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_realtime_pae		1
+%define build_nrj_realtime_pae		0
 %endif
 
 # Build nrj laptop pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_laptop_pae		1
+%define build_nrj_laptop_pae		0
 %endif
 
 # Build nrj netbook686 pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_netbook_pae		1
+%define build_nrj_netbook_pae		0
 %endif
 
 #
@@ -174,22 +174,22 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 
 # Build nrj netbook Intel Atom (matom / 4GB)
 %ifarch %{ix86}
-%define build_nrj_netbook_atom		1
+%define build_nrj_netbook_atom		0
 %endif
 
 # Build nrj netbook Intel Atom pae (matom / 64GB)
 %ifarch %{ix86}
-%define build_nrj_netbook_atom_pae	1
+%define build_nrj_netbook_atom_pae	0
 %endif
 
 # Build nrj desktop Intel Core2 (mcore2 / 4GB)
 %ifarch %{ix86}
-%define build_nrj_desktop_core2   	1
+%define build_nrj_desktop_core2   	0
 %endif
 
 # Build nrj desktop Intel Core2 pae (mcore2 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_desktop_core2_pae   	1
+%define build_nrj_desktop_core2_pae   	0
 %endif
 
 #
@@ -207,7 +207,7 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 
 # compress modules with xz
 %if %{mdvver} >= 201200
-%define build_modxz		0
+%define build_modxz		1
 %else
 %define build_modxz		0
 %endif
@@ -301,6 +301,42 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %{?_without_kirkwood: %global build_kirkwood 0}
 %{?_without_versatile: %global build_versatile 0}
 
+%define build_modgz                     0
+%{?_with_modgz: %global build_modgz 1}
+# MagOS Linux settings
+%define build_for_magos 0
+%{?_with_build_for_magos: %global build_for_magos 1}
+%if %build_for_magos
+%define build_doc                       0
+%define build_source                    0
+%define build_devel             	1
+%define build_debug                     0
+%define build_desktop586                0
+%define build_desktop                   0
+%define build_netbook                   0
+%define build_server                    0
+%define build_desktop_pae               0
+%define build_netbook_pae               0
+%define build_nrj_desktop586            0
+%define build_nrj_desktop               0
+%define build_nrj_realtime              0
+%define build_nrj_laptop                0
+%define build_nrj_netbook               0
+%define build_nrj_desktop_pae           1
+%define build_nrj_realtime_pae          0
+%define build_nrj_laptop_pae            0
+%define build_nrj_netbook_pae           0
+%define build_nrj_netbook_atom          0
+%define build_nrj_netbook_atom_pae      0
+%define build_nrj_desktop_core2         0
+%define build_nrj_desktop_core2_pae     0
+%define build_perf                      0
+%define build_cpupower                  0
+%define build_modxz                     0
+%define build_modgz                     0
+%define aufs_version                    3.6-20121119
+%endif
+
 # For the .nosrc.rpm
 %define build_nosrc 	0
 %{?_with_nosrc: %global build_nosrc 1}
@@ -371,7 +407,7 @@ Source100: 	linux-%{patch_ver}.tar.xz
 
 %if %kpatch
 %if %sublevel
-Patch2:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/stable-review/patch-%{kversion}-%{kpatch}.bz2
+Patch2:	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/stable-review/patch-%{kversion}-%{kpatch}.bz2
 Source11:	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/stable-review/patch-%{kversion}-%{kpatch}.sign
 %else
 Patch1:		ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/testing/patch-%{kernelversion}.%{patchlevel}-%{kpatch}.bz2
@@ -393,6 +429,11 @@ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}
 Patch1:   	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.bz2
 Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/patch-%{kversion}.sign
 %endif
+%endif
+
+%if %build_for_magos
+Patch101:       linux-%{patch_ver}-magos.patch
+#Patch102:       patch_wireless-add_back_sysfs_directory.patch
 %endif
 
 #END
@@ -418,7 +459,7 @@ processor mode, use the "nosmp" boot parameter.
 %define requires3	kmod >= 7-6
 %define requires4	sysfsutils >=  2.1.0-12
 %define requires5	kernel-firmware >=  20120219-1
-%define requires6	microcode >=  0.20120313-1
+%define requires6	microcode
 %endif
 
 %if %{mdvver} == 201200
@@ -427,7 +468,7 @@ processor mode, use the "nosmp" boot parameter.
 %define requires3	module-init-tools >= 3.16-5
 %define requires4	sysfsutils >=  2.1.0-12
 %define requires5	kernel-firmware >=  20120219-1
-%define requires6	microcode >=  0.20120313-1
+%define requires6	microcode
 %endif
 
 %if %{mdvver} < 201200
@@ -436,7 +477,7 @@ processor mode, use the "nosmp" boot parameter.
 %define requires3	module-init-tools >= 3.0-7
 %define requires4	sysfsutils >= 1.3.0-1
 %define requires5	kernel-firmware >= 20101024-2
-%define requires6	microcode >=  0.20120313-1
+%define requires6	microcode
 %endif
 
 %define kprovides 	%{kname} = %{kverrel}, kernel = %{tar_ver}, alsa = 1.0.25
@@ -457,6 +498,8 @@ BuildRequires:	module-init-tools
 
 BuildRequires: 	gcc 
 
+%if %build_for_magos
+%else
 # for perf, cpufreq and other tools
 BuildRequires:		elfutils-devel
 BuildRequires:		zlib-devel
@@ -472,6 +515,7 @@ BuildRequires:		docbook-style-xsl
 BuildRequires:		pkgconfig(gtk+-2.0)
 BuildRequires:		flex
 BuildRequires:		bison
+%endif
 
 %ifarch %{arm}
 BuildRequires:		uboot-mkimage
@@ -728,12 +772,12 @@ full preempt, rcu boost, CFS cpu scheduler and cfq i/o scheduler, ONDEMAND gover
 %define summary_nrj_desktop Linux Kernel for desktop use with i686 & 4GB RAM
 %define info_nrj_desktop This kernel is compiled for desktop use, single or \
 multiple i686 processor(s)/core(s) and less than 4GB RAM, using HZ_1000, \
-full preempt, rcu boost, CFS cpu scheduler and cfq i/o scheduler, ONDEMAND governor.
+full preempt, rcu boost, RIFS cpu scheduler and BFQ I/O scheduler, ONDEMAND governor.
 %else
 %define summary_nrj_desktop Linux Kernel for desktop use with %{_arch}
 %define info_nrj_desktop This kernel is compiled for desktop use, single or \
 multiple %{_arch} processor(s)/core(s), using HZ_1000, \
-full preempt, rcu boost, CFS cpu scheduler and cfq i/o scheduler, ONDEMAND governor.
+full preempt, rcu boost, RIFS cpu scheduler and BFQ I/O scheduler, ONDEMAND governor.
 %endif
 %mkflavour nrj-desktop
 %endif
@@ -1079,10 +1123,13 @@ cd %src_dir
 %if %kgit
 %patch2 -p1
 %endif
+%if %build_for_magos
+%patch101 -p1 -d %{patches_dir}
+%endif
 
-%{patches_dir}/scripts/apply_patchesQL
 %{patches_dir}/scripts/apply_patches
-
+%{patches_dir}/scripts/apply_patches-others
+%{patches_dir}/scripts/apply_patchesQL
 # PATCH END
 
 
@@ -1251,8 +1298,8 @@ SaveDevel() {
 	# Clean the scripts tree, and make sure everything is ok (sanity check)
 	# running prepare+scripts (tree was already "prepared" in build)
 	pushd $TempDevelRoot >/dev/null
-		%smake -s prepare scripts
-		%smake -s clean
+		# %smake -s prepare scripts
+		# %smake -s clean
 	popd >/dev/null
 	rm -f $TempDevelRoot/.config.old
 
@@ -1707,7 +1754,8 @@ rm -rf %{target_source}/.tmp_depmod/
 # compressing modules
 %if %{build_modxz}
 find %{target_modules} -name "*.ko" | %kxargs xz -6e
-%else
+%endif
+%if %{build_modgz}
 find %{target_modules} -name "*.ko" | %kxargs gzip -9
 %endif
 
@@ -1866,6 +1914,124 @@ rm -rf %{buildroot}
 
 
 %changelog
+
+* Wed Dec 12 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.10-1
++ update to 3.6.10 stable (29 fixes all over)
+- update AUFS3 version to git 20121207
+- update T.O.I version to gif 20121207
+- add speakup-lower-default-software-speech-rate.patch
+- ROSA 2012.1 release version with nrj-desktop CFQ revert
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Tue Dec 11 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.10-0
++ update to 3.6.10 stable (29 fixes all over)
+- update AUFS3 version to git 20121207
+- update T.O.I version to gif 20121207
+- add speakup-lower-default-software-speech-rate.patch
+- This is a testing version with nrj-desktop BFQ enabled!
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Sun Dec 09 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.10-0-rc1-2
++ update to 3.6.10 rc1 (27 fixes all over)
+- update AUFS3 version to git 20121207
+- update T.O.I version to gif 20121207
+- add ZFS filesystem driver
+- add Solaris Porting Layer and ZFS filesystem support mod 
+- add speakup-lower-default-software-speech-rate.patch
+- This is a testing version with nrj-desktop BFQ enabled!
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Fri Dec 07 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.10-0-rc1.1
++ update to 3.6.10 rc1 (27 fixes all over)
+- update AUFS3 version to git 20121204
+- update T.O.I version to gif 20121203
+- This is a testing version with nrj-desktop BFQ enabled!
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Wed Dec 05 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.9-0
++ update to 3.6.9 stable (56 fixes all over)
+- This is a testing version with nrj-desktop BFQ enabled!
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Fri Nov 30 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.9-rc1-1
++ update to 3.6.8-rc1-1 (56 fixes all over)
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Fri Nov 30 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.8-1
++ update to 3.6.8-1 (96 fixes all over)
+- update AUFS3 to 20121127 git version
+- add 4200_fbcondecor-0.9.6.patch
+- add config key CONFIG_FB_CON_DECOR=y, changed FB_TILEBLITTING=n
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Tue Nov 27 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.8-0
++ update to 3.6.8-0 (96 fixes all over)
+- add AUFS3 with the MagOS config keys
+- add 12 patches to ext4 from Fedora 3.6
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
+
+* Sat Nov 24 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.8-rc1-1
++ update to 3.6.8-rc1 (89 fixes all over)
++ modify: now modules are compressed with xz for ROSA 2012.1,
+- thus recovering more than 7 Mb from any kernel flavour rpm 
++ added two patches to fix gspca problems with some webcams:
+- GS01_gspca-ov534_fix_the_light_frequency_filter.patch
+- GS02_gspca-stv06xx_fix_a_regression_with_the_bridge-sensor_vv6410.patch
+- ---------------------------------------------------------------------
+- Kernel 3.6 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- This is -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
 
 * Tue Nov 20 2012 Nicolo' Costanza <abitrules@yahoo.it> 3.6.7-1
 + update to 3.6.7-1 (89 fixes all over)

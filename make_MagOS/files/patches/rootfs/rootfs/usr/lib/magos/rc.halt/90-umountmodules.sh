@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+PATH=/usr/lib/magos/scripts:$PATH
+
+losetup -a | grep '(.*.[lx]zm)' | awk '{print $3}' | tr -d '()' | sort -r | grep -v /10-core | \
+   while read a ;do
+	deactivate $a >/dev/null 2>&1
+   done
+
