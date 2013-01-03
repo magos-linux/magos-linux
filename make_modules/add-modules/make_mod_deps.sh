@@ -25,7 +25,7 @@ for mod in `ls -1 $MOD_NAMES_DIR/??-*` ;do
      [ -f $MOD_NAMES_DIR/deps_$(basename $mod) ]&&rm $MOD_NAMES_DIR/deps_$(basename $mod)
 
 #     urpmq -d --no-suggests --urpmi-root=$MOD_PREV --root=$MOD_PREV `cat $mod` |sort -u >$MOD_NAMES_DIR/deps_$(basename $mod)
-     urpmq -d --no-suggests --auto-select --force  --urpmi-root=$MOD_PREV --root=$MOD_PREV `cat $mod`  2>> work/errors |sort -u >$MOD_NAMES_DIR/deps_$(basename $mod)
+     urpmq -d --no-suggests --auto-select --force  --urpmi-root=$MOD_PREV --root=$MOD_PREV `cat $mod`  2>> $MOD_NAMES_DIR/urpmi_deps_errors |sort -u >$MOD_NAMES_DIR/deps_$(basename $mod)
 #--------------
     echo -ne \\n "---> OK."\\n
 done

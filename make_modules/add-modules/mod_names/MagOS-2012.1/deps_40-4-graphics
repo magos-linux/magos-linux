@@ -6,7 +6,6 @@ ccp
 chkconfig
 coreutils
 desktop-file-utils
-exif
 exiv2
 findutils
 gawk
@@ -121,7 +120,6 @@ libjack0
 libjasper1
 libjavascriptcoregtk1.0_0
 libjbig1
-libjpeg62
 libjpeg8
 libjson0
 liblame0
@@ -166,7 +164,6 @@ libpoppler26
 libpoppler-glib8
 libpopt0
 libpostproc52
-libpst4
 libpstoedit0
 libpth20
 libpulseaudio0

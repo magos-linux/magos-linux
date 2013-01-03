@@ -1,10 +1,15 @@
 a2ps
+abattis-cantarell-fonts
 abrt
+accountsservice
 acetoneiso
 acl
 acpi
 acpid
 acr38u
+adwaita-cursor-theme
+adwaita-gtk2-theme
+adwaita-gtk3-theme
 aica-firmware
 alacarte
 alac_decoder
@@ -113,6 +118,7 @@ avidemux
 avidemux-gtk
 awesfx
 b43-fwcutter
+baobab
 basesystem-minimal
 bash
 bc
@@ -234,6 +240,7 @@ dmsetup
 dnsmasq-base
 docbook-dtd412-xml
 docbook-dtd42-xml
+docbook-dtd44-xml
 docbook-style-xsl
 dolphin
 dos2unix
@@ -280,7 +287,6 @@ etherape
 ethtool
 evince
 evolution-data-server
-exif
 exiv2
 exo
 expect
@@ -289,6 +295,7 @@ ffmpeg
 ffmpegthumbs
 file
 filelight
+file-roller
 filesystem
 filezilla
 findutils
@@ -405,6 +412,8 @@ gcc-c++
 gcc-cpp
 GConf2
 GConf2-sanity-check
+gconf-editor
+gcr
 gdb
 gdisk
 gdk-pixbuf2.0
@@ -422,6 +431,7 @@ ghostscript-fonts
 ghostscript-module-X
 gimp
 gio2.0-32
+gjs
 gksu
 glib2.0-common
 glibc
@@ -431,14 +441,27 @@ glib-networking
 glxinfo
 gmtk-i18n
 gnokii
+gnome-alsamixer
+gnome-applets
+gnome-backgrounds
 gnome-bluetooth
+gnome-control-center
+gnome-desktop
+gnome-desktop3
 gnome-desktop|gnome-desktop3
+gnome-disk-utility
 gnome-doc-utils
 gnome-icon-theme
+gnome-icon-theme-symbolic
 gnome-keyring
+gnome-media
+gnome-menus
 gnome-mime-data
 gnome-mplayer
+gnome-packagekit-common
+gnome-panel
 gnome-phone-manager
+gnome-power-manager
 gnome-ppp
 gnome-python
 gnome-python-bonobo
@@ -448,10 +471,20 @@ gnome-python-extras
 gnome-python-gconf
 gnome-python-gnomeprint
 gnome-python-gnomevfs
+gnome-screensaver
+gnome-screenshot
+gnome-search-tool
+gnome-sensors-applet
 gnome-session
 gnome-session-bin
 gnome-settings-daemon
+gnome-shell
+gnome-system-log
+gnome-system-monitor
 gnome-terminal
+gnome-themes
+gnome-themes-standard
+gnome-tweak-tool
 gnome-user-docs
 gnome-vfs2
 gnome-video-effects
@@ -495,6 +528,7 @@ gtk-aurora-engine
 gtk+-common
 gtk-engines2
 gtk-equinox-engine
+gtkhtml-3.14
 gtk-recordmydesktop
 gtksourceview
 gtksourceview1
@@ -513,6 +547,8 @@ gutenprint-gimp2
 gutenprint-ijs
 gvfs
 gvfs-archive
+gvfs-fuse
+gvfs-gphoto2
 gvfs-iphone
 gvfs-obexftp
 gvfs-smb
@@ -541,6 +577,7 @@ hso-rezero
 hsqldb
 htop
 hunspell
+ia_ora-gnome
 ibod
 iceauth
 ifmetric
@@ -670,6 +707,7 @@ kipi-common
 kmag
 kmix
 kmod
+kmod-compat
 kmousetool
 kmozillahelper
 knetworkmanager
@@ -699,6 +737,7 @@ laptop-mode-tools
 lcms
 lcms2
 ld10k1
+ldetect
 ldetect-lst
 leafpad
 less
@@ -711,6 +750,8 @@ liba52dec0
 libaa1
 libaal-1.0_5
 libabrt0
+libaccountsservice0
+libaccountsservice-gir1.0
 libacl1
 libacr38u0
 libadns1
@@ -798,6 +839,8 @@ libcanberra-gtk3_0
 libcap2
 libcap-ng0
 libcares2
+libcaribou0
+libcaribou-gir1.0
 libcdaudio1
 libcdda0
 libcddb2
@@ -853,6 +896,7 @@ libdbusmenu-gtk3_4
 libdbusmenu-qt2
 libdc1394_22
 libdca0
+libdconf1
 libdevmapper1.02
 libdevmapper-event1.02
 libdiffie1
@@ -924,6 +968,8 @@ libflac++6
 libflac8
 libfm
 libfm3
+libfolks25
+libfolks-gir0.6
 libfontconfig1
 libfontconfig-devel
 libfontenc1
@@ -946,14 +992,18 @@ libgbm1
 libgc1
 libgcc1
 libgck1_0
+libgck-gir0
 libGConf2_4
 libgconf-gir2.0
 libgconfmm2.6_1
+libgcr3_1
 libgcr-base3_1
+libgcr-gir1
 libgcrypt11
 libgcrypt-devel
 libgd2
 libgdata13
+libgdata7
 libgdata-i18n
 libgdbm4
 libgdict1.0_6
@@ -962,7 +1012,11 @@ libgdk_pixbuf2.0_0
 libgdk_pixbuf2.0-devel
 libgdk_pixbuf-gir2.0
 libgdk_pixbuf_xlib2.0_0
+libgdm1
+libgdm-gir1.0
+libgee0.8_2
 libgee2
+libgee-gir1.0
 libgegl0.2_0
 libgeoclue0
 libgeoclue-devel
@@ -978,6 +1032,7 @@ libgimp2.0_0
 libgio2.0_0
 libgirepository1.0_1
 libgjs0
+libgjs-gir1.0
 libgksu2.0_0
 libgl1
 libglade2.0_0
@@ -1007,15 +1062,24 @@ libgnome2_0
 libgnome2-schemas
 libgnome-bluetooth11
 libgnome-bluetooth-applet0
+libgnome-bluetooth-applet-gir1.0
+libgnome-bluetooth-gir1.0
 libgnomecanvas
 libgnomecanvas2_0
 libgnomecups
 libgnomecups-1.0_1
 libgnome-desktop-2_17
 libgnome-desktop3_4
+libgnome-desktop-gir3.0
+libgnomekbd8
+libgnomekbd-common
+libgnomekbd-gir3.0
 libgnome-keyring0
 libgnome-keyring-devel
 libgnome-keyring-i18n
+libgnome-media-profiles3.0_0
+libgnome-menu2
+libgnome-menu3_0
 libgnomeprint
 libgnomeprint2-2_0
 libgnomeprintui
@@ -1025,6 +1089,7 @@ libgnomeui2_0
 libgnome-vfs2_0
 libgnutls28
 libgoa1.0_0
+libgoa-backend1.0_0
 libgobject2.0_0
 libgomp1
 libgpg-error0
@@ -1078,6 +1143,7 @@ libgtk-gir3.0
 libgtkhtml-3.14_19
 libgtkimageview0
 libgtkmm2.4_1
+libgtkmm3.0_1
 libgtk-modules2.0
 libgtksourceview-1.0_0
 libgtksourceview-2.0_0
@@ -1097,6 +1163,7 @@ libgutenprintui2_1
 libgvc6
 libgvfs0
 libgweather
+libgweather1
 libgweather3_1
 libgwenviewlib4
 libgxps2
@@ -1114,6 +1181,7 @@ libia_ora-gnome
 libibus5
 libical0
 libicalss0
+libicalvcal0
 libice6
 libice-devel
 libicudata49
@@ -1159,7 +1227,6 @@ libjavascriptcoregtk1.0_0
 libjavascriptcoregtk3.0_0
 libjbig1
 libjbig2dec0
-libjpeg62
 libjpeg8
 libjpeg-devel|libjpeg62-devel
 libjreen1
@@ -1298,6 +1365,7 @@ libmb1
 libmcpp0
 libmcs1
 libmediastreamer1
+libmemphis0.2_0
 libmenu-cache1
 libmetacity-private0
 libmicroblog4
@@ -1309,7 +1377,6 @@ libmms0
 libmng1
 libmnl0
 libmodplug1
-libmodprobe1
 libmolletnetwork4
 libmount1
 libmowgli2
@@ -1329,6 +1396,8 @@ libmurrine
 libmusicbrainz3_6
 libmusicbrainz4
 libmusicbrainz5_0
+libmutter0
+libmutter-gir3.0|muffin
 libmysqlclient18
 libmythes1.2_0
 libnas2
@@ -1393,6 +1462,7 @@ libopenraw1
 libopenslp1
 libopenssl1.0.0
 libopenssl-engines1.0.0
+libopensync
 libopensync0
 libopenvg1
 libopus0
@@ -1411,7 +1481,9 @@ libpackagekit-glib14
 libpam0
 libpam_misc0
 libpam_userpass1
+libpanel-applet-2_0
 libpanel-applet-3_0
+libpanel-applet4_0
 libpango1.0_0
 libpango1.0-devel
 libpangocairo1.0_0
@@ -1464,6 +1536,7 @@ libpng-devel
 libpodofo0
 libpolkit1_0
 libpolkit2
+libpolkit-gir1.0
 libpolkit-gnome0
 libpolkit-qt-agent-1_1
 libpolkit-qt-core-1_1
@@ -1501,6 +1574,8 @@ libpulseglib20
 libpurple0
 libpwdb0
 libpwl5
+libpwquality1
+libpwquality-tools
 libpyglib2.0_0
 libpyglib-gi2.0_0
 libpython2.7
@@ -1608,6 +1683,7 @@ libreoffice-style-crystal
 libreoffice-style-crystal|libreoffice-style-tango|libreoffice-style-galaxy|libreoffice-style-hicontrast|libreoffice-style-oxygen
 libreoffice-writer
 libreport0
+librest0.7_0
 librlog5
 librpcsecgss3
 librpm5.4
@@ -1632,6 +1708,7 @@ libSDL_image1.2_0
 libSDL_mixer1.2_0
 libSDL_net1.2_0
 libSDL_sound1.0_1
+libsecret1_0
 libseed0
 libsexy2
 libsgutils2
@@ -1649,6 +1726,7 @@ libsmi2
 libsmi-mibs-std
 libsmpeg0.4
 libsndfile1
+libsocialweb-client2
 libsolid4
 libsolidcontrol4
 libsolidcontrolfuture4
@@ -1661,6 +1739,7 @@ libsopranoserver1
 libsoundtouch0
 libsoup-2.4_1
 libsoup-2.4-devel
+libsoup-gir2.4
 libsox2
 libspectre1
 libspeechd2
@@ -1697,6 +1776,8 @@ libtcb0
 libtcl8.6
 libtdb1
 libtelepathy-glib0
+libtelepathy-logger3
+libtelepathy-logger-gir0.2
 libtermcap2
 libtextcat0
 libthai0
@@ -1726,6 +1807,7 @@ libudisks2_0
 libunique0
 libunistring0
 libupower-glib1
+libupower-glib-gir1.0
 libupsclient1
 libusb1.0_0
 libusb-compat0.1_4
@@ -1762,12 +1844,14 @@ libweather_ion6
 libwebkit-gir1.0
 libwebkitgtk1.0_0
 libwebkitgtk1.0-devel
+libwebkitgtk3.0_0
 libwildmidi1
 libwireshark2
 libwmf0.2_7
 libwmflite0.2_7
 libwnck
 libwnck-1_22
+libwnck3_0
 libwpd0.9_9
 libwpd-stream0.9_9
 libwpg0.2_2
@@ -1839,6 +1923,8 @@ libxinerama1
 libxinerama-devel
 libxkbfile1
 libxkbui1
+libxklavier16
+libxkl-gir1.0
 libXm2
 libxml2_2
 libxml++2.6_2
@@ -1873,9 +1959,11 @@ libxxf86misc1
 libxxf86vm1
 libyajl2
 libyaml0_2
+libyelp0
 libytnef0
 libz1
 libz-devel
+libzeitgeist1.0_1
 libzip2
 libzlibrary
 libzlibrary-ui-gtk
@@ -2168,6 +2256,7 @@ msec
 mtink
 mtools
 murrine
+mutter
 myspell-af_ZA
 myspell-am_AM
 myspell-ar_AR
@@ -2260,6 +2349,10 @@ myspell-xh_ZA
 myspell-zu_ZA
 nail
 nash
+nautilus
+nautilus-filesharing
+nautilus-sendto
+nautilus-sendto-bluetooth
 nc6
 ncpfs
 ncurses
@@ -2315,6 +2408,7 @@ openl2tp
 openldap
 openssh
 openssh-askpass-common
+openssh-askpass-gnome
 openssh-askpass-qt|openssh-askpass-gnome|x11-ssh-askpass|openssh-askpass-qt4
 openssh-clients
 openssh-server
@@ -2324,6 +2418,8 @@ ORBit2
 orc
 oxygen-icon-theme
 p7zip
+packagekit
+packagekit-gtk3-module
 packdrake
 pam
 pam_krb5
@@ -2569,11 +2665,13 @@ python-imaging
 python-kde4
 python-libxml2
 python-lxml
+python-lzma
 python-magic
 python-notify
 python-numpy
 python-OpenSSL
 python-pkg-resources
+python-psyco
 python-pycrypto
 python-pyinotify
 python-pyxdg
@@ -2695,6 +2793,8 @@ shared-mime-info
 sharutils
 shorewall
 slim
+smart
+smart-update
 smi-tools
 smplayer
 smproxy
@@ -2735,6 +2835,7 @@ systemd-units
 sysvinit-tools
 t1utils
 tar
+task-gnome-minimal
 task-kde4
 task-kde4-minimal
 task-lxde
@@ -2920,6 +3021,7 @@ xinitrc
 xkbcomp
 xkill
 xl2tpd
+xlockmore
 xmessage
 xmodmap
 xneur
@@ -2939,6 +3041,8 @@ xvinfo
 xz
 yagf
 yakuake
+yelp
+yelp-xsl
 z42tool
 zcip
 zd1201-firmware
