@@ -15,4 +15,5 @@ EOF
 sed -i 1d $PFP.old
 cat $PFP.old >>$PFP
 rm -f $PFP.old
+sed -i s='wait $!'='echo -n $! > /var/run/dm.pid\n            exit 0'= $PFP
 exit 0

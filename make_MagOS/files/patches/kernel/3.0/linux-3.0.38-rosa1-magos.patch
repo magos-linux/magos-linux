@@ -1,6 +1,6 @@
 diff -auprN a/configs/arm.config b/configs/arm.config
 --- a/configs/arm.config	2012-07-23 17:00:17.000000000 +0400
-+++ b/configs/arm.config	2012-12-08 15:11:38.205098732 +0400
++++ b/configs/arm.config	2012-12-10 22:12:02.310000696 +0400
 @@ -3059,7 +3059,8 @@ CONFIG_LOGO=y
  # CONFIG_LOGO_LINUX_MONO is not set
  CONFIG_LOGO_LINUX_VGA16=y
@@ -37,7 +37,7 @@ diff -auprN a/configs/arm.config b/configs/arm.config
  CONFIG_NFS_V3=y
 diff -auprN a/configs/i386.config b/configs/i386.config
 --- a/configs/i386.config	2012-07-23 17:00:29.000000000 +0400
-+++ b/configs/i386.config	2012-12-08 15:11:38.206098242 +0400
++++ b/configs/i386.config	2012-12-10 22:12:02.312000696 +0400
 @@ -396,8 +396,8 @@ CONFIG_MICROCODE_OLD_INTERFACE=y
  CONFIG_X86_MSR=m
  CONFIG_X86_CPUID=m
@@ -113,11 +113,11 @@ diff -auprN a/configs/i386.config b/configs/i386.config
  CONFIG_NLS_CODEPAGE_775=m
 diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 --- a/patches/aufs3.0-linux.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/aufs3.0-linux.patch	2012-12-08 15:11:38.231085754 +0400
-@@ -0,0 +1,30933 @@
++++ b/patches/aufs3.0-linux.patch	2012-12-10 22:11:24.000000000 +0400
+@@ -0,0 +1,31033 @@
 +diff -auprN a/Documentation/ABI/testing/debugfs-aufs b/Documentation/ABI/testing/debugfs-aufs
 +--- a/Documentation/ABI/testing/debugfs-aufs	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/ABI/testing/debugfs-aufs	2012-01-06 17:24:29.541001445 +0400
+++++ b/Documentation/ABI/testing/debugfs-aufs	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,37 @@
 ++What:		/debug/aufs/si_<id>/
 ++Date:		March 2009
@@ -158,7 +158,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		will be empty. About XINO files, see the aufs manual.
 +diff -auprN a/Documentation/ABI/testing/sysfs-aufs b/Documentation/ABI/testing/sysfs-aufs
 +--- a/Documentation/ABI/testing/sysfs-aufs	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/ABI/testing/sysfs-aufs	2012-01-06 17:24:29.542001444 +0400
+++++ b/Documentation/ABI/testing/sysfs-aufs	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,24 @@
 ++What:		/sys/fs/aufs/si_<id>/
 ++Date:		March 2009
@@ -186,7 +186,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		will be empty. About XINO files, see the aufs manual.
 +diff -auprN a/Documentation/filesystems/aufs/design/01intro.txt b/Documentation/filesystems/aufs/design/01intro.txt
 +--- a/Documentation/filesystems/aufs/design/01intro.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/01intro.txt	2012-01-06 17:24:29.544001442 +0400
+++++ b/Documentation/filesystems/aufs/design/01intro.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,162 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -352,7 +352,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++about it. But currently I have implemented it in kernel space.
 +diff -auprN a/Documentation/filesystems/aufs/design/02struct.txt b/Documentation/filesystems/aufs/design/02struct.txt
 +--- a/Documentation/filesystems/aufs/design/02struct.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/02struct.txt	2012-01-06 17:24:29.546001441 +0400
+++++ b/Documentation/filesystems/aufs/design/02struct.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,226 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -582,7 +582,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++dir, aufs reverts it after copy-up.
 +diff -auprN a/Documentation/filesystems/aufs/design/03lookup.txt b/Documentation/filesystems/aufs/design/03lookup.txt
 +--- a/Documentation/filesystems/aufs/design/03lookup.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/03lookup.txt	2012-01-06 17:24:29.547001442 +0400
+++++ b/Documentation/filesystems/aufs/design/03lookup.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,106 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -692,7 +692,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++   by over-mounting something (or another method).
 +diff -auprN a/Documentation/filesystems/aufs/design/04branch.txt b/Documentation/filesystems/aufs/design/04branch.txt
 +--- a/Documentation/filesystems/aufs/design/04branch.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/04branch.txt	2012-01-06 17:24:29.548001443 +0400
+++++ b/Documentation/filesystems/aufs/design/04branch.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,76 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -772,7 +772,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++    same named entry on the upper branch.
 +diff -auprN a/Documentation/filesystems/aufs/design/05wbr_policy.txt b/Documentation/filesystems/aufs/design/05wbr_policy.txt
 +--- a/Documentation/filesystems/aufs/design/05wbr_policy.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/05wbr_policy.txt	2012-01-06 17:24:29.549001444 +0400
+++++ b/Documentation/filesystems/aufs/design/05wbr_policy.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,65 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -841,7 +841,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++  copyup policy.
 +diff -auprN a/Documentation/filesystems/aufs/design/06mmap.txt b/Documentation/filesystems/aufs/design/06mmap.txt
 +--- a/Documentation/filesystems/aufs/design/06mmap.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/06mmap.txt	2012-01-06 17:24:29.550001444 +0400
+++++ b/Documentation/filesystems/aufs/design/06mmap.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,47 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -892,7 +892,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++switching the approach.
 +diff -auprN a/Documentation/filesystems/aufs/design/07export.txt b/Documentation/filesystems/aufs/design/07export.txt
 +--- a/Documentation/filesystems/aufs/design/07export.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/07export.txt	2012-01-06 17:24:29.551001444 +0400
+++++ b/Documentation/filesystems/aufs/design/07export.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,59 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -955,7 +955,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++  lookup_one_len(), vfs_getattr(), encode_fh() and others.
 +diff -auprN a/Documentation/filesystems/aufs/design/08shwh.txt b/Documentation/filesystems/aufs/design/08shwh.txt
 +--- a/Documentation/filesystems/aufs/design/08shwh.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/08shwh.txt	2012-01-06 17:24:29.552001444 +0400
+++++ b/Documentation/filesystems/aufs/design/08shwh.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,53 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -1012,7 +1012,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++initramfs will use it to replace the old one at the next boot.
 +diff -auprN a/Documentation/filesystems/aufs/design/10dynop.txt b/Documentation/filesystems/aufs/design/10dynop.txt
 +--- a/Documentation/filesystems/aufs/design/10dynop.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/10dynop.txt	2012-01-06 17:24:29.553001444 +0400
+++++ b/Documentation/filesystems/aufs/design/10dynop.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,47 @@
 ++
 ++# Copyright (C) 2010-2011 Junjiro R. Okajima
@@ -1063,7 +1063,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++vm_operations_struct for regular files only.
 +diff -auprN a/Documentation/filesystems/aufs/design/99plan.txt b/Documentation/filesystems/aufs/design/99plan.txt
 +--- a/Documentation/filesystems/aufs/design/99plan.txt	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/design/99plan.txt	2012-01-06 17:24:29.554001444 +0400
+++++ b/Documentation/filesystems/aufs/design/99plan.txt	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,96 @@
 ++
 ++# Copyright (C) 2005-2011 Junjiro R. Okajima
@@ -1163,8 +1163,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++Otherwise from /new.
 +diff -auprN a/Documentation/filesystems/aufs/README b/Documentation/filesystems/aufs/README
 +--- a/Documentation/filesystems/aufs/README	1970-01-01 03:00:00.000000000 +0300
-++++ b/Documentation/filesystems/aufs/README	2012-01-06 17:24:29.556001444 +0400
-+@@ -0,0 +1,328 @@
+++++ b/Documentation/filesystems/aufs/README	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,332 @@
 ++
 ++Aufs3 -- advanced multi layered unification filesystem version 3.x
 ++http://aufs.sf.net
@@ -1270,7 +1270,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++The aufs3-linux tree includes the whole linux mainline GIT tree,
 ++git://git.kernel.org/.../torvalds/linux.git.
 ++And you cannot select CONFIG_AUFS_FS=m for this version, eg. you cannot
-++build aufs3 as an externel kernel module.
+++build aufs3 as an external kernel module.
 ++
 ++On the other hand, the aufs3-standalone tree has only aufs source files
 ++and necessary patches, and you can select CONFIG_AUFS_FS=m.
@@ -1314,7 +1314,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++For (an unreleased) example:
 ++If you are using "linux-3.10" and the "aufs3.10" branch
-++does not exit in aufs-util repository, then "aufs3.9", "aufs3.8"
+++does not exist in aufs-util repository, then "aufs3.9", "aufs3.8"
 ++or something numerically smaller is the branch for your kernel.
 ++
 ++Also you can view all branches by
@@ -1341,12 +1341,14 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++- apply ./aufs3-standalone.patch too, if you have a plan to set
 ++  CONFIG_AUFS_FS=m. otherwise you don't need ./aufs3-standalone.patch.
 ++- copy ./{Documentation,fs,include/linux/aufs_type.h} files to your
-++  kernel source tree. Never copy ./include/linux/Kbuild.
+++  kernel source tree. Never copy $PWD/include/linux/Kbuild.
 ++- enable CONFIG_EXPERIMENTAL and CONFIG_AUFS_FS, you can select either
 ++  =m or =y.
 ++- and build your kernel as usual.
 ++- install the built kernel.
-++- install the header files too by "make headers_install".
+++- install the header files too by "make headers_install" to the
+++  directory where you specify. By default, it is $PWD/usr.
+++  "make help" shows a brief note for headers_install.
 ++- and reboot your system.
 ++
 ++2.
@@ -1358,21 +1360,23 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++- apply ./aufs3-standalone.patch too.
 ++- build your kernel, don't forget "make headers_install", and reboot.
 ++- edit ./config.mk and set other aufs configurations if necessary.
-++  Note: You should read ./fs/aufs/Kconfig carefully which describes
+++  Note: You should read $PWD/fs/aufs/Kconfig carefully which describes
 ++  every aufs configurations.
 ++- build the module by simple "make".
 ++- you can specify ${KDIR} make variable which points to your kernel
 ++  source tree.
 ++- install the files
 ++  + run "make install" to install the aufs module, or copy the built
-++    ./aufs.ko to /lib/modules/... and run depmod -a (or reboot simply).
-++  + run "make headers_install" to install the aufs header file (you can
-++    specify DESTDIR), or copty ./usr/include/linux/aufs_type.h to
-++    /usr/include/linux or wherever you like.
+++    $PWD/aufs.ko to /lib/modules/... and run depmod -a (or reboot simply).
+++  + run "make install_headers" (instead of headers_install) to install
+++    the modified aufs header file (you can specify DESTDIR which is
+++    available in aufs standalone version's Makefile only), or copy
+++    $PWD/usr/include/linux/aufs_type.h to /usr/include/linux or wherever
+++    you like manually. By default, the target directory is $PWD/usr.
 ++- no need to apply aufs3-kbuild.patch, nor copying source files to your
 ++  kernel source tree.
 ++
-++Note: The haeder file aufs_type.h is necessary to build aufs-util
+++Note: The header file aufs_type.h is necessary to build aufs-util
 ++      as well as "make headers_install" in the kernel source tree.
 ++      headers_install is subject to be forgotten, but it is essentially
 ++      necessary, not only for building aufs-util.
@@ -1456,7 +1460,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	Since Apr 2010, Tomas M (the author of Slax and Linux Live
 ++	scripts) is making "doubling" donations.
 ++	Unfortunately I cannot list all of the donators, but I really
-++	appriciate.
+++	appreciate.
 ++	It ends Aug 2010, but the ordinary donation URL is still available.
 ++	<http://sourceforge.net/donate/index.php?group_id=167503>
 ++Dai Itasaka made a donation (2007/8).
@@ -1474,7 +1478,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++Pavel Pronskiy made a donation (2011/2).
 ++Iridium and Inmarsat satellite phone retailer (www.mailasail.com), Nippy
 ++	Networks (Ed Wildgoose) made a donation for hardware (2011/3).
-++Max Lekomcev (DOM-TV project) made a donation (2011/7).
+++Max Lekomcev (DOM-TV project) made a donation (2011/7, 12 and 2012/3, 6).
 ++Sam Liddicott made a donation (2011/9).
 ++
 ++Thank you very much.
@@ -1493,194 +1497,12 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++# Local variables: ;
 ++# mode: text;
 ++# End: ;
-+diff -auprN a/drivers/block/loop.c b/drivers/block/loop.c
-+--- a/drivers/block/loop.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/drivers/block/loop.c	2012-01-06 17:27:50.095001454 +0400
-+@@ -541,7 +541,7 @@ out:
-+ }
-+ 
-+ struct switch_request {
-+-	struct file *file;
-++	struct file *file, *virt_file;
-+ 	struct completion wait;
-+ };
-+ 
-+@@ -601,7 +601,8 @@ static int loop_thread(void *data)
-+  * First it needs to flush existing IO, it does this by sending a magic
-+  * BIO down the pipe. The completion of this BIO does the actual switch.
-+  */
-+-static int loop_switch(struct loop_device *lo, struct file *file)
-++static int loop_switch(struct loop_device *lo, struct file *file,
-++		       struct file *virt_file)
-+ {
-+ 	struct switch_request w;
-+ 	struct bio *bio = bio_alloc(GFP_KERNEL, 0);
-+@@ -609,6 +610,7 @@ static int loop_switch(struct loop_devic
-+ 		return -ENOMEM;
-+ 	init_completion(&w.wait);
-+ 	w.file = file;
-++	w.virt_file = virt_file;
-+ 	bio->bi_private = &w;
-+ 	bio->bi_bdev = NULL;
-+ 	loop_make_request(lo->lo_queue, bio);
-+@@ -625,7 +627,7 @@ static int loop_flush(struct loop_device
-+ 	if (!lo->lo_thread)
-+ 		return 0;
-+ 
-+-	return loop_switch(lo, NULL);
-++	return loop_switch(lo, NULL, NULL);
-+ }
-+ 
-+ /*
-+@@ -644,6 +646,7 @@ static void do_loop_switch(struct loop_d
-+ 	mapping = file->f_mapping;
-+ 	mapping_set_gfp_mask(old_file->f_mapping, lo->old_gfp_mask);
-+ 	lo->lo_backing_file = file;
-++	lo->lo_backing_virt_file = p->virt_file;
-+ 	lo->lo_blocksize = S_ISBLK(mapping->host->i_mode) ?
-+ 		mapping->host->i_bdev->bd_block_size : PAGE_SIZE;
-+ 	lo->old_gfp_mask = mapping_gfp_mask(mapping);
-+@@ -652,6 +655,13 @@ out:
-+ 	complete(&p->wait);
-+ }
-+ 
-++static struct file *loop_real_file(struct file *file)
-++{
-++	struct file *f = NULL;
-++	if (file->f_dentry->d_sb->s_op->real_loop)
-++		f = file->f_dentry->d_sb->s_op->real_loop(file);
-++	return f;
-++}
-+ 
-+ /*
-+  * loop_change_fd switched the backing store of a loopback device to
-+@@ -665,6 +675,7 @@ static int loop_change_fd(struct loop_de
-+ 			  unsigned int arg)
-+ {
-+ 	struct file	*file, *old_file;
-++	struct file	*f, *virt_file = NULL, *old_virt_file;
-+ 	struct inode	*inode;
-+ 	int		error;
-+ 
-+@@ -681,9 +692,16 @@ static int loop_change_fd(struct loop_de
-+ 	file = fget(arg);
-+ 	if (!file)
-+ 		goto out;
-++	f = loop_real_file(file);
-++	if (f) {
-++		virt_file = file;
-++		file = f;
-++		get_file(file);
-++	}
-+ 
-+ 	inode = file->f_mapping->host;
-+ 	old_file = lo->lo_backing_file;
-++	old_virt_file = lo->lo_backing_virt_file;
-+ 
-+ 	error = -EINVAL;
-+ 
-+@@ -695,17 +713,21 @@ static int loop_change_fd(struct loop_de
-+ 		goto out_putf;
-+ 
-+ 	/* and ... switch */
-+-	error = loop_switch(lo, file);
-++	error = loop_switch(lo, file, virt_file);
-+ 	if (error)
-+ 		goto out_putf;
-+ 
-+ 	fput(old_file);
-++	if (old_virt_file)
-++		fput(old_virt_file);
-+ 	if (max_part > 0)
-+ 		ioctl_by_bdev(bdev, BLKRRPART, 0);
-+ 	return 0;
-+ 
-+  out_putf:
-+ 	fput(file);
-++	if (virt_file)
-++		fput(virt_file);
-+  out:
-+ 	return error;
-+ }
-+@@ -817,7 +839,7 @@ static void loop_sysfs_exit(struct loop_
-+ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
-+ 		       struct block_device *bdev, unsigned int arg)
-+ {
-+-	struct file	*file, *f;
-++	struct file	*file, *f, *virt_file = NULL;
-+ 	struct inode	*inode;
-+ 	struct address_space *mapping;
-+ 	unsigned lo_blocksize;
-+@@ -832,6 +854,12 @@ static int loop_set_fd(struct loop_devic
-+ 	file = fget(arg);
-+ 	if (!file)
-+ 		goto out;
-++	f = loop_real_file(file);
-++	if (f) {
-++		virt_file = file;
-++		file = f;
-++		get_file(file);
-++	}
-+ 
-+ 	error = -EBUSY;
-+ 	if (lo->lo_state != Lo_unbound)
-+@@ -892,6 +920,7 @@ static int loop_set_fd(struct loop_devic
-+ 	lo->lo_device = bdev;
-+ 	lo->lo_flags = lo_flags;
-+ 	lo->lo_backing_file = file;
-++	lo->lo_backing_virt_file = virt_file;
-+ 	lo->transfer = transfer_none;
-+ 	lo->ioctl = NULL;
-+ 	lo->lo_sizelimit = 0;
-+@@ -935,6 +964,7 @@ out_clr:
-+ 	lo->lo_thread = NULL;
-+ 	lo->lo_device = NULL;
-+ 	lo->lo_backing_file = NULL;
-++	lo->lo_backing_virt_file = NULL;
-+ 	lo->lo_flags = 0;
-+ 	set_capacity(lo->lo_disk, 0);
-+ 	invalidate_bdev(bdev);
-+@@ -944,6 +974,8 @@ out_clr:
-+ 	lo->lo_state = Lo_unbound;
-+  out_putf:
-+ 	fput(file);
-++	if (virt_file)
-++		fput(virt_file);
-+  out:
-+ 	/* This is safe: open() is still holding a reference. */
-+ 	module_put(THIS_MODULE);
-+@@ -990,6 +1022,7 @@ loop_init_xfer(struct loop_device *lo, s
-+ static int loop_clr_fd(struct loop_device *lo, struct block_device *bdev)
-+ {
-+ 	struct file *filp = lo->lo_backing_file;
-++	struct file *virt_filp = lo->lo_backing_virt_file;
-+ 	gfp_t gfp = lo->old_gfp_mask;
-+ 
-+ 	if (lo->lo_state != Lo_bound)
-+@@ -1008,7 +1041,7 @@ static int loop_clr_fd(struct loop_devic
-+ 	kthread_stop(lo->lo_thread);
-+ 
-+ 	spin_lock_irq(&lo->lo_lock);
-+-	lo->lo_backing_file = NULL;
-++	lo->lo_backing_virt_file = NULL;
-+ 	spin_unlock_irq(&lo->lo_lock);
-+ 
-+ 	loop_release_xfer(lo);
-+@@ -1047,6 +1080,8 @@ static int loop_clr_fd(struct loop_devic
-+ 	 * bd_mutex which is usually taken before lo_ctl_mutex.
-+ 	 */
-+ 	fput(filp);
-++	if (virt_filp)
-++		fput(virt_filp);
-+ 	return 0;
-+ }
-+ 
 +diff -auprN a/fs/aufs/aufs.h b/fs/aufs/aufs.h
 +--- a/fs/aufs/aufs.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/aufs.h	2012-01-06 17:24:29.557001444 +0400
+++++ b/fs/aufs/aufs.h	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,60 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -1741,10 +1563,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_H__ */
 +diff -auprN a/fs/aufs/branch.c b/fs/aufs/branch.c
 +--- a/fs/aufs/branch.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/branch.c	2012-01-06 17:24:29.560001444 +0400
-+@@ -0,0 +1,1170 @@
+++++ b/fs/aufs/branch.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,1169 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -1766,7 +1588,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ */
 ++
 ++#include <linux/compat.h>
-++#include <linux/file.h>
 ++#include <linux/statfs.h>
 ++#include "aufs.h"
 ++
@@ -1999,12 +1820,12 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		if ((h_inode->i_mode & S_IALLUGO) != (inode->i_mode & S_IALLUGO)
 ++		    || h_inode->i_uid != inode->i_uid
 ++		    || h_inode->i_gid != inode->i_gid)
-++			pr_warning("uid/gid/perm %s %u/%u/0%o, %u/%u/0%o\n",
-++				   add->pathname,
-++				   inode->i_uid, inode->i_gid,
-++				   (inode->i_mode & S_IALLUGO),
-++				   h_inode->i_uid, h_inode->i_gid,
-++				   (h_inode->i_mode & S_IALLUGO));
+++			pr_warn("uid/gid/perm %s %u/%u/0%o, %u/%u/0%o\n",
+++				add->pathname,
+++				inode->i_uid, inode->i_gid,
+++				(inode->i_mode & S_IALLUGO),
+++				h_inode->i_uid, h_inode->i_gid,
+++				(h_inode->i_mode & S_IALLUGO));
 ++	}
 ++
 ++out:
@@ -2599,8 +2420,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	/* revert */
 ++	rerr = au_br_init_wh(sb, br, br->br_perm, del->h_path.dentry);
 ++	if (rerr)
-++		pr_warning("failed re-creating base whiteout, %s. (%d)\n",
-++			   del->pathname, rerr);
+++		pr_warn("failed re-creating base whiteout, %s. (%d)\n",
+++			del->pathname, rerr);
 ++out:
 ++	return err;
 ++}
@@ -2915,10 +2736,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/branch.h b/fs/aufs/branch.h
 +--- a/fs/aufs/branch.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/branch.h	2012-01-06 17:24:29.561001444 +0400
-+@@ -0,0 +1,232 @@
+++++ b/fs/aufs/branch.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,230 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -2944,9 +2765,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#ifdef __KERNEL__
 ++
-++#include <linux/fs.h>
 ++#include <linux/mount.h>
-++#include <linux/aufs_type.h>
 ++#include "dynop.h"
 ++#include "rwsem.h"
 ++#include "super.h"
@@ -3151,10 +2970,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_BRANCH_H__ */
 +diff -auprN a/fs/aufs/cpup.c b/fs/aufs/cpup.c
 +--- a/fs/aufs/cpup.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/cpup.c	2012-01-06 17:24:29.565001444 +0400
-+@@ -0,0 +1,1081 @@
+++++ b/fs/aufs/cpup.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,1079 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -3175,10 +2994,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * copy-up functions, see wbr_policy.c for copy-down
 ++ */
 ++
-++#include <linux/file.h>
 ++#include <linux/fs_stack.h>
 ++#include <linux/mm.h>
-++#include <linux/uaccess.h>
 ++#include "aufs.h"
 ++
 ++void au_cpup_attr_flags(struct inode *dst, struct inode *src)
@@ -3296,7 +3113,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	err = vfsub_notify_change(&dt->dt_h_path, &attr);
 ++	if (unlikely(err))
-++		pr_warning("restoring timestamps failed(%d). ignored\n", err);
+++		pr_warn("restoring timestamps failed(%d). ignored\n", err);
 ++}
 ++
 ++/* ---------------------------------------------------------------------- */
@@ -4236,10 +4053,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/cpup.h b/fs/aufs/cpup.h
 +--- a/fs/aufs/cpup.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/cpup.h	2012-01-06 17:24:29.566001444 +0400
-+@@ -0,0 +1,83 @@
+++++ b/fs/aufs/cpup.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,81 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -4266,8 +4083,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef __KERNEL__
 ++
 ++#include <linux/path.h>
-++#include <linux/time.h>
-++#include <linux/aufs_type.h>
 ++
 ++struct inode;
 ++struct file;
@@ -4323,10 +4138,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_CPUP_H__ */
 +diff -auprN a/fs/aufs/dbgaufs.c b/fs/aufs/dbgaufs.c
 +--- a/fs/aufs/dbgaufs.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dbgaufs.c	2012-01-06 17:24:29.567001444 +0400
+++++ b/fs/aufs/dbgaufs.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,334 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -4661,10 +4476,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/dbgaufs.h b/fs/aufs/dbgaufs.h
 +--- a/fs/aufs/dbgaufs.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dbgaufs.h	2012-01-06 17:24:29.568001444 +0400
-+@@ -0,0 +1,52 @@
+++++ b/fs/aufs/dbgaufs.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,49 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -4690,9 +4505,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#ifdef __KERNEL__
 ++
-++#include <linux/init.h>
-++#include <linux/aufs_type.h>
-++
 ++struct super_block;
 ++struct au_sbinfo;
 ++
@@ -4717,10 +4529,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __DBGAUFS_H__ */
 +diff -auprN a/fs/aufs/dcsub.c b/fs/aufs/dcsub.c
 +--- a/fs/aufs/dcsub.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dcsub.c	2012-01-06 17:24:29.569001444 +0400
+++++ b/fs/aufs/dcsub.c	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,243 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -4964,10 +4776,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/dcsub.h b/fs/aufs/dcsub.h
 +--- a/fs/aufs/dcsub.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dcsub.h	2012-01-06 17:24:29.570001444 +0400
-+@@ -0,0 +1,95 @@
+++++ b/fs/aufs/dcsub.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,94 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -4995,7 +4807,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#include <linux/dcache.h>
 ++#include <linux/fs.h>
-++#include <linux/types.h>
 ++
 ++struct dentry;
 ++
@@ -5063,10 +4874,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_DCSUB_H__ */
 +diff -auprN a/fs/aufs/debug.c b/fs/aufs/debug.c
 +--- a/fs/aufs/debug.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/debug.c	2012-01-06 17:24:29.572001444 +0400
-+@@ -0,0 +1,490 @@
+++++ b/fs/aufs/debug.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,489 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -5087,7 +4898,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * debug print functions
 ++ */
 ++
-++#include <linux/module.h>
 ++#include <linux/vt_kern.h>
 ++#include "aufs.h"
 ++
@@ -5546,7 +5356,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	AuDebugOn(destr.len < NAME_MAX);
 ++
 ++#ifdef CONFIG_4KSTACKS
-++	pr_warning("CONFIG_4KSTACKS is defined.\n");
+++	pr_warn("CONFIG_4KSTACKS is defined.\n");
 ++#endif
 ++
 ++#ifdef AuForceNoBrs
@@ -5557,10 +5367,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/debug.h b/fs/aufs/debug.h
 +--- a/fs/aufs/debug.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/debug.h	2012-01-06 17:24:29.573001444 +0400
-+@@ -0,0 +1,252 @@
+++++ b/fs/aufs/debug.h	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,243 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -5587,18 +5397,9 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef __KERNEL__
 ++
 ++#include <asm/system.h>
-++#include <linux/bug.h>
-++/* #include <linux/err.h> */
-++#include <linux/init.h>
 ++#include <linux/module.h>
 ++#include <linux/kallsyms.h>
-++/* #include <linux/kernel.h> */
-++#include <linux/delay.h>
-++/* #include <linux/kd.h> */
 ++#include <linux/sysrq.h>
-++#include <linux/aufs_type.h>
-++
-++#include <asm/system.h>
 ++
 ++#ifdef CONFIG_AUFS_DEBUG
 ++#define AuDebugOn(a)		BUG_ON(a)
@@ -5634,7 +5435,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#define AuWarn1(fmt, ...) do { \
 ++	static unsigned char _c; \
 ++	if (!_c++) \
-++		pr_warning(fmt, ##__VA_ARGS__); \
+++		pr_warn(fmt, ##__VA_ARGS__); \
 ++} while (0)
 ++
 ++#define AuErr1(fmt, ...) do { \
@@ -5813,10 +5614,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_DEBUG_H__ */
 +diff -auprN a/fs/aufs/dentry.c b/fs/aufs/dentry.c
 +--- a/fs/aufs/dentry.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dentry.c	2012-01-06 17:24:29.577001444 +0400
+++++ b/fs/aufs/dentry.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,1140 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -6957,10 +6758,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/dentry.h b/fs/aufs/dentry.h
 +--- a/fs/aufs/dentry.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dentry.h	2012-01-06 17:24:29.578001444 +0400
-+@@ -0,0 +1,238 @@
+++++ b/fs/aufs/dentry.h	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,237 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -6987,7 +6788,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef __KERNEL__
 ++
 ++#include <linux/dcache.h>
-++#include <linux/aufs_type.h>
 ++#include "rwsem.h"
 ++
 ++struct au_hdentry {
@@ -7199,10 +6999,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_DENTRY_H__ */
 +diff -auprN a/fs/aufs/dinfo.c b/fs/aufs/dinfo.c
 +--- a/fs/aufs/dinfo.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dinfo.c	2012-01-06 17:24:29.580001444 +0400
+++++ b/fs/aufs/dinfo.c	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,543 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -7746,10 +7546,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/dir.c b/fs/aufs/dir.c
 +--- a/fs/aufs/dir.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dir.c	2012-01-06 17:24:29.583001444 +0400
-+@@ -0,0 +1,624 @@
+++++ b/fs/aufs/dir.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,623 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -7770,7 +7570,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * directory operations
 ++ */
 ++
-++#include <linux/file.h>
 ++#include <linux/fs_stack.h>
 ++#include "aufs.h"
 ++
@@ -8374,10 +8173,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/dir.h b/fs/aufs/dir.h
 +--- a/fs/aufs/dir.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dir.h	2012-01-06 17:24:29.584001444 +0400
-+@@ -0,0 +1,138 @@
+++++ b/fs/aufs/dir.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,137 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -8404,7 +8203,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef __KERNEL__
 ++
 ++#include <linux/fs.h>
-++#include <linux/aufs_type.h>
 ++
 ++/* ---------------------------------------------------------------------- */
 ++
@@ -8516,10 +8314,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_DIR_H__ */
 +diff -auprN a/fs/aufs/dynop.c b/fs/aufs/dynop.c
 +--- a/fs/aufs/dynop.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dynop.c	2012-01-06 17:24:29.586001444 +0400
+++++ b/fs/aufs/dynop.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,377 @@
 ++/*
-++ * Copyright (C) 2010-2011 Junjiro R. Okajima
+++ * Copyright (C) 2010-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -8897,10 +8695,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/dynop.h b/fs/aufs/dynop.h
 +--- a/fs/aufs/dynop.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/dynop.h	2012-01-06 17:24:29.587001444 +0400
-+@@ -0,0 +1,80 @@
+++++ b/fs/aufs/dynop.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,76 @@
 ++/*
-++ * Copyright (C) 2010-2011 Junjiro R. Okajima
+++ * Copyright (C) 2010-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -8926,10 +8724,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#ifdef __KERNEL__
 ++
-++#include <linux/fs.h>
-++#include <linux/mm.h>
-++#include <linux/rcupdate.h>
-++#include <linux/aufs_type.h>
 ++#include "inode.h"
 ++
 ++enum {AuDy_AOP, AuDyLast};
@@ -8981,10 +8775,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_DYNOP_H__ */
 +diff -auprN a/fs/aufs/export.c b/fs/aufs/export.c
 +--- a/fs/aufs/export.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/export.c	2012-01-06 17:24:29.589001444 +0400
-+@@ -0,0 +1,805 @@
+++++ b/fs/aufs/export.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,804 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -9006,7 +8800,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ */
 ++
 ++#include <linux/exportfs.h>
-++#include <linux/file.h>
 ++#include <linux/mnt_namespace.h>
 ++#include <linux/namei.h>
 ++#include <linux/nsproxy.h>
@@ -9790,10 +9583,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/file.c b/fs/aufs/file.c
 +--- a/fs/aufs/file.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/file.c	2012-01-06 17:24:29.591001444 +0400
-+@@ -0,0 +1,676 @@
+++++ b/fs/aufs/file.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,673 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -9814,9 +9607,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * handling file/dir, and address_space operation
 ++ */
 ++
-++#include <linux/file.h>
-++#include <linux/fsnotify.h>
-++#include <linux/namei.h>
 ++#include <linux/pagemap.h>
 ++#include "aufs.h"
 ++
@@ -10470,10 +10260,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/file.h b/fs/aufs/file.h
 +--- a/fs/aufs/file.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/file.h	2012-01-06 17:24:29.593001444 +0400
-+@@ -0,0 +1,299 @@
+++++ b/fs/aufs/file.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,298 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -10502,7 +10292,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#include <linux/file.h>
 ++#include <linux/fs.h>
 ++#include <linux/poll.h>
-++#include <linux/aufs_type.h>
 ++#include "rwsem.h"
 ++
 ++struct au_branch;
@@ -10702,7 +10491,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++{
 ++	if (atomic_inc_return(&au_fi(f)->fi_mmapped))
 ++		return;
-++	pr_warning("fi_mmapped wrapped around\n");
+++	pr_warn("fi_mmapped wrapped around\n");
 ++	while (!atomic_inc_return(&au_fi(f)->fi_mmapped))
 ++		;
 ++}
@@ -10773,10 +10562,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_FILE_H__ */
 +diff -auprN a/fs/aufs/finfo.c b/fs/aufs/finfo.c
 +--- a/fs/aufs/finfo.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/finfo.c	2012-01-06 17:24:29.594001444 +0400
-+@@ -0,0 +1,157 @@
+++++ b/fs/aufs/finfo.c	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,156 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -10797,7 +10586,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * file private data
 ++ */
 ++
-++#include <linux/file.h>
 ++#include "aufs.h"
 ++
 ++void au_hfput(struct au_hfile *hf, struct file *file)
@@ -10934,10 +10722,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/f_op.c b/fs/aufs/f_op.c
 +--- a/fs/aufs/f_op.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/f_op.c	2012-01-06 17:24:29.685001444 +0400
-+@@ -0,0 +1,739 @@
+++++ b/fs/aufs/f_op.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,737 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -10958,10 +10746,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * file and vm operations
 ++ */
 ++
-++#include <linux/file.h>
 ++#include <linux/fs_stack.h>
 ++#include <linux/mman.h>
-++#include <linux/mm.h>
 ++#include <linux/security.h>
 ++#include "aufs.h"
 ++
@@ -11295,7 +11081,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	err = -EINVAL;
 ++	h_file = au_hf_top(file);
 ++	get_file(h_file);
-++	if (0 && au_test_loopback_kthread()) {
+++	if (au_test_loopback_kthread()) {
 ++		au_warn_loopback(h_file->f_dentry->d_sb);
 ++		if (file->f_mapping != h_file->f_mapping) {
 ++			file->f_mapping = h_file->f_mapping;
@@ -11677,10 +11463,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/f_op_sp.c b/fs/aufs/f_op_sp.c
 +--- a/fs/aufs/f_op_sp.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/f_op_sp.c	2012-01-06 17:24:29.597001444 +0400
-+@@ -0,0 +1,299 @@
+++++ b/fs/aufs/f_op_sp.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,298 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -11703,7 +11489,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * their file I/O is handled out of aufs.
 ++ */
 ++
-++#include <linux/fs_stack.h>
 ++#include "aufs.h"
 ++
 ++static ssize_t aufs_aio_read_sp(struct kiocb *kio, const struct iovec *iov,
@@ -11980,10 +11765,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/fstype.h b/fs/aufs/fstype.h
 +--- a/fs/aufs/fstype.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/fstype.h	2012-01-06 17:24:29.599001444 +0400
-+@@ -0,0 +1,497 @@
+++++ b/fs/aufs/fstype.h	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,496 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -12012,7 +11797,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#include <linux/fs.h>
 ++#include <linux/magic.h>
 ++#include <linux/romfs_fs.h>
-++#include <linux/aufs_type.h>
 ++
 ++static inline int au_test_aufs(struct super_block *sb)
 ++{
@@ -12481,10 +12265,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_FSTYPE_H__ */
 +diff -auprN a/fs/aufs/hfsnotify.c b/fs/aufs/hfsnotify.c
 +--- a/fs/aufs/hfsnotify.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/hfsnotify.c	2012-01-06 17:24:29.601001444 +0400
-+@@ -0,0 +1,247 @@
+++++ b/fs/aufs/hfsnotify.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,260 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -12511,15 +12295,17 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++static const __u32 AuHfsnMask = (FS_MOVED_TO | FS_MOVED_FROM | FS_DELETE
 ++				 | FS_CREATE | FS_EVENT_ON_CHILD);
 ++static DECLARE_WAIT_QUEUE_HEAD(au_hfsn_wq);
+++static __cacheline_aligned_in_smp atomic64_t au_hfsn_ifree = ATOMIC64_INIT(0);
 ++
 ++static void au_hfsn_free_mark(struct fsnotify_mark *mark)
 ++{
 ++	struct au_hnotify *hn = container_of(mark, struct au_hnotify,
 ++					     hn_mark);
 ++	AuDbg("here\n");
-++	hn->hn_mark_dead = 1;
-++	smp_mb();
-++	wake_up_all(&au_hfsn_wq);
+++	au_cache_free_hnotify(hn);
+++	smp_mb__before_atomic_dec();
+++	atomic64_dec(&au_hfsn_ifree);
+++	wake_up(&au_hfsn_wq);
 ++}
 ++
 ++static int au_hfsn_alloc(struct au_hinode *hinode)
@@ -12534,7 +12320,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	sb = hn->hn_aufs_inode->i_sb;
 ++	bindex = au_br_index(sb, hinode->hi_id);
 ++	br = au_sbr(sb, bindex);
-++	hn->hn_mark_dead = 0;
 ++	mark = &hn->hn_mark;
 ++	fsnotify_init_mark(mark, au_hfsn_free_mark);
 ++	mark->mask = AuHfsnMask;
@@ -12546,18 +12331,20 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++				 /*mnt*/NULL, /*allow_dups*/1);
 ++}
 ++
-++static void au_hfsn_free(struct au_hinode *hinode)
+++static int au_hfsn_free(struct au_hinode *hinode, struct au_hnotify *hn)
 ++{
-++	struct au_hnotify *hn;
 ++	struct fsnotify_mark *mark;
+++	unsigned long long ull;
 ++
-++	hn = hinode->hi_notify;
+++	ull = atomic64_inc_return(&au_hfsn_ifree);
+++	BUG_ON(!ull);
+++
 ++	mark = &hn->hn_mark;
 ++	fsnotify_destroy_mark(mark);
 ++	fsnotify_put_mark(mark);
 ++
-++	/* TODO: bad approach */
-++	wait_event(au_hfsn_wq, hn->hn_mark_dead);
+++	/* free hn by myself */
+++	return 0;
 ++}
 ++
 ++/* ---------------------------------------------------------------------- */
@@ -12721,10 +12508,20 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	return err;
 ++}
 ++
+++/* ---------------------------------------------------------------------- */
+++
+++static void au_hfsn_fin(void)
+++{
+++	AuDbg("au_hfsn_ifree %lld\n", (long long)atomic64_read(&au_hfsn_ifree));
+++	wait_event(au_hfsn_wq, !atomic64_read(&au_hfsn_ifree));
+++}
+++
 ++const struct au_hnotify_op au_hnotify_op = {
 ++	.ctl		= au_hfsn_ctl,
 ++	.alloc		= au_hfsn_alloc,
 ++	.free		= au_hfsn_free,
+++
+++	.fin		= au_hfsn_fin,
 ++
 ++	.reset_br	= au_hfsn_reset_br,
 ++	.fin_br		= au_hfsn_fin_br,
@@ -12732,10 +12529,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/hfsplus.c b/fs/aufs/hfsplus.c
 +--- a/fs/aufs/hfsplus.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/hfsplus.c	2012-01-06 17:24:29.601001444 +0400
-+@@ -0,0 +1,58 @@
+++++ b/fs/aufs/hfsplus.c	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,57 @@
 ++/*
-++ * Copyright (C) 2010-2011 Junjiro R. Okajima
+++ * Copyright (C) 2010-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -12762,7 +12559,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * and au_h_open_post() after releasing it.
 ++ */
 ++
-++#include <linux/file.h>
 ++#include "aufs.h"
 ++
 ++struct file *au_h_open_pre(struct dentry *dentry, aufs_bindex_t bindex)
@@ -12794,10 +12590,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/hnotify.c b/fs/aufs/hnotify.c
 +--- a/fs/aufs/hnotify.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/hnotify.c	2012-01-06 17:24:29.604001444 +0400
+++++ b/fs/aufs/hnotify.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,712 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -12856,9 +12652,9 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	hn = hinode->hi_notify;
 ++	if (hn) {
-++		au_hnotify_op.free(hinode);
-++		au_cache_free_hnotify(hn);
 ++		hinode->hi_notify = NULL;
+++		if (au_hnotify_op.free(hinode, hn))
+++			au_cache_free_hnotify(hn);
 ++	}
 ++}
 ++
@@ -12906,7 +12702,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	err = 0;
 ++	if (unlikely(inode->i_ino == AUFS_ROOT_INO)) {
-++		pr_warning("branch root dir was changed\n");
+++		pr_warn("branch root dir was changed\n");
 ++		goto out;
 ++	}
 ++
@@ -13001,7 +12797,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	err = 1;
 ++	if (unlikely(inode->i_ino == AUFS_ROOT_INO)) {
-++		pr_warning("branch root dir was changed\n");
+++		pr_warn("branch root dir was changed\n");
 ++		err = 0;
 ++		goto out;
 ++	}
@@ -13057,7 +12853,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	if (IS_ROOT(dentry)
 ++	    /* || (inode && inode->i_ino == AUFS_ROOT_INO) */
 ++		) {
-++		pr_warning("branch root dir was changed\n");
+++		pr_warn("branch root dir was changed\n");
 ++		return 0;
 ++	}
 ++
@@ -13156,8 +12952,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	if (au_ftest_hnjob(a->flags, MNTPNT)
 ++	    && a->dentry
 ++	    && d_mountpoint(a->dentry))
-++		pr_warning("mount-point %.*s is removed or renamed\n",
-++			   AuDLNPair(a->dentry));
+++		pr_warn("mount-point %.*s is removed or renamed\n",
+++			AuDLNPair(a->dentry));
 ++
 ++	return 0;
 ++}
@@ -13219,7 +13015,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		goto out;
 ++
 ++	if (unlikely(inode->i_ino == AUFS_ROOT_INO)) {
-++		pr_warning("wrong root branch\n");
+++		pr_warn("wrong root branch\n");
 ++		iput(inode);
 ++		inode = NULL;
 ++		goto out;
@@ -13510,10 +13306,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/iinfo.c b/fs/aufs/iinfo.c
 +--- a/fs/aufs/iinfo.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/iinfo.c	2012-01-06 17:24:29.605001444 +0400
+++++ b/fs/aufs/iinfo.c	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,264 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -13778,10 +13574,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/inode.c b/fs/aufs/inode.c
 +--- a/fs/aufs/inode.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/inode.c	2012-01-06 17:24:29.607001444 +0400
-+@@ -0,0 +1,471 @@
+++++ b/fs/aufs/inode.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,478 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -14108,7 +13904,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	struct super_block *sb;
 ++	struct mutex *mtx;
 ++	ino_t h_ino, ino;
-++	int err;
+++	int err, lc_idx;
 ++	aufs_bindex_t bstart;
 ++
 ++	sb = dentry->d_sb;
@@ -14149,6 +13945,13 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	AuDbg("%lx, new %d\n", inode->i_state, !!(inode->i_state & I_NEW));
 ++	if (inode->i_state & I_NEW) {
+++		lc_idx = AuLcNonDir_IIINFO;
+++		if (S_ISLNK(h_inode->i_mode))
+++			lc_idx = AuLcSymlink_IIINFO;
+++		else if (S_ISDIR(h_inode->i_mode))
+++			lc_idx = AuLcDir_IIINFO;
+++		au_rw_class(&au_ii(inode)->ii_rwsem, au_lc_key + lc_idx);
+++
 ++		ii_write_lock_new_child(inode);
 ++		err = set_inode(inode, dentry);
 ++		if (!err) {
@@ -14253,10 +14056,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/inode.h b/fs/aufs/inode.h
 +--- a/fs/aufs/inode.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/inode.h	2012-01-06 17:24:29.609001444 +0400
-+@@ -0,0 +1,556 @@
+++++ b/fs/aufs/inode.h	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,559 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -14282,9 +14085,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#ifdef __KERNEL__
 ++
-++#include <linux/fs.h>
 ++#include <linux/fsnotify.h>
-++#include <linux/aufs_type.h>
 ++#include "rwsem.h"
 ++
 ++struct vfsmount;
@@ -14294,7 +14095,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef CONFIG_AUFS_HFSNOTIFY
 ++	/* never use fsnotify_add_vfsmount_mark() */
 ++	struct fsnotify_mark		hn_mark;
-++	int				hn_mark_dead;
 ++#endif
 ++	struct inode			*hn_aufs_inode;	/* no get/put */
 ++#endif
@@ -14714,7 +14514,13 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++struct au_hnotify_op {
 ++	void (*ctl)(struct au_hinode *hinode, int do_set);
 ++	int (*alloc)(struct au_hinode *hinode);
-++	void (*free)(struct au_hinode *hinode);
+++
+++	/*
+++	 * if it returns true, the the caller should free hinode->hi_notify,
+++	 * otherwise ->free() frees it.
+++	 */
+++	int (*free)(struct au_hinode *hinode,
+++		    struct au_hnotify *hn) __must_check;
 ++
 ++	void (*fin)(void);
 ++	int (*init)(void);
@@ -14813,10 +14619,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_INODE_H__ */
 +diff -auprN a/fs/aufs/ioctl.c b/fs/aufs/ioctl.c
 +--- a/fs/aufs/ioctl.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/ioctl.c	2012-01-06 17:24:29.610001444 +0400
-+@@ -0,0 +1,197 @@
+++++ b/fs/aufs/ioctl.c	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,196 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -14839,7 +14645,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * assist the pathconf(3) wrapper library.
 ++ */
 ++
-++#include <linux/file.h>
 ++#include "aufs.h"
 ++
 ++static int au_wbr_fd(struct path *path, struct aufs_wbr_fd __user *arg)
@@ -15014,10 +14819,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif
 +diff -auprN a/fs/aufs/i_op_add.c b/fs/aufs/i_op_add.c
 +--- a/fs/aufs/i_op_add.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/i_op_add.c	2012-01-06 17:24:29.612001444 +0400
+++++ b/fs/aufs/i_op_add.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,711 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -15729,10 +15534,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/i_op.c b/fs/aufs/i_op.c
 +--- a/fs/aufs/i_op.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/i_op.c	2012-01-06 17:24:29.615001444 +0400
-+@@ -0,0 +1,992 @@
+++++ b/fs/aufs/i_op.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,985 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -15755,10 +15560,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#include <linux/device_cgroup.h>
 ++#include <linux/fs_stack.h>
-++#include <linux/mm.h>
 ++#include <linux/namei.h>
 ++#include <linux/security.h>
-++#include <linux/uaccess.h>
 ++#include "aufs.h"
 ++
 ++static int h_permission(struct inode *h_inode, int mask, unsigned int flags,
@@ -15942,18 +15745,13 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	ret = d_splice_alias(inode, dentry);
 ++	if (unlikely(IS_ERR(ret) && inode)) {
 ++		ii_write_unlock(inode);
-++		lc_idx = AuLcNonDir_IIINFO;
-++		if (S_ISLNK(inode->i_mode))
-++			lc_idx = AuLcSymlink_IIINFO;
-++		else if (S_ISDIR(inode->i_mode))
-++			lc_idx = AuLcDir_IIINFO;
-++		au_rw_class(&au_ii(inode)->ii_rwsem, au_lc_key + lc_idx);
 ++		iput(inode);
+++		inode = NULL;
 ++	}
 ++
 ++out_unlock:
 ++	di_write_unlock(dentry);
-++	if (unlikely(IS_ERR(ret) && inode)) {
+++	if (inode) {
 ++		lc_idx = AuLcNonDir_DIINFO;
 ++		if (S_ISLNK(inode->i_mode))
 ++			lc_idx = AuLcSymlink_DIINFO;
@@ -16725,10 +16523,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/i_op_del.c b/fs/aufs/i_op_del.c
 +--- a/fs/aufs/i_op_del.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/i_op_del.c	2012-01-06 17:24:29.617001444 +0400
+++++ b/fs/aufs/i_op_del.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,478 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -17207,10 +17005,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/i_op_ren.c b/fs/aufs/i_op_ren.c
 +--- a/fs/aufs/i_op_ren.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/i_op_ren.c	2012-01-06 17:24:29.620001444 +0400
-+@@ -0,0 +1,1017 @@
+++++ b/fs/aufs/i_op_ren.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,1026 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -17465,8 +17263,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	    || au_test_fs_remote(a->h_dst->d_sb)) {
 ++		err = au_whtmp_rmdir(dir, a->btgt, a->h_dst, &a->whlist);
 ++		if (unlikely(err))
-++			pr_warning("failed removing whtmp dir %.*s (%d), "
-++				   "ignored.\n", AuDLNPair(a->h_dst), err);
+++			pr_warn("failed removing whtmp dir %.*s (%d), "
+++				"ignored.\n", AuDLNPair(a->h_dst), err);
 ++	} else {
 ++		au_nhash_wh_free(&a->thargs->whlist);
 ++		a->thargs->whlist = a->whlist;
@@ -18118,6 +17916,15 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	} else if (unlikely(d_unhashed(a->dst_dentry)))
 ++		goto out_unlock;
 ++
+++	/*
+++	 * is it possible?
+++	 * yes, it happend (in linux-3.3-rcN) but I don't know why.
+++	 * there may exist a problem somewhere else.
+++	 */
+++	err = -EINVAL;
+++	if (unlikely(a->dst_parent->d_inode == a->src_dentry->d_inode))
+++		goto out_unlock;
+++
 ++	au_fset_ren(a->flags, ISSAMEDIR); /* temporary */
 ++	di_write_lock_parent(a->dst_parent);
 ++
@@ -18228,7 +18035,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/Kconfig b/fs/aufs/Kconfig
 +--- a/fs/aufs/Kconfig	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/Kconfig	2012-01-06 17:24:29.621001444 +0400
+++++ b/fs/aufs/Kconfig	2012-09-19 18:29:03.000000000 +0400
 +@@ -0,0 +1,203 @@
 ++config AUFS_FS
 ++	tristate "Aufs (Advanced multi layered unification filesystem) support"
@@ -18435,10 +18242,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++endif
 +diff -auprN a/fs/aufs/loop.c b/fs/aufs/loop.c
 +--- a/fs/aufs/loop.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/loop.c	2012-01-06 17:24:29.685001444 +0400
-+@@ -0,0 +1,149 @@
+++++ b/fs/aufs/loop.c	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,133 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -18546,8 +18353,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++pr:
 ++	spin_unlock(&spin);
-++	pr_warning("you may want to try another patch for loopback file "
-++		   "on %s(0x%lx) branch\n", au_sbtype(h_sb), magic);
+++	pr_warn("you may want to try another patch for loopback file "
+++		"on %s(0x%lx) branch\n", au_sbtype(h_sb), magic);
 ++}
 ++
 ++int au_loopback_init(void)
@@ -18570,28 +18377,12 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++{
 ++	kfree(au_warn_loopback_array);
 ++}
-++
-++/* ---------------------------------------------------------------------- */
-++
-++/* support the loopback block device insude aufs */
-++
-++struct file *aufs_real_loop(struct file *file)
-++{
-++	struct file *f;
-++
-++	BUG_ON(!au_test_aufs(file->f_dentry->d_sb));
-++	fi_read_lock(file);
-++	f = au_hf_top(file);
-++	fi_read_unlock(file);
-++	AuDebugOn(!f);
-++	return f;
-++}
 +diff -auprN a/fs/aufs/loop.h b/fs/aufs/loop.h
 +--- a/fs/aufs/loop.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/loop.h	2012-01-06 17:24:29.686001444 +0400
-+@@ -0,0 +1,54 @@
+++++ b/fs/aufs/loop.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,50 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -18628,8 +18419,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++int au_loopback_init(void);
 ++void au_loopback_fin(void);
-++
-++struct file *aufs_real_loop(struct file *file);
 ++#else
 ++AuStubInt0(au_test_loopback_overlap, struct super_block *sb,
 ++	   struct dentry *h_adding)
@@ -18638,17 +18427,14 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++AuStubInt0(au_loopback_init, void)
 ++AuStubVoid(au_loopback_fin, void)
-++
-++AuStub(struct file *, aufs_real_loop, return NULL, struct file *file)
 ++#endif /* BLK_DEV_LOOP */
 ++
 ++#endif /* __KERNEL__ */
 ++#endif /* __AUFS_LOOP_H__ */
 +diff -auprN a/fs/aufs/Makefile b/fs/aufs/Makefile
 +--- a/fs/aufs/Makefile	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/Makefile	2012-01-06 17:24:29.624001444 +0400
-+@@ -0,0 +1,128 @@
-++
+++++ b/fs/aufs/Makefile	2012-12-10 21:09:01.712189647 +0400
++@@ -0,0 +1,132 @@
 ++# defined in ${srctree}/fs/fuse/inode.c
 ++# tristate
 ++ifdef CONFIG_FUSE_FS
@@ -18704,7 +18490,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++endif
 ++
 ++ifeq (${CONFIG_AUFS_FS},m)
-++
 ++AuConfStr = CONFIG_AUFS_FS=${CONFIG_AUFS_FS}
 ++
 ++define AuConf
@@ -18748,8 +18533,12 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++# cf. include/linux/kernel.h
 ++# enable pr_debug
 ++ccflags-y += -DDEBUG
-++# sparse doesn't allow spaces
-++ccflags-y += -D'pr_fmt(fmt)=AUFS_NAME"\040%s:%d:%s[%d]:\040"fmt,__func__,__LINE__,current->comm,current->pid'
+++# sparse requires the full pathname
+++ifdef M
+++ccflags-y += -include ${M}/../../include/linux/aufs_type.h
+++else
+++ccflags-y += -include ${srctree}/include/linux/aufs_type.h
+++endif
 ++
 ++obj-$(CONFIG_AUFS_FS) += aufs.o
 ++aufs-y := module.o sbinfo.o super.o branch.o xino.o sysaufs.o opts.o \
@@ -18776,12 +18565,14 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++aufs-$(CONFIG_AUFS_BR_HFSPLUS) += hfsplus.o
 ++aufs-$(CONFIG_AUFS_DEBUG) += debug.o
 ++aufs-$(CONFIG_AUFS_MAGIC_SYSRQ) += sysrq.o
+++
+++
 +diff -auprN a/fs/aufs/module.c b/fs/aufs/module.c
 +--- a/fs/aufs/module.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/module.c	2012-01-06 17:24:29.625001444 +0400
-+@@ -0,0 +1,191 @@
+++++ b/fs/aufs/module.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,192 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -18847,8 +18638,9 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++{
 ++	int i;
 ++
-++	/* including AuCache_HNOTIFY */
-++	for (i = 0; i < AuCache_Last; i++)
+++	/* excluding AuCache_HNOTIFY */
+++	BUILD_BUG_ON(AuCache_HNOTIFY + 1 != AuCache_Last);
+++	for (i = 0; i < AuCache_HNOTIFY; i++)
 ++		if (au_cachep[i]) {
 ++			kmem_cache_destroy(au_cachep[i]);
 ++			au_cachep[i] = NULL;
@@ -18973,10 +18765,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++module_exit(aufs_exit);
 +diff -auprN a/fs/aufs/module.h b/fs/aufs/module.h
 +--- a/fs/aufs/module.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/module.h	2012-01-06 17:24:29.625001444 +0400
-+@@ -0,0 +1,107 @@
+++++ b/fs/aufs/module.h	2012-09-19 18:29:03.000000000 +0400
++@@ -0,0 +1,105 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -19051,9 +18843,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	AuCache_FINFO,
 ++	AuCache_VDIR,
 ++	AuCache_DEHSTR,
-++#ifdef CONFIG_AUFS_HNOTIFY
-++	AuCache_HNOTIFY,
-++#endif
+++	AuCache_HNOTIFY, /* must be last */
 ++	AuCache_Last
 ++};
 ++
@@ -19084,10 +18874,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_MODULE_H__ */
 +diff -auprN a/fs/aufs/opts.c b/fs/aufs/opts.c
 +--- a/fs/aufs/opts.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/opts.c	2012-01-06 17:24:29.630001444 +0400
-+@@ -0,0 +1,1679 @@
+++++ b/fs/aufs/opts.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,1677 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -19108,8 +18898,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * mount options/flags
 ++ */
 ++
-++#include <linux/file.h>
-++#include <linux/jiffies.h>
 ++#include <linux/namei.h>
 ++#include <linux/types.h> /* a distribution requires */
 ++#include <linux/parser.h>
@@ -19304,7 +19092,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		else {
 ++			if (p)
 ++				*p = '+';
-++			pr_warning("ignored branch attribute %s\n", str);
+++			pr_warn("ignored branch attribute %s\n", str);
 ++			break;
 ++		}
 ++		if (p)
@@ -19327,7 +19115,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	if (!val) {
 ++		if (p)
 ++			*p = '+';
-++		pr_warning("ignored branch permission %s\n", perm);
+++		pr_warn("ignored branch permission %s\n", perm);
 ++		val = AuBrPerm_RO;
 ++		goto out;
 ++	}
@@ -20213,7 +20001,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++			break;
 ++
 ++		case Opt_ignore:
-++			pr_warning("ignored %s\n", opt_str);
+++			pr_warn("ignored %s\n", opt_str);
 ++			/*FALLTHROUGH*/
 ++		case Opt_ignore_silent:
 ++			skipped = 1;
@@ -20549,14 +20337,14 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	if (!(sb_flags & MS_RDONLY)) {
 ++		if (unlikely(!au_br_writable(au_sbr_perm(sb, 0))))
-++			pr_warning("first branch should be rw\n");
+++			pr_warn("first branch should be rw\n");
 ++		if (unlikely(au_opt_test(sbinfo->si_mntflags, SHWH)))
-++			pr_warning("shwh should be used with ro\n");
+++			pr_warn("shwh should be used with ro\n");
 ++	}
 ++
 ++	if (au_opt_test((sbinfo->si_mntflags | pending), UDBA_HNOTIFY)
 ++	    && !au_opt_test(sbinfo->si_mntflags, XINO))
-++		pr_warning("udba=*notify requires xino\n");
+++		pr_warn("udba=*notify requires xino\n");
 ++
 ++	err = 0;
 ++	root = sb->s_root;
@@ -20767,10 +20555,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/opts.h b/fs/aufs/opts.h
 +--- a/fs/aufs/opts.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/opts.h	2012-01-06 17:24:29.631001444 +0400
-+@@ -0,0 +1,210 @@
+++++ b/fs/aufs/opts.h	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,209 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -20797,7 +20585,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef __KERNEL__
 ++
 ++#include <linux/path.h>
-++#include <linux/aufs_type.h>
 ++
 ++struct file;
 ++struct super_block;
@@ -20981,10 +20768,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_OPTS_H__ */
 +diff -auprN a/fs/aufs/plink.c b/fs/aufs/plink.c
 +--- a/fs/aufs/plink.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/plink.c	2012-01-06 17:24:29.633001444 +0400
+++++ b/fs/aufs/plink.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,515 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -21409,7 +21196,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++out:
 ++	if (unlikely(err)) {
-++		pr_warning("err %d, damaged pseudo link.\n", err);
+++		pr_warn("err %d, damaged pseudo link.\n", err);
 ++		if (tmp) {
 ++			au_spl_del_rcu(&tmp->list, &sbinfo->si_plink);
 ++			call_rcu(&tmp->rcu, do_put_plink_rcu);
@@ -21500,10 +21287,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/poll.c b/fs/aufs/poll.c
 +--- a/fs/aufs/poll.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/poll.c	2012-01-06 17:24:29.633001444 +0400
+++++ b/fs/aufs/poll.c	2012-09-19 18:29:04.000000000 +0400
 +@@ -0,0 +1,56 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -21560,10 +21347,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/procfs.c b/fs/aufs/procfs.c
 +--- a/fs/aufs/procfs.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/procfs.c	2012-01-06 17:24:29.634001444 +0400
+++++ b/fs/aufs/procfs.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,170 @@
 ++/*
-++ * Copyright (C) 2010-2011 Junjiro R. Okajima
+++ * Copyright (C) 2010-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -21734,10 +21521,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/rdu.c b/fs/aufs/rdu.c
 +--- a/fs/aufs/rdu.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/rdu.c	2012-01-06 17:24:29.636001444 +0400
-+@@ -0,0 +1,385 @@
+++++ b/fs/aufs/rdu.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,383 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -21761,8 +21548,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#include <linux/compat.h>
 ++#include <linux/fs_stack.h>
 ++#include <linux/security.h>
-++#include <linux/uaccess.h>
-++#include <linux/aufs_type.h>
 ++#include "aufs.h"
 ++
 ++/* bits for struct aufs_rdu.flags */
@@ -22123,10 +21908,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif
 +diff -auprN a/fs/aufs/rwsem.h b/fs/aufs/rwsem.h
 +--- a/fs/aufs/rwsem.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/rwsem.h	2012-01-06 17:24:29.637001444 +0400
-+@@ -0,0 +1,189 @@
+++++ b/fs/aufs/rwsem.h	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,188 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -22152,7 +21937,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#ifdef __KERNEL__
 ++
-++#include <linux/rwsem.h>
 ++#include "debug.h"
 ++
 ++struct au_rwsem {
@@ -22316,10 +22100,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_RWSEM_H__ */
 +diff -auprN a/fs/aufs/sbinfo.c b/fs/aufs/sbinfo.c
 +--- a/fs/aufs/sbinfo.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/sbinfo.c	2012-01-06 17:24:29.638001444 +0400
-+@@ -0,0 +1,344 @@
+++++ b/fs/aufs/sbinfo.c	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,343 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -22340,7 +22124,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * superblock private data
 ++ */
 ++
-++#include <linux/jiffies.h>
 ++#include "aufs.h"
 ++
 ++/*
@@ -22664,10 +22447,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/spl.h b/fs/aufs/spl.h
 +--- a/fs/aufs/spl.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/spl.h	2012-01-06 17:24:29.639001444 +0400
-+@@ -0,0 +1,66 @@
+++++ b/fs/aufs/spl.h	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,62 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -22692,10 +22475,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#define __AUFS_SPL_H__
 ++
 ++#ifdef __KERNEL__
-++
-++#include <linux/spinlock.h>
-++#include <linux/list.h>
-++#include <linux/rculist.h>
 ++
 ++struct au_splhead {
 ++	spinlock_t		spin;
@@ -22734,10 +22513,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_SPL_H__ */
 +diff -auprN a/fs/aufs/super.c b/fs/aufs/super.c
 +--- a/fs/aufs/super.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/super.c	2012-01-06 17:24:29.687001444 +0400
-+@@ -0,0 +1,942 @@
+++++ b/fs/aufs/super.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,968 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -22758,8 +22537,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * mount and super_block operations
 ++ */
 ++
-++#include <linux/buffer_head.h>
-++#include <linux/jiffies.h>
+++#include <linux/mm.h>
 ++#include <linux/module.h>
 ++#include <linux/seq_file.h>
 ++#include <linux/statfs.h>
@@ -23044,7 +22822,18 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	old = a;
 ++	a += b;
-++	if (old < a)
+++	if (old <= a)
+++		return a;
+++	return ULLONG_MAX;
+++}
+++
+++static u64 au_mul_till_max(u64 a, long mul)
+++{
+++	u64 old;
+++
+++	old = a;
+++	a *= mul;
+++	if (old <= a)
 ++		return a;
 ++	return ULLONG_MAX;
 ++}
@@ -23052,25 +22841,26 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++static int au_statfs_sum(struct super_block *sb, struct kstatfs *buf)
 ++{
 ++	int err;
+++	long bsize, factor;
 ++	u64 blocks, bfree, bavail, files, ffree;
 ++	aufs_bindex_t bend, bindex, i;
 ++	unsigned char shared;
 ++	struct path h_path;
 ++	struct super_block *h_sb;
 ++
+++	err = 0;
+++	bsize = LONG_MAX;
+++	files = 0;
+++	ffree = 0;
 ++	blocks = 0;
 ++	bfree = 0;
 ++	bavail = 0;
-++	files = 0;
-++	ffree = 0;
-++
-++	err = 0;
 ++	bend = au_sbend(sb);
-++	for (bindex = bend; bindex >= 0; bindex--) {
+++	for (bindex = 0; bindex <= bend; bindex++) {
 ++		h_path.mnt = au_sbr_mnt(sb, bindex);
 ++		h_sb = h_path.mnt->mnt_sb;
 ++		shared = 0;
-++		for (i = bindex + 1; !shared && i <= bend; i++)
+++		for (i = 0; !shared && i < bindex; i++)
 ++			shared = (au_sbr_sb(sb, i) == h_sb);
 ++		if (shared)
 ++			continue;
@@ -23081,18 +22871,36 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		if (unlikely(err))
 ++			goto out;
 ++
-++		blocks = au_add_till_max(blocks, buf->f_blocks);
-++		bfree = au_add_till_max(bfree, buf->f_bfree);
-++		bavail = au_add_till_max(bavail, buf->f_bavail);
+++		if (bsize > buf->f_bsize) {
+++			/*
+++			 * we will reduce bsize, so we have to expand blocks
+++			 * etc. to match them again
+++			 */
+++			factor = (bsize / buf->f_bsize);
+++			blocks = au_mul_till_max(blocks, factor);
+++			bfree = au_mul_till_max(bfree, factor);
+++			bavail = au_mul_till_max(bavail, factor);
+++			bsize = buf->f_bsize;
+++		}
+++
+++		factor = (buf->f_bsize / bsize);
+++		blocks = au_add_till_max(blocks,
+++				au_mul_till_max(buf->f_blocks, factor));
+++		bfree = au_add_till_max(bfree,
+++				au_mul_till_max(buf->f_bfree, factor));
+++		bavail = au_add_till_max(bavail,
+++				au_mul_till_max(buf->f_bavail, factor));
 ++		files = au_add_till_max(files, buf->f_files);
 ++		ffree = au_add_till_max(ffree, buf->f_ffree);
 ++	}
 ++
+++	buf->f_bsize = bsize;
 ++	buf->f_blocks = blocks;
 ++	buf->f_bfree = bfree;
 ++	buf->f_bavail = bavail;
 ++	buf->f_files = files;
 ++	buf->f_ffree = ffree;
+++	buf->f_frsize = 0;
 ++
 ++out:
 ++	return err;
@@ -23491,10 +23299,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	.show_options	= aufs_show_options,
 ++	.statfs		= aufs_statfs,
 ++	.put_super	= aufs_put_super,
-++	.remount_fs	= aufs_remount_fs,
-++#ifdef CONFIG_AUFS_BDEV_LOOP
-++	.real_loop	= aufs_real_loop
-++#endif
+++	.remount_fs	= aufs_remount_fs
 ++};
 ++
 ++/* ---------------------------------------------------------------------- */
@@ -23680,10 +23485,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/super.h b/fs/aufs/super.h
 +--- a/fs/aufs/super.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/super.h	2012-01-06 17:24:29.644001444 +0400
-+@@ -0,0 +1,547 @@
+++++ b/fs/aufs/super.h	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,546 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -23710,7 +23515,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef __KERNEL__
 ++
 ++#include <linux/fs.h>
-++#include <linux/aufs_type.h>
 ++#include "rwsem.h"
 ++#include "spl.h"
 ++#include "wkq.h"
@@ -24231,10 +24035,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_SUPER_H__ */
 +diff -auprN a/fs/aufs/sysaufs.c b/fs/aufs/sysaufs.c
 +--- a/fs/aufs/sysaufs.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/sysaufs.c	2012-01-06 17:24:29.645001444 +0400
-+@@ -0,0 +1,107 @@
+++++ b/fs/aufs/sysaufs.c	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,105 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -24256,9 +24060,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * they are necessary regardless sysfs is disabled.
 ++ */
 ++
-++#include <linux/fs.h>
 ++#include <linux/random.h>
-++#include <linux/sysfs.h>
 ++#include "aufs.h"
 ++
 ++unsigned long sysaufs_si_mask;
@@ -24342,10 +24144,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/sysaufs.h b/fs/aufs/sysaufs.h
 +--- a/fs/aufs/sysaufs.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/sysaufs.h	2012-01-06 17:24:29.646001444 +0400
-+@@ -0,0 +1,105 @@
+++++ b/fs/aufs/sysaufs.h	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,104 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -24372,7 +24174,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifdef __KERNEL__
 ++
 ++#include <linux/sysfs.h>
-++#include <linux/aufs_type.h>
 ++#include "module.h"
 ++
 ++struct super_block;
@@ -24451,10 +24252,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __SYSAUFS_H__ */
 +diff -auprN a/fs/aufs/sysfs.c b/fs/aufs/sysfs.c
 +--- a/fs/aufs/sysfs.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/sysfs.c	2012-01-06 17:24:29.647001444 +0400
-+@@ -0,0 +1,260 @@
+++++ b/fs/aufs/sysfs.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,257 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -24475,10 +24276,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * sysfs interface
 ++ */
 ++
-++#include <linux/fs.h>
-++#include <linux/module.h>
 ++#include <linux/seq_file.h>
-++#include <linux/sysfs.h>
 ++#include "aufs.h"
 ++
 ++#ifdef CONFIG_AUFS_FS_MODULE
@@ -24709,16 +24507,16 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++			 "%d", bindex);
 ++		err = sysfs_create_file(kobj, &br->br_attr);
 ++		if (unlikely(err))
-++			pr_warning("failed %s under sysfs(%d)\n",
-++				   br->br_name, err);
+++			pr_warn("failed %s under sysfs(%d)\n",
+++				br->br_name, err);
 ++	}
 ++}
 +diff -auprN a/fs/aufs/sysrq.c b/fs/aufs/sysrq.c
 +--- a/fs/aufs/sysrq.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/sysrq.c	2012-01-06 17:24:29.648001444 +0400
-+@@ -0,0 +1,151 @@
+++++ b/fs/aufs/sysrq.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,148 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -24739,9 +24537,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * magic sysrq hanlder
 ++ */
 ++
-++#include <linux/fs.h>
-++#include <linux/module.h>
-++#include <linux/moduleparam.h>
 ++/* #include <linux/sysrq.h> */
 ++#include <linux/writeback.h>
 ++#include "aufs.h"
@@ -24870,10 +24665,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/vdir.c b/fs/aufs/vdir.c
 +--- a/fs/aufs/vdir.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/vdir.c	2012-01-06 17:24:29.651001444 +0400
-+@@ -0,0 +1,886 @@
+++++ b/fs/aufs/vdir.c	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,885 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -24894,7 +24689,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * virtual or vertical directory
 ++ */
 ++
-++#include <linux/hash.h>
 ++#include "aufs.h"
 ++
 ++static unsigned int calc_size(int nlen)
@@ -25760,10 +25554,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/vfsub.c b/fs/aufs/vfsub.c
 +--- a/fs/aufs/vfsub.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/vfsub.c	2012-01-06 17:24:29.653001444 +0400
-+@@ -0,0 +1,837 @@
+++++ b/fs/aufs/vfsub.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,835 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -25784,12 +25578,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * sub-routines for VFS
 ++ */
 ++
-++#include <linux/file.h>
 ++#include <linux/ima.h>
 ++#include <linux/namei.h>
 ++#include <linux/security.h>
 ++#include <linux/splice.h>
-++#include <linux/uaccess.h>
 ++#include "aufs.h"
 ++
 ++int vfsub_update_h_iattr(struct path *h_path, int *did)
@@ -26601,10 +26393,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/vfsub.h b/fs/aufs/vfsub.h
 +--- a/fs/aufs/vfsub.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/vfsub.h	2012-01-06 17:24:29.654001444 +0400
+++++ b/fs/aufs/vfsub.h	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,232 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -26837,10 +26629,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_VFSUB_H__ */
 +diff -auprN a/fs/aufs/wbr_policy.c b/fs/aufs/wbr_policy.c
 +--- a/fs/aufs/wbr_policy.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/wbr_policy.c	2012-01-06 17:24:29.657001444 +0400
+++++ b/fs/aufs/wbr_policy.c	2012-09-19 18:29:04.000000000 +0400
 +@@ -0,0 +1,700 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -27541,10 +27333,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++};
 +diff -auprN a/fs/aufs/whout.c b/fs/aufs/whout.c
 +--- a/fs/aufs/whout.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/whout.c	2012-01-06 17:24:29.660001444 +0400
-+@@ -0,0 +1,1050 @@
+++++ b/fs/aufs/whout.c	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,1049 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -27565,7 +27357,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * whiteout for logical deletion and opaque directory
 ++ */
 ++
-++#include <linux/fs.h>
 ++#include "aufs.h"
 ++
 ++#define WH_MASK			S_IRUGO
@@ -27702,7 +27493,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++			goto out_name;
 ++		dput(dentry);
 ++	}
-++	/* pr_warning("could not get random name\n"); */
+++	/* pr_warn("could not get random name\n"); */
 ++	dentry = ERR_PTR(-EEXIST);
 ++	AuDbg("%.*s\n", AuLNPair(&qs));
 ++	BUG();
@@ -27820,8 +27611,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		mnt_drop_write(whpath->mnt);
 ++	}
 ++	if (unlikely(err))
-++		pr_warning("failed removing %.*s (%d), ignored.\n",
-++			   AuDLNPair(whpath->dentry), err);
+++		pr_warn("failed removing %.*s (%d), ignored.\n",
+++			AuDLNPair(whpath->dentry), err);
 ++}
 ++
 ++static int test_linkable(struct dentry *h_root)
@@ -28125,8 +27916,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++			mnt_drop_write(a->br->br_mnt);
 ++		}
 ++	} else {
-++		pr_warning("%.*s is moved, ignored\n",
-++			   AuDLNPair(wbr->wbr_whbase));
+++		pr_warn("%.*s is moved, ignored\n",
+++			AuDLNPair(wbr->wbr_whbase));
 ++		err = 0;
 ++	}
 ++	dput(wbr->wbr_whbase);
@@ -28517,8 +28308,8 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++		return 0; /* success */
 ++	}
 ++
-++	pr_warning("failed removing %.*s(%d), ignored\n",
-++		   AuDLNPair(wh_dentry), err);
+++	pr_warn("failed removing %.*s(%d), ignored\n",
+++		AuDLNPair(wh_dentry), err);
 ++	return err;
 ++}
 ++
@@ -28588,17 +28379,17 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++	args->wh_dentry = dget(wh_dentry);
 ++	wkq_err = au_wkq_nowait(call_rmdir_whtmp, args, sb, /*flags*/0);
 ++	if (unlikely(wkq_err)) {
-++		pr_warning("rmdir error %.*s (%d), ignored\n",
-++			   AuDLNPair(wh_dentry), wkq_err);
+++		pr_warn("rmdir error %.*s (%d), ignored\n",
+++			AuDLNPair(wh_dentry), wkq_err);
 ++		au_whtmp_rmdir_free(args);
 ++	}
 ++}
 +diff -auprN a/fs/aufs/whout.h b/fs/aufs/whout.h
 +--- a/fs/aufs/whout.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/whout.h	2012-01-06 17:24:29.661001444 +0400
-+@@ -0,0 +1,89 @@
+++++ b/fs/aufs/whout.h	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,88 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -28624,7 +28415,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++#ifdef __KERNEL__
 ++
-++#include <linux/aufs_type.h>
 ++#include "dir.h"
 ++
 ++/* whout.c */
@@ -28688,10 +28478,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_WHOUT_H__ */
 +diff -auprN a/fs/aufs/wkq.c b/fs/aufs/wkq.c
 +--- a/fs/aufs/wkq.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/wkq.c	2012-01-06 17:24:29.662001444 +0400
+++++ b/fs/aufs/wkq.c	2012-12-06 21:41:05.000000000 +0400
 +@@ -0,0 +1,214 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -28906,10 +28696,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++}
 +diff -auprN a/fs/aufs/wkq.h b/fs/aufs/wkq.h
 +--- a/fs/aufs/wkq.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/wkq.h	2012-01-06 17:24:29.663001444 +0400
-+@@ -0,0 +1,96 @@
+++++ b/fs/aufs/wkq.h	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,92 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -28935,10 +28725,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#define __AUFS_WKQ_H__
 ++
 ++#ifdef __KERNEL__
-++
-++#include <linux/sched.h>
-++#include <linux/wait.h>
-++#include <linux/aufs_type.h>
 ++
 ++struct super_block;
 ++
@@ -29006,10 +28792,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#endif /* __AUFS_WKQ_H__ */
 +diff -auprN a/fs/aufs/xino.c b/fs/aufs/xino.c
 +--- a/fs/aufs/xino.c	1970-01-01 03:00:00.000000000 +0300
-++++ b/fs/aufs/xino.c	2012-01-06 17:24:29.666001444 +0400
-+@@ -0,0 +1,1266 @@
+++++ b/fs/aufs/xino.c	2012-09-19 18:29:04.000000000 +0400
++@@ -0,0 +1,1264 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -29030,9 +28816,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++ * external inode number translation table and bitmap
 ++ */
 ++
-++#include <linux/file.h>
 ++#include <linux/seq_file.h>
-++#include <linux/uaccess.h>
 ++#include "aufs.h"
 ++
 ++/* todo: unnecessary to support mmap_sem since kernel-space? */
@@ -29328,7 +29112,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++	ii_read_unlock(dir);
 ++	if (unlikely(err))
-++		pr_warning("err b%d, (%d)\n", bindex, err);
+++		pr_warn("err b%d, (%d)\n", bindex, err);
 ++	atomic_dec(&br->br_xino_running);
 ++	atomic_dec(&br->br_count);
 ++	si_write_unlock(sb);
@@ -30274,250 +30058,12 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++out:
 ++	return err;
 ++}
-+diff -auprN a/fs/file_table.c b/fs/file_table.c
-+--- a/fs/file_table.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/file_table.c	2012-01-06 17:24:29.712001444 +0400
-+@@ -443,6 +443,8 @@ void file_sb_list_del(struct file *file)
-+ 	}
-+ }
-+ 
-++EXPORT_SYMBOL(file_sb_list_del);
-++
-+ #ifdef CONFIG_SMP
-+ 
-+ /*
-+diff -auprN a/fs/inode.c b/fs/inode.c
-+--- a/fs/inode.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/inode.c	2012-01-06 17:24:29.714001444 +0400
-+@@ -69,6 +69,7 @@ static DEFINE_SPINLOCK(inode_lru_lock);
-+ 
-+ __cacheline_aligned_in_smp DEFINE_SPINLOCK(inode_sb_list_lock);
-+ __cacheline_aligned_in_smp DEFINE_SPINLOCK(inode_wb_list_lock);
-++EXPORT_SYMBOL(inode_sb_list_lock);
-+ 
-+ /*
-+  * iprune_sem provides exclusion between the icache shrinking and the
-+diff -auprN a/fs/Kconfig b/fs/Kconfig
-+--- a/fs/Kconfig	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/Kconfig	2012-01-06 17:24:29.678001444 +0400
-+@@ -208,6 +208,7 @@ source "fs/pstore/Kconfig"
-+ source "fs/sysv/Kconfig"
-+ source "fs/ufs/Kconfig"
-+ source "fs/exofs/Kconfig"
-++source "fs/aufs/Kconfig"
-+ 
-+ endif # MISC_FILESYSTEMS
-+ 
-+diff -auprN a/fs/Makefile b/fs/Makefile
-+--- a/fs/Makefile	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/Makefile	2012-01-06 17:24:29.679001444 +0400
-+@@ -124,3 +124,4 @@ obj-$(CONFIG_GFS2_FS)           += gfs2/
-+ obj-$(CONFIG_EXOFS_FS)          += exofs/
-+ obj-$(CONFIG_CEPH_FS)		+= ceph/
-+ obj-$(CONFIG_PSTORE)		+= pstore/
-++obj-$(CONFIG_AUFS_FS)           += aufs/
-+diff -auprN a/fs/namei.c b/fs/namei.c
-+--- a/fs/namei.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/namei.c	2012-01-06 17:24:29.717001444 +0400
-+@@ -367,6 +367,7 @@ int deny_write_access(struct file * file
-+ 
-+ 	return 0;
-+ }
-++EXPORT_SYMBOL(deny_write_access);
-+ 
-+ /**
-+  * path_get - get a reference to a path
-+@@ -1705,10 +1706,11 @@ static struct dentry *__lookup_hash(stru
-+  * needs parent already locked. Doesn't follow mounts.
-+  * SMP-safe.
-+  */
-+-static struct dentry *lookup_hash(struct nameidata *nd)
-++struct dentry *lookup_hash(struct nameidata *nd)
-+ {
-+ 	return __lookup_hash(&nd->last, nd->path.dentry, nd);
-+ }
-++EXPORT_SYMBOL(lookup_hash);
-+ 
-+ /**
-+  * lookup_one_len - filesystem helper to lookup single pathname component
-+diff -auprN a/fs/namespace.c b/fs/namespace.c
-+--- a/fs/namespace.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/namespace.c	2012-01-06 17:24:29.720001444 +0400
-+@@ -1506,6 +1506,7 @@ int iterate_mounts(int (*f)(struct vfsmo
-+ 	}
-+ 	return 0;
-+ }
-++EXPORT_SYMBOL(iterate_mounts);
-+ 
-+ static void cleanup_group_ids(struct vfsmount *mnt, struct vfsmount *end)
-+ {
-+diff -auprN a/fs/notify/group.c b/fs/notify/group.c
-+--- a/fs/notify/group.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/notify/group.c	2012-01-06 17:24:29.721001444 +0400
-+@@ -22,6 +22,7 @@
-+ #include <linux/srcu.h>
-+ #include <linux/rculist.h>
-+ #include <linux/wait.h>
-++#include <linux/module.h>
-+ 
-+ #include <linux/fsnotify_backend.h>
-+ #include "fsnotify.h"
-+@@ -70,6 +71,7 @@ void fsnotify_put_group(struct fsnotify_
-+ 	if (atomic_dec_and_test(&group->refcnt))
-+ 		fsnotify_destroy_group(group);
-+ }
-++EXPORT_SYMBOL(fsnotify_put_group);
-+ 
-+ /*
-+  * Create a new fsnotify_group and hold a reference for the group returned.
-+@@ -102,3 +104,4 @@ struct fsnotify_group *fsnotify_alloc_gr
-+ 
-+ 	return group;
-+ }
-++EXPORT_SYMBOL(fsnotify_alloc_group);
-+diff -auprN a/fs/notify/mark.c b/fs/notify/mark.c
-+--- a/fs/notify/mark.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/notify/mark.c	2012-01-06 17:24:29.722001444 +0400
-+@@ -112,6 +112,7 @@ void fsnotify_put_mark(struct fsnotify_m
-+ 	if (atomic_dec_and_test(&mark->refcnt))
-+ 		mark->free_mark(mark);
-+ }
-++EXPORT_SYMBOL(fsnotify_put_mark);
-+ 
-+ /*
-+  * Any time a mark is getting freed we end up here.
-+@@ -189,6 +190,7 @@ void fsnotify_destroy_mark(struct fsnoti
-+ 	if (unlikely(atomic_dec_and_test(&group->num_marks)))
-+ 		fsnotify_final_destroy_group(group);
-+ }
-++EXPORT_SYMBOL(fsnotify_destroy_mark);
-+ 
-+ void fsnotify_set_mark_mask_locked(struct fsnotify_mark *mark, __u32 mask)
-+ {
-+@@ -276,6 +278,7 @@ err:
-+ 
-+ 	return ret;
-+ }
-++EXPORT_SYMBOL(fsnotify_add_mark);
-+ 
-+ /*
-+  * clear any marks in a group in which mark->flags & flags is true
-+@@ -331,6 +334,7 @@ void fsnotify_init_mark(struct fsnotify_
-+ 	atomic_set(&mark->refcnt, 1);
-+ 	mark->free_mark = free_mark;
-+ }
-++EXPORT_SYMBOL(fsnotify_init_mark);
-+ 
-+ static int fsnotify_mark_destroy(void *ignored)
-+ {
-+diff -auprN a/fs/open.c b/fs/open.c
-+--- a/fs/open.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/open.c	2012-01-06 17:24:29.724001444 +0400
-+@@ -60,6 +60,7 @@ int do_truncate(struct dentry *dentry, l
-+ 	mutex_unlock(&dentry->d_inode->i_mutex);
-+ 	return ret;
-+ }
-++EXPORT_SYMBOL(do_truncate);
-+ 
-+ static long do_sys_truncate(const char __user *pathname, loff_t length)
-+ {
-+diff -auprN a/fs/proc/nommu.c b/fs/proc/nommu.c
-+--- a/fs/proc/nommu.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/proc/nommu.c	2012-01-06 17:24:29.692001444 +0400
-+@@ -46,6 +46,10 @@ static int nommu_region_show(struct seq_
-+ 
-+ 	if (file) {
-+ 		struct inode *inode = region->vm_file->f_path.dentry->d_inode;
-++		if (region->vm_prfile) {
-++			file = region->vm_prfile;
-++			inode = file->f_path.dentry->d_inode;
-++		}
-+ 		dev = inode->i_sb->s_dev;
-+ 		ino = inode->i_ino;
-+ 	}
-+diff -auprN a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-+--- a/fs/proc/task_mmu.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/proc/task_mmu.c	2012-01-06 17:24:29.694001444 +0400
-+@@ -220,6 +220,10 @@ static void show_map_vma(struct seq_file
-+ 
-+ 	if (file) {
-+ 		struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
-++		if (vma->vm_prfile) {
-++			file = vma->vm_prfile;
-++			inode = file->f_path.dentry->d_inode;
-++		}
-+ 		dev = inode->i_sb->s_dev;
-+ 		ino = inode->i_ino;
-+ 		pgoff = ((loff_t)vma->vm_pgoff) << PAGE_SHIFT;
-+@@ -1031,6 +1035,8 @@ static int show_numa_map(struct seq_file
-+ 
-+ 	if (file) {
-+ 		seq_printf(m, " file=");
-++		if (vma->vm_prfile)
-++			file = vma->vm_prfile;
-+ 		seq_path(m, &file->f_path, "\n\t= ");
-+ 	} else if (vma->vm_start <= mm->brk && vma->vm_end >= mm->start_brk) {
-+ 		seq_printf(m, " heap");
-+diff -auprN a/fs/proc/task_nommu.c b/fs/proc/task_nommu.c
-+--- a/fs/proc/task_nommu.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/proc/task_nommu.c	2012-01-06 17:24:29.695001444 +0400
-+@@ -148,6 +148,10 @@ static int nommu_vma_show(struct seq_fil
-+ 
-+ 	if (file) {
-+ 		struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
-++		if (vma->vm_prfile) {
-++			file = vma->vm_prfile;
-++			inode = file->f_path.dentry->d_inode;
-++		}
-+ 		dev = inode->i_sb->s_dev;
-+ 		ino = inode->i_ino;
-+ 		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
-+diff -auprN a/fs/splice.c b/fs/splice.c
-+--- a/fs/splice.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/fs/splice.c	2012-01-06 17:24:29.726001444 +0400
-+@@ -1085,8 +1085,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
-+ /*
-+  * Attempt to initiate a splice from pipe to file.
-+  */
-+-static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
-+-			   loff_t *ppos, size_t len, unsigned int flags)
-++long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
-++		    loff_t *ppos, size_t len, unsigned int flags)
-+ {
-+ 	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *,
-+ 				loff_t *, size_t, unsigned int);
-+@@ -1109,13 +1109,14 @@ static long do_splice_from(struct pipe_i
-+ 
-+ 	return splice_write(pipe, out, ppos, len, flags);
-+ }
-++EXPORT_SYMBOL(do_splice_from);
-+ 
-+ /*
-+  * Attempt to initiate a splice from a file to a pipe.
-+  */
-+-static long do_splice_to(struct file *in, loff_t *ppos,
-+-			 struct pipe_inode_info *pipe, size_t len,
-+-			 unsigned int flags)
-++long do_splice_to(struct file *in, loff_t *ppos,
-++		  struct pipe_inode_info *pipe, size_t len,
-++		  unsigned int flags)
-+ {
-+ 	ssize_t (*splice_read)(struct file *, loff_t *,
-+ 			       struct pipe_inode_info *, size_t, unsigned int);
-+@@ -1135,6 +1136,7 @@ static long do_splice_to(struct file *in
-+ 
-+ 	return splice_read(in, ppos, pipe, len, flags);
-+ }
-++EXPORT_SYMBOL(do_splice_to);
-+ 
-+ /**
-+  * splice_direct_to_actor - splices data directly between two non-pipes
 +diff -auprN a/include/linux/aufs_type.h b/include/linux/aufs_type.h
 +--- a/include/linux/aufs_type.h	1970-01-01 03:00:00.000000000 +0300
-++++ b/include/linux/aufs_type.h	2012-01-06 17:24:29.667001444 +0400
-+@@ -0,0 +1,224 @@
+++++ b/include/linux/aufs_type.h	2012-12-06 21:41:05.000000000 +0400
++@@ -0,0 +1,233 @@
 ++/*
-++ * Copyright (C) 2005-2011 Junjiro R. Okajima
+++ * Copyright (C) 2005-2012 Junjiro R. Okajima
 ++ *
 ++ * This program, aufs is free software; you can redistribute it and/or modify
 ++ * it under the terms of the GNU General Public License as published by
@@ -30537,17 +30083,27 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#ifndef __AUFS_TYPE_H__
 ++#define __AUFS_TYPE_H__
 ++
-++#include <linux/ioctl.h>
-++#include <linux/kernel.h>
-++#include <linux/limits.h>
+++#define AUFS_NAME	"aufs"
+++
 ++#ifdef __KERNEL__
-++#include <linux/types.h>
+++/*
+++ * define it before including all other headers.
+++ * sched.h may use pr_* macros before defining "current", so define the
+++ * no-current version first, and re-define later.
+++ */
+++#define pr_fmt(fmt)	AUFS_NAME " %s:%d: " fmt, __func__, __LINE__
+++#include <linux/sched.h>
+++#undef pr_fmt
+++#define pr_fmt(fmt)	AUFS_NAME " %s:%d:%s[%d]: " fmt, \
+++		__func__, __LINE__, current->comm, current->pid
 ++#else
 ++#include <stdint.h>
 ++#include <sys/types.h>
-++#endif
+++#endif /* __KERNEL__ */
 ++
-++#define AUFS_VERSION	"3.0-20111114"
+++#include <linux/limits.h>
+++
+++#define AUFS_VERSION	"3.0-20120827"
 ++
 ++/* todo? move this to linux-2.6.19/include/magic.h */
 ++#define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')
@@ -30576,7 +30132,6 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++
 ++/* ---------------------------------------------------------------------- */
 ++
-++#define AUFS_NAME		"aufs"
 ++#define AUFS_FSTYPE		AUFS_NAME
 ++
 ++#define AUFS_ROOT_INO		2
@@ -30740,9 +30295,192 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 ++#define AUFS_CTL_IBUSY		_IOWR(AuCtlType, AuCtl_IBUSY, struct aufs_ibusy)
 ++
 ++#endif /* __AUFS_TYPE_H__ */
-+diff -auprN a/include/linux/fs.h b/include/linux/fs.h
-+--- a/include/linux/fs.h	2012-01-03 22:50:13.000000000 +0400
-++++ b/include/linux/fs.h	2012-01-06 17:24:29.691001444 +0400
++aufs3.0 base patch
++
++diff --git a/fs/namei.c b/fs/namei.c
++index 14ab8d3..eb4aef1 100644
++--- a/fs/namei.c
+++++ b/fs/namei.c
++@@ -1697,7 +1697,7 @@ static struct dentry *__lookup_hash(struct qstr *name,
++  * needs parent already locked. Doesn't follow mounts.
++  * SMP-safe.
++  */
++-static struct dentry *lookup_hash(struct nameidata *nd)
+++struct dentry *lookup_hash(struct nameidata *nd)
++ {
++ 	return __lookup_hash(&nd->last, nd->path.dentry, nd);
++ }
++diff --git a/fs/splice.c b/fs/splice.c
++index aa866d3..19afec6 100644
++--- a/fs/splice.c
+++++ b/fs/splice.c
++@@ -1085,8 +1085,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
++ /*
++  * Attempt to initiate a splice from pipe to file.
++  */
++-static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
++-			   loff_t *ppos, size_t len, unsigned int flags)
+++long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+++		    loff_t *ppos, size_t len, unsigned int flags)
++ {
++ 	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *,
++ 				loff_t *, size_t, unsigned int);
++@@ -1113,9 +1113,9 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
++ /*
++  * Attempt to initiate a splice from a file to a pipe.
++  */
++-static long do_splice_to(struct file *in, loff_t *ppos,
++-			 struct pipe_inode_info *pipe, size_t len,
++-			 unsigned int flags)
+++long do_splice_to(struct file *in, loff_t *ppos,
+++		  struct pipe_inode_info *pipe, size_t len,
+++		  unsigned int flags)
++ {
++ 	ssize_t (*splice_read)(struct file *, loff_t *,
++ 			       struct pipe_inode_info *, size_t, unsigned int);
++diff --git a/include/linux/namei.h b/include/linux/namei.h
++index eba45ea..21ed6c9 100644
++--- a/include/linux/namei.h
+++++ b/include/linux/namei.h
++@@ -82,6 +82,7 @@ extern int vfs_path_lookup(struct dentry *, struct vfsmount *,
++ extern struct file *lookup_instantiate_filp(struct nameidata *nd, struct dentry *dentry,
++ 		int (*open)(struct inode *, struct file *));
++ 
+++extern struct dentry *lookup_hash(struct nameidata *nd);
++ extern struct dentry *lookup_one_len(const char *, struct dentry *, int);
++ 
++ extern int follow_down_one(struct path *);
++diff --git a/include/linux/splice.h b/include/linux/splice.h
++index 997c3b4..be9a153 100644
++--- a/include/linux/splice.h
+++++ b/include/linux/splice.h
++@@ -89,4 +89,10 @@ extern int splice_grow_spd(struct pipe_inode_info *, struct splice_pipe_desc *);
++ extern void splice_shrink_spd(struct pipe_inode_info *,
++ 				struct splice_pipe_desc *);
++ 
+++extern long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+++			   loff_t *ppos, size_t len, unsigned int flags);
+++extern long do_splice_to(struct file *in, loff_t *ppos,
+++			 struct pipe_inode_info *pipe, size_t len,
+++			 unsigned int flags);
+++
++ #endif
++aufs3.0 kbuild patch
++
++diff --git a/fs/Kconfig b/fs/Kconfig
++index 19891aa..b660b64 100644
++--- a/fs/Kconfig
+++++ b/fs/Kconfig
++@@ -208,6 +208,7 @@ source "fs/pstore/Kconfig"
++ source "fs/sysv/Kconfig"
++ source "fs/ufs/Kconfig"
++ source "fs/exofs/Kconfig"
+++source "fs/aufs/Kconfig"
++ 
++ endif # MISC_FILESYSTEMS
++ 
++diff --git a/fs/Makefile b/fs/Makefile
++index fb68c2b..c031a85 100644
++--- a/fs/Makefile
+++++ b/fs/Makefile
++@@ -124,3 +124,4 @@ obj-$(CONFIG_GFS2_FS)           += gfs2/
++ obj-$(CONFIG_EXOFS_FS)          += exofs/
++ obj-$(CONFIG_CEPH_FS)		+= ceph/
++ obj-$(CONFIG_PSTORE)		+= pstore/
+++obj-$(CONFIG_AUFS_FS)           += aufs/
++diff --git a/include/linux/Kbuild b/include/linux/Kbuild
++index 01f6362..8b3b9f1 100644
++--- a/include/linux/Kbuild
+++++ b/include/linux/Kbuild
++@@ -65,6 +65,7 @@ header-y += atmppp.h
++ header-y += atmsap.h
++ header-y += atmsvc.h
++ header-y += audit.h
+++header-y += aufs_type.h
++ header-y += auto_fs.h
++ header-y += auto_fs4.h
++ header-y += auxvec.h
++aufs3.0 loopback patch
++
++diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
++index 5cf9963..1a775fd 100644
++--- a/fs/aufs/f_op.c
+++++ b/fs/aufs/f_op.c
++@@ -355,7 +355,7 @@ static ssize_t aufs_splice_read(struct file *file, loff_t *ppos,
++ 	err = -EINVAL;
++ 	h_file = au_hf_top(file);
++ 	get_file(h_file);
++-	if (au_test_loopback_kthread()) {
+++	if (0 && au_test_loopback_kthread()) {
++ 		au_warn_loopback(h_file->f_dentry->d_sb);
++ 		if (file->f_mapping != h_file->f_mapping) {
++ 			file->f_mapping = h_file->f_mapping;
++diff --git a/fs/aufs/loop.c b/fs/aufs/loop.c
++index 016276a..6b24e8b 100644
++--- a/fs/aufs/loop.c
+++++ b/fs/aufs/loop.c
++@@ -131,3 +131,19 @@ void au_loopback_fin(void)
++ {
++ 	kfree(au_warn_loopback_array);
++ }
+++
+++/* ---------------------------------------------------------------------- */
+++
+++/* support the loopback block device insude aufs */
+++
+++struct file *aufs_real_loop(struct file *file)
+++{
+++	struct file *f;
+++
+++	BUG_ON(!au_test_aufs(file->f_dentry->d_sb));
+++	fi_read_lock(file);
+++	f = au_hf_top(file);
+++	fi_read_unlock(file);
+++	AuDebugOn(!f);
+++	return f;
+++}
++diff --git a/fs/aufs/loop.h b/fs/aufs/loop.h
++index b7af6a7..7a50e6e 100644
++--- a/fs/aufs/loop.h
+++++ b/fs/aufs/loop.h
++@@ -36,6 +36,8 @@ void au_warn_loopback(struct super_block *h_sb);
++ 
++ int au_loopback_init(void);
++ void au_loopback_fin(void);
+++
+++struct file *aufs_real_loop(struct file *file);
++ #else
++ AuStubInt0(au_test_loopback_overlap, struct super_block *sb,
++ 	   struct dentry *h_adding)
++@@ -44,6 +46,8 @@ AuStubVoid(au_warn_loopback, struct super_block *h_sb)
++ 
++ AuStubInt0(au_loopback_init, void)
++ AuStubVoid(au_loopback_fin, void)
+++
+++AuStub(struct file *, aufs_real_loop, return NULL, struct file *file)
++ #endif /* BLK_DEV_LOOP */
++ 
++ #endif /* __KERNEL__ */
++diff --git a/fs/aufs/super.c b/fs/aufs/super.c
++index 0b6849f..73a1766 100644
++--- a/fs/aufs/super.c
+++++ b/fs/aufs/super.c
++@@ -782,7 +782,10 @@ static const struct super_operations aufs_sop = {
++ 	.show_options	= aufs_show_options,
++ 	.statfs		= aufs_statfs,
++ 	.put_super	= aufs_put_super,
++-	.remount_fs	= aufs_remount_fs
+++	.remount_fs	= aufs_remount_fs,
+++#ifdef CONFIG_AUFS_BDEV_LOOP
+++	.real_loop	= aufs_real_loop
+++#endif
++ };
++ 
++ /* ---------------------------------------------------------------------- */
++diff --git a/include/linux/fs.h b/include/linux/fs.h
++index b5b9792..dc57779 100644
++--- a/include/linux/fs.h
+++++ b/include/linux/fs.h
 +@@ -1645,6 +1645,10 @@ struct super_operations {
 + 	ssize_t (*quota_write)(struct super_block *, int, const char *, size_t, loff_t);
 + #endif
@@ -30754,20 +30492,10 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + };
 + 
 + /*
-+diff -auprN a/include/linux/Kbuild b/include/linux/Kbuild
-+--- a/include/linux/Kbuild	2012-01-03 22:50:13.000000000 +0400
-++++ b/include/linux/Kbuild	2012-01-06 17:24:29.680001444 +0400
-+@@ -65,6 +65,7 @@ header-y += atmppp.h
-+ header-y += atmsap.h
-+ header-y += atmsvc.h
-+ header-y += audit.h
-++header-y += aufs_type.h
-+ header-y += auto_fs.h
-+ header-y += auto_fs4.h
-+ header-y += auxvec.h
-+diff -auprN a/include/linux/loop.h b/include/linux/loop.h
-+--- a/include/linux/loop.h	2012-01-03 22:50:13.000000000 +0400
-++++ b/include/linux/loop.h	2012-01-06 17:24:29.691001444 +0400
++diff --git a/include/linux/loop.h b/include/linux/loop.h
++index 66c194e..37dd916 100644
++--- a/include/linux/loop.h
+++++ b/include/linux/loop.h
 +@@ -48,7 +48,7 @@ struct loop_device {
 + 	int		(*ioctl)(struct loop_device *, int cmd, 
 + 				 unsigned long arg); 
@@ -30777,10 +30505,67 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 	struct block_device *lo_device;
 + 	unsigned	lo_blocksize;
 + 	void		*key_data; 
-+diff -auprN a/include/linux/mm_types.h b/include/linux/mm_types.h
-+--- a/include/linux/mm_types.h	2012-01-03 22:50:13.000000000 +0400
-++++ b/include/linux/mm_types.h	2012-01-06 17:24:29.698001444 +0400
-+@@ -131,6 +131,7 @@ struct vm_region {
++aufs3.0 proc_map patch
++
++diff --git a/fs/proc/nommu.c b/fs/proc/nommu.c
++index b1822dd..8b29ab7 100644
++--- a/fs/proc/nommu.c
+++++ b/fs/proc/nommu.c
++@@ -46,6 +46,10 @@ static int nommu_region_show(struct seq_file *m, struct vm_region *region)
++ 
++ 	if (file) {
++ 		struct inode *inode = region->vm_file->f_path.dentry->d_inode;
+++		if (region->vm_prfile) {
+++			file = region->vm_prfile;
+++			inode = file->f_path.dentry->d_inode;
+++		}
++ 		dev = inode->i_sb->s_dev;
++ 		ino = inode->i_ino;
++ 	}
++diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
++index 25b6a88..47ed5d8 100644
++--- a/fs/proc/task_mmu.c
+++++ b/fs/proc/task_mmu.c
++@@ -220,6 +220,10 @@ static void show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
++ 
++ 	if (file) {
++ 		struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
+++		if (vma->vm_prfile) {
+++			file = vma->vm_prfile;
+++			inode = file->f_path.dentry->d_inode;
+++		}
++ 		dev = inode->i_sb->s_dev;
++ 		ino = inode->i_ino;
++ 		pgoff = ((loff_t)vma->vm_pgoff) << PAGE_SHIFT;
++@@ -1001,6 +1005,8 @@ static int show_numa_map(struct seq_file *m, void *v)
++ 
++ 	if (file) {
++ 		seq_printf(m, " file=");
+++		if (vma->vm_prfile)
+++			file = vma->vm_prfile;
++ 		seq_path(m, &file->f_path, "\n\t= ");
++ 	} else if (vma->vm_start <= mm->brk && vma->vm_end >= mm->start_brk) {
++ 		seq_printf(m, " heap");
++diff --git a/fs/proc/task_nommu.c b/fs/proc/task_nommu.c
++index 980de54..4ee031f 100644
++--- a/fs/proc/task_nommu.c
+++++ b/fs/proc/task_nommu.c
++@@ -148,6 +148,10 @@ static int nommu_vma_show(struct seq_file *m, struct vm_area_struct *vma)
++ 
++ 	if (file) {
++ 		struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
+++		if (vma->vm_prfile) {
+++			file = vma->vm_prfile;
+++			inode = file->f_path.dentry->d_inode;
+++		}
++ 		dev = inode->i_sb->s_dev;
++ 		ino = inode->i_ino;
++ 		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
++diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
++index 027935c..0ade381 100644
++--- a/include/linux/mm_types.h
+++++ b/include/linux/mm_types.h
++@@ -117,6 +117,7 @@ struct vm_region {
 + 	unsigned long	vm_top;		/* region allocated to here */
 + 	unsigned long	vm_pgoff;	/* the offset in vm_file corresponding to vm_start */
 + 	struct file	*vm_file;	/* the backing file or NULL */
@@ -30788,7 +30573,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + 	int		vm_usage;	/* region usage count (access under nommu_region_sem) */
 + 	bool		vm_icache_flushed : 1; /* true if the icache has been flushed for
-+@@ -190,6 +191,7 @@ struct vm_area_struct {
++@@ -176,6 +177,7 @@ struct vm_area_struct {
 + 	unsigned long vm_pgoff;		/* Offset (within vm_file) in PAGE_SIZE
 + 					   units, *not* PAGE_CACHE_SIZE */
 + 	struct file * vm_file;		/* File we map to (can be NULL). */
@@ -30796,35 +30581,11 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 	void * vm_private_data;		/* was vm_pte (shared mem) */
 + 
 + #ifndef CONFIG_MMU
-+diff -auprN a/include/linux/namei.h b/include/linux/namei.h
-+--- a/include/linux/namei.h	2012-01-03 22:50:13.000000000 +0400
-++++ b/include/linux/namei.h	2012-01-06 17:24:29.676001444 +0400
-+@@ -84,6 +84,7 @@ extern int vfs_path_lookup(struct dentry
-+ extern struct file *lookup_instantiate_filp(struct nameidata *nd, struct dentry *dentry,
-+ 		int (*open)(struct inode *, struct file *));
-+ 
-++extern struct dentry *lookup_hash(struct nameidata *nd);
-+ extern struct dentry *lookup_one_len(const char *, struct dentry *, int);
-+ 
-+ extern int follow_down_one(struct path *);
-+diff -auprN a/include/linux/splice.h b/include/linux/splice.h
-+--- a/include/linux/splice.h	2012-01-03 22:50:13.000000000 +0400
-++++ b/include/linux/splice.h	2012-01-06 17:24:29.677001444 +0400
-+@@ -89,4 +89,10 @@ extern int splice_grow_spd(struct pipe_i
-+ extern void splice_shrink_spd(struct pipe_inode_info *,
-+ 				struct splice_pipe_desc *);
-+ 
-++extern long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
-++			   loff_t *ppos, size_t len, unsigned int flags);
-++extern long do_splice_to(struct file *in, loff_t *ppos,
-++			 struct pipe_inode_info *pipe, size_t len,
-++			 unsigned int flags);
-++
-+ #endif
-+diff -auprN a/kernel/fork.c b/kernel/fork.c
-+--- a/kernel/fork.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/kernel/fork.c	2012-01-06 17:24:29.700001444 +0400
-+@@ -380,6 +380,8 @@ static int dup_mmap(struct mm_struct *mm
++diff --git a/kernel/fork.c b/kernel/fork.c
++index 0276c30..39d8176 100644
++--- a/kernel/fork.c
+++++ b/kernel/fork.c
++@@ -380,6 +380,8 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
 + 			struct address_space *mapping = file->f_mapping;
 + 
 + 			get_file(file);
@@ -30833,10 +30594,11 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 			if (tmp->vm_flags & VM_DENYWRITE)
 + 				atomic_dec(&inode->i_writecount);
 + 			mutex_lock(&mapping->i_mmap_mutex);
-+diff -auprN a/mm/memory.c b/mm/memory.c
-+--- a/mm/memory.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/mm/memory.c	2012-01-06 17:24:29.705001444 +0400
-+@@ -2633,6 +2633,8 @@ reuse:
++diff --git a/mm/memory.c b/mm/memory.c
++index 9b8a01d..8902d06 100644
++--- a/mm/memory.c
+++++ b/mm/memory.c
++@@ -2577,6 +2577,8 @@ reuse:
 + 		/* file_update_time outside page_lock */
 + 		if (vma->vm_file)
 + 			file_update_time(vma->vm_file);
@@ -30845,7 +30607,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + 		return ret;
 + 	}
-+@@ -3313,6 +3315,8 @@ out:
++@@ -3257,6 +3259,8 @@ out:
 + 		/* file_update_time outside page_lock */
 + 		if (vma->vm_file)
 + 			file_update_time(vma->vm_file);
@@ -30854,10 +30616,11 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 	} else {
 + 		unlock_page(vmf.page);
 + 		if (anon)
-+diff -auprN a/mm/mmap.c b/mm/mmap.c
-+--- a/mm/mmap.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/mm/mmap.c	2012-01-06 17:24:29.708001444 +0400
-+@@ -240,6 +240,8 @@ static struct vm_area_struct *remove_vma
++diff --git a/mm/mmap.c b/mm/mmap.c
++index d49736f..0290c8e 100644
++--- a/mm/mmap.c
+++++ b/mm/mmap.c
++@@ -240,6 +240,8 @@ static struct vm_area_struct *remove_vma(struct vm_area_struct *vma)
 + 		vma->vm_ops->close(vma);
 + 	if (vma->vm_file) {
 + 		fput(vma->vm_file);
@@ -30866,7 +30629,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 		if (vma->vm_flags & VM_EXECUTABLE)
 + 			removed_exe_file_vma(vma->vm_mm);
 + 	}
-+@@ -627,6 +629,8 @@ again:			remove_next = 1 + (end > next->
++@@ -627,6 +629,8 @@ again:			remove_next = 1 + (end > next->vm_end);
 + 	if (remove_next) {
 + 		if (file) {
 + 			fput(file);
@@ -30875,7 +30638,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 			if (next->vm_flags & VM_EXECUTABLE)
 + 				removed_exe_file_vma(mm);
 + 		}
-+@@ -1973,6 +1977,8 @@ static int __split_vma(struct mm_struct
++@@ -1973,6 +1977,8 @@ static int __split_vma(struct mm_struct * mm, struct vm_area_struct * vma,
 + 
 + 	if (new->vm_file) {
 + 		get_file(new->vm_file);
@@ -30884,7 +30647,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 		if (vma->vm_flags & VM_EXECUTABLE)
 + 			added_exe_file_vma(mm);
 + 	}
-+@@ -1997,6 +2003,8 @@ static int __split_vma(struct mm_struct
++@@ -1997,6 +2003,8 @@ static int __split_vma(struct mm_struct * mm, struct vm_area_struct * vma,
 + 		if (vma->vm_flags & VM_EXECUTABLE)
 + 			removed_exe_file_vma(mm);
 + 		fput(new->vm_file);
@@ -30893,7 +30656,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 	}
 + 	unlink_anon_vmas(new);
 +  out_free_mpol:
-+@@ -2364,6 +2372,8 @@ struct vm_area_struct *copy_vma(struct v
++@@ -2364,6 +2372,8 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 + 			new_vma->vm_pgoff = pgoff;
 + 			if (new_vma->vm_file) {
 + 				get_file(new_vma->vm_file);
@@ -30902,10 +30665,11 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 				if (vma->vm_flags & VM_EXECUTABLE)
 + 					added_exe_file_vma(mm);
 + 			}
-+diff -auprN a/mm/nommu.c b/mm/nommu.c
-+--- a/mm/nommu.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/mm/nommu.c	2012-01-06 17:24:29.710001444 +0400
-+@@ -634,6 +634,8 @@ static void __put_nommu_region(struct vm
++diff --git a/mm/nommu.c b/mm/nommu.c
++index 9edc897..72631ebe 100644
++--- a/mm/nommu.c
+++++ b/mm/nommu.c
++@@ -634,6 +634,8 @@ static void __put_nommu_region(struct vm_region *region)
 + 
 + 		if (region->vm_file)
 + 			fput(region->vm_file);
@@ -30914,7 +30678,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + 		/* IO memory and memory shared directly out of the pagecache
 + 		 * from ramfs/tmpfs mustn't be released here */
-+@@ -790,6 +792,8 @@ static void delete_vma(struct mm_struct
++@@ -790,6 +792,8 @@ static void delete_vma(struct mm_struct *mm, struct vm_area_struct *vma)
 + 		vma->vm_ops->close(vma);
 + 	if (vma->vm_file) {
 + 		fput(vma->vm_file);
@@ -30923,7 +30687,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 		if (vma->vm_flags & VM_EXECUTABLE)
 + 			removed_exe_file_vma(mm);
 + 	}
-+@@ -1363,6 +1367,8 @@ unsigned long do_mmap_pgoff(struct file
++@@ -1363,6 +1367,8 @@ unsigned long do_mmap_pgoff(struct file *file,
 + 				}
 + 			}
 + 			fput(region->vm_file);
@@ -30946,17 +30710,171 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 	if (vma->vm_flags & VM_EXECUTABLE)
 + 		removed_exe_file_vma(vma->vm_mm);
 + 	kmem_cache_free(vm_area_cachep, vma);
-+diff -auprN a/security/commoncap.c b/security/commoncap.c
-+--- a/security/commoncap.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/security/commoncap.c	2012-01-06 17:24:29.728001444 +0400
-+@@ -971,3 +971,4 @@ int cap_file_mmap(struct file *file, uns
++aufs3.0 standalone patch
++
++diff --git a/fs/file_table.c b/fs/file_table.c
++index 01e4c1e..0e800e2 100644
++--- a/fs/file_table.c
+++++ b/fs/file_table.c
++@@ -443,6 +443,8 @@ void file_sb_list_del(struct file *file)
++ 	}
++ }
++ 
+++EXPORT_SYMBOL(file_sb_list_del);
+++
++ #ifdef CONFIG_SMP
++ 
++ /*
++diff --git a/fs/inode.c b/fs/inode.c
++index 43566d1..4291eae 100644
++--- a/fs/inode.c
+++++ b/fs/inode.c
++@@ -69,6 +69,7 @@ static DEFINE_SPINLOCK(inode_lru_lock);
++ 
++ __cacheline_aligned_in_smp DEFINE_SPINLOCK(inode_sb_list_lock);
++ __cacheline_aligned_in_smp DEFINE_SPINLOCK(inode_wb_list_lock);
+++EXPORT_SYMBOL(inode_sb_list_lock);
++ 
++ /*
++  * iprune_sem provides exclusion between the icache shrinking and the
++diff --git a/fs/namei.c b/fs/namei.c
++index eb4aef1..66d04c6 100644
++--- a/fs/namei.c
+++++ b/fs/namei.c
++@@ -365,6 +365,7 @@ int deny_write_access(struct file * file)
++ 
++ 	return 0;
++ }
+++EXPORT_SYMBOL(deny_write_access);
++ 
++ /**
++  * path_get - get a reference to a path
++@@ -1701,6 +1702,7 @@ struct dentry *lookup_hash(struct nameidata *nd)
++ {
++ 	return __lookup_hash(&nd->last, nd->path.dentry, nd);
++ }
+++EXPORT_SYMBOL(lookup_hash);
++ 
++ /**
++  * lookup_one_len - filesystem helper to lookup single pathname component
++diff --git a/fs/namespace.c b/fs/namespace.c
++index fe59bd1..7d3843f 100644
++--- a/fs/namespace.c
+++++ b/fs/namespace.c
++@@ -1508,6 +1508,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
++ 	}
++ 	return 0;
++ }
+++EXPORT_SYMBOL(iterate_mounts);
++ 
++ static void cleanup_group_ids(struct vfsmount *mnt, struct vfsmount *end)
++ {
++diff --git a/fs/notify/group.c b/fs/notify/group.c
++index d309f38..f0e9568 100644
++--- a/fs/notify/group.c
+++++ b/fs/notify/group.c
++@@ -22,6 +22,7 @@
++ #include <linux/srcu.h>
++ #include <linux/rculist.h>
++ #include <linux/wait.h>
+++#include <linux/module.h>
++ 
++ #include <linux/fsnotify_backend.h>
++ #include "fsnotify.h"
++@@ -70,6 +71,7 @@ void fsnotify_put_group(struct fsnotify_group *group)
++ 	if (atomic_dec_and_test(&group->refcnt))
++ 		fsnotify_destroy_group(group);
++ }
+++EXPORT_SYMBOL(fsnotify_put_group);
++ 
++ /*
++  * Create a new fsnotify_group and hold a reference for the group returned.
++@@ -102,3 +104,4 @@ struct fsnotify_group *fsnotify_alloc_group(const struct fsnotify_ops *ops)
++ 
++ 	return group;
++ }
+++EXPORT_SYMBOL(fsnotify_alloc_group);
++diff --git a/fs/notify/mark.c b/fs/notify/mark.c
++index 252ab1f..2199b9b 100644
++--- a/fs/notify/mark.c
+++++ b/fs/notify/mark.c
++@@ -112,6 +112,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
++ 	if (atomic_dec_and_test(&mark->refcnt))
++ 		mark->free_mark(mark);
++ }
+++EXPORT_SYMBOL(fsnotify_put_mark);
++ 
++ /*
++  * Any time a mark is getting freed we end up here.
++@@ -189,6 +190,7 @@ void fsnotify_destroy_mark(struct fsnotify_mark *mark)
++ 	if (unlikely(atomic_dec_and_test(&group->num_marks)))
++ 		fsnotify_final_destroy_group(group);
++ }
+++EXPORT_SYMBOL(fsnotify_destroy_mark);
++ 
++ void fsnotify_set_mark_mask_locked(struct fsnotify_mark *mark, __u32 mask)
++ {
++@@ -276,6 +278,7 @@ err:
++ 
++ 	return ret;
++ }
+++EXPORT_SYMBOL(fsnotify_add_mark);
++ 
++ /*
++  * clear any marks in a group in which mark->flags & flags is true
++@@ -331,6 +334,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
++ 	atomic_set(&mark->refcnt, 1);
++ 	mark->free_mark = free_mark;
++ }
+++EXPORT_SYMBOL(fsnotify_init_mark);
++ 
++ static int fsnotify_mark_destroy(void *ignored)
++ {
++diff --git a/fs/open.c b/fs/open.c
++index b52cf01..c1b341c 100644
++--- a/fs/open.c
+++++ b/fs/open.c
++@@ -60,6 +60,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
++ 	mutex_unlock(&dentry->d_inode->i_mutex);
++ 	return ret;
++ }
+++EXPORT_SYMBOL(do_truncate);
++ 
++ static long do_sys_truncate(const char __user *pathname, loff_t length)
++ {
++diff --git a/fs/splice.c b/fs/splice.c
++index 19afec6..11f07f86 100644
++--- a/fs/splice.c
+++++ b/fs/splice.c
++@@ -1109,6 +1109,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
++ 
++ 	return splice_write(pipe, out, ppos, len, flags);
++ }
+++EXPORT_SYMBOL(do_splice_from);
++ 
++ /*
++  * Attempt to initiate a splice from a file to a pipe.
++@@ -1135,6 +1136,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
++ 
++ 	return splice_read(in, ppos, pipe, len, flags);
++ }
+++EXPORT_SYMBOL(do_splice_to);
++ 
++ /**
++  * splice_direct_to_actor - splices data directly between two non-pipes
++diff --git a/security/commoncap.c b/security/commoncap.c
++index a93b3b7..024282c 100644
++--- a/security/commoncap.c
+++++ b/security/commoncap.c
++@@ -971,3 +971,4 @@ int cap_file_mmap(struct file *file, unsigned long reqprot,
 + 	}
 + 	return ret;
 + }
 ++EXPORT_SYMBOL(cap_file_mmap);
-+diff -auprN a/security/device_cgroup.c b/security/device_cgroup.c
-+--- a/security/device_cgroup.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/security/device_cgroup.c	2012-01-06 17:24:29.729001444 +0400
++diff --git a/security/device_cgroup.c b/security/device_cgroup.c
++index 1be6826..215278c 100644
++--- a/security/device_cgroup.c
+++++ b/security/device_cgroup.c
 +@@ -508,6 +508,7 @@ found:
 + 
 + 	return -EPERM;
@@ -30965,10 +30883,11 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int devcgroup_inode_mknod(int mode, dev_t dev)
 + {
-+diff -auprN a/security/security.c b/security/security.c
-+--- a/security/security.c	2012-01-03 22:50:13.000000000 +0400
-++++ b/security/security.c	2012-01-06 17:24:29.731001444 +0400
-+@@ -373,6 +373,7 @@ int security_path_rmdir(struct path *dir
++diff --git a/security/security.c b/security/security.c
++index 4ba6d4c..9f64bb8 100644
++--- a/security/security.c
+++++ b/security/security.c
++@@ -373,6 +373,7 @@ int security_path_rmdir(struct path *dir, struct dentry *dentry)
 + 		return 0;
 + 	return security_ops->path_rmdir(dir, dentry);
 + }
@@ -30976,7 +30895,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_path_unlink(struct path *dir, struct dentry *dentry)
 + {
-+@@ -389,6 +390,7 @@ int security_path_symlink(struct path *d
++@@ -389,6 +390,7 @@ int security_path_symlink(struct path *dir, struct dentry *dentry,
 + 		return 0;
 + 	return security_ops->path_symlink(dir, dentry, old_name);
 + }
@@ -30984,7 +30903,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_path_link(struct dentry *old_dentry, struct path *new_dir,
 + 		       struct dentry *new_dentry)
-+@@ -397,6 +399,7 @@ int security_path_link(struct dentry *ol
++@@ -397,6 +399,7 @@ int security_path_link(struct dentry *old_dentry, struct path *new_dir,
 + 		return 0;
 + 	return security_ops->path_link(old_dentry, new_dir, new_dentry);
 + }
@@ -30992,7 +30911,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_path_rename(struct path *old_dir, struct dentry *old_dentry,
 + 			 struct path *new_dir, struct dentry *new_dentry)
-+@@ -415,6 +418,7 @@ int security_path_truncate(struct path *
++@@ -415,6 +418,7 @@ int security_path_truncate(struct path *path)
 + 		return 0;
 + 	return security_ops->path_truncate(path);
 + }
@@ -31000,7 +30919,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_path_chmod(struct dentry *dentry, struct vfsmount *mnt,
 + 			mode_t mode)
-+@@ -423,6 +427,7 @@ int security_path_chmod(struct dentry *d
++@@ -423,6 +427,7 @@ int security_path_chmod(struct dentry *dentry, struct vfsmount *mnt,
 + 		return 0;
 + 	return security_ops->path_chmod(dentry, mnt, mode);
 + }
@@ -31008,7 +30927,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_path_chown(struct path *path, uid_t uid, gid_t gid)
 + {
-+@@ -430,6 +435,7 @@ int security_path_chown(struct path *pat
++@@ -430,6 +435,7 @@ int security_path_chown(struct path *path, uid_t uid, gid_t gid)
 + 		return 0;
 + 	return security_ops->path_chown(path, uid, gid);
 + }
@@ -31016,7 +30935,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_path_chroot(struct path *path)
 + {
-+@@ -506,6 +512,7 @@ int security_inode_readlink(struct dentr
++@@ -506,6 +512,7 @@ int security_inode_readlink(struct dentry *dentry)
 + 		return 0;
 + 	return security_ops->inode_readlink(dentry);
 + }
@@ -31024,7 +30943,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_inode_follow_link(struct dentry *dentry, struct nameidata *nd)
 + {
-+@@ -520,6 +527,7 @@ int security_inode_permission(struct ino
++@@ -520,6 +527,7 @@ int security_inode_permission(struct inode *inode, int mask)
 + 		return 0;
 + 	return security_ops->inode_permission(inode, mask, 0);
 + }
@@ -31032,7 +30951,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_inode_exec_permission(struct inode *inode, unsigned int flags)
 + {
-+@@ -626,6 +634,7 @@ int security_file_permission(struct file
++@@ -626,6 +634,7 @@ int security_file_permission(struct file *file, int mask)
 + 
 + 	return fsnotify_perm(file, mask);
 + }
@@ -31040,7 +30959,7 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_file_alloc(struct file *file)
 + {
-+@@ -653,6 +662,7 @@ int security_file_mmap(struct file *file
++@@ -653,6 +662,7 @@ int security_file_mmap(struct file *file, unsigned long reqprot,
 + 		return ret;
 + 	return ima_file_mmap(file, prot);
 + }
@@ -31048,6 +30967,187 @@ diff -auprN a/patches/aufs3.0-linux.patch b/patches/aufs3.0-linux.patch
 + 
 + int security_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
 + 			    unsigned long prot)
++diff -aupr a/drivers/block/loop.c b/drivers/block/loop.c
++--- a/drivers/block/loop.c	2012-12-10 22:03:06.000000000 +0400
+++++ b/drivers/block/loop.c	2012-12-10 22:05:25.000000000 +0400
++@@ -541,7 +541,7 @@ out:
++ }
++ 
++ struct switch_request {
++-	struct file *file;
+++	struct file *file, *virt_file;
++ 	struct completion wait;
++ };
++ 
++@@ -601,7 +601,8 @@ static int loop_thread(void *data)
++  * First it needs to flush existing IO, it does this by sending a magic
++  * BIO down the pipe. The completion of this BIO does the actual switch.
++  */
++-static int loop_switch(struct loop_device *lo, struct file *file)
+++static int loop_switch(struct loop_device *lo, struct file *file,
+++		       struct file *virt_file)
++ {
++ 	struct switch_request w;
++ 	struct bio *bio = bio_alloc(GFP_KERNEL, 0);
++@@ -609,6 +610,7 @@ static int loop_switch(struct loop_devic
++ 		return -ENOMEM;
++ 	init_completion(&w.wait);
++ 	w.file = file;
+++	w.virt_file = virt_file;
++ 	bio->bi_private = &w;
++ 	bio->bi_bdev = NULL;
++ 	loop_make_request(lo->lo_queue, bio);
++@@ -625,7 +627,7 @@ static int loop_flush(struct loop_device
++ 	if (!lo->lo_thread)
++ 		return 0;
++ 
++-	return loop_switch(lo, NULL);
+++	return loop_switch(lo, NULL, NULL);
++ }
++ 
++ /*
++@@ -644,6 +646,7 @@ static void do_loop_switch(struct loop_d
++ 	mapping = file->f_mapping;
++ 	mapping_set_gfp_mask(old_file->f_mapping, lo->old_gfp_mask);
++ 	lo->lo_backing_file = file;
+++	lo->lo_backing_virt_file = p->virt_file;
++ 	lo->lo_blocksize = S_ISBLK(mapping->host->i_mode) ?
++ 		mapping->host->i_bdev->bd_block_size : PAGE_SIZE;
++ 	lo->old_gfp_mask = mapping_gfp_mask(mapping);
++@@ -652,6 +655,13 @@ out:
++ 	complete(&p->wait);
++ }
++ 
+++static struct file *loop_real_file(struct file *file)
+++{
+++	struct file *f = NULL;
+++	if (file->f_dentry->d_sb->s_op->real_loop)
+++		f = file->f_dentry->d_sb->s_op->real_loop(file);
+++	return f;
+++}
++ 
++ /*
++  * loop_change_fd switched the backing store of a loopback device to
++@@ -665,6 +675,7 @@ static int loop_change_fd(struct loop_de
++ 			  unsigned int arg)
++ {
++ 	struct file	*file, *old_file;
+++	struct file	*f, *virt_file = NULL, *old_virt_file;
++ 	struct inode	*inode;
++ 	int		error;
++ 
++@@ -681,9 +692,16 @@ static int loop_change_fd(struct loop_de
++ 	file = fget(arg);
++ 	if (!file)
++ 		goto out;
+++	f = loop_real_file(file);
+++	if (f) {
+++		virt_file = file;
+++		file = f;
+++		get_file(file);
+++	}
++ 
++ 	inode = file->f_mapping->host;
++ 	old_file = lo->lo_backing_file;
+++	old_virt_file = lo->lo_backing_virt_file;
++ 
++ 	error = -EINVAL;
++ 
++@@ -695,17 +713,21 @@ static int loop_change_fd(struct loop_de
++ 		goto out_putf;
++ 
++ 	/* and ... switch */
++-	error = loop_switch(lo, file);
+++	error = loop_switch(lo, file, virt_file);
++ 	if (error)
++ 		goto out_putf;
++ 
++ 	fput(old_file);
+++	if (old_virt_file)
+++		fput(old_virt_file);
++ 	if (max_part > 0)
++ 		ioctl_by_bdev(bdev, BLKRRPART, 0);
++ 	return 0;
++ 
++  out_putf:
++ 	fput(file);
+++	if (virt_file)
+++		fput(virt_file);
++  out:
++ 	return error;
++ }
++@@ -817,7 +839,7 @@ static void loop_sysfs_exit(struct loop_
++ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
++ 		       struct block_device *bdev, unsigned int arg)
++ {
++-	struct file	*file, *f;
+++	struct file	*file, *f, *virt_file = NULL;
++ 	struct inode	*inode;
++ 	struct address_space *mapping;
++ 	unsigned lo_blocksize;
++@@ -832,6 +854,12 @@ static int loop_set_fd(struct loop_devic
++ 	file = fget(arg);
++ 	if (!file)
++ 		goto out;
+++	f = loop_real_file(file);
+++	if (f) {
+++		virt_file = file;
+++		file = f;
+++		get_file(file);
+++	}
++ 
++ 	error = -EBUSY;
++ 	if (lo->lo_state != Lo_unbound)
++@@ -892,6 +920,7 @@ static int loop_set_fd(struct loop_devic
++ 	lo->lo_device = bdev;
++ 	lo->lo_flags = lo_flags;
++ 	lo->lo_backing_file = file;
+++	lo->lo_backing_virt_file = virt_file;
++ 	lo->transfer = transfer_none;
++ 	lo->ioctl = NULL;
++ 	lo->lo_sizelimit = 0;
++@@ -935,6 +964,7 @@ out_clr:
++ 	lo->lo_thread = NULL;
++ 	lo->lo_device = NULL;
++ 	lo->lo_backing_file = NULL;
+++	lo->lo_backing_virt_file = NULL;
++ 	lo->lo_flags = 0;
++ 	set_capacity(lo->lo_disk, 0);
++ 	invalidate_bdev(bdev);
++@@ -944,6 +974,8 @@ out_clr:
++ 	lo->lo_state = Lo_unbound;
++  out_putf:
++ 	fput(file);
+++	if (virt_file)
+++		fput(virt_file);
++  out:
++ 	/* This is safe: open() is still holding a reference. */
++ 	module_put(THIS_MODULE);
++@@ -990,6 +1022,7 @@ loop_init_xfer(struct loop_device *lo, s
++ static int loop_clr_fd(struct loop_device *lo, struct block_device *bdev)
++ {
++ 	struct file *filp = lo->lo_backing_file;
+++	struct file *virt_filp = lo->lo_backing_virt_file;
++ 	gfp_t gfp = lo->old_gfp_mask;
++ 
++ 	if (lo->lo_state != Lo_bound)
++@@ -1009,6 +1042,7 @@ static int loop_clr_fd(struct loop_devic
++ 
++ 	spin_lock_irq(&lo->lo_lock);
++ 	lo->lo_backing_file = NULL;
+++	lo->lo_backing_virt_file = NULL;
++ 	spin_unlock_irq(&lo->lo_lock);
++ 
++ 	loop_release_xfer(lo);
++@@ -1047,6 +1081,8 @@ static int loop_clr_fd(struct loop_devic
++ 	 * bd_mutex which is usually taken before lo_ctl_mutex.
++ 	 */
++ 	fput(filp);
+++	if (virt_filp)
+++		fput(virt_filp);
++ 	return 0;
++ }
++ 
 diff -auprN a/patches/fs-unionfs-2.5.11_for_3.0.18.patch b/patches/fs-unionfs-2.5.11_for_3.0.18.patch
 --- a/patches/fs-unionfs-2.5.11_for_3.0.18.patch	2012-03-31 16:09:29.000000000 +0400
 +++ b/patches/fs-unionfs-2.5.11_for_3.0.18.patch	1970-01-01 03:00:00.000000000 +0300
@@ -42469,7 +42569,7 @@ diff -auprN a/patches/fs-unionfs-2.5.11_for_3.0.18.patch b/patches/fs-unionfs-2.
 - {
 diff -auprN a/patches/series b/patches/series
 --- a/patches/series	2012-06-23 15:32:40.000000000 +0400
-+++ b/patches/series	2012-12-08 15:11:38.243079753 +0400
++++ b/patches/series	2012-12-10 22:12:02.348000692 +0400
 @@ -120,13 +120,16 @@ dm-raid-aliases.patch
  ###
  
@@ -42498,7 +42598,7 @@ diff -auprN a/patches/series b/patches/series
  # https://bugzilla.kernel.org/show_bug.cgi?id=26232
 diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 --- a/patches/video-magos-logo.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/video-magos-logo.patch	2012-12-08 15:11:38.245078753 +0400
++++ b/patches/video-magos-logo.patch	2012-12-10 22:12:02.350000692 +0400
 @@ -0,0 +1,938 @@
 +diff -auprN a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
 +--- a/drivers/video/logo/Kconfig	2012-11-16 21:41:00.273339096 +0400
@@ -43440,7 +43540,7 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 + #ifdef CONFIG_FB_LOGO_EXTRA
 diff -auprN a/scripts/create_configs b/scripts/create_configs
 --- a/scripts/create_configs	2012-07-23 17:07:40.000000000 +0400
-+++ b/scripts/create_configs	2012-12-08 15:11:38.246078253 +0400
++++ b/scripts/create_configs	2012-12-10 22:12:02.350000692 +0400
 @@ -285,7 +285,7 @@ sub config_netbook{
  
  sub config_desktop_pae{
@@ -43503,7 +43603,7 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
      config_server() if $name eq "server";
 diff -auprN a/scripts/create_configs.orig b/scripts/create_configs.orig
 --- a/scripts/create_configs.orig	1970-01-01 03:00:00.000000000 +0300
-+++ b/scripts/create_configs.orig	2012-07-23 17:07:40.000000000 +0400
++++ b/scripts/create_configs.orig	2012-12-10 22:12:02.351000692 +0400
 @@ -0,0 +1,926 @@
 +#!/usr/bin/perl
 +

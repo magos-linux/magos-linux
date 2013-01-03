@@ -1,0 +1,80 @@
+diff -auprN a/preset_menu.lst b/preset_menu.lst
+--- a/preset_menu.lst	2012-12-15 14:45:45.136973247 +0400
++++ b/preset_menu.lst	2012-12-15 15:14:32.068929164 +0400
+@@ -3,16 +3,9 @@ configfile
+ default 0
+ timeout 0
+ 
+-title find /menu.lst, /boot/grub/menu.lst, /grub/menu.lst
+-	errorcheck off
+-	configfile /boot/grub/menu.lst
+-	configfile /grub/menu.lst
+-	if "%@root%"=="(ud)" && calc *0x82A0=*0x82b9&0xff
+-	if "%@root:~1,1%"=="f" && find --set-root --devices=f /menu.lst && configfile /menu.lst
+-	find --set-root --ignore-floppies --ignore-cd /menu.lst && configfile /menu.lst
+-	find --set-root --ignore-floppies --ignore-cd /boot/grub/menu.lst && configfile /boot/grub/menu.lst
+-	find --set-root --ignore-floppies --ignore-cd /grub/menu.lst && configfile /grub/menu.lst
+-	errorcheck on
++title find /boot/grub4dos/menu.lst
++	find --set-root --ignore-floppies /boot/grub4dos/local/menu.lst && configfile /boot/grub4dos/local/menu.lst
++	find --set-root --ignore-floppies /boot/grub4dos/menu.lst && configfile /boot/grub4dos/menu.lst
+ 	commandline
+ 
+ title commandline
+diff -auprN a/stage2/grldrstart.S b/stage2/grldrstart.S
+--- a/stage2/grldrstart.S	2012-12-15 14:45:42.345973318 +0400
++++ b/stage2/grldrstart.S	2012-12-15 14:44:14.000000000 +0400
+@@ -1392,7 +1392,7 @@ Entry_32:
+ 	. = Entry_32 + 0x03
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR   "	/* OEM name string (of OS which formatted the disk). */
++	.ascii	"MAGOSLDR"	/* OEM name string (of OS which formatted the disk). */
+ #endif
+ 
+ 	. = Entry_32 + 0x0b
+@@ -1922,7 +1922,7 @@ msg_BootError_32:
+ filename_32:
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR      \0"
++	.ascii	"MAGOS   LDR\0"
+ #else
+ 	.ascii	"KERNEL  SYS\0"
+ #endif
+@@ -2094,7 +2094,7 @@ Entry_12_16:
+ 	. = Entry_12_16 + 0x03
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR   "
++	.ascii	"MAGOSLDR"
+ #endif
+ 
+ 	. = Entry_12_16 + 0x0b
+@@ -2772,7 +2772,7 @@ msg_BootError_12_16:
+ filename_12_16:
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR      \0"
++	.ascii	"MAGOS   LDR\0"
+ #else
+ 	.ascii	"KERNEL  SYS\0"
+ #endif
+@@ -3592,7 +3592,7 @@ msg_No_grldr_ext2:
+ 	.ascii	"No "
+ 
+ filename_ext2:
+-	.ascii	"grldr\0"
++	.ascii	"magos.ldr"
+ 
+ 	. = Entry_ext2 + 0x1ee
+ 
+@@ -4092,7 +4092,7 @@ msg_NTFS_Not_Found_Error:
+ 	.ascii "No "
+ 
+ nt_boot_image:
+-	.ascii "grldr\0"
++	.ascii "magos.ldr\0"
+ 
+ // Kernel load address, located at 0x1E8
+ 	. = Entry_nt + 0x1e8

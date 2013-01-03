@@ -1,6 +1,6 @@
 #!/bin/bash
 # exec wish \
-exec wish8.6 "$0" "$@"
+exec wish "$0" "$@"
 package require msgcat
 package require Tk
 proc _ {s} {return [::msgcat::mc $s]}

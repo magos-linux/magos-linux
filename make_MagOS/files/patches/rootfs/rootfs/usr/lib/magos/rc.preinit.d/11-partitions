@@ -75,7 +75,7 @@ if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
 fi
 
 #Enable compcache if it is needed
-[ "$(grep " swap " etc/fstab)$(echo $SERVICESNOSTART | grep compcache)" = "" ] && chroot . chkconfig --add compcache >/dev/null 2<&1
+#[ "$(grep " swap " etc/fstab)$(echo $SERVICESNOSTART | grep compcache)" = "" ] && chroot . chkconfig --add compcache >/dev/null 2<&1
 
 #Exporting partitions
 if [ "$PARTITIONSSHARE" = "yes" ];then

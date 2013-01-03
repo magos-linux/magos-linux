@@ -1,6 +1,7 @@
 # Background wallpaper
 # Available: BlueC4D bluesth bluesth-green bluesth-red KStarboard
-BACKGROUND=bluesth
+#BACKGROUND=bluesth
+BACKGROUND=/usr/share/magos/wallpappers
 
 #Resizing method.
 #0-resize proportional (default)

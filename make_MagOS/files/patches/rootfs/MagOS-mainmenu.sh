@@ -71,7 +71,7 @@ update_app kde4/knotes.desktop "Qt;KDE;Utility;TextTools;"
 update_app kde4/Kjots.desktop "Qt;KDE;Utility;TextTools;"
 update_app kde4/irkick.desktop "Qt;KDE;X-KDE-settings-peripherals;"
 update_app kde4/KFloppy.desktop "Qt;KDE;X-KDE-settings-peripherals;"
-update_app kde4/bluedevil-monolithic.desktop "Qt;KDE;X-Bluetooth;Network;X-KDE-settings-peripherals;"
+update_app kde4/bluedevil-monolithic.desktop "Qt;KDE;X-Bluetooth;X-KDE-settings-peripherals;"
 update_app kde4/kruler.desktop "Qt;KDE;Graphics;Scanning;"
 
 sed -i /NoDisplay=true/d usr/share/applications/gnomecc.desktop
@@ -90,5 +90,6 @@ sed -i s/^Exec=.*/'Exec=gksu -lg gparted'/ usr/share/applications/gparted.deskto
 sed -i s/'Name.ru.=.*'/'Name[ru]=GParted - управление разделами'/ usr/share/applications/gparted.desktop
 sed -i s/'Comment.ru.=.*'/'Comment[ru]=GParted - управление разделами'/ usr/share/applications/gparted.desktop
 sed -i s/'Name.ru.=.*'/'Name[ru]=Правка настроек GConf'/ usr/share/applications/gconf-editor.desktop
+grep -q OnlyShowIn etc/xdg/autostart/blueman.desktop || echo "OnlyShowIn=LXDE;" >> etc/xdg/autostart/blueman.desktop
 
 exit 0

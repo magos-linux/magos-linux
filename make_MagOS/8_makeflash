@@ -43,6 +43,7 @@ echo "Подготовка"
 mkdir -p "$DESTDIR" || exit 1
 mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional,rootcopy}
 mkdir -p "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy}
+mkdir -p "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic}
 cp -pR files/patches/flash/* "$DESTDIR"
 cp -L "$SRCDIR"/boot/vmlinuz "$DESTDIR"/$FLASHNAME
 echo $VERREL $DISTRVERSION  > "$DESTDIR"/$FLASHNAME/VERSION
@@ -80,7 +81,6 @@ mv "$DESTDIR/$FLASHNAME/"base/??-int-* flash/additions/${FLASHNAME}_${VERREL}_${
 cd "$MYPATH"
 echo "Создание файлов для сохранения данных" 
 cd "$MYPATH"/$DESTDIR/$FLASHNAME-Data || exit 1
-[ "$DATASIZE1" != "" ] && dd if=/dev/zero of=${FLASHNAME}_save1.img bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j ${FLASHNAME}_save1.img >/dev/null 2>&1
-[ "$DATASIZE2" != "" ] && dd if=/dev/zero of=${FLASHNAME}_save2.img bs=1M count=$DATASIZE2 && mkfs.ext3 -F -j ${FLASHNAME}_save2.img >/dev/null 2>&1
+[ "$DATASIZE1" != "" ] && dd if=/dev/zero of=home.img bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j home.img >/dev/null 2>&1
 
 echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"

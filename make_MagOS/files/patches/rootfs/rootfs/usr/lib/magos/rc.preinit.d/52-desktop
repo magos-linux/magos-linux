@@ -14,17 +14,28 @@ ENABLED=yes
 sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
 ln -sf /lib/systemd/system/graphical.target etc/systemd/system/default.target
 
-for a in $(cmdline_value desktop | tr , " " ) ;do
-   case $a in
-       3d)
+switch3don()
+{
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
          sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
-       ;;
-       no3d)
+}
+
+switch3doff()
+{
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
          sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+}
+
+
+for a in $(cmdline_value desktop | tr , " " ) ;do
+   case $a in
+       3d)
+         switch3don
+       ;;
+       no3d)
+         switch3doff
        ;;
        none)
          sed -i 's/id:.:initdefault:/id:3:initdefault:/' etc/inittab
@@ -54,3 +65,7 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
    esac
 done
 
+[ "$(cmdline_parameter 3ddesktop)" ] && switch3don
+[ "$(cmdline_parameter no3ddesktop)" ] && switch3doff
+
+exit 0

@@ -79,8 +79,6 @@ else
       cp $a "$KRNLPATH"
    done
 
-cd "$MYPATH"
-
    if [ "$RTFSMAKE" = "$RTFSDEFMAKE/rootfs" ] ;then
       echo "Удаление временной ветви rootfs"
       umountbranches "$RTFSDEFMAKE"

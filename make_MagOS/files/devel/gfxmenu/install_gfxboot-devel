@@ -1,0 +1,9 @@
+#!/bin/bash
+urpmi gfxboot gfxboot-devel || exit 1
+if [ ! -f gfxboot-devel-*.rpm ] ;then
+   wget ftp://ftp.pbone.net/mirror/ftp.opensuse.org/distribution/12.1/repo/oss/suse/i586/gfxboot-devel-4.4.7-2.1.4.i586.rpm
+fi
+[ -f gfxboot-devel-*.rpm ] || exit 1
+rpm -ihv --nodeps gfxboot-devel-*.rpm || exit 1
+cp -p /usr/sbin/gfxboot /usr/bin
+ln -s "$PWD/MagOS" /usr/share/gfxboot/themes

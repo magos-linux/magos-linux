@@ -5,7 +5,8 @@ VERSION=11.0_1.pvr.1
 RELEASE=$(date +%Y%m%d)
 DISTR=2011
 AUTHOR=mikhailz
-SOURCE0=ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/contrib/backports/xbmc-11.0-1.pvr.1-mdv2011.0.i586.rpm
+#SOURCE0=ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/contrib/backports/xbmc-11.0-1.pvr.1-mdv2011.0.i586.rpm
+SOURCE0=http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/contrib/updates/xbmc-11.0-1.pvr.2-rosa.lts2012.0.i586.rpm
 SOURCE1=http://seppius-xbmc-repo.googlecode.com/files/repository.seppius.zip
 DOWNLOADER=wget
 

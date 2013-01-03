@@ -1,1 +1,3 @@
-http://nufans.net/grub4dos/
+#http://nufans.net/grub4dos/
+#http://sourceforge.net/projects/grub4dos/
+#svn co -r 308 http://grub4dos-chenall.googlecode.com/svn/trunk grub4dos

@@ -1,0 +1,96 @@
+diff -auprN a/stage2/stage2.c b/stage2/stage2.c
+--- a/stage2/stage2.c	2012-12-15 14:45:42.000000000 +0400
++++ b/stage2/stage2.c	2012-12-21 19:42:54.902090988 +0400
+@@ -90,6 +90,18 @@ lzma:
+   return grub_read ((unsigned long long)(unsigned int)buf, max_len, 0xedde0d90);
+ }
+ 
++static void sleep(int delay)
++{
++  int tick, last_tick = currticks();
++
++  delay *= 18;
++
++  while(delay--) {
++    while((tick = currticks()) == last_tick) { }
++    last_tick = tick;
++  }
++}
++
+ #ifdef GRUB_UTIL
+ #undef	DISP_UL		//218
+ #undef	DISP_UR		//191
+@@ -1553,7 +1565,7 @@ run_graphics_menu (char *menu_entries, c
+ {
+   unsigned char *buf, *buf_ext;
+   unsigned buf_size, buf_ext_size, code_start = 0, file_start;
+-  char *cfg;
++  char *s, *t, *t2, *cfg, *new_config, *p;
+   int i, j, max_len, gfx_file_size, verbose;
+   int selected_entry;
+   gfx_data_v1_t *gfx1;
+@@ -1628,6 +1640,7 @@ run_graphics_menu (char *menu_entries, c
+   gfx1->cmdline = gfx2->cmdline = heap;
+   heap += gfx1->cmdline_len;
+   memset(gfx1->cmdline, 0, gfx1->cmdline_len);
++  memset(gfx2->cmdline, 0, gfx2->cmdline_len);
+ 
+   //cmd_buf = heap;
+   heap += GFX_CMD_BUF_SIZE;
+@@ -1912,7 +1925,55 @@ run_graphics_menu (char *menu_entries, c
+   while (*(cfg++))
+     ;
+ 
+-  run_script(cfg, heap);
++  /*run_script(cfg, heap);*/
++  /* create new config with modified kernel option */
++
++  new_config = heap;
++
++  for(p = gfx2->cmdline, i = 0; ; i++) {
++    s = get_entry(cfg, i);
++    if(!*s) {
++      if(!i) *heap++ = 0;
++      *heap++ = 0;
++      break;
++    }
++
++    /* note: must match get_kernel_args() */
++    if(
++      (!memcmp(s, "kernel", 6) || !memcmp(s, "module", 6)) &&
++      (s[6] == ' ' || s[6] == '\t')
++    ) {
++      t = skip_to(0, s);
++      t2 = s[0] == 'm' ? strstr(t, "initrd") : NULL;
++      if(*t) t = skip_to(0, t);
++      if(t2 && t2 < t) {       /* module is likely a normal initrd -> skip */
++        strcpy(heap, s);
++        heap += strlen(s) + 1;
++        continue;
++      }
++      memmove(heap, s, t - s);
++      heap += t - s;
++      *heap++ = ' ';
++      while(*p && *p != GFX_CMD_SEP) *heap++ = *p++;
++      *heap++ = ' ';
++      memmove(heap, t, strlen(t));
++      heap += strlen(t);
++      *heap++ = 0;
++      if(*p == GFX_CMD_SEP) p++;
++    }
++    else {
++      strcpy(heap, s);
++      heap += strlen(s) + 1;
++    }
++  }
++
++  *heap++ = 0;
++
++  // hexdump(new_config, heap - new_config);
++  //  printf("\ncmdline: >%s<, heap = %s\n", new_config,heap);
++  // getkey();
++
++  run_script(new_config, heap);
+ }
+ 
+ #endif /* SUPPORT_GFX */

@@ -265,13 +265,6 @@ sourceAppletPluginName=digital-clock
 [Containments][2][Applets][21][LayoutInformation]
 Order=10
 
-[Containments][2][Applets][21][PopupApplet]
-DialogHeight=247
-DialogWidth=262
-
-[Containments][2][Configuration][Applets][21][LayoutInformation]
-Order=10
-
 [Containments][2][Applets][22]
 geometry=3161,2,31,31
 immutability=1

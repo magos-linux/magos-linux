@@ -11,6 +11,7 @@ if [ ! -z "$ADSERVER" ] ;then
    xsetroot -cursor_name left_ptr
    /sbin/service smb restart
    /sbin/service winbind restart
+   sleep 1
    # launch some rc scripts
    for a in /usr/lib/magos/rc.domain/* ;do
       [ -x $a ] && $a 2>/dev/null

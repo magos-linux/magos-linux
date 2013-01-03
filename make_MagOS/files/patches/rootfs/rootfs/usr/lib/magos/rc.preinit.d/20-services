@@ -14,7 +14,19 @@ ENABLED=yes
 
 mkdir -p proc
 mount -o rbind /proc proc
-for a in $(echo $SERVICESSTART | tr , " ") ;do chroot . chkconfig --add $a ;done
-for a in $(echo $SERVICESNOSTART | tr , " ") ;do chroot . chkconfig --del $a ;done
+for a in $(echo $SERVICESSTART | tr , " ") ;do
+    if [ -x bin/systemd ] ;then
+       chroot . systemctl enable $a.service || chroot . chkconfig --add $a
+    else
+       chroot . chkconfig --add $a
+    fi
+done
+for a in $(echo $SERVICESNOSTART | tr , " ") ;do
+    if [ -x bin/systemd ] ;then
+       chroot . systemctl disable $a.service || chroot . chkconfig --add $a
+    else
+       chroot . chkconfig --del $a 
+    fi
+done
 umount proc
 
