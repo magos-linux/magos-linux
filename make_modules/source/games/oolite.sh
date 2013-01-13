@@ -1,11 +1,11 @@
 #!/bin/bash
 NUM=41
 NAME=oolite
-VERSION=1.76
+VERSION=1.77
 RELEASE=$(date +%Y%m%d)
 DISTR=2011
 AUTHOR=
-SOURCE0=http://download2.berlios.de/oolite-linux/oolite-1.76.linux-x86.tgz
+SOURCE0=http://prdownload.berlios.de/oolite-linux/oolite-1.77.linux-x86.tgz
 SOURCE1=http://roolite.org/manual.zip
 PATCH0=oolite-desktop.patch
 
@@ -21,8 +21,8 @@ download $SOURCE1
 
 unpack ${SOURCE0##*/} ./
 unpack ${SOURCE1##*/} ./
-unpack oolite-$VERSION.linux-x86.run ./ --noexec --target ./
-unpack tmp/oolite.installer.tmp/addons.tar.gz rootfs/opt/Oolite
+unpack oolite-$VERSION.linux-x86.run ./ --noexec --target ./tmp
+#unpack tmp/oolite.installer.tmp/addons.tar.gz rootfs/opt/Oolite
 unpack tmp/oolite.installer.tmp/freedesktop.tar.gz tmp
 unpack tmp/oolite.installer.tmp/oolite.deps.tar.gz rootfs/opt/Oolite/oolite-deps
 unpack tmp/oolite.installer.tmp/oolite.doc.tar.gz rootfs/opt/Oolite/doc
@@ -42,4 +42,4 @@ checkrights rootfs
 
 pack rootfs $DIRNAME
 
-#clean
+clean

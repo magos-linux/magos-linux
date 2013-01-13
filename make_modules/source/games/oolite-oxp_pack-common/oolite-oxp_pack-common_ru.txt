@@ -1,3 +1,20 @@
 В этом пакете содержатся дополнения, необходимые для других пакетов
 
-1. Cabal_Common_Library http://wiki.alioth.net/index.php/Cabal_Common_Library
+Cabal_Common_Library http://wiki.alioth.net/index.php/Cabal_Common_Library
+
+Также включена модуль для изменения параметров пакетов OXPConfig
+Как им пользоваться 
+- пристыковаться к станции
+- войти в Options Menu (F2)
+- выбрать Game Options
+- подождать сообщения OXPConfig is activated
+- перейти на SYSTEM DATA SCREEN (F7).
+- изменить параметры и вернутся в главное меню
+Параметры теперь изменены, но не сохранены, чтобы сохранить их
+- Выберите 'Store configuration',
+- выйдите из OXPConfig и сохраните игру как обычно
+
+Перечень совместимых модулей
+http://wiki.alioth.net/index.php/OXPConfig
+
+

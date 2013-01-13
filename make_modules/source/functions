@@ -96,6 +96,14 @@ function pack()
   dir2$MODULEFORMAT "$1" "../../$MODULEFORMAT/$2.$MODULEFORMAT" || die "pack: dir2$MODULEFORMAT error"
 }
 
+function nopack()
+{
+  [ "$2" = "" -o "$3" != "" ] && die "nopack: invalid parameters $@"
+  echo Packing without compression into module $2
+  mkdir -p "../../$MODULEFORMAT/"
+  dir2nolzm "$1" "../../$MODULEFORMAT/$2.$MODULEFORMAT" || die "nopack: dir2$MODULEFORMAT error"
+}
+
 
 function move()
 {
