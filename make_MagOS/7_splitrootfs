@@ -79,12 +79,15 @@ for MODULE in ??-* ;do
    deletefiles ../ost_list ../modules_filelist/$MODULE
    echo $MODULE | grep  -q -- -int- && continue
    movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/locale/.*/' ../../../files/locales
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/help/.*/' ../../../files/locales
    movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/gnome/help/.*/' ../../../files/locales
    movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/man/[abd-kn-z].*/' ../../../files/locales
    movefiles ../modules_filelist/$MODULE ../modules_filelist/71-manpages 'usr/share/man/.*/'
    movefiles ../modules_filelist/$MODULE ../modules_filelist/71-manpages 'usr/share/info/.*'
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/help/.*/'
    movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/gnome/help/.*/'
    movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/doc/'
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/gtk-doc/'
 done
 cd ../
 movefiles ost_list modules_filelist/*-kernel '^lib/modules/'
