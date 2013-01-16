@@ -61,6 +61,7 @@ else
           [ -x "$a" ] && chroot ./ bash "$a"
       done
    fi
+   ln -sf /bin/true usr/bin/rpmlint
    echo "Создание модулей ядра средствами dkms"
    # вытаскиваем скрипты при установке модулей dkms, делаем из них скрипт
    rpm -qp --triggers --scripts "$MYPATH"/loaded/$FLASHNAME-$VERREL/rpms/dkms-[a-ln-z]*.rpm \

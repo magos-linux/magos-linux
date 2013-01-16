@@ -15,3 +15,10 @@ done
 [ -f usr/share/mdk/backgrounds/rosa-background.jpg ] && ln -sf rosa-background.jpg usr/share/mdk/backgrounds/default.jpg
 
 find usr/share/apps/ksplash/Themes/Default -name background.png | grep -v 1600x1200 | xargs rm -f 
+
+rm -fr usr/share/apps/ksplash/Themes/Horos \
+       usr/share/apps/ksplash/Themes/ROSA \
+       usr/share/backgrounds/gnome \
+       var/lib/mandriva/kde4-profiles/Default/share/apps/ksplash/Themes 2>/dev/null
+
+ln -sf /usr/share/magos/wallpappers usr/share/backgrounds/gnome 2>/dev/null
