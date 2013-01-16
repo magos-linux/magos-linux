@@ -1,7 +1,7 @@
 #!/bin/bash
  cp -pRf dracut_patch/* /usr/lib/dracut/modules.d
 [ -f /etc/modprobe.conf ] && mv /etc/modprobe.conf /etc/modprobe.conf.bak
-dracut  -m "dash rpmversion network ifcfg plymouth crypt nfs resume rootfs-block terminfo udev-rules aufs-mount base ntfs fs-lib kernel-modules"  \
+dracut  -m "dash rpmversion network ifcfg plymouth crypt nfs resume rootfs-block terminfo udev-rules aufs-mount base ntfs fs-lib kernel-modules magos busybox"  \
         -d "aes-i586 aes_generic cbc loop cryptoloop zlib_deflate crc-t10dif crc16 \
            dca hid usbhid libphy mii virtio_net pcmcia pcmcia_core yenta_socket \
            scsi_mod sd_mod sr_mod vmw_pvscsi usb-common usbcore ehci-hcd uhci-hcd ohci-hcd \
