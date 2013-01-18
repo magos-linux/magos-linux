@@ -8,8 +8,14 @@ PATH=/usr/lib/magos/scripts:$PATH
 swapoff -a >/dev/null 2>/dev/null
 
 # umount any modules from /media
-for a in `losetup -a | grep '(/media/.*.[lx]zm)' | awk '{print $3}' | tr -d '()'` ;do
-    deactivate $a
+for a in `losetup -a | grep '(/media/' | awk '{print $1}' | tr -d :` ;do
+   echo "$a"
+   NM=$(grep ^$a" "  /proc/mounts | awk '{print $2}' )
+   if echo $NM | grep -q ^/mnt/live ;then
+      deactivate $(basename $NM)
+   else
+      umount $a 2>/dev/null || umount -l $a 2>/dev/null
+   fi
 done
 # then free any /media
 for a in /home `grep /media/ /proc/mounts  | awk '{print $2}'` `grep " /mnt/" /proc/mounts | grep -v /mnt/live | awk '{print $2}'` ;do
