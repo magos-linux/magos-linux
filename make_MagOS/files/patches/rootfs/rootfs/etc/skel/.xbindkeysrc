@@ -81,6 +81,10 @@
 " keyscripts network "
   Mod4 + n
 
+# масштабированипе экрана
+" keyscripts screen-scale "
+  Mod4 + s
+
 # увеличить громкость (колесом мышки)
 "amixer -q set Master 5+"
   Mod4 + b:4
