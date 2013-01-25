@@ -93,11 +93,6 @@ KERNLINUZ=$(ls -1 rootfs/boot/vmlinuz-* | sed 's|.*/||' | tail -1)
 #echo "сжатие базы rpm"
 #when making dkms in 2011 it corrupt rpm5 evil base
 #chroot rootfs /usr/lib/rpm/bin/dbconvert
-#BUGFIX Rosa Fresh kmod http://bugs.rosalinux.ru/show_bug.cgi?id=1395
-for a in depmod insmod lsmod modinfo modprobe rmmod ;do   
-    [ -x rootfs/sbin/$a ] || ln -s ../bin/kmod rootfs/sbin/$a 
-done
-
 
 if grep -q cpio install_errors.log ;then 
     echo "Обнаружены серьёзные ошибки при установке пакетов, см. файл work/$FLASHNAME-$VERREL/install_errors.log (ищите по cpio)"
