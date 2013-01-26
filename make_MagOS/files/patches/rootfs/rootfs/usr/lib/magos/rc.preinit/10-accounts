@@ -24,12 +24,15 @@ for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
    NEEDEDUSER=$(echo $a | awk -F: '{ print $1 }')
    NEEDEDUID=$(echo $a | awk -F: '{ print $2 }')
    NEEDEDPASS=$(echo $a | awk -F: '{ print $3 }')
+   [ "$NEEDEDPASS" = "x" ] && NEEDEDPASS="$DEFAULTPASSWD"
    if ! grep -q ^$NEEDEDUSER: etc/passwd ;then
         chroot . usr/sbin/adduser -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1
         chroot . usr/sbin/usermod -a -G $USERGROUPS $NEEDEDUSER >/dev/null  2>&1
         chroot . usr/bin/passwd -uf $NEEDEDUSER >/dev/null  2>&1
-        [ "$NEEDEDPASS" = "x" ] && NEEDEDPASS="$DEFAULTPASSWD"
         [ "$NEEDEDPASS" = "" ] || sed -i s=^$NEEDEDUSER::=$NEEDEDUSER:"$NEEDEDPASS":= etc/shadow
+   else
+        [ "$NEEDEDPASS" != "$DEFAULTPASSWD" -a "$NEEDEDPASS" != "" ] && chroot . usr/bin/passwd -d $NEEDEDUSER >/dev/null  2>&1
+        sed -i s=^$NEEDEDUSER::=$NEEDEDUSER:"$NEEDEDPASS":= etc/shadow
    fi
    if ! [ -d home/$NEEDEDUSER ] ;then
         cp -a etc/skel home/$NEEDEDUSER

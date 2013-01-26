@@ -23,6 +23,4 @@ http://ftp.surfnet.nl/pub/os/Linux/distr/mandrakeclubnl/2011/i586/release MCNL32
 http://ftp.blogdrake.net/mandriva/2011.0/free/i586 BDK-free 0 update ignore
 http://ftp.blogdrake.net/mandriva/2011.0/free/noarch BDK-free-noarvh 0 update ignore
 http://mrb.mandrivausers.ro/MRB/2011.0/i686/MRB-rpms MRB 0 update ignore
-http://abf.rosalinux.ru/downloads/dsilakov_personal/repository/rosa2012lts/i586/main/release abf_personal_ds 0 skip
-http://abf.rosalinux.ru/downloads/mikhailz_personal/repository/rosa2012lts/i586/main/release abf_personal_mz 0 skip
-http://abf.rosalinux.ru/downloads/kernels_testing_personal/repository/mandriva2011/i586/main/release abf_personal_kernel 0 skip
+http://magos.sibsau.ru/repository/rpms/2011 magos c4ddfc5e skip
