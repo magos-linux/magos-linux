@@ -48,5 +48,8 @@ install() {
     done
     #magos 
     inst "$moddir/functions" /lib/magosfunctions
+    inst_hook pre-pivot 90 "$moddir"/magos-pre.sh
+    inst_hook mount 10 "$moddir"/magos-mount.sh
+
 }
 
