@@ -83,7 +83,7 @@ done
 
 echo "Создание ссылок на исходники ядра"
 KERNDEVEL=$(find rootfs/usr/src | grep -m1 /include/linux/aufs_type.h | sed s=/include/linux/aufs_type.h== | sed s=rootfs==)
-KERNMODULES=$(find rootfs/lib/modules | grep -m1 modules.dep | sed s=/modules.dep==)
+KERNMODULES=$(find rootfs/lib/modules | grep -m1 modules.dep | sed s=/modules.de.*==)
 KERNLINUZ=$(ls -1 rootfs/boot/vmlinuz-* | sed 's|.*/||' | tail -1)
 [ -z "$KERNLINUZ" ] || ln -sf $KERNLINUZ rootfs/boot/vmlinuz
 [ -z "$KERNLINUZ" ] || ln -sf $KERNLINUZ rootfs/boot/vmlinuz-desktop

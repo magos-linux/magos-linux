@@ -1,0 +1,13 @@
+QuickShell is a simple linux command line
+Use it to manage your files and to edit configs before booting main MagOS system
+
+All your disks are mounted in /mnt dir,
+use - automount - to remount all disks, and to plug new USB drives 
+use - mc        - to start the best console file manager
+use - mcedit    - to launch text editor
+use - ls /bin
+      ls /usr/bin - to see all available commands
+
+use - exit      - to continue  booting MagOS (only in first console)
+use - poweroff  - to power off :)
+

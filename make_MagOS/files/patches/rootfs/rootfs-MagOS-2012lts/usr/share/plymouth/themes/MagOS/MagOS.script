@@ -8,8 +8,8 @@
 ####### STARTUP #######
 #
 
-Window.SetBackgroundTopColor (0.78, 0.78, 0.78);     # Nice colour on top of the screen fading to
-Window.SetBackgroundBottomColor (0.78, 0.78, 0.78);  # an equally nice colour on the bottom
+Window.SetBackgroundTopColor (0, 0, 0);     # Nice colour on top of the screen fading to
+Window.SetBackgroundBottomColor (0, 0, 0);  # an equally nice colour on the bottom
 
 # Animation to use on startup (winlogo, busy, none)
 startup_animation="";
@@ -26,8 +26,8 @@ startup_text = "";
 # Background image for shutdown (use "" for nothing) (must use png images)
 #shutdown_background_image_filename="wpl.png";
 
-Window.SetBackgroundTopColor (0.78, 0.78, 0.78);     # Nice colour on top of the screen fading to
-Window.SetBackgroundBottomColor (0.78, 0.78, 0.8);  # an equally nice colour on the bottom
+Window.SetBackgroundTopColor (0, 0, 0);     # Nice colour on top of the screen fading to
+Window.SetBackgroundBottomColor (0, 0, 0);  # an equally nice colour on the bottom
 
 # Animation to use on shutdown (winlogo, busy, none)
 shutdown_animation="busy";
@@ -81,9 +81,9 @@ fade_rate = 50.0;
 font_string = "Segoe UI, 17";
 
 # Custom color r, g, b and alpha
-custom_r = 1.0;
-custom_g = 1.0;
-custom_b = 1.0;
+custom_r = 0;
+custom_g = 0;
+custom_b = 0;
 custom_a = 1.0;
 
 
@@ -397,8 +397,8 @@ else
 
 
 
-Window.SetBackgroundTopColor(0.80,0.80,0.80);
-Window.SetBackgroundBottomColor(0.72,0.72,0.72);
+Window.SetBackgroundTopColor(0,0,0);
+Window.SetBackgroundBottomColor(0,0,0);
 
 
 if (1 == 0)

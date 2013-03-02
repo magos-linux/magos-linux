@@ -99,13 +99,13 @@ fi
 echo "Устанавливаем пакеты с модулями"
 ls -1 $KRNLPATH/*.rpm | sed 's|.*/||' > $KRNLPATH/00-kernel
 if [ -f "$RTFSINSTALL/proc/cmdline" ] ;then
-   rpm --nodeps --root "$MYPATH/$RTFSINSTALL" -ihv $KRNLPATH/*.rpm || exit 1
+   rpm --nodigest --nosignature --nodeps --root "$MYPATH/$RTFSINSTALL" -ihv $KRNLPATH/*.rpm || exit 1
 else
    cd "$RTFSINSTALL"
    mount -o bind /dev dev || exit 1
    mount -o bind /sys sys || exit 1
    mount -o bind /proc proc || exit 1
-   rpm --nodeps --root "$(pwd)" -ihv "$MYPATH/$KRNLPATH/*.rpm" || exit 1
+   rpm --nodigest --nosignature --nodeps --root "$(pwd)" -ihv "$MYPATH/$KRNLPATH/*.rpm" || exit 1
    umount dev sys proc || exit 1
 fi
 cd "$MYPATH" ; cd "$RTFSINSTALL"

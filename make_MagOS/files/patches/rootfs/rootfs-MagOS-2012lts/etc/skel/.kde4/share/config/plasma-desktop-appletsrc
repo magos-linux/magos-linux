@@ -39,6 +39,30 @@ Order=1
 [Containments][2][Applets][3][LayoutInformation]
 Order=1
 
+[Containments][2][Applets][33]
+geometry=2884,2,31,31
+immutability=1
+plugin=stackfolder
+zvalue=0
+
+[Containments][2][Applets][33][LayoutInformation]
+Order=11
+
+[Containments][2][Applets][33][Configuration]
+url=file:///media
+
+[Containments][2][Applets][34]
+geometry=2851,2,31,31
+immutability=1
+plugin=stackfolder
+zvalue=0
+
+[Containments][2][Applets][34][LayoutInformation]
+Order=9
+
+[Containments][2][Applets][34][Configuration]
+url=file:///home
+
 [Containments][2][Configuration][Applets][4]
 geometry=82,4,32,42
 immutability=1
@@ -156,7 +180,7 @@ zvalue=0
 Order=0
 
 [Containments][2][Applets][19]
-geometry=272,2,643,31
+geometry=272,2,577,31
 immutability=1
 plugin=tasks-applet
 zvalue=0
@@ -219,7 +243,7 @@ zvalue=0
 Systemtray-Klipper-20=Ctrl+Alt+V
 
 [Containments][2][Applets][20][LayoutInformation]
-Order=9
+Order=12
 
 [Containments][2][Applets][20][PopupApplet]
 DialogHeight=12
@@ -263,7 +287,7 @@ sourceAppletId=21
 sourceAppletPluginName=digital-clock
 
 [Containments][2][Applets][21][LayoutInformation]
-Order=10
+Order=13
 
 [Containments][2][Applets][22]
 geometry=3161,2,31,31
@@ -272,7 +296,7 @@ plugin=rosatrashcan
 zvalue=0
 
 [Containments][2][Applets][22][LayoutInformation]
-Order=11
+Order=14
 
 [Containments][2][Configuration][Applets][22][LayoutInformation]
 Order=11
@@ -284,7 +308,7 @@ plugin=lockout
 zvalue=0
 
 [Containments][2][Applets][25][LayoutInformation]
-Order=12
+Order=15
 
 [Containments][2][Wallpaper][image]
 slideTimer=10

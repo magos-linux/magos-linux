@@ -3,6 +3,8 @@ rm -fr etc/skel/tmp var/tmp proc sys tmp etc/fstab etc/mtab \
    usr/lib/drakx-installer-stage2/install/stage2/mdkinst.sqfs \
    etc/xdg/autostart/pulseaudio*.desktop etc/xdg/autostart/guake.desktop \
    usr/share/GeoIP/GeoLiteCity.dat \
+   usr/share/mdk/desktop/free/* usr/share/mdk/desktop/one/*  usr/share/mdk/desktop/powerpack/* \
+   usr/share/apps/kio_desktop/DesktopLinks/* \
    boot/initrd* 2>/dev/null
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null

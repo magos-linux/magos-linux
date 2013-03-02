@@ -1,2 +1,2 @@
 #!/bin/ash
-exec /bin/ash "$*"
+exec /bin/bash "$*"

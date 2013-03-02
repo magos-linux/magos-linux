@@ -1,0 +1,123 @@
+#==============================================================================
+#                               conkyrc_orange
+#
+#  author  : SLK
+#  version : v2011011601
+#  license : Distributed under the terms of GNU GPL version 2 or later
+#
+#==============================================================================
+
+background yes
+update_interval 1
+
+cpu_avg_samples 2
+net_avg_samples 2
+temperature_unit celsius
+
+double_buffer yes
+no_buffers yes
+text_buffer_size 2048
+
+gap_x 20
+gap_y 20
+minimum_size 190 450
+maximum_width 220
+
+own_window yes
+own_window_type normal
+# если не правильно отображается в вашем WM пробуйте override или desktop вместо normal  
+own_window_hints undecorate,sticky,skip_taskbar,skip_pager, # убран параметр below (окно всегда внизу)
+own_window_argb_visual yes # для композитного режима
+#own_window_transparent yes # полная прозрачность
+own_window_argb_value 100 # полупрозрачность
+
+border_inner_margin 0
+border_outer_margin 0
+alignment tr
+
+draw_shades no
+draw_outline no
+draw_borders no
+draw_graph_borders no
+
+override_utf8_locale yes
+use_xft yes
+xftfont caviar dreams:size=8
+xftalpha 0.5
+uppercase no
+
+default_color FFFFFF
+color1 DDDDDD
+color2 AAAAAA
+color3 FFFFFF
+color4 EF5A29
+color5 FFFFFF
+
+lua_load ~/.conky_orange.lua
+lua_draw_hook_post main
+
+#${voffset 75}
+#${goto 95}${color3}${font ubuntu:size=25}${time %e}${color1}${voffset 0}${offset -60}${font ubuntu:size=10}${time %A}
+#${goto 85}${color2}${voffset -2}${font ubuntu:size=9}${time %b}${voffset -2} ${color3}${font ubuntu:size=12}${time %Y}${font}
+#
+#${voffset 70}
+
+TEXT
+${voffset 38}
+${goto 95}${color4}${font Droid:bold:size=20}${time %e}${color1}${voffset 10}${offset -50}${font Droid:size=8}${time %A}
+${goto 85}${color2}${voffset 2}${font droid:size=9}${time %b}${voffset 0} ${color3}${font Droid:size=8}${time %Y}${font}
+${voffset 80}
+${goto 90}${font Droid:size=7,weight:bold}${color5}CPU
+${goto 90}${font Droid:size=7,weight:normal}${color3}${top name 1}${alignr}${top cpu 1}%
+${goto 90}${font Droid:size=7,weight:normal}${color1}${top name 2}${alignr}${top cpu 2}%
+${goto 90}${font Droid:size=7,weight:normal}${color2}${top name 3}${alignr}${top cpu 3}%
+${goto 90}${cpugraph cpu0 20,100  DDDDDD EF5A29}
+${goto 90}${voffset -20}${font Droid:size=7,weight:normal}${color2}${alignc}${threads} process 
+
+${voffset 10}
+${goto 90}${font Droid:size=7,weight:bold}${color5}MEM
+${goto 90}${font Droid:size=7,weight:normal}${color3}${top_mem name 1}${alignr}${top_mem mem 1}%
+${goto 90}${font Droid:size=7,weight:normal}${color1}${top_mem name 2}${alignr}${top_mem mem 2}%
+${goto 90}${font Droid:size=7,weight:normal}${color2}${top_mem name 3}${alignr}${top_mem mem 3}%
+
+${font Droid:bold:size=7}${color5}MagOS ${font Droid:size=7}${execi 99999 cat /etc/magos-release }${alignr} ${font Droid:size=7}${color3} Up $color4$alignr$uptime
+${color5}Kernel$color  $kernel ${alignr}${color5}Арх.$color $machine
+$color
+${font Droid:size=7}${color3}${execi 99999 cat /proc/cpuinfo | grep "model name" -m1 | cut -d":" -f2 | cut -d" " -f2- | sed 's#Processor ##'}$font$color
+#${color5}Процессов:$color $running_processes / $processes
+#${font Sans:size=6}${color1}Загрузка ЦП $color
+#${color white}ЦП1          ${color3}${cpu cpu0}%        ${color white}ЦП2          ${color3}${cpu cpu1}% $color
+${if_match $acpitemp != 0}\
+${font Droid:size=6:weight=bold}${color white}Температура на ЦП         ${color1}${acpitemp}С$color
+$endif
+${color white}ОЗУ$color4  ${memperc}%  ${color5}${membar 3.180} \
+${if_match "$swapmax" != "0B"}
+${color white}SWAP$color4  ${swapperc}%  ${color5}${swapbar 3.180} \
+$endif
+
+${font Droid:size=7}${color3}${alignc}Свободное пространство разделов$color${font Sans:size=6}
+${color1}Root$color  ${fs_free_perc /}%$alignr${fs_free /} / ${fs_size /}
+${color1}${fs_bar 3 /}
+${color1}Home$color  ${fs_free_perc /home}%$alignr${fs_free /home} / ${fs_size /home}
+${color1}${fs_bar 3 /home}
+
+$if_gw ${font Sans:size=7}${color5}${alignc}Сетевой интерфейс - ${font Sans:size=8}${color4}$gw_iface
+${font Sans:size=7}${color5}Адрес шлюза - ${font Sans:size=7}${color4}$gw_ip$color${font Droid:size=7} 
+Public IP - ${texeci 20  wget http://checkip.dyndns.org/ -q -O - | grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'} $endif 
+${if_up eth0}eth0 IP адрес: ${addr eth0}  
+${color3}Загрузка$color4 ${downspeed eth0}/s${alignr}${color white}Отдача$color4${alignr} ${upspeed eth0}/s
+${color white}Загружено ${totaldown eth0} ${alignr}${color white}Отдано${alignr} ${totalup eth0}$endif
+${if_up usb0}usb0 IP адрес: ${addr usb0}
+${color3}Загрузка$color4 ${downspeed usb0}/s${alignr}${color white}Отдача$color4${alignr} ${upspeed usb0}/s 
+${color white}Загружено ${totaldown usb0} ${alignr}${color white}Отдано${alignr} ${totalup usb0}$endif
+${if_up wlan0}wlan0 IP адрес: ${addr wlan0} 
+${color3}Загрузка$color4 ${downspeed wlan0}/s${alignr}${color white}Отдача$color4${alignr} ${upspeed wlan0}/s
+${color white}Загружено ${totaldown wlan0} ${alignr}${color white}Отдано${alignr} ${totalup wlan0}$endif
+${if_up ppp0}ppp0 IP адрес: ${addr ppp0}
+${color3}Загрузка$color4 ${downspeed ppp0}/s${alignr}${color white}Отдача$color4${alignr} ${upspeed ppp0}/s
+${color white}Загружено ${totaldown ppp0} ${alignr}${color white}Отдано${alignr} ${totalup ppp0}$endif
+
+#следующая строка включает псевдо прозрачность в кде без 3d, 
+#нужно установить urpmi feh, вкдючить own_window_transparent yes и возможно own_window_type переключить на override
+#${execi 99999 feh --bg-scale /usr/share/mdk/backgrounds/default.jpg}
+
