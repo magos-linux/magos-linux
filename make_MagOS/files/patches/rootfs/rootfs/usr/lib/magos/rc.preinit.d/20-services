@@ -23,7 +23,7 @@ for a in $(echo $SERVICESSTART | tr , " ") ;do
 done
 for a in $(echo $SERVICESNOSTART | tr , " ") ;do
     if [ -x bin/systemd ] ;then
-       chroot . systemctl disable $a.service || chroot . chkconfig --add $a
+       chroot . systemctl disable $a.service || chroot . chkconfig --del $a
     else
        chroot . chkconfig --del $a 
     fi
