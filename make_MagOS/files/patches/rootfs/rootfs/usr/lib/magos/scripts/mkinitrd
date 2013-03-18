@@ -16,13 +16,13 @@ INIRAMDLIBS2="libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 l
   libresolv.so.2 libnss_files.so.2 libnss_dns.so.2 libattr.so.1 libacl.so.1
   libaal-1.0.so.5 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libreadline.so.6 libreiser4-1.0.so.7 librepair-1.0.so.7 libntfs.so.10
   libstdc++.so.6 libntfs-3g.so.8? libply-splash-core.so.2 libply.so.2 libgthread-2.0.so.0 libutil.so.1
-  libgpm.so.2 libncurses.so.5 libslang.so.2 libtermcap.so.2"
+  libncurses.so.5 libtermcap.so.2 libcap.so.2 libncursesw.so.5 libcurl.so.4"
 
 # binaries for /bin
-INIRAMDBIN1="busybox.static lspci httpfs blkid blockdev bash"
+INIRAMDBIN1="busybox.static lspci httpfs blkid blockdev"
 # binaries for /usr/bin
 INIRAMDBIN2='dosfsck fsck fsck.ext2 fsck.reiser4 reiserfsck rsync losetup ntfsfix mksquashfs unsquashfs
-  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server resume sshfs shred'
+  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server resume sshfs shred cat ls dialog loadkeys unrar curlftpfs'
 
 INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/fs/isofs kernel/fs/fat kernel/fs/ntfs kernel/fs/ext3 kernel/fs/ext4

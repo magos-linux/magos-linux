@@ -2,9 +2,9 @@
 PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENV=$HOME/.bashrc
 USERNAME="root"
-export USERNAME ENV PATH
+LANG=ru_RU.UTF-8
+. /usr/local/etc/bash_commander
+PS1="\[\033[31;1m\][\u@QuickShell \W] # \[\033[m\]"
+export USERNAME ENV PATH PS1 LANG
 
-# Source global definitions
-if [ -f /etc/bashrc ]; then
-	. /etc/bashrc
-fi
+

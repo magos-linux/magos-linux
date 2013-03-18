@@ -43,17 +43,19 @@ debug_shell
 # start quickshell
 if [ $(cmdline_parameter quickshell) ] ; then
    loadfont < /usr/lib/kbd/UniCyr_8x14.psf
-   export LANG=ru
-   getty -n -l /bin/autologin 9600 tty2 linux & 
-   getty -n -l /bin/autologin 9600 tty3 linux & 
-   getty 9600 tty4 linux &
-   getty 9600 tty5 linux &
-   getty 9600 tty6 linux &
+   loadkeys /usr/lib/kbd/ru.map
+   getty -n -l /bin/autologin 9600 tty2 linux &
+   getty -n -l /bin/autologin 9600 tty3 linux &
+   getty -n -l /bin/autologin 9600 tty4 linux &
+   getty -n -l /bin/autologin 9600 tty5 linux &
+   getty -n -l /bin/autologin 9600 tty6 linux &
    automount
    clear
    cat ./quickshell.hlp
-   /bin/bash --login
+   /bin/bash autologin
+   cd /
    umount /mnt/*
+   export LANG=""
    echo "continue...."
 fi
 
