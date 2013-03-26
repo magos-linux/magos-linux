@@ -55,7 +55,6 @@ proxychains-
 python-blueman-
 python-OpenSSL-
 python-pycrypto-
-python-twisted-core-
 rdesktop-
 remmina-
 remmina-plugins-
@@ -98,3 +97,4 @@ libpq9.0_5-
 libindicator3_7-
 whois-
 madwimax-
+libminiupnpc8-

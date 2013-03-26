@@ -1,4 +1,5 @@
 #!/bin/bash
+exit 0
 CPATH=$PWD
 cd usr/src/nvidia-current-*
 patch -p1 <<EOF

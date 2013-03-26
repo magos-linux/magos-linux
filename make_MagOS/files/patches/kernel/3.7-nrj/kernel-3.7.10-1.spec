@@ -17,7 +17,7 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %define kernelversion	3
 %define patchlevel	7
 # sublevel is now used for -stable patches
-%define sublevel	9
+%define sublevel	10
 
 # Package release
 %define mibrel		1
@@ -92,7 +92,7 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %define debug_package 		%{nil}
 
 # Build defines
-%define build_doc 		1
+%define build_doc 			1
 %define build_source 		1
 %define build_devel 		1
 
@@ -104,26 +104,26 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 
 # Build desktop i586 / 4GB
 %ifarch %{ix86}
-%define build_desktop586		0
+%define build_desktop586			0
 %endif
 
 # Build desktop (i686 / 4GB) / x86_64 / sparc64 sets
-%define build_desktop			0
+%define build_desktop				0
 
 # Build netbook (i686 / 4GB) / x86_64
-%define build_netbook			0
+%define build_netbook				0
 
 # Build server (i686 / 64GB)/x86_64 / sparc64 sets
-%define build_server			0
+%define build_server				1
 
 # Build desktop686 pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_desktop_pae		0
+%define build_desktop_pae			0
 %endif
 
 # Build netbook686 pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_netbook_pae		0
+%define build_netbook_pae			0
 %endif
 
 #
@@ -136,30 +136,30 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %endif
 
 # Build nrj desktop (i686 / 4GB) / x86_64 / sparc64 sets
-%define build_nrj_desktop		1
+%define build_nrj_desktop			1
 
 # Build nrj realtime (i686 / 4GB) / x86_64
-%define build_nrj_realtime		1
+%define build_nrj_realtime			1
 
 # Build nrj laptop (i686 / 4GB) / x86_64
-%define build_nrj_laptop		1
+%define build_nrj_laptop			1
 
 # Build nrj netbook (i686 / 4GB) / x86_64
-%define build_nrj_netbook		1
+%define build_nrj_netbook			1
 
 # Build nrj desktop pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_desktop_pae		0
+%define build_nrj_desktop_pae		1
 %endif
 
 # Build nrj realtime pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_realtime_pae		0
+%define build_nrj_realtime_pae		1
 %endif
 
 # Build nrj laptop pae (i686 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_laptop_pae		0
+%define build_nrj_laptop_pae		1
 %endif
 
 # Build nrj netbook686 pae (i686 / 64GB)
@@ -173,7 +173,7 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 
 # Build nrj netbook Intel Atom (matom / 4GB)
 %ifarch %{ix86}
-%define build_nrj_netbook_atom		0
+%define build_nrj_netbook_atom		1
 %endif
 
 # Build nrj netbook Intel Atom pae (matom / 64GB)
@@ -183,12 +183,12 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 
 # Build nrj desktop Intel Core2 (mcore2 / 4GB)
 %ifarch %{ix86}
-%define build_nrj_desktop_core2   	0
+%define build_nrj_desktop_core2   	1
 %endif
 
 # Build nrj desktop Intel Core2 pae (mcore2 / 64GB)
 %ifarch %{ix86}
-%define build_nrj_desktop_core2_pae   	0
+%define build_nrj_desktop_core2_pae 1
 %endif
 
 #
@@ -197,10 +197,10 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 
 # build perf and cpupower tools
 %if %{mdvver} >= 201200
-%define build_perf		1
+%define build_perf			1
 %define build_cpupower		1
 %else
-%define build_perf		0
+%define build_perf			0
 %define build_cpupower		0
 %endif
 
@@ -301,6 +301,42 @@ Packager: Nicolo' Costanza <abitrules@yahoo.it>
 %{?_without_kirkwood: %global build_kirkwood 0}
 %{?_without_versatile: %global build_versatile 0}
 
+%define build_modgz                     0
+%{?_with_modgz: %global build_modgz 1}
+# MagOS Linux settings
+%define build_for_magos 0
+%{?_with_build_for_magos: %global build_for_magos 1}
+%if %build_for_magos
+%define build_doc                       0
+%define build_source                    0
+%define build_devel             	1
+%define build_debug                     0
+%define build_desktop586                0
+%define build_desktop                   0
+%define build_netbook                   0
+%define build_server                    0
+%define build_desktop_pae               0
+%define build_netbook_pae               0
+%define build_nrj_desktop586            0
+%define build_nrj_desktop               0
+%define build_nrj_realtime              0
+%define build_nrj_laptop                0
+%define build_nrj_netbook               0
+%define build_nrj_desktop_pae           1
+%define build_nrj_realtime_pae          0
+%define build_nrj_laptop_pae            0
+%define build_nrj_netbook_pae           0
+%define build_nrj_netbook_atom          0
+%define build_nrj_netbook_atom_pae      0
+%define build_nrj_desktop_core2         0
+%define build_nrj_desktop_core2_pae     0
+%define build_perf                      0
+%define build_cpupower                  0
+%define build_modxz                     0
+%define build_modgz                     0
+%define aufs_version                    3.6-20121119
+%endif
+
 # For the .nosrc.rpm
 %define build_nosrc 	0
 %{?_with_nosrc: %global build_nosrc 1}
@@ -395,6 +431,11 @@ Source10: 	ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}
 %endif
 %endif
 
+%if %build_for_magos
+Patch101:       linux-%{patch_ver}-magos.patch
+#Patch102:       patch_wireless-add_back_sysfs_directory.patch
+%endif
+
 #END
 ####################################################################
 
@@ -454,6 +495,8 @@ BuildRequires:	module-init-tools
 
 BuildRequires: 	gcc 
 
+%if %build_for_magos
+%else
 # for perf, cpufreq and other tools
 BuildRequires:		elfutils-devel
 BuildRequires:		zlib-devel
@@ -469,6 +512,7 @@ BuildRequires:		docbook-style-xsl
 BuildRequires:		pkgconfig(gtk+-2.0)
 BuildRequires:		flex
 BuildRequires:		bison
+%endif
 
 %ifarch %{arm}
 BuildRequires:		uboot-mkimage
@@ -1083,6 +1127,9 @@ cd %src_dir
 %endif
 %if %kgit
 %patch2 -p1
+%endif
+%if %build_for_magos
+%patch101 -p1 -d %{patches_dir}
 %endif
 
 %{patches_dir}/scripts/apply_patches
@@ -1717,7 +1764,8 @@ rm -rf %{target_source}/.tmp_depmod/
 # compressing modules
 %if %{build_modxz}
 find %{target_modules} -name "*.ko" | %kxargs xz -6e
-%else
+%endif
+%if %{build_modgz}
 find %{target_modules} -name "*.ko" | %kxargs gzip -9
 %endif
 
@@ -1879,6 +1927,21 @@ rm -rf %{buildroot}
 
 
 %changelog
+
+* Sun Mar 03 2013 Nicolo' Costanza <abitrules@yahoo.it> 3.7.10-1
++ update to 3.7.10 stable (79 fixes all over)
+- With this version, 3.7 has reached the EOL status (End of Life)
++ update to nrj v4 - rel 1.3 (05 mar 2013) 
+- On request of Alexander Khryukin, fixed configs and scripts for ARM:
+- fixed configs, removed all warnings, enabled again all arm defconfigs
+- defconfigs for kirkwood, versatile, iop32x have BFQ enable by default
+- ---------------------------------------------------------------------
+- Kernel 3.7 for mdv 2010.2, 2011.0, cooker, rosa.lts2012.0, rosa2012.1
+- MIB (Mandriva International Backports) - http://mib.pianetalinux.org/
+- The rel -1 (mainline serie), with official kernel sources and addons,
+- instead (-69) will be used for development and experimental flavours,
+- Yin & Yang (69) release - a very complete but experimental flavours...
+- ---------------------------------------------------------------------
 
 * Wed Feb 20 2013 Nicolo' Costanza <abitrules@yahoo.it> 3.7.9-1
 + update to 3.7.9 stable (12 fixes all over)

@@ -148,6 +148,7 @@ gnome-screenshot-
 adwaita-gtk3-theme-
 libaccountsservice-gir1.0-
 packagekit-gtk3-module-
+packagekit-gtk2-module-
 libcaribou-gir1.0-
 libfolks-gir0.6-
 libcaribou0-
@@ -173,3 +174,4 @@ libtelepathy-logger-gir0.2-
 libupower-glib-gir1.0-
 libtelepathy-logger3-
 libgmenu-gir3.0-
+cups-pk-helper-

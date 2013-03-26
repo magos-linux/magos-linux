@@ -8,3 +8,16 @@ libsystemd-daemon0-
 libsystemd-id1280-
 libsystemd-journal0-
 libsystemd-login0-
+dkms-fglrx-
+dkms-nvidia173-
+dkms-nvidia96xx-
+dkms-nvidia-current-
+dkms-vboxadditions-
+dkms-virtualbox-
+virtualbox-
+virtualbox-guest-additions-
+x11-driver-video-fglrx-
+x11-driver-video-nvidia173-
+x11-driver-video-nvidia96xx-
+x11-driver-video-nvidia-current-
+x11-driver-video-vboxvideo-

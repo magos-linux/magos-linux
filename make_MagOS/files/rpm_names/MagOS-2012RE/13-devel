@@ -67,3 +67,4 @@ glib-gettextize-
 libpcreposix0-
 liblzma-devel-
 uclibc-libkmod2-
+libkmod-devel-

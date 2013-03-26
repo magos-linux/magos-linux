@@ -1,6 +1,12 @@
 playonlinux-
-dkms-fglrx-
-x11-driver-video-fglrx-
 mozilla-thunderbird-lightning-
 microcode-
 xbindkeys-
+dkms-fglrx-
+dkms-nvidia173-
+dkms-nvidia96xx-
+dkms-nvidia-current-
+x11-driver-video-fglrx-
+x11-driver-video-nvidia173-
+x11-driver-video-nvidia96xx-
+x11-driver-video-nvidia-current-

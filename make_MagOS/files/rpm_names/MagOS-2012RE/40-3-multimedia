@@ -198,3 +198,9 @@ gstreamer1.0-tools-
 libgstphotography1.0_0-
 libopus0-
 rosa-media-player-plugin-
+libpulsecommon3.0-
+gstreamer1.0-vp8-
+libpulsecore3.0-
+libwebrtc0-
+libsbc1-
+sbc-

@@ -1,4 +1,4 @@
 VERKERNEL=3.7
-VERKPATCH=3.7.9
+VERKPATCH=3.7.10
 URL=http://abf.rosalinux.ru/downloads/kernels_37x_personal/repository/rosa2012lts/SRPMS/main/release
 PATCHFORMAT=bz2

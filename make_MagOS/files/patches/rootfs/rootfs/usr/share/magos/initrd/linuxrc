@@ -129,10 +129,11 @@ echolog "using $LIVECDNAME data from $DATA"
 debug_shell
 
 SGN=$(cmdline_value sgndatafile)
-[ -z "$SGN" ] && SGN=$LIVECDNAME-Data.sgn
 if [ "$SGN" != "no" -a "$SGN" != "off" ] ;then
+   [ -z "$SGN" ] && SGN=$LIVECDNAME-Data.sgn
+   echo $SGN | grep -q / || SGN=${LIVECDNAME}-Data/$SGN
    echolog "looking for '$LIVECDNAME-Data' directory (searching for $SGN file)"
-   DATAMNT=$(find_in_computer ${LIVECDNAME}-Data/$SGN $MOUNTDIR/$LIVEDATA)
+   DATAMNT=$(find_in_computer $SGN $MOUNTDIR/$LIVEDATA)
    DATAMNT=$(dirname $DATAMNT 2>/dev/null)
    [ -z "$DATAMNT" ] || echolog "using $LIVECDNAME data from $DATAMNT"
 fi
