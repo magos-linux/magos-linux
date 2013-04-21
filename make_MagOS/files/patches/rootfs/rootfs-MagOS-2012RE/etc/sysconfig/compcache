@@ -1,7 +1,0 @@
-# Number of compcache devices
-# NUM_DEVICES=4
-#
-# You can define size of memory for swap (in bytes!)
-# Default are 25% of RAM
-#
-# ZRAMSIZE=""
