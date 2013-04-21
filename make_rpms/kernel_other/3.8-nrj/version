@@ -1,0 +1,4 @@
+VERKERNEL=3.8
+VERKPATCH=3.8.7
+URL=http://abf.rosalinux.ru/downloads/kernels_38x_personal/repository/rosa2012lts/SRPMS/main/release
+PATCHFORMAT=bz2

@@ -1,0 +1,4 @@
+VERKERNEL=3.6
+VERKPATCH=3.6.6
+URL=ftp://ftp.mageialinux.ru/mageia2/construct/SRPMS
+PATCHFORMAT=xz
