@@ -1,0 +1,12 @@
+diff -Naur playonlinux/python/mainwindow.py playonlinux.tpg/python/mainwindow.py
+--- playonlinux/python/mainwindow.py	2012-04-13 10:53:12.000000000 +0000
++++ playonlinux.tpg/python/mainwindow.py	2012-04-23 18:42:01.668525142 +0000
+@@ -68,7 +68,7 @@
+ 		
+ 			if(playonlinux.VersionLower(os.environ["VERSION"],self.WebVersion)):
+ 				self.sendToStatusBar(_('An updated version of {0} is available').format(os.environ["APPLICATION_TITLE"])+" ("+self.WebVersion+")",False)
+-				self.sendAlert(_('An updated version of {0} is available').format(os.environ["APPLICATION_TITLE"])+" ("+self.WebVersion+")")
++				#self.sendAlert(_('An updated version of {0} is available').format(os.environ["APPLICATION_TITLE"])+" ("+self.WebVersion+")")
+ 			else:
+ 				self.Show = False
+ 		

@@ -1,0 +1,31 @@
+diff -rupN playonlinux.old/lib/variables playonlinux/lib/variables
+--- playonlinux.old/lib/variables	2012-08-05 21:45:45.000000000 +0200
++++ playonlinux/lib/variables	2012-08-08 19:52:22.000000000 +0200
+@@ -45,7 +45,7 @@ export WGETRC="$POL_USER_ROOT/configurat
+ if [ ! "$NOGETTEXT" = "TRUE" ] || [ "$(POL_Config_pRead NOGETTEXT)" = "TRUE" ]
+ then
+ 
+-[ "$DEBIAN_PACKAGE" = "FALSE" ] && export TEXTDOMAINDIR="$PLAYONLINUX/lang/locale/"
++[ "$DEBIAN_PACKAGE" = "FALSE" ]
+ export TEXTDOMAIN="pol"
+ . gettext.sh
+ eval_gettext > /dev/null || eval_gettext() { printf "$@"; }
+diff -rupN playonlinux.old/python/lib/lng.py playonlinux/python/lib/lng.py
+--- playonlinux.old/python/lib/lng.py	2012-08-05 21:45:45.000000000 +0200
++++ playonlinux/python/lib/lng.py	2012-08-08 19:53:50.000000000 +0200
+@@ -15,13 +15,13 @@ class iLang(object):
+         if(os.environ["DEBIAN_PACKAGE"] == "TRUE"):
+             languages = os.listdir('/usr/share/locale')
+         else:
+-            languages = os.listdir(Variables.playonlinux_env+'/lang/locale')
++	    languages = os.listdir('/usr/share/locale')
+ 
+         langid = wx.LANGUAGE_DEFAULT
+         if(os.environ["DEBIAN_PACKAGE"] == "TRUE"):
+             localedir = "/usr/share/locale"
+         else:
+-            localedir = os.path.join(Variables.playonlinux_env, "lang/locale")
++            localedir = "/usr/share/locale"
+ 
+         domain = "pol"
+         mylocale = wx.Locale(langid)

@@ -65,6 +65,7 @@
             <Category>VideoConference</Category>
             <Category>Monitor</Category>
             <Category>X-MandrivaLinux-System-SunJava6u22</Category>
+            <Category>Filesystems</Category>
             <Filename>draknetcenter.desktop</Filename>
           </Not>
         </And>
@@ -75,8 +76,11 @@
       <Include>
           <Filename>draknetcenter.desktop</Filename>
           <And>
-            <Category>Monitor</Category>
             <Category>Network</Category>
+            <Or>
+               <Category>Monitor</Category>
+               <Category>Filesystems</Category>
+            </Or>
           </And>
           <Category>Dialup</Category>
       </Include>

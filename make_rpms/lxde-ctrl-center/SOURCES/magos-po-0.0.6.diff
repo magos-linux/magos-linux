@@ -1,0 +1,54 @@
+diff -auprN a/po/ru.po b/po/ru.po
+--- a/po/ru.po	2013-04-21 18:35:48.000000000 +0400
++++ b/po/ru.po	2013-04-21 19:06:55.000000000 +0400
+@@ -49,11 +49,11 @@ msgstr "Программы"
+ 
+ #: share/lxde-ctrl-center/control-center.py:92
+ msgid "User accounts and access control"
+-msgstr "Аккаунты и доступ"
++msgstr "Пользователи и доступ"
+ 
+ #: share/lxde-ctrl-center/control-center.py:93
+ msgid "User Accounts"
+-msgstr "Аккаунты пользователей"
++msgstr "Учетные записи пользователей"
+ 
+ #: share/lxde-ctrl-center/control-center.py:94
+ msgid "System and security"
+@@ -121,15 +121,15 @@ msgstr "Сетевые инструме�
+ 
+ #: share/lxde-ctrl-center/control-center.py:117 translations.py:24
+ msgid "Set up firewall"
+-msgstr "Настройка файервола"
++msgstr "Настройка межсетевого экрана"
+ 
+ #: share/lxde-ctrl-center/control-center.py:119 translations.py:11
+ msgid "Add or remove user accounts"
+-msgstr "Удаление и добавление аккаунтов пользователей"
++msgstr "Удаление и добавление пользователей"
+ 
+ #: share/lxde-ctrl-center/control-center.py:120 translations.py:13
+ msgid "Set up Parental Control"
+-msgstr "Настройка Родительского контроля"
++msgstr "Настройка родительского контроля"
+ 
+ #: share/lxde-ctrl-center/control-center.py:122
+ msgid "Install drivers"
+@@ -173,7 +173,7 @@ msgstr "Добавление/удале�
+ 
+ #: share/lxde-ctrl-center/control-center.py:221
+ msgid "Restore original"
+-msgstr "Восстановить умолчания"
++msgstr "Вернуть начальные настройки"
+ 
+ #: share/lxde-ctrl-center/control-center.py:249
+ msgid "Add item"
+@@ -256,7 +256,7 @@ msgstr "Настройка соедин�
+ 
+ #: translations.py:20
+ msgid "Proxy settings"
+-msgstr "Настройки proxy"
++msgstr "Настройки прокси"
+ 
+ #: translations.py:21
+ msgid "Setup NFS share"

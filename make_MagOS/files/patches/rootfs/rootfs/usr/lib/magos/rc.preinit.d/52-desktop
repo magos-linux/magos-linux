@@ -47,6 +47,9 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
        gnome)
          echo -e "DISPLAYMANAGER=GDM\nDESKTOP=GNOME" >etc/sysconfig/desktop
        ;;
+       gnome-shell|gnome3)
+         echo -e "DISPLAYMANAGER=GDM\nDESKTOP=GNOMESHELL" >etc/sysconfig/desktop
+       ;;
        lxde)
          echo -e "DISPLAYMANAGER=slim\nDESKTOP=LXDE" >etc/sysconfig/desktop
        ;;
@@ -67,5 +70,17 @@ done
 
 [ "$(cmdline_parameter 3ddesktop)" ] && switch3don
 [ "$(cmdline_parameter no3ddesktop)" ] && switch3doff
+
+#GDM3 default session fix
+. etc/sysconfig/desktop
+cat >etc/X11/dm/Sessions/00DEFAULT.desktop <<EOF
+[Desktop Entry]
+Encoding=UTF-8
+Name=DEFAULT
+Comment=Default MagOS Session
+Exec=/usr/share/X11/xdm/Xsession $DESKTOP
+Icon=
+Type=Application
+EOF
 
 exit 0

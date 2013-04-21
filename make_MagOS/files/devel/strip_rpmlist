@@ -1,5 +1,6 @@
 #!/bin/bash
 # преоброазует список файлов с полного имени dkms-lzma-4.43-27mdv2009.1.i586.rpm до названия пакета dkms-lzma-
+#cat rpmlist.txt | sed s/-[\.a-zA-Z0-9]*$// | sed s/-[\.a-zA-Z0-9]*$// | sed s/-[\.a-zA-Z0-9]*$// >names.txt
 rm -fr out
 mkdir out
 for a in ??-* ;do 

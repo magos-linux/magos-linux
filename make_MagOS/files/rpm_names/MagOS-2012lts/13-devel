@@ -54,3 +54,9 @@ spec-helper-
 syslinux-
 unicorn-
 linux-userspace-headers-
+perl-RPM-
+perl-IO-String-
+python-rpm-
+rpmlint-mandriva-policy-
+rpmlint-
+python-magic-

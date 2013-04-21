@@ -1,5 +1,5 @@
 augeas-lenses-
-db51_recover-
+db52_recover-
 drak3d-
 drakconf-
 drakconf-icons-
@@ -23,11 +23,11 @@ harddrake-ui-
 libaugeas0-
 libbeecrypt7-
 libcpuinfo1-
-libdbsql5.1-
+libdbsql5.2-
 libdrakx-net-
 libelfutils1-
 libmb1-
-librpm5.3-
+librpm5.4-
 libsyck0-
 libXsettings-client0-
 mandriva-doc-common-
@@ -74,3 +74,6 @@ transfugdrake-
 ttmkfdir-
 urpmi-
 userdrake-
+libossp-uuid16-
+msec-gui-
+mdvinput-

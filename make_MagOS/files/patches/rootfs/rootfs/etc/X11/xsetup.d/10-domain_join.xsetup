@@ -6,7 +6,7 @@
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 if [ ! -z "$ADSERVER" ] ;then
    if ! echo -e "\n\n\n" | net ads testjoin ;then
-      /usr/share/magos/ad_join/ad_join.pl && exit 1
+      /usr/share/magos/ad_join/ad_join.pl && return 1
    fi
    xsetroot -cursor_name left_ptr
    /sbin/service smb restart
@@ -21,4 +21,3 @@ if [ ! -z "$ADSERVER" ] ;then
    done
 fi
 
-exit 0

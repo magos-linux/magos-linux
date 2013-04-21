@@ -1,0 +1,198 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+function deletefiles()
+{
+ sort "$1" > "$1".tmp ; mv -f "$1".tmp "$1"
+ sort "$2" > "$2".tmp ; mv -f "$2".tmp "$2"
+ diff --suppress-common-lines "$1" "$2" | grep "<" | sed s/"^< "// >"$1".tmp  || exit 1
+ mv -f "$1".tmp "$1" || exit 1
+}
+
+function movefiles()
+{
+   grep "$3" "$1" > "$2".tmp
+   [ -f "$4" ] && grep -v -f "$4" "$2".tmp > "$2".tmp2
+   [ -f "$2".tmp2 ] &&  mv -f "$2".tmp2 "$2".tmp
+   deletefiles "$1" "$2".tmp
+   cat "$2".tmp >> "$2"
+   rm -f "$2".tmp
+}
+
+function findmodbyfile()
+{
+   echo $(basename $(grep "$1" "$MYPATH/work/$FLASHNAME-$VERREL/"modules_filelist/??-* | sort | head -1 | awk -F: '{print $1}'))
+}
+
+function findmodbyrpm()
+{
+   echo $(basename $(grep "^$1" "$MYPATH/work/$FLASHNAME-$VERREL/"modules_list/??-* | sort | head -1 | awk -F: '{print $1}'))
+}
+
+
+
+if [ "`id -u`" != "0" ] ;then
+   echo "Для доступа ко всем файлам каталога rootfs нужны права root" ; exit 1
+fi
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+cd "$MYPATH/work/$FLASHNAME-$VERREL"
+echo "Обновление базы данных о файлах"
+for a in kernel/dkms/*.rpm ;do
+    ln -sf ../../../work/$FLASHNAME-$VERREL/kernel/dkms/${a##*/} ../../loaded/$FLASHNAME-$VERREL/rpms || exit 1
+done
+
+rm -fr modules* dir_list files_notfounded rootfs_dirs* split_errors.txt 2>/dev/null
+mkdir -p "$MYPATH/loaded/rpmfiles_$VERREL" modules_list  modules_filelist || exit 1
+cp "$MYPATH/loaded/$FLASHNAME-$VERREL/names/"??-* modules_list
+cat kernel/00-kernel kernel/dkms/00-kernel | egrep -v 'devel|header'  >> modules_list/00-kernel || exit 1
+egrep 'devel|header' kernel/00-kernel >> modules_list/*-devel || exit 1
+sed -i /^dkms-[a-ln-z]/d modules_list/00-kernel || exit 1
+
+cat modules_list/??-* | LC_ALL=C sort > modules_list/$FLASHNAME-$VERREL
+ls -1 "$MYPATH/loaded/rpmfiles_$VERREL/"*.rpm  2>/dev/null | sed 's|.*/||' | LC_ALL=C sort > modules_list/processed
+diff modules_list/processed modules_list/$FLASHNAME-$VERREL | grep '> ' | sed s/^..// \
+| while read a ;do
+     rpm -qlp "$MYPATH/loaded/$FLASHNAME-$VERREL/rpms/$a" | grep -vi "^(" | sed s-^/-- > "$MYPATH/loaded/rpmfiles_$VERREL/$a"
+done
+
+find rootfs | sed /^rootfs$/d | sed s-^rootfs-- | sort >rootfs_list || exit 1
+sed 's|/[^/]*$||' rootfs_list | sort -u | sed s-^/-- >rootfs_dirs
+sed -i s-^/-- rootfs_list
+deletefiles rootfs_list rootfs_dirs
+cp -f rootfs_list ost_list
+
+cd modules_list || exit 1
+for MODULE in ??-* ;do
+   echo -e $MODULE
+   for RPM in `cat $MODULE` ;do
+       cat ../../../loaded/rpmfiles_$VERREL/$RPM >> ../modules_filelist/$MODULE
+   done
+   deletefiles ../modules_filelist/$MODULE ../rootfs_dirs
+   deletefiles ../ost_list ../modules_filelist/$MODULE
+   echo $MODULE | grep  -q -- -int- && continue
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/locale/.*/' ../../../files/locales
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/help/.*/' ../../../files/locales
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/gnome/help/.*/' ../../../files/locales
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/international 'usr/share/man/[abd-kn-z].*/' ../../../files/locales
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/71-manpages 'usr/share/man/.*/'
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/71-manpages 'usr/share/info/.*'
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/help/.*/'
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/gnome/help/.*/'
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/doc/'
+   movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/gtk-doc/'
+done
+cd ../
+movefiles ost_list modules_filelist/*-kernel '^lib/modules/'
+movefiles ost_list modules_filelist/*-kernel 'var/lib/dkms-binary'
+movefiles ost_list modules_filelist/*-kernel 'boot/initrd'
+movefiles ost_list modules_filelist/*-kernel 'boot/vmlinuz'
+movefiles ost_list modules_filelist/*-core '^dev/'
+movefiles ost_list modules_filelist/*-core '/magos/'
+movefiles ost_list modules_filelist/*-core '^etc/skel'
+movefiles ost_list modules_filelist/*-core '^/root'
+movefiles ost_list modules_filelist/*-drakconf 'var/lib/rpm'
+movefiles ost_list modules_filelist/*-drakconf 'var/lib/urpmi'
+movefiles ost_list modules_filelist/*-x-base 'usr/share/mdk/screensaver/'
+movefiles modules_filelist/*-kernel modules_filelist/*-firmware  '^lib/firmware/'
+movefiles modules_filelist/*-core modules_filelist/*-firmware  '^lib/firmware/'
+
+cat ost_list >> modules_filelist/*-core
+
+echo etc/sysconfig/desktop >> modules_filelist/*-x-kde
+echo etc/sysconfig/desktop >> modules_filelist/*-x-gnome
+echo etc/sysconfig/desktop >> modules_filelist/*-x-lxde
+
+#echo "Формирование модулей локализаций"
+MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
+movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
+movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
+
+MODULE=$(findmodbyrpm 'kdebase4-runtime-')
+movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
+movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
+
+MODULE=$(findmodbyrpm 'playonlinux-')
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
+movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
+
+MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
+
+MODULE=$(findmodbyrpm 'inkscape-')
+movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
+movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
+
+MODULE=$(findmodbyrpm 'libgweather-')
+movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
+
+MODULE=$(findmodbyrpm 'vpnpptp-allde-')
+movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
+movefiles modules_filelist/international modules_filelist/20-x-base '.*_ru.qm'
+
+for a in modules_filelist/*-int-* ;do
+   LOCALES=`grep usr/share/locale/ $a | sed 's|usr/share/locale/||' | sed 's|[-_@/].*$||' | sort -u `
+   echo $a | grep -q -- -int-en && LOCALES="$LOCALES en"
+   echo $a | grep -q -- -int-russia && LOCALES="$LOCALES ru CP1251 KOI8-R KOI8-U"
+   echo $a | grep -q -- -int-no && LOCALES="$LOCALES no"
+   echo $a | grep -q -- -int-europe && LOCALES="$LOCALES li"
+   for l in $LOCALES ;do
+     movefiles modules_filelist/international $a "[-._/]$l[-._@/]"
+   done
+done
+
+movefiles modules_filelist/international modules_filelist/*-core '.'
+rm -f modules_filelist/international
+
+# Перенос ссылок на службы в модули
+for a in modules_filelist/* ;do
+    echo "$a" | grep -q '..-core$' && continue
+    for b in $(grep etc/rc.d/init.d $a) ;do
+        SERVICE=${b##*/}
+        movefiles modules_filelist/*-core "$a" etc/rc.d/rc..d/...$SERVICE
+    done
+done
+
+echo "Раскидываем файлы по модулям"
+cd modules_filelist
+for MODULE in ??-* ;do
+       echo $MODULE
+       mkdir -p ../modules/$MODULE || exit 1
+       cd ../rootfs
+       tar -c --ignore-failed-read --no-recursion -T ../modules_filelist/$MODULE 2>>../split_errors.txt | tar -x -C ../modules/$MODULE  || exit 1
+       cd ../modules_filelist
+done
+cd ../
+
+echo "Изменение модулей"
+cd modules/*-core
+rm -f boot/vmlinuz
+ln -sf /mnt/livemedia/MagOS/vmlinuz boot/vmlinuz
+mkdir -p -m 755 var/lib/rpm/modules
+cp ../../modules_list/??-* var/lib/rpm/modules
+chmod 444 var/lib/rpm/modules/*
+cd ../
+for a in * ;do
+    [ -d $a ] || continue
+    mkdir -p $a/var/lib/rpm/modules
+    cp -p *-core//var/lib/rpm/modules/$a $a/var/lib/rpm/modules 2>/dev/null
+done
+sed -i s/KDM/slim/ *-x-lxde/etc/sysconfig/desktop
+sed -i s/KDE4/LXDE/ *-x-lxde/etc/sysconfig/desktop
+sed -i s/KDM/GDM/ *-x-gnome/etc/sysconfig/desktop
+sed -i s/KDE4/GNOME/ *-x-gnome/etc/sysconfig/desktop
+rm -f *kernel*/boot/vmlinuz*
+
+cd "$MYPATH"
+cp -pR files/patches/modules/* work/$FLASHNAME-$VERREL/modules
+
+echo "Работа скрипта завершена, в work/modules разложены файлы для создания модульной системы"

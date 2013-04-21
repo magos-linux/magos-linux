@@ -1,0 +1,14 @@
+diff -auprN a/etc/PlayOnLinux.desktop b/etc/PlayOnLinux.desktop
+--- a/etc/PlayOnLinux.desktop	2013-04-01 01:12:23.000000000 +0400
++++ b/etc/PlayOnLinux.desktop	2013-04-16 20:33:19.256294166 +0400
+@@ -3,7 +3,8 @@ Version=1.0
+ Encoding=UTF-8
+ Name=PlayOnLinux
+ Comment=PlayOnLinux
+-Type=Application %F
++Type=Application
+ Exec=playonlinux
+ Icon=/usr/share/playonlinux/etc/playonlinux.png
+-Categories=Application;Game
++Categories=Emulator;
++GenericName=PlayOnLinux
