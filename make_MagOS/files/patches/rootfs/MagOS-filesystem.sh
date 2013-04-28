@@ -5,6 +5,13 @@ rm -fr etc/skel/tmp var/tmp proc sys tmp etc/fstab etc/mtab \
    usr/share/GeoIP/GeoLiteCity.dat \
    usr/share/mdk/desktop/free/* usr/share/mdk/desktop/one/*  usr/share/mdk/desktop/powerpack/* \
    usr/share/apps/kio_desktop/DesktopLinks/* \
+   usr/share/doc/rosa-media-player/*.jpg usr/share/vpnpptp/wiki/*_uk.doc \
+   usr/share/doc/proftpd/Configuration.pdf usr/share/doc/easytag/users_* usr/share/doc/easytag/*_Documentation_* \
+   usr/share/doc/djvulibre/doc usr/share/doc/initscripts/ChangeLog* usr/share/doc/libglib2.0-devel/ChangeLog \
+   usr/share/doc/plasma-applet-stackfolder usr/share/doc/glibc/ChangeLog* \
+   usr/share/doc/HTML/ru/marble usr/share/doc/HTML/ru/kalzium usr/share/doc/HTML/ru/kigo \
+   usr/share/doc/HTML/ru/kstars usr/share/doc/HTML/ru/kbruch usr/share/doc/HTML/ru/akregator \
+   usr/share/help/C/cheese/figures/effects.png \
    boot/initrd* 2>/dev/null
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null

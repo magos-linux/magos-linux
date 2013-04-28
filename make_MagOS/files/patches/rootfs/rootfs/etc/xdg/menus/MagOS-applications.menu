@@ -488,6 +488,7 @@
       <Separator/>
     </Layout>
     <Include>
+      <Filename>magos-ctrl-center.desktop</Filename>
       <Filename>mandriva-drakconf.desktop</Filename>
       <Filename>rpmdrake.desktop</Filename>
     </Include>
@@ -506,6 +507,7 @@
           </Or>
           <Not>
             <Filename>rpmdrake.desktop</Filename>
+            <Filename>magos-ctrl-center.desktop</Filename>
             <Category>HardwareSettings</Category>
             <Category>Printing</Category>
             <Category>TerminalEmulator</Category>

@@ -1,4 +1,11 @@
 #!/bin/sh
+PKDE=/usr/bin/kwrite
+PGNOME=/usr/bin/gedit
+PLXDE=/usr/bin/leafpad
+PDEF=/usr/bin/leafpad
+[ -x $PLXDE ] || PLXDE=$PDEF
+[ -x $PKDE ] || PKDE=$PDEF
+[ -x $PGNOME ] || PGNOME=$PDEF
 
 . /usr/lib/magos/functions
 
@@ -6,15 +13,20 @@ DE=$(detectDE)
 
 case "$DE" in
     kde)
-    kwrite "$1"
+    $PKDE "$1"
     ;;
 
     gnome)
-    gedit "$1"
+    $PGNOME "$1"
+    ;;
+
+    gnome-shell)
+    $PGNOME "$1"
     ;;
 
     lxde)
-    leafpad "$1"
+    $PLXDE "$1"
     ;;
 
 esac
+

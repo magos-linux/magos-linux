@@ -41,7 +41,7 @@ modprobe_pcmcia_modules
 debug_shell
 
 # start quickshell
-if [ $(cmdline_parameter quickshell) ] ; then
+if [ "$(cmdline_parameter quickshell)$(cmdline_parameter qs)" ] ; then
    loadfont < /usr/lib/kbd/UniCyr_8x14.psf
    loadkeys /usr/lib/kbd/ru.map
    getty -n -l /bin/autologin 9600 tty2 linux &

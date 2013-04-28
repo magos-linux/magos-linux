@@ -14,23 +14,29 @@ else
   echo "Не вижу файла .config" ;  exit 1
 fi
 
+echo "Создание образа дистрибутива"
+cd "$MYPATH"/work/$FLASHNAME-$VERREL
+umount mirror/rootfs 2>/dev/null
+rm -fr mirror 2>/dev/null
+mkdir -p mirror/changes mirror/rootfs || exit 1
+mount -t aufs -o br:mirror/changes=rw:rootfs=ro aufs mirror/rootfs || exit 1
 
 echo "Добавление файлов в дистрибутив"
-cd "$MYPATH"/work/$FLASHNAME-$VERREL
-rm -fr rootfs/etc/skel/tmp
-cp -pfR ../../loaded/$FLASHNAME-$VERREL/urpmi/* rootfs
+rm -fr mirror/rootfs/etc/skel/tmp
+cp -pfR ../../loaded/$FLASHNAME-$VERREL/urpmi/* mirror/rootfs
 for a in rootfs rootfs-$FLASHNAME rootfs-$FLASHNAME-$VERREL ;do
-    [ -d ../../files/patches/rootfs/$a ] && cp -pfR ../../files/patches/rootfs/$a/* rootfs
+    [ -d ../../files/patches/rootfs/$a ] && cp -pfR ../../files/patches/rootfs/$a/* mirror/rootfs
 done
 if [ -d ../../localpatches ] ;then
-    cp -pfR ../../localpatches/* rootfs
+    cp -pfR ../../localpatches/* mirror/rootfs
 fi
-cd rootfs
+cd mirror/rootfs
 mkdir -p usr/lib/magos/rootfs-patches
-cp -p ../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
-cp -p ../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh usr/lib/magos/rootfs-patches
+cp -p ../../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
+cp -p ../../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh usr/lib/magos/rootfs-patches
 
 echo "Уменьшение базы rpm"
+# tmpfs tweak wiil increase rpm speed in several times
 mv var/lib/rpm var/lib/rpmbase || exit 1
 mkdir var/lib/rpm || exit 1
 mount -t tmpfs tmpfs var/lib/rpm || exit 1
@@ -57,17 +63,9 @@ umount var/lib/rpm || exit 1
 rmdir var/lib/rpm || exit 1
 mv var/lib/rpmbase var/lib/rpm || exit 1
 
-if [ "$SQFSVER" = "3" ] ;then
-  ln -sf /usr/bin/unsquashfs3 usr/lib/magos/scripts/unsquashfs
-  ln -sf /usr/bin/mksquashfs3 usr/lib/magos/scripts/mksquashfs
-  MODULEFORMAT=lzm
-else
-  ln -sf /usr/bin/unsquashfs usr/lib/magos/scripts/unsquashfs
-  ln -sf /usr/bin/mksquashfs usr/lib/magos/scripts/mksquashfs
-  MODULEFORMAT=xzm
-fi
+ln -sf /usr/bin/unsquashfs usr/lib/magos/scripts/unsquashfs
+ln -sf /usr/bin/mksquashfs usr/lib/magos/scripts/mksquashfs
 [ "$MKSQOPT" != "" ] && sed -i s/MKSQOPT=.*/MKSQOPT=\""$MKSQOPT"\"/ usr/lib/magos/scripts/liblinuxlive
-sed -i s/MODULEFORMAT=.*/MODULEFORMAT=\""$MODULEFORMAT"\"/ usr/lib/magos/scripts/liblinuxlive
 
 echo "Отключение всех служб"
 cd etc/xinetd.d
@@ -90,6 +88,10 @@ for a in  $INITDNEED  ;do
    chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --add $a
 done
 
+cd "$MYPATH"
+umount work/$FLASHNAME-$VERREL/mirror/rootfs || exit 1
+
 echo "Работа скрипта завершена"
+
 exit 0
 

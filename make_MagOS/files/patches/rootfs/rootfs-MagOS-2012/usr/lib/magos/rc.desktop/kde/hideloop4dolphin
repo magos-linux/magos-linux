@@ -18,11 +18,10 @@ if [ ! -f $FFP ] ;then
    kill $PIDDOL
 fi
 
-grep -q devices/loop199 $FFP && exit 0
-
-for a in $(seq 0 199) ;do
-  grep -q devices/loop$a $FFP && continue
-  cat >>$FFP <<EOF
+if ! grep -q devices/loop199 $FFP ;then
+  for a in $(seq 0 199) ;do
+    grep -q devices/loop$a $FFP && continue
+    cat >>$FFP <<EOF
  <separator>
     <info>
 	<metadata owner="http://www.kde.org">
@@ -33,7 +32,7 @@ for a in $(seq 0 199) ;do
     </info>
  </separator>
 EOF
-done
-sed -i /'<\/xbel>'/d $FFP
-echo '</xbel>' >> $FFP
-
+  done
+  sed -i /'<\/xbel>'/d $FFP
+  echo '</xbel>' >> $FFP
+fi

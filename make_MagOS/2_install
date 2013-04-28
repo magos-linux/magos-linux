@@ -80,7 +80,8 @@ cp -pr rootfs/var/lib/rpm rootfs/var/lib/rpm_base || exit 1
 umount rootfs/proc rootfs/sys rootfs/var/lib/rpm || exit 1
 rm -fr rootfs/var/lib/rpm || exit 1
 mv rootfs/var/lib/rpm_base rootfs/var/lib/rpm || exit 1
-
+mkdir  -p rootfs/var/lib/rpm/pubkeys
+cp -p ../../loaded/$FLASHNAME-$VERREL/pubkeys/*.pubkey rootfs/var/lib/rpm/pubkeys || exit 1
 
 echo "Создание ссылок на исходники ядра"
 KERNDEVEL=$(find rootfs/usr/src | grep -m1 /include/linux/aufs_type.h | sed s=/include/linux/aufs_type.h== | sed s=rootfs==)
@@ -90,10 +91,6 @@ KERNLINUZ=$(ls -1 rootfs/boot/vmlinuz-* | sed 's|.*/||' | tail -1)
 [ -z "$KERNLINUZ" ] || ln -sf $KERNLINUZ rootfs/boot/vmlinuz-desktop
 [ -h $KERNMODULES/build ] || ln -s $KERNDEVEL $KERNMODULES/build
 [ -h $KERNMODULES/source ] || ln -s $KERNDEVEL $KERNMODULES/source
-
-#echo "сжатие базы rpm"
-#when making dkms in 2011 it corrupt rpm5 evil base
-#chroot rootfs /usr/lib/rpm/bin/dbconvert
 
 if grep -q cpio install_errors.log ;then 
     echo "Обнаружены серьёзные ошибки при установке пакетов, см. файл work/$FLASHNAME-$VERREL/install_errors.log (ищите по cpio)"

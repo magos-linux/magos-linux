@@ -43,19 +43,13 @@ else
   echo "Не вижу файла .config" ;  exit 1
 fi
 
+
 cd "$MYPATH/work/$FLASHNAME-$VERREL"
 echo "Обновление базы данных о файлах"
-for a in kernel/dkms/*.rpm ;do
-    ln -sf ../../../work/$FLASHNAME-$VERREL/kernel/dkms/${a##*/} ../../loaded/$FLASHNAME-$VERREL/rpms || exit 1
-done
-
+grep -q aufs.*mirror/rootfs /proc/mounts || mount -t aufs -o br:mirror/changes=rw:rootfs=ro aufs mirror/rootfs || exit 1
 rm -fr modules* dir_list files_notfounded rootfs_dirs* split_errors.txt 2>/dev/null
 mkdir -p "$MYPATH/loaded/rpmfiles_$VERREL" modules_list  modules_filelist || exit 1
 cp "$MYPATH/loaded/$FLASHNAME-$VERREL/names/"??-* modules_list
-cat kernel/00-kernel kernel/dkms/00-kernel | egrep -v 'devel|header'  >> modules_list/00-kernel || exit 1
-egrep 'devel|header' kernel/00-kernel >> modules_list/*-devel || exit 1
-sed -i /^dkms-[a-ln-z]/d modules_list/00-kernel || exit 1
-
 cat modules_list/??-* | LC_ALL=C sort > modules_list/$FLASHNAME-$VERREL
 ls -1 "$MYPATH/loaded/rpmfiles_$VERREL/"*.rpm  2>/dev/null | sed 's|.*/||' | LC_ALL=C sort > modules_list/processed
 diff modules_list/processed modules_list/$FLASHNAME-$VERREL | grep '> ' | sed s/^..// \
@@ -63,7 +57,8 @@ diff modules_list/processed modules_list/$FLASHNAME-$VERREL | grep '> ' | sed s/
      rpm -qlp "$MYPATH/loaded/$FLASHNAME-$VERREL/rpms/$a" | grep -vi "^(" | sed s-^/-- > "$MYPATH/loaded/rpmfiles_$VERREL/$a"
 done
 
-find rootfs | sed /^rootfs$/d | sed s-^rootfs-- | sort >rootfs_list || exit 1
+echo "Создание списков файлов для модулей"
+find mirror/rootfs | sed /^mirror.rootfs$/d | sed s-^mirror/rootfs-- | sort >rootfs_list || exit 1
 sed 's|/[^/]*$||' rootfs_list | sort -u | sed s-^/-- >rootfs_dirs
 sed -i s-^/-- rootfs_list
 deletefiles rootfs_list rootfs_dirs
@@ -111,6 +106,11 @@ echo etc/sysconfig/desktop >> modules_filelist/*-x-gnome
 echo etc/sysconfig/desktop >> modules_filelist/*-x-lxde
 
 #echo "Формирование модулей локализаций"
+
+movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/pt'
+movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/uk'
+movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/sv'
+
 MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
 movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
 movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
@@ -167,9 +167,9 @@ cd modules_filelist
 for MODULE in ??-* ;do
        echo $MODULE
        mkdir -p ../modules/$MODULE || exit 1
-       cd ../rootfs
-       tar -c --ignore-failed-read --no-recursion -T ../modules_filelist/$MODULE 2>>../split_errors.txt | tar -x -C ../modules/$MODULE  || exit 1
-       cd ../modules_filelist
+       cd ../mirror/rootfs
+       tar -c --ignore-failed-read --no-recursion -T ../../modules_filelist/$MODULE 2>>../../split_errors.txt | tar -x -C ../../modules/$MODULE  || exit 1
+       cd ../../modules_filelist
 done
 cd ../
 
@@ -194,5 +194,6 @@ rm -f *kernel*/boot/vmlinuz*
 
 cd "$MYPATH"
 cp -pR files/patches/modules/* work/$FLASHNAME-$VERREL/modules
+umount work/$FLASHNAME-$VERREL/mirror/rootfs || exit 1
 
 echo "Работа скрипта завершена, в work/modules разложены файлы для создания модульной системы"

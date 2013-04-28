@@ -1,0 +1,6 @@
+NAME=GNOME
+ICON=gnome-logo-icon-transparent.png
+DESC=Gnome Classic
+EXEC=/usr/bin/startgnomeclassic
+SCRIPT:
+exec /usr/bin/startgnomeclassic

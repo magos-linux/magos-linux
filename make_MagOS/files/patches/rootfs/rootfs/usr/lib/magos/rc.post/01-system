@@ -26,3 +26,5 @@ if [ "$UTC" = "false" ] ;then
 else
    /sbin/hwclock -s --utc
 fi
+ln -sf /media/admin/mike/.thunderbird /home/mike
+rm -f /etc/pam.d/system-auth-fprintd

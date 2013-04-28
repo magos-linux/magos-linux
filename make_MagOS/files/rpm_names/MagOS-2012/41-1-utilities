@@ -17,7 +17,6 @@ dosfstools-
 dump-
 dvd+rw-tools-
 ed-
-epdfview-
 fuseiso-
 gcalctool-
 gedit-
@@ -100,3 +99,5 @@ libgtksourceview-gir3.0-
 smartmontools-
 gsmartcontrol-
 mdvinput-
+fskbsetting-
+zathura-

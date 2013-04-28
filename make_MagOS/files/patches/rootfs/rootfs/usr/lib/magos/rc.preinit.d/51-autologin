@@ -17,6 +17,8 @@ ENABLED=yes
 [ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(grep :500:500: etc/passwd | awk -F: '{print $1}')
 [ "$AUTOLOGINUSER" = "none" ] && AUTOLOGINUSER=
 sed -i s/^AutomaticLogin=.*/AutomaticLogin=$AUTOLOGINUSER/ etc/X11/gdm/custom.conf 2>/dev/null
-sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/X11/slim/slim.conf 2>/dev/null
 sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ usr/share/magos/kde4/share/config/kdm/kdmrc 2>/dev/null
+PFP=etc/X11/slim/slim.conf
+[ -f "$PFP" ] || PFP=etc/slim.conf
+sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ $PFP 2>/dev/null
 

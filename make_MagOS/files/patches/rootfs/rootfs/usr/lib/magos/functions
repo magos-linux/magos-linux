@@ -76,7 +76,7 @@ function apply2simple()
 # $2 - included file
 function concatenate_ini()
 {
- [ -f "$1" -a -f "$2" ] || exit 1
+ [ -f "$1" -a -f "$2" ] || return 1
  ini2simple "$1" >"$1.tmp"
  ini2simple "$2" >"$2.tmp"
  apply2simple "$1.tmp" "$2.tmp"

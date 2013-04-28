@@ -16,17 +16,10 @@ fi
 
 
 DISTRVERSION=$(date +%Y%m%d)
-SRCDIR="$MYPATH/work/$FLASHNAME-$VERREL/rootfs"
 DESTDIR=flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
-if [ "$SQFSVER" = "3" ] ;then
-  MKSQUASHFS=mksquashfs3
-  UNSQUASHFS=unsquashfs3
-  MODULEFORMAT=lzm
-else
-  MKSQUASHFS=mksquashfs
-  UNSQUASHFS=unsquashfs
-  MODULEFORMAT=xzm
-fi
+MKSQUASHFS=mksquashfs
+UNSQUASHFS=unsquashfs
+MODULEFORMAT=xzm
 
 function umountbranches()
 {
@@ -44,16 +37,17 @@ mkdir -p "$DESTDIR" || exit 1
 mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional,rootcopy}
 mkdir -p "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy}
 mkdir -p "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic}
-cp -pR files/patches/flash/* "$DESTDIR"
-cp -L "$SRCDIR"/boot/vmlinuz "$DESTDIR"/$FLASHNAME
-echo $VERREL $DISTRVERSION  > "$DESTDIR"/$FLASHNAME/VERSION
+cp -pR files/patches/flash/* "$DESTDIR" || exit 1
 cd work/$FLASHNAME-$VERREL
+echo $VERREL $DISTRVERSION  > "$MYPATH/$DESTDIR"/$FLASHNAME/VERSION
 echo $VERREL $DISTRVERSION  > VERSION
+cp -L rootfs/boot/vmlinuz "$MYPATH/$DESTDIR"/$FLASHNAME/vmlinuz || exit 1
 
 echo "Cоздание initrd"
 umountbranches "$(pwd)/initrd"
 rm -fr initrd 2>/dev/null
 mkdir -p initrd/rootfs initrd/changes
+cp -pfr mirror/changes/* initrd/changes
 mount -t aufs -o br:initrd/changes=rw:rootfs=ro aufs initrd/rootfs || exit 1
 mkdir -p initrd/rootfs/{tmp,proc,sys,dev,/mnt/live} || exit 1
 cp -p VERSION initrd/rootfs/mnt/live || exit 1

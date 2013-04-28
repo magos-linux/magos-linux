@@ -3,6 +3,8 @@
 # ifup-post-local       Helper script for MagOS Linux Live.
 #
 # Authors:	        Mikhail Zaripov <m3for@mail.ru>
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
 
 NFSMOUNTTM=10
 NFSMOUNTWAIT=6
@@ -25,4 +27,3 @@ if [ "$AUTOMOUNTSERVER" = "yes" ] ;then
     done
 fi
 
-exit 0
