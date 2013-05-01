@@ -33,10 +33,12 @@ PFP=etc/gconf/schemas/panel-default-setup.entries
 [ -f $PFP ] && sed -i 's|<string>/usr/share/gnome-panel/pixmaps/mandriva-panel.png</string>|<string></string>|' $PFP
 
 DIRGTK=gtk-2.0
+DIRGTK=gtk-3.0
 DIRMETACITY=metacity-1
 DIROPENBOX=openbox-3
 rm -fr "usr/share/themes/Default/$DIRGTK" "usr/share/themes/Default/$DIRMETACITY" "usr/share/themes/Default/$DIROPENBOX"
 ln -sf "../MagOS/$DIRGTK"  "usr/share/themes/Default/$DIRGTK"
+ln -sf "../MagOS/$DIRGTK3"  "usr/share/themes/Default/$DIRGTK3"
 ln -sf "../MagOS/$DIRMETACITY" "usr/share/themes/Default/$DIRMETACITY"
 ln -sf "../MagOS/$DIROPENBOX" "usr/share/themes/Default/$DIROPENBOX"
 rm -fr "etc/$DIRGTK/gtkrc" "etc/$DIRGTK/apps" "etc/$DIRGTK/images" 2>/dev/null

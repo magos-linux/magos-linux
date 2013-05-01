@@ -4,7 +4,7 @@ ENABLED=yes
 
 if [ "$1" != "fork" ] ;then
    $0 fork &
-   return 0
+   exit 0
 fi
 
 sleep 3
@@ -18,7 +18,7 @@ if [ ! -f $FFP ] ;then
    kill $PIDDOL
 fi
 
-grep -q devices/loop199 $FFP && return 0
+grep -q devices/loop199 $FFP && exit 0
 
 for a in $(seq 0 199) ;do
   grep -q devices/loop$a $FFP && continue

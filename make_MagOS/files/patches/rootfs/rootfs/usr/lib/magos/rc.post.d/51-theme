@@ -17,7 +17,7 @@ if ! [ -z "$THEME" ] ;then
    case "$THEME" in
        "MagOS" | "MagOS-dark" | "MagOS-green" )
            THEMEGTK=${THEMEGTK-$THEME}
-           THEMEGTK3=${THEMEGTK-$THEME}
+           THEMEGTK3=${THEMEGTK3-$THEME}
            THEMEMETACITY=${THEMEMETACITY-$THEME}
            THEMEOPENBOX=${THEMEOPENBOX-$THEME}
            THEMEEMERALD=${THEMEEMERALD-$THEME}

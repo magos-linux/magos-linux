@@ -85,6 +85,11 @@ for MODULE in ??-* ;do
    movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/gtk-doc/'
 done
 cd ../
+movefiles ost_list modules_filelist/*-x-3d '/nvidia173.ko'
+movefiles ost_list modules_filelist/*-x-3d '/nvidia96xx.ko'
+movefiles ost_list modules_filelist/*-x-3d '/nvidia96xx.ko'
+movefiles ost_list modules_filelist/*-x-3d '/nvidia-current.ko'
+movefiles ost_list modules_filelist/*-x-3d '/fglrx.ko'
 movefiles ost_list modules_filelist/*-kernel '^lib/modules/'
 movefiles ost_list modules_filelist/*-kernel 'var/lib/dkms-binary'
 movefiles ost_list modules_filelist/*-kernel 'boot/initrd'
