@@ -5,6 +5,7 @@ grep -q '^KerberosAuthentication yes' $PFP || sed -i s/.*KerberosAuthentication.
 grep -q '^KerberosOrLocalPasswd yes' $PFP || sed -i s/.*KerberosOrLocalPasswd.*/'KerberosOrLocalPasswd yes'/ $PFP
 grep -q '^KerberosTicketCleanup yes' $PFP || sed -i s/.*KerberosTicketCleanup.*/'KerberosTicketCleanup yes'/ $PFP
 grep -q '^UsePAM yes' $PFP || sed -i s/.*UsePAM.*/'UsePAM yes'/ $PFP
+sed -i s/^AuthorizedKeysFile/'#AuthorizedKeysFile'/ $PFP
 
 exit 0
 

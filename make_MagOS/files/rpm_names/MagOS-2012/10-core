@@ -401,3 +401,5 @@ ccid-
 cpupower-
 isomd5sum-
 pam_ldap-
+nfs-utils-
+libpcrecpp0-

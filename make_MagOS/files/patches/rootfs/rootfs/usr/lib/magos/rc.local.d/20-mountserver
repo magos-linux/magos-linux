@@ -8,6 +8,7 @@ ENABLED=yes
 
 NFSMOUNTTM=10
 NFSMOUNTWAIT=6
+NFSOPTS="vers=3,nolock,users,noauto"
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 
 # mount MagOS-Server
@@ -22,8 +23,7 @@ if [ "$AUTOMOUNTSERVER" = "yes" ] ;then
         MOUNTDEST=$(echo $a | sed s-/media-/mnt/server-)
         mkdir -p $MOUNTDEST 2>/dev/null
         [ -d "$MOUNTDEST" ] || continue
-        grep -q " $MOUNTDEST " /etc/fstab || echo "MagOS-Server:$a $MOUNTDEST nfs nolock,users,noauto 0 0 #AUTOMOUNTSERVER=yes" >> /etc/fstab
+        grep -q " $MOUNTDEST " /etc/fstab || echo "MagOS-Server:$a $MOUNTDEST nfs $NFSOPTS 0 0 #AUTOMOUNTSERVER=yes" >> /etc/fstab
         grep -q " $MOUNTDEST " /proc/mounts ||  mount $MOUNTDEST 2>/dev/null
     done
 fi
-
