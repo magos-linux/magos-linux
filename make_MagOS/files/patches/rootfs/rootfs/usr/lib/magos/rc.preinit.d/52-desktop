@@ -18,7 +18,7 @@ ln -sf /lib/systemd/system/graphical.target etc/systemd/system/default.target
 switch3don()
 {
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
-         echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+         echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
          sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
          sed -i /COMPOSITING_WM_START/d etc/sysconfig/MagOS
          echo COMPOSITING_WM_START=yes >> etc/sysconfig/MagOS
