@@ -9,7 +9,7 @@ session_info[Display]=:0
 session_info[Name]=$(who -u |grep -v root |tail -n1 | awk '{ print $1 }')
 } 
 
-if ! uname -r |grep -q rosa ; then
+if ! uname -r |grep -q mga ; then
 	seat="seat0"
 	# determine location of loginctl
 	LOGINCTL=$(command -v loginctl || command -v systemd-loginctl)
