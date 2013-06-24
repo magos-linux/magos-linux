@@ -55,8 +55,8 @@ escape() {
 
 current_user="$(id -u -n)"
 
-echo ${session_info[Display]}
-echo ${session_info[Name]}
+#echo ${session_info[Display]}
+#echo ${session_info[Name]}
 
 if [[ ${current_user} == ${session_info[Name]} ]]; then
 	# already correct user, no need to su
