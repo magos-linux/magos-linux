@@ -43,7 +43,11 @@ info ()
   AUDIO=$(lspci | sed -e '/Audio/!d' -e 's/^.*://')
   CMDLINE=$(cat /proc/cmdline)
   VERSION=$(cat /etc/magos-release)
-  PROF_SIZE=$(df -h / |grep aufs | awk '{print " ["$5"] total - "$2", free - "$4}')
+  if [ $(cmdline_parameter unionfs) ];then
+     PROF_SIZE=$(df -h / |grep unionfs | awk '{print " ["$5"] total - "$2", free - "$4}')
+  else
+     PROF_SIZE=$(df -h / |grep aufs | awk '{print " ["$5"] total - "$2", free - "$4}')
+  fi
   echo "$LIVECDNAME $VERSION" > ~/info.txt
   echo "UPTIME: $UPTIME" >> ~/info.txt
   echo "KERNEL: $KERNEL" >> ~/info.txt
