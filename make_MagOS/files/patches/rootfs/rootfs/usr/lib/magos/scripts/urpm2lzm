@@ -13,6 +13,8 @@ cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULE
 
 export PATH=/usr/lib/magos/scripts:$PATH
 
+. liblinuxlive
+
 mod_br=/mnt/live/memory/tmp/wiz_fly_mods
 root_br=/mnt/live/memory/tmp/wiz_fly_rootfs
 mod_path=/mnt/live/memory/images
@@ -23,10 +25,18 @@ rm -rf $mount_br $root_br
 mkdir -p $mount_br $root_br
 
 for a in `ls -d $mod_path/??-*`; do
-    mount_br="$mount_br:$a=rr"
+    if [ $(cmdline_parameter unionfs) ];then
+      mount_br="$mount_br:$a=ro"
+    else
+      mount_br="$mount_br:$a=rr"
+    fi
 done
 
-mount -t aufs -o br:$mount_br wiz_fly $root_br
+if [ $(cmdline_parameter unionfs) ];then
+    mount -t unionfs -o dirs=$mount_br wiz_fly $root_br
+else
+    mount -t aufs -o br:$mount_br wiz_fly $root_br
+fi
 
 mkdir -p $root_br/{dev,proc,sys}
 

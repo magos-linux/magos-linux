@@ -1,7 +1,7 @@
 Summary:        Modules manager for MagOS
 Name:           mod_mnger
 Version:        0.0.1
-Release:        %mkrel 20
+Release:        %mkrel 22
 License:        GPLv3+
 URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base
@@ -14,8 +14,8 @@ GUI for activate, deactivate, create and convert MagOS modules
 
 %prep
 %setup -q
-sed -i -e "s/gksu -g/beesu/g" ./%{name}
-sed -i -e "s/gksu -g/beesu/g" ./mod_maker.tcl
+sed -i -e "s/gksu -g/beesu -l/g" ./%{name}
+sed -i -e "s/gksu -g/beesu -l/g" ./mod_maker.tcl
 
 %post
 ln -s %{_datadir}/magos/%{name}/%{name} %{_bindir}/%{name}

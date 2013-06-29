@@ -1,7 +1,7 @@
 Summary:        MagOS Tools
 Name:           magos-tools
 Version:        0.0.1
-Release:        %mkrel 2
+Release:        %mkrel 5
 License:        GPLv3+
 URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base
@@ -14,8 +14,8 @@ Tools for MagOS
 
 %prep
 %setup -q
-sed -i -e "s/gksu -g/beesu/g" ./conv4mod
-sed -i -e "s/gksu -g/beesu/g" ./rpmdrake2lzm
+sed -i -e "s/gksu -g/beesu -l/g" ./conv4mod
+sed -i -e "s/gksu -g/beesu -l/g" ./rpmdrake2lzm
 
 %post
 ln -s /usr/lib/magos/scripts/cfg_mnger %{_bindir}/cfg_mnger
@@ -35,7 +35,9 @@ cp -f ./cfg_mnger %{buildroot}/usr/lib/magos/scripts/
 cp -f ./conv4mod %{buildroot}/usr/lib/magos/scripts/
 cp -f ./rpmdrake2lzm %{buildroot}/usr/lib/magos/scripts/
 mkdir -p %{buildroot}%{_datadir}/pixmaps
-cp -f ./*.png %{buildroot}%{_datadir}/pixmaps/
+cp -f ./cfg_mnger.png %{buildroot}%{_datadir}/pixmaps/
+cp -f ./conv4mod.png %{buildroot}%{_datadir}/pixmaps/
+cp -f ./rpmdrake2lzm.png %{buildroot}%{_datadir}/pixmaps/
 #install -dm 755 %{buildroot}%{_datadir}/applications
 #install -m 0644 *.desktop %{buildroot}%{_datadir}/applications/
 
