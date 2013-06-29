@@ -1,5 +1,5 @@
 #!/bin/bash
-PFP=etc/slim.conf
+PFP=etc/X11/slim/slim.conf
 grep -q MagOS $PFP && exit 0
 sed -i '1s|^|#MagOS patched\n|' $PFP
 sed -i s%^default_path.*%'default_path        ./:/bin:/usr/bin:/usr/local/bin'% $PFP

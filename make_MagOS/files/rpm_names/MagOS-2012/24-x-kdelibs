@@ -57,7 +57,6 @@ libmailtransport4-
 libmolletnetwork4-
 libnepomuk4-
 libnepomukquery4-
-libnepomuksync4-
 libnepomukutils4-
 libplasma3-
 libpolkit-qt-agent-1_1-
@@ -83,3 +82,4 @@ shared-desktop-ontologies-
 soprano-plugin-redland-
 libbtparser2-
 libreport0-
+libkipi10-

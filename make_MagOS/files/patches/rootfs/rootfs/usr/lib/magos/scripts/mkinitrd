@@ -34,7 +34,8 @@ INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/drivers/scsi/scsi_mod. kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/sr_mod.
   kernel/drivers/ata kernel/drivers/scsi/vmw_pvscsi.
   kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage
-  kernel/drivers/usb/host/ehci-hcd. kernel/drivers/usb/host/ohci-hcd. kernel/drivers/usb/host/uhci-hcd. kernel/drivers/usb/host/xhci-hcd.
+  kernel/drivers/usb/host/ehci-hcd. kernel/drivers/usb/host/ehci-pci. kernel/drivers/usb/host/ehci-platform.
+  kernel/drivers/usb/host/ohci-hcd. kernel/drivers/usb/host/uhci-hcd. kernel/drivers/usb/host/xhci-hcd.
   kernel/drivers/hid/hid. kernel/drivers/hid/usbhid/usbhid. kernel/drivers/hid/hid-generic.
   kernel/drivers/pcmcia/pcmcia_core. kernel/drivers/pcmcia/pcmcia. kernel/drivers/pcmcia/yenta_socket.
   kernel/net/sunrpc/sunrpc. kernel/net/sunrpc/auth_gss/auth_rpcgss. kernel/net/packet/af_packet.

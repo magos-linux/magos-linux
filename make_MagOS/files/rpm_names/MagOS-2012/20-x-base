@@ -141,7 +141,7 @@ libpixman1_0-
 libplist-
 libplist1-
 libpng3-
-libpoppler26-
+libpoppler35-
 libportaudio2-
 libpulseaudio0-
 libpulseglib20-
@@ -452,3 +452,4 @@ libselinux1-
 python-selinux-
 python-configobj-
 libtinyxml0-
+xsudo-

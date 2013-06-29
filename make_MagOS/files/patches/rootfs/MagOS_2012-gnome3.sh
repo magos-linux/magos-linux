@@ -16,7 +16,7 @@ fi
 
 chroot . chksession -K
 chroot . chksession -g
-rm -f etc/X11/dm/Sessions/02GNOME.desktop usr/share/apps/kdm/sessions/02GNOME.desktop 2>/dev/null
+#rm -f etc/X11/dm/Sessions/02GNOME.desktop usr/share/apps/kdm/sessions/02GNOME.desktop 2>/dev/null
 
 PFP=usr/share/gnome-panel/panel-default-layout.layout
 grep -q alsamixer $PFP || cat >>$PFP  <<EOF

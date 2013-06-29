@@ -89,6 +89,8 @@ update_app kde4/irkick.desktop "Qt;KDE;X-KDE-settings-peripherals;"
 update_app kde4/KFloppy.desktop "Qt;KDE;X-KDE-settings-peripherals;"
 update_app kde4/bluedevil-monolithic.desktop "Qt;KDE;X-Bluetooth;X-KDE-settings-peripherals;"
 update_app kde4/kruler.desktop "Qt;KDE;Graphics;Scanning;"
+update_app kde4/kgpg.desktop "Qt;KDE;Utility;Security;"
+update_app kde4/nepomukcleaner.desktop "Qt;KDE;X-KDE-Utilities-Desktop;"
 
 sed -i /NoDisplay=true/d usr/share/applications/gnomecc.desktop
 sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор GNOME'/ usr/share/applications/gnome-system-monitor.desktop

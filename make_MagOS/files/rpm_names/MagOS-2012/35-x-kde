@@ -120,6 +120,7 @@ rosa-icons-
 libkdeclarative5-
 libkactivities-
 libkactivities6-
+libkactivities-models1-
 kdegraphics-strigi-analyzer-
 libksane-
 kdegraphics-thumbnailers-
@@ -149,7 +150,7 @@ mandriva-kde4-config-common-
 libconfig++9-
 libegl1-
 libglesv2_2-
-libkdcraw21-
+libkdcraw22-
 libkxmlrpcclient4-
 libnepomukcore4-
 libqjson0-
@@ -166,3 +167,8 @@ soprano-plugin-virtuoso-
 virtuoso-opensource-
 libwayland-server0-
 kickoff-
+libnepomukwidgets4-
+libxcb-damage0-
+libprison0-
+libakonadi-socialutils4-
+libqrencode3-
