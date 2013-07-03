@@ -424,3 +424,4 @@ libselinux1-
 python-selinux-
 python-configobj-
 xsudo-
+xsudo-sudoers-
