@@ -1,6 +1,6 @@
 #!/bin/bash
 CPATH=$PWD
-cd usr/src/nvidia173-*
+cd /usr/src/nvidia173-*
 patch -p1 <<EOF
 --- a/conftest.sh	2013-03-23 09:15:47.000000000 +0400
 +++ b/conftest.sh	2013-03-23 09:31:34.000000000 +0400

@@ -1,5 +1,15 @@
 #!/bin/bash
-URL=http://abf.rosalinux.ru/downloads/kernels_37x_personal/repository/rosa2012lts/SRPMS/main/release/kernel-3.7.10-1.src.rpm
+URL=http://abf-downloads.rosalinux.ru/kernels_39x_personal/repository/rosa2012.1/SRPMS/main/release/kernel-3.9.7-1.src.rpm
+if ! [ -d builddeps ] ; then
+#FIXME to ignore
+   urpmi.removemedia mib
+   urpmi.update -a
+   rm -f /var/cache/urpmi/rpms/*
+   urpmi --auto --test --noclean elfutils-devel libbzip2-devel binutils-devel libnewt-devel libslang-devel python-devel pciutils-devel bison zlib-devel docbook-style-xsl flex xmlto libgtk+2.0-devel || exit 1
+   mkdir builddeps
+   mv /var/cache/urpmi/rpms/*.rpm builddeps
+fi
+rpm -Uhv builddeps/*.rpm
 mkdir -p tmp/content rpmbuild/SOURCES rpmbuild/SPECS
 curl -# --retry-delay 2 --retry 5 -o tmp/source.src.rpm $URL || exit 1
 cd tmp/content

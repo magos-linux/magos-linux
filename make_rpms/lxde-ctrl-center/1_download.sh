@@ -1,5 +1,5 @@
 #!/bin/bash
-mkdir -p svn rpmbuild/SOURCES rpmbuild/SPECS
+mkdir -p svn rpmbuild/SOURCES rpmbuild/SPECS SOURCES SPECS
 svn checkout http://lxde-ctrl-center.googlecode.com/svn/trunk/ svn || exit 1
 cd svn
 cp -pf lxde-ctrl-center/packages/rosa/lxde-ctrl-center.spec ../SPECS || exit 1

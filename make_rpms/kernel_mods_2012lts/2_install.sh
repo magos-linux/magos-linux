@@ -1,5 +1,5 @@
 #!/bin/bash
 for a in cache/*.rpm ;do
-    rpm -ihv --nodigest --noscripts --nosignature $a
+    rpm -ihv --noscripts --nodeps $a || exit 1
 done
 echo Done.
