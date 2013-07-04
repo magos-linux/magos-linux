@@ -7,6 +7,9 @@ PATH=/usr/lib/magos/scripts:$PATH
 
 swapoff -a >/dev/null 2>/dev/null
 
+#umount network fs
+egrep "[ ]nfs[ ]|[ ]cifs[ ]" /proc/mounts | awk '{print $2}' | grep -v ^/mnt/live | xargs umount -lf
+
 # umount any modules from /media
 for a in `losetup -a | grep '(/media/' | awk '{print $1}' | tr -d :` ;do
    NM=$(grep ^$a" "  /proc/mounts | awk '{print $2}' )
