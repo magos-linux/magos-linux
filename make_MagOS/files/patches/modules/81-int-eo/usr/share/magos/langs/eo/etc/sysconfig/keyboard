@@ -1,0 +1,5 @@
+XkbModel=pc105
+XkbLayout="us(alt-intl)"
+KEYBOARD=us_intl
+XkbOptions=compose:rwin
+KEYTABLE=us-intl

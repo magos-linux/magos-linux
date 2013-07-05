@@ -44,7 +44,7 @@ function install_rpms()
    done
 }
 
-
+mkdir -p work/$FLASHNAME-$VERREL || exit 1
 cd work/$FLASHNAME-$VERREL || exit 1
 echo "Создаём список пакетов для установки"
 mkcd -d --buildhdlist ../../loaded/$FLASHNAME-$VERREL/rpms >/dev/null  2>&1 || exit 1
