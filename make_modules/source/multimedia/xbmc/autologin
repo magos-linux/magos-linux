@@ -1,3 +1,0 @@
-USER=user
-EXEC=/usr/bin/startx.autologin
-AUTOLOGIN=yes

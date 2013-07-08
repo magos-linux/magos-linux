@@ -4,31 +4,28 @@
             <repeat>false</repeat>
             <shuffle>false</shuffle>
         </playlist>
-        <scanning>
-            <isscanning>false</isscanning>
-        </scanning>
+        <needsupdate>0</needsupdate>
         <startwindow>10501</startwindow>
         <songinfoinvis>true</songinfoinvis>
         <songthumbinvis>false</songthumbinvis>
         <defaultlibview pathversion="1"></defaultlibview>
     </mymusic>
     <myvideos>
-        <startwindow>10024</startwindow>
-        <stackvideomode>0</stackvideomode>
-        <defaultlibview pathversion="1"></defaultlibview>
+        <startwindow>10025</startwindow>
+        <stackvideos>false</stackvideos>
         <watchmodemovies>0</watchmodemovies>
         <watchmodetvshows>0</watchmodetvshows>
         <watchmodemusicvideos>0</watchmodemusicvideos>
+        <needsupdate>0</needsupdate>
         <flatten>false</flatten>
         <playlist>
             <repeat>false</repeat>
             <shuffle>false</shuffle>
         </playlist>
-        <cleanstrings>false</cleanstrings>
         <extractflags>true</extractflags>
         <extractthumb>true</extractthumb>
+        <replacelabels>false</replacelabels>
         <selectaction>1</selectaction>
-        <treatstackasfile>true</treatstackasfile>
     </myvideos>
     <viewstates>
         <musicnavartists>
@@ -113,18 +110,22 @@
         </musicfiles>
     </viewstates>
     <general>
-        <systemtotaluptime>19</systemtotaluptime>
-        <httpapibroadcastport>8278</httpapibroadcastport>
-        <httpapibroadcastlevel>0</httpapibroadcastlevel>
+        <systemtotaluptime>24</systemtotaluptime>
+        <addonautoupdate>true</addonautoupdate>
+        <addonnotifications>true</addonnotifications>
+        <addonforeignfilter>false</addonforeignfilter>
     </general>
     <defaultvideosettings>
-        <interlacemethod>0</interlacemethod>
+        <deinterlacemode>0</deinterlacemode>
+        <interlacemethod>1</interlacemethod>
         <scalingmethod>1</scalingmethod>
         <noisereduction>0.000000</noisereduction>
+        <postprocess>false</postprocess>
         <sharpness>0.000000</sharpness>
         <viewmode>0</viewmode>
         <zoomamount>1.000000</zoomamount>
         <pixelratio>1.000000</pixelratio>
+        <verticalshift>0.000000</verticalshift>
         <volumeamplification>0.000000</volumeamplification>
         <outputtoallspeakers>false</outputtoallspeakers>
         <showsubtitles>true</showsubtitles>
@@ -135,804 +136,18 @@
         <subtitledelay>0.000000</subtitledelay>
         <autocrop>false</autocrop>
         <nonlinstretch>false</nonlinstretch>
-        <addonautoupdate>false</addonautoupdate>
-        <addonnotifications>true</addonnotifications>
     </defaultvideosettings>
     <audio>
-        <volumelevel>0</volumelevel>
-        <dynamicrangecompression>0</dynamicrangecompression>
+        <mute>false</mute>
+        <fvolumelevel>1.000000</fvolumelevel>
     </audio>
-    <resolutions>
-        <resolution>
-            <description>Windowed</description>
-            <subtitles>463</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>0.000000</refreshrate>
-            <output></output>
-            <xrandrid></xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>720</right>
-                <bottom>480</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>1024x768 @ 85.00 - Full Screen</description>
-            <subtitles>741</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x164</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>1024</right>
-                <bottom>768</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 1024x768 @ 85.00Hz</description>
-            <subtitles>729</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x164</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>1024</right>
-                <bottom>768</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 1024x768 @ 75.00Hz</description>
-            <subtitles>729</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x165</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>1024</right>
-                <bottom>768</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 1024x768 @ 70.00Hz</description>
-            <subtitles>729</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>70.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x166</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>1024</right>
-                <bottom>768</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 1024x768 @ 60.00Hz</description>
-            <subtitles>729</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x167</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>1024</right>
-                <bottom>768</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 1024x768 @ 87.00Hz</description>
-            <subtitles>729</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>87.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x168</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>1024</right>
-                <bottom>768</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 832x624 @ 75.00Hz</description>
-            <subtitles>592</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x169</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>832</right>
-                <bottom>624</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 800x600 @ 85.00Hz</description>
-            <subtitles>569</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x16a</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>800</right>
-                <bottom>600</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 800x600 @ 75.00Hz</description>
-            <subtitles>569</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x16b</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>800</right>
-                <bottom>600</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 800x600 @ 72.00Hz</description>
-            <subtitles>569</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>72.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x16c</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>800</right>
-                <bottom>600</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 800x600 @ 60.00Hz</description>
-            <subtitles>569</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x16d</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>800</right>
-                <bottom>600</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 800x600 @ 56.00Hz</description>
-            <subtitles>569</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>56.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x16e</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>800</right>
-                <bottom>600</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 800x600 @ 70.00Hz</description>
-            <subtitles>569</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>70.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x16f</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>800</right>
-                <bottom>600</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 800x600 @ 65.00Hz</description>
-            <subtitles>569</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>65.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x170</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>800</right>
-                <bottom>600</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x480 @ 85.00Hz</description>
-            <subtitles>455</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x171</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>480</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x480 @ 75.00Hz</description>
-            <subtitles>455</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x172</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>480</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x480 @ 73.00Hz</description>
-            <subtitles>455</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>73.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x173</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>480</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x480 @ 60.00Hz</description>
-            <subtitles>455</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x174</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>480</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 320x240 @ 85.00Hz</description>
-            <subtitles>227</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x175</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>320</right>
-                <bottom>240</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 320x240 @ 75.00Hz</description>
-            <subtitles>227</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x176</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>320</right>
-                <bottom>240</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 320x240 @ 73.00Hz</description>
-            <subtitles>227</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>73.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x177</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>320</right>
-                <bottom>240</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 320x240 @ 60.00Hz</description>
-            <subtitles>227</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x178</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>320</right>
-                <bottom>240</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 960x720 @ 75.00Hz</description>
-            <subtitles>683</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x179</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>960</right>
-                <bottom>720</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 960x720 @ 60.00Hz</description>
-            <subtitles>683</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x17a</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>960</right>
-                <bottom>720</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 928x696 @ 75.00Hz</description>
-            <subtitles>661</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x17b</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>928</right>
-                <bottom>696</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 928x696 @ 60.00Hz</description>
-            <subtitles>661</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x17c</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>928</right>
-                <bottom>696</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 896x672 @ 75.00Hz</description>
-            <subtitles>638</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x17d</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>896</right>
-                <bottom>672</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 896x672 @ 60.00Hz</description>
-            <subtitles>638</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x17e</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>896</right>
-                <bottom>672</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 768x576 @ 100.00Hz</description>
-            <subtitles>547</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>100.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x17f</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>768</right>
-                <bottom>576</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 768x576 @ 79.00Hz</description>
-            <subtitles>547</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>79.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x180</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>768</right>
-                <bottom>576</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 720x576 @ 50.00Hz</description>
-            <subtitles>547</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>50.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x181</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>720</right>
-                <bottom>576</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 720x480 @ 60.00Hz</description>
-            <subtitles>455</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x182</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>720</right>
-                <bottom>480</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 720x400 @ 85.00Hz</description>
-            <subtitles>379</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x183</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>720</right>
-                <bottom>400</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 700x525 @ 75.00Hz</description>
-            <subtitles>498</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x184</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>700</right>
-                <bottom>525</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 700x525 @ 60.00Hz</description>
-            <subtitles>498</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x185</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>700</right>
-                <bottom>525</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x512 @ 85.00Hz</description>
-            <subtitles>486</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x186</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>512</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x512 @ 75.00Hz</description>
-            <subtitles>486</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x187</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>512</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x512 @ 60.00Hz</description>
-            <subtitles>486</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x188</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>512</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x400 @ 85.00Hz</description>
-            <subtitles>379</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x189</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>400</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 640x350 @ 85.00Hz</description>
-            <subtitles>332</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x18a</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>640</right>
-                <bottom>350</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 576x432 @ 75.00Hz</description>
-            <subtitles>410</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x18b</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>576</right>
-                <bottom>432</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 512x384 @ 85.00Hz</description>
-            <subtitles>364</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x18c</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>512</right>
-                <bottom>384</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 512x384 @ 75.00Hz</description>
-            <subtitles>364</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x18d</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>512</right>
-                <bottom>384</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 512x384 @ 70.00Hz</description>
-            <subtitles>364</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>70.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x18e</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>512</right>
-                <bottom>384</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 512x384 @ 60.00Hz</description>
-            <subtitles>364</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x18f</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>512</right>
-                <bottom>384</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 512x384 @ 87.00Hz</description>
-            <subtitles>364</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>87.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x190</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>512</right>
-                <bottom>384</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 416x312 @ 75.00Hz</description>
-            <subtitles>296</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x191</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>416</right>
-                <bottom>312</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 400x300 @ 85.00Hz</description>
-            <subtitles>284</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x192</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>400</right>
-                <bottom>300</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 400x300 @ 75.00Hz</description>
-            <subtitles>284</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>75.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x193</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>400</right>
-                <bottom>300</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 400x300 @ 72.00Hz</description>
-            <subtitles>284</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>72.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x194</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>400</right>
-                <bottom>300</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 400x300 @ 60.00Hz</description>
-            <subtitles>284</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>60.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x195</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>400</right>
-                <bottom>300</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 400x300 @ 56.00Hz</description>
-            <subtitles>284</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>56.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x196</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>400</right>
-                <bottom>300</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 360x200 @ 85.00Hz</description>
-            <subtitles>189</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x197</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>360</right>
-                <bottom>200</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 320x200 @ 85.00Hz</description>
-            <subtitles>189</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x198</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>320</right>
-                <bottom>200</bottom>
-            </overscan>
-        </resolution>
-        <resolution>
-            <description>default: 320x175 @ 85.00Hz</description>
-            <subtitles>166</subtitles>
-            <pixelratio>1.000000</pixelratio>
-            <refreshrate>85.000000</refreshrate>
-            <output>default</output>
-            <xrandrid>0x199</xrandrid>
-            <overscan>
-                <left>0</left>
-                <top>0</top>
-                <right>320</right>
-                <bottom>175</bottom>
-            </overscan>
-        </resolution>
-    </resolutions>
+    <resolutions />
     <audiocds>
-        <autorun>false</autorun>
+        <autoaction>0</autoaction>
         <bitrate>192</bitrate>
         <compressionlevel>5</compressionlevel>
-        <encoder>0</encoder>
+        <ejectonrip>true</ejectonrip>
+        <encoder>3</encoder>
         <quality>0</quality>
         <recordingpath pathversion="1">select writable folder</recordingpath>
         <trackpathformat>%A - %B/[%N. ][%A - ]%T</trackpathformat>
@@ -940,18 +155,18 @@
     </audiocds>
     <audiooutput>
         <ac3passthrough>true</ac3passthrough>
-        <audiodevice>alsa:plug:hdmi</audiodevice>
-        <channellayout>0</channellayout>
-        <customdevice></customdevice>
-        <custompassthrough></custompassthrough>
-        <dontnormalizelevels>true</dontnormalizelevels>
+        <audiodevice>ALSA:hdmi:CARD=NVidia,DEV=0</audiodevice>
+        <channels>1</channels>
+        <dtshdpassthrough>true</dtshdpassthrough>
         <dtspassthrough>true</dtspassthrough>
+        <guisoundmode>1</guisoundmode>
         <mode>0</mode>
+        <multichannellpcm>true</multichannellpcm>
+        <normalizelevels>true</normalizelevels>
         <passthroughaac>false</passthroughaac>
-        <passthroughdevice>iec958</passthroughdevice>
-        <passthroughmp1>false</passthroughmp1>
-        <passthroughmp2>false</passthroughmp2>
-        <passthroughmp3>false</passthroughmp3>
+        <passthroughdevice>ALSA:iec958:CARD=Generic,DEV=0</passthroughdevice>
+        <stereoupmix>false</stereoupmix>
+        <truehdpassthrough>true</truehdpassthrough>
     </audiooutput>
     <cache>
         <harddisk>256</harddisk>
@@ -974,7 +189,7 @@
         <lan>2048</lan>
     </cachevideo>
     <debug>
-        <screenshotpath pathversion="1">select writable folder</screenshotpath>
+        <screenshotpath pathversion="1">/home/mike/Изображения/</screenshotpath>
         <showloginfo>false</showloginfo>
     </debug>
     <dvds>
@@ -982,16 +197,27 @@
         <autorun>false</autorun>
         <playerregion>0</playerregion>
     </dvds>
+    <epg>
+        <daystodisplay>3</daystodisplay>
+        <defaultguideview>3</defaultguideview>
+        <epgupdate>120</epgupdate>
+        <hidenoinfoavailable>true</hidenoinfoavailable>
+        <ignoredbforclient>false</ignoredbforclient>
+        <preventupdateswhileplayingtv>false</preventupdateswhileplayingtv>
+        <resetepg></resetepg>
+    </epg>
     <filelists>
         <allowfiledeletion>false</allowfiledeletion>
         <ignorethewhensorting>true</ignorethewhensorting>
-        <showaddsourcebuttons>false</showaddsourcebuttons>
+        <showaddsourcebuttons>true</showaddsourcebuttons>
         <showextensions>true</showextensions>
         <showhidden>false</showhidden>
         <showparentdiritems>true</showparentdiritems>
     </filelists>
     <input>
+        <enablejoystick>true</enablejoystick>
         <enablemouse>true</enablemouse>
+        <peripherals></peripherals>
         <remoteaskeyboard>false</remoteaskeyboard>
     </input>
     <karaoke>
@@ -1005,9 +231,11 @@
         <importcsv></importcsv>
     </karaoke>
     <locale>
+        <audiolanguage>Russian</audiolanguage>
         <charset>DEFAULT</charset>
-        <country>Russia</country>
+        <country>USA (12h)</country>
         <language>Russian</language>
+        <subtitlelanguage>Russian</subtitlelanguage>
         <timezone>Europe/Moscow</timezone>
         <timezonecountry>Russia</timezonecountry>
     </locale>
@@ -1017,6 +245,7 @@
         <rssedit></rssedit>
         <skin>skin.confluence</skin>
         <skincolors>SKINDEFAULT</skincolors>
+        <skinsettings></skinsettings>
         <skintheme>SKINDEFAULT</skintheme>
         <skinzoom>0</skinzoom>
         <soundskin>SKINDEFAULT</soundskin>
@@ -1033,13 +262,13 @@
         <librarytrackformatright></librarytrackformatright>
         <nowplayingtrackformat></nowplayingtrackformat>
         <nowplayingtrackformatright></nowplayingtrackformatright>
-        <trackformat>%N.%A - %T</trackformat>
+        <trackformat>[%N. ]%A - %T</trackformat>
         <trackformatright>%D</trackformatright>
-        <usetags>false</usetags>
+        <usetags>true</usetags>
     </musicfiles>
     <musiclibrary>
-        <albumsscraper>metadata.albums.allmusic.com</albumsscraper>
-        <artistsscraper>metadata.artists.allmusic.com</artistsscraper>
+        <albumsscraper>metadata.album.universal</albumsscraper>
+        <artistsscraper>metadata.artists.universal</artistsscraper>
         <backgroundupdate>false</backgroundupdate>
         <cleanup></cleanup>
         <downloadinfo>false</downloadinfo>
@@ -1061,6 +290,7 @@
         <visualisation>visualization.glspectrum</visualisation>
     </musicplayer>
     <network>
+        <bandwidth>0</bandwidth>
         <httpproxypassword></httpproxypassword>
         <httpproxyport>8080</httpproxyport>
         <httpproxyserver></httpproxyserver>
@@ -1068,7 +298,7 @@
         <usehttpproxy>false</usehttpproxy>
     </network>
     <pictures>
-        <displayresolution>10</displayresolution>
+        <displayresolution>14</displayresolution>
         <generatethumbs>true</generatethumbs>
         <showvideos>true</showvideos>
         <useexifrotation>true</useexifrotation>
@@ -1079,48 +309,59 @@
         <shutdownstate>0</shutdownstate>
         <shutdowntime>0</shutdowntime>
     </powermanagement>
-    <pvrepg>
-        <epgscan>5</epgscan>
-        <epgupdate>120</epgupdate>
-        <ignoredbforclient>false</ignoredbforclient>
-        <resetepg></resetepg>
-    </pvrepg>
+    <pvrclient>
+        <menuhook></menuhook>
+    </pvrclient>
     <pvrmanager>
+        <backendchannelorder>true</backendchannelorder>
         <channelmanager></channelmanager>
         <channelscan></channelscan>
         <enabled>false</enabled>
+        <hideconnectionlostwarning>false</hideconnectionlostwarning>
         <resetdb></resetdb>
+        <syncchannelgroups>true</syncchannelgroups>
+        <usebackendchannelnumbers>false</usebackendchannelnumbers>
     </pvrmanager>
     <pvrmenu>
-        <daystodisplay>2</daystodisplay>
-        <defaultguideview>0</defaultguideview>
-        <hidevideolength>true</hidevideolength>
+        <closechannelosdonswitch>false</closechannelosdonswitch>
         <iconpath></iconpath>
         <infoswitch>true</infoswitch>
         <infotime>5</infotime>
         <infotimeout>true</infotimeout>
-        <lingertime>0</lingertime>
         <searchicons></searchicons>
     </pvrmenu>
+    <pvrparental>
+        <duration>300</duration>
+        <enabled>false</enabled>
+        <pin></pin>
+    </pvrparental>
     <pvrplayback>
         <channelentrytimeout>0</channelentrytimeout>
+        <confirmchannelswitch>false</confirmchannelswitch>
         <playminimized>true</playminimized>
-        <scantime>15</scantime>
+        <scantime>10</scantime>
         <signalquality>true</signalquality>
         <startlast>0</startlast>
-        <switchautoclose>true</switchautoclose>
     </pvrplayback>
+    <pvrpowermanagement>
+        <backendidletime>15</backendidletime>
+        <dailywakeup>false</dailywakeup>
+        <dailywakeuptime>00:00:00</dailywakeuptime>
+        <enabled>false</enabled>
+        <prewakeup>15</prewakeup>
+        <setwakeupcmd></setwakeupcmd>
+    </pvrpowermanagement>
     <pvrrecord>
         <defaultlifetime>99</defaultlifetime>
         <defaultpriority>50</defaultpriority>
-        <instantrecordtime>180</instantrecordtime>
+        <instantrecordtime>120</instantrecordtime>
+        <marginend>10</marginend>
         <marginstart>2</marginstart>
-        <marginstop>10</marginstop>
+        <timernotifications>true</timernotifications>
     </pvrrecord>
     <scrapers>
-        <langfallback>false</langfallback>
         <moviesdefault>metadata.themoviedb.org</moviesdefault>
-        <musicvideosdefault>metadata.mtv.com</musicvideosdefault>
+        <musicvideosdefault>metadata.musicvideos.theaudiodb.com</musicvideosdefault>
         <tvshowsdefault>metadata.tvdb.com</tvshowsdefault>
     </scrapers>
     <screensaver>
@@ -1134,13 +375,15 @@
     <scrobbler>
         <lastfmpass></lastfmpass>
         <lastfmsubmit>false</lastfmsubmit>
-        <lastfmsubmitradio>false</lastfmsubmitradio>
         <lastfmusername></lastfmusername>
         <librefmpass></librefmpass>
         <librefmsubmit>false</librefmsubmit>
         <librefmusername></librefmusername>
     </scrobbler>
     <services>
+        <airplay>false</airplay>
+        <airplaypassword></airplaypassword>
+        <devicename>XBMC</devicename>
         <esallinterfaces>false</esallinterfaces>
         <escontinuousdelay>25</escontinuousdelay>
         <esenabled>true</esenabled>
@@ -1148,8 +391,10 @@
         <esmaxclients>20</esmaxclients>
         <esport>9777</esport>
         <esportrange>10</esportrange>
+        <upnpannounce>true</upnpannounce>
         <upnprenderer>false</upnprenderer>
         <upnpserver>false</upnpserver>
+        <useairplaypassword>false</useairplaypassword>
         <webserver>false</webserver>
         <webserverpassword></webserverpassword>
         <webserverport>8080</webserverport>
@@ -1164,14 +409,16 @@
     </slideshow>
     <smb>
         <winsserver></winsserver>
-        <workgroup>MDKGROUP</workgroup>
+        <workgroup>WORKGROUP</workgroup>
     </smb>
     <subtitles>
+        <align>0</align>
         <charset>DEFAULT</charset>
         <color>1</color>
         <custompath pathversion="1"></custompath>
         <font>arial.ttf</font>
         <height>28</height>
+        <overrideassfonts>false</overrideassfonts>
         <style>1</style>
     </subtitles>
     <system>
@@ -1184,28 +431,29 @@
         <enabled>true</enabled>
         <export></export>
         <flattentvshows>1</flattentvshows>
+        <groupmoviesets>false</groupmoviesets>
         <import></import>
         <seasonthumbs>true</seasonthumbs>
         <showunwatchedplots>true</showunwatchedplots>
         <updateonstartup>false</updateonstartup>
     </videolibrary>
     <videoplayer>
-        <adjustrefreshrate>false</adjustrefreshrate>
-        <displayresolution>10</displayresolution>
+        <adjustrefreshrate>0</adjustrefreshrate>
+        <autoplaynextitem>false</autoplaynextitem>
+        <displayresolution>14</displayresolution>
         <errorinaspect>0</errorinaspect>
-        <highqualityupscaling>0</highqualityupscaling>
         <maxspeedadjust>5.000000</maxspeedadjust>
-        <postprocess>0</postprocess>
+        <pauseafterrefreshchange>0</pauseafterrefreshchange>
         <rendermethod>0</rendermethod>
         <resamplequality>1</resamplequality>
         <stretch43>0</stretch43>
-        <strictbinding>false</strictbinding>
         <synctype>2</synctype>
         <teletextenabled>true</teletextenabled>
-        <upscalingalgorithm>8</upscalingalgorithm>
+        <teletextscale>true</teletextscale>
         <usechd>true</usechd>
         <usedisplayasclock>false</usedisplayasclock>
         <usepbo>true</usepbo>
+        <usevaapi>true</usevaapi>
         <usevdpau>true</usevdpau>
         <vdpau_allow_xrandr>false</vdpau_allow_xrandr>
         <vdpaustudiolevel>false</vdpaustudiolevel>
@@ -1221,63 +469,68 @@
         <vsync>3</vsync>
     </videoscreen>
     <weather>
-        <areacode1>RSXX0063 - Moscow, Russia</areacode1>
-        <areacode2>RSXX1430 - Sochi, Russia</areacode2>
-        <areacode3>RSXX1401 - Pechora, Russia</areacode3>
-        <script>weather.xbmc.builtin</script>
-        <scriptsettings></scriptsettings>
+        <addon>weather.wunderground</addon>
+        <addonsettings></addonsettings>
+        <currentlocation>1</currentlocation>
     </weather>
     <window>
         <height>480</height>
         <width>720</width>
     </window>
     <skinsettings>
-        <setting type="bool" name="skin.confluence.homepagehiderecentlyadded">false</setting>
-        <setting type="bool" name="skin.confluence.showbackgroundvideo">false</setting>
-        <setting type="bool" name="skin.confluence.showbackgroundvis">false</setting>
-        <setting type="bool" name="skin.confluence.homepageweatherinfo">false</setting>
-        <setting type="bool" name="skin.confluence.homepagemusicinfo">false</setting>
-        <setting type="bool" name="skin.confluence.homepagevideoinfo">false</setting>
-        <setting type="bool" name="skin.confluence.homescriptbutton1">false</setting>
-        <setting type="bool" name="skin.confluence.homescriptbutton2">false</setting>
-        <setting type="bool" name="skin.confluence.homescriptbutton3">false</setting>
-        <setting type="bool" name="skin.confluence.homescriptbutton4">false</setting>
-        <setting type="bool" name="skin.confluence.homescriptbutton5">false</setting>
-        <setting type="bool" name="skin.confluence.homescriptbutton6">false</setting>
-        <setting type="bool" name="skin.confluence.homemenunoweatherbutton">false</setting>
-        <setting type="bool" name="skin.confluence.showweatherfanart">false</setting>
-        <setting type="bool" name="skin.confluence.homemenunopicturesbutton">false</setting>
-        <setting type="bool" name="skin.confluence.homemenunomusicbutton">false</setting>
-        <setting type="bool" name="skin.confluence.homemenunovideosbutton">false</setting>
-        <setting type="bool" name="skin.confluence.homemenunomoviesbutton">false</setting>
-        <setting type="bool" name="skin.confluence.homemenunotvshowsbutton">false</setting>
-        <setting type="bool" name="skin.confluence.homemenunoprogramsbutton">false</setting>
-        <setting type="bool" name="skin.confluence.use_startup_playlist">false</setting>
-        <setting type="bool" name="skin.confluence.videofilesfanart">false</setting>
-        <setting type="bool" name="skin.confluence.tvshowsuseposters">false</setting>
-        <setting type="bool" name="skin.confluence.hidefilenameflagging">false</setting>
-        <setting type="bool" name="skin.confluence.view508hideinfo">false</setting>
-        <setting type="bool" name="skin.confluence.autoscroll">false</setting>
-        <setting type="bool" name="skin.confluence.subtitledownload_enable">false</setting>
-        <setting type="bool" name="skin.confluence.weatherscript_enable">false</setting>
-        <setting type="string" name="skin.confluence.homescriptbutton1_label"></setting>
-        <setting type="string" name="skin.confluence.homescriptbutton2_label"></setting>
-        <setting type="string" name="skin.confluence.homescriptbutton3_label"></setting>
-        <setting type="string" name="skin.confluence.homescriptbutton4_label"></setting>
-        <setting type="string" name="skin.confluence.homescriptbutton5_label"></setting>
-        <setting type="string" name="skin.confluence.homescriptbutton6_label"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_weather_folder"></setting>
-        <setting type="string" name="skin.confluence.weatherfanartdir"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_pictures_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_music_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_video_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_tv_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_movies_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_tvshow_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_programs_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_settings_folder"></setting>
-        <setting type="string" name="skin.confluence.home_custom_back_tvshow_folde"></setting>
-        <setting type="string" name="skin.confluence.subtitlescript_path"></setting>
-        <setting type="string" name="skin.confluence.weatherscript_label"></setting>
+        <setting type="bool" name="skin.confluence.Use_Startup_Playlist">false</setting>
+        <setting type="bool" name="skin.confluence.UseCustomBackground">false</setting>
+        <setting type="bool" name="skin.confluence.HideBackGroundFanart">false</setting>
+        <setting type="bool" name="skin.confluence.ShowBackgroundVideo">false</setting>
+        <setting type="bool" name="skin.confluence.ShowBackgroundVis">false</setting>
+        <setting type="bool" name="skin.confluence.HomepageHideRecentlyAddedVideo">false</setting>
+        <setting type="bool" name="skin.confluence.HomepageHideRecentlyAddedAlbums">false</setting>
+        <setting type="bool" name="skin.confluence.homepageWeatherinfo">false</setting>
+        <setting type="bool" name="skin.confluence.homepageMusicinfo">false</setting>
+        <setting type="bool" name="skin.confluence.homepageVideoinfo">false</setting>
+        <setting type="bool" name="skin.confluence.HomeMenuNoMovieButton">false</setting>
+        <setting type="bool" name="skin.confluence.HomeMenuNoTVShowButton">false</setting>
+        <setting type="bool" name="skin.confluence.HomeMenuNoWeatherButton">false</setting>
+        <setting type="bool" name="skin.confluence.HomeMenuNoPicturesButton">false</setting>
+        <setting type="bool" name="skin.confluence.HomeMenuNoVideosButton">false</setting>
+        <setting type="bool" name="skin.confluence.HomeMenuNoMusicButton">false</setting>
+        <setting type="bool" name="skin.confluence.HomeMenuNoProgramsButton">false</setting>
+        <setting type="bool" name="skin.confluence.AutoScroll">false</setting>
+        <setting type="bool" name="skin.confluence.Show_SlideShow_Paused">false</setting>
+        <setting type="bool" name="skin.confluence.WindowedTrailer">false</setting>
+        <setting type="bool" name="skin.confluence.HideFilenameFlagging">false</setting>
+        <setting type="bool" name="skin.confluence.ActivateTvTunes">false</setting>
+        <setting type="bool" name="skin.confluence.HideVisualizationFanart">false</setting>
+        <setting type="bool" name="skin.confluence.FirstTimeRun">true</setting>
+        <setting type="bool" name="skin.confluence.ShowWeatherFanart">false</setting>
+        <setting type="bool" name="skin.confluence.WeatherScript_Enable">false</setting>
+        <setting type="bool" name="skin.confluence.View508HideInfo">false</setting>
+        <setting type="string" name="skin.confluence.CustomBackgroundPath"></setting>
+        <setting type="string" name="skin.confluence.HomeVideosButton1"></setting>
+        <setting type="string" name="skin.confluence.HomeVideosButton2"></setting>
+        <setting type="string" name="skin.confluence.HomeVideosButton3"></setting>
+        <setting type="string" name="skin.confluence.HomeVideosButton4"></setting>
+        <setting type="string" name="skin.confluence.HomeVideosButton5"></setting>
+        <setting type="string" name="skin.confluence.HomeMusicButton1"></setting>
+        <setting type="string" name="skin.confluence.HomeMusicButton2"></setting>
+        <setting type="string" name="skin.confluence.HomeMusicButton3"></setting>
+        <setting type="string" name="skin.confluence.HomeMusicButton4"></setting>
+        <setting type="string" name="skin.confluence.HomeMusicButton5"></setting>
+        <setting type="string" name="skin.confluence.HomePictureButton1"></setting>
+        <setting type="string" name="skin.confluence.HomePictureButton2"></setting>
+        <setting type="string" name="skin.confluence.HomePictureButton3"></setting>
+        <setting type="string" name="skin.confluence.HomePictureButton4"></setting>
+        <setting type="string" name="skin.confluence.HomePictureButton5"></setting>
+        <setting type="string" name="skin.confluence.HomeProgramButton1"></setting>
+        <setting type="string" name="skin.confluence.HomeProgramButton2"></setting>
+        <setting type="string" name="skin.confluence.HomeProgramButton3"></setting>
+        <setting type="string" name="skin.confluence.HomeProgramButton4"></setting>
+        <setting type="string" name="skin.confluence.HomeProgramButton5"></setting>
+        <setting type="string" name="skin.confluence.Startup_Playlist_Path"></setting>
+        <setting type="string" name="skin.confluence.LyricScript_Path"></setting>
+        <setting type="string" name="skin.confluence.SubtitleScript_Path"></setting>
+        <setting type="string" name="skin.confluence.HomeProgramButton6"></setting>
+        <setting type="string" name="skin.confluence.WeatherFanartDir"></setting>
+        <setting type="string" name="skin.confluence.WeatherScript_Label"></setting>
     </skinsettings>
 </settings>
