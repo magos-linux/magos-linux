@@ -9,10 +9,11 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+HOSTNAME=MagOS
 . /liblinuxlive
 . etc/sysconfig/MagOS
-. etc/sysconfig/network
 
+echo $HOSTNAME > etc/hostname
 grep -q " $HOSTNAME$" etc/hosts || echo "127.0.0.1             $HOSTNAME" >> etc/hosts
 if [ "$MAGOSSERVER" != "" ] ;then
    sed -i s/.*MagOS-Server.*/"$MAGOSSERVER             MagOS-Server"/ etc/hosts

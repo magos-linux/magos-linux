@@ -29,3 +29,11 @@ gegl-
 libturbojpeg-
 perl-Parse-Yapp-
 recoverjpeg-
+libgimpbase2.0_0-
+libgimpui2.0_0-
+libgimpcolor2.0_0-
+libgimpmodule2.0_0-
+libgimpconfig2.0_0-
+libgimpwidgets2.0_0-
+libgimpmath2.0_0-
+libgimpthumb2.0_0-

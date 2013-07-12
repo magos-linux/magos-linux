@@ -14,6 +14,7 @@ for i in firefox thunderbird ; do
     for a in $(ls -d /usr/lib/mozilla/$i/extensions/* ) ; do
       for f in /usr/lib/$i-* ;do
          [ -d $f/extensions ] && ln -sf $a $f/extensions
+         [ -d $f/browser/extensions ] && ln -sf $a $f/browser/extensions
       done
     done
   fi

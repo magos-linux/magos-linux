@@ -106,3 +106,5 @@ system-config-samba-docs-
 ppp-pppoe-
 aircrack-ng-
 libntrack0-
+ddclient-
+udpxy-

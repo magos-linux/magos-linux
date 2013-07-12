@@ -1,4 +1,5 @@
 #!/bin/bash
+umount ftp
 rmdir ftp
 rm -fr rpms cache
 for a in dkms/* ;do

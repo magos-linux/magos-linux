@@ -10,11 +10,11 @@ Patch0:		%{name}.patch
 
 BuildArch:	noarch
 
-BuildRequires:	python-devel
-Requires:	pexpect
+BuildRequires:	libpython-devel
+Requires:	python-pexpect
 Requires:	pygtk2
 Requires:	dbus
-Requires:	gutenprint
+Requires:	gutenprint-escputil
 Requires:	cups
 
 %description

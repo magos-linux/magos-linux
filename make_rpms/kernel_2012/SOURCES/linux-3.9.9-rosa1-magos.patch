@@ -1,7 +1,7 @@
 diff -auprN a/patches/series b/patches/series
---- a/patches/series	2013-06-11 10:51:59.000000000 +0400
-+++ b/patches/series	2013-06-21 19:41:23.000000000 +0400
-@@ -289,6 +289,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
+--- a/patches/series	2013-07-05 12:15:00.000000000 +0400
++++ b/patches/series	2013-07-11 08:37:20.000000000 +0400
+@@ -291,6 +291,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
  
  # Mandriva framebuffer boot logo
  video-mdk-logo.patch
@@ -11,7 +11,7 @@ diff -auprN a/patches/series b/patches/series
  # https://bugzilla.kernel.org/show_bug.cgi?id=26232
 diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 --- a/patches/video-magos-logo.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/video-magos-logo.patch	2013-06-21 19:41:23.000000000 +0400
++++ b/patches/video-magos-logo.patch	2013-07-11 08:37:20.000000000 +0400
 @@ -0,0 +1,938 @@
 +diff -auprN a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
 +--- a/drivers/video/logo/Kconfig	2012-11-16 21:41:00.273339096 +0400
@@ -953,7 +953,7 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 + #ifdef CONFIG_FB_LOGO_EXTRA
 diff -auprN a/scripts/create_configs b/scripts/create_configs
 --- a/scripts/create_configs	2013-05-16 13:59:50.000000000 +0400
-+++ b/scripts/create_configs	2013-06-21 19:41:23.000000000 +0400
++++ b/scripts/create_configs	2013-07-11 08:37:20.000000000 +0400
 @@ -908,6 +908,34 @@ sub config_nrj_desktop_core2_pae{
  
  # End > specific cpu level optimized nrj flavours
@@ -1007,7 +1007,7 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
      config_server() if $name eq "server";
 diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
 --- a/scripts/create_configs-QL	2013-06-20 21:06:20.000000000 +0400
-+++ b/scripts/create_configs-QL	2013-06-21 19:41:23.000000000 +0400
++++ b/scripts/create_configs-QL	2013-07-11 08:37:20.000000000 +0400
 @@ -1022,7 +1022,33 @@ sub config_nrjQL_desktop_core2_pae{
  
  # End > specific cpu level optimized nrjQL flavours
@@ -1060,7 +1060,7 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
      config_nrjQL_realtime() if $name eq "nrjQL-realtime";
 diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
 --- a/scripts/create_configs-withBFQ	2013-06-10 22:30:53.000000000 +0400
-+++ b/scripts/create_configs-withBFQ	2013-06-21 19:41:23.000000000 +0400
++++ b/scripts/create_configs-withBFQ	2013-07-11 08:37:20.000000000 +0400
 @@ -960,6 +960,34 @@ sub config_nrj_desktop_core2_pae{
  
  # End > specific cpu level optimized nrj flavours

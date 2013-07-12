@@ -443,6 +443,8 @@ x11-driver-video-qxl-
 libfreetype2-
 libfs6-
 colord-
+libcolord1-
+libgusb2-
 shared-color-profiles-
 beesu-
 python-decorator-
@@ -455,3 +457,4 @@ libtinyxml0-
 xsudo-
 xsudo-sudoers-
 libpng0-
+python-pexpect-

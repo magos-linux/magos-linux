@@ -1,7 +1,6 @@
 augeas-lenses-
 db52_recover-
 drak3d-
-drakconf-
 drakconf-icons-
 drakguard-
 drakmenustyle-
@@ -77,3 +76,4 @@ userdrake-
 libossp-uuid16-
 msec-gui-
 mdvinput-
+magos-ctrl-center-
