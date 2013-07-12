@@ -7,13 +7,14 @@ URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base
 Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
-Requires:       tk, magos-scripts, beesu, magos-tools
+Requires:       tk, beesu, magos-tools
+#Requires:       magos-scripts
 
 %description
 GUI for activate, deactivate, create and convert MagOS modules
 
 %prep
-%setup -q
+%setup -q -n %{name}
 sed -i -e "s/gksu -g/beesu -l/g" ./%{name}
 sed -i -e "s/gksu -g/beesu -l/g" ./mod_maker.tcl
 

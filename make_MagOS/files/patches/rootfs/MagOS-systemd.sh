@@ -1,7 +1,7 @@
 #!/bin/bash
 SERVICESSTOP=abrtd,hostapd,irqbalance,smartd
 for a in $SERVICESSTOP ;do 
-   chroot . systemctl disable $a.service
+   rm -f etc/systemd/system/multi-user.target.wants/$a.service
 done
 
 exit 0

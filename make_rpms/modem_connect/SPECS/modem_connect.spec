@@ -7,14 +7,15 @@ URL:		https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base
 Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
-Requires:       magos-scripts, gnokii, wvdial
+Requires:       gnokii, wvdial
+#Requires:       magos-scripts
 Suggests:       vnstat
 
 %description
 Simple scripts to auto up GPRS connection
 
 %prep
-%setup -q
+%setup -q -n %{name}
 
 %post
 

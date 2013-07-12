@@ -1,0 +1,617 @@
+#!/bin/bash
+# root test \
+[ "$(id -un)" != "root" ] &&  gksu -g "/bin/bash $0 $@" && exit 0
+# exec wish \
+exec wish  "$0" "$@"
+package require msgcat
+proc _ {s} {return [::msgcat::mc $s]}
+::msgcat::mcload /usr/share/magos/mod_mnger/msg/
+
+wm title . [ _ "MagOS modules manager" ]
+# Определение цветов темы и раскраска элементов
+set bgcolors [ split [ exec /usr/share/magos/mod_mnger/getcolor.tcl ] ] 
+tk_setPalette [ lindex $bgcolors 0 ]
+ttk::setTheme alt
+ttk::style configure TButton -background  [ lindex $bgcolors 0 ]
+ttk::style map  TButton -background [list  active [ lindex $bgcolors 1 ]]
+ttk::style configure TCombobox -background  [ lindex $bgcolors 0 ]
+ttk::style map  TCombobox -background [list  active [ lindex $bgcolors 1 ]]
+ttk::style configure TEntry -background  [ lindex $bgcolors 0 ]
+ttk::style configure TFrame -background  [ lindex $bgcolors 1 ]
+ttk::style configure TLabelframe -background  [ lindex $bgcolors 0 ]
+ttk::style configure TLabelframe.Label -background  [ lindex $bgcolors 0 ] 
+ttk::style configure TLabel -background  [ lindex $bgcolors 1 ]
+ttk::style configure TCheckbutton -background [ lindex $bgcolors 1 ]
+ttk::style map  TCheckbutton -background [list  active [ lindex $bgcolors 0]]
+ttk::style configure TScrollbar -background  [ lindex $bgcolors 0 ]
+ttk::style map  TScrollbar -background [list  active [ lindex $bgcolors 1 ] selected [ lindex $bgcolors 0 ] disabled [ lindex $bgcolors 0 ]]
+ttk::style configure TMenubutton -background  [ lindex $bgcolors 0 ]
+ttk::style map  TMenubutton -background [list  active [ lindex $bgcolors 1 ]]
+
+# Определение используется ли Magos-Data
+  set datapath /mnt/live/etc/modules
+  set path_ /mnt/livemedia/MagOS
+  set test_exist [file exists $datapath]
+    if {$test_exist == 0} {
+    set path_ /mnt/livemedia/MagOS-Data
+    } else {
+  set datapath_read [open $datapath r]
+  seek $datapath_read 0 start
+  set  datapath_string  [read $datapath_read]}
+      if { [string match *MagOS-Data* $datapath_string] eq "1" }  {
+      set path_ /mnt/livemedia/MagOS-Data
+      } 
+
+# Основные фреймы и пути к их каталогам
+lappend  frames  base  modules optional
+lappend paths pathbase pathmodules pathoptional
+set pathbase /mnt/livemedia/MagOS/base
+set pathmodules $path_/modules
+set pathoptional $path_/optional
+set repodir /media
+
+# Верхнее меню
+menu .menubar 
+. config -menu .menubar
+foreach item { File Tools About } {
+set $item  [ menu .menubar.m$item -tearoff 1 ]
+.menubar add cascade -label [ _ "$item" ] -menu  .menubar.m$item
+}
+$File add command -label [ _ "Add module" ] -command {addmodule} 
+$File add command -label [ _ "Add repository" ] -command {addrepodir} 
+$File add command -label [ _ "Update modules map" ]  -command {full-update}
+$File add command -label  [ _ "Remove and unmount all user's dirs " ] -command {
+unset frames
+unset paths
+lappend  frames  base  modules optional
+lappend paths pathbase pathmodules pathoptional
+destroy $w
+destroy $ww
+    if { [file exists /mnt/livemedia/mnt] == "1" } {
+      foreach item  [ split [ exec ls  /mnt/livemedia/mnt ] ] {
+      catch { exec umount /tmp/mnt/$item } result
+      puts stdout $result
+      file delete -force /tmp/mnt/
+      file delete -force /tmp/mnt/links/
+    }
+    }
+dirframes
+full-update
+}
+$File add command -label  [ _ "Exit" ] -command {exit}
+
+$Tools add command -label [ _ "Create/convert modules" ] -command  {
+exec /usr/share/magos/mod_mnger/mod_maker.tcl &
+} 
+$Tools add command -label [ _ "Activate remote module" ]  -command {
+exec /usr/share/magos/mod_mnger/mod_remote.tcl &
+}
+$Tools add command -label [ _ "List active modules" ] -command {
+update_stat
+toplevel .list 
+set textlist [ text .list.textlist -bg [ lindex $bgcolors 1 ]]
+scrollbar .list.yscroll -orient vert
+.list.textlist conf -yscrollcommand {.list.yscroll set}
+.list.yscroll conf -command {.list.textlist yview} 
+pack .list.yscroll -expand no -fill both -side right
+pack .list.textlist -expand yes -fill both -padx 1 -pady 1 
+foreach item $modulelist {
+.list.textlist insert end  $item\n
+}
+geometry .list
+}
+$About add command -label [ _ Help ] -command {help}
+ $About add command -label [ _ About ] -command {about}
+
+# фрейм с логотипом
+ttk::frame .logo 
+image create photo logo -file /usr/share/icons/module-icon.gif
+ttk::label .logo.logo -image logo
+label .logo.text -text [ _ "    Modules map" ] -fg blue  -font "Helvetica 12 bold" -background [ lindex $bgcolors 1 ]  
+pack .logo -anchor w -fill both -expand yes
+pack .logo.logo .logo.text -side left 
+
+# Процедура обновляет списки  
+proc update_stat {} {
+global w  ww frames paths another_modules modulelist
+foreach item  $paths  { 
+global  $item }
+foreach item  $frames  { 
+global  $item }
+foreach item  $frames  {
+set x path
+set com ""
+catch { set com  [ eval exec ls  $$x$item | grep .xzm ] }
+set $item   $com  
+split $item
+}
+
+foreach item [ lrange $frames 0 2 ] {
+for { set a 0 } { $a  < [ eval llength $$item ] } { incr a 1 } {
+$w.frame_$item.list itemconfigure $a -foreground grey
+}
+}
+foreach item [ lrange $frames 3 end ] {
+for { set a 0 } { $a  < [ eval llength $$item ] } { incr a 1 } {
+$ww.frame_$item.list itemconfigure $a -foreground grey
+}
+}
+
+foreach item [ split [ exec cat /proc/mounts | grep \.xzm.*squashfs.*ro ] "\n" ] {
+regexp {/mnt.*xzm} $item b
+set active [ file tail $b ]  
+lappend allactive $active
+}
+set modulelist $allactive
+  foreach item $allactive {
+    foreach catalogue [ lrange $frames 0 2 ] {
+    set c [ eval lsearch -regexp $$catalogue  $item ] 
+      if { $c >= 0 } { 
+	$w.frame_$catalogue.list itemconfigure $c -foreground green
+	set d [ lsearch $allactive $item ]
+	set allactive [ lreplace $allactive $d $d  ]
+      }
+    }
+    foreach catalogue [ lrange $frames 3 end ] {
+    set c [ eval lsearch $$catalogue *$item ] 
+      if { $c >= 0 } { 
+	$ww.frame_$catalogue.list itemconfigure $c -foreground green
+	set d [ lsearch $allactive $item ]
+	set allactive [ lreplace $allactive $d $d  ]
+      }
+    }
+  set another_modules $allactive
+  set f [ lsearch $allactive $item ] 
+  if { $f >= 0 } {$ww.another.list itemconfigure $f -foreground green }
+  }
+catch {send progress.tcl exit}
+}
+
+# Полное обновление списков 
+proc full-update {} {
+global frames  w paths ww bgcolors
+foreach item  $paths  { 
+global  $item }
+foreach item  $frames  { 
+global  $item }
+
+foreach item [ lrange $frames 0 2 ] {
+    for { set a 0 } { $a  < [ eval llength $$item ] } { incr a 1 } {
+    $w.frame_$item.list itemconfigure $a -background [ lindex $bgcolors 1  ]
+    }
+}
+foreach item [ lrange $frames 3 end ] {
+    for { set a 0 } { $a  < [ eval llength $$item ] } { incr a 1 } {
+    $ww.frame_$item.list itemconfigure $a -background [ lindex $bgcolors 1  ]
+    }
+}
+update_stat
+setbinds
+update idletasks
+}
+
+# Запуск прогрессбара
+proc progress {arg} {
+    exec /usr/share/magos/mod_mnger/progress.tcl $arg  &
+}
+
+#Процедура создает фреймы со списками
+proc dirframes {} {
+global w ww frames bgcolors
+set w .modmap
+ttk::frame $w
+pack $w -side top -fill both -expand yes
+set ww .other
+ttk::frame $ww 
+pack $ww -side bottom -fill both -expand yes
+
+ttk::labelframe $ww.another -text [ _ "another active modules" ] 
+pack $ww.another -side right -expand yes -fill both
+scrollbar $ww.another.scroll -command "$ww.another.list yview"
+listbox $ww.another.list  -yscroll "$ww.another.scroll set" -listvariable another_modules -setgrid 1 -height 10 -background [ lindex $bgcolors 1 ] 
+pack $ww.another.scroll -side right -fill y
+pack $ww.another.list -side left -expand yes -fill both
+
+  foreach item [ lrange $frames 0 2 ] { 
+  ttk::labelframe $w.frame_$item -text [ _ $item ]  
+  pack $w.frame_$item -side left -expand yes -fill both
+  scrollbar $w.frame_$item.scroll -command "$w.frame_$item.list yview"
+  listbox $w.frame_$item.list  -yscroll "$w.frame_$item.scroll set" -listvariable $item -setgrid 1 -height 15 -width 35 -background [ lindex $bgcolors 1 ] 
+  pack $w.frame_$item.scroll -side right -fill y
+  pack $w.frame_$item.list -side left -expand yes -fill both
+  }
+  foreach item [ lrange $frames 3 end ] { 
+  ttk::labelframe $ww.frame_$item -text [ _ $item ]  
+  pack $ww.frame_$item -side left -expand yes -fill both
+  scrollbar $ww.frame_$item.scroll -command "$ww.frame_$item.list yview"
+  listbox $ww.frame_$item.list  -yscroll "$ww.frame_$item.scroll set" -listvariable $item -setgrid 1 -background [ lindex $bgcolors 1 ] 
+  pack $ww.frame_$item.scroll -side right -fill y
+  pack $ww.frame_$item.list -side left -expand yes -fill both
+  }
+}
+dirframes
+
+event add <<choose>> <Return> <Double-1> 
+bind listbox <Tab> {tk_focusNext}
+bind listbox <Shift-Tab> {tk_focusPrev}
+
+# Связывания для списков activate/deactivate
+proc setbinds {} {
+global w ww frames paths selected
+foreach item [ lrange $paths 0 end ] { 
+global  $item }
+foreach item [ lrange $frames 0 end ] { 
+global  $item }
+foreach item [ lrange $frames 0 2 ] {
+bind $w.frame_$item.list <<choose>> {
+set x [selection get]
+set f ok
+set path path
+set selectedframe [ string range %W [expr [string first _ %W] + 1]  [expr [string last . %W] -1] ]
+puts stdout $selectedframe
+eval set filename $$path$selectedframe/$x
+puts stdout $filename 
+if {  [ %W itemcget active -foreground ] eq "green"  } {
+catch { exec /usr/lib/magos/scripts/deactivate $filename } result
+puts stdout $result
+} else {
+catch { exec /usr/lib/magos/scripts/activate $filename } result
+puts stdout $result
+}
+after 500 update_stat
+regexp {error} $result f
+if { $f eq "error" } { %W itemconfigure [  eval lsearch $$selectedframe $x ] -background red } 
+}
+}
+ 
+bind $ww.another.list <<choose>> {
+set x [selection get ]
+catch  { exec /usr/lib/magos/scripts/deactivate $x } result
+puts stdout $result 
+after 500 update_stat
+}
+
+# Связывания для пкм
+bind $w.frame_base.list <Button-3> {
+set index [  $w.frame_base.list nearest %y]
+$w.frame_base.list activate $index
+set selected [ $w.frame_base.list get active ]
+context base
+tk_popup .contextbase  %X %Y
+}
+
+bind $w.frame_modules.list <Button-3> {
+set index [  $w.frame_modules.list nearest %y]
+$w.frame_modules.list activate $index
+set selected [ $w.frame_modules.list get active ]
+context modules
+tk_popup .contextmodules  %X %Y 
+}
+
+bind $w.frame_optional.list <Button-3> {
+set index [  $w.frame_optional.list nearest %y]
+$w.frame_optional.list activate $index
+set selected [ $w.frame_optional.list get active ]
+context optional
+tk_popup .contextoptional  %X %Y 
+}
+}
+setbinds
+
+# пкм меню для основных каталогов
+proc context {arg} {
+global selected y paths frames path 
+foreach item  $paths { 
+global  $item }
+foreach item  $frames  { 
+global  $item }
+set y $arg
+set path [eval set path$y]
+destroy .context$y
+menu .context$y -tearoff 0 
+.context$y add command -label "[ _ "delete" ] $selected" -command {
+  if {  [ $w.frame_$y.list itemcget active -foreground ] eq "green"  } {
+  catch { exec /usr/lib/magos/scripts/deactivate $path/$selected } result 
+  puts stdout $result
+  }
+  file delete $path/$selected  
+  full-update }
+    if { "$y" ne "optional" } {
+    .context$y add command -label [ _ "move it to optional"] -command {
+      if {  [ $w.frame_$y.list itemcget active -foreground ] eq "green"  } {
+      catch { exec /usr/lib/magos/scripts/deactivate $path/$selected } result 
+      puts stdout $result
+      }
+     progress $pathoptional/[ file tail $path/$selected]
+     after 500
+     file copy  $path/$selected $pathoptional
+     file delete $path/$selected
+     full-update }
+  } else {
+    .context$y add command -label [ _ "move it to modules"] -command {
+      if {  [ $w.frame_$y.list itemcget active -foreground ] eq "green"  } {
+      catch { exec /usr/lib/magos/scripts/deactivate $path/$selected } result 
+      puts stdout $result
+      }
+    progress $pathmodules/[ file tail $path/$selected]
+    after 500
+    file copy $path/$selected $pathmodules
+    file delete $path/$selected
+    full-update }
+  }
+
+.context$arg add command -label [ _ "module info" ] -command { 
+exec /usr/share/magos/mod_mnger/mod_info.tcl $path/$selected & }
+}
+
+# пкм меню для дополнительных каталогов
+proc contextww {arg} {
+global selected y paths frames path filename
+global deactivate progress_optional progress_modules copy_optional copy_modules info
+foreach item  $paths { 
+global  $item }
+foreach item  $frames  { 
+global  $item }
+set y $arg
+set path [eval set path$y]
+set filename $path/$selected
+  if { [file type $filename]  == "link" } {
+  set filename [file link $filename]
+  }
+destroy .context$y
+set deactivate [list catch { exec /usr/lib/magos/scripts/deactivate $filename } result ] 
+set progress_optional [list progress $pathoptional/[ file tail $filename] ]
+set progress_modules [list progress $pathmodules/[ file tail $filename] ]
+set copy_optional [ list file copy -force $filename $pathoptional ]
+set copy_modules [ list file copy -force $filename $pathmodules ]
+set info [ list exec /usr/share/magos/mod_mnger/mod_info.tcl $filename ]
+
+menu .context$y -tearoff 0 
+    .context$y add command -label [ _ "copy  to optional"] -command {
+      if {  [ $ww.frame_$y.list itemcget active -foreground ] eq "green"  } {  $deactivate  }
+      eval $progress_optional
+      after 500      
+      eval $copy_optional
+      full-update }
+    .context$y add command -label [ _ "copy to modules"] -command {
+      if {  [ $ww.frame_$y.list itemcget active -foreground ] eq "green"  } {  $deactivate  } 
+      eval $progress_modules
+      after 500    
+      eval $copy_modules 
+      full-update }
+    
+    .context$arg add command -label [ _ "module info" ] -command {
+     eval $info & }
+}
+update_stat
+
+# процедура добавляет каталог-репозиторий
+proc addrepodir {args} {
+global w ww repodir reponame frames paths check bgcolors
+foreach item $paths { 
+global  $item }
+foreach item  $frames  { 
+global  $item }
+
+toplevel .addrepo -bg [ lindex $bgcolors 1 ] 
+#tk_setPalette [ lindex $bgcolors 0 ]
+ttk::frame .addrepo.frame 
+pack .addrepo.frame -fill both -expand yes -padx 10 -pady 10
+if { $args ne "" } { set repodir $args}
+set check enable
+    ttk::button .addrepo.frame.button -text [ _ "Choose directory =>" ]   -command {
+    set repodir [ tk_chooseDirectory -initialdir /home/user -parent .addrepo ]     
+   }
+    ttk::combobox .addrepo.frame.entry  -values {
+      ftp://magos.sibsau.ru/modules/2011/optional/
+      http://magos.sibsau.ru/repository/modules/2011/optional/
+      ftp://mirror.yandex.ru/mirrors/magos/modules/2011/optional/
+      http://mirror.yandex.ru/mirrors/magos/modules/2011/optional/
+      } -textvariable repodir 
+    label .addrepo.frame.label -text [ _ "set repository name =>" ] -bg [ lindex $bgcolors 1 ] 
+  set reponame repository_1
+  ttk::entry  .addrepo.frame.name -textvariable reponame 
+  ttk::checkbutton .addrepo.frame.check -text [ _ recursive ] -variable check  -onvalue enable -offvalue disable 
+  ttk::button .addrepo.frame.buttonOK -text [ _ "OK" ]  -command {
+  progress " "
+  bind .addrepo.frame  <Destroy>   {
+  after 500  repobutton}
+  destroy .addrepo
+  }  
+pack  .addrepo.frame.button .addrepo.frame.entry .addrepo.frame.label .addrepo.frame.name .addrepo.frame.check .addrepo.frame.buttonOK -padx 10 -pady 10 -side left -fill both -expand yes  
+geometry .addrepo
+}
+
+# Обработка нажатия на кнопку "ок" в окне добавления каталога
+proc repobutton {} {
+global repodir check reponame w ww frames paths 
+  if { [ string range $repodir 0 0 ] ne "\/" } { mountrepo $repodir }
+        if { $check == "enable" } {
+     catch {send progress.tcl newlabel -text [ _ "make recursive list" ]}
+     catch { exec find $repodir -name "*.xzm" -print | sed s=$repodir/== } a
+     split a
+      update idletasks
+      file delete -force /tmp/mnt/links/[ file tail $repodir/]
+      file mkdir /tmp/mnt/links/[ file tail $repodir/]
+      foreach item $a {
+      catch {file delete /tmp/mnt/links/[ file tail $repodir]/[file tail  $item]}
+      catch {file link -symbolic /tmp/mnt/links/[ file tail $repodir]/([string trim [string map { / _ } [file dirname $item]] _ ])-[file tail  $item] $repodir/$item }
+    }
+    set repodir /tmp/mnt/links/[ file tail $repodir]
+    }
+foreach item $frames {
+  if { $item eq $reponame } { set reponame "repository_[ expr [llength $frames] - 2]" }  
+}
+eval global path$reponame
+set path$reponame $repodir
+lappend frames $reponame
+lappend paths path$reponame
+destroy $w $ww 
+dirframes
+full-update
+
+
+foreach item [ lrange $frames 3 end ] {
+bind $ww.frame_$item.list <<choose>> {
+set x [selection get ]
+set f ok
+set path path
+set selectedframe [ string range %W [expr [string first _ %W] + 1]  [expr [string last . %W] -1] ]
+eval set filename $$path$selectedframe/$x 
+  if { [file type $filename]  == "link" } {
+  set filename [file link $filename]
+  }
+if {  [ %W itemcget active -foreground ] eq "green"  } {
+catch  { exec /usr/lib/magos/scripts/deactivate $filename } result
+puts stdout $result
+} else {
+progress " "
+catch { exec /usr/lib/magos/scripts/activate $filename } result
+puts stdout $result
+}
+after 500 update_stat
+regexp {error} $result f
+if { $f eq "error" } { %W itemconfigure [ eval lsearch $$selectedframe $x ] -background red } 
+}
+}
+
+foreach item [ lrange $frames 3 end ] {
+bind $ww.frame_$item.list <Button-3> {
+%W activate [  %W nearest %y]
+set selected [ %W get active ]
+set selectedframe [ string range %W [expr [string first _ %W] + 1]  [expr [string last . %W] -1] ]
+contextww $selectedframe
+tk_popup .context$selectedframe  %X %Y 
+}
+}
+}
+
+# Добавление модуля
+proc addmodule { {file none} } {
+global pathmodules pathoptional newmodule
+  if { $file eq "none"} {
+    set typelist {
+    {"xzm modules" {".xzm"}}
+    {"lzm modules" {".lzm"}}
+    }
+  set newmodule [ tk_getOpenFile -parent . -initialdir /home -filetypes  $typelist]
+  if {$newmodule == ""} { return }
+  } else { 
+set newmodule $file
+}
+toplevel .addmodule
+frame  .addmodule.mod_info -container 1 
+pack .addmodule.mod_info -fill both -expand yes
+exec /usr/share/magos/mod_mnger/mod_info.tcl  $newmodule -use [winfo id  .addmodule.mod_info] &
+ttk::frame .addmodule.actions
+pack .addmodule.actions -fill both -expand yes
+
+ttk::button .addmodule.actions.tooptional -text [ _ "copy to optional" ] -command {
+progress $pathoptional/[ file tail $newmodule]
+after 500
+file copy $newmodule $pathoptional
+catch { exec /usr/lib/magos/scripts/activate $pathoptional/[ file tail $newmodule] } result 
+puts stdout $result
+full-update 
+destroy .addmodule}
+ttk::button .addmodule.actions.tomodules -text [ _ "copy to modules" ] -command {
+progress $pathmodules/[file tail $newmodule]
+after 500
+file copy $newmodule $pathmodules
+catch { exec /usr/lib/magos/scripts/activate $pathmodules/[file tail $newmodule] } result 
+puts stdout $result
+full-update 
+destroy .addmodule}
+ttk::button .addmodule.actions.activate -text [ _ "activate here" ] -command {
+catch { exec /usr/lib/magos/scripts/activate $newmodule } result 
+puts stdout $result
+update_stat 
+destroy .addmodule}
+pack .addmodule.actions.tooptional .addmodule.actions.tomodules .addmodule.actions.activate -side left -fill both -expand yes
+geometry .addmodule
+}
+
+# монтирование удаленного каталога
+proc mountrepo {URL} {
+global repodir
+catch { send progress.tcl newlabel -text [ _ "mount remote dir" ] }
+regexp {([^:]+://)(.*@)?(.*)/((.*\..*)$)?} $URL  badURL protocol login server file
+puts stdout $badURL
+puts stdout PROTOCOL----$protocol
+puts stdout LOGIN-------$login
+puts stdout SERVER------$server
+puts stdout FILE--------$file
+set dirname [ string map { . _ / _ }  $server ]
+puts stdout DIRNAME-----/tmp/mnt/$dirname 
+
+if { "$protocol" eq "http://" } {
+  if { [ file exists "/tmp/mnt/$dirname" ] eq 1 } {
+  catch { exec  umount /tmp/mnt/$dirname } result
+  puts stdout UMOUNT------$result.OK
+  } else { 
+  file mkdir /tmp/mnt/$dirname
+  }
+  catch { exec  httpfs $URL /tmp/mnt/$dirname } result
+  puts stdout MOUNT_HTTP---$result.OK
+  set repodir /tmp/mnt/$dirname
+} elseif { "$protocol" eq "ftp://" } {
+if { [ file exists "/tmp/mnt/$dirname" ] eq 1 } {
+  catch { exec  umount /tmp/mnt/$dirname } result
+  puts stdout UMOUNT------$result.OK
+  } else { 
+  file mkdir /tmp/mnt/$dirname
+  }
+  catch { exec curlftpfs $URL /tmp/mnt/$dirname } result
+  puts stdout MOUNT_FTP---$result.OK
+  set repodir /tmp/mnt/$dirname
+} else {
+tk_messageBox -icon warning  -message "$protocol \n unsupported protocol"
+return
+}
+}
+
+proc help {} {
+catch {exec dbus-launch firefox -new-window /usr/share/doc/mod_mnger/rus.html} &
+}
+proc about {} {
+set about [ _ "
+Magos linux website:
+http://www.magos-linux.ru
+
+MagOS modules manager forum top: 
+http://www.magos-linux.ru/index.php?option=com_agora&task=topic&id=626&" ]
+
+toplevel .about
+global bgcolors
+set aboutbox [ text .about.text -height 15 -width 100 -bg [ lindex $bgcolors 1 ]]
+  scrollbar .about.yscroll -orient vert
+  .about.text conf -yscrollcommand {.about.yscroll set}
+  .about.yscroll conf -command {.about.text yview}
+  pack .about.yscroll -expand no -fill both -side right
+  pack .about.text -padx 1 -pady 1 -side top -fill both -expand yes
+$aboutbox insert end $about
+geometry .about
+}
+
+# процедура выравнивает окна по центру экрана
+proc geometry {win} {
+	update idletasks
+	set width [lindex [split [lindex [split [wm geometry $win ] "+"] 0] "x"] end-1] 
+	set x [expr {([winfo screenwidth .]/2 - $width/2)}]
+	set y [expr {([winfo screenheight .]/10)}]
+	wm geometry $win +$x+$y
+	wm resizable $win 0 0
+}
+
+# процедура разбирает аргументы командной строки
+if { "$argv" ne ""} {
+  if { [file isfile $argv] } {
+      if { [file extension $argv] eq ".xzm"}  {
+	after 1000 addmodule $argv
+	} else {
+      tk_messageBox -icon warning  -message "$argv is not .xzm module"
+	}
+  } else {
+  after 1000 addrepodir $argv
+  }
+}

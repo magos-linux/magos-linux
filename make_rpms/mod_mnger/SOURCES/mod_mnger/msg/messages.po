@@ -1,0 +1,332 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2013-06-17 21:30+0400\n"
+"Language: ru \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: mod_info.tcl:21
+msgid "Module size: wait..."
+msgstr "Размер модуля: ждите..."
+
+#: mod_info.tcl:22
+msgid "Extract size: wait..."
+msgstr "Размер после распаковки: ждите..."
+
+#: mod_info.tcl:24
+msgid "Documentation"
+msgstr "Документация"
+
+#: mod_info.tcl:26
+msgid "RPM packages list"
+msgstr "Список пакетов RPM"
+
+#: mod_info.tcl:37 mod_info.tcl:45
+msgid "wait..."
+msgstr "ждите..."
+
+#: mod_info.tcl:59
+msgid "module mount error"
+msgstr "ошибка монтирования"
+
+#: mod_info.tcl:70
+msgid "no text"
+msgstr "Описание отсутствует."
+
+#: mod_info.tcl:80
+msgid "no list"
+msgstr "Список пакетов отсутствует"
+
+#: mod_info.tcl:97
+msgid "Module size:"
+msgstr "Размер модуля:"
+
+#: mod_info.tcl:98
+msgid "Extract size:"
+msgstr "Размер после распаковки:"
+
+#: mod_maker.tcl:10
+msgid "Create and convert MagOS modules"
+msgstr "Сoздание и преобразование модулей MagOS"
+
+#: mod_maker.tcl:32
+msgid ""
+"Convert modules to another format. \n"
+"Please select catalogue with modules, output directory and press OK"
+msgstr ""
+"Преобразование модулей в другой формат. \n"
+"Пожалуйста, выберите каталог с модулями, каталог для сохранения и нажмите ОК."
+
+#: mod_maker.tcl:34
+msgid ""
+"Create module from system changes. Please edit /.savelist to add files and "
+"dirs.\n"
+"You may append \"!\" at the begining of string to remove items from module. "
+"Then press \"enable save2module\"\n"
+"Module will be ready after reboot"
+msgstr ""
+"Создание модуля из системных изменений. Пожалуйста, редактируйте /.savelist, добавляя файлы и каталоги. \n"
+"Вы можете добавить \"!\" вначале строки, чтобы удалить пункт из модуля. Затем нажмите - \"Включить save2module\". \n"
+"Модуль будет готов после перезагрузки." 
+
+#: mod_maker.tcl:37
+msgid "Use rpmdrake to create module. Please select output dir and press START"
+msgstr "" 
+"Используем rpmdrake для создания модуля.\n"
+"Пожалуйста, выберите каталог и нажмите -\"Запустить rpmdrake2lzm\"."
+
+
+#: mod_maker.tcl:38
+msgid ""
+"Create module from rpms.  Please select file.rpm or enter package name from "
+"repo, than choose out directory and press OK. \n"
+"You can add args for urpmi after  rpm name. Default is  --auto --no-verify-"
+"rpm"
+msgstr ""
+"Создание модуля из rpm пакета. Пожалуйста, выберите файл.rpm, или введите имя пакета из репозитория,\n "
+"затем выберите каталог для сохранения и нажмите - ОК.\n" 
+"Вы можете добавить параметры для urpmi после имени пакета. По умолчанию --auto --no-verify-rpm."
+
+#: mod_maker.tcl:41
+msgid ""
+"Compress directory to lzm/xzm module. Please choose input/output dirs and "
+"press OK"
+msgstr ""
+"Сборка модуля из каталога. Пожалуйста, выберите папку и нажмите -ОК."
+
+#: mod_maker.tcl:90
+msgid "wait please"
+msgstr "Пожалуйста, подождите..."
+
+#: mod_maker.tcl:194 mod_maker.tcl:343
+msgid "Enable save2module"
+msgstr "Включить режим save2module"
+
+#: mod_maker.tcl:196 mod_maker.tcl:345
+msgid "Disable save2module"
+msgstr "Отключить режим save2module"
+
+#: mod_maker.tcl:244
+msgid "    Module creator"
+msgstr "    Создание модуля"
+
+#: mod_maker.tcl:257
+msgid "Directory to module"
+msgstr "Модуль из каталога"
+
+#: mod_maker.tcl:264 mod_maker.tcl:397 mod_mnger:402
+msgid "Choose directory =>"
+msgstr "Выберите каталог =>"
+
+#: mod_maker.tcl:267 mod_maker.tcl:286 mod_maker.tcl:302 mod_maker.tcl:402
+msgid "Out directory =>"
+msgstr "Где сохранить =>"
+
+#: mod_maker.tcl:270 mod_maker.tcl:289 mod_maker.tcl:412 mod_remote.tcl:101
+#: mod_mnger:415
+msgid "OK"
+msgstr "OK"
+
+#: mod_maker.tcl:276
+msgid "File.rpm to module"
+msgstr "Модуль из rpm пакета"
+
+#: mod_maker.tcl:283
+msgid "choose  file.rpm  =>"
+msgstr "Выберите файл.rpm"
+
+#: mod_maker.tcl:295
+msgid "Module from repo"
+msgstr "Модуль из репозитория"
+
+#: mod_maker.tcl:305
+msgid "start rpmdrake2lzm"
+msgstr "Запустить rpmdrake2lzm"
+
+#: mod_maker.tcl:314
+msgid "Module from changes"
+msgstr "Модуль из изменений системы"
+
+#: mod_maker.tcl:332
+msgid "Add directory"
+msgstr "Добавить каталог"
+
+#: mod_maker.tcl:335
+msgid "Add file"
+msgstr "Добавить файл"
+
+#: mod_maker.tcl:349 mod_maker.tcl:353 mod_maker.tcl:357 mod_maker.tcl:361
+msgid "module name:"
+msgstr "Имя модуля:"
+
+#: mod_maker.tcl:351
+msgid "(default)"
+msgstr "(по умолчанию)"
+
+#: mod_maker.tcl:359
+msgid "enter new name"
+msgstr "Введите имя"
+
+#: mod_maker.tcl:384
+msgid "Convert modules"
+msgstr "Преобразование модулей"
+
+#: mod_maker.tcl:405
+msgid "Filter"
+msgstr "Фильтр"
+
+#: mod_maker.tcl:408
+msgid "lzm"
+msgstr "lzm"
+
+#: mod_maker.tcl:409
+msgid "xzm"
+msgstr "xzm"
+
+#: mod_maker.tcl:410
+msgid "nocompress"
+msgstr "без сжатия"
+
+#: mod_remote.tcl:79
+msgid "Enter module URL"
+msgstr "Введите URL удаленного модуля"
+
+#: progress.tcl:13
+msgid "Please wait..."
+msgstr "Пожалуйста, ждите..."
+
+#: progress.tcl:55
+msgid "Please wait, copying..."
+msgstr "Пожалуйста ждите, идет копирование..."
+
+#: mod_mnger:10
+msgid "MagOS modules manager"
+msgstr "Менеджер модулей MagOS"
+
+#: mod_mnger:58
+msgid "File"
+msgstr "Файл"
+
+#: mod_mnger:58
+msgid "Tools"
+msgstr "Инструменты"
+
+#: mod_mnger:60
+msgid "Add module"
+msgstr "Добавить модуль"
+
+#: mod_mnger:61
+msgid "Add repository"
+msgstr "Добавить репозиторий"
+
+#: mod_mnger:62
+msgid "Update modules map"
+msgstr "Обновить карту модулей"
+
+#: mod_mnger:63
+msgid "Remove and unmount all user's dirs "
+msgstr "Отмонтировать пользовательские каталоги"
+
+#: mod_mnger:81
+msgid "Exit"
+msgstr "Выход"
+
+#: mod_mnger:83
+msgid "Create/convert modules"
+msgstr "Создать или преобразовать модули"
+
+#: mod_mnger:86
+msgid "Activate remote module"
+msgstr "Подключить модуль удаленно"
+
+#: mod_mnger:89
+msgid "List active modules"
+msgstr "Список подключенных модулей"
+
+#: mod_mnger:103
+msgid "Help"
+msgstr "Помощь"
+
+#: mod_mnger:104
+msgid "About"
+msgstr "О менеджере модулей"
+
+#: mod_mnger:110
+msgid "    Modules map"
+msgstr "    Карта модулей"
+
+#: mod_mnger:208
+msgid "another active modules"
+msgstr "Другие подключенные модули"
+
+#: mod_mnger:312
+msgid "delete"
+msgstr "удалить"
+
+#: mod_mnger:320
+msgid "move it to optional"
+msgstr "переместить в optional"
+
+#: mod_mnger:331
+msgid "move it to modules"
+msgstr "переместить в modules"
+
+#: mod_mnger:343 mod_mnger:383
+msgid "module info"
+msgstr "свойства"
+
+#: mod_mnger:370
+msgid "copy  to optional"
+msgstr "копировать в optional"
+
+#: mod_mnger:376 mod_mnger:517
+msgid "copy to modules"
+msgstr "копировать в modules"
+
+#: mod_mnger:411
+msgid "set repository name =>"
+msgstr "Введите имя репозитория =>"
+
+#: mod_mnger:414
+msgid "recursive"
+msgstr "рекурсивно"
+
+#: mod_mnger:430
+msgid "make recursive list"
+msgstr "Создаем рекурсивный список"
+
+#: mod_mnger:509
+msgid "copy to optional"
+msgstr "копировать в optional"
+
+#: mod_mnger:525
+msgid "activate here"
+msgstr "Подключить здесь"
+
+#: mod_mnger:537
+msgid "mount remote dir"
+msgstr "Монтируем удаленный каталог"
+
+#: mod_mnger:577
+msgid ""
+"\n"
+"Magos linux website:\n"
+"http://www.magos-linux.ru\n"
+"\n"
+"MagOS modules manager forum top: \n"
+"http://www.magos-linux.ru/index.php?option=com_agora&task=topic&id=626&"
+msgstr ""
+"\n"
+"Magos linux официальный сайт:\n"
+"http://www.magos-linux.ru\n"
+"\n"
+"Форум менеджера модулей: \n"
+"http://www.magos-linux.ru/index.php?option=com_agora&task=topic&id=626&"

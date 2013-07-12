@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# /usr/lib/magos/scripts/cfg_mnger
+#
+# Description: Configs Manager 
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+export PATH=/usr/lib/magos/scripts:$PATH
+
+cXdialog --msgbox "Утилита управления конфигурационными файлами находится в разработке. \n Вы можете использовать текстовый редактор для настройки MagOS.ini."
+editor_root /mnt/livemedia/MagOS-Data/MagOS.ini

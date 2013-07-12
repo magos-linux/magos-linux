@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=MagOS configs manager
+Name[ru]=Управление настройками MagOS
+Comment=MagOS configs manager
+Comment[ru]=Управление настройками MagOS
+Exec=cfg_mnger
+Icon=cfg_mnger.png
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=GTK;X-MandrivaLinux-CrossDesktop;System;

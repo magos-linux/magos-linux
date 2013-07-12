@@ -7,13 +7,13 @@ URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base
 Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
-Requires:       magos-scripts
+#Requires:       magos-scripts
 
 %description
 Tools for MagOS
 
 %prep
-%setup -q
+%setup -q -n %{name}
 sed -i -e "s/gksu -g/beesu -l/g" ./conv4mod
 sed -i -e "s/gksu -g/beesu -l/g" ./rpmdrake2lzm
 
