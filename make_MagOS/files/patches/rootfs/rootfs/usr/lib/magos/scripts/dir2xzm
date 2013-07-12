@@ -49,30 +49,77 @@ $0 - compress dir to MagOS $MODULEFORMAT module
 Usage: $0 [args] [dirname] [file.$MODULEFORMAT]
 
 Args:
-  -d <doc>      Add base english documentation (text or file name)
-  -l <localDoc> Add documentation in current locale \$LANG (text or file name)
-  -u <user>     module's author nickname
-  -n <NN>       First number in module name
-  -s <simulate> Do not create module, but execute all other tasks. Use it if you need to create/update doc files.
-  -o <dest_dir> Destination directory
-  -h <help>     This help
-
+  -d <doc>         Add base english documentation (text or file name)
+  -l <localDoc>    Add documentation in current locale \$LANG (text or file name)
+  -u <user>        module's author nickname
+  -n <NN>          First number in module name
+  -s <simulate>    Do not create module, but execute all other tasks. Use it if you need to create/update doc files.
+  -o <output>      Destination directory
+  -h <help>        This help
+  -i <interactive> Interactive	
 Examples:
 $0 ./newmodule
 	Compress ./newmodule dir to $MODULEFORMAT module, update date in doc files (only if exists), generate modulename automatically
 $0 ./newmodule ./123.$MODULEFORMAT
 	Compress ./newmodule dir to 123.$MODULEFORMAT, update date in doc files (only if exists)
-$0 -d new_module_description.txt -l new_module_description_ru.txt -u usernsme -n 90
+$0 -d new_module_description.txt -l new_module_description_ru.txt -u besthaker -n 90
 	Compress ./newmodule dir to $MODULEFORMAT module, create doc files, generate modulename automatically,
 	with firstnumber 90, nikname - besthaker and current date.
 $0 -s -d ./doc.txt ./newmodule
 	Copy text from ./doc.txt to module doc file, generate modulename, show command to make module,
 	but do not execute it.
+$0 -u besthacker -i ./newmodule
+	Compress ./newmodule dir to $MODULEFORMAT module, with nikname besthacker and asks other interactive
 EOF
 }
 
+function interactive () {
+if [ -z $user ] ; then
+	echo "Enter maintainer name, please"
+	user=$(xuserrun whoami)
+        echo "current is \"$user \""
+        read a
+	[ -z $a ] || user=$a
+fi
+if [ -z $nn ] ; then 	
+	echo "0x - kernel modules"
+	echo "1x - cli utilites and daemons"
+	echo "2x - graphics and multimedia libs, utilites"
+	echo "3x - DE, WM"
+	echo "4x - progravs with GUI"
+	echo "7x - modules for programs"
+	echo "8x - i18"
+	echo "9x - patches"
+	echo "x0 - libs"
+	echo "x1-8 - utils"
+	echo "x9 - patches"
+	echo "Enter first namber for module, please"
+read b
+[ -z $b ] || nn=$b
+fi
 
-while getopts shu:d:l:n:o: option ;do
+if [ -z $DESTDIR ] ; then 
+	echo "Enter DESTDIR, please. Default is \"./\""
+	read c
+[ -z $c ] || DESTDIR=$c
+fi
+
+if [ -z "$doc" ] ; then 
+echo "Enter simple module doc in english"
+read d
+[ -z "$d" ] || doc="$d"
+fi
+
+if [ -z "$localdoc" ] ; then
+echo "Enter simple module doc in your locale"
+read e
+[ -z "$e" ] || localdoc="$e"
+fi
+}
+
+
+
+while getopts shu:d:l:n:o:i option ;do
     case $option in
       "h" )
 	  help && exit
@@ -95,15 +142,20 @@ while getopts shu:d:l:n:o: option ;do
       "o")
 	  DESTDIR=$OPTARG
           ;;
+      "i" )
+	  interactive
+     	  ;;
     esac
 done
 shift $((OPTIND - 1))
 date=$(date +%Y%m%d)
 dirname="$1"
 [ -z "$nn" ] && nn=NN
-[ -z "$user" ] && user=$(who | awk '/ :0 /{ print $1 }')
+[ -z "$user" ] && user=$(xuserrun whoami)
 [ -z "$dirname" ] && help && exit 1
 [ -z "$DESTDIR" ] && DESTDIR=./
+
+ 
 
 if [ ! -d "$DESTDIR" -o ! -w "$DESTDIR" ]; then 
    echo "Can't write to directory $DESTDIR"
