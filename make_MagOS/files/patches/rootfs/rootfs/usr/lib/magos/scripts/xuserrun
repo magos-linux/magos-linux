@@ -3,55 +3,55 @@
 # Run a command as the currently active X11 user
 #
 
-no_loginctl() {
-declare -Ag session_info
-session_info[Display]=:0 
-session_info[Name]=$(who -u |grep -v root |tail -n1 | awk '{ print $1 }')
+no_loginctl()
+{
+    declare -Ag session_info
+    session_info[Display]=:0 
+    session_info[Name]=$(who -u |grep -v root |tail -n1 | awk '{ print $1 }')
 } 
 
+get_session_info()
+{
+    local session="$1"
+    local varname="$2"
+    local IFS=$'\n'
+    eval declare -Ag $varname
+    for row in $($LOGINCTL show-session "$session"); do
+	key="$(echo "${row}"|cut -d= -f1)"
+	val="$(echo "${row}"|cut -d= -f2-)"
+	eval ${varname}[\"${key}\"]=\"${val}\"
+    done
+}
+
 if ! uname -r |grep -q mga ; then
-	seat="seat0"
-	# determine location of loginctl
-	LOGINCTL=$(command -v loginctl || command -v systemd-loginctl)
-		if [[ -e $LOGINCTL ]]; then
-		get_session_info() {
-		local session="$1"
-		local varname="$2"
-  		local IFS=$'\n'
-  		eval declare -Ag $varname
-  			for row in $($LOGINCTL show-session "$session"); do
-    			key="$(echo "${row}"|cut -d= -f1)"
-    			val="$(echo "${row}"|cut -d= -f2-)"
-    			eval ${varname}[\"${key}\"]=\"${val}\"
- 			done
-		}
-
-		active_session="$($LOGINCTL show-seat ${seat}|grep ActiveSession|cut -d= -f2)"
-		get_session_info $active_session session_info
-
-			if [[ ${session_info[Type]} != "x11" ]]; then
-			allsessions=$($LOGINCTL show-seat $seat | grep Sessions |awk -F= '{print $2}')
-				for a in $allsessions ; do
-				get_session_info $a session_info || continue
-					if [[ ${session_info[Type]} == "x11" ]]; then
-					break
-					fi
-				done
-			fi
-		else 
-		#echo "no systemd, trying who -u"
-		no_loginctl
-		fi
-else
-	#echo "Mageia based distro, trying who -u" 
+    seat="seat0"
+    # determine location of loginctl
+    LOGINCTL=$(command -v loginctl || command -v systemd-loginctl)
+    if [[ -e $LOGINCTL ]]; then
+	active_session="$($LOGINCTL show-seat ${seat}|grep ActiveSession|cut -d= -f2)"
+	get_session_info $active_session session_info
+	if [[ ${session_info[Type]} != "x11" ]]; then
+	    allsessions=$($LOGINCTL show-seat $seat | grep Sessions |awk -F= '{print $2}')
+	    for a in $allsessions ; do
+		get_session_info $a session_info || continue
+		[[ ${session_info[Type]} == "x11" ]] && break
+	    done
+	fi
+    else
+	#echo "no systemd, trying who -u"
 	no_loginctl
+    fi
+else
+    #echo "Mageia based distro, trying who -u" 
+    no_loginctl
 fi
 
-escape() {
-  	for arg in "$@" ; do
+escape()
+{
+    for arg in "$@" ; do
 	printf "%q " "$arg";
-  	done;
-	}
+    done;
+}
 
 current_user="$(id -u -n)"
 
@@ -59,10 +59,9 @@ current_user="$(id -u -n)"
 #echo ${session_info[Name]}
 
 if [[ ${current_user} == ${session_info[Name]} ]]; then
-	# already correct user, no need to su
-	DISPLAY="${session_info[Display]}" "$@"
+    # already correct user, no need to su
+    DISPLAY="${session_info[Display]}" "$@"
 else
-	# run command as user
-	DISPLAY="${session_info[Display]}" su -c - "${session_info[Name]}" "$(escape "$@")"
+    # run command as user
+    DISPLAY="${session_info[Display]}" su -c - "${session_info[Name]}" "$(escape "$@")"
 fi
-

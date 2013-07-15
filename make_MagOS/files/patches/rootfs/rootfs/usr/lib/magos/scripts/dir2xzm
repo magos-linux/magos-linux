@@ -2,7 +2,7 @@
 PATH=.:$(dirname $0):/usr/lib/magos/scripts:$PATH
 . liblinuxlive || exit 1
 
-zcat /proc/config.gz | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+MODULEFORMAT=xzm
 
 function makename()
 {
@@ -73,15 +73,16 @@ $0 -u besthacker -i ./newmodule
 EOF
 }
 
-function interactive () {
-if [ -z $user ] ; then
+function interactive()
+{
+  if [ -z $user ] ; then
 	echo "Enter maintainer name, please"
 	user=$(xuserrun whoami)
         echo "current is \"$user \""
         read a
 	[ -z $a ] || user=$a
-fi
-if [ -z $nn ] ; then 	
+  fi
+  if [ -z $nn ] ; then 	
 	echo "0x - kernel modules"
 	echo "1x - cli utilites and daemons"
 	echo "2x - graphics and multimedia libs, utilites"
@@ -94,30 +95,28 @@ if [ -z $nn ] ; then
 	echo "x1-8 - utils"
 	echo "x9 - patches"
 	echo "Enter first namber for module, please"
-read b
-[ -z $b ] || nn=$b
-fi
+    read b
+    [ -z $b ] || nn=$b
+  fi
 
 if [ -z $DESTDIR ] ; then 
-	echo "Enter DESTDIR, please. Default is \"./\""
-	read c
-[ -z $c ] || DESTDIR=$c
+   echo "Enter DESTDIR, please. Default is \"./\""
+   read c
+   [ -z $c ] || DESTDIR=$c
 fi
 
 if [ -z "$doc" ] ; then 
-echo "Enter simple module doc in english"
-read d
-[ -z "$d" ] || doc="$d"
+   echo "Enter simple module doc in english"
+   read d
+   [ -z "$d" ] || doc="$d"
 fi
 
 if [ -z "$localdoc" ] ; then
-echo "Enter simple module doc in your locale"
-read e
-[ -z "$e" ] || localdoc="$e"
+   echo "Enter simple module doc in your locale"
+   read e
+   [ -z "$e" ] || localdoc="$e"
 fi
 }
-
-
 
 while getopts shu:d:l:n:o:i option ;do
     case $option in
@@ -151,11 +150,10 @@ shift $((OPTIND - 1))
 date=$(date +%Y%m%d)
 dirname="$1"
 [ -z "$nn" ] && nn=NN
-[ -z "$user" ] && user=$(xuserrun whoami)
+#[ -z "$user" ] && user=$(xuserrun whoami)
+[ -z "$user" ] && user=$(who | awk '/ :0 /{ print $1 }')
 [ -z "$dirname" ] && help && exit 1
 [ -z "$DESTDIR" ] && DESTDIR=./
-
- 
 
 if [ ! -d "$DESTDIR" -o ! -w "$DESTDIR" ]; then 
    echo "Can't write to directory $DESTDIR"

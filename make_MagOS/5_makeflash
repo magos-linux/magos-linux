@@ -38,6 +38,7 @@ mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional,rootcopy}
 mkdir -p "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy}
 mkdir -p "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic}
 cp -pR files/patches/flash/* "$DESTDIR" || exit 1
+[ -d files/patches/flash.$VERREL] && cp -pfR files/patches/flash.$VERREL/* "$DESTDIR"
 cd work/$FLASHNAME-$VERREL
 echo $VERREL $DISTRVERSION  > "$MYPATH/$DESTDIR"/$FLASHNAME/VERSION
 echo $VERREL $DISTRVERSION  > VERSION
