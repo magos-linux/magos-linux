@@ -87,7 +87,7 @@ function interactive()
 	echo "1x - cli utilites and daemons"
 	echo "2x - graphics and multimedia libs, utilites"
 	echo "3x - DE, WM"
-	echo "4x - progravs with GUI"
+	echo "4x - programs with GUI"
 	echo "7x - modules for programs"
 	echo "8x - i18"
 	echo "9x - patches"
