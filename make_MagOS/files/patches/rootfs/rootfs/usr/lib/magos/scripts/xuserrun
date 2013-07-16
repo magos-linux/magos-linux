@@ -3,13 +3,14 @@
 # Run a command as the currently active X11 user
 #
 
+# функция-костыль альтернативный способ определения имени пользователя, где-то как раньше было в mdialog и dir2xzm 
 no_loginctl()
 {
     declare -Ag session_info
     session_info[Display]=:0 
     session_info[Name]=$(who -u |grep -v root |tail -n1 | awk '{ print $1 }')
 } 
-
+# Получение пользователя и дисплея утилитами systemd, стандартный для xuserrun способ
 get_session_info()
 {
     local session="$1"
@@ -22,7 +23,7 @@ get_session_info()
 	eval ${varname}[\"${key}\"]=\"${val}\"
     done
 }
-
+# если не магея то используем утилиты systemd, у магеи2 они тоже есть, но возвращают чушь.
 if ! uname -r |grep -q mga ; then
     seat="seat0"
     # determine location of loginctl
@@ -38,14 +39,17 @@ if ! uname -r |grep -q mga ; then
 	    done
 	fi
     else
+	#если совсем нет системд, то используем костыль 
 	#echo "no systemd, trying who -u"
 	no_loginctl
     fi
 else
+    #если магея то тоже костыль 
     #echo "Mageia based distro, trying who -u" 
     no_loginctl
 fi
 
+# Тут не я писал, но похоже просто группируются параметры переданные xusserrun для передачи их su
 escape()
 {
     for arg in "$@" ; do
@@ -55,13 +59,16 @@ escape()
 
 current_user="$(id -u -n)"
 
+#расскоментирую это для тестов 
 #echo ${session_info[Display]}
 #echo ${session_info[Name]}
 
+#если текущий юзер и юзер полученный get_session_info  один и тот же то выполняем все как есть
 if [[ ${current_user} == ${session_info[Name]} ]]; then
     # already correct user, no need to su
     DISPLAY="${session_info[Display]}" "$@"
 else
+    # запускаем с правами пользователя текущей сессии иксов	
     # run command as user
     DISPLAY="${session_info[Display]}" su -c - "${session_info[Name]}" "$(escape "$@")"
 fi
