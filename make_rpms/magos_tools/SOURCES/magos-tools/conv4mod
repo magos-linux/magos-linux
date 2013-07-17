@@ -7,7 +7,7 @@
 
 
 if [ "$(id -un)" != "root" ] ;then
-   gksu -g "/bin/bash '$0' $@"
+   beesu "/bin/bash '$0' $@"
    exit 0
 fi
 
@@ -15,8 +15,14 @@ export PATH=/usr/lib/magos/scripts:$PATH
 
 mod_dir=/mnt/live/memory/images
 
-mdialog --msgbox "Выберите директорию для сохранения модулей"
+mdialog --msgbox "Выберите директорию для сохранения модулей" || exit 1
+dir_name=""
+while [ -z $dir_name ] ; do
 dir_name=$(mdialog --getexistingdirectory /mnt/livemedia/ )
+done
+format=""
+while [ -z $format ] ; do
 format=$(mdialog --menu Формат_модулей xzm XZM lzm LZM nolzm LZM_nocompression)
-mask=$(mdialog --inputbox "Введите маску модулей" "??-")
+done
+mask=$(mdialog --inputbox "Введите маску модулей" "??-") || exit 2
 xterm -e dir2mod $format $mod_dir $dir_name $mask
