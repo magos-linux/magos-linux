@@ -15,7 +15,7 @@ export PATH=/usr/lib/magos/scripts:$PATH
 
 mod_dir=/mnt/live/memory/images
 
-mdialog --msgbox "Выберите директорию для сохранения модулей" || exit 1
+mdialog --yesno  "Утилита для ковертирования модулей MagOS.\nВыберите директорию для сохранения модулей.\nПродолжить?" || exit 1
 dir_name=""
 while [ -z $dir_name ] ; do
 dir_name=$(mdialog --getexistingdirectory /mnt/livemedia/ )
