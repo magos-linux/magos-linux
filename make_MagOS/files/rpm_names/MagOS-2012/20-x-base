@@ -191,7 +191,6 @@ libvorbisfile3-
 libwmf0.2_7-
 libwpd0.9_9-
 libwpg0.2_2-
-libx11_6-
 libx11-common-
 libx86_1-
 libxau6-
@@ -458,3 +457,6 @@ xsudo-
 xsudo-sudoers-
 libpng0-
 python-pexpect-
+libx11-xcb1-
+libx11_6-
+
