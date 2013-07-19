@@ -4,11 +4,14 @@ rm -f /tmp/profiler.log 2>/dev/null
 
 par="$2"
 cd "$(dirname $par)"
-
 resize()
 {
-   a=$(mdialog --inputbox "Введите новый размер файла в мегабайтах" "512")
+a=""
+until echo $a | grep  -q ^[1-9][0-9]*\ *$ ; do
+   a=$(mdialog --inputbox "Введите новый размер файла в мегабайтах" "512") || exit 1
+done
    profiler resize "$1" "$a" > /tmp/profiler.log && mdialog --msgbox "resize OK"
+
 }
 
 max()
@@ -24,7 +27,11 @@ format()
 
 create()
 {
-   echo $(mdialog --inputbox "имя файла, пробел, размер в мегабайтах" "MagOS_save_3.img 256") | xargs profiler create > /tmp/profiler.log && mdialog --msgbox "create OK" 
+a=""
+until echo $a | grep  -q ^.*[img,IMG]\ *[1-9][0-9]*\ *$ ; do
+a=$(mdialog --inputbox "имя файла, пробел, размер в мегабайтах" "MagOS_save_3.img 256") || exit 1 
+done
+echo $a | xargs profiler create > /tmp/profiler.log && mdialog --msgbox "create OK" 
    exit
 }
 
