@@ -15,17 +15,17 @@ splashimage /boot/grub4dos/boot_xpm.gz
 
 title MagOS Home profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent home=home.img changes=xzm
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent quiet home=home.img changes=xzm
 initrd /MagOS/initrd.gz
 
 title MagOS Clean mode
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent quiet
 initrd /MagOS/initrd.gz
 
 #title MagOS System profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-#kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent changes=MagOS_save1.img
+#kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent quiet changes=MagOS_save1.img
 #initrd /MagOS/initrd.gz
 
 title MagOS Netlive
