@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Run a command as the currently active X11 user
+#
+
+# get session info via loginctl
+get_session_info() {
+		local session="$1"
+		local varname="$2"
+  		local IFS=$'\n'
+  		eval declare -Ag $varname
+  			for row in $($LOGINCTL show-session "$session"); do
+    			key="$(echo "${row}"|cut -d= -f1)"
+    			val="$(echo "${row}"|cut -d= -f2-)"
+    			eval ${varname}[\"${key}\"]=\"${val}\"
+ 			done
+		}
+
+# second way to get user,display"
+no_loginctl() {
+declare -Ag session_info
+session_info[Display]=:0 
+session_info[Name]=$(who -u |grep -v root |tail -n1 | awk '{ print $1 }')
+} 
+		
+seat="seat0"
+# determine location of loginctl
+LOGINCTL=$(command -v loginctl || command -v systemd-loginctl)
+
+if [[ -e $LOGINCTL ]]; then
+		# echo loginctl_exist
+		active_session="$($LOGINCTL show-seat ${seat} 2> /dev/null |grep ActiveSession|cut -d= -f2 )" 
+	  if [ -n $active_session ] ; then
+		# echo active_session_was_found
+		get_session_info $active_session session_info > /dev/null 2>&1
+			if [[ ${session_info[Type]} != "x11" ]]; then
+			# echo active_session_type_is_not_x11_try_to_see_all_sessions
+			allsessions=$($LOGINCTL show-seat $seat 2> /dev/null | grep Sessions |awk -F= '{print $2}')
+				for a in $allsessions ; do
+				get_session_info $a session_info 
+					if [[ ${session_info[Type]} == "x11" ]]; then
+					break
+					fi
+				done
+			fi
+	  fi			
+	fi
+# trying second way,  if loginctl can't get user name and display  
+[ -z ${session_info[Display]} ] && no_loginctl 
+[ -z ${session_info[Name]} ] && no_loginctl
+
+escape() {
+  	for arg in "$@" ; do
+	printf "%q " "$arg";
+  	done;
+	}
+
+current_user="$(id -u -n)"
+
+#echo ${session_info[Display]}
+#echo ${session_info[Name]}
+
+if [[ ${current_user} == ${session_info[Name]} ]]; then
+	# already correct user, no need to su
+	DISPLAY="${session_info[Display]}" "$@"
+else
+	# run command as user
+	DISPLAY="${session_info[Display]}" su -c - "${session_info[Name]}" "$(escape "$@")"
+fi
+

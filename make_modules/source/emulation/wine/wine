@@ -1,0 +1,9 @@
+#!/bin/bash
+WINEVER=
+PWP=/opt/winebin
+[ -d "$HOME/.wine-$WINEVER" ] && export WINEPREFIX="$HOME/.wine-$WINEVER"
+export WINEDLLPATH="$PWP/$WINEVER/lib/wine"
+export WINELOADER="$PWP/$WINEVER/bin/wine"
+export WINESERVER="$PWP/$WINEVER/bin/wineserver"
+export PATH="$PWP/$WINEVER/bin":$PATH
+$WINELOADER "$@"

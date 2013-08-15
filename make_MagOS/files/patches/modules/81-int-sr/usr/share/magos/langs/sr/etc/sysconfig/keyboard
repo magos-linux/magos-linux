@@ -1,0 +1,6 @@
+GRP_TOGGLE=ctrl_shift_toggle
+XkbModel=pc105
+XkbLayout="srp(basic),srp(latin)"
+KEYBOARD=srp
+KEYTABLE=sr
+XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin

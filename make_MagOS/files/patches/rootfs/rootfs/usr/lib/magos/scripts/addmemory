@@ -40,8 +40,14 @@ fi
 }
 ADDMEMORY () {
 # провeрки
-cat /proc/cmdline | grep changes && die "Error: Only Clean mode supported"
-df ./ | grep aufs && die "Error:Non block device selected."
+if cat /proc/cmdline | grep -q changes ; then
+    if ! cat /proc/cmdline | grep -q changes=xzm ; then
+    die  "Error: Only Clean mode supported"
+    fi
+fi
+
+df ./ | grep -q aufs && die "Error:Non block device selected."
+df ./ | grep -q unionfs && die "Error:Non block device selected."
 [ $1 -gt  $(df -m ./ | sed 1d | awk '{print $4}') ] && die "Error: Not enough free space!"
 # создавать swap или использовать готовый
 if ! [ -f $1 ] ; then
@@ -58,14 +64,14 @@ else
   size=$(du -m $1 |  awk '{print $1}')
 fi
 # увеличиваем tmpfs
-newsize=$(expr $size + $(df -m | grep -m 1 aufs | awk '{print $2}'))
+newsize=$(expr $size + $(df -m | grep -m 1 /$ | awk '{print $2}'))
 echo $(cat /proc/mounts | grep "tmpfs /mnt/live/memory") >> /etc/fstab
 mount -o remount,size=${newsize}M /mnt/live/memory 
 # удаляем строку из fstab
 sed '/^tmpfs.*\/mnt\/live\/memory/d' /etc/fstab > /tmp/fstab
 mv -f /tmp/fstab /etc/fstab
 # результат
-df -t aufs -BM
+df /  -BM
 swapon -s
 }
 

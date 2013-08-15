@@ -18,27 +18,27 @@ DEBUG=off
 
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 
-[ "$SNDMIXSET" = "yes" ] || exit 0
-
-amixer controls | awk -F, '{print $1}' | while read a ;do
-  SNDNAME=$(LC_ALL=C amixer cget "$a" | grep -m1 name= | awk -F'name='\' '{print $2}' | awk -F\' '{print $1}')
-  SNDTYPE=$(LC_ALL=C amixer cget "$a" | grep -m1 type= | awk -F'type=' '{print $2}' | awk -F, '{ print $1}')
-  if [ "$SNDTYPE" = "INTEGER" ] ;then
-     if echo $SNDNAME | grep -qi "$SNDMIX_MASTER_N" ;then
+if [ "$SNDMIXSET" = "yes" ] ;then
+  amixer controls | awk -F, '{print $1}' | while read a ;do
+    SNDNAME=$(LC_ALL=C amixer cget "$a" | grep -m1 name= | awk -F'name='\' '{print $2}' | awk -F\' '{print $1}')
+    SNDTYPE=$(LC_ALL=C amixer cget "$a" | grep -m1 type= | awk -F'type=' '{print $2}' | awk -F, '{ print $1}')
+    if [ "$SNDTYPE" = "INTEGER" ] ;then
+      if echo $SNDNAME | grep -qi "$SNDMIX_MASTER_N" ;then
         [ "$DEBUG" = "on" ] && echo setting $SNDNAME to $SNDMIX_MASTER_VOL
         amixer cset "$a" "$SNDMIX_MASTER_VOL" >/dev/null 2>&1
-     else
+      else
         [ "$DEBUG" = "on" ] && echo setting $SNDNAME to $SNDMIX_DEFAULT_VOL
         amixer cset "$a" "$SNDMIX_DEFAULT_VOL" >/dev/null 2>&1
-     fi
-  elif [ "$SNDTYPE" = "BOOLEAN" ] ;then
-     if echo $SNDMIX_SWITCH_ON | grep -q "$SNDNAME" ;then
+      fi
+    elif [ "$SNDTYPE" = "BOOLEAN" ] ;then
+      if echo $SNDMIX_SWITCH_ON | grep -q "$SNDNAME" ;then
         [ "$DEBUG" = "on" ] && echo setting $SNDNAME to ON
         amixer cset "$a" on >/dev/null 2>&1
-     fi
-     if echo $SNDMIX_SWITCH_OFF | grep -q "$SNDNAME" ;then
+      fi
+      if echo $SNDMIX_SWITCH_OFF | grep -q "$SNDNAME" ;then
         [ "$DEBUG" = "on" ] && echo setting $SNDNAME to OFF
         amixer cset "$a" off >/dev/null 2>&1
-     fi
-  fi
-done
+      fi
+    fi
+  done
+fi

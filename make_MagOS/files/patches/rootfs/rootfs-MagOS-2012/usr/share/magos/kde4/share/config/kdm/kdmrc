@@ -1,0 +1,87 @@
+[General]
+ConfigVersion=2.3
+ConsoleTTYs=tty2,tty3,tty4,tty5,tty6
+PidFile=/var/run/kdm.pid
+ReserveServers=:1,:2,:3,:4,:5
+ServerVTs=1
+StaticServers=:0
+
+[Shutdown]
+BootManager=None
+HaltCmd=/bin/poweroff
+RebootCmd=/bin/reboot
+
+[X-*-Core]
+AllowNullPasswd=false
+AllowRootLogin=false
+AllowShutdown=None
+AutoReLogin=false
+ClientLogFile=.xsession-errors-%s
+FailsafeClient=/usr/bin/xterm
+Reset=/usr/share/X11/xdm/TakeConsole
+Resources=/etc/X11/xdm/Xresources
+ServerArgsLocal=-deferglyphs 16 -nolisten tcp
+Session=/usr/share/X11/xdm/Xsession
+Setup=/usr/share/X11/xdm/Xsetup_0
+Startup=/usr/share/X11/xdm/GiveConsole
+SystemPath=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin
+UserPath=/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/
+
+[X-*-Greeter]
+AntiAliasing=true
+ColorScheme=Norway
+EchoPasswd=true
+FaceDir=/usr/share/mdk/faces
+FaceSource=PreferUser
+FailFont=Droid Sans,12,-1,5,75,0,0,0,0,0
+FocusPasswd=false
+ForgingSeed=1145020279
+GUIStyle=
+GreetFont=Droid Sans,24,-1,5,50,0,0,0,0,0
+GreetString=Welcome to %n
+GreeterPos=50,50
+HiddenUsers=nobody,root
+Language=ru_RU
+LogoArea=None
+LogoPixmap=/usr/share/apps/kdm/pics/kdm-mdk-logo.png
+MaxShowUID=65000
+MinShowUID=500
+PluginsLogin=classic, fprintd
+Preloader=/usr/bin/preloadkde
+PreselectUser=Previous
+SelectedUsers=
+ShowUsers=NotHidden
+SortUsers=true
+StdFont=Droid Sans,12,-1,5,50,0,0,0,0,0
+Theme=/usr/share/apps/kdm/themes/oxygen-magos
+UseBackground=true
+UseTheme=true
+UserCompletion=false
+UserList=true
+
+[X-:*-Core]
+AllowNullPasswd=true
+AllowShutdown=All
+NoPassEnable=false
+NoPassUsers=
+ServerArgsLocal=-nolisten tcp
+ServerCmd=/usr/bin/X
+ServerTimeout=120
+TerminateServer=true
+
+[X-:*-Greeter]
+DefaultUser=user
+FocusPasswd=true
+LoginMode=DefaultLocal
+PreselectUser=Previous
+
+[X-:0-Core]
+AutoLoginEnable=true
+AutoLoginLocked=false
+AutoLoginUser=user
+ClientLogFile=.xsession-errors
+
+[Xdmcp]
+Enable=false
+Willing=/usr/share/X11/xdm/Xwilling
+Xaccess=/etc/X11/xdm/Xaccess

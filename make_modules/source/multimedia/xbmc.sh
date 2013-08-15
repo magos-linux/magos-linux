@@ -1,17 +1,19 @@
 #!/bin/bash
 NUM=36
 NAME=xbmc
-VERSION=11.0_1.pvr.2
+VERSION=12.2-2
 RELEASE=$(date +%Y%m%d)
-DISTR=2012lts
+DISTR=2012
 AUTHOR=mikhailz
-SOURCE0=http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/contrib/updates/xbmc-11.0-1.pvr.2-rosa.lts2012.0.i586.rpm
+SOURCE0=http://magos.sibsau.ru/repository/rpms/2012/xbmc-12.2-2-rosa2012.1.i586.rpm
+#SOURCE0=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/i586/contrib/updates/xbmc-12.1-2-rosa2012.1.i586.rpm
 SOURCE1=http://seppius-xbmc-repo.googlecode.com/files/repository.seppius.zip
+SOURCE2=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/i586/contrib/updates/slim-1.3.4-11-rosa2012.1.i586.rpm
 DOWNLOADER=wget
 
-#DISTR=2011
-#SOURCE0=ftp://mirror.yandex.ru/mandriva/official/2011/i586/media/contrib/backports/xbmc-11.0-1.pvr.1-mdv2011.0.i586.rpm
-
+#DISTR=2012lts
+#VERSION=11.0_1.pvr.2
+#SOURCE0=http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/contrib/updates/xbmc-11.0-1.pvr.2-rosa.lts2012.0.i586.rpm
 
 . ../functions || exit 1
 
@@ -22,14 +24,16 @@ mkdir -p rootfs/var/lib/rpm/modules || exit 1
 
 download $SOURCE0
 download $SOURCE1
+download $SOURCE2
 
 unpack ${SOURCE0##*/} rootfs
 unpack ${SOURCE1##*/} ./
+unpack ${SOURCE2##*/} rootfs
+unpack xbmc.tar.gz ./
 
-move guisettings.xml    rootfs/etc/skel/.xbmc/userdata
-move sources.xml        rootfs/etc/skel/.xbmc/userdata
+move .xbmc              rootfs/etc/skel
 move desktop            rootfs/etc/sysconfig
-move autologin          rootfs/etc/sysconfig
+move slim.conf          rootfs/etc
 move mountemall.rules   rootfs/etc/udev/rules.d
 move pmount-hal-user    rootfs/usr/lib/magos/scripts
 move repository.seppius rootfs/usr/share/xbmc/addons

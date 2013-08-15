@@ -1,0 +1,97 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+if [ "`id -u`" != "0" ] ;then
+   echo Для доступа ко всем папкам rootfs нужны права root.
+   exit 1
+fi
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+echo "Создание образа дистрибутива"
+cd "$MYPATH"/work/$FLASHNAME-$VERREL
+umount mirror/rootfs 2>/dev/null
+rm -fr mirror 2>/dev/null
+mkdir -p mirror/changes mirror/rootfs || exit 1
+mount -t aufs -o br:mirror/changes=rw:rootfs=ro aufs mirror/rootfs || exit 1
+
+echo "Добавление файлов в дистрибутив"
+rm -fr mirror/rootfs/etc/skel/tmp
+cp -pfR ../../loaded/$FLASHNAME-$VERREL/urpmi/* mirror/rootfs
+for a in rootfs rootfs-$FLASHNAME rootfs-$FLASHNAME-$VERREL ;do
+    [ -d ../../files/patches/rootfs/$a ] && cp -pfR ../../files/patches/rootfs/$a/* mirror/rootfs
+done
+if [ -d ../../localpatches ] ;then
+    cp -pfR ../../localpatches/* mirror/rootfs
+fi
+cd mirror/rootfs
+mkdir -p usr/lib/magos/rootfs-patches
+cp -p ../../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
+cp -p ../../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh usr/lib/magos/rootfs-patches
+
+echo "Уменьшение базы rpm"
+# tmpfs tweak wiil increase rpm speed in several times
+mv var/lib/rpm var/lib/rpmbase || exit 1
+mkdir var/lib/rpm || exit 1
+mount -t tmpfs tmpfs var/lib/rpm || exit 1
+cp -pr var/lib/rpmbase/* var/lib/rpm || exit 1
+
+for a in "$MYPATH"/loaded/$FLASHNAME-$VERREL/names/*-int-* ;do
+    cat $a >>rpmsoutofbase
+done
+for a in $(cat rpmsoutofbase) ;do
+    chroot ./ rpm -e --nodeps --noscripts --notriggers --justdb ${a%.rpm} 2>/dev/null
+done
+
+echo "Изменение файлов дистрибутива"
+rm -f var/lib/rpm/files-awaiting-filetriggers rpmsoutofbase
+for a in usr/lib/magos/rootfs-patches/*.sh ;do
+   [ -f $a ] || continue
+   echo $a
+   bash $a || exit 1
+done
+
+rm -fr var/lib/rpmbase/* || exit 1
+mv var/lib/rpm/* var/lib/rpmbase || exit 1
+umount var/lib/rpm || exit 1
+rmdir var/lib/rpm || exit 1
+mv var/lib/rpmbase var/lib/rpm || exit 1
+
+ln -sf /usr/bin/unsquashfs usr/lib/magos/scripts/unsquashfs
+ln -sf /usr/bin/mksquashfs usr/lib/magos/scripts/mksquashfs
+[ "$MKSQOPT" != "" ] && sed -i s/MKSQOPT=.*/MKSQOPT=\""$MKSQOPT"\"/ usr/lib/magos/scripts/liblinuxlive
+
+echo "Отключение всех служб"
+cd etc/xinetd.d
+for a in * ;do
+   if grep -q service $a ;then
+      chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --del $a 2>/dev/null
+   fi
+done
+cd ../rc.d/init.d
+for a in * ;do
+   if grep -q "chkconfig:" $a || grep -q "### BEGIN INIT INFO"  $a ;then
+      chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --del $a 2>/dev/null
+   fi
+done
+
+echo "Включение нужных служб"
+for a in  $INITDNEED  ;do
+   [ -f $a ] || continue
+   echo $a
+   chroot "$MYPATH/work/$FLASHNAME-$VERREL/rootfs" chkconfig --add $a
+done
+
+cd "$MYPATH"
+umount work/$FLASHNAME-$VERREL/mirror/rootfs || exit 1
+
+echo "Работа скрипта завершена"
+
+exit 0
+

@@ -10,8 +10,8 @@ ENABLED=yes
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
 [ -z "$XORG_RES" ] || sed -i 's|.*Modes.*|        Modes "'$XORG_RES'"|' /etc/X11/xorg.conf
-if [  "$MONITOR" != "" ] ;then
-   if [ "$MONITOR" = "FLATPANEL" ] ; then
+if [  "$MONITOR" != "auto" ] ;then
+   if [ "$MONITOR" = "FLATPANEL" -o "$MONITOR" = "" ] ; then
       VRH="" ; HRH=90 ; [ ${XORG_RES%%x*} -gt 1920 ] && HRH=100
    elif [ "$MONITOR" = "PNP" ] ; then
       VRH="-150" ; HRH=96 

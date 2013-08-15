@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /etc/conky/orange
+conky -c /etc/conky/conky_orangerc

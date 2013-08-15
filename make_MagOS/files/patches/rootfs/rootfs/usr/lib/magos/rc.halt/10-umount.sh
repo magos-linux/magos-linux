@@ -16,6 +16,10 @@ for a in `losetup -a | grep '(/media/' | awk '{print $1}' | tr -d :` ;do
       umount $a 2>/dev/null || umount -l $a 2>/dev/null
    fi
 done
+
+#umount network fs
+egrep "[ ]nfs[ ]|[ ]cifs[ ]" /proc/mounts | awk '{print $2}' | grep -v ^/mnt/live | xargs umount -lf
+
 # then free any /media
 for a in /home `grep /media/ /proc/mounts  | awk '{print $2}'` `grep " /mnt/" /proc/mounts | grep -v /mnt/live | awk '{print $2}'` ;do
     grep -q " $a " /proc/mounts || continue

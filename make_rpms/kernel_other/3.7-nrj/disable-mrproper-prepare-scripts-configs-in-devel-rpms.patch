@@ -1,0 +1,122 @@
+
+ Makefile                 |   23 ++++++++++++-----------
+ scripts/kconfig/Makefile |   19 -------------------
+ 2 files changed, 12 insertions(+), 30 deletions(-)
+
+diff -Nurp linux-3.7-rc8-mrproper/Makefile linux-3.7-rc8-mrproper-fix/Makefile
+--- linux-3.7-rc8-mrproper/Makefile	2012-12-06 19:39:21.927270446 +0200
++++ linux-3.7-rc8-mrproper-fix/Makefile	2012-12-06 19:42:08.991006310 +0200
+@@ -513,8 +513,7 @@ ifeq ($(KBUILD_EXTMOD),)
+ # Carefully list dependencies so we do not try to build scripts twice
+ # in parallel
+ PHONY += scripts
+-scripts: scripts_basic include/config/auto.conf include/config/tristate.conf
+-	$(Q)$(MAKE) $(build)=$(@)
++scripts:
+ 
+ # Objects we will link into vmlinux / subdirs we need to visit
+ init-y		:= init/
+@@ -831,7 +830,7 @@ prepare0: archprepare FORCE
+ 	$(Q)$(MAKE) $(build)=.
+ 
+ # All the preparing..
+-prepare: prepare0
++prepare:
+ 
+ # Generate some files
+ # ---------------------------------------------------------------------------
+@@ -1007,13 +1006,15 @@ endif # CONFIG_MODULES
+ CLEAN_DIRS  += $(MODVERDIR)
+ 
+ # Directories & files removed with 'make mrproper'
+-MRPROPER_DIRS  += include/config usr/include include/generated          \
+-                  arch/*/include/generated
+-MRPROPER_FILES += .config .config.old .version .old_version $(version_h) \
+-		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
+-		  signing_key.priv signing_key.x509 x509.genkey		\
+-		  extra_certificates signing_key.x509.keyid		\
+-		  signing_key.x509.signer
++#MRPROPER_DIRS  += include/config usr/include include/generated          \
++#                  arch/*/include/generated
++#MRPROPER_FILES += .config .config.old .version .old_version $(version_h) \
++#		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
++#		  signing_key.priv signing_key.x509 x509.genkey		\
++#		  extra_certificates signing_key.x509.keyid		\
++#		  signing_key.x509.signer
++MRPROPER_DIRS  += ""
++MRPROPER_FILES += ""
+ 
+ # clean - Delete most, but leave enough to build external modules
+ #
+@@ -1031,7 +1032,7 @@ clean: archclean
+ #
+ mrproper: rm-dirs  := $(wildcard $(MRPROPER_DIRS))
+ mrproper: rm-files := $(wildcard $(MRPROPER_FILES))
+-mrproper-dirs      := $(addprefix _mrproper_,Documentation/DocBook scripts)
++mrproper-dirs      := $(addprefix _mrproper_,Documentation/DocBook)
+ 
+ PHONY += $(mrproper-dirs) mrproper archmrproper
+ $(mrproper-dirs):
+diff -Nurp linux-3.7-rc8-mrproper/scripts/kconfig/Makefile linux-3.7-rc8-mrproper-fix/scripts/kconfig/Makefile
+--- linux-3.7-rc8-mrproper/scripts/kconfig/Makefile	2012-12-06 19:39:21.927270446 +0200
++++ linux-3.7-rc8-mrproper-fix/scripts/kconfig/Makefile	2012-12-06 19:44:18.373899598 +0200
+@@ -12,26 +12,18 @@ Kconfig := Kconfig
+ endif
+ 
+ xconfig: $(obj)/qconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ gconfig: $(obj)/gconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ menuconfig: $(obj)/mconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ config: $(obj)/conf 3rdparty/Makefile
+-	$< --oldaskconfig $(Kconfig)
+ 
+ nconfig: $(obj)/nconf 3rdparty/Makefile
+-	$< $(Kconfig)
+ 
+ oldconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ silentoldconfig: $(obj)/conf 3rdparty/Makefile
+-	$(Q)mkdir -p include/generated
+-	$< --$@ $(Kconfig)
+ 
+ localyesconfig localmodconfig: $(obj)/streamline_config.pl $(obj)/conf 3rdparty/Makefile
+ 	$(Q)mkdir -p include/generated
+@@ -74,32 +66,21 @@ update-po-config: $(obj)/kxgettext $(obj
+ PHONY += allnoconfig allyesconfig allmodconfig alldefconfig randconfig
+ 
+ allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ PHONY += listnewconfig olddefconfig oldnoconfig savedefconfig defconfig
+ 
+ listnewconfig olddefconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@ $(Kconfig)
+ 
+ # oldnoconfig is an alias of olddefconfig, because people already are dependent
+ # on its behavior(sets new symbols to their default value but not 'n') with the
+ # counter-intuitive name.
+ oldnoconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --olddefconfig $(Kconfig)
+ 
+ savedefconfig: $(obj)/conf 3rdparty/Makefile
+-	$< --$@=defconfig $(Kconfig)
+ 
+ defconfig: $(obj)/conf 3rdparty/Makefile
+-ifeq ($(KBUILD_DEFCONFIG),)
+-	$< --defconfig $(Kconfig)
+-else
+-	@echo "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
+-	$(Q)$< --defconfig=arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG) $(Kconfig)
+-endif
+ 
+ %_defconfig: $(obj)/conf 3rdparty/Makefile
+-	$(Q)$< --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
+ 
+ # Help text used by make help
+ help:

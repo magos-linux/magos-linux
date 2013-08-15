@@ -17,7 +17,7 @@ SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
 FILELIST=/.savelist
 [ -f /.savetomodule ] && SAVETOMODULE=${SAVETOMODULE-yes}
 grep -q save2module /proc/cmdline && SAVETOMODULE=${SAVETOMODULE-yes}
-grep -q /machines/dynamic/ /.savetomodule 2>/dev/null  && [ -f $(sed s=dynamic=static= /.savetomodule) ] && exit 0
+grep -q /machines/dynamic/ /.savetomodule 2>/dev/null  && [ -f $(sed s=dynamic=static= /.savetomodule) ] && SAVETOMODULE=no
 if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo "Please wait. Saving changes to module $SAVETOMODULENAME"
    # if old module exists we have to concatenate it

@@ -1,0 +1,81 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+cd "$MYPATH"
+
+if [ "`id -u`" != "0" ] ;then
+   echo "Для доступа ко всем файлам work/ нужны права root"
+   exit 1
+fi
+
+
+DISTRVERSION=$(date +%Y%m%d)
+DESTDIR=flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
+MKSQUASHFS=mksquashfs
+UNSQUASHFS=unsquashfs
+MODULEFORMAT=xzm
+
+function umountbranches()
+{
+ while grep -q "$1" /proc/mounts ;do
+    grep "$1" /proc/mounts | awk '{print $2}' | while read a ;do
+       echo umount "$a"
+       umount "$a" 2>/dev/null
+    done
+ done
+}
+
+echo "Подготовка"
+[ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
+mkdir -p "$DESTDIR" || exit 1
+mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional,rootcopy}
+mkdir -p "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy}
+mkdir -p "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic}
+cp -pR files/patches/flash/* "$DESTDIR" || exit 1
+[ -d files/patches/flash.$VERREL ] && cp -pfR files/patches/flash.$VERREL/* "$DESTDIR"
+cd work/$FLASHNAME-$VERREL
+echo $VERREL $DISTRVERSION  > "$MYPATH/$DESTDIR"/$FLASHNAME/VERSION
+echo $VERREL $DISTRVERSION  > VERSION
+cp -L rootfs/boot/vmlinuz "$MYPATH/$DESTDIR"/$FLASHNAME/vmlinuz || exit 1
+
+echo "Cоздание initrd"
+umountbranches "$(pwd)/initrd"
+rm -fr initrd 2>/dev/null
+mkdir -p initrd/rootfs initrd/changes
+cp -pfr mirror/changes/* initrd/changes
+mount -t aufs -o br:initrd/changes=rw:rootfs=ro aufs initrd/rootfs || exit 1
+mkdir -p initrd/rootfs/{tmp,proc,sys,dev,/mnt/live} || exit 1
+cp -p VERSION initrd/rootfs/mnt/live || exit 1
+mount -o bind /dev initrd/rootfs/dev || exit 1
+mount -o bind /proc initrd/rootfs/proc || exit 1
+chroot initrd/rootfs /usr/lib/magos/scripts/mkinitrd /boot/initrd.gz || exit 1
+mv initrd/rootfs/boot/initrd.gz "$MYPATH/$DESTDIR/${FLASHNAME}" || exit 1
+umountbranches "$(pwd)/initrd"
+rm -fr initrd
+
+echo "Создание модулей"
+cd "$MYPATH/work/$FLASHNAME-$VERREL/modules" || exit 1
+for a in * ;do
+    echo $a
+    $MKSQUASHFS $a "$MYPATH/$DESTDIR/$FLASHNAME/base/$a.$MODULEFORMAT" $MKSQOPT >/dev/null 2>/dev/null || exit 1
+done
+cd "$MYPATH/$DESTDIR/$FLASHNAME/base"
+chmod 444 *
+md5sum *.$MODULEFORMAT >MD5SUM
+
+cd "$MYPATH"
+mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international 2>/dev/null
+mv "$DESTDIR/$FLASHNAME/"base/??-int-* flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
+
+cd "$MYPATH"
+echo "Создание файлов для сохранения данных" 
+cd "$MYPATH"/$DESTDIR/$FLASHNAME-Data || exit 1
+[ "$DATASIZE1" != "" ] && dd if=/dev/zero of=home.img bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j home.img >/dev/null 2>&1
+
+echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"

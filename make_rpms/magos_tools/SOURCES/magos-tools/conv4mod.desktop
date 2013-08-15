@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Convert modules MagOS
+Name[ru]=Преобразование модулей MagOS
+Comment=Convert modules MagOS
+Comment[ru]=Преобразование модулей MagOS
+Exec=conv4mod
+Icon=conv4mod.png
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=GTK;X-MandrivaLinux-CrossDesktop;System;

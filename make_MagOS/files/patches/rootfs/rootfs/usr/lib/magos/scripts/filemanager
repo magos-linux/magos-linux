@@ -1,4 +1,11 @@
 #!/bin/sh
+PKDE=/usr/bin/dolphin
+PGNOME=/usr/bin/nautilus
+PLXDE=/usr/bin/pcmanfm
+PDEF=/usr/bin/pcmanfm
+[ -x $PLXDE ] || PLXDE=$PDEF
+[ -x $PKDE ] || PKDE=$PDEF
+[ -x $PGNOME ] || PGNOME=$PDEF
 
 . /usr/lib/magos/functions
 
@@ -6,15 +13,20 @@ DE=$(detectDE)
 
 case "$DE" in
     kde)
-    dolphin $@
+    $PKDE "$1"
     ;;
 
     gnome)
-    nautilus $@
+    $PGNOME "$1"
+    ;;
+
+    gnome-shell)
+    $PGNOME "$1"
     ;;
 
     lxde)
-    pcmanfm $@
+    $PLXDE "$1"
     ;;
 
 esac
+

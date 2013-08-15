@@ -17,8 +17,8 @@ echo '[Added Associations]' > etc/skel/.local/share/applications/mimeapps.list
 update_mime application/x-visio libreoffice-draw.desktop
 update_mime application/x-mimearchive firefox.desktop
 update_mime application/x-lzm gactivate.desktop
+update_mime application/pdf pdfview.desktop
 update_mime application/x-ms-dos-executable wine.desktop
-update_mime application/pdf epdfview.desktop
 update_mime application/x-fictionbook FBReader.desktop
 update_mime application/x-cd-image isomaster.desktop
 update_mime application/x-rpm mandriva-gurpmi.desktop

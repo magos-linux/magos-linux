@@ -65,6 +65,7 @@
             <Category>VideoConference</Category>
             <Category>Monitor</Category>
             <Category>X-MandrivaLinux-System-SunJava6u22</Category>
+            <Category>Filesystems</Category>
             <Filename>draknetcenter.desktop</Filename>
           </Not>
         </And>
@@ -75,8 +76,11 @@
       <Include>
           <Filename>draknetcenter.desktop</Filename>
           <And>
-            <Category>Monitor</Category>
             <Category>Network</Category>
+            <Or>
+               <Category>Monitor</Category>
+               <Category>Filesystems</Category>
+            </Or>
           </And>
           <Category>Dialup</Category>
       </Include>
@@ -484,6 +488,7 @@
       <Separator/>
     </Layout>
     <Include>
+      <Filename>magos-ctrl-center.desktop</Filename>
       <Filename>mandriva-drakconf.desktop</Filename>
       <Filename>rpmdrake.desktop</Filename>
     </Include>
@@ -502,6 +507,7 @@
           </Or>
           <Not>
             <Filename>rpmdrake.desktop</Filename>
+            <Filename>magos-ctrl-center.desktop</Filename>
             <Category>HardwareSettings</Category>
             <Category>Printing</Category>
             <Category>TerminalEmulator</Category>

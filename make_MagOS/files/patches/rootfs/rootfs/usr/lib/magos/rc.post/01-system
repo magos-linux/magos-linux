@@ -20,3 +20,9 @@ grep -q usbfs.*devmode=664 /proc/mounts ||  mount -o remount,devmode=0664,devgid
 
 sort -u /etc/mtab > /etc/mtab.new
 mv -f /etc/mtab.new /etc/mtab
+. /etc/sysconfig/clock
+if [ "$UTC" = "false" ] ;then
+   /sbin/hwclock -s --localtime
+else
+   /sbin/hwclock -s --utc
+fi

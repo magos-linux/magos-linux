@@ -127,11 +127,6 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
     done
 done
 
-#SRPMNM=$(cat media/src-release media/src-updates | egrep '^kernel-[0-9]|^kernel-desktop-[0-9]' | tail -1)
-#grep -q ^"$SRPMNM"$ re/local_rpms.txt || cat urls/src-release urls/src-updates | grep /"$SRPMNM"$ >> urls/$FLASHNAME-$VERREL 
-#echo $SRPMNM > names/kernel-source
-
-
 if grep -q . urls/$FLASHNAME-$VERREL 2>/dev/null ;then
    if [ "$INET" = "good" ] ;then
        echo "Закачка файлов"
@@ -143,10 +138,47 @@ if grep -q . urls/$FLASHNAME-$VERREL 2>/dev/null ;then
 fi
 
 cd "$MYPATH"
+
+echo "Создаем источник для установки"
+rm -fr "loaded/$FLASHNAME-$VERREL/rpms"
+mkdir "loaded/$FLASHNAME-$VERREL/rpms"
+cat loaded/$FLASHNAME-$VERREL/names/??-* | while read a ;do
+    ln -sf ../../cached_$VERREL/$a loaded/$FLASHNAME-$VERREL/rpms || exit 1
+done
+
+echo "Обновление базы данных о скриптах"
+mkdir -p loaded/rpmscripts_$VERREL
+touch loaded/rpmscripts_$VERREL/scripts loaded/rpmscripts_$VERREL/noscripts
+cat loaded/$FLASHNAME-$VERREL/names/??-* | LC_ALL=C sort >loaded/rpmscripts_$VERREL/rpms_$FLASHNAME-$VERREL
+cat loaded/rpmscripts_$VERREL/scripts loaded/rpmscripts_$VERREL/noscripts | LC_ALL=C sort > loaded/rpmscripts_$VERREL/processed
+diff loaded/rpmscripts_$VERREL/processed loaded/rpmscripts_$VERREL/rpms_$FLASHNAME-$VERREL | grep '> ' | sed s/^..// \
+    | while read a ;do
+    if ! rpm -qp --scripts "loaded/$FLASHNAME-$VERREL/rpms/$a" | grep -q . ;then
+       echo $a >> loaded/rpmscripts_$VERREL/noscripts
+    elif echo $a | grep -qf files/rpm_names/$FLASHNAME-$VERREL/noscripts ;then
+       echo $a >> loaded/rpmscripts_$VERREL/noscripts
+    else
+       echo $a >> loaded/rpmscripts_$VERREL/scripts
+    fi
+done
+
+[ -d loaded/$FLASHNAME-$VERREL/rpms/media_info ] && rm -fr loaded/$FLASHNAME-$VERREL/rpms/media_info
+echo "Создание базы пакетов"
+genhdlist2 loaded/$FLASHNAME-$VERREL/rpms || exit 1
+
+echo "Проверка зависимостей"
+mkcd --checkdeps loaded/$FLASHNAME-$VERREL/rpms >loaded/$FLASHNAME-$VERREL/checkdeps.txt 2>/dev/null
+sed -i /^mkcd_build_hdlist/d loaded/$FLASHNAME-$VERREL/checkdeps.txt
+sed -i /^done$/d loaded/$FLASHNAME-$VERREL/checkdeps.txt
+if grep -q . loaded/$FLASHNAME-$VERREL/checkdeps.txt ;then
+   cat loaded/$FLASHNAME-$VERREL/checkdeps.txt
+   echo "Обнаружены ошибки зависимости пакетов. Нужно добавить или убрать пакеты в files/rpm_names/* и перезапустить сборку с начала"
+fi
+
 if [ -f loaded/$FLASHNAME-$VERREL/re/not_founded.txt ] ;then 
    echo "Ошибка: Не все пакеты были найдены в источниках."
    cat loaded/$FLASHNAME-$VERREL/re/not_founded.txt
 fi
-echo "Работа скрипта завершена"
 
+echo "Работа скрипта завершена."
 exit 0

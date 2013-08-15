@@ -1,0 +1,6 @@
+XkbModel=pc105
+GRP_TOGGLE=ctrl_shift_toggle
+XkbLayout="us,in(tam)"
+KEYBOARD=tml
+XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin
+KEYTABLE=us

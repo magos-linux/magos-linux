@@ -40,6 +40,25 @@ modprobe_pcmcia_modules
 
 debug_shell
 
+# start quickshell
+if [ "$(cmdline_parameter quickshell)$(cmdline_parameter qs)" ] ; then
+   loadfont < /usr/lib/kbd/UniCyr_8x14.psf
+   loadkeys /usr/lib/kbd/ru.map
+   getty -n -l /bin/autologin 9600 tty2 linux &
+   getty -n -l /bin/autologin 9600 tty3 linux &
+   getty -n -l /bin/autologin 9600 tty4 linux &
+   getty -n -l /bin/autologin 9600 tty5 linux &
+   getty -n -l /bin/autologin 9600 tty6 linux &
+   automount
+   clear
+   cat ./quickshell.hlp
+   /bin/bash autologin
+   cd /
+   umount /mnt/*
+   export LANG=""
+   echo "continue...."
+fi
+
 # Resume from swsuspend
 if [ -z $(cmdline_parameter noresume) ] ; then
    RESUME_DEV=$(blkid | grep -m1 swsuspend | awk -F: '{print $1}')
@@ -110,10 +129,11 @@ echolog "using $LIVECDNAME data from $DATA"
 debug_shell
 
 SGN=$(cmdline_value sgndatafile)
-[ -z "$SGN" ] && SGN=$LIVECDNAME-Data.sgn
 if [ "$SGN" != "no" -a "$SGN" != "off" ] ;then
+   [ -z "$SGN" ] && SGN=$LIVECDNAME-Data.sgn
+   echo $SGN | grep -q / || SGN=${LIVECDNAME}-Data/$SGN
    echolog "looking for '$LIVECDNAME-Data' directory (searching for $SGN file)"
-   DATAMNT=$(find_in_computer ${LIVECDNAME}-Data/$SGN $MOUNTDIR/$LIVEDATA)
+   DATAMNT=$(find_in_computer $SGN $MOUNTDIR/$LIVEDATA)
    DATAMNT=$(dirname $DATAMNT 2>/dev/null)
    [ -z "$DATAMNT" ] || echolog "using $LIVECDNAME data from $DATAMNT"
 fi
@@ -444,3 +464,25 @@ fi
 
 header "!!ERROR!!"
 fatal "You are not supposed to be here, something went wrong!"
+#!/bin/ash
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+mount -n -t proc proc /proc 2>/dev/null
+ln -sf /proc/mounts /etc/mtab    # this allows us to use umount -a
+mount -n -t sysfs sysfs /sys
+mount -n -o remount,rw /         # for the case we forgot rw boot option
+. liblinuxlive # it requires proc to be mounted
+
+header "starting quickshell"
+echo "0" >/proc/sys/kernel/printk
+
+modprobe_module loop
+modprobe_module squashfs-lzma
+mount_initrd_loops
+modprobe_essential_modules
+mdev_start_hotplug
+modprobe_usb_modules
+modprobe_pcmcia_modules
+for a in /dev/sda* ;do
+   mount_device   /mnt/ rw
+done
+/bin/ash --login

@@ -1,0 +1,4 @@
+#!/bin/sh
+exec /usr/share/playonlinux/playonlinux "$@"
+exit 0
+

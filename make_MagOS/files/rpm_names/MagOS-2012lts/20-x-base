@@ -415,3 +415,14 @@ libglapi0-
 fonts-ttf-ptsans-
 fonts-ttf-ptserif-
 python-pyinotify-
+libdbus-1-devel-
+beesu-
+python-decorator-
+python-slip-
+python-slip-dbus-
+libselinux1-
+python-selinux-
+python-configobj-
+xsudo-
+xsudo-sudoers-
+python-pexpect-

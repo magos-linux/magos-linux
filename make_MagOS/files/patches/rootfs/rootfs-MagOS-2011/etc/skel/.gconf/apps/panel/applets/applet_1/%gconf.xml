@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<gconf>
-	<entry name="position" mtime="1246405103" type="int" value="2990"/>
-	<entry name="toplevel_id" mtime="1246405103" type="string">
-		<stringvalue>top_panel</stringvalue>
-	</entry>
-</gconf>

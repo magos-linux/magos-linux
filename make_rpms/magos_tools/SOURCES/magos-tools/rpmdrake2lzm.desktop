@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Create modules MagOS
+Name[ru]=Создание модулей MagOS
+Comment=Create modules MagOS
+Comment[ru]=Создание модулей MagOS
+Exec=rpmdrake2lzm
+Icon=rpmdrake2lzm.png
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=GTK;X-MandrivaLinux-CrossDesktop;System;

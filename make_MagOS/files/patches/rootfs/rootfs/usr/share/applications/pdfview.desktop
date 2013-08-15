@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Pdfview
+Comment=View PDF
+Exec=/usr/lib/magos/scripts/pdfview %f
+Terminal=false
+Categories=Office;Viewer;
+MimeType=application/pdf;
+NoDisplay=true

@@ -1,0 +1,10 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+[ -x /usr/bin/xdg-user-dirs-update ] &&   /usr/bin/xdg-user-dirs-update
+. $HOME/.config/user-dirs.dirs || exit 0
+KDERC=$HOME/.kde4/share/config/plasma-desktop-appletsrc
+XDG_DOWNLOAD_DIR=$(readlink -f "$XDG_DOWNLOAD_DIR")
+XDG_DOCUMENTS_DIR=$(readlink -f "$XDG_DOCUMENTS_DIR")
+[ "$XDG_DOWNLOAD_DIR" !=  ""  ] && sed -i 's|^url=file:///media$|url='"$XDG_DOWNLOAD_DIR"'|' $KDERC
+[ "$XDG_DOCUMENTS_DIR" !=  ""  ] && sed -i 's|^url=file:///home$|url='"$XDG_DOCUMENTS_DIR"'|' $KDERC

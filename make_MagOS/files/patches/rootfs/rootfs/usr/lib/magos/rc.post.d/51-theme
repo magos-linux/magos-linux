@@ -5,6 +5,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DIRGTK=gtk-2.0
+DIRGTK3=gtk-3.0
 DIRMETACITY=metacity-1
 DIROPENBOX=openbox-3
 
@@ -16,6 +17,7 @@ if ! [ -z "$THEME" ] ;then
    case "$THEME" in
        "MagOS" | "MagOS-dark" | "MagOS-green" )
            THEMEGTK=${THEMEGTK-$THEME}
+           THEMEGTK3=${THEMEGTK3-$THEME}
            THEMEMETACITY=${THEMEMETACITY-$THEME}
            THEMEOPENBOX=${THEMEOPENBOX-$THEME}
            THEMEEMERALD=${THEMEEMERALD-$THEME}
@@ -30,6 +32,10 @@ fi
 if [ "$THEMEGTK" != "" -a -d "/usr/share/themes/$THEMEGTK/$DIRGTK" ]  ;then
    rm -fr "/usr/share/themes/Default/$DIRGTK"
    ln -sf "../$THEMEGTK/$DIRGTK"  "/usr/share/themes/Default/$DIRGTK"
+fi
+if [ "$THEMEGTK3" != "" -a -d "/usr/share/themes/$THEMEGTK3/$DIRGTK3" ]  ;then
+   rm -fr "/usr/share/themes/Default/$DIRGTK3"
+   ln -sf "../$THEMEGTK3/$DIRGTK3"  "/usr/share/themes/Default/$DIRGTK3"
 fi
 if [ "$THEMEMETACITY" != "" -a -d "/usr/share/themes/$THEMEMETACITY/$DIRMETACITY" ] ;then
    rm -fr "/usr/share/themes/Default/$DIRMETACITY"
