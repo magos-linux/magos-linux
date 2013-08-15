@@ -1,9 +1,0 @@
-#!/bin/sh
-ENABLED=yes
-[ "$ENABLED" != "yes" ] && exit 0
-
-. /etc/sysconfig/compositing-wm
-
-if [ "$COMPOSITING_WM_START" = "yes" -a "$COMPOSITING_WM" = "compiz-fusion" ] ;then
-   fusion-icon -n &
-fi

@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <mime-type type="application/x-visio">
-    <comment>Visio drawing</comment>
-    <comment xml:lang="ru">Рисунок Visio</comment>
-    <icon name="libreoffice-oasis-drawing"/>
-    <glob pattern="*.vsd"/>
-  </mime-type>
-</mime-info>

@@ -1,9 +1,0 @@
-# /etc/modprobe.preload: kernel modules to load at boot time.
-#
-# This file should contain the names of kernel modules that are
-# to be loaded at boot time, one per line.  Comments begin with
-# a `#', and everything on the line after them are ignored.
-# this file is for module-init-tools (kernel 2.5 and above) ONLY
-# for old kernel use /etc/modules
-
-nf_nat_ftp

@@ -1,9 +1,0 @@
-PROMPT 1
-TIMEOUT 2
-
-#label local
-#	LOCALBOOT 0
-
-label linux
-KERNEL vmlinuz
-APPEND initrd=initrd.gz root=/dev/ram0 rw vga=788 quiet from=nfs://192.168.1.31:/mnt/livemedia desktop=lxde
