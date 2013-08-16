@@ -1,5 +1,6 @@
 #!/bin/bash
- cp -pRf dracut_patch/* /usr/lib/dracut/modules.d
+
+cp -pRf dracut_patch/* /usr/lib/dracut/modules.d
 [ -f /etc/modprobe.conf ] && mv /etc/modprobe.conf /etc/modprobe.conf.bak
 dracut  -m "dash rpmversion network ifcfg plymouth crypt nfs resume rootfs-block terminfo udev-rules aufs-mount base ntfs fs-lib kernel-modules magos busybox"  \
         -d "aes-i586 aes_generic cbc loop cryptoloop zlib_deflate crc-t10dif crc16 \
@@ -17,6 +18,6 @@ dracut  -m "dash rpmversion network ifcfg plymouth crypt nfs resume rootfs-block
            pata_acpi pata_cs5530 pata_it8213 pata_oldpiix pata_sc1200 sata_mv sata_via \
            pata_ali pata_cs5535 pata_it821x pata_optidma pata_sch sata_nv sata_vsc \
            pata_amd pata_cs5536 pata_jmicron pata_opti pata_serverworks sata_promise" \
-        --filesystems "aufs squashfs ext3 ext4 fat msdos vfat fscache fuse isofs jbd jbd2 lockd nfs_acl ntfs reiserfs unionfs xfs nfs nls_cp866 nls_utf8" \
+        --filesystems "aufs squashfs ext3 ext4 fat msdos vfat fscache fuse isofs jbd jbd2 lockd nfs_acl ntfs reiserfs btrfs xfs nfs nls_cp866 nls_utf8" \
         -c dracut.conf -v -M dracut.cpio.gz $(uname -r) >dracut.log 2>&1
 gunzip -f dracut.cpio.gz
