@@ -74,7 +74,7 @@ libiguanair0-
 libirman0-
 libiso9660_8-
 liblame0-
-liblinphone4-
+liblinphone5-
 liblirc0-
 liblo10k10-
 liblpc10_1-
@@ -177,7 +177,7 @@ libgstcontroller0.10_0-
 gstreamer1.0-plugins-base-
 gstreamer1.0-voip-
 libavfilter3-
-libavutil50-
+libavutil51-
 libglew1.9-
 libgstphotography0.10_23-
 libgstdataprocol0.10_0-
@@ -205,3 +205,12 @@ libwebrtc0-
 libsbc1-
 sbc-
 rosa-media-player-
+libavcodec55-
+libmediastreamer_base3-
+libmediastreamer_voip3-
+libsoxr0-
+liblpc2xml0-
+libavdevice55-
+libavformat55-
+libortp9-
+libavutil50-

@@ -42,7 +42,7 @@ libavahi-compat-libdns_sd1-
 libavahi-core7-
 libavahi-glib1-
 libavformats54-
-libavutil51-
+libavutil52-
 libblas3-
 libbluez3-
 libboost_filesystem1.50.0-
@@ -459,4 +459,7 @@ libpng0-
 python-pexpect-
 libx11-xcb1-
 libx11_6-
-
+libzlcore0.99-
+libzltext0.99-
+zlibrary-common-
+libzlui0.99-

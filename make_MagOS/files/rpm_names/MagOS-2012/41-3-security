@@ -12,7 +12,7 @@ librlog5-
 libsmi2-
 libsmi-mibs-std-
 libtsocks1-
-libwireshark3-
+libwireshark2-
 libxmlsec1_1-
 libxmlsec1-nss1-
 macchanger-
@@ -29,3 +29,5 @@ tsocks-
 wireshark-
 wireshark-tools-
 msec-gui-
+libwsutil3-
+libwiretap3-

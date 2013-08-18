@@ -65,15 +65,15 @@ sync
 # setup MBR if the device is not in superfloppy format
 if [ "$MBR" != "$TARGET" ]; then
    t_echo "Setting up MBR on" $MBR...
-   ./boot/tools/lilo.bat -S /dev/null -M $MBR ext # this must be here to support -A for extended partitions
+   ./boot/tools/lilo.com -S /dev/null -M $MBR ext # this must be here to support -A for extended partitions
    t_echo "Activating partition" $TARGET...
-   ./boot/tools/lilo.bat -S /dev/null -A $MBR $NUM
+   ./boot/tools/lilo.com -S /dev/null -A $MBR $NUM
    t_echo "Updating MBR on" $MBR... # this must be here because LILO mbr is bad. mbr.bin is from syslinux
    cat ./boot/syslinux/mbr.bin > $MBR
 fi
 
 t_echo "Setting up boot record for" $TARGET...
-./boot/syslinux/syslinux.bat -d boot/syslinux $TARGET
+./boot/syslinux/syslinux.elf.com -d boot/syslinux $TARGET
 
 t_echo "Disk" $TARGET "should be bootable now. Installation finished."
 
