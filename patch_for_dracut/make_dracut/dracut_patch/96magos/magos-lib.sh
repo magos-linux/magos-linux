@@ -1,4 +1,23 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
+# magos_to_var MAGOSROOT
+# use MAGOSROOT to set $from, $data, and $options.
+# MAGOSROOT is something like: magos:<base_from>:<data_from>[,<options>]
+
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
+magos_to_var() {
+	local params
+
+	params=${1##magos:}
+	params=${params%%,*}
+	base_from=${params%%:*}
+	data_from=${params##*:}
+
+	magosoptions=${1#*,}
+}
 
 # =================================================================
 # debug and output functions
@@ -89,7 +108,7 @@ fstab_add_line()
 
 # Check boot parameter
 # $1 mountpoint
-function umountloop()
+ umountloop()
 {
  LOOPDEVICE=$(grep "/dev/loop.* $1 " /proc/mounts | awk '{print $1}')
  umount $1 || return 1
@@ -99,7 +118,7 @@ function umountloop()
 # Check boot parameter
 # $1 - parameter's name
 # stdout - $1 if found
-function cmdline_parameter()
+ cmdline_parameter()
 {
  ADDFILE=/tmp/cmdline
  [ -f /mnt/live/$ADDFILE ] && ADDFILE=/mnt/live$ADDFILE
@@ -109,7 +128,7 @@ function cmdline_parameter()
 # Get boot parameter value
 # $1 - parameter's name
 # stdout - parameter's value
-function cmdline_value()
+ cmdline_value()
 {
  ADDFILE=/tmp/cmdline
  [ -f /mnt/live/$ADDFILE ] && ADDFILE=/mnt/live$ADDFILE
@@ -120,7 +139,7 @@ function cmdline_value()
 # Make from ini file text file with strings like [SECTION]Name=Value
 # $1 - input filename
 # stdout - result file
-function ini2simple()
+ ini2simple()
 {
  SECTION='[]'
  cat $1 | while read a ;do
@@ -136,7 +155,7 @@ function ini2simple()
 # Restore ini file from text file with strings like [SECTION]Name=Value
 # $1 - input filename
 # stdout - result file
-function simple2ini()
+ simple2ini()
 {
  LASTSECTION='[]'
  cat $1 | while read a ;do
@@ -153,7 +172,7 @@ function simple2ini()
 # It include string from $2 file and apply to $1 file
 # $1 - base file
 # $2 - included file
-function apply2simple()
+ apply2simple()
 {
  cat "$2" | while read a ;do
   SECTION=${a%%\]*}
@@ -192,7 +211,7 @@ function apply2simple()
 # It include string from $2 ini file and apply to $1 ini file
 # $1 - base file
 # $2 - included file
-function concatenate_ini()
+ concatenate_ini()
 {
  [ -f "$1" -a -f "$2" ] || exit 1
  ini2simple "$1" >"$1.tmp"

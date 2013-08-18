@@ -8,7 +8,7 @@ check() {
 
 depends() {
     # We depend on network modules being loaded
-    echo dash rpmversion network ifcfg plymouth crypt nfs resume rootfs-block terminfo udev-rules aufs-mount base ntfs fs-lib
+    echo busybox
 }
 
 installkernel() {
@@ -33,7 +33,7 @@ installkernel() {
 install() {
     #kernel modules
     inst_hook cmdline 01 "/usr/lib/dracut/modules.d/90kernel-modules/parse-kernel.sh"
-    inst_hook pre-pivot 20 "/usr/lib/dracut/modules.d/90kernel-modules/kernel-cleanup.sh"
+#    inst_hook pre-pivot 20 "/usr/lib/dracut/modules.d/90kernel-modules/kernel-cleanup.sh"
     inst_simple "/usr/lib/dracut/modules.d/90kernel-modules/insmodpost.sh" /sbin/insmodpost.sh
 
     for _f in modules.builtin.bin modules.builtin; do
@@ -46,10 +46,32 @@ install() {
     for _f in modules.builtin.bin modules.builtin modules.order; do
         [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done
+    #mc
+    dracut_install /usr/bin/mc /usr/bin/mcview /usr/bin/mcedit /usr/bin/mcdiff
+    dracut_install /usr/share/mc/*
+    dracut_install /usr/share/mc/examples/macros.d/*
+    dracut_install /usr/share/mc/help/*
+    dracut_install /usr/share/mc/skins/*
+    dracut_install /usr/share/mc/syntax/*
+    
+    inst /sbin/blkid /sbin/blkid.large
+    #curlftpfs
+    #dracut_install /usr/bin/curlftpfs
+    
     #magos 
-    inst "$moddir/functions" /lib/magosfunctions
-    inst_hook pre-pivot 90 "$moddir"/magos-pre.sh
-    inst_hook mount 10 "$moddir"/magos-mount.sh
+    inst "$moddir/linuxlive/VERSION" "/VERSION"
+    inst "$moddir/linuxlive/liblinuxlive" "/liblinuxlive"
+    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
+#    inst "$moddir/functions" /lib/magosfunctions
+#    inst "$moddir/linuxrc" /linuxrc
+#    inst "$moddir/liblinuxlive" /liblinuxlive
 
+    inst_hook cmdline 95 "$moddir/parse-magosroot.sh"
+    inst_hook mount 99 "$moddir/mount-magos.sh"
+    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
+
+#    inst_hook pre-pivot 90 "$moddir"/magos-pre.sh
+#    inst_hook cmdline 99 "$moddir"/parse-magos.sh
+#    inst_hook mount 90 "$moddir"/magos-mount.sh
 }
 
