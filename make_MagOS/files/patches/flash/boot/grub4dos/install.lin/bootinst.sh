@@ -72,9 +72,9 @@ if [ "$MBR" != "$TARGET" ]; then
    dd if=$MBR of=backup.mbr count=1 2>/dev/null
 
    t_echo "Setting up MBR on" $MBR...
-   ../tools/lilo -S /dev/null -M $MBR ext # this must be here to support -A for extended partitions
+   ../tools/lilo.bat -S /dev/null -M $MBR ext # this must be here to support -A for extended partitions
    t_echo "Activating partition" $TARGET...
-   ../tools/lilo -S /dev/null -A $MBR $NUM
+   ../tools/lilo.bat -S /dev/null -A $MBR $NUM
    t_echo "Updating MBR on" $MBR... # this must be here because LILO mbr is bad. mbr.bin is from syslinux
    cat mbr.bin > $MBR
    t_echo "Setting up boot record for" $TARGET...
