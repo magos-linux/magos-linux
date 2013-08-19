@@ -1,8 +1,10 @@
+
 @echo off
 set TRANSLATE=ru.nls
-set RUND=%0
-set RUND=%RUND:"=%
-set RUND=%RUND:\boot\grub4dos\install.win\add2vista.bat=%
+rem set RUND=%0
+rem set RUND=%RUND:"=%
+rem set RUND=%RUND:\boot\grub4dos\install.win\add2vista.bat=%
+set RUND=%~d0
 if not exist C:\Windows\System32\bcdedit.exe goto setp2me
 if not exist %RUND%\boot\tools\win\sed.exe goto setp2me
 Set BCDEDIT=C:\Windows\System32\bcdedit.exe
