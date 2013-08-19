@@ -1024,13 +1024,22 @@ modprobe_essential_modules()
 modprobe_usb_modules()
 {
    debug_log "modprobe_hardware_modules" "$*"
-   depmod
+   #   depmod
+   local ATAMODULES HWMODULES
+   ALLATAMODS=$(ls -1 /lib/modules/*/kernel/drivers/ata|sed "s|\.ko.*$||")
+   for a in `lspci -v | grep -i modules | tr , \\n | sort -u | sed s/.*modules.//` ;do
+       if echo " $ALLATAMODS " | grep -q " $a " ;then
+          ATAMODULES="$ATAMODULES $a"
+       else
+          HWMODULES="$HWMODULES $a"
+       fi
+   done
+   echo "$HWMODULES" | grep -q [ou]hci-hcd || HWMODULES="$HWMODULES ohci-hcd uhci-hcd"
    local MODULES="ahci sd_mod sr_mod \
-                  `lspci -v | grep -i modules | tr -d , | sort -u | sed s/.*modules.//` \
-                  `lspci -v | grep -q [ou]hci-hcd || echo ohci-hcd uhci-hcd` ehci-hcd ehci-pci ehci-platform xhci-hcd \
-                  hid usbhid hid-generic usb-storage ide_cd"
-   for a in $MODULES ;do 
-      modprobe_module $a
+                  $ATAMODULES $HWMODULES \
+                  ehci-hcd ehci-pci ehci-platform xhci-hcd hid usbhid hid-generic usb-storage ide_cd"
+   for a in $MODULES ;do
+       modprobe_module $a
    done
 }
 
