@@ -1,0 +1,48 @@
+#!/bin/bash
+
+##########################################################################
+# Send To for Nautilus
+##########################################################################
+#                                                                        #
+# Some Rights Reserved - Creative Common BY-NC-SA                        #
+#                                                                        #
+# Created by Mattia Galati (Adaron)                                      #
+# first improvement and translation by Christopher Bratusek (Chrispy)    #
+# russian translation by Begemot                                         #
+##########################################################################
+# Language Settings ---------------------------------------------------- #
+destination='Выберите место назначения'
+title_destination='Отправить файлы в:'
+
+copy='Копирование'
+title_copy='Пожалуйста, пожоджите...'
+
+success='Файлы успешно скопированы'
+title_success='Завершено'
+
+errors='Произошёл сбой'
+title_errors='Ошибка'
+
+no_writable='Место назначения не существует или недостаточно прав для записи'
+title_no_writable='Ошибка'
+# End of language settings ----------------------------------------------#
+##########################################################################
+
+devices=`ls -m /media/`
+vv=${devices//cdrom?, /}
+vd=${vv//cdrom, /}
+options=${vd//, / FALSE /media/}
+destinazione=`zenity --list --title "$title_destination" --text "$destination" --radiolist --column " " --column "Device" FALSE /media/$options`
+
+if [[ "$destinazione" = "" ]]; then
+    exit
+fi
+
+if [[ -w $destinazione ]]; then
+	cp -R $NAUTILUS_SCRIPT_SELECTED_FILE_PATHS $destinazione | zenity --progress --pulsate --auto-close --title="$title_copy" --text="$copy"
+	if (( $? == 0 )); then
+		zenity --info --text="$success" --title "$title_success";
+	else	zenity --info --text="$errors" --title "$title_errors";
+	fi
+else	zenity --info --text="$no_writable" --title "$title_no_writable";
+fi
