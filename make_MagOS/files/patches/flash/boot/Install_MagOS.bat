@@ -16,8 +16,8 @@ cd grub4dos\install.win\
 if exist \ntldr goto :ntldr
 if not exist \boot\bcd goto :flash
 if not exist C:\Windows\System32\bcdedit.exe goto :flash
-echo "Detected Vista/7 boot manager, adding grub4dos ..."
-add2vista.bat
+echo "Detected Vista/7/8 boot manager, adding grub4dos ..."
+add2bcd.bat
 goto :endofwin
 :flash
 echo "Installing grub4dos to partition ..."
