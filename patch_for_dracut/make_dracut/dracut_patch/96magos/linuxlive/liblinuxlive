@@ -436,8 +436,6 @@ mount_device()
    else
       [ $(cmdline_parameter fsck) ] && fsck_device "$DEV" $(echo $FS| sed "s/-t //" )
       mount  -o $OPTIONS $FS "$DEV" "$2" >/dev/null 2>&1
-      debug_log "==================== $OPTIONS $FS $DEV $2 ================="
-      debug_shell
       ERR=$?
    fi
 
@@ -476,7 +474,7 @@ mount_device()
        ERR=$?
    fi
 
-#   if [ $ERR -ne 0 ]; then rmdir $2 2>/dev/null; fi
+   if [ $ERR -ne 0 ]; then rmdir $2 2>/dev/null; fi
    return $ERR
 }
 
@@ -666,9 +664,9 @@ union_insert_modules()
 # $4 = cmdline param
 copy_to()
 {
+   debug_log "copy_to" "$*"
    local C2PARAM MODNAME
    C2PARAM="$(echo $4 | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')"
-   debug_log "copy_to_ram" "$*"
    list_modules "$1" | while read MODULE; do
       MODNAME=$(echo $MODULE | cut -b ${#1}- | cut -b 2-)
       [ "$C2PARAM" ] && ! [ "$(echo $MODNAME | egrep -i $C2PARAM )" ] && continue

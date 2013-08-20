@@ -385,16 +385,17 @@ cd /
 # everything is ready now, so we may unload unused kernel modules
 # and do some cleanup, unmount few things which are no longer needed.
 rmmod_unused_modules
-fumount /usr
-fumount /sys
+#fumount /usr
+#fumount /sys
 
 # More likely these directories aren't there.
 # Even if they are, this won't hurt.
 mkdir -p $UNION/boot $UNION/proc $UNION/sys $UNION/dev $UNION/tmp $UNION/media
 chmod 1777 $UNION/tmp
 
+echolog "reattach media to new root"
 # Reattach media to new root
-for a in "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVECHANGES" "/$MOUNTDIR/$LIVEHOME" "/$MOUNTDIR/$LIVEDATA" ;do
+for a in "/$MEMORY" "/$MOUNTDIR/$LIVEMEDIA" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVECHANGES" "/$MOUNTDIR/$LIVEHOME" "/$MOUNTDIR/$LIVEDATA" ;do
    [ "$a" = "/" -o "$a" = "//" ] && continue
    grep -q " $a " /proc/mounts || continue
    mkdir -p $UNION$a
@@ -413,7 +414,7 @@ debug_shell
 echolog "changing root directory..."
 
 cd $UNION
-mkdir -p $INITRAMDISK
+#mkdir -p $INITRAMDISK
 
 # make sure some devices are there
 if [ ! -e dev/console ]; then mknod dev/console c 5 1; fi
@@ -429,63 +430,3 @@ fi
 header "linux live end, starting $LIVECDNAME"
 return
 
-# find chroot and init
-if [ -x bin/chroot ]; then  CHROOT=bin/chroot; fi
-if [ -x sbin/chroot ]; then  CHROOT=sbin/chroot; fi
-if [ -x usr/bin/chroot ]; then  CHROOT=usr/bin/chroot; fi
-if [ -x usr/sbin/chroot ]; then CHROOT=usr/sbin/chroot; fi
-if [ "$CHROOT" = "" ]; then fatal "Can't find executable chroot command"; fi
-
-if [ -x bin/init ]; then INIT=bin/init; fi
-if [ -x sbin/init ]; then INIT=sbin/init; fi
-if [ "$INIT" = "" ]; then fatal "Can't find executable init command"; fi
-
-# time to end Linux Live scripts and start the distribution itself,
-# using /sbin/init or whatever was found.
-header "linux live end, starting $LIVECDNAME"
-
-debug_shell
-
-[ $(cmdline_parameter unionfs) ] && fs_type=unionfs || fs_type=aufs
-fumount /lib/modules/*/kernel >/dev/null 2>/dev/null
-umount /proc 2>/dev/null
-rm -f /drivers.lzm /usr.lzm /drivers.xzm /usr.xzm >/dev/null 2>/dev/null
-#mount -n -o remount,ro $fs_type .
-
-# We will copy init from the distro to initrd (there should be 2MB free)
-# This allows us to use the cleanup script during reboot, as init will be
-# started from memory and not from the union and /union will not be busy.
-
-cp -aHf $INIT /bin
-if [ $? -eq 0 ]; then
-   pivot_root . $INITRAMDISK
-   exec $CHROOT . $INITRAMDISK/bin/init <dev/console >dev/console 2>&1
-else # If copying fails, start init directly.
-   pivot_root . $INITRAMDISK
-   exec $CHROOT . $INIT <dev/console >dev/console 2>&1
-fi
-
-header "!!ERROR!!"
-fatal "You are not supposed to be here, something went wrong!"
-#!/bin/ash
-export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
-mount -n -t proc proc /proc 2>/dev/null
-ln -sf /proc/mounts /etc/mtab    # this allows us to use umount -a
-mount -n -t sysfs sysfs /sys
-mount -n -o remount,rw /         # for the case we forgot rw boot option
-. liblinuxlive # it requires proc to be mounted
-
-header "starting quickshell"
-echo "0" >/proc/sys/kernel/printk
-
-#modprobe_module loop
-#modprobe_module squashfs-lzma
-#mount_initrd_loops
-#modprobe_essential_modules
-#mdev_start_hotplug
-#modprobe_usb_modules
-#modprobe_pcmcia_modules
-for a in /dev/sda* ;do
-   mount_device   /mnt/ rw
-done
-/bin/ash --login

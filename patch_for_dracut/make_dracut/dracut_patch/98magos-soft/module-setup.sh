@@ -1,0 +1,28 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
+check() {
+    return 0
+}
+
+depends() {
+    # We depend on network modules being loaded
+    echo busybox
+}
+
+
+install() {
+    #mc
+    dracut_install /usr/bin/mc /usr/bin/mcview /usr/bin/mcedit /usr/bin/mcdiff
+    dracut_install /usr/share/mc/*
+    dracut_install /usr/share/mc/examples/macros.d/*
+    dracut_install /usr/share/mc/help/*
+    dracut_install /usr/share/mc/skins/*
+    dracut_install /usr/share/mc/syntax/*
+    
+    #netfs
+    dracut_install /usr/lib/magos/scripts/httpfs
+    dracut_install /usr/bin/sshfs
+}
+

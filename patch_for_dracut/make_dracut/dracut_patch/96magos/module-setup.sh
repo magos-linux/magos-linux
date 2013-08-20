@@ -27,7 +27,7 @@ installkernel() {
              pata_acpi pata_cs5530 pata_it8213 pata_oldpiix pata_sc1200 sata_mv sata_via \
              pata_ali pata_cs5535 pata_it821x pata_optidma pata_sch sata_nv sata_vsc \
              pata_amd pata_cs5536 pata_jmicron pata_opti pata_serverworks sata_promise scsi_wait_scan crc-itu-t
-    instmods aufs squashfs ext3 ext4 fat msdos vfat fscache fuse isofs jbd jbd2 lockd nfs_acl ntfs reiserfs unionfs xfs nfs nls_cp866 nls_utf8
+    instmods aufs squashfs ext3 ext4 fat msdos vfat btrfs fscache fuse isofs jbd jbd2 lockd nfs_acl ntfs reiserfs xfs nfs nls_cp866 nls_utf8
 }
 
 install() {
@@ -46,13 +46,7 @@ install() {
     for _f in modules.builtin.bin modules.builtin modules.order; do
         [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done
-    #mc
-    dracut_install /usr/bin/mc /usr/bin/mcview /usr/bin/mcedit /usr/bin/mcdiff
-    dracut_install /usr/share/mc/*
-    dracut_install /usr/share/mc/examples/macros.d/*
-    dracut_install /usr/share/mc/help/*
-    dracut_install /usr/share/mc/skins/*
-    dracut_install /usr/share/mc/syntax/*
+    
     
     inst /sbin/blkid /sbin/blkid.large
     #curlftpfs
