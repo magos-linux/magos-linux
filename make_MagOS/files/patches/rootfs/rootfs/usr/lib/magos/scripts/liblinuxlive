@@ -1024,10 +1024,10 @@ modprobe_essential_modules()
 modprobe_usb_modules()
 {
    debug_log "modprobe_hardware_modules" "$*"
-   #   depmod
+   depmod
    local ATAMODULES HWMODULES
    ALLATAMODS=$(ls -1 /lib/modules/*/kernel/drivers/ata|sed "s|\.ko.*$||")
-   for a in `lspci -v | grep -i modules | tr , \\n | sort -u | sed s/.*modules.//` ;do
+   for a in `lspci -v | grep -i modules | tr , \\\\n | sort -u | sed s/.*modules.//` ;do
        if echo " $ALLATAMODS " | grep -q " $a " ;then
           ATAMODULES="$ATAMODULES $a"
        else
