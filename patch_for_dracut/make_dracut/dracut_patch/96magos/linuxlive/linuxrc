@@ -6,15 +6,19 @@
 # Author: Anton Goroshkin <http://magos-linux.ru>
 
 export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+export TEXTDOMAIN=live.po
 
 #mount -n -t proc proc /proc 2>/dev/null
 ln -sf /proc/mounts /etc/mtab    # this allows us to use umount -a
 #mount -n -t sysfs sysfs /sys
 mount -n -o remount,rw /         # for the case we forgot rw boot option
 
+. i18n-lib.sh
 . liblinuxlive # it requires proc to be mounted
 
-header "starting Linux Live scripts <http://www.linux-live.org/>"
+i18n_display "Welcome"
+
+header "starting MagOS Linux Live scripts <http://www.linux-live.org/> <http://www.magos-linux.ru>"
 
 # Don't print kernel messages to konsole now.
 # Syslog will reset printk settings, no need to remember it here anymore.
@@ -417,15 +421,15 @@ cd $UNION
 #mkdir -p $INITRAMDISK
 
 # make sure some devices are there
-if [ ! -e dev/console ]; then mknod dev/console c 5 1; fi
-if [ ! -e dev/null ]; then mknod dev/null c 1 3; fi
+#if [ ! -e dev/console ]; then mknod dev/console c 5 1; fi
+#if [ ! -e dev/null ]; then mknod dev/null c 1 3; fi
 
 # If a boot parameter nohotplug is used, copy all dev files (found by mdev)
 # to the unioned dev directory, your Linux may need them since most likely
 # udev will not be started in that case
-if [ "$(cmdline_parameter nohotplug)" != "" ]; then
-   cp -fdR /dev . 2>/dev/null
-fi
+#if [ "$(cmdline_parameter nohotplug)" != "" ]; then
+#   cp -fdR /dev . 2>/dev/null
+#fi
 
 header "linux live end, starting $LIVECDNAME"
 return

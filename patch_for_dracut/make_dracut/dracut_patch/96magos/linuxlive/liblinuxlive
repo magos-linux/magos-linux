@@ -50,6 +50,37 @@ debug_log()
       log "- debug: $*"
    fi
 }
+# show information about the debug shell
+show_debug_banner()
+{
+   echo
+   echo "====="
+   echo ": Debugging started. Here is the root shell for you."
+   echo ": Type your desired commands or hit Ctrl+D to continue booting."
+   echo
+}
+
+# debug_shell
+# executed when debug boot parameter is present
+#
+debug_shell()
+{
+   if [ "$DEBUG_IS_ENABLED" ]; then
+      show_debug_banner
+      setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
+      echo
+   fi
+}
+
+fatal()
+{
+   echolog
+   header "Fatal error occured - $1"
+   echolog "Something went wrong and we can't continue. This should never happen."
+   echolog "Please reboot your computer with Ctrl+Alt+Delete ..."
+   echolog
+   setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
+
 
 # echogreen will echo $@ in green color
 # $1 = text
@@ -78,27 +109,6 @@ log()
    echo "$@" 2>/dev/null >>/var/log/livedbg
 }
 
-# show information about the debug shell
-show_debug_banner()
-{
-   echo
-   echo "====="
-   echo ": Debugging started. Here is the root shell for you."
-   echo ": Type your desired commands or hit Ctrl+D to continue booting."
-   echo
-}
-
-# debug_shell
-# executed when debug boot parameter is present
-#
-debug_shell()
-{
-   if [ "$DEBUG_IS_ENABLED" ]; then
-      show_debug_banner
-      bash < /dev/console
-      echo
-   fi
-}
 
 # header
 # $1 = text to show
@@ -108,15 +118,6 @@ header()
    echo "[0;1m""$@""[0;0m"
 }
 
-fatal()
-{
-   echolog
-   header "Fatal error occured - $1"
-   echolog "Something went wrong and we can't continue. This should never happen."
-   echolog "Please reboot your computer with Ctrl+Alt+Delete ..."
-   echolog
-   bash < /dev/console
-}
 
 allow_only_root()
 {
