@@ -43,13 +43,31 @@
 " keyscripts url "
   Mod4 + u
 
-# google-перевод en -> rus содержимого буфера обмена (win+>)
-" keyscripts enrus "
+# google-перевод en -> rus содержимого буфера обмена во всплываеющем окне(win+>)
+" keyscripts enrus passive "
   Mod4 + period
 
-# google-перевод rus -> en содержимого буфера обмена (win+<)
-" keyscripts rusen "
+
+# google-перевод en -> rus содержимого буфера обмена "msgbox" (win+>)
+" keyscripts enrus msgbox "
+  Control+Mod4 + period
+
+# google-перевод en -> rus содержимого буфера обмена в firefox (win+>)
+" keyscripts enrus firefox "
+  Shift+Mod4 + period
+
+
+# google-перевод rus -> en содержимого буфера обмена во всплывающем окне(win+<)
+" keyscripts rusen passive"
   Mod4 + comma
+
+# google-перевод rus -> en содержимого буфера обмена msgbox(win+<)
+" keyscripts rusen msgbox"
+  Control+Mod4 + comma
+
+# google-перевод rus -> en содержимого буфера обмена в firefox(win+<)
+" keyscripts rusen firefox"
+  Shift+Mod4 + comma
 
 
 # заблокировать экран
@@ -108,6 +126,11 @@
 # поворот экрана 0 град.
 "xrandr --orientation normal"
   Mod4 + Down
+
+# poweroff.
+"poweroff"
+ XF86PowerOff
+
 
 # Хоткеи для пользователей
 " keyscripts mykeys 1 "

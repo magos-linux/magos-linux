@@ -111,12 +111,17 @@ xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/
 
 enrus ()
 {
-xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=ru#en|ru|" $1}' | xargs firefox -new-tab
+[ "$1" == "passive" ] && mdialog --passivepopup "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=ru" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "msgbox" ] && mdialog --msgbox "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=ru" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "firefox" ] && xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=en#en|ru|" $1}' | xargs firefox -new-tab
 }
 
 rusen ()
 {
-xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=ru#ru|en|" $1}' | xargs firefox -new-tab
+[ "$1" == "passive" ] && mdialog --passivepopup "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=en" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "msgbox" ] && mdialog --msgbox "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=en" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "firefox" ] && xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=ru#ru|en|" $1}' | xargs firefox -new-tab
+
 }
 
 url ()
