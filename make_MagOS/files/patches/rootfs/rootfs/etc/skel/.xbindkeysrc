@@ -127,9 +127,9 @@
 "xrandr --orientation normal"
   Mod4 + Down
 
-# poweroff.
+# Выключение питания.
 "poweroff"
- XF86PowerOff
+ Shift + XF86PowerOff
 
 
 # Хоткеи для пользователей
