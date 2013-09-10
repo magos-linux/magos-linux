@@ -1,6 +1,13 @@
 #!/bin/bash
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=magic_keys
 
 . /usr/lib/magos/functions
+
+MSG1=$(gettext -s "MagOS magic keys:")
+MSG2=$(gettext -s "Touchpad disabled, WIN+t to enable again")
+MSG3=$(gettext -s "bluetooth, WI-FI interfaces disabled, WIN+w to enable again")
+MSG4=$(gettext -s "record complete")
 
 DE=$(detectDE)
 
@@ -18,15 +25,13 @@ run ()
 
 list ()
 {
-  cat $HOME/.xbindkeysrc | sed -e 's/^".*"//' -e 's/Mod4/WIN/' -e s'/^#.*#//' -e 's/^#.*/&:/' -e '/^ *$/ d' > /tmp/listkeys
-  if [ "$DE" = "kde" ] ; then
-    kdialog --textbox /tmp/listkeys 600 600
-  elif [ "$DE" = "gnome" ] ; then
-    zenity --text-info --filename=/tmp/listkeys
-  else
-    leafpad /tmp/listkeys
-  fi
-  rm -f /tmp/listkeys
+echo "$MSG1" > /tmp/listkeys
+echo " " >> /tmp/listkeys
+cat $HOME/.xbindkeysrc | sed -e 's/^".*"//' -e 's/Mod4/WIN/' -e '/^#.*#/ d' -e '/^ *$/ d' -e 's/^# *//' | while read a ; do
+	gettext -s "$a" >> /tmp/listkeys
+	done
+mdialog --textbox /tmp/listkeys 600 600
+rm -f /tmp/listkeys
 } 
 
 info ()
@@ -69,7 +74,7 @@ touchpad ()
 {
   if [ $(synclient -l | grep TouchpadOff | awk '{ print $3 }') -eq 0 ] ; then
     synclient TouchpadOff=1
-    mdialog --passivepopup "touсhpad отключен, WIN+t чтобы включить"
+    mdialog --passivepopup "$MSG2"
     else
     synclient TouchpadOff=0
   fi
@@ -82,7 +87,7 @@ rfswitch ()
     rfkill unblock all
   else
     rfkill block all
-    mdialog --passivepopup "радиоинтерфейсы отключены, WIN+w чтобы включить" 
+    mdialog --passivepopup "$MSG3" 
   fi 
 } 
 
@@ -91,7 +96,7 @@ record()
   killall xbindkeys
   recordmydesktop --stop-shortcut Mod4+Print
   xbindkeys
-  mdialog --passivepopup "запись завершена"  
+  mdialog --passivepopup "$MSG4"  
 }
 
 network ()
