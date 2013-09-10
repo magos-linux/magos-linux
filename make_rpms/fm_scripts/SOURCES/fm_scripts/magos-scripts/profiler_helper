@@ -1,0 +1,64 @@
+#!/bin/bash
+[ "$2" ] || exit 0
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=fm_scripts
+
+
+MSG1=$(gettext -s "resize OK")
+MSG2=$(gettext -s "format OK")
+MSG3=$(gettext -s "Do you realy whant to format profile?")
+MSG4=$(gettext -s "enter new size MB")
+MSG5=$(gettext -s "file name, space, size MB")
+MSG6=$(gettext -s "mount OK")
+MSG7=$(gettext -s "unmount OK")
+MSG8=$(gettext -s "create OK")
+
+
+rm -f /tmp/profiler.log 2>/dev/null
+
+par="$2"
+cd "$(dirname $par)"
+resize()
+{
+
+a=""
+until echo $a | grep  -q ^[1-9][0-9]*\ *$ ; do
+   a=$(mdialog --inputbox "$MSG4 512") || exit 1
+done
+   profiler resize "$1" "$a" > /tmp/profiler.log 2>&1 && mdialog --msgbox "$MSG1"
+
+}
+
+max()
+{
+   profiler resize "$1" max && mdialog --msgbox "$MSG1"
+   exit
+}
+
+format()
+{
+   mdialog --yesno "$MSG3" && profiler format "$1" > /tmp/profiler.log 2>&1 && mdialog --msgbox "$MSG2"
+}
+
+create()
+{
+a=""
+until echo $a | grep  -q ^.*[img,IMG]\ *[1-9][0-9]*\ *$ ; do
+a=$(mdialog --inputbox "$MSG5" "MagOS_save_3.img 256") || exit 1 
+done
+echo $a | xargs profiler create > /tmp/profiler.log 2>&1 && mdialog --msgbox "$MSG8" 
+   exit
+}
+
+mount()
+{
+   profiler mount "$1"  > /tmp/profiler.log 2>&1 && mdialog --msgbox "$MSG6"
+}
+
+umount()
+{
+   profiler umount "$1"  > /tmp/profiler.log && 2>&1 mdialog --msgbox "$MSG7"
+}
+
+"$1" "$par" || mdialog --error "$(cat /tmp/profiler.log)"
+exit

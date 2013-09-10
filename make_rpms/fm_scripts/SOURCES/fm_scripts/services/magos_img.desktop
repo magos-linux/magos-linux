@@ -39,6 +39,6 @@ Exec=kdesu profiler_helper mount %f
 
 [Desktop Action umount]
 Name=umount image
-Name[ru]=Отключить
+Name[ru]=Отключить образ
 Icon=
 Exec=kdesu profiler_helper umount %f

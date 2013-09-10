@@ -1,0 +1,16 @@
+#!/bin/bash
+
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=fm_scripts
+
+MSG1=$(gettext -s  "Mount point:")
+MSG2=$(gettext -s "close this window to unmount image")
+
+[ -f "$1" ] || exit 1
+point="${1%.*}"
+mkdir -m 666 "$point"
+mount -o loop -t iso9660 "$1" "$point"
+mdialog --msgbox  "$MSG1 $point \n $MSG2" 
+umount "$point"
+rmdir "$point"
+exit 0

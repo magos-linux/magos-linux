@@ -1,4 +1,7 @@
 #!/bin/bash
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=fm_scripts
+
 help()
 {
 cat <<EOF
@@ -16,18 +19,21 @@ About [size]:
 
 EOF
 }
+MSG1=$(gettext -s "Error: No free space on device.")
+MSG2=$(gettext -s "Error: Can not open file")
+MSG3=$(gettext -s "Error: File already exists.")
 
 img_create()
 {
   if [ -f "$NAME" ] ; then
-     echo "Error: File already exists."
+     echo "$MSG3" 
   else
      SIZE=${1-256}
      [ "$SIZE" = "max" ] && let "SIZE = $FREESPACE - 1"
      if [ $FREESPACE -gt $SIZE ] ; then
-        dd if=/dev/zero of="$NAME" bs=1M count=1 seek=${SIZE} && /sbin/mkfs.ext3 -F -j "$NAME" && exit 0
+        dd if=/dev/zero of="$NAME" bs=1M count=1 seek=${SIZE} 2>&1 && /sbin/mkfs.ext3 -F -j "$NAME" 2>&1 && exit 0
      else
-        echo "Error: No free space on device."
+        echo "$MSG1" 
      fi
   fi
   exit -1
@@ -43,12 +49,12 @@ img_resize()
      let "NEEDSPACE = $SIZE -  $OLDSIZE"
      [ $SIZE -gt $OLDSIZE ] || NEEDSPACE=0
      if [ $FREESPACE -gt $NEEDSPACE ] ; then
-        /sbin/e2fsck -p -f "$NAME" && /sbin/resize2fs "$NAME" ${SIZE}M && exit 0
+        /sbin/e2fsck -p -f "$NAME" 2>&1 && /sbin/resize2fs "$NAME" ${SIZE}M 2>&1 && exit 0
      else
-        echo "Error: No free space on device."
+        echo "$MSG1"
      fi
   else
-     echo "Error: Can't open file $NAME"
+     echo  "$MSG2 $NAME"
   fi
   exit -1
 }
@@ -56,9 +62,9 @@ img_resize()
 img_format()
 {
   if [ -f "$NAME" ] ; then
-     /sbin/mkfs.ext3 -F -j "$NAME" && exit 0
+     /sbin/mkfs.ext3 -F -j "$NAME" 2>&1 && exit 0
   else 
-     echo "Error: Can't open file $NAME"
+    echo  "$MSG2 $NAME"
   fi
   exit -1
 }
@@ -67,9 +73,9 @@ img_mount()
 {
   if [ -f "$NAME" ] ; then
      point="${NAME%.*}"
-     mkdir -m 666 "$point" && mount -o loop "$NAME" "$point" && exit 0
+     mkdir -m 666 "$point" && mount -o loop "$NAME" "$point" 2>&1 && exit 0
   else
-     echo "Error: Can't open file $NAME"
+     echo  "$MSG2 $NAME"
   fi
   exit -1
 }
@@ -78,11 +84,11 @@ img_umount()
 {
   if [ -f "$NAME" ] ; then
      point="${NAME%.*}"
-     umount "$NAME" && rmdir "$point" && exit 0
+     umount "$NAME" 2>&1 && rmdir "$point" && exit 0
   else
-     echo "Error: Can't open file $NAME"
+     echo  "$MSG2 $NAME"
   fi
-  exit -1
+exit -1
 }
 
 
