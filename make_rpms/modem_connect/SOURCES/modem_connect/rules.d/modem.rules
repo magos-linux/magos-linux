@@ -1,5 +1,5 @@
 KERNEL=="ttyACM[0-9]", ACTION=="add", SYMLINK="modem", RUN+="/usr/lib/magos/udev/modem_connect"
-KERNEL=="ttyUSB0", ACTION=="add", SYMLINK="modem", RUN+="/usr/lib/magos/udev/modem_connect"
+KERNEL=="ttyUSB0", ACTION=="add", RUN+="/usr/lib/magos/udev/modem_connect"
 
 KERNEL=="ttyACM0", ACTION=="remove", RUN="/usr/lib/magos/udev/shownetstat"
 KERNEL=="ttyUSB0", ACTION=="remove", RUN="/usr/lib/magos/udev/shownetstat"

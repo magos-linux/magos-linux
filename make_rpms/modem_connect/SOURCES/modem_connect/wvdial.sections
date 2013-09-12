@@ -1,0 +1,65 @@
+
+[Dialer Defaults]
+Init1 = ATZ
+Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+Modem Type = Analog Modem
+; Phone = <Target Phone Number>
+ISDN = 0
+; Password = <Your Password>
+; Username = <Your Login Name>
+Modem = /dev/modem
+Baud = 460800
+
+
+[Dialer megafon]
+Init3 = AT+CGDCONT=1,"IP","internet"
+Username = n
+Password = n
+Phone = *99#
+
+[Dialer 250002]
+Init3 = AT+CGDCONT=1,"IP","internet"
+Username = n
+Password = n
+Phone = *99#
+
+[Dialer utel]
+Init3 = AT+CGDCONT=1,"IP","internet.usi.ru"
+Username = usi
+Password = usi
+Phone = *99#
+
+[Dialer 250017]
+Init3 = AT+CGDCONT=1,"IP","internet.usi.ru"
+Username = usi
+Password = usi
+Phone = *99# 
+
+[Dialer mts]
+Init3 = AT+CGDCONT=1,"IP","internet.mts.ru"
+Username = mts
+Password = mts
+Phone = *99#
+
+[Dialer 250001]
+Init3 = AT+CGDCONT=1,"IP","internet.mts.ru"
+Username = mts
+Password = mts
+Phone = *99#
+
+[Dialer beeline]
+Init3 = AT+CGDCONT=1,"IP","internet.beeline.ru"
+Username = beeline
+Password = beeline
+Phone = *99#
+
+[Dialer 25099]
+Init3 = AT+CGDCONT=1,"IP","internet.beeline.ru"
+Username = beeline
+Password = beeline
+Phone = *99#
+
+
+
+
+

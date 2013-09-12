@@ -1,18 +1,17 @@
-Summary:        GPRS connection auto up
+Summary:        Scripts to auto up 3G modem connection
 Name:           modem_connect
-Version:        0.0.1
+Version:        0.0.2
 Release:        %mkrel 1
 License:        GPLv3+
-URL:		https://github.com/magos-linux/magos-linux/archive/master.zip
+URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base
 Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
-Requires:       gnokii, wvdial
-#Requires:       magos-scripts
-Suggests:       vnstat
+Requires:       wvdial minicom 
+#Requires:       magos-scripts (mdialog)
 
 %description
-Simple scripts to auto up GPRS connection
+Scripts for auto up GPRS modem connection
 
 %prep
 %setup -q -n %{name}
@@ -20,16 +19,26 @@ Simple scripts to auto up GPRS connection
 %post
 
 %install
-mkdir -p  %{buildroot}/etc/udev/rules.d
-mkdir -p  %{buildroot}/usr/lib/magos/udev
-cp  ./modem_connect  %{buildroot}/usr/lib/magos/udev/
-cp  ./shownetstat  %{buildroot}/usr/lib/magos/udev/
-cp ./modem.rules  %{buildroot}/etc/udev/rules.d
+mkdir -p %{buildroot}/usr/lib/magos/udev/
+mkdir -p %{buildroot}/usr/share/magos/
+mkdir -p %{buildroot}/etc/udev/
+mkdir    %{buildroot}/etc/sysconfig/
+
+cp -fr ./usr  %{buildroot}/
+cp -fr ./locale/  %{buildroot}/usr/share/magos/
+cp -fr ./rules.d/ %{buildroot}/etc/udev/
+cp -f ./modem %{buildroot}/etc/sysconfig
+cp -f ./wvdial.sections  %{buildroot}/etc/
 
 %files
 /etc/udev/rules.d/*
+/usr/share/magos/locale/*
+/etc/sysconfig/modem
+/etc/wvdial.sections
+/usr/lib/magos/scripts/*
 /usr/lib/magos/udev/*
 
+
 %changelog
-* Mon Jun 17 2013 betcher <betkher.al@gmail.com>
+* Thu Sep 10 2013 betcher <betkher.al@gmail.com>
 - initial build

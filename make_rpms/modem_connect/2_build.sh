@@ -6,8 +6,8 @@ cp -p SOURCES/*.* rpmbuild/SOURCES
 cp -p SPECS/* rpmbuild/SPECS
 cd rpmbuild/SPECS
 cd ../../
-rpmbuild -bs rpmbuild/SPECS/*.spec || exit1
-rpmbuild -bb rpmbuild/SPECS/*.spec || exit1
+rpmbuild -bs rpmbuild/SPECS/*.spec || exit 1
+rpmbuild -bb rpmbuild/SPECS/*.spec || exit 1
 find | grep .rpm$ | while read a ;do mv $a rpms ;done
 mv rpms/*.src.rpm srpms
 echo Done.
