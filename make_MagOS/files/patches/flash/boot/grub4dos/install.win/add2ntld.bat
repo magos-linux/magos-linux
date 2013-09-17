@@ -13,13 +13,13 @@ pause > nul
 
 cls
 call :t_echo Changing attributes of c:\boot.ini ...
-attrib -S -H  c:\boot.ini
+attrib -S -H -R c:\boot.ini
 call :t_echo Adding grub4dos to c:\boot.ini ...
         echo c:\magos.ldr=MagOS Linux >> c:\boot.ini
 call :t_echo Copying grub4dos loader  to c:\ ...
 copy /y ..\magos.ldr c:\magos.ldr
 call :t_echo Changing back attributes of c:\boot.ini ...
-attrib +S +H  c:\boot.ini
+attrib +S +H +R c:\boot.ini
 call :t_echo Done. Check files and reboot. Press enter.
 pause > nul
 
