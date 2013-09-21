@@ -1,0 +1,20 @@
+# Autorun dialup applications on device hotplug
+#INTERACTIVE=yes
+
+# Time to detect provider (10 is nealy 40-60 sec)
+#TIMEOUT=10
+
+# Modem device, /dev/modem, /dev/ttyACMO, /dev/ttyUSB0, etc.
+#PORT=/dev/modem
+
+# Collect and show session statistic
+#STAT=yes
+
+# Autoup network on device connection
+#INETAUTOUP=yes
+
+# Disable info windows
+#QUIET=yes
+
+# Locale
+LANG=ru_RU.UTF-8

@@ -1,0 +1,168 @@
+#!/bin/bash
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=magic_keys
+
+. /usr/lib/magos/functions
+
+MSG1=$(gettext -s "MagOS magic keys:")
+MSG2=$(gettext -s "Touchpad disabled, WIN+t to enable again")
+MSG3=$(gettext -s "bluetooth, WI-FI interfaces disabled, WIN+w to enable again")
+MSG4=$(gettext -s "record complete")
+
+DE=$(detectDE)
+
+run ()
+{
+  if [ "$DE" = "kde" ] ; then
+    krunner
+  elif [  "$DE" = "gnome" ] ; then
+    gnome-panel-control --run-dialog
+  else
+    lxpanelctl run
+  fi
+} 
+
+
+list ()
+{
+echo "$MSG1" > /tmp/listkeys
+echo " " >> /tmp/listkeys
+cat $HOME/.xbindkeysrc | sed -e 's/^".*"//' -e 's/Mod4/WIN/' -e '/^#.*#/ d' -e '/^ *$/ d' -e 's/^# *//' | while read a ; do
+	gettext -s "$a" >> /tmp/listkeys
+	done
+mdialog --textbox /tmp/listkeys 600 600
+rm -f /tmp/listkeys
+} 
+
+info ()
+{
+  . liblinuxlive
+  UPTIME=$(uptime | awk '{print "time - "$1", up - "$3}') 
+  RAM=$(free -m | grep Mem | awk '{ print "total - "$2",  free - "$4}')
+  SWAP=$(free -m | grep Swap | awk '{ print "total - "$2",  free - "$4}')
+  CPU="$(cat /proc/cpuinfo | sed -e '/model name/!d' -e 's/^.*://')"
+  CPUARCH=$(uname -p)
+  KERNEL=$(uname -r)
+  VIDEO=$(lspci | sed -e '/VGA/!d' -e 's/^.*://')
+  GLXINFO=$(glxinfo | sed '2,3!d')
+  AUDIO=$(lspci | sed -e '/Audio/!d' -e 's/^.*://')
+  CMDLINE=$(cat /proc/cmdline)
+  VERSION=$(cat /etc/magos-release)
+  if [ $(cmdline_parameter unionfs) ];then
+     PROF_SIZE=$(df -h / |grep unionfs | awk '{print " ["$5"] total - "$2", free - "$4}')
+  else
+     PROF_SIZE=$(df -h / |grep aufs | awk '{print " ["$5"] total - "$2", free - "$4}')
+  fi
+  echo "$LIVECDNAME $VERSION" > ~/info.txt
+  echo "UPTIME: $UPTIME" >> ~/info.txt
+  echo "KERNEL: $KERNEL" >> ~/info.txt
+  echo "RAM: $RAM" >> ~/info.txt
+  echo "SWAP: $SWAP" >> ~/info.txt
+  [ "$(cat /proc/cmdline | grep changes= )" ] && echo "PROFILE: $PROF_SIZE" >> ~/info.txt
+  echo -e "CPU: ($CPUARCH) \n$CPU" >> ~/info.txt
+  echo "VIDEO: $VIDEO" >> ~/info.txt
+  echo "$GLXINFO" >> ~/info.txt
+  echo "AUDIO: $AUDIO" >> ~/info.txt
+  echo "CMDLINE: $CMDLINE" >> ~/info.txt
+  echo "MODULES:" >> ~/info.txt
+  grep squashfs /proc/mounts | awk '{print $2}' | sort >> ~/info.txt
+  mdialog --textbox $HOME/info.txt 
+  rm -f $HOME/info.txt
+}
+
+touchpad ()
+{
+  if [ $(synclient -l | grep TouchpadOff | awk '{ print $3 }') -eq 0 ] ; then
+    synclient TouchpadOff=1
+    mdialog --passivepopup "$MSG2"
+    else
+    synclient TouchpadOff=0
+  fi
+}
+
+rfswitch ()
+{
+  rfkill list | grep yes
+  if [ $? -eq 0 ]; then
+    rfkill unblock all
+  else
+    rfkill block all
+    mdialog --passivepopup "$MSG3" 
+  fi 
+} 
+
+record()
+{
+  killall xbindkeys
+  recordmydesktop --stop-shortcut Mod4+Print
+  xbindkeys
+  mdialog --passivepopup "$MSG4"  
+}
+
+network ()
+{
+  echo "netstat --inet" > ~/network.txt
+  netstat --inet  >> ~/network.txt
+  echo -e "\nlsof -i" >> ~/network.txt
+  /usr/sbin/lsof -i >> ~/network.txt
+  mdialog --textbox $HOME/network.txt 600 250
+  rm -f $HOME/info.txt
+}
+
+search ()
+{
+xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "http://www.google.ru/search?hl=ru&q=" $1}' | xargs firefox -new-tab
+}
+
+enrus ()
+{
+[ "$1" == "passive" ] && mdialog --passivepopup "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=ru" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "msgbox" ] && mdialog --msgbox "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=ru" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "firefox" ] && xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=en#en|ru|" $1}' | xargs firefox -new-tab
+}
+
+rusen ()
+{
+[ "$1" == "passive" ] && mdialog --passivepopup "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=en" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "msgbox" ] && mdialog --msgbox "$(wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$(xclip -o | sed "s/[\"'<>]//g")&sl=auto&tl=en" | sed 's/\[\[\[\"//' | cut -d \" -f 1)"
+[ "$1" == "firefox" ] && xclip -o | sed -r '2~1d;s/(^\s+|\s+$)//g;s/%/%25/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/\+/%2B/;s/,/%2C/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/\?/%3F/g;s/@/%40/g;s/\s/+/g' | awk '{print "translate.google.com/translate_t?hl=ru#ru|en|" $1}' | xargs firefox -new-tab
+
+}
+
+url ()
+{
+xclip -o | sed -n 1p | xargs firefox -new-tab
+}
+
+mykeys ()
+{
+string=$(head -n $1 $HOME/.mykeys | tail -n 1)
+> /tmp/tmpkey
+echo "#!/bin/bash" > /tmp/tmpkey
+echo "$string" >> /tmp/tmpkey
+chmod +x /tmp/tmpkey
+/tmp/tmpkey
+rm -f /tmp/tmpkey 
+
+}
+
+screen-scale ()
+{
+scale_[1]=1x1
+scale_[2]=1x1.2
+scale_[3]=1.2x1.2
+scale_[4]=1.2x1.5
+scale_[5]=1.5x1.5
+scale=2
+[ -f /tmp/scale ] && scale=$(cat /tmp/scale)
+xrandr --output LVDS1  --scale ${scale_[$scale]}
+if [ $scale == 5 ] ; then
+echo 1 > /tmp/scale
+else 
+echo $(expr $scale + 1) > /tmp/scale
+fi
+}
+
+
+$1 $2
+exit

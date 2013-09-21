@@ -1,0 +1,29 @@
+#!/bin/bash
+export HOME=/root 
+export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=modem_connect
+
+INTERACTIVE=yes
+STAT=yes
+. /etc/sysconfig/i18n
+export LANG=$LANG
+. /etc/sysconfig/modem
+
+MSG1=$(gettext -s "Total")
+MSG2=$(gettext -s "today")
+
+
+IF=ppp0
+[ -f /tmp/modem_ppp_if ] && . /tmp/modem_ppp_if
+
+[ "$INTERACTIVE" = "yes" ] || exit 0
+
+if [ "$STAT" == "yes" ] ; then
+   total=`vnstat -i $IF | awk '/total:/{print $8 " " $9}'`
+   today=`vnstat -i $IF | awk '/today/{print $8 " " $9}'`
+   vnstat -r --disable -i $IF
+   service vnstat restart > /dev/null
+   mdialog --passivepopup "$IF: $MSG1 - $total, $MSG2 - $today" || exit 1
+fi
+exit 0

@@ -1,0 +1,44 @@
+[Desktop Entry]
+Encoding=UTF-8
+ServiceTypes=KonqPopupMenu/Plugin,all/allfiles
+Type=Service
+X-KDE-Priority=TopLevel
+X-KDE-Submenu=home and profile images
+X-KDE-Submenu[ru]=образы, профили
+Actions=resize;format;max;create;mount;umount;
+
+[Desktop Action resize]
+Name=Resize image
+Name[ru]=Изменить размер .img файла
+Icon=
+Exec=kdesu profiler_helper resize %f
+
+[Desktop Action format]
+Name=format image
+Name[ru]=форматировать файл .img
+Icon=
+Exec=kdesu profiler_helper format %f
+
+[Desktop Action max]
+Name=max image size
+Name[ru]=увеличить .img чтоб он занял все свободное место
+Icon=
+Exec=kdesu profiler_helper max %f
+
+[Desktop Action create]
+Name=create image
+Name[ru]=создать профиль для сохранения
+Icon=
+Exec=kdesu profiler_helper create %f
+
+[Desktop Action mount]
+Name=mount image
+Name[ru]=Подключить в эту папку
+Icon=
+Exec=kdesu profiler_helper mount %f
+
+[Desktop Action umount]
+Name=umount image
+Name[ru]=Отключить образ
+Icon=
+Exec=kdesu profiler_helper umount %f
