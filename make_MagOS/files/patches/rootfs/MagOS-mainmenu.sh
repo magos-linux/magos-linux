@@ -67,6 +67,11 @@ sed -i /"Categories=Application;Settings"/d usr/share/applications/mdvinput.desk
 update_app mdvinput.desktop "GTK;Settings;HardwareSettings;"
 update_app add2sudoers.desktop "Settings;System;X-MandrivaLinux-CrossDesktop;"
 update_app rmfromsudoers.desktop "Settings;System;X-MandrivaLinux-CrossDesktop;"
+update_app meld.desktop "GTK;TextTools;"
+update_app mandriva-wireshark-root.desktop "GTK;Network;Capture;"
+update_app mandriva-wireshark.desktop "GTK;Network;Capture;"
+update_app etherape.desktop "GTK;Network;Capture;"
+update_app gnome-nettool.desktop "GTK;Network;Monitor;"
 
 update_app kde4/akonaditray.desktop "Qt;KDE;X-KDE-Utilities-PIM;"
 update_app kde4/dolphin.desktop "Qt;KDE;System;Utility;Core;FileManager;"

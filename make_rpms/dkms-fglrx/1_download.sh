@@ -1,5 +1,6 @@
 #!/bin/bash
-URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/fglrx-12.104-1.src.rpm
+VER=13.200.5-1
+URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/fglrx-$VER.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore
    urpmi.removemedia mib

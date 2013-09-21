@@ -1,6 +1,6 @@
 #!/bin/bash
 CPATH=$PWD
-cd /usr/src/fglrx-*
+cd usr/src/fglrx-*
 patch -p1 <<EOF
 --- a/firegl_public.c	2013-03-23 08:58:43.000000000 +0400
 +++ b/firegl_public.c	2013-03-23 09:05:08.000000000 +0400

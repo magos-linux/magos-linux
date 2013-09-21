@@ -64,6 +64,7 @@
             <Category>Telephony</Category>
             <Category>VideoConference</Category>
             <Category>Monitor</Category>
+            <Category>Capture</Category>
             <Category>X-MandrivaLinux-System-SunJava6u22</Category>
             <Category>Filesystems</Category>
             <Filename>draknetcenter.desktop</Filename>
@@ -81,6 +82,9 @@
                <Category>Monitor</Category>
                <Category>Filesystems</Category>
             </Or>
+            <Not>
+               <Category>Capture</Category>
+            </Not>
           </And>
           <Category>Dialup</Category>
       </Include>
@@ -132,6 +136,16 @@
       <Include>
         <Category>RemoteAccess</Category>
       </Include>
+    </Menu>
+    <Menu>
+      <Name>Capture</Name>
+      <Directory>magos-capture.directory</Directory>
+      <Include>
+        <And>
+        <Category>Network</Category>
+        <Category>Capture</Category>
+        </And>
+     </Include>
     </Menu>
   </Menu>
 

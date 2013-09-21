@@ -1,5 +1,6 @@
 #!/bin/bash
-URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/nvidia173-173.14.37-2.src.rpm
+VER=173.14.37-5
+URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/nvidia173-$VER.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore
    urpmi.removemedia mib

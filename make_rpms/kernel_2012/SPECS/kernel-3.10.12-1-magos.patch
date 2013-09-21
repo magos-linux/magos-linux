@@ -1,7 +1,7 @@
-diff -aupr a/kernel-3.9.7-1.spec b/kernel-3.9.7-1.spec
---- a/kernel-3.9.9-1.spec	2013-06-21 09:29:53.000000000 +0400
-+++ b/kernel-3.9.9-1.spec	2013-06-24 05:56:59.000000000 +0400
-@@ -297,6 +297,42 @@ Packager: Nicolo' Costanza <abitrules@ya
+diff -auprN a/kernel-3.10.12-1.spec b/kernel-3.10.12-1.spec
+--- a/kernel-3.10.12-1.spec	2013-09-18 18:41:57.000000000 +0400
++++ b/kernel-3.10.12-1.spec	2013-09-18 18:53:26.000000000 +0400
+@@ -298,6 +298,42 @@ Packager: Nicolo' Costanza <abitrules@ya
  %{?_without_kirkwood: %global build_kirkwood 0}
  %{?_without_versatile: %global build_versatile 0}
  
@@ -44,19 +44,19 @@ diff -aupr a/kernel-3.9.7-1.spec b/kernel-3.9.7-1.spec
  # For the .nosrc.rpm
  %define build_nosrc 	0
  %{?_with_nosrc: %global build_nosrc 1}
-@@ -421,6 +457,11 @@ Source10: 	ftp://ftp.kernel.org/pub/linu
+@@ -422,6 +458,11 @@ Source10: 	ftp://ftp.kernel.org/pub/linu
  %endif
  %endif
  
 +%if %build_for_magos
 +Patch101:       linux-%{patch_ver}-magos.patch
-+Source102:      aufs3-3.9-allin1.patch
++# Source102:      aufs3-3.9-allin1.patch
 +%endif
 +
  #END
  ####################################################################
  
-@@ -503,6 +544,8 @@ BuildRequires:	module-init-tools
+@@ -523,6 +564,8 @@ BuildRequires:	module-init-tools
  
  BuildRequires: 	gcc bc
  
@@ -65,7 +65,7 @@ diff -aupr a/kernel-3.9.7-1.spec b/kernel-3.9.7-1.spec
  # for perf, cpufreq and other tools
  BuildRequires:		elfutils-devel
  BuildRequires:		zlib-devel
-@@ -518,6 +561,7 @@ BuildRequires:		docbook-style-xsl
+@@ -538,6 +581,7 @@ BuildRequires:		docbook-style-xsl
  BuildRequires:		pkgconfig(gtk+-2.0)
  BuildRequires:		flex
  BuildRequires:		bison
@@ -73,29 +73,18 @@ diff -aupr a/kernel-3.9.7-1.spec b/kernel-3.9.7-1.spec
  
  %ifarch %{arm}
  BuildRequires:		uboot-mkimage
-@@ -1098,8 +1142,10 @@ should use the 'kernel-devel' package in
- 
- %files headers
- %_includedir/*
-+%if %{build_cpupower}
- # Don't conflict with cpupower-devel
- %exclude %_includedir/cpufreq.h
-+%endif
- 
- #
- # End packages - here begins build stage
-@@ -1129,6 +1175,10 @@ cd %src_dir
+@@ -1152,6 +1196,10 @@ cd %src_dir
  %if %kgit
  %patch2 -p1
  %endif
 +%if %build_for_magos
 +%patch101 -p1 -d %{patches_dir}
-+cp -pf  %{SOURCE102} %{patches_dir}/patches-extras
++# cp -pf  %{SOURCE102} %{patches_dir}/patches-extras
 +%endif
  
  %{patches_dir}/scripts/apply_patches
  %{patches_dir}/scripts/apply_patches-others
-@@ -1797,7 +1847,8 @@ rm -rf %{target_source}/.tmp_depmod/
+@@ -1821,7 +1869,8 @@ rm -rf %{target_source}/.tmp_depmod/
  # compressing modules
  %if %{build_modxz}
  find %{target_modules} -name "*.ko" | %kxargs xz -6e

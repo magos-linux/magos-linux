@@ -426,3 +426,6 @@ python-configobj-
 xsudo-
 xsudo-sudoers-
 python-pexpect-
+libidn11-
+libxrender1-
+libxrandr2-

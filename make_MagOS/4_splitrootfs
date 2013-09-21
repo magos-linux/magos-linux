@@ -43,7 +43,6 @@ else
   echo "Не вижу файла .config" ;  exit 1
 fi
 
-
 cd "$MYPATH/work/$FLASHNAME-$VERREL"
 echo "Обновление базы данных о файлах"
 grep -q aufs.*mirror/rootfs /proc/mounts || mount -t aufs -o br:mirror/changes=rw:rootfs=ro aufs mirror/rootfs || exit 1
@@ -85,6 +84,7 @@ for MODULE in ??-* ;do
    movefiles ../modules_filelist/$MODULE ../modules_filelist/72-documentation 'usr/share/gtk-doc/'
 done
 cd ../
+echo "Правка файлов"
 movefiles ost_list modules_filelist/*-x-3d '/nvidia173.ko'
 movefiles ost_list modules_filelist/*-x-3d '/nvidia96xx.ko'
 movefiles ost_list modules_filelist/*-x-3d '/nvidia96xx.ko'
@@ -110,41 +110,54 @@ echo etc/sysconfig/desktop >> modules_filelist/*-x-kde
 echo etc/sysconfig/desktop >> modules_filelist/*-x-gnome
 echo etc/sysconfig/desktop >> modules_filelist/*-x-lxde
 
-#echo "Формирование модулей локализаций"
+echo "Формирование модулей локализаций"
 
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/pt'
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/uk'
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/sv'
 
-MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
-movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
-movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
+echo "Формирование модулей локализаций 1"
+if [ -f 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml' ] ;then
+   MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
+   movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
+   movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
+fi
 
+echo "Формирование модулей локализаций 2"
 MODULE=$(findmodbyrpm 'kdebase4-runtime-')
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
 
+echo "Формирование модулей локализаций 3"
 MODULE=$(findmodbyrpm 'playonlinux-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
 
+echo "Формирование модулей локализаций 4"
 MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
 
+echo "Формирование модулей локализаций 5"
 MODULE=$(findmodbyrpm 'inkscape-')
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
 
+echo "Формирование модулей локализаций 6"
 MODULE=$(findmodbyrpm 'libgweather-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
 
-MODULE=$(findmodbyrpm 'vpnpptp-allde-')
-movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
-movefiles modules_filelist/international modules_filelist/20-x-base '.*_ru.qm'
+echo "Формирование модулей локализаций 7"
+if [ -d usr/share/vpnpptp/wiki ] ;then
+   MODULE=$(findmodbyrpm 'vpnpptp-allde-')
+   movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
+   movefiles modules_filelist/international modules_filelist/20-x-base '.*_ru.qm'
+fi 
 
+echo "Вынесение языковых файлов в модули"
 for a in modules_filelist/*-int-* ;do
+   echo $a
    LOCALES=`grep usr/share/locale/ $a | sed 's|usr/share/locale/||' | sed 's|[-_@/].*$||' | sort -u `
    echo $a | grep -q -- -int-en && LOCALES="$LOCALES en"
    echo $a | grep -q -- -int-russia && LOCALES="$LOCALES ru CP1251 KOI8-R KOI8-U"

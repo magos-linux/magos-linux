@@ -61,7 +61,16 @@ echo "Подготовка к установке пакетов"
 umountbranches "$(pwd)/rootfs"
 rm -fr rootfs install_errors.log 2>/dev/null
 mkdir rootfs  || exit 1
-rpm2cpio $MYPATH/loaded/$FLASHNAME-$VERREL/rpms/setup-*.rpm | cpio -i --make-directories "$pwd"/rootfs || exit 1
+
+echo "Установка базовых пакетов"
+cd rootfs
+for a in `cat $MYPATH/files/rpm_names/$FLASHNAME-$VERREL/base` ;do
+    cat ../depslist.ordered.1 ../depslist.ordered.2 | grep $a | while read b ;do
+        echo $b
+        rpm2cpio $MYPATH/loaded/$FLASHNAME-$VERREL/rpms/$b | cpio -i -d || exit 1
+    done
+done
+cd ..
 mkdir -p rootfs/dev rootfs/proc rootfs/sys rootfs/var/lib/rpm || exit 1
 mount --bind /proc rootfs/proc  || exit 1
 mount --bind /sys rootfs/sys  || exit 1

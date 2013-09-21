@@ -1,5 +1,5 @@
 #!/bin/bash
-URL=http://abf-downloads.rosalinux.ru/kernels_39x_personal/repository/rosa2012.1/SRPMS/main/release/kernel-3.9.7-1.src.rpm
+URL=http://abf-downloads.rosalinux.ru/kernels_39x_personal/repository/rosa2012.1/SRPMS/main/release/kernel-3.9.11-1.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore
    urpmi.removemedia mib
