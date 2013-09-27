@@ -113,7 +113,7 @@ plugin=icon
 zvalue=0
 
 [Containments][2][Applets][5][Configuration]
-Url=file:///usr/share/applications/mandriva-drakconf.desktop
+Url=file:///usr/share/applications/magos-ctrl-center.desktop
 
 [Containments][2][Applets][5][LayoutInformation]
 Order=3

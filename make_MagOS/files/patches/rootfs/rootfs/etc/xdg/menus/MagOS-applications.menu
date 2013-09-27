@@ -33,13 +33,14 @@
     <Name>Internet</Name>
     <Directory>mandriva-internet.directory</Directory>
     <Layout>
-      <Menuname inline="false">Control</Menuname>
       <Menuname inline="false">Browsers</Menuname>
       <Menuname inline="false">File transfer</Menuname>
       <Menuname inline="false">E-mail</Menuname>
       <Menuname inline="false">News</Menuname>
       <Menuname inline="false">Chat</Menuname>
       <Menuname inline="false">Remote Access</Menuname>
+      <Menuname inline="false">Capture</Menuname>
+      <Menuname inline="false">Control</Menuname>
       <Separator/>
       <Merge type="files"/>
       <Merge type="menus"/>
@@ -71,25 +72,6 @@
           </Not>
         </And>
     </Include>
-    <Menu>
-      <Name>Control</Name>
-      <Directory>magos-control.directory</Directory>
-      <Include>
-          <Filename>draknetcenter.desktop</Filename>
-          <And>
-            <Category>Network</Category>
-            <Or>
-               <Category>Monitor</Category>
-               <Category>Filesystems</Category>
-            </Or>
-            <Not>
-               <Category>Capture</Category>
-            </Not>
-          </And>
-          <Category>Dialup</Category>
-      </Include>
-    </Menu>
-
     <Menu>
       <Name>Browsers</Name>
       <Directory>magos-viewing.directory</Directory>
@@ -131,6 +113,16 @@
       </Include>
     </Menu>
     <Menu>
+      <Name>Capture</Name>
+      <Directory>magos-capture.directory</Directory>
+      <Include>
+        <And>
+          <Category>Network</Category>
+          <Category>Capture</Category>
+        </And>
+      </Include>
+    </Menu>
+    <Menu>
       <Name>Remote Access</Name>
       <Directory>magos-admin.directory</Directory>
       <Include>
@@ -138,14 +130,22 @@
       </Include>
     </Menu>
     <Menu>
-      <Name>Capture</Name>
-      <Directory>magos-capture.directory</Directory>
+      <Name>Control</Name>
+      <Directory>magos-control.directory</Directory>
       <Include>
-        <And>
-        <Category>Network</Category>
-        <Category>Capture</Category>
-        </And>
-     </Include>
+          <Filename>draknetcenter.desktop</Filename>
+          <And>
+            <Category>Network</Category>
+            <Or>
+               <Category>Monitor</Category>
+               <Category>Filesystems</Category>
+            </Or>
+            <Not>
+               <Category>Capture</Category>
+            </Not>
+          </And>
+          <Category>Dialup</Category>
+      </Include>
     </Menu>
   </Menu>
 

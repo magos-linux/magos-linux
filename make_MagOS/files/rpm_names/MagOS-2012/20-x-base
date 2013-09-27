@@ -85,7 +85,6 @@ libgif4-
 libgii1-
 libgirepository1.0_1-
 libgnokii7-
-libgphoto6-
 libgphoto-common-
 libgpsd19-
 libgraph5-
@@ -466,3 +465,8 @@ libzlui0.99-
 libidn11-
 libxrender1-
 libxrandr2-
+fm_scripts-
+magic_keys-
+libexiv2_12-
+libgphoto2_6-
+libgphoto2_port10-

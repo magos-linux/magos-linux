@@ -1,5 +1,5 @@
 #!/bin/bash
-URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/main/updates/systemd-194-20.src.rpm
+URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/main/updates/systemd-194-26.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore
    urpmi.removemedia mib

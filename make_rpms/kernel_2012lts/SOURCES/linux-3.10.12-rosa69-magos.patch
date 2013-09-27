@@ -1,35 +1,218 @@
 diff -auprN a/patches/series b/patches/series
---- a/patches/series	2013-07-05 12:15:00.000000000 +0400
-+++ b/patches/series	2013-08-17 15:50:36.981631520 +0400
-@@ -291,6 +291,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
+--- a/patches/series	2013-09-14 18:50:26.000000000 +0400
++++ b/patches/series	2013-09-18 18:50:03.000000000 +0400
+@@ -319,6 +319,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
  
  # Mandriva framebuffer boot logo
- video-mdk-logo.patch
+ # video-mandriva-logo.patch
 +video-magos-logo.patch
  
  # https://qa.mandriva.com/show_bug.cgi?id=59260
  # https://bugzilla.kernel.org/show_bug.cgi?id=26232
 diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
+diff -auprN a/scripts/create_configs b/scripts/create_configs
+--- a/scripts/create_configs	2013-09-01 14:20:32.000000000 +0400
++++ b/scripts/create_configs	2013-09-18 18:47:17.000000000 +0400
+@@ -916,6 +916,34 @@ sub config_nrj_desktop_core2_pae{
+ 
+ # End > specific cpu level optimized nrj flavours
+ 
++sub  config_magos{
++    my ($name) = @_;
++
++	$values{LOGO_MDK_CLUT224} = "n";
++	$to_add{LOGO_MAGOS_CLUT224} = "y";
++	$to_add{AUFS_FS} = "m";
++	$to_add{AUFS_BRANCH_MAX_127} = "n";
++	$to_add{AUFS_BRANCH_MAX_511} = "y";
++	$to_add{AUFS_BRANCH_MAX_1023} = "n";
++	$to_add{AUFS_BRANCH_MAX_32767} = "n";
++	$to_add{AUFS_SBILIST} = "y";
++	$to_add{AUFS_HNOTIFY} = "n";
++	$to_add{AUFS_EXPORT} = "n";
++	$to_add{AUFS_RDU} = "n";
++	$to_add{AUFS_PROC_MAP} = "n";
++	$to_add{AUFS_SP_IATTR} = "n";
++	$to_add{AUFS_SHWH} = "y";
++	$to_add{AUFS_BR_RAMFS} = "n";
++	$to_add{AUFS_BR_FUSE} = "n";
++	$to_add{AUFS_BR_HFSPLUS} = "y";
++	$to_add{AUFS_BDEV_LOOP} = "y";
++	$to_add{AUFS_DEBUG} = "n";
++	$values{NLS_CODEPAGE_437} = "m";
++	$values{FAT_DEFAULT_CODEPAGE} = "866";
++	$values{FAT_DEFAULT_IOCHARSET} = "\"utf8\"";
++	$values{NLS_DEFAULT} = "\"utf8\"";
++}
++
+ sub config_i386 {
+     my ($cpu, $nproc, $mem, $name) = @_;
+     dprint "config i386\n";
+@@ -928,6 +956,7 @@ sub config_i386 {
+     config_x86_cpu($cpu);
+     config_nproc_x86($nproc);
+     config_x86_highmem($mem);
++    config_magos();
+ 
+     config_desktop586() if $name eq "desktop586";
+     config_netbook() if $name eq "netbook";
+@@ -962,6 +991,7 @@ sub config_x86_64 {
+     }
+ 
+     config_nproc_x86_64($nproc);
++    config_magos();
+ 
+     config_netbook() if $name eq "netbook";
+     config_server() if $name eq "server";
+diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
+--- a/scripts/create_configs-QL	2013-09-01 14:20:39.000000000 +0400
++++ b/scripts/create_configs-QL	2013-09-18 18:47:17.000000000 +0400
+@@ -1043,7 +1043,33 @@ sub config_nrjQL_desktop_core2_pae{
+ 
+ # End > specific cpu level optimized nrjQL flavours
+ 
++sub  config_magos{
++    my ($name) = @_;
+ 
++    $values{LOGO_MDK_CLUT224} = "n";
++    $to_add{LOGO_MAGOS_CLUT224} = "y";
++    $to_add{AUFS_FS} = "m";
++    $to_add{AUFS_BRANCH_MAX_127} = "n";
++    $to_add{AUFS_BRANCH_MAX_511} = "y";
++    $to_add{AUFS_BRANCH_MAX_1023} = "n";
++    $to_add{AUFS_BRANCH_MAX_32767} = "n";
++    $to_add{AUFS_SBILIST} = "y";
++    $to_add{AUFS_HNOTIFY} = "n";
++    $to_add{AUFS_EXPORT} = "n";
++    $to_add{AUFS_RDU} = "n";
++    $to_add{AUFS_PROC_MAP} = "n";
++    $to_add{AUFS_SP_IATTR} = "n";
++    $to_add{AUFS_SHWH} = "y";
++    $to_add{AUFS_BR_RAMFS} = "n";
++    $to_add{AUFS_BR_FUSE} = "n";
++    $to_add{AUFS_BR_HFSPLUS} = "y";
++    $to_add{AUFS_BDEV_LOOP} = "y";
++    $to_add{AUFS_DEBUG} = "n";
++    $values{NLS_CODEPAGE_437} = "m";
++    $values{FAT_DEFAULT_CODEPAGE} = "866";
++    $values{FAT_DEFAULT_IOCHARSET} = "utf8";
++    $values{NLS_DEFAULT} = "utf8";
++}
+ 
+ sub config_i386 {
+     my ($cpu, $nproc, $mem, $name) = @_;
+@@ -1057,6 +1083,7 @@ sub config_i386 {
+     config_x86_cpu($cpu);
+     config_nproc_x86($nproc);
+     config_x86_highmem($mem);
++    config_magos();
+ 
+     config_nrjQL_desktop() if $name eq "nrjQL-desktop";
+     config_nrjQL_realtime() if $name eq "nrjQL-realtime";
+@@ -1083,6 +1110,7 @@ sub config_x86_64 {
+     }
+ 
+     config_nproc_x86_64($nproc);
++    config_magos();
+ 
+     config_nrjQL_desktop() if $name eq "nrjQL-desktop";
+     config_nrjQL_realtime() if $name eq "nrjQL-realtime";
+diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
+--- a/scripts/create_configs-withBFQ	2013-09-01 14:21:02.000000000 +0400
++++ b/scripts/create_configs-withBFQ	2013-09-18 18:47:17.000000000 +0400
+@@ -968,6 +968,34 @@ sub config_nrj_desktop_core2_pae{
+ 
+ # End > specific cpu level optimized nrj flavours
+ 
++sub  config_magos{
++    my ($name) = @_;
++
++	$values{LOGO_MDK_CLUT224} = "n";
++	$to_add{LOGO_MAGOS_CLUT224} = "y";
++	$to_add{AUFS_FS} = "m";
++	$to_add{AUFS_BRANCH_MAX_127} = "n";
++	$to_add{AUFS_BRANCH_MAX_511} = "y";
++	$to_add{AUFS_BRANCH_MAX_1023} = "n";
++	$to_add{AUFS_BRANCH_MAX_32767} = "n";
++	$to_add{AUFS_SBILIST} = "y";
++	$to_add{AUFS_HNOTIFY} = "n";
++	$to_add{AUFS_EXPORT} = "n";
++	$to_add{AUFS_RDU} = "n";
++	$to_add{AUFS_PROC_MAP} = "n";
++	$to_add{AUFS_SP_IATTR} = "n";
++	$to_add{AUFS_SHWH} = "y";
++	$to_add{AUFS_BR_RAMFS} = "n";
++	$to_add{AUFS_BR_FUSE} = "n";
++	$to_add{AUFS_BR_HFSPLUS} = "y";
++	$to_add{AUFS_BDEV_LOOP} = "y";
++	$to_add{AUFS_DEBUG} = "n";
++	$values{NLS_CODEPAGE_437} = "m";
++	$values{FAT_DEFAULT_CODEPAGE} = "866";
++	$values{FAT_DEFAULT_IOCHARSET} = "\"utf8\"";
++	$values{NLS_DEFAULT} = "\"utf8\"";
++}
++
+ sub config_i386 {
+     my ($cpu, $nproc, $mem, $name) = @_;
+     dprint "config i386\n";
+@@ -980,6 +1008,7 @@ sub config_i386 {
+     config_x86_cpu($cpu);
+     config_nproc_x86($nproc);
+     config_x86_highmem($mem);
++    config_magos();
+ 
+     config_desktop586() if $name eq "desktop586";
+     config_netbook() if $name eq "netbook";
+@@ -1014,6 +1043,7 @@ sub config_x86_64 {
+     }
+ 
+     config_nproc_x86_64($nproc);
++    config_magos();
+ 
+     config_netbook() if $name eq "netbook";
+     config_server() if $name eq "server";
+diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 --- a/patches/video-magos-logo.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/video-magos-logo.patch	2013-08-17 15:50:36.987631520 +0400
-@@ -0,0 +1,938 @@
++++ b/patches/video-magos-logo.patch	2013-09-18 19:09:53.000000000 +0400
+@@ -0,0 +1,936 @@
 +diff -auprN a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
-+--- a/drivers/video/logo/Kconfig	2012-11-16 21:41:00.273339096 +0400
-++++ b/drivers/video/logo/Kconfig	2012-11-16 21:41:20.811066369 +0400
-+@@ -87,4 +87,9 @@ config LOGO_MDK_CLUT224
-+         depends on LOGO
-+         default y
++--- a/drivers/video/logo/Kconfig	2013-07-01 02:13:29.000000000 +0400
+++++ b/drivers/video/logo/Kconfig	2013-09-18 19:07:05.000000000 +0400
++@@ -82,4 +82,9 @@ config LOGO_M32R_CLUT224
++ 	depends on M32R
++ 	default y
 + 
 ++config LOGO_MAGOS_CLUT224
-++        bool "224-color Magos logo"
+++	bool "224-color Magos logo"
 ++	depends on LOGO
 ++	default y
 ++
 + endif # LOGO
-+diff -auprN a/drivers/video/logo/logo.c b/drivers/video/logo/logo.c
-+--- a/drivers/video/logo/logo.c	2012-11-16 21:41:00.273339096 +0400
-++++ b/drivers/video/logo/logo.c	2012-11-16 21:41:20.811066369 +0400
-+@@ -105,6 +105,12 @@ const struct linux_logo * __init_refok f
++diff -auprN a/drivers/video/logo/Makefile b/drivers/video/logo/Makefile
++--- a/drivers/video/logo/Makefile	2013-07-01 02:13:29.000000000 +0400
+++++ b/drivers/video/logo/Makefile	2013-09-18 19:07:27.000000000 +0400
++@@ -15,6 +15,7 @@ obj-$(CONFIG_LOGO_SUPERH_MONO)		+= logo_
++ obj-$(CONFIG_LOGO_SUPERH_VGA16)		+= logo_superh_vga16.o
++ obj-$(CONFIG_LOGO_SUPERH_CLUT224)	+= logo_superh_clut224.o
++ obj-$(CONFIG_LOGO_M32R_CLUT224)		+= logo_m32r_clut224.o
+++obj-$(CONFIG_LOGO_MAGOS_CLUT224)        += logo_magos_clut224.o
++ 
++ obj-$(CONFIG_SPU_BASE)			+= logo_spe_clut224.o
++ 
++diff -auprN a/include/linux/linux_logo.h b/include/linux/linux_logo.h
++--- a/include/linux/linux_logo.h	2013-07-01 02:13:29.000000000 +0400
+++++ b/include/linux/linux_logo.h	2013-09-18 19:07:51.000000000 +0400
++@@ -47,6 +47,7 @@ extern const struct linux_logo logo_supe
++ extern const struct linux_logo logo_superh_clut224;
++ extern const struct linux_logo logo_m32r_clut224;
++ extern const struct linux_logo logo_spe_clut224;
+++extern const struct linux_logo logo_magos_clut224;
++ 
++ extern const struct linux_logo *fb_find_logo(int depth);
++ #ifdef CONFIG_FB_LOGO_EXTRA
++--- a/drivers/video/logo/logo.c	2011-08-03 23:43:28.000000000 +0400
+++++ b/drivers/video/logo/logo.c	2011-12-30 20:25:56.654003532 +0400
++@@ -100,6 +100,12 @@ const struct linux_logo * __init_refok f
 + 		/* M32R Linux logo */
 + 		logo = &logo_m32r_clut224;
 + #endif
@@ -42,9 +225,8 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 + 	}
 + 	return logo;
 + }
-+diff -auprN a/drivers/video/logo/logo_magos_clut224.ppm b/drivers/video/logo/logo_magos_clut224.ppm
 +--- a/drivers/video/logo/logo_magos_clut224.ppm	1970-01-01 03:00:00.000000000 +0300
-++++ b/drivers/video/logo/logo_magos_clut224.ppm	2012-11-16 21:41:20.813065377 +0400
+++++ b/drivers/video/logo/logo_magos_clut224.ppm	2011-12-30 20:21:32.901003490 +0400
 +@@ -0,0 +1,883 @@
 ++P3
 ++80 80
@@ -929,186 +1111,3 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 ++30 31 29 23 24 22 15 17 15 8 10 6 8 10 6 3 6 2 3 6 2 0 1 0 
 ++0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 
 ++
-+diff -auprN a/drivers/video/logo/Makefile b/drivers/video/logo/Makefile
-+--- a/drivers/video/logo/Makefile	2012-11-16 21:41:00.267342104 +0400
-++++ b/drivers/video/logo/Makefile	2012-11-16 21:42:08.648138869 +0400
-+@@ -16,6 +16,7 @@ obj-$(CONFIG_LOGO_SUPERH_VGA16)		+= logo
-+ obj-$(CONFIG_LOGO_SUPERH_CLUT224)	+= logo_superh_clut224.o
-+ obj-$(CONFIG_LOGO_M32R_CLUT224)		+= logo_m32r_clut224.o
-+ obj-$(CONFIG_LOGO_MDK_CLUT224)		+= logo_mdk_clut224.o
-++obj-$(CONFIG_LOGO_MAGOS_CLUT224)        += logo_magos_clut224.o
-+ 
-+ obj-$(CONFIG_SPU_BASE)			+= logo_spe_clut224.o
-+ 
-+diff -auprN a/include/linux/linux_logo.h b/include/linux/linux_logo.h
-+--- a/include/linux/linux_logo.h	2012-11-16 21:41:00.273339096 +0400
-++++ b/include/linux/linux_logo.h	2012-11-16 21:43:31.184851302 +0400
-+@@ -48,6 +48,7 @@ extern const struct linux_logo logo_supe
-+ extern const struct linux_logo logo_m32r_clut224;
-+ extern const struct linux_logo logo_spe_clut224;
-+ extern const struct linux_logo logo_mdk_clut224;
-++extern const struct linux_logo logo_magos_clut224;
-+ 
-+ extern const struct linux_logo *fb_find_logo(int depth);
-+ #ifdef CONFIG_FB_LOGO_EXTRA
-diff -auprN a/scripts/create_configs b/scripts/create_configs
---- a/scripts/create_configs	2013-05-16 13:59:50.000000000 +0400
-+++ b/scripts/create_configs	2013-08-17 15:50:36.990631520 +0400
-@@ -908,6 +908,34 @@ sub config_nrj_desktop_core2_pae{
- 
- # End > specific cpu level optimized nrj flavours
- 
-+sub  config_magos{
-+    my ($name) = @_;
-+
-+	$values{LOGO_MDK_CLUT224} = "n";
-+	$to_add{LOGO_MAGOS_CLUT224} = "y";
-+	$to_add{AUFS_FS} = "m";
-+	$to_add{AUFS_BRANCH_MAX_127} = "n";
-+	$to_add{AUFS_BRANCH_MAX_511} = "y";
-+	$to_add{AUFS_BRANCH_MAX_1023} = "n";
-+	$to_add{AUFS_BRANCH_MAX_32767} = "n";
-+	$to_add{AUFS_SBILIST} = "y";
-+	$to_add{AUFS_HNOTIFY} = "n";
-+	$to_add{AUFS_EXPORT} = "n";
-+	$to_add{AUFS_RDU} = "n";
-+	$to_add{AUFS_PROC_MAP} = "n";
-+	$to_add{AUFS_SP_IATTR} = "n";
-+	$to_add{AUFS_SHWH} = "y";
-+	$to_add{AUFS_BR_RAMFS} = "n";
-+	$to_add{AUFS_BR_FUSE} = "n";
-+	$to_add{AUFS_BR_HFSPLUS} = "y";
-+	$to_add{AUFS_BDEV_LOOP} = "y";
-+	$to_add{AUFS_DEBUG} = "n";
-+	$values{NLS_CODEPAGE_437} = "m";
-+	$values{FAT_DEFAULT_CODEPAGE} = "866";
-+	$values{FAT_DEFAULT_IOCHARSET} = "\"utf8\"";
-+	$values{NLS_DEFAULT} = "\"utf8\"";
-+}
-+
- sub config_i386 {
-     my ($cpu, $nproc, $mem, $name) = @_;
-     dprint "config i386\n";
-@@ -920,6 +948,7 @@ sub config_i386 {
-     config_x86_cpu($cpu);
-     config_nproc_x86($nproc);
-     config_x86_highmem($mem);
-+    config_magos();
- 
-     config_desktop586() if $name eq "desktop586";
-     config_netbook() if $name eq "netbook";
-@@ -954,6 +983,7 @@ sub config_x86_64 {
-     }
- 
-     config_nproc_x86_64($nproc);
-+    config_magos();
- 
-     config_netbook() if $name eq "netbook";
-     config_server() if $name eq "server";
-diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
---- a/scripts/create_configs-QL	2013-06-20 21:06:20.000000000 +0400
-+++ b/scripts/create_configs-QL	2013-08-17 15:50:36.992631520 +0400
-@@ -1022,7 +1022,33 @@ sub config_nrjQL_desktop_core2_pae{
- 
- # End > specific cpu level optimized nrjQL flavours
- 
-+sub  config_magos{
-+    my ($name) = @_;
- 
-+    $values{LOGO_MDK_CLUT224} = "n";
-+    $to_add{LOGO_MAGOS_CLUT224} = "y";
-+    $to_add{AUFS_FS} = "m";
-+    $to_add{AUFS_BRANCH_MAX_127} = "n";
-+    $to_add{AUFS_BRANCH_MAX_511} = "y";
-+    $to_add{AUFS_BRANCH_MAX_1023} = "n";
-+    $to_add{AUFS_BRANCH_MAX_32767} = "n";
-+    $to_add{AUFS_SBILIST} = "y";
-+    $to_add{AUFS_HNOTIFY} = "n";
-+    $to_add{AUFS_EXPORT} = "n";
-+    $to_add{AUFS_RDU} = "n";
-+    $to_add{AUFS_PROC_MAP} = "n";
-+    $to_add{AUFS_SP_IATTR} = "n";
-+    $to_add{AUFS_SHWH} = "y";
-+    $to_add{AUFS_BR_RAMFS} = "n";
-+    $to_add{AUFS_BR_FUSE} = "n";
-+    $to_add{AUFS_BR_HFSPLUS} = "y";
-+    $to_add{AUFS_BDEV_LOOP} = "y";
-+    $to_add{AUFS_DEBUG} = "n";
-+    $values{NLS_CODEPAGE_437} = "m";
-+    $values{FAT_DEFAULT_CODEPAGE} = "866";
-+    $values{FAT_DEFAULT_IOCHARSET} = "utf8";
-+    $values{NLS_DEFAULT} = "utf8";
-+}
- 
- sub config_i386 {
-     my ($cpu, $nproc, $mem, $name) = @_;
-@@ -1036,6 +1062,7 @@ sub config_i386 {
-     config_x86_cpu($cpu);
-     config_nproc_x86($nproc);
-     config_x86_highmem($mem);
-+    config_magos();
- 
-     config_nrjQL_desktop() if $name eq "nrjQL-desktop";
-     config_nrjQL_realtime() if $name eq "nrjQL-realtime";
-@@ -1062,6 +1089,7 @@ sub config_x86_64 {
-     }
- 
-     config_nproc_x86_64($nproc);
-+    config_magos();
- 
-     config_nrjQL_desktop() if $name eq "nrjQL-desktop";
-     config_nrjQL_realtime() if $name eq "nrjQL-realtime";
-diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
---- a/scripts/create_configs-withBFQ	2013-06-10 22:30:53.000000000 +0400
-+++ b/scripts/create_configs-withBFQ	2013-08-17 15:50:36.995631520 +0400
-@@ -960,6 +960,34 @@ sub config_nrj_desktop_core2_pae{
- 
- # End > specific cpu level optimized nrj flavours
- 
-+sub  config_magos{
-+    my ($name) = @_;
-+
-+	$values{LOGO_MDK_CLUT224} = "n";
-+	$to_add{LOGO_MAGOS_CLUT224} = "y";
-+	$to_add{AUFS_FS} = "m";
-+	$to_add{AUFS_BRANCH_MAX_127} = "n";
-+	$to_add{AUFS_BRANCH_MAX_511} = "y";
-+	$to_add{AUFS_BRANCH_MAX_1023} = "n";
-+	$to_add{AUFS_BRANCH_MAX_32767} = "n";
-+	$to_add{AUFS_SBILIST} = "y";
-+	$to_add{AUFS_HNOTIFY} = "n";
-+	$to_add{AUFS_EXPORT} = "n";
-+	$to_add{AUFS_RDU} = "n";
-+	$to_add{AUFS_PROC_MAP} = "n";
-+	$to_add{AUFS_SP_IATTR} = "n";
-+	$to_add{AUFS_SHWH} = "y";
-+	$to_add{AUFS_BR_RAMFS} = "n";
-+	$to_add{AUFS_BR_FUSE} = "n";
-+	$to_add{AUFS_BR_HFSPLUS} = "y";
-+	$to_add{AUFS_BDEV_LOOP} = "y";
-+	$to_add{AUFS_DEBUG} = "n";
-+	$values{NLS_CODEPAGE_437} = "m";
-+	$values{FAT_DEFAULT_CODEPAGE} = "866";
-+	$values{FAT_DEFAULT_IOCHARSET} = "\"utf8\"";
-+	$values{NLS_DEFAULT} = "\"utf8\"";
-+}
-+
- sub config_i386 {
-     my ($cpu, $nproc, $mem, $name) = @_;
-     dprint "config i386\n";
-@@ -972,6 +1000,7 @@ sub config_i386 {
-     config_x86_cpu($cpu);
-     config_nproc_x86($nproc);
-     config_x86_highmem($mem);
-+    config_magos();
- 
-     config_desktop586() if $name eq "desktop586";
-     config_netbook() if $name eq "netbook";
-@@ -1006,6 +1035,7 @@ sub config_x86_64 {
-     }
- 
-     config_nproc_x86_64($nproc);
-+    config_magos();
- 
-     config_netbook() if $name eq "netbook";
-     config_server() if $name eq "server";

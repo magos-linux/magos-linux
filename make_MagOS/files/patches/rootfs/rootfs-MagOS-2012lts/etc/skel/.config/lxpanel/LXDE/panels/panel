@@ -59,7 +59,7 @@ Plugin {
             id=firefox.desktop
         }
         Button {
-            id=mandriva-drakconf.desktop
+            id=magos-ctrl-center.desktop
         }
     }
 }

@@ -116,39 +116,27 @@ movefiles modules_filelist/72-documentation modules_filelist/international 'usr/
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/uk'
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/sv'
 
-echo "Формирование модулей локализаций 1"
 if [ -f 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml' ] ;then
    MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
    movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
    movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
 fi
 
-echo "Формирование модулей локализаций 2"
 MODULE=$(findmodbyrpm 'kdebase4-runtime-')
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
-
-echo "Формирование модулей локализаций 3"
 MODULE=$(findmodbyrpm 'playonlinux-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
-
-echo "Формирование модулей локализаций 4"
 MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
-
-echo "Формирование модулей локализаций 5"
 MODULE=$(findmodbyrpm 'inkscape-')
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
-
-echo "Формирование модулей локализаций 6"
 MODULE=$(findmodbyrpm 'libgweather-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
-
-echo "Формирование модулей локализаций 7"
 if [ -d usr/share/vpnpptp/wiki ] ;then
    MODULE=$(findmodbyrpm 'vpnpptp-allde-')
    movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
