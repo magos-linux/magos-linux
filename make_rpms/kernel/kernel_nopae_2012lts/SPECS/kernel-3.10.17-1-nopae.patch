@@ -1,0 +1,17 @@
+diff -aupr a/kernel-3.10.13-1.spec b/kernel-3.10.13-1.spec
+--- a/kernel-3.10.13-1.spec	2013-10-01 06:10:15.000000000 +0400
++++ b/kernel-3.10.13-1.spec	2013-10-01 06:11:03.000000000 +0400
+@@ -315,11 +315,11 @@ Packager: Nicolo' Costanza <abitrules@ya
+ %define build_desktop_pae               0
+ %define build_netbook_pae               0
+ %define build_nrj_desktop586            0
+-%define build_nrj_desktop               0
++%define build_nrj_desktop               1
+ %define build_nrj_realtime              0
+ %define build_nrj_laptop                0
+ %define build_nrj_netbook               0
+-%define build_nrj_desktop_pae           1
++%define build_nrj_desktop_pae           0
+ %define build_nrj_realtime_pae          0
+ %define build_nrj_laptop_pae            0
+ %define build_nrj_netbook_pae           0

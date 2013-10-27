@@ -9,8 +9,8 @@ ENABLED=yes
 [ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 [ -z "$BACKGROUND" ] && exit 0
-DEFAULTDIR=/usr/share/mdk/backgrounds
-DEFAULTFILE=bluesth.jpg
+DEFAULTDIR=/usr/share/magos/wallpapers
+DEFAULTFILE=simple/bluesth.jpg
 
 [ "$(cmdline_value xres)" ] && XORG_RES=$(cmdline_value xres)
 [ -z "$XORG_RES" -o "$XORG_RES" = "auto" ] && XORG_RES=$(monitor-edid | awk '/ModeLine/ { print $2 }' | sed -e 's/"//g' -e '2,$d')
@@ -18,11 +18,11 @@ DEFAULTFILE=bluesth.jpg
 echo "$XORG_RES" | grep -q ^[0-9]*x[0-9]*$ || XORG_RES=1024x768
 
 SOURCE="$BACKGROUND"
-[ -d "$SOURCE" ] && SOURCE=$(find "$SOURCE" | egrep -i "[.]jpeg$|[.]jpg$" | sort -R | head -1)
+[ -d "$SOURCE" ] && SOURCE=$(find -L "$SOURCE" | egrep -i "[.]jpeg$|[.]jpg$" | sort -R | head -1)
 [ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/$BACKGROUND.jpg"
 [ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/$DEFAULTFILE"
 
-rm -f $DEFAULTDIR/default.jpg
+#rm -f $DEFAULTDIR/default.jpg
 if [ "$(dirname $SOURCE)" = "$DEFAULTDIR" ] ;then
    [ "$BACKTODATE" != "no" -a -f "$DEFAULTDIR/todate-$(date +%Y%m%d).jpg" ] && SOURCE="$DEFAULTDIR/todate-$(date +%Y%m%d).jpg"
    [ -f "${SOURCE/.jpg/-wide.jpg}" ] && [ "$(echo ${XORG_RES%x*}*3/4 | bc )" -gt "${XORG_RES#*x}" ] && SOURCE="${SOURCE/.jpg/-wide.jpg}"
@@ -54,7 +54,7 @@ if [ "$GRAFFITI" = "yes" ] ;then
    composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg $DEFAULTDIR/default.jpg
    rm -f /tmp/background.jpg /tmp/logo.png /tmp/label.png
 else
-   mv /tmp/background.jpg $DEFAULTDIR/default.jpg
+   mv -f /tmp/background.jpg $DEFAULTDIR/default.jpg
 fi
 
 [ "$GRAFFITI" != "no" ] && \

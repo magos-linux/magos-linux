@@ -46,7 +46,7 @@ fi
 cd "$MYPATH/work/$FLASHNAME-$VERREL"
 echo "Обновление базы данных о файлах"
 grep -q aufs.*mirror/rootfs /proc/mounts || mount -t aufs -o br:mirror/changes=rw:rootfs=ro aufs mirror/rootfs || exit 1
-rm -fr modules* dir_list files_notfounded rootfs_dirs* split_errors.txt 2>/dev/null
+rm -fr modules* dir_list files_notfounded rootfs_* split_errors.txt 2>/dev/null
 mkdir -p "$MYPATH/loaded/rpmfiles_$VERREL" modules_list  modules_filelist || exit 1
 cp "$MYPATH/loaded/$FLASHNAME-$VERREL/names/"??-* modules_list
 cat modules_list/??-* | LC_ALL=C sort > modules_list/$FLASHNAME-$VERREL
@@ -61,6 +61,11 @@ find mirror/rootfs | sed /^mirror.rootfs$/d | sed s-^mirror/rootfs-- | sort >roo
 sed 's|/[^/]*$||' rootfs_list | sort -u | sed s-^/-- >rootfs_dirs
 sed -i s-^/-- rootfs_list
 deletefiles rootfs_list rootfs_dirs
+cat rootfs_list | while read a ;do [ -h "mirror/rootfs/$a" ] && echo $a ;done >rootfs_links
+cat rootfs_links |  while read a ;do
+  b=$(chroot mirror/rootfs readlink -f "$a" | sed s-^/-- )
+  [ "$b" != "" -a -d "mirror/rootfs/$b" ] && echo "$a $b" >> rootfs_links_dirs
+done
 cp -f rootfs_list ost_list
 
 cd modules_list || exit 1
@@ -69,6 +74,10 @@ for MODULE in ??-* ;do
    for RPM in `cat $MODULE` ;do
        cat ../../../loaded/rpmfiles_$VERREL/$RPM >> ../modules_filelist/$MODULE
    done
+   cat ../rootfs_links_dirs | while read a b ;do
+       sed -i 's|^'"$a "'|'"$b"'|' ../modules_filelist/$MODULE
+       sed -i 's|^'"$a/"'|'"$b"'|' ../modules_filelist/$MODULE
+   done 
    deletefiles ../modules_filelist/$MODULE ../rootfs_dirs
    deletefiles ../ost_list ../modules_filelist/$MODULE
    echo $MODULE | grep  -q -- -int- && continue
@@ -116,27 +125,39 @@ movefiles modules_filelist/72-documentation modules_filelist/international 'usr/
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/uk'
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/sv'
 
+echo "Формирование модулей локализаций 1"
 if [ -f 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml' ] ;then
    MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
    movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
    movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
 fi
 
+echo "Формирование модулей локализаций 2"
 MODULE=$(findmodbyrpm 'kdebase4-runtime-')
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
+
+echo "Формирование модулей локализаций 3"
 MODULE=$(findmodbyrpm 'playonlinux-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
 movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
+
+echo "Формирование модулей локализаций 4"
 MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../files/locales
+
+echo "Формирование модулей локализаций 5"
 MODULE=$(findmodbyrpm 'inkscape-')
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../files/locales
 movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
+
+echo "Формирование модулей локализаций 6"
 MODULE=$(findmodbyrpm 'libgweather-')
 movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../files/locales
+
+echo "Формирование модулей локализаций 7"
 if [ -d usr/share/vpnpptp/wiki ] ;then
    MODULE=$(findmodbyrpm 'vpnpptp-allde-')
    movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'

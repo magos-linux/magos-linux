@@ -16,7 +16,7 @@ wallpaperpluginmode=SingleImage
 
 [Containments][14][Wallpaper][image]
 slideTimer=10
-slidepaths=/usr/share/wallpapers/
+slidepaths=/usr/share/magos/wallpapers/Default
 
 [Containments][2]
 activity=

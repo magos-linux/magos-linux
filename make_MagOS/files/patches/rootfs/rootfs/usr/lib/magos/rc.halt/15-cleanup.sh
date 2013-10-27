@@ -5,7 +5,7 @@ ENABLED=yes
 
 # some cleanups
 rm -fr /tmp/* /mnt/live/memory/changes/usr/share/apps/ksplash/Themes/Default 2>/dev/null
-rm -f /mnt/live/memory/changes/usr/share/mdk/backgrounds/default.jpg 2>/dev/null
+rm -f /mnt/live/memory/changes/usr/share/magos/wallpapers/default.jpg 2>/dev/null
 rm -f /var/lib/rpm/__db* 2>/dev/null
 
 if [ ! -f /mnt/live/memory/changes/var/lib/rpm/Packages ] ;then

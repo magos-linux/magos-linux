@@ -53,9 +53,9 @@ if [ "$THEMEPLASMA" != ""  ] ;then
    echo -e "[Theme]\nname=$THEMEPLASMA" > /usr/share/magos/kde4/share/config/plasmarc
    if [ -d "/usr/share/apps/desktoptheme/$THEMEPLASMA" ] ;then
      if ! grep -q "defaultWallpaperTheme" "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop" ;then
-       echo -e  "\n[Wallpaper]\ndefaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg" >> "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
+       echo -e  "\n[Wallpaper]\ndefaultWallpaperTheme=/usr/share/magos/wallpapers/default.jpg" >> "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
      else
-       sed -i 's|defaultWallpaperTheme=.*|defaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg|' "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
+       sed -i 's|defaultWallpaperTheme=.*|defaultWallpaperTheme=/usr/share/magos/wallpapers/default.jpg|' "/usr/share/apps/desktoptheme/$THEMEPLASMA/metadata.desktop"
      fi
    fi
 fi

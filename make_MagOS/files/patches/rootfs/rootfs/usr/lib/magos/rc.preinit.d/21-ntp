@@ -14,7 +14,7 @@ ENABLED=yes
 
 if  ! [ -z "$NTPSERVERS" ] ;then 
     sed -i /^server/d etc/ntp.conf
-    for a in $(echo $NTPSERVERS | tr ',;' ' ') ;do 
+    for a in $(echo $NTPSERVERS | tr ',;' ' ') ;do
         sed -i '/^driftfile/ s/^/server '"$a"\\n/ etc/ntp.conf
         grep -q "restrict $a" etc/ntp.conf || echo "restrict $a noquerry notrap" >> etc/ntp.conf
     done

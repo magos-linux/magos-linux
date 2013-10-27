@@ -118,6 +118,6 @@ ${color3}Загрузка$color4 ${downspeed ppp0}/s${alignr}${color white}От�
 ${color white}Загружено ${totaldown ppp0} ${alignr}${color white}Отдано${alignr} ${totalup ppp0}$endif
 
 #следующая строка включает псевдо прозрачность в кде без 3d, 
-#нужно установить urpmi feh, вкдючить own_window_transparent yes и возможно own_window_type переключить на override
-#${execi 99999 feh --bg-scale /usr/share/mdk/backgrounds/default.jpg}
+#нужно установить urpmi feh, включить own_window_transparent yes и возможно own_window_type переключить на override
+#${execi 99999 feh --bg-scale /usr/share/magos/wallpapers/default.jpg}
 

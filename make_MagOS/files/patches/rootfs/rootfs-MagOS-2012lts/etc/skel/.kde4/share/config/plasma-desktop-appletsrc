@@ -312,9 +312,9 @@ Order=15
 
 [Containments][2][Wallpaper][image]
 slideTimer=10
-slidepaths=/usr/share/wallpapers/
+slidepaths=/usr/share/magos/wallpapers/Default
 userswallpapers=
-wallpaper=/usr/share/mdk/backgrounds/default.jpg
+wallpaper=/usr/share/magos/wallpapers/default.jpg
 wallpapercolor=0,0,0
 wallpaperposition=0
 
@@ -349,9 +349,9 @@ zvalue=0
 
 [Containments][27][Wallpaper][image]
 slideTimer=10
-slidepaths=/usr/share/wallpapers/
+slidepaths=/usr/share/magos/wallpapers/Default
 userswallpapers=
-wallpaper=/usr/share/mdk/backgrounds/default.jpg
+wallpaper=/usr/share/magos/wallpapers/default.jpg
 wallpapercolor=0,0,0
 wallpaperposition=0
 

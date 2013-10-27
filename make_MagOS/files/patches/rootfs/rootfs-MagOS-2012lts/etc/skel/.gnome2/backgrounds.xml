@@ -9,23 +9,23 @@
     <pcolor>#212144449c9c</pcolor>
     <scolor>#7f7f7f7f7f7f</scolor>
   </wallpaper>
-  <wallpaper deleted="false">
+  <wallpaper deleted="true">
     <name>Nature</name>
-    <filename>/usr/share/mdk/backgrounds/nature.jpg</filename>
+    <filename>/usr/share/magos/wallpapers/default.jpg</filename>
     <options>stretched</options>
     <shade_type>solid</shade_type>
     <pcolor>#212144449c9c</pcolor>
     <scolor>#7f7f7f7f7f7f</scolor>
   </wallpaper>
-  <wallpaper deleted="false">
+  <wallpaper deleted="true">
     <name>Flower</name>
-    <filename>/usr/share/mdk/backgrounds/flower.jpg</filename>
+    <filename>/usr/share/magos/wallpapers/default.jpg</filename>
     <options>stretched</options>
     <shade_type>solid</shade_type>
     <pcolor>#212144449c9c</pcolor>
     <scolor>#7f7f7f7f7f7f</scolor>
   </wallpaper>
-  <wallpaper deleted="false">
+  <wallpaper deleted="true">
     <name>&#x424;&#x43E;&#x43D; &#x440;&#x430;&#x431;&#x43E;&#x447;&#x435;&#x433;&#x43E; &#x441;&#x442;&#x43E;&#x43B;&#x430; &#x43F;&#x43E; &#x443;&#x43C;&#x43E;&#x43B;&#x447;&#x430;&#x43D;&#x438;&#x44E;</name>
     <filename>/usr/share/pixmaps/backgrounds/gnome/background-default.jpg</filename>
     <options>zoom</options>
@@ -35,7 +35,7 @@
   </wallpaper>
   <wallpaper deleted="false">
     <name>default.jpg</name>
-    <filename>/usr/share/mdk/backgrounds/default.jpg</filename>
+    <filename>/usr/share/magos/wallpapers/default.jpg</filename>
     <options>stretched</options>
     <shade_type>solid</shade_type>
     <pcolor>#212145459c9c</pcolor>

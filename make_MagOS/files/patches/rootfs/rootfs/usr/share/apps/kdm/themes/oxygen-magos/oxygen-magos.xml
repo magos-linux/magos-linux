@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	       base-color="#C7C7C7" alternate-base-color="#666666"
 	       text-color="#000000" disabled-text-color="#808080"/>
 	<item type="svg" id="background" background="true">
-		<normal file="/usr/share/mdk/backgrounds/default.jpg" scalemode="crop"/>
+		<normal file="/usr/share/magos/wallpapers/default.jpg" scalemode="crop"/>
 		<pos width="100%" height="100%"/>
 	</item>
 

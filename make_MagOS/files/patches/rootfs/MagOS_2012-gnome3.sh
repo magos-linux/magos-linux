@@ -2,7 +2,7 @@
 rm -fr usr/share/themes/Default/gtk-3.0
 sed -i s/"gtk-theme-name =".*/"gtk-theme-name = Default"/ etc/gtk-3.0/settings.ini
 PFP=usr/share/glib-2.0/schemas/org.gnome.desktop.background.gschema.xml
-sed -i s=usr/share/themes/Adwaita/backgrounds/adwaita-timed.xml=usr/share/mdk/backgrounds/default.jpg= $PFP
+sed -i s=usr/share/themes/Adwaita/backgrounds/adwaita-timed.xml=/usr/share/magos/wallpapers/default.jpg= $PFP
 PFP=usr/share/glib-2.0/schemas/org.gnome.desktop.wm.preferences.gschema.xml
 sed -i s=Adwaita=Default= $PFP
 PFP=usr/share/glib-2.0/schemas/org.gnome.desktop.interface.gschema.xml

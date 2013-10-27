@@ -13,7 +13,6 @@ ghostscript-common-
 ghostscript-fonts-
 ghostscript-module-X-
 gxneur-
-libgraphite2_2-
 libgs9-
 libjbig2dec0-
 libkpathsea6-
@@ -45,3 +44,17 @@ libboost_date_time1.50.0-
 libexttextcat0-
 libmythes1.2_0-
 libexttextcat-data-
+hsqldb1.8.0-
+lpsolve-
+libclucene-contribs-lib2-
+libcdr0-
+libpython3.3-
+libmwaw0.1_1-
+tomcat5-servlet-2.4-api-
+liborcus0.6_0-
+libodfgen0.0_0-
+libcmis0.4_4-
+libmspub0.0_0-
+liborcus-parser0.6_0-
+liblangtag1-
+libvisio0.0_0-

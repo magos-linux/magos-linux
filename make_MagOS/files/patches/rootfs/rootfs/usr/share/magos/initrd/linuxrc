@@ -128,6 +128,7 @@ echolog "using $LIVECDNAME data from $DATA"
 
 debug_shell
 
+echo scantimeout=0 >/tmp/cmdline
 SGN=$(cmdline_value sgndatafile)
 if [ "$SGN" != "no" -a "$SGN" != "off" ] ;then
    [ -z "$SGN" ] && SGN=$LIVECDNAME-Data.sgn

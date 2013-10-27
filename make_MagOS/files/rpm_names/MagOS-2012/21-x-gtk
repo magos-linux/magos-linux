@@ -83,8 +83,6 @@ libvte9-
 libwebkitgtk1.0_0-
 libwnck-
 libwnck-1_22-
-libwxgtkglu2.8-
-libwxgtku2.8-
 notification-daemon-
 obex-data-server-
 perl-Cairo-
@@ -152,3 +150,17 @@ webkit1.0-webinspector-
 libjavascriptcoregtk3.0_0-
 libwebp4-
 libgtk+3_0-
+libwx_baseu2.8_0-
+libwx_baseu_net2.8_0-
+libwx_baseu_xml2.8_0-
+libwx_gtk2u_adv2.8_0-
+libwx_gtk2u_core2.8_0-
+libwx_gtk2u_aui2.8_0-
+libwx_gtk2u_xrc2.8_0-
+libwx_gtk2u_html2.8_0-
+libwx_gtk2u_gizmos2.8_0-
+libwx_gtk2u_qa2.8_0-
+libwx_gtk2u_gl2.8_0-
+libwx_gtk2u_richtext2.8_0-
+libwx_gtk2u_media2.8_0-
+libwx_gtk2u_stc2.8_0-
