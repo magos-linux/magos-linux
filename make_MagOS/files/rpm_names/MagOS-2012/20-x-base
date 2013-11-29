@@ -473,3 +473,15 @@ libgphoto2_port10-
 libgraphite2_2-
 libevdev1-
 libcares2-
+libI810XvMC1-
+libchromeXvMC1-
+libxatracker1-
+libxcb-composite0-
+libIntelXvMC1-
+libchromeXvMCPro1-
+libxcb-util-image0-
+libglamor0-
+libxcb-util-keysyms1-
+libxcb-randr0-
+libxcb-shape0-
+libxcb-sync0-

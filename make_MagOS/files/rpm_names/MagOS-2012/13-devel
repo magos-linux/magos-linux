@@ -56,8 +56,8 @@ libasm1-
 libdw1-
 perl-RPM-
 perl-IO-String-
-rpmlint-mandriva-policy-
 rpmlint-
+rpmlint-rosa-policy-
 python-magic-
 libffi5-devel-
 libpcre-devel-
@@ -69,3 +69,4 @@ uclibc-libkmod2-
 libkmod-devel-
 kernel-headers-
 bash-completion-
+chrpath-
