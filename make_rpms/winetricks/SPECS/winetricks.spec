@@ -1,6 +1,6 @@
 Summary:	wine helper script
 Name:		winetricks
-Version:        20130629
+Version:        20130707
 Release:	1
 License:	GPLv2
 Group:		Games/Other

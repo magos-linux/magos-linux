@@ -51,17 +51,21 @@ if [ "$GRAFFITI" = "yes" ] ;then
       fi
    done
    convert -resize x$(expr $(echo $XORG_RES | awk -Fx '{ print $2 }') / 10) /tmp/graffiti-label.png /tmp/logo.png
-   composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg $DEFAULTDIR/default.jpg
-   rm -f /tmp/background.jpg /tmp/logo.png /tmp/label.png
-else
-   mv -f /tmp/background.jpg $DEFAULTDIR/default.jpg
+   composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg /tmp/background2.jpg
+   mv -f /tmp/background2.jpg /tmp/background.jpg
+   rm -f /tmp/logo.png /tmp/label.png
 fi
 
-[ "$GRAFFITI" != "no" ] && \
+if [ "$GRAFFITI" != "no" ] ;then
    egrep -q '^root\:\$2a\$08\$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji|^user\:\$2a\$08\$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2' /etc/shadow && \
-   convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 \
-       -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red \
-       -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg
+         composite -gravity NorthWest /usr/share/magos/graffiti/warning.png /tmp/background.jpg /tmp/background2.jpg
+   mv -f /tmp/background2.jpg /tmp/background.jpg
+#   convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 \
+#       -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red \
+#       -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg
+fi
+
+[ -f /tmp/background.jpg  ] && mv -f /tmp/background.jpg $DEFAULTDIR/default.jpg
 
 [ -f $DEFAULTDIR/default.jpg ] || ln -sf "$SOURCE" $DEFAULTDIR/default.jpg
 

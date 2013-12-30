@@ -21,4 +21,3 @@ sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ usr/share/magos/kde4/sh
 PFP=etc/X11/slim/slim.conf
 [ -f "$PFP" ] || PFP=etc/slim.conf
 sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ $PFP 2>/dev/null
-

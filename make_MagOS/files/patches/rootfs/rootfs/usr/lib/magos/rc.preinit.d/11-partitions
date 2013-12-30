@@ -93,3 +93,8 @@ if [ "$PARTITIONSSHARE" = "yes" ];then
    done
 fi
 
+if [ -d /mnt/livemedia/MagOS-Data -a ! -d /mnt/livedata ] ;then
+   ln -sf livemedia mnt/livedata
+fi
+
+[ "$MNT_BLOCK" = "yes" ] && chmod 600 /mnt

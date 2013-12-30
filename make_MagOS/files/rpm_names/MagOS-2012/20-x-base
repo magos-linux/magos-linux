@@ -485,3 +485,12 @@ libxcb-util-keysyms1-
 libxcb-randr0-
 libxcb-shape0-
 libxcb-sync0-
+VirtualGL-
+libVirtualGL-
+libbsd-
+bumblebee-
+florence-
+libcolordprivate1-
+libnotify-gir0.7-
+libcolorhug1-
+libvpx1-

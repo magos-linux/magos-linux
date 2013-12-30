@@ -1,7 +1,16 @@
-diff -auprN a/kernel-3.10.17-1.spec b/kernel-3.10.16-1.spec
---- a/kernel-3.10.17-1.spec	2013-10-01 17:54:44.000000000 +0400
-+++ b/kernel-3.10.17-1.spec	2013-10-01 18:01:52.000000000 +0400
-@@ -298,6 +298,42 @@ Packager: Nicolo' Costanza <abitrules@ya
+diff -aupr a/kernel-3.10.21-1.spec b/kernel-3.10.21-1.spec
+--- a/kernel-3.10.21-1.spec	2013-12-14 12:42:15.000000000 +0400
++++ b/kernel-3.10.21-1.spec	2013-12-14 13:16:25.583490796 +0400
+@@ -13,7 +13,7 @@ Packager: Nicolo' Costanza <abitrules@ya
+ %define kernelversion	3
+ %define patchlevel	10
+ # sublevel is now used for -stable patches
+-%define sublevel	21
++%define sublevel	24
+ 
+ # Package release
+ %define mibrel		69
+@@ -315,6 +315,42 @@ Packager: Nicolo' Costanza <abitrules@ya
  %{?_without_kirkwood: %global build_kirkwood 0}
  %{?_without_versatile: %global build_versatile 0}
  
@@ -44,7 +53,7 @@ diff -auprN a/kernel-3.10.17-1.spec b/kernel-3.10.16-1.spec
  # For the .nosrc.rpm
  %define build_nosrc 	0
  %{?_with_nosrc: %global build_nosrc 1}
-@@ -422,6 +458,11 @@ Source10: 	ftp://ftp.kernel.org/pub/linu
+@@ -439,6 +475,11 @@ Source10: 	ftp://ftp.kernel.org/pub/linu
  %endif
  %endif
  
@@ -56,7 +65,7 @@ diff -auprN a/kernel-3.10.17-1.spec b/kernel-3.10.16-1.spec
  #END
  ####################################################################
  
-@@ -523,6 +564,8 @@ BuildRequires:	module-init-tools
+@@ -540,6 +581,8 @@ BuildRequires:	module-init-tools
  
  BuildRequires: 	gcc bc
  
@@ -65,7 +74,7 @@ diff -auprN a/kernel-3.10.17-1.spec b/kernel-3.10.16-1.spec
  # for perf, cpufreq and other tools
  BuildRequires:		elfutils-devel
  BuildRequires:		zlib-devel
-@@ -538,6 +581,7 @@ BuildRequires:		docbook-style-xsl
+@@ -555,6 +598,7 @@ BuildRequires:		docbook-style-xsl
  BuildRequires:		pkgconfig(gtk+-2.0)
  BuildRequires:		flex
  BuildRequires:		bison
@@ -73,7 +82,7 @@ diff -auprN a/kernel-3.10.17-1.spec b/kernel-3.10.16-1.spec
  
  %ifarch %{arm}
  BuildRequires:		uboot-mkimage
-@@ -1152,6 +1196,10 @@ cd %src_dir
+@@ -1209,6 +1253,10 @@ cd %src_dir
  %if %kgit
  %patch2 -p1
  %endif
@@ -83,8 +92,8 @@ diff -auprN a/kernel-3.10.17-1.spec b/kernel-3.10.16-1.spec
 +%endif
  
  %{patches_dir}/scripts/apply_patches
- %{patches_dir}/scripts/apply_patches-others
-@@ -1821,7 +1869,8 @@ rm -rf %{target_source}/.tmp_depmod/
+ %{patches_dir}/scripts/apply_patches-NRJ
+@@ -1886,7 +1934,8 @@ rm -rf %{target_source}/.tmp_depmod/
  # compressing modules
  %if %{build_modxz}
  find %{target_modules} -name "*.ko" | %kxargs xz -6e

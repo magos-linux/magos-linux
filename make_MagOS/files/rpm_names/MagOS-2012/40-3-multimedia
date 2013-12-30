@@ -121,7 +121,6 @@ libva1-
 libvamp-plugin-sdk2-
 libvbe0-
 libvcd0-
-libvpx1-
 libwavpack1-
 libwildmidi1-
 libx264_120-
@@ -215,3 +214,4 @@ libavformat55-
 libortp9-
 libavutil50-
 liborc-test0.4_0-
+libglew1.10-

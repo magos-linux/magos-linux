@@ -78,6 +78,7 @@ system-config-printer-
 system-config-printer-libs-
 system-config-printer-udev-
 task-printing-
+task-printing-minimal-
 task-printing-canon-
 task-printing-epson-
 task-printing-hp-
@@ -94,3 +95,11 @@ libcuneiform0-
 libXm2-
 stylus-toolbox-
 libhpmud0-
+cups-filters-
+libcupsimage2-
+libcupsfilters1-
+libcupscgi1-
+libcupsppdc1-
+libcupsmime1-
+libfontembed1-
+libqpdf10-

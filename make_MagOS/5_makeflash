@@ -61,7 +61,7 @@ umountbranches "$(pwd)/initrd"
 rm -fr initrd
 
 echo "Создание модулей"
-cd "$MYPATH/work/$FLASHNAME-$VERREL/modules" || exit 1
+cd "$MYPATH/work/$FLASHNAME-$VERREL/split/modules" || exit 1
 for a in * ;do
     echo $a
     $MKSQUASHFS $a "$MYPATH/$DESTDIR/$FLASHNAME/base/$a.$MODULEFORMAT" $MKSQOPT >/dev/null 2>/dev/null || exit 1

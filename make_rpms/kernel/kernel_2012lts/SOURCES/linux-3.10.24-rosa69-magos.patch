@@ -1,6 +1,6 @@
 diff -auprN a/patches/series b/patches/series
---- a/patches/series	2013-10-04 21:46:30.000000000 +0400
-+++ b/patches/series	2013-10-18 20:18:55.000000000 +0400
+--- a/patches/series	2013-11-13 17:45:19.000000000 +0400
++++ b/patches/series	2013-12-14 07:31:26.879813250 +0400
 @@ -301,6 +301,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
  
  # Mandriva framebuffer boot logo
@@ -11,7 +11,7 @@ diff -auprN a/patches/series b/patches/series
  # https://bugzilla.kernel.org/show_bug.cgi?id=26232
 diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 --- a/patches/video-magos-logo.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/video-magos-logo.patch	2013-10-18 20:18:55.000000000 +0400
++++ b/patches/video-magos-logo.patch	2013-12-14 07:31:26.881812250 +0400
 @@ -0,0 +1,936 @@
 +diff -auprN a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
 +--- a/drivers/video/logo/Kconfig	2013-07-01 02:13:29.000000000 +0400
@@ -950,9 +950,9 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 ++0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 
 ++
 diff -auprN a/scripts/create_configs b/scripts/create_configs
---- a/scripts/create_configs	2013-10-16 14:53:26.000000000 +0400
-+++ b/scripts/create_configs	2013-10-18 20:18:55.000000000 +0400
-@@ -1009,6 +1009,37 @@ sub config_nrj_server_lxc_exp{
+--- a/scripts/create_configs	2013-10-22 12:20:26.000000000 +0400
++++ b/scripts/create_configs	2013-12-14 07:31:26.881812250 +0400
+@@ -1013,6 +1013,37 @@ sub config_nrj_server_lxc_exp{
  # End of LXC flavour definitions
  
  
@@ -990,7 +990,7 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
  sub config_i386 {
      my ($cpu, $nproc, $mem, $name) = @_;
      dprint "config i386\n";
-@@ -1021,6 +1052,7 @@ sub config_i386 {
+@@ -1025,6 +1056,7 @@ sub config_i386 {
      config_x86_cpu($cpu);
      config_nproc_x86($nproc);
      config_x86_highmem($mem);
@@ -998,7 +998,7 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
  
      config_desktop586() if $name eq "desktop586";
      config_netbook() if $name eq "netbook";
-@@ -1058,6 +1090,7 @@ sub config_x86_64 {
+@@ -1062,6 +1094,7 @@ sub config_x86_64 {
      }
  
      config_nproc_x86_64($nproc);
@@ -1007,9 +1007,9 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
      config_netbook() if $name eq "netbook";
      config_server() if $name eq "server";
 diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
---- a/scripts/create_configs-QL	2013-10-16 17:43:55.000000000 +0400
-+++ b/scripts/create_configs-QL	2013-10-18 20:20:45.000000000 +0400
-@@ -1161,6 +1161,35 @@ sub config_nrjQL_server_lxc_exp{
+--- a/scripts/create_configs-QL	2013-10-22 12:11:10.000000000 +0400
++++ b/scripts/create_configs-QL	2013-12-14 07:31:26.882811750 +0400
+@@ -1165,6 +1165,35 @@ sub config_nrjQL_server_lxc_exp{
  
  # End of LXC flavour definitions
  
@@ -1045,7 +1045,7 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
  
  sub config_i386 {
      my ($cpu, $nproc, $mem, $name) = @_;
-@@ -1174,6 +1203,7 @@ sub config_i386 {
+@@ -1178,6 +1207,7 @@ sub config_i386 {
      config_x86_cpu($cpu);
      config_nproc_x86($nproc);
      config_x86_highmem($mem);
@@ -1053,7 +1053,7 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
  
      config_nrjQL_desktop() if $name eq "nrjQL-desktop";
      config_nrjQL_realtime() if $name eq "nrjQL-realtime";
-@@ -1203,6 +1233,7 @@ sub config_x86_64 {
+@@ -1207,6 +1237,7 @@ sub config_x86_64 {
      }
  
      config_nproc_x86_64($nproc);
@@ -1062,9 +1062,9 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
      config_nrjQL_desktop() if $name eq "nrjQL-desktop";
      config_nrjQL_realtime() if $name eq "nrjQL-realtime";
 diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
---- a/scripts/create_configs-withBFQ	2013-10-16 14:36:15.000000000 +0400
-+++ b/scripts/create_configs-withBFQ	2013-10-18 20:18:55.000000000 +0400
-@@ -1069,6 +1069,37 @@ sub config_nrj_server_lxc_exp{
+--- a/scripts/create_configs-withBFQ	2013-10-22 12:11:06.000000000 +0400
++++ b/scripts/create_configs-withBFQ	2013-12-14 07:31:26.882811750 +0400
+@@ -1073,6 +1073,37 @@ sub config_nrj_server_lxc_exp{
  # End of LXC flavour definitions
  
  
@@ -1102,7 +1102,7 @@ diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
  sub config_i386 {
      my ($cpu, $nproc, $mem, $name) = @_;
      dprint "config i386\n";
-@@ -1081,6 +1112,7 @@ sub config_i386 {
+@@ -1085,6 +1116,7 @@ sub config_i386 {
      config_x86_cpu($cpu);
      config_nproc_x86($nproc);
      config_x86_highmem($mem);
@@ -1110,7 +1110,7 @@ diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
  
      config_desktop586() if $name eq "desktop586";
      config_netbook() if $name eq "netbook";
-@@ -1117,6 +1149,7 @@ sub config_x86_64 {
+@@ -1121,6 +1153,7 @@ sub config_x86_64 {
      }
  
      config_nproc_x86_64($nproc);

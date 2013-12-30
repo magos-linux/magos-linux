@@ -3,14 +3,6 @@
 # MagOS-linux.ru
 # Author M.Zaripov
 
-for a in /home/* ;do
-    USER=$(basename $a)
-    [ -d /media/$USER ] && continue
-    mkdir -p /media/$USER
-    chown $USER.$USER /media/$USER
-    chmod 700 /media/$USER
-done
-
 GRP_TOGGLE=ctrl_shift_toggle
 [ -f /etc/sysconfig/keyboard ] && . /etc/sysconfig/keyboard
 

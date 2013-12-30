@@ -1,6 +1,6 @@
 #!/bin/bash
 path=/mnt/livemedia/MagOS/modules
-cat /mnt/live/etc/modules | grep -q MagOS-Data && path=/mnt/livemedia/MagOS-Data/modules
+[ -w /mnt/livedata/MagOS-Data/modules ] && path=/mnt/livedata/MagOS-Data/modules
 zcat /proc/config.gz | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
 
 ENABLE()
@@ -14,15 +14,14 @@ ENABLE()
 
 DISABLE()
 {
-   sed -i '/^SAVETOMODULE.*/d' /etc/sysconfig/MagOS
+   sed -i '/^SAVETOMODULE=.*/d' /etc/sysconfig/MagOS
 }
 
 STATUS()
 {
    . /etc/sysconfig/MagOS
-   status=disabled
-   [ "$SAVETOMODULE" = "yes" ] &&  status=enabled
-   [ "$SAVETOMODULENAME" = "" ] && SAVETOMODULENAME=/mnt/livemedia/MagOS/optional/zz-save.$MODULEFORMAT
+   [ "$SAVETOMODULE" = "yes" ] &&  status=enabled || status=disabled
+#   [ "$SAVETOMODULENAME" = "" ] && SAVETOMODULENAME=/mnt/livemedia/MagOS/optional/zz-save.$MODULEFORMAT
    echo "$status $SAVETOMODULENAME"
 }
 

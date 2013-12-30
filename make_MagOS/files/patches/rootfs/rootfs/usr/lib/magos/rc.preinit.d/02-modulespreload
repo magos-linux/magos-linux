@@ -17,3 +17,9 @@ BLACKLISTMODULES="$(cmdline_value blacklist | tr ',;' ' ')"
 for a in $(echo $MODULESPRELOAD | tr , " ") ;do
     echo " $BLACKLISTMODULES " | grep -q " $a " || chroot . modprobe $a
 done
+
+PFP=etc/modprobe.d/blacklist-magos.conf
+for a in $BLACKLISTMODULES ;do
+    grep -q "^blacklist $a$" $PFP || echo "blacklist $a" >> $PFP
+done
+

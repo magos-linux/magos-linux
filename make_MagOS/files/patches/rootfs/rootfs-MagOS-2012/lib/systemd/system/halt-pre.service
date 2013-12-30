@@ -6,14 +6,14 @@
 #  (at your option) any later version.
 
 [Unit]
-Description=/sbin/halt.pre Compatibility
-ConditionFileIsExecutable=/sbin/halt.pre
+Description=/usr/sbin/halt.pre Compatibility
+ConditionFileIsExecutable=/usr/sbin/halt.pre
 DefaultDependencies=no
 Before=shutdown.target
 
 [Service]
 Type=oneshot
-ExecStart=/sbin/halt.pre
+ExecStart=/usr/sbin/halt.pre
 TimeoutSec=0
 StandardOutput=tty
 RemainAfterExit=yes

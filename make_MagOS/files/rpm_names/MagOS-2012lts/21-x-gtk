@@ -130,3 +130,5 @@ Xdialog-
 systemd-gtk-
 libgee2-
 libgtk+3_0-
+at-spi2-core-
+libatspi0-

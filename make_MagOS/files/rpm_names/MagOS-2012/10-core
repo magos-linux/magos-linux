@@ -50,7 +50,6 @@ gnupg2-
 gpm-
 grep-
 groff-
-groff-for-man-
 groff-perl-
 gzip-
 ifmetric-
@@ -413,3 +412,6 @@ modemmanager-glib-
 libqmi-glib0-
 groff-base-
 libtevent0-
+efivar-
+libefivar0-
+libnutscan1-

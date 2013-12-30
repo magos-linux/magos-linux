@@ -164,3 +164,7 @@ libwx_gtk2u_gl2.8_0-
 libwx_gtk2u_richtext2.8_0-
 libwx_gtk2u_media2.8_0-
 libwx_gtk2u_stc2.8_0-
+zenity-
+gnome-python-gnomekeyring-
+libgnome-keyring-i18n-
+libgnome-keyring0-
