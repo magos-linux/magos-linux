@@ -1,5 +1,6 @@
 #!/bin/bash
-URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/broadcom-wl-5.100.82.112-10.src.rpm
+VER=5.100.82.112-13
+URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/broadcom-wl-$VER.src.rpm
 if [ -d builddeps ] ; then
 #FIXME to ignore
    urpmi.removemedia mib

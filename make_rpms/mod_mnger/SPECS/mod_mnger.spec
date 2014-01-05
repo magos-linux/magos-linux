@@ -1,7 +1,7 @@
 Summary:        Modules manager for MagOS
 Name:           mod_mnger
 Version:        0.0.1
-Release:        %mkrel 22
+Release:        %mkrel 23
 License:        GPLv3+
 URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base

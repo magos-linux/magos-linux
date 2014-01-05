@@ -1,7 +1,7 @@
 %define name    mozilla-thunderbird-lightning
-%define version 17.0
-%define release %mkrel 2
-%define lightning_version 1.9.1
+%define version 24.1
+%define release %mkrel 1
+%define lightning_version 2.6.4
 
 %define lightning_appid \{3550f703-e582-4d05-9a08-453d09bdfdc6\}
 %define lightning_extid \{e2fda1a4-762b-4020-b5ad-a41df1933103\}
@@ -44,6 +44,9 @@ rm -rf %buildroot
 %{lightning_extdir}
 
 %changelog
+* Tue Apr 16 2013 Mikahil Zaripov <m3for@mail.ru> 17.0-2
+- update to 2.6.4
+
 * Tue Apr 16 2013 Mikahil Zaripov <m3for@mail.ru> 17.0-2
 - update to 1.9.1
 

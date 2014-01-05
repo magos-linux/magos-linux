@@ -1,0 +1,73 @@
+#!/bin/bash
+# MagOS project
+# Authors: Alexandr Betсher
+# Authors: Mikhail Zaripov
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /usr/lib/magos/scripts/liblinuxlive
+[ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ -z "$BACKGROUND" ] && exit 0
+DEFAULTDIR=/usr/share/magos/wallpapers
+DEFAULTFILE=simple/bluesth.jpg
+
+[ "$(cmdline_value xres)" ] && XORG_RES=$(cmdline_value xres)
+[ -z "$XORG_RES" -o "$XORG_RES" = "auto" ] && XORG_RES=$(monitor-edid | awk '/ModeLine/ { print $2 }' | sed -e 's/"//g' -e '2,$d')
+[ -z "$XORG_RES" ] && XORG_RES=$(find -L /sys/class/drm/card0 -maxdepth 2 -name modes 2>/dev/null -exec cat '{}' \; | sort -t x -n -k 2 | tail -1)
+echo "$XORG_RES" | grep -q ^[0-9]*x[0-9]*$ || XORG_RES=1024x768
+
+SOURCE="$BACKGROUND"
+[ -d "$SOURCE" ] && SOURCE=$(find -L "$SOURCE" | egrep -i "[.]jpeg$|[.]jpg$" | sort -R | head -1)
+[ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/$BACKGROUND.jpg"
+[ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/$DEFAULTFILE"
+
+#rm -f $DEFAULTDIR/default.jpg
+if [ "$(dirname $SOURCE)" = "$DEFAULTDIR" ] ;then
+   [ "$BACKTODATE" != "no" -a -f "$DEFAULTDIR/todate-$(date +%Y%m%d).jpg" ] && SOURCE="$DEFAULTDIR/todate-$(date +%Y%m%d).jpg"
+   [ -f "${SOURCE/.jpg/-wide.jpg}" ] && [ "$(echo ${XORG_RES%x*}*3/4 | bc )" -gt "${XORG_RES#*x}" ] && SOURCE="${SOURCE/.jpg/-wide.jpg}"
+fi
+if [ "$(dirname $SOURCE)" = "$DEFAULTDIR" -o "$BACKGROUNDMODE" = "1" ] ;then
+   convert -resize $XORG_RES! "$SOURCE" /tmp/background.jpg
+elif [ "$BACKGROUNDMODE" = "2" ] ;then
+   convert -resize $XORG_RES^ -gravity center -extent $XORG_RES "$SOURCE" /tmp/background.jpg
+else
+   convert -resize $XORG_RES -background black -gravity center -extent $XORG_RES "$SOURCE" /tmp/background.jpg
+fi
+
+if [ "$GRAFFITI" = "yes" ] ;then
+   rm -f /tmp/graffiti-label.png 2>/dev/null
+#   cp /usr/share/magos/graffiti/magos.png /tmp/graffiti-label.png
+   [ "$(cmdline_value changes)" ] && LABEL= || LABEL=clean.png
+   [ "$(cmdline_parameter toram)$(cmdline_parameter copy2ram)$(cmdline_value toram)$(cmdline_value copy2ram)" ] && LABEL="$LABEL copy2ram.png"
+   [ "$(cmdline_parameter save2module)" ] && LABEL="$LABEL save2module.png"
+   [ "$(cmdline_value home)" ]   && LABEL="$LABEL home.png"
+   [ -z "$LABEL" ] && LABEL=magos.png
+   for a in $LABEL ; do
+      if [ -f /tmp/graffiti-label.png ] ;then
+         montage /tmp/graffiti-label.png /usr/share/magos/graffiti/$a -geometry +0+0 -background transparent /tmp/graffiti-label.png
+      else
+         cp /usr/share/magos/graffiti/$a /tmp/graffiti-label.png
+      fi
+   done
+   convert -resize x$(expr $(echo $XORG_RES | awk -Fx '{ print $2 }') / 10) /tmp/graffiti-label.png /tmp/logo.png
+   composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg /tmp/background2.jpg
+   mv -f /tmp/background2.jpg /tmp/background.jpg
+   rm -f /tmp/logo.png /tmp/label.png
+fi
+
+if [ "$GRAFFITI" != "no" ] ;then
+   egrep -q '^root\:\$2a\$08\$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji|^user\:\$2a\$08\$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2' /etc/shadow && \
+         composite -gravity NorthWest /usr/share/magos/graffiti/warning.png /tmp/background.jpg /tmp/background2.jpg
+   mv -f /tmp/background2.jpg /tmp/background.jpg
+#   convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 \
+#       -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red \
+#       -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg
+fi
+
+[ -f /tmp/background.jpg  ] && mv -f /tmp/background.jpg $DEFAULTDIR/default.jpg
+
+[ -f $DEFAULTDIR/default.jpg ] || ln -sf "$SOURCE" $DEFAULTDIR/default.jpg
+
+[ -d "/usr/share/apps/ksplash/Themes/Default/$XORG_RES" ] || mkdir "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
+convert $DEFAULTDIR/default.jpg "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"

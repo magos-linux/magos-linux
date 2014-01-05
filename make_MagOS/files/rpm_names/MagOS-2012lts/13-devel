@@ -60,3 +60,4 @@ rpmlint-mandriva-policy-
 rpmlint-
 python-magic-
 kernel-headers-
+bash-completion-

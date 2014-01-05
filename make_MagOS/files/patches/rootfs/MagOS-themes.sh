@@ -1,4 +1,23 @@
 #!/bin/bash
+rm -fr usr/share/mdk/screensaver usr/share/mdk/backgrounds usr/share/backgrounds/gnome
+ln -sf /usr/share/magos/screensaver/Default usr/share/mdk/screensaver
+ln -sf /usr/share/magos/wallpapers usr/share/mdk/backgrounds
+ln -sf /usr/share/magos/wallpapers/Default  usr/share/backgrounds/gnome
+ln -sf /usr/share/magos/wallpapers/default.jpg usr/share/slim/themes/default/background.jpg
+ln -sf /usr/share/magos/wallpapers/default.jpg usr/share/wallpapers/default.jpg
+sed -i s=/usr/share/mdk/backgrounds/default.jpg=/usr/share/magos/wallpapers/default.jpg= usr/share/mdk/dm/mdk-gdm-nolist.xml
+sed -i s=/usr/share/mdk/backgrounds/default.jpg=/usr/share/magos/wallpapers/default.jpg= usr/share/mdk/dm/mdk-gdm.xml
+sed -i s=/usr/share/mdk/backgrounds/default.png=/usr/share/magos/wallpapers/default.jpg= usr/share/mdk/dm/mdk-kde-nolist.xml
+sed -i s=/usr/share/mdk/backgrounds/default.png=/usr/share/magos/wallpapers/default.jpg= usr/share/mdk/dm/mdk-kde.xml
+sed -i s=/usr/share/mdk/backgrounds/default.png=/usr/share/magos/wallpapers/default.jpg= var/lib/mandriva/kde4-profiles/Default/share/config/kdm/backgroundrc
+sed -i s=/usr/share/mdk/backgrounds/.*jpg=/usr/share/magos/wallpapers/default.jpg= var/lib/mandriva/kde4-profiles/Default/share/config/kdm/themes/mandriva-kde4/mandriva-kde4.xml
+sed -i s%wallpaper=.*%wallpaper=/usr/share/magos/wallpapers/default.jpg% etc/xdg/pcmanfm/LXDE/pcmanfm.conf
+sed -i s%wallpaper=.*%wallpaper=/usr/share/magos/wallpapers/default.jpg% etc/xdg/pcmanfm/default/pcmanfm.conf
+sed -i s=/usr/share/mdk/backgrounds/.*jpg=/usr/share/magos/wallpapers/default.jpg= var/lib/mandriva/kde4-profiles/common/share/config/kwinrc
+sed -i s=/usr/share/mdk/backgrounds/.*jpg=/usr/share/magos/wallpapers/default.jpg= var/lib/mandriva/kde4-profiles/common/share/config/plasma-desktop-appletsrc
+sed -i s=/usr/share/mdk/backgrounds/.*jpg=/usr/share/magos/wallpapers/default.jpg= var/lib/mandriva/kde4-profiles/common/share/apps/desktoptheme/Mandriva/metadata.desktop
+sed -i s=/usr/share/mdk/backgrounds/.*jpg=/usr/share/magos/wallpapers/default.jpg= var/lib/mandriva/kde4-profiles/common/share/apps/desktoptheme/Mandriva-netbook/metadata.desktop
+
 ln -sf magos-top.png usr/share/compositing-wm/mandriva-top.png
 ln -sf magos.png usr/share/icons/mandriva.png
 ln -sf magos.png usr/share/icons/mandriva-button-lxde.png
@@ -51,18 +70,11 @@ cp -pf usr/share/emerald/themes/MagOS/* usr/share/emerald/theme
 for a in usr/share/apps/desktoptheme/* ;do
   if [ -f "$a/metadata.desktop" ] ;then
     if ! grep -q "defaultWallpaperTheme" "$a/metadata.desktop" ;then
-       echo -e  "\n[Wallpaper]\ndefaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg" >> "$a/metadata.desktop"
+       echo -e  "\n[Wallpaper]\ndefaultWallpaperTheme=/usr/share/magos/wallpapers/default.jpg" >> "$a/metadata.desktop"
     else
-       sed -i 's|defaultWallpaperTheme=.*|defaultWallpaperTheme=/usr/share/mdk/backgrounds/default.jpg|' "$a/metadata.desktop"
+       sed -i 's|defaultWallpaperTheme=.*|defaultWallpaperTheme=/usr/share/magos/wallpapers/default.jpg|' "$a/metadata.desktop"
     fi
   fi
 done
-
-sed -i s/^msg_color.*$/'msg_color               #000000'/ usr/share/slim/themes/default/slim.theme
-
-PFP=etc/xdg/lxsession/LXDE/desktop.conf
-sed -i s%sNet/ThemeName=.*%sNet/ThemeName=elementary% $PFP
-sed -i s%sNet/IconThemeName=.*%sNet/IconThemeName=elementary% $PFP
-sed -i s%sGtk/CursorThemeName=.*%sGtk/CursorThemeName=elementary% $PFP
 
 exit 0

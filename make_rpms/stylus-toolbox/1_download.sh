@@ -5,7 +5,7 @@ if ! [ -d builddeps ] ; then
    urpmi.removemedia mib
    urpmi.update -a
    rm -f /var/cache/urpmi/rpms/*
-   urpmi --auto --test --noclean python-devel || exit 1
+   urpmi --auto --test --noclean --nodigest libpython-devel || exit 1
    mkdir builddeps
    mv /var/cache/urpmi/rpms/*.rpm builddeps
 fi

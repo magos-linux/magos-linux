@@ -1,0 +1,123 @@
+#!/bin/bash
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=fm_scripts
+
+help()
+{
+cat <<EOF
+Usage:
+ profiler create <container> [size]    create new profile with ext3 filesystem
+ profiler resize <container> [size]    resize existing profile
+ profiler format <container>           create ext3 filesystem
+ profiler mount  <container>           mount profile to existing directory
+ profiler umount <container>           Unmount profile.
+
+About [size]:
+ Size must be specified in Mb. If not specified it will be equal 256MB.
+ When resizing new size can be relative about old size. Just specify +N or -N.
+ Specifing "max" will eat all free space on device.
+
+EOF
+}
+MSG1=$(gettext -s "Error: No free space on device.")
+MSG2=$(gettext -s "Error: Can not open file")
+MSG3=$(gettext -s "Error: File already exists.")
+
+img_create()
+{
+  if [ -f "$NAME" ] ; then
+     echo "$MSG3" 
+  else
+     SIZE=${1-256}
+     [ "$SIZE" = "max" ] && let "SIZE = $FREESPACE - 1"
+     if [ $FREESPACE -gt $SIZE ] ; then
+        dd if=/dev/zero of="$NAME" bs=1M count=1 seek=${SIZE} 2>&1 && /sbin/mkfs.ext3 -F -j "$NAME" 2>&1 && exit 0
+     else
+        echo "$MSG1" 
+     fi
+  fi
+  exit -1
+}
+
+img_resize()
+{
+  if [ -f "$NAME" ] ; then
+     OLDSIZE=`du --apparent-size -m "$NAME" | awk '{print $1}'`
+     SIZE=${1-+256}
+     [ "$SIZE" = "max" ] && let "SIZE = $FREESPACE - 1"
+     echo $SIZE | grep -q ^[-+] && let "SIZE=$OLDSIZE$SIZE"
+     let "NEEDSPACE = $SIZE -  $OLDSIZE"
+     [ $SIZE -gt $OLDSIZE ] || NEEDSPACE=0
+     if [ $FREESPACE -gt $NEEDSPACE ] ; then
+        /sbin/e2fsck -p -f "$NAME" 2>&1 && /sbin/resize2fs "$NAME" ${SIZE}M 2>&1 && exit 0
+     else
+        echo "$MSG1"
+     fi
+  else
+     echo  "$MSG2 $NAME"
+  fi
+  exit -1
+}
+
+img_format()
+{
+  if [ -f "$NAME" ] ; then
+     /sbin/mkfs.ext3 -F -j "$NAME" 2>&1 && exit 0
+  else 
+    echo  "$MSG2 $NAME"
+  fi
+  exit -1
+}
+
+img_mount()
+{
+  if [ -f "$NAME" ] ; then
+     point="${NAME%.*}"
+     mkdir -m 666 "$point" && mount -o loop "$NAME" "$point" 2>&1 && exit 0
+  else
+     echo  "$MSG2 $NAME"
+  fi
+  exit -1
+}
+
+img_umount()
+{
+  if [ -f "$NAME" ] ; then
+     point="${NAME%.*}"
+     umount "$NAME" 2>&1 && rmdir "$point" && exit 0
+  else
+     echo  "$MSG2 $NAME"
+  fi
+exit -1
+}
+
+
+if [ "$(id -un)" != "root" ] ;then
+   su root -c "/bin/bash $0 $1 $2"
+   exit 0
+fi
+
+FREESPACE=`df -m ./ | sed 1d | awk '{print $4}'`
+NAME="${2-MagOS_save1.img}"
+
+case "$1" in
+   "create" )
+     img_create $3
+     ;;
+   "resize" )
+     img_resize $3
+     ;;
+   "mount" )
+     img_mount
+     ;;
+   "umount" )
+     img_umount
+     ;;
+   "format" )
+     img_format
+     ;;
+   * )
+     help
+     ;;
+esac
+

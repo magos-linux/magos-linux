@@ -17,7 +17,6 @@ isdn4net-
 krb5-workstation-
 lftp-
 libatm1-
-libcares2-
 libdiffie1-
 libepc1.0_3-
 libepc-i18n-
@@ -109,3 +108,7 @@ libntrack0-
 ddclient-
 udpxy-
 modem-manager-gui-
+whois-
+gnome-nettool-
+libopenconnect2-
+python-pybluez-

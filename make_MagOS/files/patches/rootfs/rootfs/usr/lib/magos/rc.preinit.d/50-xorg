@@ -9,5 +9,47 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+. /liblinuxlive
+
+XORGDRIVER=$(cmdline_value xdriver)
+[ "$XORGDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
+[ "$XORGDRIVER" = "nvidia" ] && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
+
 [ ! -f etc/sysconfig/harddrake2/previous_hw ] && ! grep -q XORG_RES etc/sysconfig/MagOS && echo XORG_RES=auto >>etc/sysconfig/MagOS
 
+#First run tweak
+if [ ! -f /memory/changes/etc/ld.so.cache ] ;then
+
+  VGADRIVER=fbdev
+
+  lspci -n | grep -qi "0300: 1022:" && VGADRIVER=fglrx
+  lspci -n | grep -qi "0300: 10de:" && VGADRIVER=nvidia-current
+  [ "$XORGDRIVER" = "" ] && XORGDRIVER=$VGADRIVER
+
+  LDCACHE=$XORGDRIVER
+  case $XORGDRIVER in
+     fglrx)
+       LINK=/etc/fglrx/pxpress-free.ld.so.conf
+     ;;
+     nvidia)
+       LINK=/etc/nvidia96xx/ld.so.conf
+     ;;
+     nvidia173)
+       LINK=/etc/nvidia173/ld.so.conf
+     ;;
+     nvidia-current)
+       LINK=/etc/nvidia-current/ld.so.conf
+     ;;
+     ati)
+       LINK=/etc/ld.so.conf.d/GL/ati.conf
+     ;;
+     *)
+       LINK=/etc/ld.so.conf.d/GL/standard.conf
+       LDCACHE=fbdev
+     ;;
+  esac
+  if [ "$LDCACHE" != "fbdev" ] ;then
+      chroot . /usr/sbin/alternatives --quiet --set gl_conf $LINK 2>/dev/null 2>&1
+      cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
+  fi
+fi

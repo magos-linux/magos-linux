@@ -50,7 +50,6 @@ gnupg2-
 gpm-
 grep-
 groff-
-groff-for-man-
 groff-perl-
 gzip-
 ifmetric-
@@ -407,3 +406,12 @@ libpcrecpp0-
 magos-tools-
 mod_mnger-
 modem_connect-
+ldetect-lst-
+hwdata-
+modemmanager-glib-
+libqmi-glib0-
+groff-base-
+libtevent0-
+efivar-
+libefivar0-
+libnutscan1-

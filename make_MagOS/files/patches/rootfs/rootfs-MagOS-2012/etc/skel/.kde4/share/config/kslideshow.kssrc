@@ -1,0 +1,5 @@
+[Settings]
+Directory[$e]=/usr/share/magos/screensaver/Default
+PrintPath=false
+RandomPosition=true
+SubDirectory=true

@@ -1,0 +1,3 @@
+#!/bin/sh
+. /etc/sysconfig/keyboard
+setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions

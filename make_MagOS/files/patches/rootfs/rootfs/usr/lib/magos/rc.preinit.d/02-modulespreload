@@ -1,0 +1,25 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /liblinuxlive
+MODULESPRELOAD="nfsd"
+BLACKLISTMODULES="$(cmdline_value blacklist | tr ',;' ' ')"
+. etc/sysconfig/MagOS
+
+for a in $(echo $MODULESPRELOAD | tr , " ") ;do
+    echo " $BLACKLISTMODULES " | grep -q " $a " || chroot . modprobe $a
+done
+
+PFP=etc/modprobe.d/blacklist-magos.conf
+for a in $BLACKLISTMODULES ;do
+    grep -q "^blacklist $a$" $PFP || echo "blacklist $a" >> $PFP
+done
+

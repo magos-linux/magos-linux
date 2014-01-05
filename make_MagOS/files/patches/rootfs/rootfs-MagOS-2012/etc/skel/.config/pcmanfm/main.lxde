@@ -9,6 +9,6 @@ maximized=0
 
 [Desktop]
 show_wallpaper=1
-wallpaper=/usr/share/mdk/backgrounds/default.jpg
+wallpaper=/usr/share/magos/wallpapers/default.jpg
 bg2=32756,46890,43168
 [Interface]

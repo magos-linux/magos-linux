@@ -7,6 +7,11 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+. /liblinuxlive
+
+XORGDRIVER=$(cmdline_value xdriver)
+[ "$XORGDRIVER" != "nvidia" ] && modprobe -r nvidia
+
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
 [ -z "$XORG_RES" ] || sed -i 's|.*Modes.*|        Modes "'$XORG_RES'"|' /etc/X11/xorg.conf

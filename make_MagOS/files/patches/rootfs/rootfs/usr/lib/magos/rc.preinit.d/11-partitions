@@ -54,6 +54,13 @@ fi
 #Creating partitions in /etc/fstab
 if [ "$TMPFS" != "no" ] ;then
    grep -q "/memory tmpfs" /proc/mounts || echo "tmpfs /tmp tmpfs defaults 0 0 # AutoUpdate" >>etc/fstab
+   if [ "$VARTMPFS" = "no" -a -h var/tmp ] ;then
+      rm -f var/tmp 2>/dev/null
+      mkdir -m 1777 var/tmp
+   elif [ "$VARTMPFS" != "no" -a ! -h var/tmp ] ;then
+      rm -fr var/tmp 2>/dev/null
+      ln -s ../tmp var/tmp
+   fi
 fi
 if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
    sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
@@ -86,3 +93,8 @@ if [ "$PARTITIONSSHARE" = "yes" ];then
    done
 fi
 
+if [ -d /mnt/livemedia/MagOS-Data -a ! -d /mnt/livedata ] ;then
+   ln -sf livemedia mnt/livedata
+fi
+
+[ "$MNT_BLOCK" = "yes" ] && chmod 600 /mnt

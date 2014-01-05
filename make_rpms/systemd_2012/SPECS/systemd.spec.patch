@@ -1,11 +1,13 @@
-diff -auprN a/systemd.spec b/systemd.spec
---- a/systemd.spec	2013-06-22 17:11:39.000000000 +0400
-+++ b/systemd.spec	2013-06-22 17:24:35.000000000 +0400
-@@ -99,6 +99,7 @@ Patch507: 0507-reinstate-TIMEOUT-handlin
- Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
- Patch509: 0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
- Patch510: 0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
-+Patch600: 0600-systemd-magos.patch
+diff -aupr a/systemd.spec b/systemd.spec
+--- a/systemd.spec	2013-12-11 20:44:53.000000000 +0400
++++ b/systemd.spec	2013-12-11 20:48:41.002336345 +0400
+@@ -82,6 +82,9 @@ Patch504:	0508-Mageia-Relax-perms-on-sys
+ Patch505:	0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
+ Patch506:	0510-udev-store-hwbase-in-udev-dir.patch
  
- BuildRequires:	autoconf
- BuildRequires:	automake
++#MagOS patches
++Patch600: 0600-systemd-magos.patch
++
+ #Fedora patchset
+ Patch1001:	0001-journal-correctly-convert-usec_t-to-timespec.patch
+ Patch1002:	0002-systemd-python-do-not-attempt-to-convert-str-to-byte.patch

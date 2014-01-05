@@ -1,0 +1,4 @@
+#!/bin/sh
+# to be sourced 
+. /etc/sysconfig/keyboard
+setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions

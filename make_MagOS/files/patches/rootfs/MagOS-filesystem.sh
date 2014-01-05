@@ -12,7 +12,7 @@ rm -fr etc/skel/tmp var/tmp proc sys tmp etc/fstab etc/mtab \
    usr/share/doc/HTML/ru/marble usr/share/doc/HTML/ru/kalzium usr/share/doc/HTML/ru/kigo \
    usr/share/doc/HTML/ru/kstars usr/share/doc/HTML/ru/kbruch usr/share/doc/HTML/ru/akregator \
    usr/share/help/C/cheese/figures/effects.png \
-   boot/initrd* 2>/dev/null
+   boot/initrd* usr/share/doc/perl-Libconf/html/Libconf/Libconf 2>/dev/null
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 rm -f dev/null

@@ -11,7 +11,8 @@ PATH=/usr/lib/magos/scripts:$PATH
 # save2module mode parser
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
 SRC=/mnt/live/memory/changes
-[ -z "$SAVETOMODULENAME" ] && SAVETOMODULENAME=/mnt/livemedia/$LIVECDNAME-Data/modules/zz-save.$MODULEFORMAT
+[ -z "$SAVETOMODULENAME" -a -w /mnt/livedata/$LIVECDNAME-Data/modules ] && SAVETOMODULENAME=/mnt/livedata/$LIVECDNAME-Data/modules/zz-save.$MODULEFORMAT
+[ -z "$SAVETOMODULENAME" -a -w /mnt/livemedia/$LIVECDNAME/modules ] && SAVETOMODULENAME=/mnt/livemedia/$LIVECDNAME/modules/zz-save.$MODULEFORMAT
 [ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
 SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
 FILELIST=/.savelist

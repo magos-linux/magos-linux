@@ -13,6 +13,6 @@ Pattern=fish
 Program=
 ReverseBlending=false
 UseSHM=false
-Wallpaper=/usr/share/mdk/backgrounds/default.jpg
+Wallpaper=/usr/share/magos/wallpapers/default.jpg
 WallpaperList=
 WallpaperMode=Scaled

@@ -16,7 +16,7 @@ wallpaperpluginmode=SingleImage
 
 [Containments][14][Wallpaper][image]
 slideTimer=10
-slidepaths=/usr/share/wallpapers/
+slidepaths=/usr/share/magos/wallpapers/Default
 
 [Containments][2]
 activity=
@@ -113,7 +113,7 @@ plugin=icon
 zvalue=0
 
 [Containments][2][Applets][5][Configuration]
-Url=file:///usr/share/applications/mandriva-drakconf.desktop
+Url=file:///usr/share/applications/magos-ctrl-center.desktop
 
 [Containments][2][Applets][5][LayoutInformation]
 Order=3

@@ -82,4 +82,7 @@ shared-desktop-ontologies-
 soprano-plugin-redland-
 libbtparser2-
 libreport0-
-libkipi10-
+libkipi11-
+libakonadi-calendar4-
+libhspell0-
+libkpimidentities4-

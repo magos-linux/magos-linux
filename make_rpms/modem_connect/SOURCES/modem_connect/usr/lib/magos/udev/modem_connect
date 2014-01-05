@@ -1,0 +1,117 @@
+#!/bin/bash
+export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
+export HOME=/root
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=modem_connect
+
+INTERACTIVE=yes
+TIMEOUT=10
+INETAUTOUP=no
+QUIET=no
+STAT=yes
+
+. /etc/sysconfig/i18n
+export LANG=$LANG
+
+. /etc/sysconfig/modem
+
+MSG1=$(gettext -s "APN")
+MSG2=$(gettext -s "login")
+MSG3=$(gettext -s "password")
+MSG4=$(gettext -s "Please wait GSM connection...")
+MSG5=$(gettext -s "Can not get operator code from modem, try to change PORT or increase the TIMEOUT" )
+MSG6=$(gettext -s "GSM connection - OK, operator code is")
+MSG7=$(gettext -s "Do you want to up GPRS network?")
+
+
+get_op()
+{
+modem-test  $PORT AT+COPS?  |grep COPS |awk -F\" '{print $2}'
+}
+
+get_new_ppp_if()
+{
+   ifconfig | grep ^ppp | awk '{ print $1 }' | grep -vf /tmp/ppp_if
+}
+
+inetup()
+{
+   ifconfig | grep ^ppp | awk '{ print $1 }' > /tmp/ppp_if
+   if  grep -q $operator /etc/wvdial.sections ;then
+      wvdial --config=/etc/wvdial.sections $operator &
+   else 
+      apn=$(mdialog --inputbox "$MSG1" "internet.operator.ru")
+      login=$(mdialog --inputbox "$MSG2" "login")
+      pass=$(mdialog --inputbox "$MSG3" "password")
+      echo -e " \n" >> /etc/wvdial.sections 
+      echo "[Dialer $operator]" >> /etc/wvdial.sections
+      echo "Init3 = AT+CGDCONT=1,\"IP\",\"$apn\"" >> /etc/wvdial.sections
+      echo "Username = $login" >> /etc/wvdial.sections
+      echo "Password  = $pass" >> /etc/wvdial.sections
+      echo "Phone =*99#" >> /etc/wvdial.sections
+      wvdial --config=/etc/wvdial.sections  $operator &
+   fi
+   
+   if [ "$STAT" == "yes" ] ;then
+      counter=60
+      while [ ! "$(get_new_ppp_if)" -a "$counter" -ne "0" ] ;do
+           sleep 1
+           counter=$(($counter - 1))
+      done
+      NEWIF=$(get_new_ppp_if)
+      # creating database
+      if [ ! -f "/var/lib/vnstat/$NEWIF" -a "$NEWIF" ] ;then
+         vnstat -u -i $NEWIF > /dev/null
+      fi
+      vnstat -r --enable -i $NEWIF && echo "IF=$NEWIF" > /tmp/modem_ppp_if
+      service vnstat restart > /dev/null
+   fi
+}
+
+[ "$INTERACTIVE" = "yes"  ] || exit 0 
+
+# убиваем wvdial на всякий случай :)
+killall wvdial
+
+# если устройство не указано в конфиге или указанное устройство не существует, то /dev/modem
+[ -z "$PORT" -o ! -e "$PORT" ] && PORT=/dev/modem
+
+# Шлем в модем АТ команду, если ответ верный то записываем файл устройства в wvdial.conf
+# Если нет, то запасной вариант wvdialconf во многих случаях он работает.
+if modem-test $PORT > /dev/null 2>&1 ; then
+   sed -i 's|^Modem.*=.*|Modem = '$PORT'|' /etc/wvdial.sections
+else 
+   wvdialconf /etc/wvdial.sections
+   PORT=$(grep -m 1 "^Modem =" /etc/wvdial.sections | awk '{print $3}')
+
+fi
+
+#получаем код оператора, если кода нет, то считаем, что модем не нашел сеть, 
+#выводим сообщение, что модем найден и запускаем получение кода оператора в цикле
+
+operator=$(get_op)
+if ! echo $operator |egrep ^[[:digit:]]{5}$ ; then
+[ "$QUIET" != "yes" ] && mdialog --passivepopup "$MSG4"
+operator=unknown
+fi
+
+counter=$TIMEOUT
+while [ "$operator" == "unknown" -a "$counter" -ne 0 ] ; do
+   operator=$(get_op)
+   echo $operator |egrep ^[[:digit:]]{5}$ || operator=unknown
+   sleep 1
+   counter=$(($counter - 1))
+done
+
+# если код оператора так не удалось получить, выводим уведомление и завершаем скрипт
+[ "$operator" == "unknown" -a "$QUIET" != "yes" ] && mdialog --error "$MSG5" && exit 1
+
+[ "$QUIET" != "yes" ] && mdialog --passivepopup "$MSG6 - $operator"
+
+if [ "$INETAUTOUP" == "yes" ] ; then
+   inetup
+else
+   mdialog --yesno  "$MSG7" && inetup
+fi
+
+exit 0

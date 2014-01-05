@@ -5,6 +5,9 @@
 
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 if [ ! -z "$ADSERVER" ] ;then
+   /sbin/service ntpd stop
+   /usr/sbin/ntpdate $ADSERVER >/dev/null 2>&1
+   /sbin/service ntpd start
    if ! echo -e "\n\n\n" | net ads testjoin ;then
       /usr/share/magos/ad_join/ad_join.pl && return 1
    fi

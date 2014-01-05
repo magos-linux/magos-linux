@@ -1024,10 +1024,12 @@ modprobe_essential_modules()
 modprobe_usb_modules()
 {
    debug_log "modprobe_hardware_modules" "$*"
-   #   depmod
-   local ATAMODULES HWMODULES
+   depmod
+   local ATAMODULES HWMODULES MANMODULES BLMODULES
+   MANMODULES="$(cmdline_value rdloaddriver | tr ',;' ' ')"
+   BLMODULES="$(cmdline_value blacklist | tr ',;' ' ')"
    ALLATAMODS=$(ls -1 /lib/modules/*/kernel/drivers/ata|sed "s|\.ko.*$||")
-   for a in `lspci -v | grep -i modules | tr , \\n | sort -u | sed s/.*modules.//` ;do
+   for a in `lspci -v | grep -i modules | tr , \\\\n | sort -u | sed s/.*modules.//` ;do
        if echo " $ALLATAMODS " | grep -q " $a " ;then
           ATAMODULES="$ATAMODULES $a"
        else
@@ -1036,10 +1038,10 @@ modprobe_usb_modules()
    done
    echo "$HWMODULES" | grep -q [ou]hci-hcd || HWMODULES="$HWMODULES ohci-hcd uhci-hcd"
    local MODULES="ahci sd_mod sr_mod \
-                  $ATAMODULES $HWMODULES \
+                  $MANMODULES $ATAMODULES $HWMODULES \
                   ehci-hcd ehci-pci ehci-platform xhci-hcd hid usbhid hid-generic usb-storage ide_cd"
    for a in $MODULES ;do
-       modprobe_module $a
+       echo " $BLMODULES " | grep -q " $a " || modprobe_module $a
    done
 }
 

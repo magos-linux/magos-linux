@@ -1,7 +1,7 @@
 Summary:        MagOS Tools
 Name:           magos-tools
 Version:        0.0.1
-Release:        %mkrel 5
+Release:        %mkrel 6
 License:        GPLv3+
 URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base

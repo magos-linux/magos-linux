@@ -1,5 +1,6 @@
 #!/bin/bash
-URL=http://magos.sibsau.ru/repository/rpms/srpms/nvidia-96xx-96.43.23-1.src.rpm
+VER=96.43.23-1
+URL=http://magos.sibsau.ru/repository/rpms/srpms/nvidia-96xx-$VER.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore
    urpmi.removemedia mib
