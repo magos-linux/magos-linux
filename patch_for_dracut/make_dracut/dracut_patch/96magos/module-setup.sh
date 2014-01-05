@@ -52,10 +52,11 @@ install() {
     inst /sbin/blkid /sbin/blkid.large
     
     #magos 
-    inst "$moddir/linuxlive/VERSION" "/VERSION"
-    inst "$moddir/linuxlive/liblinuxlive" "/liblinuxlive"
-    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
-    dracut_install "$moddir/livelinux/locale/*"
+    inst /mnt/livemedia/MagOS/VERSION /VERSION
+#    inst "$moddir/linuxlive/VERSION" "/VERSION"
+#    inst "$moddir/linuxlive/liblinuxlive" "/liblinuxlive"
+#    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
+#    dracut_install "$moddir/livelinux/locale/*"
     
     inst_hook cmdline 95 "$moddir/parse-magosroot.sh"
     inst_hook mount 99 "$moddir/mount-magos.sh"

@@ -7,5 +7,5 @@ dracut  -m "base busybox magos"  \
         --filesystems "aufs squashfs vfat ntfs msdos fuse xfs btrfs nls_cp866 nls_utf8 nfs cifs" \
         -c dracut.conf -v -M dracut.cpio.xz $(uname -r) >dracut.log 2>&1
 
-cp -Rf dracut.cpio.xz /mnt/livemedia/MagOS/dracut.cpio.xz
+#cp -Rf dracut.cpio.xz /mnt/livemedia/MagOS/dracut.cpio.xz
 
