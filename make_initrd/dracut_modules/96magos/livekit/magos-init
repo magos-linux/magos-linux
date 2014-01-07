@@ -5,6 +5,7 @@
 #
 
 . /livekitlib
+. /lib/magos-lib.sh
 
 #transfer_initramfs
 

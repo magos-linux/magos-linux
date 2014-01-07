@@ -768,7 +768,7 @@ copy_to()
 #
 copy_to_ram()
 {
-    if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter copy2ram)$(cmdline_value copy2ram)" = "" ]; then
+    if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter copy2ram)$(cmdline_value copy2ram)" != "" ]; then
 	echolog "copying data to RAM, this may take some time..."
 	[ "$2" = "" ] && return
 	debug_log "copy_to_ram" "$*"

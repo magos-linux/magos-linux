@@ -55,6 +55,7 @@ install() {
     inst /mnt/livemedia/MagOS/VERSION /VERSION
     inst "$moddir/livekit/livekitlib" "/livekitlib"
     inst "$moddir/livekit/magos-init" "/magos-init"
+    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
 
     dracut_install $(type -p rsync)
 
@@ -64,6 +65,5 @@ install() {
     
     inst_hook cmdline 95 "$moddir/parse-magosroot.sh"
     inst_hook mount 99 "$moddir/mount-magos.sh"
-    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
 }
 

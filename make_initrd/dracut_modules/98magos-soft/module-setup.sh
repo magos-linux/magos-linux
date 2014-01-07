@@ -7,8 +7,9 @@ check() {
 }
 
 depends() {
-    # We depend on network modules being loaded
-    echo busybox
+    # We depend on magos modules being loaded
+#    echo magos
+    return 0
 }
 
 
@@ -22,9 +23,9 @@ install() {
     dracut_install /usr/share/mc/syntax/*
     
     #netfs
-    dracut_install $(type -P httpfs)
-    dracut_install $(type -p sshfs)
-    dracut_install $(type -p curlftpfs)
+    dracut_install "$(type -p httpfs)"
+    dracut_install "$(type -p sshfs)"
+    dracut_install "$(type -p curlftpfs)"
     
 }
 
