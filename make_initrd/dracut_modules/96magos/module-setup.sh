@@ -54,6 +54,10 @@ install() {
     #magos 
     inst /mnt/livemedia/MagOS/VERSION /VERSION
     inst "$moddir/livekit/livekitlib" "/livekitlib"
+    inst "$moddir/livekit/magos-init" "/magos-init"
+
+    dracut_install $(type -p rsync)
+
 #    inst "$moddir/linuxlive/liblinuxlive" "/liblinuxlive"
 #    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
 #    dracut_install "$moddir/livelinux/locale/*"

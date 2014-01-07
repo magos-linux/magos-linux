@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# Functions library :: for Linux Live Kit scripts
+# Functions library :: for Linux Live Kit scripts & MagOS Linux init
 # Author: Tomas M. <http://www.linux-live.org>
 #
+# Author: Mikhail Zaripov <http://magos-linux.ru>
+# Author: Anton Goroshkin <http://magos-linux.ru>
 
 # =================================================================
 # debug and output functions
@@ -10,11 +12,8 @@
 
 debug_start()
 {
-   if grep -q debug /proc/cmdline; then
-      DEBUG_IS_ENABLED=1
-   else
-      DEBUG_IS_ENABLED=
-   fi
+    # global variable
+    DEBUG_IS_ENABLED=$(cat /proc/cmdline 2>/dev/null | grep debug)
 }
 
 debug_log()
@@ -85,12 +84,28 @@ fatal()
    setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
 }
 
-# get value of commandline parameter $1
-# $1 = parameter to search for
+# look into cmdline and echo $1 back if $1 is set
+# $1 = value name, case sensitive, for example 'debug'
+#
+cmdline_parameter()
+{
+   debug_log "cmdline_parameter" "$*"
+   log "searching for bootparam: $1"
+   ADDFILE=/tmp/cmdline
+   [ -f /liblinuxlive ] || ADDFILE=/mnt/live$ADDFILE 
+   echo -n " " | cat - /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
+}
+
+# look into cmdline and echo value of $1 option
+# $1 = value name, case sensitive, for example 'changes'
 #
 cmdline_value()
 {
-   cat /proc/cmdline | egrep -o "(^|[[:space:]])$1=[^[:space:]]+" | tr -d " " | cut -d "=" -f 2- | tail -n 1
+   debug_log "cmdline_value" "$*"
+   log "searching for bootparam value: $1"
+   ADDFILE=/tmp/cmdline
+   [ -f /liblinuxlive ] || ADDFILE=/mnt/live$ADDFILE
+   echo -n " " | cat - /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
 }
 
 
@@ -382,7 +397,7 @@ find_data_try()
       fi
 
       # search for bundles in the mounted directory
-      if [ "$(find "$1/$FROM" -maxdepth 1 -name "*.$BEXT" 2>/dev/null)" != "" ]; then
+      if [ "$(find "$1/$FROM" -maxdepth 2 -name "*.$BEXT" 2>/dev/null)" != "" ]; then
          # we found at least one bundle/module here
          mount -o remount,rw "$DEVICE" "$1" 2>/dev/null
          echo "$1/$FROM" | tr -s "/" | sed -r "s:/[^/]+/[.][.]/:/:g"
@@ -489,6 +504,41 @@ persistent_changes()
    fi
 }
 
+# Find XZM,LZM,RWM,ROM,ENC modules in given dir
+# $1 = root directory of mounted DATAdir
+#
+find_modules()
+{
+   debug_log "find_modules" "$*"
+   if [ $(cmdline_parameter unionfs) ]; then
+	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort -r
+    else
+	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.lzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort
+    fi
+}
+
+# List all modules in all directories (base, modules, optional)
+# and filter out unneeded optional modules (not specified by load= kernel parameter)
+# separator for load and noload arguments is "," or ";"
+# $1 = root directory of mounted DATAdir
+#
+list_modules()
+{
+   debug_log "list_modules" "$*"
+   local LOAD NOLOAD
+
+   LOAD=$(cmdline_value load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+   NOLOAD=$(cmdline_value noload | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+   find_modules "$1" | while read LINE; do
+      MODNAME=$(echo $LINE | cut -b ${#1}- | cut -b 2-)
+      if [ "$(echo $LINE | grep /optional/)" ]; then
+         if [ ! "$LOAD" -o ! "$(echo $MODNAME | egrep -i "$LOAD")" ]; then continue; fi
+      fi
+      if [ "$NOLOAD" -a "$(echo $MODNAME | egrep -i "$NOLOAD")" ]; then continue; fi
+      echo $LINE
+   done
+}
+
 # Copy content of rootcopy directory to union
 # $1 = data directory
 # $2 = union directory
@@ -507,7 +557,7 @@ copy_rootcopy_content()
 # $1 = live data directory
 # $2 = changes directory
 #
-copy_to_ram()
+copy_to_ram_livekit()
 {
    debug_log "copy_to_ram" "$*"
 
@@ -533,6 +583,56 @@ copy_to_ram()
       MDEV="$(mounted_device "$MDEV")"
       umount "$MDEV" 2>/dev/null
    fi
+}
+# Copy modules to directory
+# $1 = data directory
+# $2 = target directory
+# $3 = target name
+# $4 = cmdline param
+copy_to()
+{
+   debug_log "copy_to" "$*"
+   local C2PARAM MODNAME
+   C2PARAM="$(echo $4 | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')"
+   list_modules "$1" | while read MODULE; do
+      MODNAME=$(echo $MODULE | cut -b ${#1}- | cut -b 2-)
+      [ "$C2PARAM" ] && ! [ "$(echo $MODNAME | egrep -i $C2PARAM )" ] && continue
+      TARGET=$(dirname "$MODULE" | cut -b ${#1}- | cut -b 2-)
+      mkdir -p "$2/$TARGET"
+      echolog "  $3 <- $(basename $MODULE)"
+#      cp "$MODULE" "$2/$TARGET"
+      rsync -a "$MODULE" "$2/$TARGET"
+      if [ $? -ne 0 ]; then fatal "Not enough memory."; fi
+      echo $2
+   done
+}
+
+# Copy modules to RAM directory
+# $1 = data directory
+# $2 = target directory in RAM
+#
+copy_to_ram()
+{
+    if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter copy2ram)$(cmdline_value copy2ram)" = "" ]; then
+	echolog "copying data to RAM, this may take some time..."
+	[ "$2" = "" ] && return
+	debug_log "copy_to_ram" "$*"
+	copy_to $1 $2 RAM "$(cmdline_value copy2ram)$(cmdline_value toram)"
+    fi
+}
+
+# Copy modules to LOCAL_REP directory
+# $1 = data directory
+# $2 = target directory in LOCAL_REP
+#
+copy_to_rep()
+{
+    if [ "$(cmdline_parameter copy2rep)$(cmdline_value copy2rep)" != "" ]; then
+	[ "$2" = "" ] && return
+	echolog "copying data to LOCAL_REP, this may take some time..."
+	debug_log "copy_to_rep" "$*"
+	copy_to $1 $2 LOCAL_REPOSITORY "$(cmdline_value copy2rep)"
+    fi
 }
 
 # load filter
@@ -583,7 +683,7 @@ union_append_bundles()
    echo_green_star
    echo "Adding bundles to union"
    ( ls -1 "$1" | sort -n ; cd "$1" ; find base/ modules/ 2>/dev/null | sortmod | filter_load) | grep '[.]'$BEXT'$' | filter_noload | while read BUNDLE; do
-      echo "* $BUNDLE"
+      echo "* --> $BUNDLE"
       BUN="$(basename "$BUNDLE")"
       mkdir -p "$2/$BUN"
       mount -o loop -t squashfs "$1/$BUNDLE" "$2/$BUN"
