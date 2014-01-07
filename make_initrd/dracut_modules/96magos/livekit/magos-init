@@ -19,11 +19,12 @@ COPY2REP=$MEMORY/copy2rep
 LIVEKITNAME="MagOS"
 BEXT=xzm
 
+echo "0" >/proc/sys/kernel/printk
+
 header "MagOS Linux init <http://magos-linux.ru/>"
 
 mkdir -p $MEMORY
 mount -t tmpfs -o size="100%" tmpfs $MEMORY
-
 
 debug_start
                                                                                                                                                       debug_shell
@@ -45,8 +46,11 @@ DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
 init_union "$CHANGES" "$UNION"
                                                                                                                                                       debug_shell
 # add data to union
-union_append_bundles "$DATA" "$BUNDLES" "$UNION"
+for d_dirs in "/$DATA_RAM" "/$DATA_REP" "/$DATA" ;do
+    union_append_bundles $d_dirs "$BUNDLES" "$UNION"
+done
                                                                                                                                                       debug_shell
+
 # rootcopy
 #copy_rootcopy_content "$DATA" "$UNION"
 
@@ -61,4 +65,9 @@ union_append_bundles "$DATA" "$BUNDLES" "$UNION"
 
 #need for usable_root of dracut
 mkdir -p $UNION/proc $UNION/sys $UNION/dev $UNION/$MEMORY
+
+#need TODO
 mount -o bind $MEMORY $UNION/$MEMORY
+
+header "MagOS Linux init end"
+
