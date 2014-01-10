@@ -6,7 +6,17 @@
 #
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-. /lib/magos-lib.sh
+
+uird_to_var() {
+	local params
+
+	params=${1##uird:}
+	params=${params%%,*}
+	base_from=${params%%:*}
+	data_from=${params##*:}
+
+	uird_options=${1#*,}
+}
 
 #Don't continue if root is ok
 [ -n "$rootok" ] && return
@@ -15,13 +25,13 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 [ -z "$root" ] && root=$(getarg root=)
 
 # If it's not magos we don't continue
-[ "${root%%:*}" = "magos" ] || return
+[ "${root%%:*}" = "uird" ] || return
 
 # Check required arguments
-magos_to_var $root
+#uird_to_var $root
 
-[ -n "$base_from" ] || die "Argument magosroot needs base_from param"
-[ -n "$data_from" ] || die "Argument magosroot needs data_from param"
+#[ -n "$base_from" ] || die "Argument magosroot needs base_from param"
+#[ -n "$data_from" ] || die "Argument magosroot needs data_from param"
 
 
 

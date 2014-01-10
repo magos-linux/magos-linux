@@ -7,11 +7,11 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 mount_root() {
 
-    . /magos-init
+    . /uird-init
 
 }
 
-if [ -n "$root" -a -z "${root%%magos:*}" ]; then
+if [ -n "$root" -a -z "${root%%uird:*}" ]; then
     mount_root
 fi
 

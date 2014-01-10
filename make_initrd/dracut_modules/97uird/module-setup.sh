@@ -51,11 +51,11 @@ install() {
     
     inst /sbin/blkid /sbin/blkid.large
     
-    #magos 
-    inst /mnt/livemedia/MagOS/VERSION /VERSION
+    #uird 
+#    inst /mnt/livemedia/MagOS/VERSION /VERSION
     inst "$moddir/livekit/livekitlib" "/livekitlib"
-    inst "$moddir/livekit/magos-init" "/magos-init"
-    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
+    inst "$moddir/livekit/uird-init" "/uird-init"
+#    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
 
     dracut_install $(type -p rsync)
 
@@ -63,7 +63,7 @@ install() {
 #    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
 #    dracut_install "$moddir/livelinux/locale/*"
     
-    inst_hook cmdline 95 "$moddir/parse-magosroot.sh"
-    inst_hook mount 99 "$moddir/mount-magos.sh"
+    inst_hook cmdline 95 "$moddir/parse-root-uird.sh"
+    inst_hook mount 99 "$moddir/mount-uird.sh"
 }
 
