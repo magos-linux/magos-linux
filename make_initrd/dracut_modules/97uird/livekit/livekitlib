@@ -915,8 +915,11 @@ fs_options()
    if [ "$NOAUTO" = "" ]; then NOAUTO="auto"; fi
    if [ "$2" = "fstab" ]; then echo -n "$NOAUTO," ; fi
    if [ "$1" = "swap" ]; then echo "defaults,pri=1"; return 0; fi
-   #echo -n "noatime,suid,dev,exec"
-
+   
+   if [ "$1" != "btrfs" ];then
+       echo -n "noatime,suid,dev,exec"
+   fi
+   
    IOCHARSET=$(iocharset)
    CODEPAGE=$(codepage)
 
@@ -1263,7 +1266,7 @@ union_append_bundles()
       fi
       FS="$(device_bestfs "$BUNDLE")"
       OPTIONS="$(fs_options $FS mount)"
-      mount -o $OPTIONS -t $FS "$BUNDLE" "$2/$BUN"
+      mount -o $OPTIONS $FS "$BUNDLE" "$2/$BUN"
       mount -o remount,add:1:"$2/$BUN"="$MOD" aufs "$3"
    done
 }

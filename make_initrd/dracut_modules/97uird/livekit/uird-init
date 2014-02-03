@@ -17,12 +17,11 @@ CACHE=$MEMORY/cache
 DATAMNT=$MEMORY/data
 BUNDLES=$MEMORY/bundles
 COPY2RAM=$MEMORY/copy2ram
-COPY2REP=$MEMORY/copy2rep
+COPY2CACHE=$MEMORY/copy2cache
 MOUNTDIR=$DATAMNT
 LAYER_BASE=$DATAMNT/layer-base
 
 LIVEKITNAME="MagOS"
-BEXT=xzm
 
 echo "0" >/proc/sys/kernel/printk
 
@@ -43,8 +42,8 @@ init_layer $LAYER_BASE
 # setup persistent changes, if possible
 #persistent_changes "$DATA" "$CHANGES"
                                                                                                                                                       debug_shell
-# copy to LOCAL_REPOSITORY if needed
-#DATA_REP="$(copy_to_rep "$DATA" "$COPY2REP")"
+# copy to CACHE if needed
+#DATA_CACHE="$(copy_to_cache "$DATA" "$COPY2REP")"
                                                                                                                                                       debug_shell
 # copy to RAM if needed
 #DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
@@ -69,6 +68,14 @@ done
 
 #header "!!ERROR occured, you shouldn't be here.!!"
 #/bin/sh
+
+echolog "recreating /etc/fstab and /mnt directories"
+touch $UNION/etc/fstab
+rmdir $UNION/mnt/* 2>/dev/null
+fstab_update $UNION
+cd $UNION
+[ -x "etc/rc.d/rc.preinit" ] && /bin/bash etc/rc.d/rc.preinit
+
 
 #need for usable_root of dracut
 mkdir -p $UNION/proc $UNION/sys $UNION/dev $UNION/$MEMORY
