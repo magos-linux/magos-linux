@@ -49,7 +49,8 @@ install() {
 #    done
     
     
-    inst /sbin/blkid /sbin/blkid.large
+    inst /sbin/blkid /sbin/blkid.real
+    inst /sbin/losetup /sbin/losetup.real
     
     #uird 
 #    inst /mnt/livemedia/MagOS/VERSION /VERSION

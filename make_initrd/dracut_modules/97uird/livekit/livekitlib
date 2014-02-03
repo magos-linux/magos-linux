@@ -216,41 +216,575 @@ init_union()
    mount -t aufs -o br="$1" aufs "$2"
 }
 
-# Setup data directory
-# $1 = data directory
+# Make sure the part of a script after 'mutex_lock' call is atomic,
+# that means the 'locked' part of the script can never be execuetd 
+# from several processes at the same time, in parallel.
+# Every script waits until it gathers the lock.
+# The lock directory is saved in /dev instead of /tmp, because /tmp may be
+# readonly at the time when the lock is needed (eg. when udev is starting)
+# $1 = name of the lock
 #
-init_datadir()
+mutex_lock()
 {
+   debug_log "mutex_lock" "$*"
+   while ! mkdir "/dev/ll-mutex-lock-$1" 2>/dev/null; do
+      usleep 100000;
+   done
+}
 
-DATAFROM=$(cmdline_value from)
+# Unlock the lock so another waiting process can reusse it and continue
+# $1 = name of the lock
+#
+mutex_unlock()
+{
+   debug_log "mutex_unlock" "$*"
+   rmdir "/dev/ll-mutex-lock-$1" 2>/dev/null
+}
 
-if [ "$DATAFROM" ]; then
-   DATA=$1
-   if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
-      init_ifcfg
-      debug_shell
-      echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $DATA)
-      echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $DATA)
-      echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $DATA)
-      echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $DATA)
+
+# modprobe module $1, including all dependencies, suppress all messages
+# This was own function, because modprobe in busybox didn't support
+# neither gzipped modules nor dependencies. Seems to be fixed now, though.
+# $1 = module name, eg. ehci-hcd
+# $* = optional arguments
+#
+modprobe_module()
+{
+   debug_log "modprobe_module" "$*"
+   local MODULE
+
+   MODULE="$1"
+   shift
+
+   if [ ! "$MODULE" ]; then return 1; fi
+   modprobe "$MODULE" $* 2>/dev/null
+}
+
+# mknod next loop device
+# - find biggest loop device in /dev/loop/, assume it to be used
+# - preallocate (mknod) 20 more loop devices in one round
+mknod_next_loop_dev()
+{
+   debug_log "mknod_next_loop_dev" "$*"
+   local i NR END PFX
+
+   mutex_lock mknod_next_loop_dev
+
+   if [ -d /dev/loop ]; then
+      NR=$(find /dev/loop/ -maxdepth 1 | sed -r 's/[^0-9]+//' | sort -n | tail -n 1)
+      PFX="/"
    else
-      DATAFROM=$(find_in_computer $DATAFROM $DATA)
-      [ -b "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount block device
+      NR=$(find /dev/ -maxdepth 1 | grep loop | sed -r 's/[^0-9]+//' | sort -n | tail -n 1)
+      PFX=""
    fi
-   [ -d "$DATAFROM" ] && DATA="$DATAFROM" 
-   [ -f "$DATAFROM" ] && DATA=$LOOPMOUNT && mount_device $DATAFROM $LOOPMOUNT  # mount again, it may be loop device
-   [ -d "$DATA/$LIVEKITNAME" ] && DATA="$DATA/$LIVEKITNAME"
-   [ -f "$DATA/$SGN" ] || DATA=""
-   grep -q "`head -1 /VERSION`" $DATA/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || DATA=""
-fi
+   NR=$(expr 0$NR + 1)
+   END=$(expr 0$NR + 20)
+   for i in $(seq $NR $END); do
+      mknod /dev/loop$PFX$i b 7 $i 2>/dev/null
+   done
+   echo /dev/loop$PFX$NR
+
+   mutex_unlock mknod_next_loop_dev
+}
 
 
-if [ "$DATA" = "" ]; then
-   # from= is not used or it didn't contain valid data
-   DATA=$(find_in_computer $LIVEKITNAME/$SGN $1)
-   DATA=$(dirname $DATA 2>/dev/null)
-fi
-return $DATA
+
+
+# List all CD-ROMs
+# by using /proc entries
+#
+list_cdrom_devices()
+{
+   debug_log "list_cdrom_devices" "$*"
+   local CDDEVICE
+
+   for CDDEVICE in $(cat /proc/sys/dev/cdrom/info 2>/dev/null | head -n 3 | tail -n 1 | cut -d ":" -f 2); do
+      echo "/dev/$CDDEVICE"
+   done
+}
+
+# List all mounted directories
+#
+list_mounted_directories()
+{
+   debug_log "list_mounted_directories" "$*"
+   if [ "$MOUNTDIR" ]; then
+      ls -1 $MOUNTDIR | while read DIR; do
+         if ismountpoint $MOUNTDIR/$DIR; then echo $DIR; fi
+      done
+   fi
+}
+
+# List all devices with filesystems
+# Return empty result when nohd parameter was given.
+#
+list_partition_devices()
+{
+   debug_log "list_partition_devices" "$*"
+   if [ "$(cmdline_parameter nohd)" != "" ]; then return 1; fi
+   egrep -v 'loop|major|^$| [0-9] [a-z]' /proc/partitions | sed -r "s:^[0-9 ]+:/dev/:"
+   if [ -e /dev/mapper/control ]; then # list LVM partitions if available
+      ls -1 /dev/mapper/ | grep -v "^control\$" | sed -r "s:^:/dev/mapper/:"
+   fi
+}
+
+# List all disk devices
+#
+list_disk_devices()
+{
+   debug_log "list_disk_devices" "$*"
+   list_partition_devices | egrep -v "[0-9]"
+}
+
+# List all partitions marked as Linux Swap
+#
+list_swap_devices()
+{
+   debug_log "list_swap_devices" "$*"
+   if [ "$(cmdline_parameter nohd)" != "" -o "$(cmdline_parameter noswap)" != "" ]; then return 1; fi
+   blkid.real -t TYPE="swap" -o device
+}
+
+# List all block devices
+#
+list_block_devices()
+{
+   debug_log "list_block_devices" "$*"
+   if [ "$(cmdline_parameter nocd)" = "" ]; then
+      list_cdrom_devices
+   fi
+   list_partition_devices
+}
+
+# discover filesystem used on the given device
+# Use vfat for msdos filesystem. Use ntfs-3g for ntfs if ntfsmount exists.
+# $1 = device, eg. /dev/hda1
+#
+device_filesystem()
+{
+   debug_log "device_filesystem" "$*"
+   local NTFS
+
+   if [ -e /bin/ntfsmount ]; then NTFS="ntfs-3g"; else NTFS="ntfs"; fi
+   blkid.real -s TYPE "$1" -o value | sed "s/msdos/vfat/" | sed "s/ntfs/$NTFS/"
+}
+
+# tell us if the given filesystem is supported
+# (eg. it's in /proc/filesystems or we know it)
+# $1 = filesystem name
+#
+is_supported_filesystem()
+{
+   debug_log "is_supported_filesystem" "$*"
+
+   if [ -e /bin/ntfsmount -a "$1" = "ntfs-3g" ]; then
+      return 0
+   fi
+
+   # the following command will set the return value
+   egrep -q "[[:space:]]$1\$" /proc/filesystems
+}
+
+# Check device on demand. Only block devices and *.img loop files  can be checked
+# $1 = /dev device, eg. /dev/hda1, or loop file
+# $2 = optional filesystem name, in order to skip autodetection
+fsck_device()
+{
+  [ -b "$1" -o -f "$1" ] || return
+  if [ -f "$1" ] ;then
+     echo $1 | grep -q ".img$" || return
+  fi
+  echolog "Checking filesystem on $1 $2"  >/dev/console 2>/dev/console
+  FS=
+  if [ "$2" = "ntfs" ] ;then
+     /usr/bin/ntfsfix "$1" </dev/console >/dev/console 2>/dev/console
+  else
+     /usr/bin/fsck -a $([ "$2" ] && echo "-t $2") $1  </dev/console >/dev/console 2>/dev/console
+  fi
+}
+
+# unmount all parameters. If the parameter is not mountpoint but
+# it's a file or directory, umount the device where the file/dir is stored.
+#
+# First try normal umount, if that fails then remount read-only
+# If -l parameter is specified, do lazy-umount when normal umount fails
+# $1..$n = files/directories/devices to be unmounted
+#
+fumount()
+{
+   debug_log "fumount" "$*"
+   local TARGET LAZY LOOPDEVICE
+
+   while [ "$1" ]; do
+      if [ "$1" = "-l" ]; then LAZY="yes"; shift; fi
+      TARGET=$(readlink -f "$1")
+      if ! ismountpoint "$TARGET"; then
+         if [ -f "$TARGET" -o -d "$TARGET" ]; then
+            TARGET=$(df "$TARGET" | tail -n 1 | tr -s " " | cut -d " " -f 6)
+         fi
+      fi
+
+      if [ "$TARGET" != "" ]; then
+         LOOPDEVICE=$(grep '/dev/loop.* '"$TARGET " /proc/mounts | awk '{print $1}' )
+         umount -n "$TARGET" >/dev/null 2>&1
+         if [ $? -ne 0 ]; then
+            mount -n -o remount,ro -t ignored ignored "$TARGET" >/dev/null 2>&1
+            if [ "$LAZY" ]; then umount -n -l "$TARGET" >/dev/null 2>&1; fi
+         fi
+         [ "$LOOPDEVICE" = "" ] || losetup -d "$LOOPDEVICE"
+      fi
+      shift
+   done
+}
+
+
+# Mount device $1 to $2
+# If the device is using vfat or ntfs filesystem, use iocharset as a mount option
+# $1 = /dev device to mount, eg. /dev/hda1, or loop file, or directory
+# $2 = mountpoint, eg. /mnt/hda1
+# $3 = optional mount options, for example "ro", or "remount,rw"
+# $4 = optional filesystem name, in order to skip autodetection
+#
+mount_device()
+{
+   debug_log "mount_device" "$*"
+   local FS DEV LOOPDEV OPTIONS FILESYSTEM ERR
+
+   # make sure we have enough arguments
+   if [ "$2" = "" ]; then return 1; fi
+   if [ "$1" = "" ]; then rmdir "$2" 2>/dev/null; return 1; fi
+   # skipping MBR
+   echo $(basename $1) | grep -q [a-z]$ && grep -q $(basename $1)[0-9] /proc/partitions  && return 1
+
+   mkdir -p "$2"
+
+   DEV="$1"
+   if [ "$4" != "" ]; then FS="$4"; else FS=$(device_filesystem "$1"); fi
+   if [ "$FS" ]; then OPTIONS=$(fs_options $FS mount); FS="-t $FS"; fi
+   if [ "$OPTIONS" ]; then OPTIONS="$OPTIONS"; else OPTIONS=""; fi
+   if [ -f "$DEV" ]; then OPTIONS="$OPTIONS,loop"; fi
+   if [ -d "$DEV" ]; then OPTIONS="$OPTIONS,rbind"; fi
+   if [ "$3" ]; then OPTIONS="$OPTIONS,$3"; fi
+   OPTIONS=$(echo "$OPTIONS" | sed -r "s/^,+//")
+
+   if [ "$FS" = "-t ntfs-3g" ]; then
+      [ $(cmdline_parameter fsck) ] && fsck_device "$DEV" ntfs
+      ntfsmount "$DEV" "$2" -o $OPTIONS >/dev/null 2>&1
+      ERR=$?
+   else
+      [ $(cmdline_parameter fsck) ] && fsck_device "$DEV" $(echo $FS| sed "s/-t //" )
+      mount -n -o $OPTIONS $FS "$DEV" "$2" >/dev/null 2>&1
+      ERR=$?
+   fi
+
+   if [ $ERR -ne 0 ] && [ -f "$DEV" ] && echo "$DEV" | grep -q .enc$ ; then
+       LOOPDEV=$(losetup -f)
+       [ -z "$LOOPDEV" ] && LOOPDEV=$(mknod_next_loop_dev)
+       OPTIONS=$(echo "$OPTIONS" | sed -r "s/,loop//g")
+       echolog "Mounting encrypted filesystem $DEV" >/dev/console 2>/dev/console
+       times=3
+       while [ $times -gt 0 ]; do
+          /usr/bin/losetup.real -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
+          [ $(cmdline_parameter fsck) ] && fsck_device "$LOOPDEV"
+          mount -n -o $OPTIONS "$LOOPDEV" "$2" >/dev/null 2>&1
+          ERR=$?
+          [ $ERR -eq 0 ] && break
+          /usr/bin/losetup.real -d "$LOOPDEV"
+          times=$(expr $times - 1)
+       done
+   fi
+
+   # not enough loop devices? try to create one.
+   if [ $ERR -eq 2 ]; then
+       LOOPDEV=$(mknod_next_loop_dev)
+       OPTIONS=$(echo "$OPTIONS" | sed -r "s/,loop//g")
+       losetup "$LOOPDEV" "$DEV" 2>/dev/null # busybox's losetup doesn't support -r
+       if [ $? -ne 0 ]; then
+          losetup -r "$LOOPDEV" "$DEV" 2>/dev/null # force read-only in case of error
+       fi
+       mount -n -o $OPTIONS $FS "$LOOPDEV" "$2" >/dev/null 2>&1
+       ERR=$?
+   fi
+
+   # if nothing works, try to force read-only mount
+   if [ $ERR -ne 0 ]; then
+       mount -n -r -o $OPTIONS $FS "$DEV" "$2" >/dev/null 2>&1
+       ERR=$?
+   fi
+
+   if [ $ERR -ne 0 ]; then rmdir $2 2>/dev/null; fi
+   return $ERR
+}
+
+
+# Mount http filesystem from the given server
+# $1 = server
+# $2 = mountdir
+#
+mount_httpfs()
+{
+   debug_log "mount_httpfs" "$*"
+
+   mkdir -p $2
+   /bin/httpfs $1 $2 || return
+   if [ -f $2/$(basename $1) ] ;then
+      echo $2/$(basename $1)
+   else
+      echo $2
+   fi
+}
+
+# Mount curlftpfs filesystem from the given server
+# $1 = server
+# $2 = mountdir
+#
+mount_curlftpfs()
+{
+   local OPTIONS
+   debug_log "mount_curlftpfs" "$*"
+   OPTIONS=
+   [ "$(cmdline_value netfsopt)" ] && OPTIONS="-o $(cmdline_value netfsopt)"
+
+   mkdir -p $2
+   /usr/bin/curlftpfs $OPTIONS $1 $2 </dev/console >/dev/console 2>/dev/console || return
+   if [ -f $2/$(basename $1) ] ;then
+      echo $2/$(basename $1)
+   else
+      echo $2
+   fi
+}
+
+# Mount sshfs filesystem from the given server
+# $1 = server
+# $2 = mountdir
+#
+mount_sshfs()
+{
+   local OPTIONS
+   debug_log "mount_sshfs" "$*"
+   OPTIONS=
+   [ "$(cmdline_value netfsopt)" ] && OPTIONS="-o $(cmdline_value netfsopt)"
+   mkdir -p $2
+   times=3
+   while [ $times -gt 0 ]; do
+     /usr/bin/sshfs ${1/ssh:??/} $2 $OPTIONS </dev/console >/dev/console 2>/dev/console
+     ERR=$?
+     [ $ERR -eq 0 ] && break
+     times=$(expr $times - 1)
+   done
+   [ $ERR -eq 0 ] || return
+   if [ -f $2/$(basename $1) ] ;then
+      echo $2/$(basename $1)
+   else
+      echo $2
+   fi
+}
+
+# Mount nfs filesystem from the given server
+# $1 = server
+# $2 = mountdir
+#
+mount_nfs()
+{
+   debug_log "mount_nfs" "$*"
+   mkdir -p $2
+   modprobe nfs
+   local SHARE=`echo $1 | sed s-^nfs://-- `
+   if mount -t nfs $SHARE $2 -o nolock,rsize=4096,wsize=4096 2>/dev/null ;then
+      echo $2
+   elif mount -t nfs $(dirname $SHARE) $2 -o nolock,rsize=4096,wsize=4096 2>/dev/null ;then
+      echo $2/$(basename $SHARE)
+   fi
+}
+
+# Format mountdir for device. This function used to append _cdrom or _removable
+# suffix to the directory name so KDE was able to assign a nice icon for evey
+# device, but this should be done using HAL in KDE nowadays, so we do not
+# support these stupid suffixes anymore. Many people will be happy :)
+# $1 = device full path, eg. /dev/hda1
+#
+device_mountdir()
+{
+   debug_log "device_mountdir" "$*"
+   if ! [ -b "$1" ] ;then
+      echo "/$MOUNTDIR/$(basename "$1")" | tr -s /
+   else
+      if grep -q "^$1 " /proc/mounts ;then
+         grep "^$1 " /proc/mounts | awk '{print $2}' | head -1 |  tr -s /
+      else
+         if [ "$2" = "" ];then
+            echo "/$MOUNTDIR/$(basename "$1")" | tr -s /
+         else
+            echo "$2" | tr -s /
+         fi
+      fi
+   fi
+}
+
+# ismountpoint exits with 0 if $1 is mountpoint, else exits with 1
+# $1 = directory or loop_file
+#
+ismountpoint()
+{
+   debug_log "ismountpoint" "$*"
+   local MDIR
+
+   MDIR=$(readlink -f "$1")
+   cat /proc/mounts | cut -d " " -f 2 | egrep "^$MDIR\$" >/dev/null 2>&1
+}
+
+
+
+# Find file-path on given device
+# First it mounts the device read-only. If then the 'path' is found, 
+# then remount without RO flag (causes it to be mounted read-write if possible)
+# and return the path, else unmount and exit.
+# If the device/dev_directory is already mounted, preserve it mounted
+# $1 = device
+# $2 = path/filename
+# $3 = device mountpoint
+#
+find_filepath()
+{
+   debug_log "find_filepath" "$*"
+   local DIR FOUND PRESERVE
+
+   DIR=$(device_mountdir $1 $3)
+   
+   ismountpoint $DIR
+   if [ $? -eq 0 ]; then
+      PRESERVE="true"
+   else
+      mount_device $1 $DIR ro
+      if [ $? -ne 0 ]; then rmdir $DIR 2>/dev/null; return 1; fi
+      PRESERVE=""
+   fi
+
+   FOUND=$(ls -A1d $DIR/$2 2>/dev/null | head -n 1 | tr -s '/')
+
+#   if [ "$FOUND" ] && echo "$2" | grep -q "$LIVECDNAME/$LIVECDNAME.sgn$"  ;then
+#      grep -q "`head -1 /VERSION`" $DIR/$LIVECDNAME/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || FOUND=""
+#   fi
+   if [ "$FOUND" = "" ]; then
+      if [ "$PRESERVE" != "true" ]; then
+         fumount $DIR
+         rmdir $DIR 2>/dev/null
+      fi
+      return 1
+   else
+      # remount without the 'ro' option now, so use rw or defaults
+      # Only in the case it was not mounted already before.
+      if [ "$PRESERVE" != "true" ]; then
+         fumount $DIR
+         mount_device $1 $DIR rw
+         if [ $? -ne 0 ]; then
+            rmdir $DIR 2>/dev/null
+            return 2
+         fi
+      fi
+      echo "$FOUND"
+      return 0
+   fi
+}
+
+# Find file in computer by mounting disks or other storage devices
+# and searching for $1 in the mounted directory
+# $1 = filename or device-path or devicepath/filename
+# $2 = device mountpoint
+#
+find_file()
+{
+   debug_log "find_file" "$*"
+   local FIND DEVICE DEVPART PATHPART
+
+   # allow using /mnt/... as well as /dev/...
+   FIND=$(echo "$1" | sed -r "s:^/mnt/:/dev/:")
+
+   # if parameter is just a device, echo it and exit
+   if [ -b "$FIND" -o -c "$FIND" -o "$FIND" = "" ]; then echo "$FIND"; return; fi
+
+   # If path doesn't start with /dev/, try to find the exact path on all devices
+   # First, split DEV/PATH parts
+   DEVPART=$(echo "$FIND" | egrep -o "^/dev/[^/]+")
+
+   if [ "$DEVPART" = "" ]; then
+      # no device is specified. Search all devices for filename $FIND
+      PATHPART="$FIND";
+      for DEVICE in $(list_mounted_directories) $(list_block_devices); do
+         if ! grep -q ":$DEVICE@$PATHPART:" /tmp/_findfile 2>/dev/null; then
+            find_filepath "$DEVICE" "$PATHPART" "$2"
+            if [ $? -eq 0 ]; then return 0; fi
+            echo ":$DEVICE@$PATHPART:" >>/tmp/_findfile
+         fi
+      done
+   else
+      # try to find PATHPART only on the given device
+      PATHPART=$(echo "$FIND" | sed -r 's:^/dev/[^/]+(.*):\1:') #'
+      find_filepath "$DEVPART" "$PATHPART" "$2"
+   fi
+}
+
+# Find Data
+# use 'find_file' function to find the given file/dir
+# if nothing found, sleep for a while to allow devices to settle and try again.
+# (is there any way to find out if there are devices queued through /sys?)
+# $1 = file or directory to find
+# $2 = device mountpoint
+#
+find_data()
+{
+   debug_log "find_in_computer" "$*"
+   local TIMEOUT RESULT
+
+   TIMEOUT=$(cmdline_value scantimeout | sed -r 's/[^0-9]*([0-9]+).*/\1/') #'
+   if [ "$TIMEOUT" = "" ]; then TIMEOUT=10; fi
+
+   RESULT=$(find_file "$1" "$2")
+
+   while [ $TIMEOUT -gt 0 -a "$RESULT" = "" ]; do
+      echo -ne "- wait a while\r" >&2
+      sleep 1
+      TIMEOUT=$((TIMEOUT-1))
+      RESULT=$(find_file "$1" "$2")
+   done
+
+   echo $RESULT
+}
+
+# Setup layer
+# $1 = layer directory
+#
+init_layer()
+{
+    debug_log "init_layer" "$*"
+    local NUM_SUBL OIFS
+    NUM_SUBL=0
+    FROM=$(cmdline_value uird.from)
+    #LOAD=$(cmdline_value load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+    ARR_FROM=$(echo $FROM | tr -s ";," " ")
+    for DATAFROM in $ARR_FROM; do
+        if [ "$DATAFROM" ]; then
+            DATA=$1/$NUM_SUBL
+            if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
+                init_ifcfg
+                echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $DATA)
+                echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $DATA)
+                echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $DATA)
+                echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $DATA)
+            else
+                DATAFROM=$(find_data $DATAFROM $DATA)
+                [ -b "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount block device
+            fi
+            [ -d "$DATAFROM" ] && DATA="$DATAFROM" 
+            [ -f "$DATAFROM" ] && mount_device $DATAFROM $DATA-loop  # mount again, it may be loop device
+            #   [ -d "$DATA/$LIVEKITNAME" ] && DATA="$DATA/$LIVEKITNAME"
+            #   [ -f "$DATA/$SGN" ] || DATA=""
+            #   grep -q "`head -1 /VERSION`" $DATA/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || DATA=""
+        fi
+
+        NUM_SUBL=$((NUM_SUBL+1))
+    done
+
 }
 
 # Return device mounted for given directory
@@ -299,7 +833,7 @@ device_bestfs()
    debug_log "device_bestfs" "$*"
    local FS
 
-   FS="$(blkid.large "$1" | sed -r "s/.*TYPE=//" | tr -d '"' | tr [A-Z] [a-z])"
+   FS="$(blkid.real "$1" | sed -r "s/.*TYPE=//" | tr -d '"' | tr [A-Z] [a-z])"
    if [ "$FS" = "msdos" -o "$FS" = "fat" -o "$FS" = "vfat" ]; then
       FS="vfat"
    elif [ "$FS" = "ntfs" ]; then
@@ -414,6 +948,11 @@ fs_options()
    if [ "$1" = "ntfs-3g" ]; then
       echo ",locale=$(locale_id),uid=$MUID,gid=$MUID"
    fi
+
+   if [ "$1" = "squashfs" ]; then
+      echo -n ",ro"
+   fi
+
 }
 
 
@@ -457,7 +996,7 @@ init_ifcfg()
 {
    debug_log "init_ifcfg" "$*"
    local CLIENT GW MASK ETH
-   cmdline_value ip | while IFS=":" read CLIENT GW MASK; do
+   cmdline_value uird.ip | while IFS=":" read CLIENT GW MASK; do
       ETH=$(init_network_dev)
 
       # set IP address as given by boot parameter
@@ -537,7 +1076,7 @@ find_data_try()
    local DEVICE FS FROM OPTIONS
 
    mkdir -p "$1"
-   blkid.large | sort | cut -d: -f 1 | grep -E -v "/loop|/ram|/zram" | while read DEVICE; do
+   blkid.real | sort | cut -d: -f 1 | grep -E -v "/loop|/ram|/zram" | while read DEVICE; do
       FROM="$2"
       FS="$(device_bestfs "$DEVICE")"
       OPTIONS="$(fs_options $FS)"
@@ -570,7 +1109,7 @@ find_data_try()
 # $1 = timeout
 # $2 = data directory target (mount here)
 #
-find_data()
+find_data_livekitlib()
 {
    debug_log "find_data" "$*"
 
@@ -659,23 +1198,23 @@ persistent_changes()
    fi
 }
 
-# Find XZM,RWM,ROM,ENC modules in given dir
-# $1 = root directory of mounted DATAdir
+# Find uird.ro=,uird.rw= modules in given dir
+# $1 = layer directory 
 #
 find_modules()
 {
    debug_log "find_modules" "$*"
-   if [ $(cmdline_parameter unionfs) ]; then
-	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort -r
-    else
-	find "$1/base" "$1/modules" "$1/optional" -name "*.xzm" -o -name "*.rwm" -o -name "*.rom" -o -name "*.enc" 2>/dev/null | sort
-    fi
+   ARR_FILTER=$(echo "$(cmdline_value uird.rw),$(cmdline_value uird.ro)" | tr -s ";," " ")
+   for filter in $ARR_FILTER; do
+        find "$1" -path "$filter"  2>/dev/null | sort
+
+   done
 }
 
 # List all modules in all directories (base, modules, optional)
 # and filter out unneeded optional modules (not specified by load= kernel parameter)
 # separator for load and noload arguments is "," or ";"
-# $1 = root directory of mounted DATAdir
+# $1 = layer directory
 #
 list_modules()
 {
@@ -686,11 +1225,46 @@ list_modules()
    NOLOAD=$(cmdline_value noload | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
    find_modules "$1" | while read LINE; do
       MODNAME=$(echo $LINE | cut -b ${#1}- | cut -b 2-)
-      if [ "$(echo $LINE | grep /optional/)" ]; then
-         if [ ! "$LOAD" -o ! "$(echo $MODNAME | egrep -i "$LOAD")" ]; then continue; fi
+#      if [ "$(echo $LINE | grep /optional/)" ]; then
+#         if [ ! "$LOAD" -o ! "$(echo $MODNAME | egrep -i "$LOAD")" ]; then continue; fi
+#      fi
+      if [ "$LOAD" -a "$(echo $MODNAME | egrep -i "$LOAD")" ]; then 
+          if [ "$NOLOAD" -a "$(echo $MODNAME | egrep -i "$NOLOAD")" ]; then continue; fi
+          echo $LINE
       fi
-      if [ "$NOLOAD" -a "$(echo $MODNAME | egrep -i "$NOLOAD")" ]; then continue; fi
-      echo $LINE
+   done
+}
+# Mount squashfs filesystem bundles
+# and add them to union
+# $1 = directory where to search for bundles
+# $2 = directory where to mount bundles
+# $3 = directory where union is mounted
+#
+union_append_bundles()
+{
+   debug_log "union_append_bundles" "$*"
+
+   local BUN MOD RW RO FS OPTIONS
+   
+   RW=$(cmdline_value uird.rw | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+   RO=$(cmdline_value uird.ro | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+
+   echo_green_star
+   echo "Adding bundles to union"
+   list_modules "$1" | while read BUNDLE; do
+      echo "* --> $BUNDLE"
+      BUN="$(basename "$BUNDLE")"
+      mkdir -p "$2/$BUN"
+      
+      if [ "$RW" -a "$(echo $BUNDLE | egrep -i "$RW")" ]; then
+        MOD=rw
+      else
+        MOD=ro
+      fi
+      FS="$(device_bestfs "$BUNDLE")"
+      OPTIONS="$(fs_options $FS mount)"
+      mount -o $OPTIONS -t $FS "$BUNDLE" "$2/$BUN"
+      mount -o remount,add:1:"$2/$BUN"="$MOD" aufs "$3"
    done
 }
 
@@ -769,24 +1343,24 @@ copy_to()
 copy_to_ram()
 {
     if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter copy2ram)$(cmdline_value copy2ram)" != "" ]; then
-	echolog "copying data to RAM, this may take some time..."
-	[ "$2" = "" ] && return
-	debug_log "copy_to_ram" "$*"
-	copy_to $1 $2 RAM "$(cmdline_value copy2ram)$(cmdline_value toram)"
+        echolog "copying data to RAM, this may take some time..."
+        [ "$2" = "" ] && return
+        debug_log "copy_to_ram" "$*"
+        copy_to $1 $2 RAM "$(cmdline_value copy2ram)$(cmdline_value toram)"
     fi
 }
 
-# Copy modules to LOCAL_REP directory
+# Copy modules to CACHE directory
 # $1 = data directory
 # $2 = target directory in LOCAL_REP
 #
-copy_to_rep()
+copy_to_cache()
 {
-    if [ "$(cmdline_parameter copy2rep)$(cmdline_value copy2rep)" != "" ]; then
-	[ "$2" = "" ] && return
-	echolog "copying data to LOCAL_REP, this may take some time..."
-	debug_log "copy_to_rep" "$*"
-	copy_to $1 $2 LOCAL_REPOSITORY "$(cmdline_value copy2rep)"
+    if [ "$(cmdline_parameter copy2cache)$(cmdline_value copy2cache)" != "" ]; then
+        [ "$2" = "" ] && return
+        echolog "copying data to CACHE, this may take some time..."
+        debug_log "copy_to_rep" "$*"
+        copy_to $1 $2 CACHE "$(cmdline_value copy2cache)"
     fi
 }
 
@@ -829,7 +1403,7 @@ sortmod()
 # $2 = directory where to mount bundles
 # $3 = directory where union is mounted
 #
-union_append_bundles()
+union_append_bundles_livekitlib()
 {
    debug_log "union_append_bundles" "$*"
 
@@ -837,7 +1411,7 @@ union_append_bundles()
 
    echo_green_star
    echo "Adding bundles to union"
-   ( ls -1 "$1" | sort -n ; cd "$1" ; find base/ modules/ 2>/dev/null | sortmod | filter_load) | grep '[.]'$BEXT'$' | filter_noload | while read BUNDLE; do
+   ( ls -1 "$1" | sort -n ; cd "$1" ; find . 2>/dev/null | sortmod | filter_load) | grep '[.]'$BEXT'$' | filter_noload | while read BUNDLE; do
       echo "* --> $BUNDLE"
       BUN="$(basename "$BUNDLE")"
       mkdir -p "$2/$BUN"
@@ -992,3 +1566,4 @@ change_root()
    pivot_root . mnt/live
    exec $CHROOT . $INIT < dev/console > dev/console 2>&1
 }
+

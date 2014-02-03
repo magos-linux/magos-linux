@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 #
-# root=magos:<mountpoint>:<base_from>:<data_from>[,<options>]
+# root=uird:<mountpoint>:<base_from>:<data_from>[,<options>]
 #
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
@@ -30,8 +30,8 @@ uird_to_var() {
 # Check required arguments
 #uird_to_var $root
 
-#[ -n "$base_from" ] || die "Argument magosroot needs base_from param"
-#[ -n "$data_from" ] || die "Argument magosroot needs data_from param"
+#[ -n "$base_from" ] || die "Argument uirdroot needs base_from param"
+#[ -n "$data_from" ] || die "Argument uirdroot needs data_from param"
 
 
 

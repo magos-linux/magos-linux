@@ -1,2 +1,2 @@
-make_initrd/dracut.cpio.xz
+make_initrd/*.xz
 make_initrd/dracut.log

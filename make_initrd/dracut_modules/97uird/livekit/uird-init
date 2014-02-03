@@ -18,6 +18,8 @@ DATAMNT=$MEMORY/data
 BUNDLES=$MEMORY/bundles
 COPY2RAM=$MEMORY/copy2ram
 COPY2REP=$MEMORY/copy2rep
+MOUNTDIR=$DATAMNT
+LAYER_BASE=$DATAMNT/layer-base
 
 LIVEKITNAME="MagOS"
 BEXT=xzm
@@ -34,22 +36,24 @@ debug_start
 init_aufs
 
 # find data dir with filesystem bundles
-DATA="$(find_data 60 "$DATAMNT")"
+#DATA="$(find_data 60 "$DATAMNT")"
+
+init_layer $LAYER_BASE
                                                                                                                                                       debug_shell
 # setup persistent changes, if possible
-persistent_changes "$DATA" "$CHANGES"
+#persistent_changes "$DATA" "$CHANGES"
                                                                                                                                                       debug_shell
 # copy to LOCAL_REPOSITORY if needed
-DATA_REP="$(copy_to_rep "$DATA" "$COPY2REP")"
+#DATA_REP="$(copy_to_rep "$DATA" "$COPY2REP")"
                                                                                                                                                       debug_shell
 # copy to RAM if needed
-DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
+#DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
                                                                                                                                                       debug_shell
 # init aufs union
 init_union "$CHANGES" "$UNION"
                                                                                                                                                       debug_shell
 # add data to union
-for d_dirs in "/$DATA_RAM" "/$DATA_REP" "/$DATA" ;do
+for d_dirs in "$LAYER_BASE" ;do
     union_append_bundles $d_dirs "$BUNDLES" "$UNION"
 done
                                                                                                                                                       debug_shell
