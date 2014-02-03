@@ -8,25 +8,30 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 . /liblinuxlive
-
-XORGDRIVER=$(cmdline_value xdriver)
-[ "$XORGDRIVER" != "nvidia" ] && modprobe -r nvidia
+. /etc/sysconfig/harddrake2/service.conf
+[ "$XDRIVER" != "nvidia" ] && rmmod nvidia
 
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
-grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
-[ -z "$XORG_RES" ] || sed -i 's|.*Modes.*|        Modes "'$XORG_RES'"|' /etc/X11/xorg.conf
-if [  "$MONITOR" != "auto" ] ;then
-   if [ "$MONITOR" = "FLATPANEL" -o "$MONITOR" = "" ] ; then
-      VRH="" ; HRH=90 ; [ ${XORG_RES%%x*} -gt 1920 ] && HRH=100
-   elif [ "$MONITOR" = "PNP" ] ; then
-      VRH="-150" ; HRH=96 
-      STL=$(nl -ba /etc/X11/xorg.conf | grep -m 1 -i "Section.*Monitor" | awk '{ print $1}')
-      VNL=$(nl -ba /etc/X11/xorg.conf | sed -n $STL,1${STL}p | grep -m 1 -i VendorName | awk '{print $1}')
-      sed -i ${VNL}s/VendorName.*/"VendorName \"Plug'n Play\""/ /etc/X11/xorg.conf
-   fi
-   sed -i s/HorizSync.*/"HorizSync 28.8-$HRH"/ /etc/X11/xorg.conf
-   sed -i s/VertRefresh.*/"VertRefresh 60$VRH"/ /etc/X11/xorg.conf
-fi
-if echo $DPMS | egrep -qi 'no|off|false' ;then
-   sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
+
+[ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f /etc/X11/xorg.conf
+[ "$DELETE_XORG_CONF" = "yes" ] && rm -f /etc/X11/xorg.conf
+
+if [ -f /etc/X11/xorg.conf ] ;then
+  grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
+  [ -z "$XORG_RES" ] || sed -i 's|.*Modes.*|        Modes "'$XORG_RES'"|' /etc/X11/xorg.conf
+  if [  "$MONITOR" != "auto" ] ;then
+     if [ "$MONITOR" = "FLATPANEL" -o "$MONITOR" = "" ] ; then
+        VRH="" ; HRH=90 ; [ ${XORG_RES%%x*} -gt 1920 ] && HRH=100
+     elif [ "$MONITOR" = "PNP" ] ; then
+        VRH="-150" ; HRH=96 
+        STL=$(nl -ba /etc/X11/xorg.conf | grep -m 1 -i "Section.*Monitor" | awk '{ print $1}')
+        VNL=$(nl -ba /etc/X11/xorg.conf | sed -n $STL,1${STL}p | grep -m 1 -i VendorName | awk '{print $1}')
+        sed -i ${VNL}s/VendorName.*/"VendorName \"Plug'n Play\""/ /etc/X11/xorg.conf
+     fi
+     sed -i s/HorizSync.*/"HorizSync 28.8-$HRH"/ /etc/X11/xorg.conf
+     sed -i s/VertRefresh.*/"VertRefresh 60$VRH"/ /etc/X11/xorg.conf
+  fi
+  if echo $DPMS | egrep -qi 'no|off|false' ;then
+     sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
+  fi
 fi

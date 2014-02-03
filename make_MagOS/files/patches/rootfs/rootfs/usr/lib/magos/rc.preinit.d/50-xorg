@@ -11,23 +11,87 @@ ENABLED=yes
 
 . /liblinuxlive
 
-XORGDRIVER=$(cmdline_value xdriver)
-[ "$XORGDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
-[ "$XORGDRIVER" = "nvidia" ] && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
-
 [ ! -f etc/sysconfig/harddrake2/previous_hw ] && ! grep -q XORG_RES etc/sysconfig/MagOS && echo XORG_RES=auto >>etc/sysconfig/MagOS
 
-#First run tweak
+XDRIVER=$(cmdline_value xdriver)
+
+if [ "$XDRIVER" = "xorg" ] ;then
+   XDRIVER=
+   DELETE_XORG_CONF=yes
+fi
+
+#using old values if hw not changed
+if [ -z "$XDRIVER" ] ;then
+  PCIID=$(lspci -n | grep -m1 " 0300: " | awk '{print $3}')
+  PCIVEN=$(echo $PCIID | awk -F: '{print $1}')
+  . etc/sysconfig/harddrake2/service.conf
+  [ "$PCIID" != "$VGAID" ] && XDRIVER=
+fi
+
+#first of all look exceptions
+if [ -z "$XDRIVER" ] ;then
+   XDRIVER=$(grep -im1 ^$PCIID usr/share/magos/hwdata/xdriver/* | awk -F: '{print $1}')
+   XDRIVER=$(basename $XDRIVER)
+fi
+
+#Detect hardware by vendors
+if [ -z "$XDRIVER" ] ;then
+  case $PCIVEN in
+      8086)
+         XDRIVER=intel
+      ;;
+      1002)
+         XDRIVER=fglrx
+      ;;
+      10de)
+         XDRIVER=nvidia-current
+      ;;
+  esac
+  # testing nvidia-current nvidia173 nvidia96xx modules
+  if [ "$XDRIVER" = "nvidia-current" ] ;then
+     chroot . modprobe nvidia-current
+     if ! lsmod | grep -q nvidia ;then
+        chroot . modprobe nvidia173
+        if lsmod | grep -q nvidia ;then
+           XDRIVER=nvidia173
+        else
+           chroot . modprobe nvidia96xx
+           if lsmod | grep -q nvidia ;then
+              XDRIVER=nvidia
+           else
+              XDRIVER=
+           fi
+        fi
+     fi
+  fi
+  # testing fglrx radeon
+  if [ "$XDRIVER" = "fglrx" ] ;then
+     chroot . modprobe fglrx
+     if ! lsmod | grep -q fglrx ;then
+        XDRIVER=ati
+     fi
+  fi
+fi
+
+# setting xdriver in harddrake config
+if [ ! -z "$XDRIVER" ] ;then
+   sed -i /^XDRIVER=/d etc/sysconfig/harddrake2/service.conf
+   echo XDRIVER=$XDRIVER >> etc/sysconfig/harddrake2/service.conf
+   echo VGAID=$PCIID >> etc/sysconfig/harddrake2/service.conf
+fi
+
+sed -i /DELETE_XORG_CONF=/d etc/sysconfig/harddrake2/service.conf
+[ "$DELETE_XORG_CONF" = "yes" ] && echo DELETE_XORG_CONF=yes >> etc/sysconfig/harddrake2/service.conf
+
+# blocking conflict modules
+[ "$XDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
+[ "$XDRIVER" = "nvidia" ] && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
+
+#First run ldconfig tweak
 if [ ! -f /memory/changes/etc/ld.so.cache ] ;then
-
-  VGADRIVER=fbdev
-
-  lspci -n | grep -qi "0300: 1022:" && VGADRIVER=fglrx
-  lspci -n | grep -qi "0300: 10de:" && VGADRIVER=nvidia-current
-  [ "$XORGDRIVER" = "" ] && XORGDRIVER=$VGADRIVER
-
-  LDCACHE=$XORGDRIVER
-  case $XORGDRIVER in
+  [ -z "$XDRIVER" ] && XDRIVER=fbdev
+  LDCACHE=$XDRIVER
+  case $LDCACHE in
      fglrx)
        LINK=/etc/fglrx/pxpress-free.ld.so.conf
      ;;
