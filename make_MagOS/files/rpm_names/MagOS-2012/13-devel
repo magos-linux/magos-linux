@@ -70,3 +70,5 @@ libkmod-devel-
 kernel-headers-
 bash-completion-
 chrpath-
+libcloog-isl4-
+libisl10-

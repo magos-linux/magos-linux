@@ -2,7 +2,7 @@
 
 Summary:	Play your Windows games on Linux
 Name:		playonlinux
-Version:	4.2.1
+Version:	4.2.2
 Release:	2
 License:	GPLv3
 Group:		Games/Other
@@ -90,13 +90,13 @@ desktop-file-install \
 rm -rf %{buildroot}%{_datadir}/%{name}/etc/*.applescript
 rm -rf %{buildroot}%{_datadir}/%{name}/etc/*.icns
 %__rm -rf %{buildroot}%{_datadir}/%{name}/lang
-%__rm -rf %{buildroot}%{_datadir}/%{name}/CHANGELOG
+%__rm -rf %{buildroot}%{_datadir}/%{name}/CHANGELOG.md
 %__rm -rf %{buildroot}%{_datadir}/%{name}/playonmac
 
 %find_lang pol
 
 %files -f pol.lang
-%doc LICENCE CHANGELOG
+%doc LICENCE CHANGELOG.md
 %{_sysconfdir}/xdg/menus/applications-merged/%{name}*.menu
 %{_bindir}/%{name}
 %{_datadir}/%{name}

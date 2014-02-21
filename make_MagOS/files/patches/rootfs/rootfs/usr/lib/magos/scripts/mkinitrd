@@ -211,8 +211,8 @@ echo "generating module dependency files"
 copy_mod modules.order $KERNEL || exit 1
 copy_mod modules.builtin $KERNEL || exit 1
 depmod -b "$INITRDFOLD" $KERNEL || exit 1
-#BUGFIX for Rosa 2012.1 depmod
-cp -pf /lib/modules/$KERNEL/*map "$INITRDFOLD/lib/modules/$KERNEL" 2>/dev/null
+#BUGFIX for Rosa 2012.1
+touch /lib/modules/$KERNEL/modules.pcimap
 
 echo "compressing usr in initrd"
 create_module usr usr.$MODULEFORMAT || exit 1

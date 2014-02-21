@@ -22,18 +22,18 @@ diff -auprN a/src/core/mount-setup.c b/src/core/mount-setup.c
                          return true;
  
          return false;
-diff -auprN a/src/core/umount.c b/src/core/umount.c
---- a/src/core/umount.c	2012-09-05 01:13:16.000000000 +0400
-+++ b/src/core/umount.c	2013-03-30 16:46:59.000000000 +0400
-@@ -254,6 +254,11 @@ static int loopback_list_get(MountPoint
-                         goto finish;
-                 }
+diff -aupr a/src/core/umount.c b/src/core/umount.c
+--- a/src/core/umount.c	2014-02-19 21:50:21.000000000 +0400
++++ b/src/core/umount.c	2014-02-19 21:52:38.651275649 +0400
+@@ -243,6 +243,11 @@ static int loopback_list_get(MountPoint
+                 if (!loop)
+                         return -ENOMEM;
  
-+                if (mount_point_ignore(udev_list_entry_get_name(item))) { 
++                if (mount_point_ignore(udev_list_entry_get_name(item))) {
 +                        free(loop);
-+                        continue; 
++                        continue;
 +                }
 +
-                 if (!(lb = new0(MountPoint, 1))) {
+                 lb = new0(MountPoint, 1);
+                 if (!lb) {
                          free(loop);
-                         r = -ENOMEM;

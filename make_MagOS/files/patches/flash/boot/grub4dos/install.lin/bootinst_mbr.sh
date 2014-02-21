@@ -1,4 +1,5 @@
 #!/bin/bash
+[ -f $(basename $0) ] || cd $(dirname $0)
 
 set -e
 TARGET=""

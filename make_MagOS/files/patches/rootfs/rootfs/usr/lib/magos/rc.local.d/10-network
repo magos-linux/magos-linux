@@ -6,6 +6,13 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+for a in /etc/sysconfig/network-scripts/ifcfg-* ;do 
+   NM_CONTROLLED=
+   ONBOOT=
+   . $a || continue
+   [ "$DEVICE" != "lo" -a "$NM_CONTROLLED" = "no" -a "$ONBOOT" = "yes" ] && ifup $DEVICE
+done
+
 NFSMOUNTTM=10
 NFSMOUNTWAIT=6
 NFSOPTS="vers=3,nolock,users,noauto"

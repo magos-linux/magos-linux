@@ -23,13 +23,13 @@ if ! grep -q devices/loop199 $FFP ;then
     grep -q devices/loop$a $FFP && continue
     cat >>$FFP <<EOF
  <separator>
-    <info>
-	<metadata owner="http://www.kde.org">
-	    <UDI>/org/freedesktop/UDisks/devices/loop$a</UDI>
-	    <isSystemItem>true</isSystemItem>
-	    <IsHidden>true</IsHidden>
-	</metadata>
-    </info>
+  <info>
+   <metadata owner="http://www.kde.org">
+    <UDI>/org/freedesktop/UDisks/devices/loop$a</UDI>
+    <isSystemItem>true</isSystemItem>
+    <IsHidden>true</IsHidden>
+    </metadata>
+  </info>
  </separator>
 EOF
   done

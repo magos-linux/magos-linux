@@ -1,9 +1,9 @@
 diff -auprN a/patches/series b/patches/series
---- a/patches/series	2013-12-20 16:56:45.000000000 +0400
-+++ b/patches/series	2014-01-18 11:13:45.760766431 +0400
-@@ -301,6 +301,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
+--- a/patches/series	2014-02-15 23:17:33.000000000 +0400
++++ b/patches/series	2014-02-19 12:14:24.558594434 +0400
+@@ -314,6 +314,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
  
- # Mandriva framebuffer boot logo
+ # Mageia framebuffer boot logo
  # video-mandriva-logo.patch
 +video-magos-logo.patch
  
@@ -11,7 +11,7 @@ diff -auprN a/patches/series b/patches/series
  # https://bugzilla.kernel.org/show_bug.cgi?id=26232
 diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 --- a/patches/video-magos-logo.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/video-magos-logo.patch	2014-01-18 11:13:45.764766431 +0400
++++ b/patches/video-magos-logo.patch	2014-02-19 12:14:24.562594434 +0400
 @@ -0,0 +1,936 @@
 +diff -auprN a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
 +--- a/drivers/video/logo/Kconfig	2013-07-01 02:13:29.000000000 +0400
@@ -951,7 +951,7 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 ++
 diff -auprN a/scripts/create_configs b/scripts/create_configs
 --- a/scripts/create_configs	2013-10-22 12:20:26.000000000 +0400
-+++ b/scripts/create_configs	2014-01-18 11:13:45.764766431 +0400
++++ b/scripts/create_configs	2014-02-19 12:14:24.563594434 +0400
 @@ -1013,6 +1013,37 @@ sub config_nrj_server_lxc_exp{
  # End of LXC flavour definitions
  
@@ -1008,7 +1008,7 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
      config_server() if $name eq "server";
 diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
 --- a/scripts/create_configs-QL	2013-10-22 12:11:10.000000000 +0400
-+++ b/scripts/create_configs-QL	2014-01-18 11:13:45.765766431 +0400
++++ b/scripts/create_configs-QL	2014-02-19 12:14:24.565594434 +0400
 @@ -1165,6 +1165,35 @@ sub config_nrjQL_server_lxc_exp{
  
  # End of LXC flavour definitions
@@ -1063,7 +1063,7 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
      config_nrjQL_realtime() if $name eq "nrjQL-realtime";
 diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
 --- a/scripts/create_configs-withBFQ	2013-10-22 12:11:06.000000000 +0400
-+++ b/scripts/create_configs-withBFQ	2014-01-18 11:13:45.765766431 +0400
++++ b/scripts/create_configs-withBFQ	2014-02-19 12:14:24.566594434 +0400
 @@ -1073,6 +1073,37 @@ sub config_nrj_server_lxc_exp{
  # End of LXC flavour definitions
  

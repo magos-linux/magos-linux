@@ -5,6 +5,8 @@
 # author: Tomas M. <http://www.linux-live.org>
 # ---------------------------------------------------
 
+[ -f $(basename $0) ] || cd $(dirname $0)
+
 LOCF=`pwd`/`locale | grep ^LANG= | awk -F= '{print $2}'`
 function t_echo()
 {

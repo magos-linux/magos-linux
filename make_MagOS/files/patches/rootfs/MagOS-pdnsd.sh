@@ -28,6 +28,8 @@ global {
 	min_ttl=15m;       # Retain cached entries at least 15 minutes.
 	max_ttl=1w;	   # One week.
 	timeout=10;        # Global timeout option (10 seconds).
+        server_ip=any;
+#       interface=eth0;
 }
 
 server {
