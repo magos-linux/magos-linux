@@ -13,7 +13,7 @@
 dd if=/dev/zero of="$2" bs="$3" count=1 >/dev/null
 
 dl=$(losetup -f)
-losetup -e "$1" $dl "$2"
+/usr/lib/magos/losetup -e "$1" $dl "$2"
 
 echo "y" | mkfs.ext3 $dl >/dev/null
 

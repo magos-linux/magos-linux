@@ -23,5 +23,4 @@ mv -f /etc/mtab.new /etc/mtab
 . /etc/sysconfig/clock
 HWCLOCKOPIONS="--utc"
 [ "$UTC" = "false" ] && HWCLOCKOPIONS="--localtime"
-. /etc/sysconfig/MagOS
 hwclock -s $HWCLOCKOPIONS

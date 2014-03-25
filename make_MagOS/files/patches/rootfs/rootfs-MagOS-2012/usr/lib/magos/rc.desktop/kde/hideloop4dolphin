@@ -9,7 +9,10 @@ fi
 
 sleep 3
 
-FFP=$HOME/.kde4/share/apps/kfileplaces/bookmarks.xml
+BOOKMARKS=.kde4/share/apps/kfileplaces/bookmarks.xml
+HIDELOOP=255
+HIDERAM=0
+FFP=$HOME/$BOOKMARKS
 
 if [ ! -f $FFP ] ;then
    dolphin /home &
@@ -18,18 +21,40 @@ if [ ! -f $FFP ] ;then
    kill $PIDDOL
 fi
 
-if ! grep -q devices/loop199 $FFP ;then
-  for a in $(seq 0 199) ;do
+if ! grep -q "devices/loop$HIDELOOP" $FFP ;then
+  for a in $(seq 0 "$HIDELOOP") ;do
     grep -q devices/loop$a $FFP && continue
     cat >>$FFP <<EOF
  <separator>
   <info>
    <metadata owner="http://www.kde.org">
-    <UDI>/org/freedesktop/UDisks/devices/loop$a</UDI>
+    <UDI>/org/freedesktop/UDisks2/block_devices/loop$a</UDI>
     <isSystemItem>true</isSystemItem>
     <IsHidden>true</IsHidden>
-    </metadata>
+   </metadata>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="drive-harddisk"/>
+   </metadata>
   </info>
+  <title>Loop device</title>
+ </separator>
+EOF
+  done
+  for a in $(seq 0 "$HIDERAM") ;do
+    grep -q devices/ram$a $FFP && continue
+    cat >>$FFP <<EOF
+ <separator>
+  <info>
+   <metadata owner="http://www.kde.org">
+    <UDI>/org/freedesktop/UDisks2/block_devices/ram$a</UDI>
+    <isSystemItem>true</isSystemItem>
+    <IsHidden>true</IsHidden>
+   </metadata>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="drive-harddisk"/>
+   </metadata>
+  </info>
+   <title>Ram device</title>
  </separator>
 EOF
   done

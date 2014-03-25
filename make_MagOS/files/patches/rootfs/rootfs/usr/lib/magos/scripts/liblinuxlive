@@ -446,12 +446,12 @@ mount_device()
        echolog "Mounting encrypted filesystem $DEV" >/dev/console 2>/dev/console
        times=3
        while [ $times -gt 0 ]; do
-          /usr/bin/losetup.real -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
+          /usr/bin/losetup.crypto -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
           [ $(cmdline_parameter fsck) ] && fsck_device "$LOOPDEV"
           mount -n -o $OPTIONS "$LOOPDEV" "$2" >/dev/null 2>&1
           ERR=$?
           [ $ERR -eq 0 ] && break
-          /usr/bin/losetup.real -d "$LOOPDEV"
+          /usr/bin/losetup.crypto -d "$LOOPDEV"
           times=$(expr $times - 1)
        done
    fi
@@ -723,7 +723,7 @@ list_network_drivers()
    r8169 8139too 8139cp via-rhine forcedeth \
    e2100 eepro eexpress pcnet32  \
    3c501 3c503 3c505 3c507 3c509 3c515 tg3 jme \
-   virtio_net atl1 atl2 igb | tr " " "\n"
+   virtio_net atl1 atl1c atl2 igb alx | tr " " "\n"
 }
 
 # List all CD-ROMs

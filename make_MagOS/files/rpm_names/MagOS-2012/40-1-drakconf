@@ -95,3 +95,8 @@ os-prober-
 xorriso-
 magos-ctrl-center-
 perl-Geo-IP-
+faketime-
+libfaketime1-
+libfaketimeMT1-
+python-rpm5utils-
+urpm-tools-

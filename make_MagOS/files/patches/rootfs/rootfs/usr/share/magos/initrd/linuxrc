@@ -305,7 +305,7 @@ fi
 
 debug_shell
 
-echo "MODULESPATH=\"/$DATAINSMOD /$DATA $LIVEREPOSITORY\"" > /etc/modules
+echo -e "MAGOSMODS=/$DATA\nMAGOSDATAMODS=/$LIVEREPOSITORY\nCACHE=/mnt/live/$DATAINSMOD" > /etc/modules
 # mount aufs using the writable branch as the first one (leftmost/topmost)
 if [ $(cmdline_parameter unionfs) ];then
     echolog "setup union directory (using unionfs)"

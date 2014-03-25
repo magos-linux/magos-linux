@@ -161,6 +161,7 @@ done
 
 mv bin/busybox.static bin/busybox || exit 1
 mv usr/bin/losetup usr/bin/losetup.real || exit 1
+cp -p /usr/lib/magos/losetup usr/bin/losetup.crypto || exit 1
 
 # build links to busybox's functions from busybox's own help text
 for i in $(bin/busybox --help | grep -v Copyright | grep , | tr , " "); do

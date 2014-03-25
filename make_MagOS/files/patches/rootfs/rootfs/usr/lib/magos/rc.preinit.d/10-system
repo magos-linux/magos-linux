@@ -26,4 +26,3 @@ cp -f /VERSION etc/magos-release
 if [ -d run/udev/rules.d ] ;then
   mount -t devtmpfs none dev
 fi
-

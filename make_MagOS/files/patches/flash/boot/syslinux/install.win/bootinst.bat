@@ -33,11 +33,11 @@ if %OS% == Windows_NT goto setupNT
 goto setup95
 
 :setupNT
-\boot\syslinux\syslinux.exe -maf -d \boot\syslinux %DISK%:
+\boot\syslinux\syslinux.exe -maf -d /boot/syslinux %DISK%:
 goto setupDone
 
 :setup95
-\boot\syslinux\syslinux.com -maf -d \boot\syslinux %DISK%:
+\boot\syslinux\syslinux.com -maf -d /boot/syslinux %DISK%:
 
 :setupDone
 call :t_echo Disk should be bootable now. Installation finished.

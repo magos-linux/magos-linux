@@ -150,7 +150,7 @@ mandriva-kde4-config-common-
 libconfig++9-
 libegl1-
 libglesv2_2-
-libkdcraw22-
+libkdcraw23-
 libkxmlrpcclient4-
 libnepomukcore4-
 libqjson0-
@@ -173,3 +173,5 @@ libprison0-
 libakonadi-socialutils4-
 libqrencode3-
 libnepomukcleaner4-
+libqmobipocket1-
+libraw_r9-

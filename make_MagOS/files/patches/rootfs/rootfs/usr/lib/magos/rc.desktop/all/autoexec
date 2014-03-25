@@ -2,13 +2,17 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+. /mnt/live/liblinuxlive
 . /usr/lib/magos/functions
 . /etc/sysconfig/MagOS
 
 DE=$(detectDE)
 cd $HOME
 
-echo "$AUTOEXEC" | tr ',;' \\n | while read a ;do
+EXEC=$(cmdline_value exec)
+[ "$EXEC" != "" -a "$AUTOEXEC" != "" ] && DELIM=,
+
+echo "$AUTOEXEC$DELIM$EXEC" | tr ',;' \\n | while read a ;do
      NEEDDE=$(echo $a | grep : | awk -F: '{print $1}' | tr A-Z a-z)
      PROGRAM=${a/*:/}
      [ "$NEEDDE" -a "$NEEDDE" != "$DE" ] && continue

@@ -6,5 +6,5 @@
 # Author : Anton Goroshkin <http://magos-linux.ru>
 
 dl=$(losetup -f)
-losetup -e "$1" $dl "$2"
+/usr/lib/magos/losetup -e "$1" $dl "$2"
 mount $dl "$3"

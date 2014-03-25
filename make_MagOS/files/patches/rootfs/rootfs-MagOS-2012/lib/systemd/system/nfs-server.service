@@ -5,7 +5,7 @@ Requires=nfs-idmap.service nfs-mountd.service nfs-rquotad.service
 After=network.target named.service rpcbind.service
 
 [Service]
-Type=oneshot
+Type=forking
 RemainAfterExit=yes
 StandardError=syslog+console
 EnvironmentFile=-/etc/sysconfig/nfs

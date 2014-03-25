@@ -382,7 +382,7 @@ liblockdev1-
 libnm-glib4-
 libnm-util2-
 perl-WWW-RobotRules-
-libtasn1_3-
+libtasn1_6-
 perl-File-Temp-
 wpa_supplicant-
 libavahi-client3-

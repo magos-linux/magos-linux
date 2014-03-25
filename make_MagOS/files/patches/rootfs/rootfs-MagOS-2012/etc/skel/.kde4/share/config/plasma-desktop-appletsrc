@@ -210,10 +210,6 @@ zvalue=0
 Share=false
 ShowDevices=2
 
-[Containments][2][Applets][20][Configuration][Applets][23][Configuration][General]
-allDevices=true
-removableDevices=false
-
 [Containments][2][Applets][20][Configuration][Applets][24]
 geometry=0,3.5,24,24
 immutability=1

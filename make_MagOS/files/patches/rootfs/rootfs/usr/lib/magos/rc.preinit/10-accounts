@@ -13,21 +13,28 @@ DEFAULTPASSWD='$2a$08$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2'
 DEFAULTROOTPASSWD='$2a$08$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji'
 DEFAULTUSER=user
 USERGROUPS=audio,video,usb,vboxusers
+NOSECUREROOTPASSWD=$DEFAULTROOTPASSWD
+ADMGROUPS=wheel
+ADMUID=500
+ADDADM=no
 
 . /liblinuxlive
 . etc/sysconfig/MagOS
 [ -f /tmp/.credential ] && . /tmp/.credential && rm -f /tmp/.credential
 [ -z "$NEEDEDUSERS" ] && NEEDEDUSERS="$DEFAULTUSER:500:$DEFAULTPASSWD"
 [ -z "$(cmdline_value users)" ] || NEEDEDUSERS=$(cmdline_value users)
+[ "$NOSECUREROOTPASSWD" = "$DEFAULTROOTPASSWD" ] && ADDADM=yes
 
 for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
    NEEDEDUSER=$(echo $a | awk -F: '{ print $1 }')
    NEEDEDUID=$(echo $a | awk -F: '{ print $2 }')
    NEEDEDPASS=$(echo $a | awk -F: '{ print $3 }')
    [ "$NEEDEDPASS" = "x" ] && NEEDEDPASS="$DEFAULTPASSWD"
+   ADDGROUPS=$USERGROUPS
+   [ "$NEEDEDUID" = "$ADMUID" -a "$ADDADM" = "yes"  ] && ADDGROUPS=$USERGROUPS,$ADMGROUPS
    if ! grep -q ^$NEEDEDUSER: etc/passwd ;then
         chroot . usr/sbin/adduser -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1
-        chroot . usr/sbin/usermod -a -G $USERGROUPS $NEEDEDUSER >/dev/null  2>&1
+        chroot . usr/sbin/usermod -a -G $ADDGROUPS $NEEDEDUSER >/dev/null  2>&1
         chroot . usr/bin/passwd -uf $NEEDEDUSER >/dev/null  2>&1
         [ "$NEEDEDPASS" = "" ] || sed -i s=^$NEEDEDUSER::=$NEEDEDUSER:"$NEEDEDPASS":= etc/shadow
    else
