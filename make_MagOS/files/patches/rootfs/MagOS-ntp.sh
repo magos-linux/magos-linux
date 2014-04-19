@@ -1,5 +1,5 @@
 #!/bin/bash
-
+[ -f etc/ntp.conf ] || exit 0
 #ntpdate
 PFP=etc/cron.d/ntpdate
 [ -f $PFP ] || echo -e '# Sync time every 10 minutes if enable\n*/10 * * * *  root /usr/lib/magos/cron/ntpdate.sh' >$PFP

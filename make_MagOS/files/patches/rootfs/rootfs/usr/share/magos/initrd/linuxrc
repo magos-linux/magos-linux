@@ -305,7 +305,9 @@ fi
 
 debug_shell
 
-echo -e "MAGOSMODS=/$DATA\nMAGOSDATAMODS=/$LIVEREPOSITORY\nCACHE=/mnt/live/$DATAINSMOD" > /etc/modules
+echo "MAGOSMODS=/$DATA" > /etc/modules
+[ "$LIVEREPOSITORY" != "" -a "$LIVEREPOSITORY" != "/" ] && echo "MAGOSDATAMODS=/$LIVEREPOSITORY" | sed s-//-/- >> /etc/modules
+[ "$DATAINSMOD" != "" ] && echo "CACHE=/$DATAINSMOD" | sed s-=/memory-=/mnt/live/memory- >> /etc/modules
 # mount aufs using the writable branch as the first one (leftmost/topmost)
 if [ $(cmdline_parameter unionfs) ];then
     echolog "setup union directory (using unionfs)"

@@ -1,5 +1,5 @@
 #!/bin/bash
-VER=325.15-3
+VER=331.38-1
 URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/nvidia-current-$VER.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore

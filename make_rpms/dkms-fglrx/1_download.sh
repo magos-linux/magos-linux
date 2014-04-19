@@ -1,5 +1,5 @@
 #!/bin/bash
-VER=13.200.5-1
+VER=13.251-1
 URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/non-free/updates/fglrx-$VER.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore

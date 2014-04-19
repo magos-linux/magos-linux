@@ -35,7 +35,6 @@ xfconf-
 xscreensaver-
 xscreensaver-common-
 librsvg2_2-
-lxshortcut-
 librsvg-
 xlockmore-
 parcellite-
@@ -56,3 +55,4 @@ libxfcegui4-common-
 xfce4-power-manager-
 libxfce4panel4-
 xfce4-panel-
+libslim1-

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
+<wallpapers>
+  <wallpaper deleted="false">
+    <name>&#x411;&#x435;&#x437; &#x444;&#x43E;&#x43D;&#x430; &#x440;&#x430;&#x431;&#x43E;&#x447;&#x435;&#x433;&#x43E; &#x441;&#x442;&#x43E;&#x43B;&#x430;</name>
+    <filename>(none)</filename>
+    <options>scaled</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#212144449c9c</pcolor>
+    <scolor>#7f7f7f7f7f7f</scolor>
+  </wallpaper>
+  <wallpaper deleted="true">
+    <name>Nature</name>
+    <filename>/usr/share/magos/wallpapers/default.jpg</filename>
+    <options>stretched</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#212144449c9c</pcolor>
+    <scolor>#7f7f7f7f7f7f</scolor>
+  </wallpaper>
+  <wallpaper deleted="true">
+    <name>Flower</name>
+    <filename>/usr/share/magos/wallpapers/default.jpg</filename>
+    <options>stretched</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#212144449c9c</pcolor>
+    <scolor>#7f7f7f7f7f7f</scolor>
+  </wallpaper>
+  <wallpaper deleted="true">
+    <name>&#x424;&#x43E;&#x43D; &#x440;&#x430;&#x431;&#x43E;&#x447;&#x435;&#x433;&#x43E; &#x441;&#x442;&#x43E;&#x43B;&#x430; &#x43F;&#x43E; &#x443;&#x43C;&#x43E;&#x43B;&#x447;&#x430;&#x43D;&#x438;&#x44E;</name>
+    <filename>/usr/share/pixmaps/backgrounds/gnome/background-default.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#6666baba0000</pcolor>
+    <scolor>#6666baba0000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>default.jpg</name>
+    <filename>/usr/share/magos/wallpapers/default.jpg</filename>
+    <options>stretched</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#212145459c9c</pcolor>
+    <scolor>#6666baba0000</scolor>
+  </wallpaper>
+</wallpapers>

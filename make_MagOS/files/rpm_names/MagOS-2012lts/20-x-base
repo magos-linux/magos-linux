@@ -441,3 +441,5 @@ libVirtualGL-
 libbsd-
 bumblebee-
 florence-
+libfreebl3-
+nss-shlibsign-

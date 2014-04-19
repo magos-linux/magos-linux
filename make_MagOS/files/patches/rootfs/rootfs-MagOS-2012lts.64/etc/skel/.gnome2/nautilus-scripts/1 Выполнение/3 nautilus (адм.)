@@ -1,0 +1,7 @@
+#!/bin/sh
+# From Dennis Staal
+# This script opens Nautilus as root in the directory you select.
+#
+# Install in your ~/.gnome2/nautilus-scripts directory.
+
+gksu nautilus ""

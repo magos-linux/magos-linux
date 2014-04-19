@@ -1,0 +1,5 @@
+[Behavior]
+OpenAfterStart=false
+
+[Dialogs]
+FirstRun=false

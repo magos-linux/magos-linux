@@ -6,6 +6,6 @@ http://mirror.rosalinux.com/rosa/rosa2012.1/repository/i586/restricted/release r
 http://mirror.rosalinux.com/rosa/rosa2012.1/repository/i586/main/release main-release 16a853e7
 http://mirror.rosalinux.com/rosa/rosa2012.1/repository/i586/contrib/release contrib-release 0
 http://mirror.rosalinux.com/rosa/rosa2012.1/repository/i586/non-free/release nonfree-release 16a853e7
-http://mib.pianetalinux.org/MIB/rosa2012.1/32/basic mib 0 update
+http://mib.pianetalinux.org/MIB/rosa2012.1/32/basic mib 0 skip
 http://mirror.rosalinux.com/rosa/rosa2012lts/repository/i586/main/updates 2012lts_mu 0 skip
 http://magos.sibsau.ru/repository/rpms/2012 magos c4ddfc5e skip

@@ -63,7 +63,6 @@ update_app lxde-ctrl-center.desktop "Settings;X-LXDE-Settings;"
 update_app gigolo.desktop "GTK;Filesystems;Network;"
 update_app system-config-nfs.desktop "Filesystems;Network;"
 update_app system-config-samba.desktop "GTK;Filesystems;Network;"
-sed -i /"Categories=Application;Settings"/d usr/share/applications/mdvinput.desktop
 update_app mdvinput.desktop "GTK;Settings;HardwareSettings;"
 update_app add2sudoers.desktop "Settings;System;X-MandrivaLinux-CrossDesktop;"
 update_app rmfromsudoers.desktop "Settings;System;X-MandrivaLinux-CrossDesktop;"
@@ -72,6 +71,8 @@ update_app mandriva-wireshark-root.desktop "GTK;Network;Capture;"
 update_app mandriva-wireshark.desktop "GTK;Network;Capture;"
 update_app etherape.desktop "GTK;Network;Capture;"
 update_app gnome-nettool.desktop "GTK;Network;Monitor;"
+update_app lxshortcut.desktop "GTK;X-LXDE-Settings;"
+update_app drakxservices.desktop "Settings;System;X-MandrivaLinux-CrossDesktop;"
 
 update_app kde4/akonaditray.desktop "Qt;KDE;X-KDE-Utilities-PIM;"
 update_app kde4/dolphin.desktop "Qt;KDE;System;Utility;Core;FileManager;"
@@ -99,22 +100,40 @@ update_app kde4/kruler.desktop "Qt;KDE;Graphics;Scanning;"
 update_app kde4/kgpg.desktop "Qt;KDE;Utility;Security;"
 update_app kde4/nepomukcleaner.desktop "Qt;KDE;X-KDE-Utilities-Desktop;"
 
-sed -i /NoDisplay=true/d usr/share/applications/gnomecc.desktop
-sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор GNOME'/ usr/share/applications/gnome-system-monitor.desktop
-sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор KDE'/ usr/share/applications/kde4/ksysguard.desktop
-sed -i s/'Name.sk.='/'Name[ru]=Устройства на базе PalmOS'\\n'Name[sk]='/ usr/share/applications/gpilotd-control-applet.desktop
-sed -i s/'Name.ru.=.*'/'Name[ru]=Файловый менеджер Pcmanfm'/ usr/share/applications/pcmanfm.desktop
-sed -i 's|,/usr/share/applications/kde4/Kontact.desktop||' var/lib/mandriva/kde4-profiles/common/share/config/kickoffrc
-sed -i 's|,/usr/share/applications/clementine.desktop||'   var/lib/mandriva/kde4-profiles/common/share/config/kickoffrc
-sed -i 's|,/usr/share/applications/kde4/kopete.desktop||'  var/lib/mandriva/kde4-profiles/common/share/config/kickoffrc
-grep -q GenericName.ru.= usr/share/applications/mandriva-avidemux-gtk.desktop || echo "GenericName[ru]=Редактор видео файлов" >> usr/share/applications/mandriva-avidemux-gtk.desktop
-grep -q GenericName.ru.= usr/share/applications/mandriva-grip.desktop || echo "GenericName[ru]=Преобразование аудио дисков" >> usr/share/applications/mandriva-grip.desktop
-sed -i s/GenericName=.*/GenericName=PlayOnLinux/ usr/share/applications/PlayOnLinux.desktop
-sed -i s/^Exec=.*/'Exec=fusion-icon -n'/ usr/share/applications/fusion-icon.desktop
-sed -i s/^Exec=.*/'Exec=gksu -lg gparted'/ usr/share/applications/gparted.desktop
-sed -i s/'Name.ru.=.*'/'Name[ru]=GParted - управление разделами'/ usr/share/applications/gparted.desktop
-sed -i s/'Comment.ru.=.*'/'Comment[ru]=GParted - управление разделами'/ usr/share/applications/gparted.desktop
-sed -i s/'Name.ru.=.*'/'Name[ru]=Правка настроек GConf'/ usr/share/applications/gconf-editor.desktop
-grep -q OnlyShowIn etc/xdg/autostart/blueman.desktop || echo "OnlyShowIn=LXDE;" >> etc/xdg/autostart/blueman.desktop
+PFP=usr/share/applications/mdvinput.desktop
+[ -f $PFP ] && sed -i /"Categories=Application;Settings"/d $PFP
+PFP=usr/share/applications/gnomecc.desktop
+[ -f $PFP ] && sed -i /NoDisplay=true/d $PFP
+PFP=usr/share/applications/gnome-system-monitor.desktop
+[ -f $PFP ] && sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор GNOME'/ $PFP
+PFP=usr/share/applications/gpilotd-control-applet.desktop
+[ -f $PFP ] && sed -i s/'Name.sk.='/'Name[ru]=Устройства на базе PalmOS'\\n'Name[sk]='/ $PFP
+PFP=usr/share/applications/gconf-editor.desktop
+[ -f $PFP ] && sed -i s/'Name.ru.=.*'/'Name[ru]=Правка настроек GConf'/ $PFP
+PFP=usr/share/applications/pcmanfm.desktop
+[ -f $PFP ] && sed -i s/'Name.ru.=.*'/'Name[ru]=Файловый менеджер Pcmanfm'/ $PFP
+PFP=var/lib/mandriva/kde4-profiles/common/share/config/kickoffrc
+if [ -f $PFP ] ;then
+   sed -i 's|,/usr/share/applications/kde4/Kontact.desktop||' $PFP
+   sed -i 's|,/usr/share/applications/clementine.desktop||'   $PFP
+   sed -i 's|,/usr/share/applications/kde4/kopete.desktop||'  $PFP
+   sed -i 's|/usr/share/applications/mandriva-drakconf.desktop,||' $PFP
+fi
+PFP=usr/share/applications/kde4/ksysguard.desktop
+[ -f $PFP ] && sed -i s/'Name.ru.=.*'/'Name[ru]=Системный монитор KDE'/ $PFP
+PFP=usr/share/applications/mandriva-avidemux-gtk.desktop
+[ -f $PFP ] && grep -q GenericName.ru.= $PFP || echo "GenericName[ru]=Редактор видео файлов" >> $PFP
+PFP=usr/share/applications/mandriva-grip.desktop
+[ -f $PFP ] && grep -q GenericName.ru.= $PFP || echo "GenericName[ru]=Преобразование аудио дисков" >> $PFP
+PFP=usr/share/applications/PlayOnLinux.desktop
+[ -f $PFP ] && sed -i s/GenericName=.*/GenericName=PlayOnLinux/ $PFP
+PFP=usr/share/applications/fusion-icon.desktop
+[ -f $PFP ] && sed -i s/^Exec=.*/'Exec=fusion-icon -n'/ $PFP
+PFP=usr/share/applications/gparted.desktop
+[ -f $PFP ] && sed -i s/^Exec=.*/'Exec=gksu -lg gparted'/ $PFP
+[ -f $PFP ] && sed -i s/'Name.ru.=.*'/'Name[ru]=GParted - управление разделами'/ $PFP
+[ -f $PFP ] && sed -i s/'Comment.ru.=.*'/'Comment[ru]=GParted - управление разделами'/ $PFP
+PFP=etc/xdg/autostart/blueman.desktop
+[ -f $PFP ] && grep -q OnlyShowIn $PFP || echo "OnlyShowIn=LXDE;" >> $PFP
 
 exit 0

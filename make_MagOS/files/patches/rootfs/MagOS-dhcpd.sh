@@ -1,5 +1,6 @@
 #!/bin/bash
 PFP=etc/dhcpd.conf
+[ -f $PFP ] || exit 0
 grep -q MagOS $PFP  && exit 0
 cat >$PFP <<EOF
 #MagOS default config

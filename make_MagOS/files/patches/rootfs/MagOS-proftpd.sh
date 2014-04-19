@@ -1,11 +1,14 @@
 #!/bin/bash
+[ -f etc/proftpd.conf ] || exit 0
+LDP=usr/lib/proftpd
+[ -d $LDP ] || LDP=usr/lib64/proftpd
 PFP=etc/proftpd.conf
 grep -q MagOS $PFP && exit 0
 cp -p $PFP ${PFP}_default
 cat >$PFP <<EOF
 #MagOS default config
 Include /etc/proftpd.d/*.conf
-ModulePath /usr/lib/proftpd
+ModulePath /$LDP
 ModuleControlsACLs insmod,rmmod allow user root
 ModuleControlsACLs lsmod allow user *
 

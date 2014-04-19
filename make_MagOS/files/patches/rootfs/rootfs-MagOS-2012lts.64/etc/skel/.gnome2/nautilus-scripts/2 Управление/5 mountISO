@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ "${1##*.}" = "iso" ] ; then
+   gksu -l mountiso "$(pwd)/$1"
+else
+   notify-send "операция доступна только для образов .iso"
+fi

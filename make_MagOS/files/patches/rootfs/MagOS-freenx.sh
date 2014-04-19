@@ -1,4 +1,5 @@
 #!/bin/sh
+[ -f usr/bin/nxserver ] || exit 0
 cat >etc/nxserver/users.id_dsa <<EOF
 -----BEGIN DSA PRIVATE KEY-----
 MIIBvAIBAAKBgQDKabJeo9q/bB+iGilUjDCvAbo1wJNKROqII/uYPAmRQ+Wi6MDW

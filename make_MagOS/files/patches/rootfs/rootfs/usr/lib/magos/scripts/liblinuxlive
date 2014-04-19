@@ -416,7 +416,7 @@ mount_device()
    if [ "$2" = "" ]; then return 1; fi
    if [ "$1" = "" ]; then rmdir "$2" 2>/dev/null; return 1; fi
    # skipping MBR
-   echo $(basename $1) | grep -q [a-z]$ && grep -q $(basename $1)[0-9] /proc/partitions  && return 1
+   echo $(basename "$1") | grep -q [a-z]$ && grep -q "$(basename "$1")"[0-9] /proc/partitions  && return 1
 
    mkdir -p "$2"
 
@@ -564,9 +564,9 @@ union_insert_dir()
 {
    debug_log "union_insert_dir" "$*"
    if [ $(cmdline_parameter unionfs) ]; then
-	mount -n -o remount,add=:$2=$3 unionfs $1
-    else
-	mount -n -o remount,add:1:$2=$3 aufs $1
+	mount -n -o remount,add=:"$2"="$3" unionfs "$1"
+   else
+	mount -n -o remount,add:1:"$2"="$3" aufs "$1"
    fi
 }
 
@@ -616,9 +616,9 @@ union_insert_module()
    debug_log "union_insert_module" "$*"
    local TARGET MODPREF mod fs
 
-   TARGET="$3/$(basename $2)"
-   if ismountpoint $TARGET; then return 1; fi # skip already used modules
-   mkdir -p $TARGET
+   TARGET="$3/$(basename "$2")"
+   if ismountpoint "$TARGET"; then return 1; fi # skip already used modules
+   mkdir -p "$TARGET"
    MODPREF="$2"
    MODNAME="$(echo "$2" | cut -b $(($4+1))- )"
    [ -f "/$COPY2REP/$MODNAME" ] && MODPREF="/$COPY2REP/$MODNAME"
@@ -629,11 +629,11 @@ union_insert_module()
 	    else mod=ro ; fs=squashfs; 
     fi
    
-   mount_module $MODPREF $TARGET $mod $fs
+   mount_module "$MODPREF" "$TARGET" $mod $fs
    #Second attempt to avoid bug when activating module
-   if [ $? -ne 0 ]; then mount_module $MODPREF $TARGET $mod $fs ;fi
+   if [ $? -ne 0 ]; then mount_module "$MODPREF" "$TARGET" $mod $fs ;fi
    if [ $? -ne 0 ]; then echo "Cannot read module data. corrupted download?" >&2; return 1; fi
-   union_insert_dir $1 $TARGET $mod
+   union_insert_dir "$1" "$TARGET" $mod
    if [ $? -ne 0 ]; then echo "can't insert module to union" >&2; return 2; fi
    echo "$2" | cut -b $(($4+1))-
    echolog "$2" >/dev/null
@@ -950,14 +950,14 @@ find_n_run_scripts()
    RUNLEVEL=$(runlevel | awk '{print $2}')
    [ -z "$RUNLEVEL" ] || RCPATH=/etc/rc.d/rc$RUNLEVEL.d
    RUNSCRIPTS="$MOD$RCPATH|$MOD/usr/lib/magos/rc.local|$MOD/usr/lib/magos/rc.post"
-   echo $@ | grep -q start || RUNSCRIPTS=$MOD$RCPATH
+   echo $@ | grep -q start || RUNSCRIPTS="$MOD$RCPATH"
 
-   find $MOD | egrep $RUNSCRIPTS | cut -b ${#MOD}- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
+   find "$MOD" | egrep "$RUNSCRIPTS" | cut -b "${#MOD}"- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
        while read SCRIPT; do
          if [ "$SCRIPT" != "" -a -x "$SCRIPT" -a ! -d "$SCRIPT" ]; then
             # call the script by real path, not from the module
-            log "starting '$SCRIPT $@'"
-            ${SCRIPT} "$@"
+            log "starting '"$SCRIPT" $@'"
+            "${SCRIPT}" "$@"
          fi
        done
 }

@@ -408,10 +408,12 @@ mod_mnger-
 modem_connect-
 ldetect-lst-
 hwdata-
-modemmanager-glib-
-libqmi-glib0-
 groff-base-
 libtevent0-
 efivar-
 libefivar0-
 libnutscan1-
+libmbim-glib0-
+libmm-glib0-
+libqmi-glib1-
+qmi-tools-

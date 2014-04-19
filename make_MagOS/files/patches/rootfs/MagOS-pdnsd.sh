@@ -1,5 +1,6 @@
 #!/bin/bash
 PFP=etc/rc.d/init.d/pdnsd
+[ -f $PFP ] || exit 0
 grep -q "BEGIN INIT INFO" $PFP || sed -i 's|^# chkconfig:.*|# pdnsd         A caching dns proxy\n#\
 # Authors:      Thomas Moestl and others\n#\
 # chkconfig: 345 60 40|' $PFP

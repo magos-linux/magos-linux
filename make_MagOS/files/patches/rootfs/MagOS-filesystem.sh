@@ -23,6 +23,6 @@ mknod -m 666 dev/null c 1 3
 ln -sf $(ls boot/vmlinuz-* | tail -1 | sed 's|boot/||') boot/vmlinuz
 ln -sf /mnt/livemedia/MagOS/initrd.gz boot/initrd.gz
 ln -s /usr/bin/busybox sbin/udhcpc
-chroot ./ chown root:shadow usr/lib/chkpwd/tcb_chkpwd
-chmod 2711 usr/lib/chkpwd/tcb_chkpwd
+[ -f usr/lib/chkpwd/tcb_chkpwd ] && chroot ./ chown root:shadow usr/lib/chkpwd/tcb_chkpwd && chmod 2711 usr/lib/chkpwd/tcb_chkpwd
+[ -f usr/lib64/chkpwd/tcb_chkpwd ] && chroot ./ chown root:shadow usr/lib64/chkpwd/tcb_chkpwd && chmod 2711 usr/lib64/chkpwd/tcb_chkpwd
 exit 0

@@ -15,7 +15,14 @@ if [ -e /usr/bin/kactivate -a "$DISPLAY" -a ! "$CALLED_BY_KDE_HELPER" ]; then
    exec /usr/bin/kactivate "$@" 2>/dev/null
 fi
 
-MODULE=$(readlink -f "$1")
+if [ -f "$1" ] ;then
+   MODULE=$(readlink -f "$1")
+else
+   . /mnt/live/etc/modules || exit 1
+   [ -d "$CACHE" -a "$CACHE" != "/" ] && MODULE="$(find "$CACHE" | grep -m1 "/$1")"
+   [ ! -f "$MODULE" ] && [ -d "$MAGOSMODS" -a "$MAGOSMODS" != "/" ] && MODULE="$(find "$MAGOSMODS" | grep -m1 "/$1")"
+   [ ! -f "$MODULE" ] && [ -d "$MAGOSDATAMODS" -a "$MAGOSDATAMODS" != "/" ] && MODULE="$(find "$MAGOSDATAMODS" | grep -m1 "/$1")"
+fi
 
 if [ "$MODULE" = "" -o ! -e "$MODULE" -o -d "$MODULE" ]; then
    echo
@@ -24,9 +31,9 @@ if [ "$MODULE" = "" -o ! -e "$MODULE" -o -d "$MODULE" ]; then
    exit 1
 fi
 
-if ! echo $MODULE | egrep -qi 'lzm|xzm|rom|enc' ;then
+if ! echo "$MODULE" | egrep -qi 'lzm|xzm|rom|enc' ;then
    echo 
-   echo "$(basename $MODULE): Module must end with .xzm .lzm .rwm .rom .enc"
+   echo "$(basename "$MODULE"): Module must end with .xzm .lzm .rwm .rom .enc"
    exit 2
 fi
 
@@ -59,7 +66,7 @@ if [ -e "/mnt/live/memory/changes/$(readlink -f "$MODULE")" ]; then
    MODULE="$TARGET"
 fi
 echo "$MODULE"
-MOD=$(union_insert_module / "$MODULE" $IMAGES)
+MOD=$(union_insert_module / "$MODULE" "$IMAGES")
 #echo $MOD
 if [ $? -ne 0 ]; then echo "error inserting module to live filesystem" >&2; exit 3; fi
 
@@ -71,9 +78,9 @@ if [ $? -ne 0 ]; then echo "error inserting module to live filesystem" >&2; exit
 # For compatibility, /etc/init.d is also examined, but it's not recommended for you to put your startup scripts
 # there in your module
 
-MOD="$IMAGES/$(basename $MOD)"
+MOD="$IMAGES/$(basename "$MOD")"
 
-find_n_run_scripts $MOD start activate
+find_n_run_scripts "$MOD" start activate
 
 # update ld cache if new ld.so.conf/cache exists in the module
 if [ -e "$MOD/etc/ld.so.conf" -o -e "$MOD/etc/ld.so.cache" ]; then

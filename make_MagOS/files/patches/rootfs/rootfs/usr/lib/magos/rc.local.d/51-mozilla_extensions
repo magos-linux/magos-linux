@@ -18,4 +18,12 @@ for i in firefox thunderbird ; do
       done
     done
   fi
+  if [ -d /usr/lib64/mozilla/$i/extensions ] ;then
+    for a in $(ls -d /usr/lib64/mozilla/$i/extensions/* ) ; do
+      for f in /usr/lib64/$i-* ;do
+         [ -d $f/extensions ] && ln -sf $a $f/extensions
+         [ -d $f/browser/extensions ] && ln -sf $a $f/browser/extensions
+      done
+    done
+  fi
 done

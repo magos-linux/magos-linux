@@ -1,5 +1,6 @@
 #!/bin/bash
 PFP=etc/mplayer/mplayer.conf
+[ -f $PFP ] || exit 0
 sed -i s/'ao=pulse,alsa,oss,'/'ao=alsa,oss,pulse,'/ $PFP
 sed -i s/'.slang = en'/'slang = ru'/ $PFP
 sed -i s/'.alang = en'/'alang = ru'/ $PFP

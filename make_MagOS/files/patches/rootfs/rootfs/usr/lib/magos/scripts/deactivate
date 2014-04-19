@@ -44,9 +44,9 @@ fi
 try_remount()
 {
 if [ $(cmdline_parameter unionfs) ];then
-   mount -t unionfs -o remount,del=$IMAGES/$MODULE unionfs / 2>/dev/null
+   mount -t unionfs -o remount,del="$IMAGES/$MODULE" unionfs / 2>/dev/null
 else
-   mount -t aufs -o remount,verbose,del:$IMAGES/$MODULE aufs / 2>/dev/null
+   mount -t aufs -o remount,verbose,del:"$IMAGES/$MODULE" aufs / 2>/dev/null
 fi
 }
 
@@ -55,7 +55,7 @@ rmdir "$IMAGES/$MODULE" 2>/dev/null && exit 0
 # OK the previous trick didn't work. So we have a real module here.
 
 # First, try to stop all daemons which may be started by this module
-find_n_run_scripts $IMAGES/$MODULE stop deactivate
+find_n_run_scripts "$IMAGES/$MODULE" stop deactivate
 
 # detach it from aufs union. This may take a long time, remounting the
 # root directory is an expensive operation.

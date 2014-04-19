@@ -1,11 +1,11 @@
 #!/bin/bash
-URL=http://abf-downloads.rosalinux.ru/kernels_3_10x_personal/repository/rosa2012.1/SRPMS/main/release/kernel-3.10.30-1.src.rpm
+URL=http://abf-downloads.rosalinux.ru/kernels_3_10x_personal/repository/rosa2012.1/SRPMS/main/release/kernel-3.10.36-1.src.rpm
 if ! [ -d builddeps ] ; then
 #FIXME to ignore
    urpmi.removemedia mib
    urpmi.update -a
    rm -f /var/cache/urpmi/rpms/*
-   urpmi --auto --no-suggests --test --noclean kmod-devel kmod-compat gcc bc audit-devel elfutils-devel zlib-devel binutils-devel newt-devel python-devel pciutils-devel flex bison gettext docbook-style-xsl 'perl(ExtUtils::Embed)' 'pkgconfig(gtk+-2.0)' libbzip2-devel libslang-devel xmlto asciidoc || exit 1
+   urpmi --auto --no-suggests --test --noclean numa-devel libunwind-devel kmod-devel kmod-compat gcc bc audit-devel elfutils-devel zlib-devel binutils-devel newt-devel python-devel pciutils-devel flex bison gettext docbook-style-xsl 'perl(ExtUtils::Embed)' 'pkgconfig(gtk+-2.0)' libbzip2-devel libslang-devel xmlto asciidoc || exit 1
    mkdir builddeps
    mv /var/cache/urpmi/rpms/*.rpm builddeps
 fi

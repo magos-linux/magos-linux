@@ -1,5 +1,6 @@
 #!/bin/bash
 PFP=etc/hostapd/hostapd.conf
+[ -f $PFP ] || exit 0
 grep -q MagOS $PFP && exit 0
 cp -p $PFP ${PFP}_default
 cat >$PFP <<EOF

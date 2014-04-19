@@ -6,5 +6,5 @@ http://mirror.rosalab.ru/rosa/rosa2012lts/repository/i586/restricted/release res
 http://mirror.rosalab.ru/rosa/rosa2012lts/repository/i586/main/release main-release 16a853e7
 http://mirror.rosalab.ru/rosa/rosa2012lts/repository/i586/contrib/release contrib-release 0
 http://mirror.rosalab.ru/rosa/rosa2012lts/repository/i586/non-free/release nonfree-release 16a853e7
-http://mib.pianetalinux.org/MIB/rosa2012lts/32/basic mib 0 update
+http://mib.pianetalinux.org/MIB/rosa2012lts/32/basic mib 0 skip
 http://magos.sibsau.ru/repository/rpms/2012lts magos c4ddfc5e skip

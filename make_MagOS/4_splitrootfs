@@ -131,57 +131,69 @@ movefiles modules_filelist/72-documentation modules_filelist/international 'usr/
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/uk'
 movefiles modules_filelist/72-documentation modules_filelist/international 'usr/share/doc/HTML/sv'
 
-echo "Перенос локализации для gconf"
 if [ -f 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml' ] ;then
+   echo "Перенос локализации для gconf"
    MODULE=$(findmodbyfile 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml')
    movefiles modules_filelist/$MODULE modules_filelist/international 'etc/gconf/gconf.xml.defaults/%gconf-tree-.*.xml'
    movefiles modules_filelist/international modules_filelist/$MODULE 'etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml'
 fi
 
-echo "Перенос локализации для kde"
-MODULE=$(findmodbyrpm 'kdebase4-runtime-')
-movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
-movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
+if [ -d usr/share/locale/currency ] ;then 
+   echo "Перенос локализации для kde"
+   MODULE=$(findmodbyrpm 'kdebase4-runtime-')
+   movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/currency'
+   movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/locale/l10n'
+fi 
 
-echo "Перенос локализации для playonlinux"
-MODULE=$(findmodbyrpm 'playonlinux-')
-movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
-movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
+if [ -d usr/share/playonlinux ] ;then
+   echo "Перенос локализации для playonlinux"
+   MODULE=$(findmodbyrpm 'playonlinux-')
+   movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/playonlinux/lang/'
+   movefiles modules_filelist/international modules_filelist/$MODULE 'usr/share/playonlinux/lang/.*/ru.*'
+fi
 
-echo "Перенос локализации для virtualbox"
-MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
-movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../../files/locales
+if [ -d usr/share/virtualbox ] ;then
+   echo "Перенос локализации для virtualbox"
+   MODULE=$(findmodbyrpm 'virtualbox-guest-additions-')
+   movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/virtualbox/nls/.*.qm' ../../../../files/locales
+fi
 
-echo "Перенос локализации для inkscape"
-MODULE=$(findmodbyrpm 'inkscape-')
-movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
-movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../../files/locales
-movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../../files/locales
-movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
+if [ -d usr/share/inkscape ] ;then
+   echo "Перенос локализации для inkscape"
+   MODULE=$(findmodbyrpm 'inkscape-')
+   movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/examples/.*'
+   movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/potrace-.*.png' ../../../../files/locales
+   movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/inkscape/tutorials/tutorial-.*.svg' ../../../../files/locales
+   movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/inkscape/tutorials/.*'
+fi
 
-echo "Перенос локализации для libgweather"
-MODULE=$(findmodbyrpm 'libgweather-')
-movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../../files/locales
+if [ -d usr/share/libgweather ] ;then
+   echo "Перенос локализации для libgweather"
+   MODULE=$(findmodbyrpm 'libgweather-')
+   movefiles modules_filelist/$MODULE modules_filelist/international 'usr/share/libgweather/Locations..*.xml' ../../../../files/locales
+fi
 
-echo "Перенос локализации для vpnpptp"
 if [ -d usr/share/vpnpptp/wiki ] ;then
+   echo "Перенос локализации для vpnpptp"
    MODULE=$(findmodbyrpm 'vpnpptp-allde-')
    movefiles modules_filelist/$MODULE modules_filelist/72-documentation 'usr/share/vpnpptp/wiki/.*.doc'
    movefiles modules_filelist/international modules_filelist/20-x-base '.*_ru.qm'
 fi 
 
-echo "Вынесение языковых файлов в модули"
-for a in modules_filelist/*-int-* ;do
-   echo $a
-   LOCALES=`grep usr/share/locale/ $a | sed 's|usr/share/locale/||' | sed 's|[-_@/].*$||' | sort -u `
-   echo $a | grep -q -- -int-en && LOCALES="$LOCALES en"
-   echo $a | grep -q -- -int-russia && LOCALES="$LOCALES ru CP1251 KOI8-R KOI8-U"
-   echo $a | grep -q -- -int-no && LOCALES="$LOCALES no"
-   echo $a | grep -q -- -int-europe && LOCALES="$LOCALES li"
-   for l in $LOCALES ;do
-     movefiles modules_filelist/international $a "[-._/]$l[-._@/]"
-   done
-done
+if ls "$MYPATH"/loaded/$FLASHNAME-$VERREL/names/*-int-* 2>/dev/null | grep -q . ;then
+  echo "Вынесение языковых файлов в модули"
+  for a in modules_filelist/*-int-* ;do
+     echo $a
+     LOCALES=`grep usr/share/locale/ $a | sed 's|usr/share/locale/||' | sed 's|[-_@/].*$||' | sort -u `
+     echo $a | grep -q -- -int-en && LOCALES="$LOCALES en"
+     echo $a | grep -q -- -int-russia && LOCALES="$LOCALES ru CP1251 KOI8-R KOI8-U"
+     echo $a | grep -q -- -int-no && LOCALES="$LOCALES no"
+     echo $a | grep -q -- -int-europe && LOCALES="$LOCALES li"
+     for l in $LOCALES ;do
+       movefiles modules_filelist/international $a "[-._/]$l[-._@/]"
+     done
+  done
+fi
 
 movefiles modules_filelist/international modules_filelist/*-core '.'
 rm -f modules_filelist/international
@@ -218,16 +230,20 @@ mkdir -p -m 755 var/lib/rpm/modules
 cp ../../modules_list/??-* var/lib/rpm/modules
 chmod 444 var/lib/rpm/modules/*
 cd ../
+rm -f *kernel*/boot/vmlinuz*
 for a in * ;do
     [ -d "$a" ] || continue
     mkdir -p $a/var/lib/rpm/modules
     cp -p *-core/var/lib/rpm/modules/$a $a/var/lib/rpm/modules 2>/dev/null
 done
-sed -i s/KDM/slim/ *-x-lxde/etc/sysconfig/desktop
-sed -i s/KDE4/LXDE/ *-x-lxde/etc/sysconfig/desktop
-sed -i s/KDM/GDM/ *-x-gnome/etc/sysconfig/desktop
-sed -i s/KDE4/GNOME/ *-x-gnome/etc/sysconfig/desktop
-rm -f *kernel*/boot/vmlinuz*
+if ls -1 | grep -q x-lxde ;then
+   sed -i s/KDM/slim/ *-x-lxde/etc/sysconfig/desktop
+   sed -i s/KDE4/LXDE/ *-x-lxde/etc/sysconfig/desktop
+fi
+if ls -1 | grep -q x-gnome ;then
+   sed -i s/KDM/GDM/ *-x-gnome/etc/sysconfig/desktop
+   sed -i s/KDE4/GNOME/ *-x-gnome/etc/sysconfig/desktop
+fi
 
 cd "$MYPATH"
 cp -pR files/patches/modules/* work/$FLASHNAME-$VERREL/split/modules

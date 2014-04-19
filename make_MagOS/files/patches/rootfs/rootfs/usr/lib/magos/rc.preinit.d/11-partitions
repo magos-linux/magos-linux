@@ -62,6 +62,8 @@ if [ "$TMPFS" != "no" ] ;then
       ln -s ../tmp var/tmp
    fi
 fi
+grep -q "tmpfs /media tmpfs" etc/fstab || echo "tmpfs /media tmpfs size=1M 0 0 # AutoUpdate" >>etc/fstab
+
 if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
    sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
    blkid | grep -v loop | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do

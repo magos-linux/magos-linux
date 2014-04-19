@@ -28,6 +28,7 @@ EOF
 
 
 PFP=etc/krb5.conf
+[ -f $PFP ] || exit 0
 grep -q MAGOS $PFP  && exit 0
 cat >$PFP <<EOF
 [logging]

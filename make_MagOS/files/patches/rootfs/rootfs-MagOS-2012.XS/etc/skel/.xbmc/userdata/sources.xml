@@ -1,0 +1,41 @@
+<sources>
+    <programs>
+        <default pathversion="1"></default>
+    </programs>
+    <video>
+        <default pathversion="1"></default>
+        <source>
+            <name>Носители</name>
+            <path pathversion="1">/media/</path>
+        </source>
+        <source>
+            <name>MagOS-Server</name>
+            <path pathversion="1">/mnt/server/</path>
+        </source>
+    </video>
+    <music>
+        <default pathversion="1"></default>
+        <source>
+            <name>Носители</name>
+            <path pathversion="1">/media/</path>
+        </source>
+        <source>
+            <name>MagOS-Server</name>
+            <path pathversion="1">/mnt/server/</path>
+        </source>
+    </music>
+    <pictures>
+        <default pathversion="1">Носители</default>
+        <source>
+            <name>Носители</name>
+            <path pathversion="1">/media/</path>
+        </source>
+        <source>
+            <name>MagOS-Server</name>
+            <path pathversion="1">/mnt/server/</path>
+        </source>
+    </pictures>
+    <files>
+        <default pathversion="1"></default>
+    </files>
+</sources>

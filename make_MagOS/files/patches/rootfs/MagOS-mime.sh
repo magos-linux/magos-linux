@@ -1,4 +1,5 @@
 #!/bin/bash
+[ -f usr/bin/update-mime-database ] || exit 0
 DMF=usr/share/applications/defaults.list
 function update_mime
 {
