@@ -104,8 +104,6 @@ libgnome-media-profiles3.0_0-
 libgoa1.0_0-
 libgweather3_1-
 libpanel-applet4_0-
-libpwquality1-
-libudisks2_0-
 python-gi-
 gnome-icon-theme-symbolic-
 gnome-search-tool-
@@ -114,7 +112,6 @@ libgnome-desktop-2_17-
 libgnome-menu3_0-
 libibus5-
 liboauth0-
-libpwquality-tools-
 libpyglib-gi2.0_0-
 libsecret1_0-
 libwnck3_0-
@@ -171,7 +168,6 @@ libgmenu-gir3.0-
 cups-pk-helper-
 telepathy-mission-control-
 libmission-control-plugins0-
-iso-codes-
 evolution-data-server-
 libgnome-keyring-gir1.0-
 dconf-editor-

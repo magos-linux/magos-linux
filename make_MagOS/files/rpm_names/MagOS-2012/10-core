@@ -404,7 +404,6 @@ pam_ldap-
 nfs-utils-
 libpcrecpp0-
 magos-tools-
-mod_mnger-
 modem_connect-
 ldetect-lst-
 hwdata-
@@ -417,3 +416,6 @@ libmbim-glib0-
 libmm-glib0-
 libqmi-glib1-
 qmi-tools-
+modmnger-
+libpwquality1-
+libpwquality-tools-

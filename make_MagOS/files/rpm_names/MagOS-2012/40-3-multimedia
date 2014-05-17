@@ -165,7 +165,6 @@ wavpack-
 wildmidi-
 win32-codecs-
 libzziplib0-
-libjson0-
 libpulsecommon2.1-
 libpulsecore2.1-
 bluez-alsa-
@@ -197,7 +196,6 @@ gstreamer1.0-tools-
 libgstphotography1.0_0-
 libopus0-
 rosa-media-player-plugin-
-libpulsecommon5.0-
 gstreamer1.0-vp8-
 libpulsecore5.0-
 libwebrtc0-
