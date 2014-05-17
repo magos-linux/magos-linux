@@ -1,1 +1,0 @@
-../../../share/magos/mod_mnger/mod_remote.tcl
