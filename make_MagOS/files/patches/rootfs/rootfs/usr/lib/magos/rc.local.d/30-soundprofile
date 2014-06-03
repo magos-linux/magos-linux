@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# soundprofile    Helper script for MagOS Linux Live.
+#
+# Authors:	Alexandr Betkher (betcher) <betkher.al@mail.ru>
+#
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+.  /etc/sysconfig/MagOS
+[ -z $PULSEAUDIO ] && PULSEAUDIO=default 
+
+function pulse() {
+	ln -sfT  /etc/sound/profiles/pulse /etc/alternatives/soundprofile
+	sed -i 's|^*.autospawn.*$|autospawn = yes|' /etc/pulse/client.conf
+	sed -i 's|^*.PULSE_SERVER_TYPE.*$|PULSE_SERVER_TYPE=personal|' /etc/sysconfig/pulseaudio
+	echo "	 Soundprofile  switched to Pulseaudio"
+}
+
+function alsa() {
+	ln -sfT  /etc/sound/profiles/alsa /etc/alternatives/soundprofile
+	sed -i 's|^*.autospawn.*$|autospawn = no|' /etc/pulse/client.conf
+	sed -i 's|^*.PULSE_SERVER_TYPE.*$|PULSE_SERVER_TYPE=none|' /etc/sysconfig/pulseaudio
+	echo "	 Soundprofile  switched to Alsa"
+}
+
+function default() {
+	/bin/true
+}
+
+case $PULSEAUDIO in
+	default | DEFAULT )
+	default ;;
+	no | NO | disable | DISABLE | off | OFF )
+    alsa ;;
+    * )
+	pulse ;;
+esac
