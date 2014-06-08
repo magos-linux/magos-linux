@@ -148,14 +148,15 @@ rm -f /tmp/tmpkey
 
 screen-scale ()
 {
+lvds=$(xrandr |grep LVDS |head -n1 |awk '{print $1}')
 scale_[1]=1x1
-scale_[2]=1x1.2
-scale_[3]=1.2x1.2
-scale_[4]=1.2x1.5
-scale_[5]=1.5x1.5
+scale_[2]=1.2x1.2
+scale_[3]=1.5x1.5
+scale_[4]=0.9x0.9
+scale_[5]=0.8x0.8
 scale=2
 [ -f /tmp/scale ] && scale=$(cat /tmp/scale)
-xrandr --output LVDS1  --scale ${scale_[$scale]}
+xrandr --output $lvds  --scale ${scale_[$scale]}
 if [ $scale == 5 ] ; then
 echo 1 > /tmp/scale
 else 

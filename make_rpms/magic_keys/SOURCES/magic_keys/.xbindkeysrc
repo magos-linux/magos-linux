@@ -18,7 +18,7 @@
   Mod4 + Escape
 
 # MagOS modules manager
-" mod_mnger "
+" modmnger "
   Mod4 + m 
 
 # turn off screen
@@ -96,7 +96,7 @@
 
 # sreen scale 
 " keyscripts screen-scale "
-  Mod4 + s
+  Mod4 + 5
 
 # change volume (by mouse weel)
 "amixer -q set Master 5+"
