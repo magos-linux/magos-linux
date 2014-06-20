@@ -40,6 +40,10 @@ fi
 }
 ADDMEMORY () {
 # провeрки
+if df ./ -t btrfs 2> /dev/null; then
+   die "Error: btrfs do not support swap files"
+fi
+
 if cat /proc/cmdline | grep -q changes ; then
     if ! cat /proc/cmdline | grep -q changes=xzm ; then
     die  "Error: Only Clean mode supported"
