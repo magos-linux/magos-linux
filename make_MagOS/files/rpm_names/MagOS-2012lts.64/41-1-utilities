@@ -96,3 +96,9 @@ ext3grep-
 foremost-
 meld-
 systemd-tools-
+grub2-
+grub2-theme-rosa-
+os-prober-
+xorriso-
+fuse-exfat-
+exfat-utils-
