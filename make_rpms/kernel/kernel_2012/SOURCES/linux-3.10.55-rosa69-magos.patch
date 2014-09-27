@@ -952,7 +952,7 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 diff -auprN a/scripts/create_configs b/scripts/create_configs
 --- a/scripts/create_configs	2013-10-22 12:20:26.000000000 +0400
 +++ b/scripts/create_configs	2014-04-14 22:16:35.966033952 +0400
-@@ -1013,6 +1013,37 @@ sub config_nrj_server_lxc_exp{
+@@ -1013,6 +1013,38 @@ sub config_nrj_server_lxc_exp{
  # End of LXC flavour definitions
  
  
@@ -985,6 +985,7 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
 +	$values{FAT_DEFAULT_CODEPAGE} = "866";
 +	$values{FAT_DEFAULT_IOCHARSET} = "\"utf8\"";
 +	$values{NLS_DEFAULT} = "\"utf8\"";
++	$to_add{X86_16BIT} = "y";
 +}
 +
  sub config_i386 {
@@ -1009,7 +1010,7 @@ diff -auprN a/scripts/create_configs b/scripts/create_configs
 diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
 --- a/scripts/create_configs-QL	2013-10-22 12:11:10.000000000 +0400
 +++ b/scripts/create_configs-QL	2014-04-14 22:16:35.967033953 +0400
-@@ -1165,6 +1165,35 @@ sub config_nrjQL_server_lxc_exp{
+@@ -1165,6 +1165,36 @@ sub config_nrjQL_server_lxc_exp{
  
  # End of LXC flavour definitions
  
@@ -1041,6 +1042,7 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
 +    $values{FAT_DEFAULT_CODEPAGE} = "866";
 +    $values{FAT_DEFAULT_IOCHARSET} = "utf8";
 +    $values{NLS_DEFAULT} = "utf8";
++    $to_add{X86_16BIT} = "y";
 +}
  
  sub config_i386 {
@@ -1064,7 +1066,7 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
 diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
 --- a/scripts/create_configs-withBFQ	2013-10-22 12:11:06.000000000 +0400
 +++ b/scripts/create_configs-withBFQ	2014-04-14 22:16:35.968033953 +0400
-@@ -1073,6 +1073,37 @@ sub config_nrj_server_lxc_exp{
+@@ -1073,6 +1073,38 @@ sub config_nrj_server_lxc_exp{
  # End of LXC flavour definitions
  
  
@@ -1097,6 +1099,7 @@ diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
 +	$values{FAT_DEFAULT_CODEPAGE} = "866";
 +	$values{FAT_DEFAULT_IOCHARSET} = "\"utf8\"";
 +	$values{NLS_DEFAULT} = "\"utf8\"";
++	$to_add{X86_16BIT} = "y";
 +}
 +
  sub config_i386 {

@@ -9,7 +9,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 .  /etc/sysconfig/MagOS
-[ -z $PULSEAUDIO ] && PULSEAUDIO=default 
+[ -z "$PULSEAUDIO" ] && PULSEAUDIO=default
 
 function pulse() {
 	ln -sfT  /etc/sound/profiles/pulse /etc/alternatives/soundprofile
@@ -29,11 +29,11 @@ function default() {
 	/bin/true
 }
 
-case $PULSEAUDIO in
-	default | DEFAULT )
-	default ;;
-	no | NO | disable | DISABLE | off | OFF )
-    alsa ;;
-    * )
-	pulse ;;
+case "$PULSEAUDIO" in
+	"default" | "DEFAULT" )
+	    default ;;
+	"no" | "NO" | "disable" | "DISABLE" | "off" | "OFF" )
+	    alsa ;;
+	* )
+	    pulse ;;
 esac

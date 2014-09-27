@@ -185,7 +185,7 @@ libtirpc1-
 libuClibc0.9.33-
 libudev1-
 libunistring0-
-libupsclient1-
+libupsclient3-
 libusb1.0_0-
 libusb-compat0.1_4-
 libuser-
@@ -419,3 +419,4 @@ qmi-tools-
 modmnger-
 libpwquality1-
 libpwquality-tools-
+libnss_mdns2-

@@ -9,7 +9,7 @@ find | egrep '.patch$|.diff$' | while read a ;do
   patch -p1 -i $a || exit 1
 done
 cd ../../
-rpmbuild -bs rpmbuild/SPECS/*.spec || exit1
-rpmbuild -bb rpmbuild/SPECS/*.spec || exit1
-find | grep .rpm$ | while read a ;do mv $a rpms ;done
+rpmbuild -bs rpmbuild/SPECS/*.spec || exit 1
+rpmbuild -bb rpmbuild/SPECS/*.spec || exit 1
+find rpmbuild | grep .rpm$ | while read a ;do mv $a rpms ;done
 mv rpms/*.src.rpm srpms
