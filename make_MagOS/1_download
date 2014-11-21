@@ -38,6 +38,7 @@ for a in `gawk '{print $2}' ../../../files/media/media_list-$STATUS-$VERREL-$ARC
            else
                grep .rpm .listing | LC_ALL=C sort -V >> "$a"
            fi
+           sed -i s/'%2B'/'+'/g "$a"
            if [ -f ../../../files/rpm_names/$FLASHNAME-$VERREL/excluded ] ;then
               mv "$a" "$a"_full
               grep -vf ../../../files/rpm_names/$FLASHNAME-$VERREL/excluded "$a"_full > "$a"

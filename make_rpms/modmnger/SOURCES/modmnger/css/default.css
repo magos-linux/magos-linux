@@ -1,0 +1,93 @@
+body {color:#555; height: 100%;}
+html {height:100%}
+
+table{
+font:90%/1.2 Arial;
+overflow:auto;
+padding:0;
+border-collapse: separate;
+}
+
+h1,h2,h3,h4,.componentheading {font-weight:bold;margin:2em 0 1em;}
+h1,.componentheading {font-size:180%;}
+h2 {font-size:150%;}
+h3 {font-size:130%;}
+h4 {font-size:110%;}
+
+
+a {color:#3366CC;text-decoration:none;font-weight:bold;}
+td {overflow:auto;}
+.tr_grey {background: #efefef; border-right: 1px solid white;}
+  
+.disabled {font-size:200%; color:grey; text-align: center;  vertical-align: middle;  } 
+.mod_table {text-align:left; width:100%; border-spacing: 0;}
+#big_mod_table {text-align:left; width:100%; height: auto; overflow:auto; 
+								border-top: 2px solid; border-bottom: 2px solid;}
+
+.subdir_table {text-align:left; width:100% ; border-spacing:6 ; border-spacing: 0;}
+.table_header {text-align:center; 
+							font-size:130%; 
+							font-weight:bold; 
+							height: 30px; 
+							vertical-align: bottom; 
+							border-spacing: 0;}
+.td_actions {text-align:right;  width: 15px}
+.warning {font-size:80%; color:red; text-align: left;}
+.s2m_table {text-align:left;  font-weight:bold; }
+.s2m_table_disabled {text-align:left; font-size:120%; font-weight:bold;  }
+.item {text-align:left; vertical-align: top;  font-size:120%; font-weight:bold;  width: 20%}
+ 
+ 
+.td_button {text-align:center; vertical-align: center;  
+						font-size:300%; font-weight:bold;  
+						width: 400px; height: 150px;
+						border-bottom-right-radius: 10px;
+						border-bottom-left-radius: 10px;
+						border-top-right-radius: 10px;
+						border-top-left-radius: 10px;
+						border-bottom: 3px solid;
+						border-right: 1px solid;
+						border-left: 1px solid;
+						border-top: 3px solid;
+						padding: 10px }
+
+.td_button_colspan {text-align:center; vertical-align: center;  
+						font-size:250%; font-weight:bold;  
+						height: 60px;
+						border-bottom-right-radius: 10px;
+						border-bottom-left-radius: 10px;
+						border-bottom: 3px solid;
+						border-right: 1px solid;
+						border-left: 1px solid;
+						padding: 10px }
+
+
+.tr_button {
+  width: 100%;
+  margin: 0 auto;
+  border-spacing: 0;
+  margin-top:5px;
+  margin-bottom:10px;
+  text-align: center;
+}
+
+#info_table  {text-align:left; vertical-align: center;  
+						font-weight:bold;  
+						 }
+.td_info       {-moz-border-radius-bottomright: 10px;
+						-moz-border-radius-bottomleft: 10px;
+						border-bottom-right-radius: 10px;
+						border-bottom-left-radius: 10px;
+						-moz-border-radius-topright: 10px;
+						-moz-border-radius-topleft: 10px;
+						border-top-right-radius: 10px;
+						border-top-left-radius: 10px;
+						border-bottom: 3px solid;
+						border-right: 3px solid;
+						border-left: 1px solid;
+						border-top: 1px solid;
+						padding: 10px}
+.repo_table {width: 100%; }
+#rpm_list {text-align:left; vertical-align: top;  font-size:90%;   width: 40%;  height: 400px;}
+#file_list {text-align:left; vertical-align: top;  font-size:80%;   width: 60%; height: 400px;}
+.highlight {background-color: rgb(255,255,153); font-size:110%}

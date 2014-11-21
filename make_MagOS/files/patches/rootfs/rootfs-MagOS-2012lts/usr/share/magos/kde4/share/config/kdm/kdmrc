@@ -41,7 +41,6 @@ GreetFont=Droid Sans,24,-1,5,50,0,0,0,0,0
 GreetString=Welcome to %n
 GreeterPos=50,50
 HiddenUsers=nobody,root
-Language=ru_RU
 LogoArea=None
 LogoPixmap=/usr/share/apps/kdm/pics/kdm-mdk-logo.png
 MaxShowUID=65000

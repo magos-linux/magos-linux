@@ -345,7 +345,7 @@ FailFont=Sans,12,-1,5,75,0,0,0,0,0
 #NumLock=Off
 # Language and locale to use in the greeter, encoded like $LC_LANG.
 # Default is "en_US"
-Language=ru_RU
+#Language=ru_RU
 # Enable autocompletion in the username line edit.
 # Default is false
 #UserCompletion=true

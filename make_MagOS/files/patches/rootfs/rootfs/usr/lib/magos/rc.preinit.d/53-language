@@ -12,4 +12,7 @@ ENABLED=yes
 . /liblinuxlive
 
 NEWLANG=$(cmdline_value lang)
-[ "$NEWLANG" != "" -a -d usr/share/magos/langs/$NEWLANG ] && cp -pfr usr/share/magos/langs/$NEWLANG/* ./
+if [ "$NEWLANG" != "" -a -d usr/share/magos/langs/$NEWLANG ] ;then
+  cp -pfr usr/share/magos/langs/$NEWLANG/* ./
+  cp -f etc/sysconfig/i18n  etc/locale.conf
+fi

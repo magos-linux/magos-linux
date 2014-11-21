@@ -1,0 +1,424 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-04-19 11:00+0400\n"
+"PO-Revision-Date: 2014-04-19 11:02+0300\n"
+"Last-Translator: betcher <betkher.al@mail.ru>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: cgi-bin/index.py:8
+msgid "MagOS modules map"
+msgstr "Карта модулей MagOS"
+
+#: cgi-bin/index.py:9
+msgid "It is a table for modules in base, modules and optional dirs"
+msgstr "Таблица модулей в основных каталогах MagOS"
+
+#: cgi-bin/index.py:10
+msgid "Google search modules"
+msgstr "Google поиск модулей"
+
+#: cgi-bin/index.py:11
+msgid "MagOS modules search form"
+msgstr "Форма поиска модулей MagOS"
+
+#: cgi-bin/index.py:12
+msgid "save2module mode setup"
+msgstr "Режим save2module"
+
+#: cgi-bin/index.py:13
+msgid "enable and disable save2module mode, edit savelist file"
+msgstr "настройки сохранения в модуль "
+
+#: cgi-bin/index.py:14
+msgid "Mount repository"
+msgstr "Монтирование репозитория"
+
+#: cgi-bin/index.py:15
+msgid "Mount MagOS repository, search modules "
+msgstr "Монтирование репозитория, поиск модулей"
+
+#: cgi-bin/mod_info.py:11
+msgid "Info: "
+msgstr "Информация:"
+
+#: cgi-bin/mod_info.py:12
+msgid "compression:"
+msgstr "сжатие:"
+
+#: cgi-bin/mod_info.py:13
+msgid "documentation"
+msgstr "Описание"
+
+#: cgi-bin/mod_info.py:14
+msgid "rpm packeges list"
+msgstr "список пакетов rpm"
+
+#: cgi-bin/mod_info.py:15
+msgid "files list"
+msgstr "список файлов"
+
+#: cgi-bin/mod_info.py:16
+msgid "module size"
+msgstr "размер модуля"
+
+#: cgi-bin/mod_info.py:17
+msgid "extracting module size"
+msgstr "размер распакованного модуля"
+
+#: cgi-bin/mod_info.py:18
+msgid "Search in lists"
+msgstr "Поиск по спискам"
+
+#: cgi-bin/mod_info.py:19
+msgid "enter search string "
+msgstr "введите строку для поиска"
+
+#: cgi-bin/mod_map.py:60
+msgid "Base MagOS modules, activating in startup. Do not move this modules if you do not know what to do."
+msgstr "Основные модули магос, активируются при старте системы. Не удаляйте эти модули, это может привести к неработоспособности системы!!!"
+
+#: cgi-bin/mod_map.py:61
+msgid "Modules activating in startup, from MagOS dir"
+msgstr "Модули активируются при старте системы  из основного каталога MagOS"
+
+#: cgi-bin/mod_map.py:62
+msgid "Modules activating in startup, from MagOS dir. only if enabled by  load= cmdline par"
+msgstr "Модули активируются при старте системы, только если включены параметром ядра load= "
+
+#: cgi-bin/mod_map.py:63
+msgid "Modules activating in startup, from MagOS-Data dir."
+msgstr "Модули активируются при старте системы из каталога MagOS-Data"
+
+#: cgi-bin/mod_map.py:64
+msgid "Modules activating in startup, from MagOS-Data dir. only if enabled by  load= cmdline par"
+msgstr "Модули активируются при старте системы, только если включены параметром ядра  load="
+
+#: cgi-bin/mod_map.py:65
+msgid "Modules activated from RAM"
+msgstr "Модули активированные  из RAM"
+
+#: cgi-bin/mod_map.py:66
+msgid "Modules activated from another dirs"
+msgstr "Модули активированные из других каталогов"
+
+#: cgi-bin/mod_map.py:67
+msgid "no Data-optional dir"
+msgstr "каталог MagOS-Data/optional не используется"
+
+#: cgi-bin/mod_map.py:68
+msgid "no Data-modules dir"
+msgstr "каталог MagOS-Data/modules  не используется"
+
+#: cgi-bin/mod_map.py:69
+msgid "modules activated from another dirs"
+msgstr "Модули активированные из других каталогов"
+
+#: cgi-bin/mod_map.py:70
+msgid "No copy2ram cache"
+msgstr "режим Copy2ram не используется"
+
+#: cgi-bin/mod_map.py:71
+msgid "Another modules"
+msgstr "Другие модули"
+
+#: cgi-bin/mod_map.py:72
+msgid "Update"
+msgstr "Обновить"
+
+#: cgi-bin/open.py:19
+msgid "Activating module right here"
+msgstr "Активировать модуль здесь"
+
+#: cgi-bin/open.py:20
+msgid "Copy module to modules directory and activate it"
+msgstr "Копировать модуль в каталог modules и активировать в нем"
+
+#: cgi-bin/repo.py:10
+msgid "Mount"
+msgstr "Монтировать"
+
+#: cgi-bin/repo.py:11
+msgid "Unmount ftp"
+msgstr "Отмонтировать  ftp"
+
+#: cgi-bin/repo.py:12
+msgid "Repository:"
+msgstr "Репозиторий:"
+
+#: cgi-bin/repo.py:13
+msgid "Search:"
+msgstr "Поиск:"
+
+#: cgi-bin/repo.py:14
+msgid "Repository filelist, click link to choose action"
+msgstr "Список модулей в репозитории."
+
+#: cgi-bin/repo.py:15
+msgid "Repository allready mounted, <br> mountpoint is:"
+msgstr "Репозиторий подключен, <br> точка монтирования:"
+
+#: cgi-bin/repo.py:16
+msgid "Mouting ftp server:"
+msgstr "Монтирование ftp сервера:"
+
+#: cgi-bin/repo.py:17
+msgid "Server last update:"
+msgstr "Последнее обновление репозитория:"
+
+#: cgi-bin/save2module-pro.py:11
+msgid "save changes to xzm module, extended settings "
+msgstr "Расширенные настройки режима сохранения в xzm модуль"
+
+#: cgi-bin/save2module-pro.py:12
+msgid "enabling save to module mode in kernel cmdline:"
+msgstr "Включение режима сохранения в модуль в параметрах ядра:"
+
+#: cgi-bin/save2module-pro.py:13
+msgid "enabled"
+msgstr "включено"
+
+#: cgi-bin/save2module-pro.py:14
+msgid "disabled"
+msgstr "не включен"
+
+#: cgi-bin/save2module-pro.py:15
+msgid "delete /.savetomodule"
+msgstr "удалить  /.savetomodule"
+
+#: cgi-bin/save2module-pro.py:16
+msgid "create /.savetomodule or change module name"
+msgstr "создать файл /.savetomodule или изменить имя модуля для сохранения "
+
+#: cgi-bin/save2module-pro.py:17
+msgid "file /.savetomodule already exist"
+msgstr "Файл /.savetomodule создан "
+
+#: cgi-bin/save2module-pro.py:18
+msgid "file /.savetomodule is not exist yet"
+msgstr "Файл /.savetomodule отсутствует "
+
+#: cgi-bin/save2module-pro.py:19
+msgid "ener name for module"
+msgstr "введите имя модуля"
+
+#: cgi-bin/save2module-pro.py:20
+msgid "static/dynamic toggle:"
+msgstr "переключатель static/dynamic:"
+
+#: cgi-bin/save2module-pro.py:21
+msgid "delete saving module for this machine"
+msgstr "удалить модуль с сохранениями для этой машины "
+
+#: cgi-bin/save2module-pro.py:22
+#: cgi-bin/save2module.py:7
+msgid "apply"
+msgstr "применить"
+
+#: cgi-bin/save2module-pro.py:23
+msgid "file /.savetomodule settings:"
+msgstr "Настройки файла  /.savetomodule:"
+
+#: cgi-bin/save2module-pro.py:24
+msgid "ligth settings"
+msgstr "Стандартные настройки"
+
+#: cgi-bin/save2module-pro.py:25
+#: cgi-bin/save2module.py:12
+msgid "Edit this file to add and remove files and dirs"
+msgstr "Впишите файлы и каталоги для включения в сохранение. <br> Добавьте \"!\"  вначале строки для исключения."
+
+#: cgi-bin/save2module-pro.py:26
+msgid "module name for this machine is"
+msgstr "имя модуля для этой машины"
+
+#: cgi-bin/save2module-pro.py:27
+#: cgi-bin/save2module.py:15
+msgid "#save all changes"
+msgstr "# Не редактируйте этот файл если нужно сохранять все."
+
+#: cgi-bin/save2module-pro.py:28
+#: cgi-bin/save2module.py:17
+msgid "<strong>static</strong> - <i>do non freeze system</i>"
+msgstr "<strong>static</strong> - <i>не замораживать</i>"
+
+#: cgi-bin/save2module-pro.py:29
+#: cgi-bin/save2module.py:18
+msgid "<strong>dynamic</strong> - <i>freeze system</i>"
+msgstr "<strong>dynamic</strong> - <i>замораживать систему</i>"
+
+#: cgi-bin/save2module-pro.py:30
+#: cgi-bin/save2module.py:26
+msgid "Warning!!!"
+msgstr "Внимание!!!"
+
+#: cgi-bin/save2module-pro.py:31
+msgid "It is not for newbie, be carefull"
+msgstr "Эти настройки не для новичков, будьте осторожны!!! "
+
+#: cgi-bin/save2module-pro.py:33
+msgid "There is no saving modules yet"
+msgstr "Модуль с сохранениями еще не создан."
+
+#: cgi-bin/save2module-pro.py:34
+msgid "module moved to static directory"
+msgstr "модуль перенесен в каталог static"
+
+#: cgi-bin/save2module-pro.py:35
+msgid "module moved to dynamic dirrectory"
+msgstr "модуль перенесен в каталог dynamic "
+
+#: cgi-bin/save2module-pro.py:36
+msgid "toggle static to dynamic -  failed "
+msgstr "ошибка переключения режимов static/dynamic"
+
+#: cgi-bin/save2module-pro.py:37
+msgid "nothing to toggle"
+msgstr "Режим сохранения static/dynamic не переключен"
+
+#: cgi-bin/save2module-pro.py:38
+msgid "/.savelist file saved"
+msgstr "файл /.savelist сохранен"
+
+#: cgi-bin/save2module-pro.py:39
+msgid "module info"
+msgstr "информация о модуле"
+
+#: cgi-bin/save2module-pro.py:40
+msgid "/.savetomodule file created or edited"
+msgstr "файл /.savetomodule сохранен"
+
+#: cgi-bin/save2module.py:8
+msgid "extended settings"
+msgstr "Расширенные настройки"
+
+#: cgi-bin/save2module.py:9
+msgid "light settings"
+msgstr "Стандартные настройки"
+
+#: cgi-bin/save2module.py:10
+msgid "save to module mode disabled&nbsp:-("
+msgstr "режим save2module не активирован&nbsp:-("
+
+#: cgi-bin/save2module.py:11
+msgid "please reboot your system with \"chages=xzm\" cmdline par, or try extended settings"
+msgstr "пожалуйста перегрузите систему с параметром ядра chages=xzm, или воспользуйтесь расширенными настройками."
+
+#: cgi-bin/save2module.py:13
+msgid "module name"
+msgstr "имя модуля"
+
+#: cgi-bin/save2module.py:14
+msgid "sorry, nothing to toggle"
+msgstr "переключать нечего"
+
+#: cgi-bin/save2module.py:16
+msgid "save changes to xzm module "
+msgstr "сохранение системных изменений в xzm модуль"
+
+#: cgi-bin/save2module.py:19
+msgid "save to xzm mode toggled to static"
+msgstr "режим сохранения переключен в - static"
+
+#: cgi-bin/save2module.py:20
+msgid "save to xzm mode toggled to dynamic"
+msgstr "режим сохранения переключен в - dynamic"
+
+#: cgi-bin/save2module.py:21
+msgid "Warning: there is no modules in dynamic and static dirs, \t\t\t but mode is enabled and you can not toggle save2module mode to static"
+msgstr "Внимание: в каталогах dynamic и static нет модуля для этой машины, \t\t\tно режим сохранения включен и вы не можете переключиться в static"
+
+#: cgi-bin/save2module.py:23
+msgid "module with system savings will moved to dynamic dir"
+msgstr "модуль с системными сохранениями будет перенесен в каталог dynamic"
+
+#: cgi-bin/save2module.py:24
+msgid "module with system savings will moved to static dir"
+msgstr "модуль с системными сохранениями будет перенесен в каталог static"
+
+#: cgi-bin/save2module.py:25
+msgid "Ooops, somthing wrong!!!"
+msgstr "Ой, что-то не так!!! "
+
+#: cgi-bin/save2module.py:27
+msgid "/.savelist saved"
+msgstr "/.savelist сохранен"
+
+#: cgi-bin/search.py:7
+msgid "search form to find magos modules"
+msgstr "Форма поиска для модулей MagOS"
+
+#: cgi-bin/search.py:8
+msgid "What are you find?"
+msgstr "Что будем искать?"
+
+#: cgi-bin/search.py:9
+msgid "program name, module name or regexp "
+msgstr "имя программы, имя модуля, регулярное выражение"
+
+#: cgi-bin/search.py:10
+msgid "in text on web page"
+msgstr "в тексте на странице"
+
+#: cgi-bin/search.py:11
+msgid "web resources"
+msgstr "Web ресурсы"
+
+#: cgi-bin/search.py:12
+msgid "repositories"
+msgstr "репозитории"
+
+#: cgi-bin/search.py:13
+msgid "repositories, mirrors, user's modules"
+msgstr "репозитории, зеркала, ларец"
+
+#: cgi-bin/search.py:14
+msgid "all web"
+msgstr "Весь интернет"
+
+#: cgi-bin/search.py:15
+msgid "submit"
+msgstr "Отправить"
+
+#: cgi-bin/mod_map.py:73
+msgid "Empty"
+msgstr "Здесь пусто"
+
+#: cgi-bin/open.py:21
+msgid "Activate"
+msgstr "Активировать"
+
+#: cgi-bin/open.py:22
+msgid "Install"
+msgstr "Установить"
+
+#: cgi-bin/open.py:23
+msgid "Copy to MagOS/modules"
+msgstr "Копировать в MagOS/modules"
+
+#: cgi-bin/open.py:24
+msgid "Copy to MagOS-Data/modules"
+msgstr "Копировать в  MagOS-Data/modules"
+
+#: cgi-bin/open.py:25
+msgid "Copy to MagOS/optional"
+msgstr "Копировать в MagOS/optional"
+
+#: cgi-bin/open.py:26
+msgid "Copy to MagOS-Data/optional"
+msgstr "Копировать в  MagOS-Data/optional"
+
+#: cgi-bin/open.py:27
+msgid "Module info"
+msgstr "Свойства"
+

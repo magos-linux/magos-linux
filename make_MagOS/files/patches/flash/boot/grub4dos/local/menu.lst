@@ -37,3 +37,6 @@ configfile /boot/grub4dos/local/menu-add.lst
 title Перезагрузка
 reboot
 
+title English language
+configfile /boot/grub4dos/menu.lst
+
