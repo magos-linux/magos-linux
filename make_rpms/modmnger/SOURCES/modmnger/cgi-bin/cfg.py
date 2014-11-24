@@ -5,8 +5,8 @@ import os, sys
 def config(index):
 	cfg = {
 	'base_path': '/mnt/livemedia/MagOS/base',
-	'mod_path': '/mnt/livemedia/MagOS/modules',
-	'opt_path': '/mnt/livemedia/MagOS/optional',
+	'mod_path': 'auto',
+	'opt_path': 'auto',
 	'data_mod_path': 'auto',
 	'data_opt_path': 'auto',
 	'copy2ram': 'auto',
@@ -32,20 +32,45 @@ def config(index):
 			if len(item) > 4:
 				arr[item.split('=')[0]] =  item.split('=')[1]
 		
-	if cfg['mod_path'] == 'auto': 
+	if cfg['mod_path'] == 'auto':
+		try: 
 			cfg['mod_path'] = (arr['MAGOSMODS'] + '/modules').replace('//','/')
+		except: 
+			cfg['mod_path'] = '/mnt/livemedia/MagOS/modules'
+		if not os.path.isdir(cfg['mod_path']):
+				cfg['mod_path'] = 'no_modules'
+		
 	if cfg['opt_path'] == 'auto':
+		try:
 			cfg['opt_path'] = (arr['MAGOSMODS'] + '/optional').replace('//','/')
+		except:
+			cfg['opt_path'] = '/mnt/livemedia/MagOS/optional'
+		if not os.path.isdir(cfg['opt_path']):
+				cfg['opt_path'] = 'no_opt'
+		
+			
 	if cfg['data_mod_path'] == 'auto':
+		try:
 			cfg['data_mod_path'] = (arr['MAGOSDATAMODS'] + '/modules').replace('//','/')
-			if not os.path.isdir(cfg['data_mod_path']):
-				cfg['data_mod_path'] = 'no_data_modules'
+		except:
+			cfg['data_mod_path'] = '/mnt/livemedia/MagOS-Data/modules'
+		if not os.path.isdir(cfg['data_mod_path']):
+			cfg['data_mod_path'] = 'no_data_modules'
+			
 	if cfg['data_opt_path'] == 'auto':
+		try:
 			cfg['data_opt_path'] = (arr['MAGOSDATAMODS'] + '/optional').replace('//','/')
+		except:
+			cfg['data_opt_path'] = '/mnt/livemedia/MagOS-Data/optional'
 			if not os.path.isdir(cfg['data_opt_path']):
 				cfg['data_opt_path'] = 'no_data_optional'
+				
 	if cfg['copy2ram'] == 'auto':
+		try:
 			cfg['copy2ram'] = arr['CACHE'].replace('//','/')
+		except:
+			cfg['copy2ram'] = ''
+			
 	if cfg['repository'] == 'auto':
 		try:
 			f = open('/mnt/livemedia/MagOS/VERSION', 'r')
