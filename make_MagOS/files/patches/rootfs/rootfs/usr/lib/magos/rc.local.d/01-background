@@ -5,7 +5,10 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-. /usr/lib/magos/scripts/liblinuxlive
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
 [ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 [ -z "$BACKGROUND" ] && exit 0

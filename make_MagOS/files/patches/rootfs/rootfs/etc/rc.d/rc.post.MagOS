@@ -6,6 +6,11 @@
 #
 
 # We have to launch some rc scripts
+
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
 for a in /usr/lib/magos/rc.post.d/* ;do
    [ -x $a ] && $a 2>/dev/null &
 done

@@ -9,6 +9,10 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
 DEFAULTPASSWD='$2a$08$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2'
 DEFAULTROOTPASSWD='$2a$08$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji'
 DEFAULTUSER=user
@@ -18,7 +22,6 @@ ADMGROUPS=wheel
 ADMUID=500
 ADDADM=no
 
-. /liblinuxlive
 . etc/sysconfig/MagOS
 [ -f /tmp/.credential ] && . /tmp/.credential && rm -f /tmp/.credential
 [ -z "$NEEDEDUSERS" ] && NEEDEDUSERS="$DEFAULTUSER:500:$DEFAULTPASSWD"

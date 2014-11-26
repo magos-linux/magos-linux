@@ -3,6 +3,10 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
 if ! grep -q nobody /etc/samba/passdb.tdb ;then
     echo -e \\n\\n | smbpasswd -Lsa nobody >/dev/null 2>&1
     for a in `grep users /etc/group | awk -F: '{print $4}' | tr ';,' ' '` ;do

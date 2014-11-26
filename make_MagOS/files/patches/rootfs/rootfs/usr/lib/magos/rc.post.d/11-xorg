@@ -7,7 +7,10 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-. /liblinuxlive
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
 . /etc/sysconfig/harddrake2/service.conf
 [ "$XDRIVER" != "nvidia" ] && rmmod nvidia
 

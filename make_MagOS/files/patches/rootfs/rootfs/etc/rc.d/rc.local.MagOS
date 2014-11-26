@@ -19,6 +19,11 @@
 ### END INIT INFO
 
 # source function library
+
+DEBUGMODE=no
+. /liblinuxlive 2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 
 # We have to launch some rc scripts

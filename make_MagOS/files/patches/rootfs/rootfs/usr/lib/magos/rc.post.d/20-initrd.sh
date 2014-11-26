@@ -3,6 +3,11 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
+
 # free some space if pxe server are not using
 if [ -d /mnt/livemedia/MagOS ] ;then
   rm -f /boot/initrd.gz /boot/vmlinuz

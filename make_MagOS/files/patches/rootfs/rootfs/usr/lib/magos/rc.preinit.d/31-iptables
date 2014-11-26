@@ -9,7 +9,10 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-. /liblinuxlive
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
 . etc/sysconfig/MagOS
 
 [ -z "$IPTABLESTRUSTEDIP" ] || sed -i s-192.168.1.0/24-$IPTABLESTRUSTEDIP- etc/exports

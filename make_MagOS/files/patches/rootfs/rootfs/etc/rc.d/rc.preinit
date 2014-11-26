@@ -6,7 +6,10 @@
 #
 
 export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
-. /liblinuxlive
+
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
 
 debug_log "starting /etc/rc.d/rc.preinit"
 debug_shell
