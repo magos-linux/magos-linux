@@ -19,24 +19,25 @@ else
 fi
 
 [ $PREFIX == none ] && echo "no zenity and kdialog in system" && exit -1
-
+#===============================================================
 #if mdialog starts by root restart it by user in display :0.0
-XUSER=$(who | awk  '{ print $1 }'|sort -u)
-if [ "$(id -un)" = "root" ] ;then
-    ps -A | grep -q startkde  && export KDE_SESSION_UID=500
-    export XAUTHORITY=/home/$XUSER/.Xauthority 
-    sudo -u $XUSER  $0 "$@" ; exit 
-fi
-if [ -z $XAUTHORITY ] ; then
-	#ps -A | grep -q startkde  && PREFIX=KDE 
-	export XAUTHORITY=/home/$XUSER/.Xauthority 
-fi
-[ -z $DISPLAY ] && export DISPLAY=:0.0
-
-# start mdialog with xuserrun if 
+#XUSER=$(who | awk  '{ print $1 }'|sort -u)
 #if [ "$(id -un)" = "root" ] ;then
-#    xuserrun  $0 "$@" ; exit
+#    ps -A | grep -q startkde  && export KDE_SESSION_UID=500
+#    export XAUTHORITY=/home/$XUSER/.Xauthority 
+#    sudo -u $XUSER  $0 "$@" ; exit 
 #fi
+#if [ -z $XAUTHORITY ] ; then
+	#ps -A | grep -q startkde  && PREFIX=KDE 
+#	export XAUTHORITY=/home/$XUSER/.Xauthority 
+#fi
+#[ -z $DISPLAY ] && export DISPLAY=:0.0
+#===============================================================
+
+# start mdialog with xuserrun  
+if [ "$(id -un)" = "root" ] ;then
+    xuserrun  $0 "$@" ; exit
+fi
 
 KDE--msgbox () 
 {
