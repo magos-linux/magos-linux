@@ -125,6 +125,39 @@ allow_only_root()
      echo "Only root can run $(basename $0)"; exit 1
   fi
 }
+#============================================================
+# MagOS debug functions
+#============================================================
+debug_mode() {
+if [ "$DEBUG_IS_ENABLED"  -o "$DEBUGMODE" == "yes" ] ; then
+name=$(basename $0)
+slash="/"
+[ "$(pwd)" == "/union" ] && slash=""
+if ! test -f  ${slash}var/log/magos/${name}.log ; then
+  echo "$0 --  debug mode enabled"
+  test -d ${slash}var/log/magos || mkdir -p ${slash}var/log/magos
+  echo $(date) >   ${slash}var/log/magos/${name}.log || echo "can not create log file"
+  $0 "$@" 2>&1 | tee -a ${slash}var/log/magos/${name}.log 
+  exit 0
+fi
+fi
+}
+
+echodebug() {
+[ "$DEBUG_IS_ENABLED"  -o "$DEBUGMODE" == "yes" ] && echo "$1"
+if [ -n "$2" ] ;then 
+  command=$2
+  shift
+  shift
+  if [ -z $1 ] ;then
+    $command 
+  else
+    $command "$@"
+  fi
+fi
+}
+
+
 
 # ===========================================================
 # text processing functions
