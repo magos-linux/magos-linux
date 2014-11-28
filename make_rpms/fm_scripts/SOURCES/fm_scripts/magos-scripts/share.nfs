@@ -3,25 +3,25 @@ export TEXTDOMAINDIR=/usr/share/magos/locale
 export TEXTDOMAIN=fm_scripts
 
 MSG1=$(gettext -s "is temporary shared via nfs, close this window to stop \n mount command example:")
-
-service rpcbind status | grep pid  || service rpcbind start
-service nfs-common status | grep pid  || service nfs-common start
+/bin/systemctl status rpcbind  | grep -q running  || service rpcbind start
 par=start
 end=stop
-service nfs-server status | grep pid  && par=restart end=restart
+/bin/systemctl status nfs-server status | grep -q running  && par=restart end=restart
 realdir=$(readlink -f "$1")
 realdir=${realdir// /\\ }
 string=$(mdialog --inputbox "$(gettext -s "String to /etc/exports")" "$realdir 192.168.1.0/16(all_squash,anonuid=500,anongid=100,async,secure,no_subtree_check,rw)")
-#"
 [ "$string" ] || exit 0
 echo $string >> /etc/exports
-mdialog --passivepopup "$(CONSOLETYPE=serial service nfs-server $par)"
-for arg in $(ifconfig | grep "inet addr" | awk -F: ' { print $2 } ' | awk '{ print $1 }') ; do
-   echo $arg | grep 192.168  && ip="${ip}mount -t nfs $arg:$realdir /mountdir \n"
+/bin/systemctl $par nfs-server  && mdialog --passivepopup "NFS server started..."
+#mdialog --passivepopup "$(CONSOLETYPE=serial service nfs-server $par)"
+ip=""
+for arg in $(ip addr show |grep inet |awk '{print $2}' |sed s'/\/.*//' |grep -v 127.0.0.1) ; do
+   echo $arg | grep -q 192.168  && ip=${ip}"mount -t nfs $arg:$realdir /mount/dir \n"
 done
-mdialog --msgbox "$realdir "$MSG1" \n $ip"
+mdialog --msgbox "\"$realdir\" $MSG1 \n $ip"
 string=${string//\\/\\\\} 
 string=${string//\//\\\/} 
 sed -i /"^$string$"/d /etc/exports
-mdialog --passivepopup "$(CONSOLETYPE=serial service nfs-server $end)"
+/bin/systemctl $end nfs-server  && mdialog --passivepopup "NFS server stoped..."
+#mdialog --passivepopup "$(CONSOLETYPE=serial service nfs-server $end)"
 exit
