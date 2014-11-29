@@ -1,6 +1,6 @@
 {
     "beesu /usr/lib/magos/scripts/rpmdrake2lzm": {"owner": "user", "title": "Create modules", "icon": "/usr/share/magos-ctrl-center/icons/rpmdrake-mdk.png"},
     "beesu /usr/lib/magos/scripts/conv4mod": {"owner": "user", "title": "Convert modules", "icon": "/usr/share/magos-ctrl-center/icons/rpmdrake-mdk.png"},
-    "beesu -l /usr/lib/magos/scripts/mod_mnger": {"owner": "user", "title": "Modules Manager", "icon": "/usr/share/magos-ctrl-center/icons/rpmdrake-mdk.png"},
+    "/usr/bin/modmnger": {"owner": "user", "title": "Modules Manager", "icon": "/usr/share/magos-ctrl-center/icons/rpmdrake-mdk.png"},
     "beesu /usr/lib/magos/scripts/cfg_mnger": {"owner": "user", "title": "Configs Manager", "icon": "/usr/share/magos-ctrl-center/icons/logdrake-mdk.png"}
 }

@@ -1,6 +1,6 @@
 Summary:        Scripts for nautilus
 Name:           fm_scripts
-Version:        0.0.1
+Version:        0.0.2
 Release:        %mkrel 1
 License:        GPLv3+
 URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
@@ -34,5 +34,8 @@ cp -fr ./services %{buildroot}/usr/share/kde4/
 /usr/share/kde4/services/*
 
 %changelog
+* Fri Nov 28 2014 Mikhail Zaripov <m3for@mail.ru> - 0.0.2
+- updated
+
 * Thu Sep 09 2013 betcher <betkher.al@gmail.com>
 - initial build

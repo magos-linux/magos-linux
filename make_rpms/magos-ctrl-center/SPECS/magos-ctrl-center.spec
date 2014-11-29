@@ -1,5 +1,5 @@
 Name: magos-ctrl-center
-Version: 0.1.0
+Version: 0.1.2
 Release: 1
 Summary: MagOS Control Center
 Group: System/Configuration/Other
@@ -137,6 +137,9 @@ cp -rf ./share/* %buildroot/%{_datadir}
 %{_datadir}/%{name}
 
 %changelog
+* Fri Nov 28 2014 Mikhail Zaripov <m3for@mail.ru> - 0.1.2-1
+- updated magos menu
+
 * Tue Jul 07 2013 Mikhail Zaripov <m3for@mail.ru> - 0.1.0-1
 - modify lxde-ctrl-center to magos-ctrl-center
 
