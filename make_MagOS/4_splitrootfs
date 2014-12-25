@@ -116,6 +116,7 @@ movefiles ost_list modules_filelist/*-core '^/root'
 movefiles ost_list modules_filelist/*-drakconf 'var/lib/rpm'
 movefiles ost_list modules_filelist/*-drakconf 'var/lib/urpmi'
 movefiles ost_list modules_filelist/*-x-base 'usr/share/mdk/screensaver/'
+movefiles ost_list modules_filelist/*-x-java 'usr/lib/jvm'
 movefiles modules_filelist/*-kernel modules_filelist/*-firmware  '^lib/firmware/'
 movefiles modules_filelist/*-core modules_filelist/*-firmware  '^lib/firmware/'
 

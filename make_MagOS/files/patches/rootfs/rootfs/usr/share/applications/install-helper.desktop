@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=MagOS install helper
+Name[ru]= Инсталлятор MagOS
+Comment=Simple MagOS linux installator 
+Comment[ru]= Помощник в установке MagOS linux
+Exec=installator
+Icon=install-helper
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Settings;Systm;X-MandrivaLinux-CrossDesktop;

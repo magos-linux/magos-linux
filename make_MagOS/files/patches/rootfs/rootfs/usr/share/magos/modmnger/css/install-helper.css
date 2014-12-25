@@ -1,0 +1,79 @@
+body {color:#555; height: 100%;}
+html {height:100%}
+
+table{
+font:90%/1.2 Arial;
+overflow:auto;
+padding:0;
+border-collapse: collapse;
+}
+
+h1,h2,h3,h4,.componentheading {font-weight:bold;margin:2em 0 1em;}
+h1,.componentheading {font-size:180%;}
+h2 {font-size:150%;}
+h3 {font-size:130%;}
+h4 {font-size:110%;}
+
+
+a {color:#3366CC;text-decoration:none;font-weight:bold;}
+.bordered_td {overflow:auto; border: 1px solid grey; }
+ 
+.top {text-align:left; width:600px ; font-weight:bold; }
+.main_table {text-align:left;  width:100% }
+.bordered-table {text-align:left;  font-weight:bold; width:100% ;  vertical-align: bottom;   padding: 5px; border: 2px double black; }
+
+ 
+
+#fat32_400 {
+    width: 100%;
+    height: 30px;
+    background: #18D918;
+}
+
+#ntfs_400 {
+    width: 100%;
+    height: 30px;
+    background: #42E5AC ;
+}
+
+
+#ext3_400 {
+    width: 100%;
+    height: 30px;
+    background: #7590AE;
+}
+
+#fat32_250 {
+	float: left;
+    width: 60%;
+    height: 30px;
+    background: #18D918;
+}
+
+#ext3_150 { 
+	float: left;
+    width: 40%;
+    height: 30px;
+    background: #7590AE;
+}
+
+#ext2_100 {
+   float: left; 
+    width: 20%;
+    height: 30px;
+    background: #9DB8D2;
+}
+
+#ext3_260 {
+    float: left; 
+    width: 70%;
+    height: 30px;
+    background: #7590AE;
+}
+
+#swap40 {
+	float: left;
+    width: 10%;
+    height: 30px;
+    background: #C1665A;
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Favorites>
+	<Hubs>
+		<Hub Name="files.magos-linux.ru" Connect="1" Description="Download hub for magos-linux.ru" Nick="" Password="" Server="files.magos-linux.ru:411" UserDescription="" Encoding="CP1251" ClientId="EiskaltDC++ V:2.0" ExternalIP="" OverrideId="0" UseInternetIp="0" DisableChat="0"/>
+		<Hub Name="Cifra.Ozerki DC.Hub" Connect="1" Description="Main Hub of Cifracom Network S.Petersburg Russia" Nick="" Password="" Server="dc.cifracom.ru:411" UserDescription="" Encoding="CP1251" ClientId="EiskaltDC++ V:2.0" ExternalIP="" OverrideId="0" UseInternetIp="0" DisableChat="0"/>
+	</Hubs>
+	<Users/>
+	<UserCommands/>
+	<FavoriteDirs/>
+</Favorites>

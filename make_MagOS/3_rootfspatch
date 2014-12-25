@@ -32,8 +32,8 @@ if [ -d ../../localpatches ] ;then
 fi
 cd mirror/rootfs
 mkdir -p usr/lib/magos/rootfs-patches
-cp -p ../../../../files/patches/rootfs/$FLASHNAME-*.sh usr/lib/magos/rootfs-patches
-cp -p ../../../../files/patches/rootfs/${FLASHNAME}_${VERREL}-*.sh usr/lib/magos/rootfs-patches
+cp -p ../../../../files/patches/rootfs/scripts/$FLASHNAME/*.sh usr/lib/magos/rootfs-patches
+cp -p ../../../../files/patches/rootfs/scripts/${FLASHNAME}_${VERREL}/*.sh usr/lib/magos/rootfs-patches
 
 echo "Уменьшение базы rpm"
 if ls "$MYPATH"/loaded/$FLASHNAME-$VERREL/names/*-int-* 2>/dev/null | grep -q . ;then
@@ -53,7 +53,7 @@ fi
 
 echo "Изменение файлов дистрибутива"
 rm -f var/lib/rpm/files-awaiting-filetriggers rpmsoutofbase
-for a in usr/lib/magos/rootfs-patches/*.sh ;do
+ls -1 usr/lib/magos/rootfs-patches/*.sh  | sed s/_/Z/ | sort |  sed s/Z/_/ | while read a ;do
    [ -f $a ] || continue
    echo $a
    bash $a || exit 1

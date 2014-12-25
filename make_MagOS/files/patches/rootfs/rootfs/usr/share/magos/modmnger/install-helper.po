@@ -1,0 +1,455 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-12-21 15:06+0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. messages for gettext
+#: cgi-bin/autoinstall.py:10 cgi-bin/firststep.py:10 cgi-bin/secondstep.py:23
+#: cgi-bin/thirdstep.py:14 cgi-bin/update.py:14 cgi-bin/autoinstall.py:10
+#: cgi-bin/firststep.py:10 cgi-bin/secondstep.py:23 cgi-bin/thirdstep.py:14
+#: cgi-bin/update.py:14
+msgid "flag"
+msgstr "Выбор"
+
+#: cgi-bin/autoinstall.py:11 cgi-bin/firststep.py:11 cgi-bin/autoinstall.py:11
+#: cgi-bin/firststep.py:11
+msgid "disk device"
+msgstr "Устройство"
+
+#: cgi-bin/autoinstall.py:12 cgi-bin/firststep.py:12 cgi-bin/secondstep.py:25
+#: cgi-bin/autoinstall.py:12 cgi-bin/firststep.py:12 cgi-bin/secondstep.py:25
+msgid "size"
+msgstr "размер"
+
+#: cgi-bin/autoinstall.py:13 cgi-bin/autoinstall.py:13
+msgid "Please select disk to install MagOS:"
+msgstr "Пожалуйста выберите диск для установки MagOS:"
+
+#: cgi-bin/autoinstall.py:14 cgi-bin/firststep.py:17 cgi-bin/autoinstall.py:14
+#: cgi-bin/firststep.py:17
+msgid "Nothing to do"
+msgstr "Задач нет"
+
+#: cgi-bin/autoinstall.py:15 cgi-bin/firststep.py:22 cgi-bin/secondstep.py:16
+#: cgi-bin/thirdstep.py:15 cgi-bin/firststep.py:23 cgi-bin/update.py:11
+#: cgi-bin/autoinstall.py:15 cgi-bin/firststep.py:23 cgi-bin/secondstep.py:16
+#: cgi-bin/thirdstep.py:15 cgi-bin/update.py:11
+msgid "Update"
+msgstr "Обновить"
+
+#: cgi-bin/autoinstall.py:16
+msgid "Install MagOS auto"
+msgstr "Автоматическая установка MagOS"
+
+#: cgi-bin/autoinstall.py:17 cgi-bin/firststep.py:30 cgi-bin/firststep.py:31
+#: cgi-bin/autoinstall.py:17 cgi-bin/firststep.py:31
+msgid "is not mounted"
+msgstr "Не смонтировано"
+
+#: cgi-bin/autoinstall.py:18 cgi-bin/autoinstall.py:18
+msgid "Auto install MagOS linux"
+msgstr "Установка MagOS в автоматическом режиме"
+
+#: cgi-bin/autoinstall.py:19 cgi-bin/autoinstall.py:19
+msgid ""
+"Select disk and push INSTALL button to start installation. Be especially "
+"careful, you loose all data in selected disk. "
+msgstr ""
+"Выберите диск и нажмите кнопку УСТАНОВИТЬ для запуска процесса инсталляции.  "
+"Будьте особенно осторожны, данные на выбранном носителе будут уничтожены."
+
+#: cgi-bin/autoinstall.py:21 cgi-bin/firststep.py:26 cgi-bin/secondstep.py:19
+#: cgi-bin/thirdstep.py:18 cgi-bin/firststep.py:27 cgi-bin/update.py:13
+#: cgi-bin/autoinstall.py:21 cgi-bin/firststep.py:27 cgi-bin/secondstep.py:19
+#: cgi-bin/thirdstep.py:18 cgi-bin/update.py:13
+msgid "Prev..."
+msgstr "Назад..."
+
+#: cgi-bin/firststep.py:13 cgi-bin/firststep.py:13
+msgid "Step 1."
+msgstr "Шаг 1."
+
+#: cgi-bin/firststep.py:14 cgi-bin/firststep.py:14
+msgid "Please select disk to format:"
+msgstr "Пожалуйста выберите диск, который нужно форматировать:"
+
+#: cgi-bin/firststep.py:15 cgi-bin/firststep.py:15
+msgid "Please select partitions:"
+msgstr "Пожалуйста выберите разбивку:"
+
+#: cgi-bin/firststep.py:16 cgi-bin/firststep.py:16
+msgid "Use gparted"
+msgstr "Запустить Gparted"
+
+#: cgi-bin/firststep.py:19 cgi-bin/firststep.py:20 cgi-bin/firststep.py:20
+msgid ""
+"ext3 for MagOS installation, and fat32 or ntfs (if more then 4GB) for data. "
+"MagOS will invisible from windows"
+msgstr ""
+"Ext3 для установки MagOS и fat32 (или ntfs если диск больше 4G) для данных. "
+"MagOS будет невидим в системах семейства windows"
+
+#: cgi-bin/firststep.py:20 cgi-bin/firststep.py:21 cgi-bin/firststep.py:21
+msgid "Recomended partitions for install MagOS in hdd"
+msgstr "Рекомендуемая разбивка для установки MagOS на жесткий диск"
+
+#: cgi-bin/firststep.py:21 cgi-bin/firststep.py:22 cgi-bin/firststep.py:22
+msgid ""
+"Recomended partitions for install MagOS in virtualbox, or for linux only "
+"flash drive"
+msgstr ""
+"Рекомендуемая разбивка для установки в virtualbox, или для флешки которая "
+"используется только в linux"
+
+#: cgi-bin/firststep.py:23 cgi-bin/secondstep.py:17 cgi-bin/thirdstep.py:16
+#: cgi-bin/firststep.py:24 cgi-bin/firststep.py:24 cgi-bin/secondstep.py:17
+#: cgi-bin/thirdstep.py:16
+msgid "Next..."
+msgstr "Далее..."
+
+#: cgi-bin/firststep.py:24 cgi-bin/firststep.py:25 cgi-bin/firststep.py:25
+msgid "Format"
+msgstr "Форматировать"
+
+#: cgi-bin/firststep.py:25 cgi-bin/firststep.py:26 cgi-bin/firststep.py:26
+msgid "Start gparted"
+msgstr "Запустить Gparted"
+
+#: cgi-bin/firststep.py:27 cgi-bin/firststep.py:28 cgi-bin/firststep.py:28
+msgid "If  you need  another partitions, you may  "
+msgstr "Если нужна другая разбивка диска вы можете"
+
+#: cgi-bin/firststep.py:31 cgi-bin/firststep.py:32 cgi-bin/firststep.py:32
+msgid "partitions created!!!"
+msgstr "Раздел(ы) успешно созданы!!! "
+
+#: cgi-bin/firststep.py:32 cgi-bin/firststep.py:33 cgi-bin/firststep.py:33
+msgid "partitions create fail, code:"
+msgstr "Создание разделов завершилось с ошибкой, код:"
+
+#: cgi-bin/firststep.py:33 cgi-bin/firststep.py:34 cgi-bin/firststep.py:34
+msgid "Create partitions"
+msgstr "Создание разделов"
+
+#. messages for gettext
+#: cgi-bin/install_help.py:9 cgi-bin/install_help.py:9
+msgid "back..."
+msgstr "Назад..."
+
+#. messages for gettext
+#: cgi-bin/install.py:10 cgi-bin/install.py:10
+msgid "MagOS linux install helper"
+msgstr "Помощник в установке MagOS"
+
+#: cgi-bin/install.py:11 cgi-bin/install.py:11
+msgid ""
+"This is a simple MagOS linux installator. You must select automatic or step "
+"by step mode. "
+msgstr ""
+"Это простой установщик для MagOS Linux. Вы должны выбрать автоматический или "
+"пошаговый режим.  "
+
+#: cgi-bin/install.py:12 cgi-bin/install.py:12
+msgid "Automatic installation"
+msgstr "Автоматическая установка"
+
+#: cgi-bin/install.py:13 cgi-bin/install.py:13
+msgid "Step by step  installation"
+msgstr "Пошаговая установка"
+
+#. messages for gettext
+#: cgi-bin/secondstep.py:15 cgi-bin/secondstep.py:15
+msgid "Step 2."
+msgstr "Шаг 2."
+
+#: cgi-bin/secondstep.py:18 cgi-bin/update.py:12 cgi-bin/secondstep.py:18
+#: cgi-bin/update.py:12
+msgid "Copy MagOS files to destination disks"
+msgstr "Копирование файлов MagOS на диски"
+
+#: cgi-bin/secondstep.py:20 cgi-bin/secondstep.py:20
+msgid "Please select disk to MagOS dir"
+msgstr "Пожалуйста выберите диск для каталога \"MagOS\""
+
+#: cgi-bin/secondstep.py:21 cgi-bin/secondstep.py:21
+msgid "Please select disk to MagOS-Data dir"
+msgstr "Пожалуйста выберите диск для каталога \"MagOS-Data\""
+
+#: cgi-bin/secondstep.py:22 cgi-bin/secondstep.py:22
+msgid "Please select disk to boot dir"
+msgstr "Пожалуйста выберите диск для каталога \"boot\""
+
+#: cgi-bin/secondstep.py:24 cgi-bin/thirdstep.py:25 cgi-bin/update.py:15
+#: cgi-bin/secondstep.py:24 cgi-bin/thirdstep.py:25 cgi-bin/update.py:15
+msgid "device"
+msgstr "устройство"
+
+#: cgi-bin/secondstep.py:26 cgi-bin/secondstep.py:26
+msgid "free size"
+msgstr "свободно"
+
+#: cgi-bin/secondstep.py:27 cgi-bin/thirdstep.py:26 cgi-bin/update.py:16
+#: cgi-bin/secondstep.py:27 cgi-bin/thirdstep.py:26 cgi-bin/update.py:16
+msgid "mount point"
+msgstr "точка монтирования"
+
+#: cgi-bin/secondstep.py:28 cgi-bin/update.py:17 cgi-bin/secondstep.py:28
+#: cgi-bin/update.py:17
+msgid "is not mounted yet"
+msgstr "еще не смонтировано"
+
+#: cgi-bin/secondstep.py:29 cgi-bin/secondstep.py:29
+msgid "Copy MagOS linux catalogues to disks"
+msgstr "Копировать каталоги MagOS на  выбранные диски"
+
+#: cgi-bin/secondstep.py:30 cgi-bin/secondstep.py:30
+msgid "Copy MagOS catalogues"
+msgstr "Копирование каталогов MagOS"
+
+#: cgi-bin/secondstep.py:31 cgi-bin/secondstep.py:31
+msgid ""
+"Selecting disks for  MagOS linux dirs. Catalogues MagOS, MagOS-Data and boot "
+"can be located on the same or on different media. Folder MagOS-Data is not "
+"required such in MagOS.iso it is not. Directory boot can also be excluded if "
+"you use a different boot loader. MagOS catalog contains the main files. "
+"MagOS need it anyway."
+msgstr ""
+"Выбор дисков для каталогов MagOS linux. Каталоги MagOS, MagOS-Data и boot "
+"могут находиться как на одном так и на разных носителях. Папка  MagOS-Data "
+"не является обязательной, например в MagOS.iso ее нет. Каталог boot также "
+"может быть исключен если вам не нужен загрузчик MagOS. Папка  MagOS содержит "
+"основные файлы MagOS linux. Она необходима при каждой установке."
+
+#. messages for gettext
+#: cgi-bin/thirdstep.py:13 cgi-bin/thirdstep.py:13
+msgid "Step 3."
+msgstr "Шаг 3."
+
+#: cgi-bin/thirdstep.py:17 cgi-bin/thirdstep.py:28 cgi-bin/thirdstep.py:17
+#: cgi-bin/thirdstep.py:28
+msgid "Install bootloader"
+msgstr "Установка загрузчика"
+
+#: cgi-bin/thirdstep.py:19 cgi-bin/autoinstall.py:20 cgi-bin/firststep.py:29
+#: cgi-bin/install.py:14 cgi-bin/secondstep.py:32 cgi-bin/firststep.py:30
+#: cgi-bin/update.py:18 cgi-bin/autoinstall.py:20 cgi-bin/firststep.py:30
+#: cgi-bin/install.py:14 cgi-bin/secondstep.py:32 cgi-bin/thirdstep.py:19
+#: cgi-bin/update.py:18
+msgid "Help!"
+msgstr "Помощь!"
+
+#: cgi-bin/thirdstep.py:20 cgi-bin/thirdstep.py:20
+msgid ""
+"Last step, bootloader installation. Please select bootloader and disk for "
+"bootloader installation."
+msgstr ""
+"Последний шаг, установка загрузчика. Пожалуйста выберите загрузчик и диск "
+"для его установки. "
+
+#: cgi-bin/thirdstep.py:21 cgi-bin/thirdstep.py:21
+msgid "Bootloader selecting "
+msgstr "Выбор загрузчика "
+
+#: cgi-bin/thirdstep.py:22 cgi-bin/thirdstep.py:22
+msgid "Script "
+msgstr "Скрипт "
+
+#: cgi-bin/thirdstep.py:23 cgi-bin/thirdstep.py:23
+msgid "Comment "
+msgstr "Комментарий"
+
+#: cgi-bin/thirdstep.py:24 cgi-bin/thirdstep.py:24
+msgid "Loader"
+msgstr "Загрузчик"
+
+#: cgi-bin/thirdstep.py:27 cgi-bin/thirdstep.py:27
+msgid ""
+"There is no MagOS bootloaders in mounted disks. Try to mount disk manualy, "
+"or retry Step 2"
+msgstr ""
+"На смонтированных носителях нет загрузчика MagOS. Попробуйте смонтировать "
+"диск вручную. Или повторите Шаг 2."
+
+#: cgi-bin/thirdstep.py:29 cgi-bin/thirdstep.py:29
+msgid "Select disk"
+msgstr "Выберите диск"
+
+#: cgi-bin/thirdstep.py:30 cgi-bin/thirdstep.py:30
+msgid "Bootloader install"
+msgstr "Установка загрузчика"
+
+#: autoinstall.sh:7 autoinstall.sh:8
+msgid "You can test your new MagOS installation in Virtualbox. "
+msgstr "Вы можете проверить установленную MagOS в Virtualbox. "
+
+#: autoinstall.sh:8 autoinstall.sh:9
+msgid "Installation log is in autoinstall.log file, in your home folder"
+msgstr ""
+"Журнал выполнения установки смотрите в файле autoinstall.log, в вашем "
+"домашнем каталоге."
+
+#: autoinstall.sh:9 autoinstall.sh:10 magos-install.sh:12
+msgid "YES(y), or NO(n)"
+msgstr "ДА(д), или НЕТ(н)"
+
+#: autoinstall.sh:10 autoinstall.sh:11 magos-install.sh:13
+msgid "y"
+msgstr "д"
+
+#: autoinstall.sh:11 autoinstall.sh:12 magos-install.sh:14
+msgid "Y"
+msgstr "Д"
+
+#: magos-install.sh:7 magos-install.sh:10
+msgid "Copy MagOS dirs"
+msgstr "Копирование каталогов MagOS"
+
+#: magos-install.sh:8 magos-install.sh:11
+msgid "Copy OK"
+msgstr "Скопировано успешно."
+
+#: parted.sh:10 parted.sh:14
+msgid "Size for partition "
+msgstr "Размер раздела "
+
+#: parted.sh:11 parted.sh:15
+msgid "FS for partition "
+msgstr "ФС для раздела "
+
+#: cgi-bin/autoinstall.py:16 cgi-bin/autoinstall.py:16
+msgid "Install MagOS"
+msgstr "Установить MagOS"
+
+#: cgi-bin/autoinstall.py:22 cgi-bin/autoinstall.py:22
+msgid "install MagOS - OK!!!"
+msgstr "Установка завершилась успешно!!!"
+
+#: cgi-bin/autoinstall.py:23 cgi-bin/autoinstall.py:23
+msgid "Sorry, install MagOS - FAIL!!!"
+msgstr "Во время установки возникла ошибка!!!"
+
+#: cgi-bin/autoinstall.py:24 cgi-bin/autoinstall.py:24
+msgid "MagOS instalation"
+msgstr "Установка MagOS"
+
+#: cgi-bin/secondstep.py:33 cgi-bin/secondstep.py:33
+msgid "Copy MagOS dirs - OK"
+msgstr "Копирование каталогов завершилось успешно!!!"
+
+#: cgi-bin/thirdstep.py:31 cgi-bin/thirdstep.py:31
+msgid "Bootoader installed"
+msgstr "Загрузчик установлен."
+
+#: cgi-bin/thirdstep.py:32 cgi-bin/thirdstep.py:33 cgi-bin/thirdstep.py:33
+msgid "standard bootloader"
+msgstr "стандартный загрузчик"
+
+#: parted.sh:16
+msgid "Please push ENTER to continue, or close this window to abort."
+msgstr ""
+"Пожалуйста нажмите ENTER для продолжнения или закройте это окошко, чтобы "
+"выйти."
+
+#: cgi-bin/firststep.py:18 cgi-bin/firststep.py:18
+msgid "Standard fat32  flash drive for simple MagOS  installation."
+msgstr "Стандартная установка MagOS на флешку. Файловая система fat32."
+
+#: cgi-bin/firststep.py:19 cgi-bin/firststep.py:19
+msgid "For NTFS flash drive, is not recomended to install MagOS."
+msgstr "Файловая система NTFS (не рекомендуется для установки MagOS)"
+
+#: cgi-bin/secondstep.py:34 cgi-bin/secondstep.py:34
+msgid "Copy MagOS dirs - FAIL!!!"
+msgstr "Копирование каталогов завершилось с ошибкой"
+
+#: cgi-bin/thirdstep.py:32 cgi-bin/thirdstep.py:32
+msgid "Sorry, bootoader is not installed"
+msgstr "Установка загрузчика завершилась с ошибкой"
+
+#: autoinstall.sh:12 magos-install.sh:15
+msgid "Wait sync..."
+msgstr "Подождите окончания записи на диск"
+
+#: autoinstall.sh:13 magos-install.sh:16
+msgid "sync time, hours:min:sec:"
+msgstr "Время синхронизации, час:мин:сек:"
+
+#: parted.sh:17
+msgid "Not enough disk space for all partitions"
+msgstr "Не достаточно места на диске для размещения всех разделов."
+
+#: parted.sh:18
+msgid "Warning, partition for MagOS-Data is:  "
+msgstr "Внимание, размер раздела для MagOS-Data: "
+
+#: parted.sh:19
+msgid "It is not enough."
+msgstr "Этого не достаточно"
+
+#: cgi-bin/install.py:15 cgi-bin/update.py:21 cgi-bin/update.py:24
+#: cgi-bin/install.py:15 cgi-bin/update.py:21 cgi-bin/update.py:24
+msgid "Update MagOS"
+msgstr "Обновление MagOS"
+
+#: cgi-bin/update.py:19 cgi-bin/update.py:19
+msgid "Sync MagOS  - OK"
+msgstr "Синхронизировано успешно."
+
+#: cgi-bin/update.py:20 cgi-bin/update.py:20
+msgid "Sync MagOS dirs - FAIL!!!"
+msgstr "Синхронизация завершилась с ошибкой."
+
+#: cgi-bin/update.py:22 cgi-bin/update.py:22
+msgid ""
+"This tool update already installed MagOS to booting version. For example you "
+"can update MagOS in flash drives to version installed in harddrive. To "
+"update current installation from intrernet you must use netboot"
+msgstr ""
+"Эта утилита обновляет установленные на разных носителях MagOS до версии "
+"загруженной в данный момент. Например вы можете обновить MagOS на всех своих "
+"флешках одновременно до версии установленной на hdd. Обновление MagOS с "
+"интернета также возможно, для этого нужно загрузить машину в режиме "
+"\"Загрузка с интернета\"."
+
+#: cgi-bin/update.py:23 cgi-bin/update.py:23
+msgid "MagOS instalations is not found, may be disk is not mount. "
+msgstr "Не найдено установленных MagOS, возможно нужный диск не смонтирован."
+
+#: cgi-bin/update.py:25 cgi-bin/update.py:25
+msgid "Updating"
+msgstr "Обновление"
+
+#: cgi-bin/update.py:26 cgi-bin/update.py:26
+msgid "Current version"
+msgstr "Текущая версия"
+
+#: cgi-bin/update.py:27 cgi-bin/update.py:27
+msgid "MagOS version"
+msgstr "Версия MagOS"
+
+#: cgi-bin/firststep.py:29
+msgid ""
+" Preparing disks  for installation Magos. If your drive is already "
+"formatted, you can skip this step. If formatting is necessary  select the "
+"drive in the top table and the method of formating in the bottom, then click "
+"\"Format\". Be especially careful. Full information under \"Help\" button.  "
+msgstr ""
+"Подготовка диска для установки MagOS. Если ваш диск уже форматирован как "
+"нужно пропустите этот шаг. Если форматирование необходимо выберите диск в "
+"первой таблице и метод разбивки во второй. Затем нажмите \"Форматировать\". "
+"Будьте особенно осторожны, данные на выбранном диске будут уничтожены. "
+"Подробная информация под кнопкой \"Помощь\""

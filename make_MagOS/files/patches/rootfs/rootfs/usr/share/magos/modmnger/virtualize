@@ -1,0 +1,37 @@
+#!/bin/bash
+error () {
+	echo $1
+	sleep 2
+	exit $2
+	}
+
+[ -z "$1" ] && error "need one arg" 2
+[ $(id -un) != "root" ]  && error "must be root"  3 
+[ $(free -g |grep Mem |awk '{print $2}') -le 3 ] &&  error "not enough memory" 4
+
+
+if cat /proc/mounts |grep -q $1 ; then
+	echo "Trying to unmount disks..."
+	for dev in  `ls -1 ${1}* |grep [[:digit:]]` ; do
+		if cat /proc/mounts |grep -q $dev ; then	
+			echo "unmounting $dev"
+			umount $dev || error "Sorry? can not unmount $dev" 5
+		fi
+	done
+fi
+
+
+disk="$1"
+vm="$(echo VM${disk} |sed 's/\//_/g')-$$"
+file="/root/${vm}.vmdk"
+echo "disk - $disk"
+echo "VboxVM  - $vm"
+echo "file - $file"
+
+service virtualbox start 
+VBoxManage createvm --name "$vm" -register
+VBoxManage modifyvm "$vm" --memory 1024  --vram 64 --boot1 disk --acpi on --pae on --ostype linux --sata on  --nic1 nat  
+VBoxManage internalcommands createrawvmdk -filename "$file" -rawdisk "$disk"
+VBoxManage storageattach "$vm" --storagectl  "SATA" --port 0 --device 0 --type hdd --medium $file
+VBoxManage startvm "$vm"
+

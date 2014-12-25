@@ -1,0 +1,13 @@
+[Unit]
+Description=Reconfigure the system on administrator request
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=basic.target shutdown.target
+After=local-fs.target
+
+[Service]
+ExecStart=-/usr/lib/magos/harddrakestart
+Type=oneshot
+TimeoutSec=0
+StandardInput=null
+RemainAfterExit=yes

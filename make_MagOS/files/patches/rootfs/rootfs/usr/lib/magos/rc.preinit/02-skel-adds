@@ -1,0 +1,27 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+ 
+[ -d /mnt/livedata ] || exit 0
+echodebug "mnt/livedata is exist" 
+[ -w /mnt/livemedia ] && exit 0
+echodebug "mnt/livemedia is not writable"
+
+mkdir -p etc/skel/Desktop
+cp usr/share/applications/install-helper.desktop etc/skel/Desktop/ && echodebug "install-helper.desktop added  to skel "
+
+
+
+

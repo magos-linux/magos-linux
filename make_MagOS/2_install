@@ -78,7 +78,8 @@ mount -t tmpfs tmpfs rootfs/var/lib/rpm || exit 1
 
 echo "Импортирование ключей"
 for a in ../../loaded/$FLASHNAME-$VERREL/pubkeys/*.pubkey ;do
-   rpm  --root "`pwd`/rootfs" --import $a 2>/dev/null  || exit 1
+#   rpm  --root "`pwd`/rootfs" --import $a 2>/dev/null  || exit 1
+   rpm  --root "`pwd`/rootfs" --import $a  || exit 1
 done
 
 echo "Установка пакетов"
@@ -86,6 +87,7 @@ install_rpms depslist.ordered.1 --noscripts
 install_rpms depslist.ordered.2
 rm -f error.tmp
 cp -pr rootfs/var/lib/rpm rootfs/var/lib/rpm_base || exit 1
+umount rootfs/sys/fs/fuse/connections 2>/dev/null
 umount rootfs/proc rootfs/sys rootfs/var/lib/rpm || exit 1
 rm -fr rootfs/var/lib/rpm || exit 1
 mv rootfs/var/lib/rpm_base rootfs/var/lib/rpm || exit 1

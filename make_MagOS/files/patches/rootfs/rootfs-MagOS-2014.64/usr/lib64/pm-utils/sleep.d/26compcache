@@ -1,0 +1,16 @@
+#!/bin/sh
+
+. "${PM_FUNCTIONS}"
+
+case "$1" in
+	hibernate|suspend)
+		stopservice compcache
+		;;
+	thaw|resume)
+		restartservice compcache
+		;;
+	*)
+		;;
+esac
+
+exit $?
