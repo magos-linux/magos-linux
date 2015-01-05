@@ -57,9 +57,12 @@ install() {
     inst "$moddir/livekit/livekitlib" "/livekitlib"
     inst "$moddir/livekit/uird-init" "/uird-init"
 #    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
+    inst "$moddir/livekit/liblinuxlive" "/liblinuxlive"
 
-    dracut_install $(type -p rsync)
-
+     
+    inst /usr/lib/magos/scripts/httpfs /bin/httpfs
+    inst /sbin/udhcpc 
+    
 #    inst "$moddir/linuxlive/liblinuxlive" "/liblinuxlive"
 #    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
 #    dracut_install "$moddir/livelinux/locale/*"

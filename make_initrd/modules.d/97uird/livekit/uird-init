@@ -43,7 +43,7 @@ init_layer $LAYER_BASE
 #persistent_changes "$DATA" "$CHANGES"
                                                                                                                                                       debug_shell
 # copy to CACHE if needed
-#DATA_CACHE="$(copy_to_cache "$DATA" "$COPY2REP")"
+#DATA_CACHE="$(copy_to_cache "$DATA" "$COPY2CACHE")"
                                                                                                                                                       debug_shell
 # copy to RAM if needed
 #DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
@@ -71,8 +71,12 @@ done
 
 echolog "recreating /etc/fstab and /mnt directories"
 touch $UNION/etc/fstab
-rmdir $UNION/mnt/* 2>/dev/null
+#rmdir $UNION/mnt/* 2>/dev/null
 fstab_update $UNION
+
+mkdir -p $UNION/mnt/live
+cp liblinuxlive $UNION/mnt/live/liblinuxlive
+
 cd $UNION
 [ -x "etc/rc.d/rc.preinit" ] && /bin/bash etc/rc.d/rc.preinit
 
@@ -81,7 +85,7 @@ cd $UNION
 mkdir -p $UNION/proc $UNION/sys $UNION/dev $UNION/$MEMORY
 
 #need TODO
-mount -o bind $MEMORY $UNION/$MEMORY
+mount --move $MEMORY $UNION/$MEMORY
 
 header "UIRD init done, starting $LIVEKITNAME"
 

@@ -209,7 +209,7 @@ init_union()
    debug_log "init_union" "$*"
 
    echo_green_star
-   echo "Setting up union using AUFS 3"
+   echo "Setting up union using AUFS"
    mkdir -p "$1"
    mkdir -p "$2"
 #   mount -t aufs -o xino="/tmp/.xino",trunc_xino,br="$1" aufs "$2"
@@ -999,20 +999,25 @@ init_ifcfg()
 {
    debug_log "init_ifcfg" "$*"
    local CLIENT GW MASK ETH
-   cmdline_value uird.ip | while IFS=":" read CLIENT GW MASK; do
+   
+   IP=$(cmdline_value uird.ip)
+   [ "$IP" = "" ] && IP=::
+    
+   echo $IP | while IFS=":" read CLIENT GW MASK; do
       ETH=$(init_network_dev)
 
       # set IP address as given by boot parameter
       if [ "$CLIENT" != "" -a "$MASK" != "" ]; then
          ifconfig $ETH "$CLIENT" netmask "$MASK"
          route add default gw "$GW"
+      # well known IP address of Google public DNS service
+    	 echo nameserver 8.8.8.8 >> /etc/resolv.conf
       else
          # if client ip is unknown, try to get a DHCP lease
+	 ifconfig $ETH up
          udhcpc -i $ETH -f -q
       fi
 
-      # well known IP address of Google public DNS service
-      echo nameserver 8.8.8.8 >> /etc/resolv.conf
       done
 }
 
