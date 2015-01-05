@@ -1,7 +1,7 @@
 #!/bin/bash
 chroot ./ /usr/sbin/alternatives --quiet --set gl_conf /etc/ld.so.conf.d/GL/standard.conf
 chroot ./ /sbin/ldconfig
-for a in fglrx ati nvidia173 nvidia96xx nvidia-current standard ;do
+for a in fglrx ati nvidia340 nvidia304 nvidia173 nvidia96xx nvidia-current standard ;do
   chroot ./ /usr/sbin/alternatives --quiet --set gl_conf /etc/ld.so.conf.d/GL/standard.conf
   LINK=$(chroot ./ /usr/sbin/alternatives --list gl_conf | grep -m1 $a)
   [ -z "$LINK" ] && continue

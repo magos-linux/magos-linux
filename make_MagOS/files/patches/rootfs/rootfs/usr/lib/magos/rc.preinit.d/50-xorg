@@ -49,19 +49,29 @@ if [ -z "$XDRIVER" ] ;then
          XDRIVER=nvidia-current
       ;;
   esac
-  # testing nvidia-current nvidia173 nvidia96xx modules
+  # testing nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx modules
   if [ "$XDRIVER" = "nvidia-current" ] ;then
      chroot . modprobe nvidia-current
      if ! lsmod | grep -q nvidia ;then
-        chroot . modprobe nvidia173
+        chroot . modprobe nvidia340
         if lsmod | grep -q nvidia ;then
-           XDRIVER=nvidia173
+           XDRIVER=nvidia340
         else
-           chroot . modprobe nvidia96xx
+           chroot . modprobe nvidia304
            if lsmod | grep -q nvidia ;then
-              XDRIVER=nvidia
+              XDRIVER=nvidia304
            else
-              XDRIVER=
+              chroot . modprobe nvidia173
+              if lsmod | grep -q nvidia ;then
+                 XDRIVER=nvidia173
+              else
+                 chroot . modprobe nvidia96xx
+                 if lsmod | grep -q nvidia ;then
+                    XDRIVER=nvidia
+                 else
+                    XDRIVER=
+                 fi
+              fi
            fi
         fi
      fi
@@ -99,6 +109,12 @@ if [ ! -f /memory/changes/etc/ld.so.cache ] ;then
      ;;
      nvidia)
        LINK=/etc/nvidia96xx/ld.so.conf
+     ;;
+     nvidia340)
+       LINK=/etc/nvidia340/ld.so.conf
+     ;;
+     nvidia304)
+       LINK=/etc/nvidia304/ld.so.conf
      ;;
      nvidia173)
        LINK=/etc/nvidia173/ld.so.conf

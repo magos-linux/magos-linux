@@ -14,7 +14,7 @@ chroot . glib-compile-schemas /usr/share/glib-2.0/schemas
 #   sed -i s=gnome-session='gnome-session $SESSION_ARGS'= $PFP
 #fi
 
-chroot . chksession -K
-chroot . chksession -g
+#chroot . chksession -K
+#chroot . chksession -g
 #rm -f etc/X11/dm/Sessions/02GNOME.desktop usr/share/apps/kdm/sessions/02GNOME.desktop 2>/dev/null
 

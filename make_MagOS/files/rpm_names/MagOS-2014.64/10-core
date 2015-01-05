@@ -295,7 +295,6 @@ lockdev-
 logrotate-
 lsb-release-
 lsof-
-lvm2-
 lzmacmd-
 magos-tools-
 mailcap-
@@ -454,3 +453,5 @@ zip-
 libnatspec-
 libstdc++6-
 libgcc1-
+attr-
+aufs-tools-

@@ -14,14 +14,16 @@ DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
 debug_mode "$0" "$@"
  
-[ -d /mnt/livedata ] || exit 0
-echodebug "mnt/livedata is exist" 
-[ -w /mnt/livemedia ] && exit 0
-echodebug "mnt/livemedia is not writable"
+if [ -d /mnt/livedata -a ! -w /mnt/livemedia ] ;then
+   mkdir -p etc/skel/Desktop
+   cp usr/share/applications/install-helper.desktop etc/skel/Desktop/ && echodebug "install-helper.desktop added  to skel "
+fi
 
-mkdir -p etc/skel/Desktop
-cp usr/share/applications/install-helper.desktop etc/skel/Desktop/ && echodebug "install-helper.desktop added  to skel "
-
-
-
-
+if [ -f etc/sysconfig/steam ] ;then
+  . etc/sysconfig/steam
+  if [ "$SHARELIB" = "yes" ] ;then
+     mkdir -p etc/skel/.local/share/Steam
+     [ -z "$STEAMCONF" ] || ln -sf "$STEAMCONF" etc/skel/.steam
+     [ -z "$STEAMAPP" ] || ln -sf "$STEAMAPP" etc/skel/.local/share/Steam
+  fi
+fi

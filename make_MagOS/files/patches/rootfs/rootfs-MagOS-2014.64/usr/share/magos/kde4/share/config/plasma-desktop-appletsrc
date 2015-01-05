@@ -113,7 +113,7 @@ plugin=rosaicon
 zvalue=0
 
 [Containments][2][Applets][7][Configuration]
-Url=file:///usr/share/applications/kde4/krusader.desktop
+Url=file:///usr/share/applications/doublecmd.desktop
 
 [Containments][2][Applets][7][LayoutInformation]
 Order=6
