@@ -5,7 +5,7 @@
 # Authors:	Mikhail Zaripov <m3for@mail.ru>
 #
 
-ENABLED=yes
+ENABLED=no
 [ "$ENABLED" != "yes" ] && exit 0
 
 SYSTEMCTL_NO_BLOCK=1 /usr/share/harddrake/service_harddrake 2>/dev/null

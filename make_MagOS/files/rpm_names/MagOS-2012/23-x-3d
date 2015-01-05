@@ -1,17 +1,3 @@
-bbswitch-kernel-3.10.61-nrj-desktop-pae-1rosa-
-bbswitch-kernel-nrj-desktop-pae-latest-
-fglrx-kernel-3.10.61-nrj-desktop-pae-1rosa-
-nvidia173-kernel-3.10.61-nrj-desktop-pae-1rosa-
-nvidia96xx-kernel-3.10.61-nrj-desktop-pae-1rosa-
-nvidia-current-kernel-3.10.61-nrj-desktop-pae-1rosa-
-fglrx-kernel-nrj-desktop-pae-latest-
-nvidia173-kernel-nrj-desktop-pae-latest-
-nvidia96xx-kernel-nrj-desktop-pae-latest-
-nvidia-current-kernel-nrj-desktop-pae-latest-
-x11-driver-video-fglrx-
-x11-driver-video-nvidia173-
-x11-driver-video-nvidia96xx-
-x11-driver-video-nvidia-current-
 ccsm0.8-
 compiz0.8-
 compiz0.8-decorator-gtk-

@@ -62,6 +62,12 @@ Plugin {
             id=mandriva-mozilla-thunderbird.desktop
         }
         Button {
+            id=lxterminal.desktop
+        }
+        Button {
+            id=doublecmd.desktop
+        }
+        Button {
             id=lxde-ctrl-center.desktop
         }
     }

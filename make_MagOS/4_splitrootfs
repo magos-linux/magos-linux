@@ -100,11 +100,12 @@ for MODULE in ??-* ;do
 done
 cd ../
 echo "Правка файлов"
-movefiles ost_list modules_filelist/*-x-3d '/nvidia173.ko'
-movefiles ost_list modules_filelist/*-x-3d '/nvidia96xx.ko'
-movefiles ost_list modules_filelist/*-x-3d '/nvidia96xx.ko'
-movefiles ost_list modules_filelist/*-x-3d '/nvidia-current.ko'
-movefiles ost_list modules_filelist/*-x-3d '/fglrx.ko'
+movefiles ost_list modules_filelist/*-nvidia-current '/nvidia-current.ko'
+movefiles ost_list modules_filelist/*-nvidia340 '/nvidia340.ko'
+movefiles ost_list modules_filelist/*-nvidia304 '/nvidia304.ko'
+movefiles ost_list modules_filelist/*-nvidia173 '/nvidia173.ko'
+movefiles ost_list modules_filelist/*-nvidia96xx '/nvidia96xx.ko'
+movefiles ost_list modules_filelist/*-fglrx '/fglrx.ko'
 movefiles ost_list modules_filelist/*-kernel '^lib/modules/'
 movefiles ost_list modules_filelist/*-kernel 'var/lib/dkms-binary'
 movefiles ost_list modules_filelist/*-kernel 'boot/initrd'

@@ -6,4 +6,4 @@ http://mirror.rosalinux.com/rosa/rosa2014.1/repository/i586/non-free/release non
 http://mirror.rosalinux.com/rosa/rosa2014.1/repository/i586/non-free/updates nonfree-updates f53e9db116a853e7 update
 http://mirror.rosalinux.com/rosa/rosa2014.1/repository/i586/restricted/release restricted-release f53e9db116a853e7
 http://mirror.rosalinux.com/rosa/rosa2014.1/repository/i586/restricted/updates restricted-updates f53e9db116a853e7 update
-http://magos.sibsau.ru/repository/rpms/2014 magos 0 skip
+http://magos.sibsau.ru/repository/rpms/2014 magos c4ddfc5e skip

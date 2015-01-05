@@ -1,5 +1,6 @@
 #!/bin/bash
 rm -fr usr/share/mdk/screensaver usr/share/mdk/backgrounds usr/share/backgrounds/gnome 2>/dev/null
+mkdir -p usr/share/backgrounds
 ln -sf /usr/share/magos/screensaver/Default usr/share/mdk/screensaver
 ln -sf /usr/share/magos/wallpapers          usr/share/mdk/backgrounds
 ln -sf /usr/share/magos/wallpapers/Default  usr/share/backgrounds/gnome
