@@ -37,22 +37,30 @@ init_aufs
 # find data dir with filesystem bundles
 #DATA="$(find_data 60 "$DATAMNT")"
 
-init_layer $LAYER_BASE
+#init BASE layer
+init_layer $LAYER_BASE uird.from
                                                                                                                                                       debug_shell
 # setup persistent changes, if possible
 #persistent_changes "$DATA" "$CHANGES"
-                                                                                                                                                      debug_shell
-# copy to CACHE if needed
-#DATA_CACHE="$(copy_to_cache "$DATA" "$COPY2CACHE")"
+
+# init CACHE layer
+init_layer $CACHE uird.cache
+																	              debug_shell
                                                                                                                                                       debug_shell
 # copy to RAM if needed
-#DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
+DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
                                                                                                                                                       debug_shell
 # init aufs union
 init_union "$CHANGES" "$UNION"
                                                                                                                                                       debug_shell
-# add data to union
+# add data from BASE layer to union
 for d_dirs in "$LAYER_BASE" ;do
+    # copy to CACHE if needed
+    DATA_CACHE="$(copy_to_cache $d_dirs "$CACHE")"
+done
+
+# add data to union
+for d_dirs in "$LAYER_BASE" "$DATA_CACHE";do
     union_append_bundles $d_dirs "$BUNDLES" "$UNION"
 done
                                                                                                                                                       debug_shell
