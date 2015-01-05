@@ -76,7 +76,7 @@
 
 ### Реализация
 
-В основе реализации лежит набор скриптов инициализации dracut (модули base , busybox) и скрипты uird (livekitlib+uird-init).
+В основе реализации лежит набор скриптов инициализации dracut (модули base , busybox, network) и скрипты uird (livekitlib+uird-init).
 
     cmdline-hook: parse-root-uird.sh (проверяет параметр root=uird:)
     mount-hook: mount-uird.sh (выполняет скрипт uird-init)
