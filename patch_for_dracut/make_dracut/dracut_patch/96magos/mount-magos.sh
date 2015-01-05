@@ -5,14 +5,13 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 mount_root() {
-    . /linuxrc
+#    . /linuxrc
     
-    return 
+#    return 
     modprobe aufs
     modprobe squashfs
 
     mkdir -p /mnt/livemedia 
-    mkdir -p /mnt/live/changes
     mkdir -p /mnt/live/00 /mnt/live/01 /mnt/live/10 /mnt/live/41
     
     mount $base_from /mnt/livemedia
@@ -21,8 +20,11 @@ mount_root() {
     mount /mnt/livemedia/MagOS/base/01-firmware.xzm /mnt/live/01
     mount /mnt/livemedia/MagOS/base/10-core.xzm /mnt/live/10
     mount /mnt/livemedia/MagOS/base/41-1-utilities.xzm /mnt/live/41
-    
-    mount -t aufs -o br=/mnt/live/changes=rw:/mnt/live/41=rr:/mnt/live/10=rr:/mnt/live/01=rr:/mnt/live/00=rr aufs $NEWROOT
+    mkdir -p $NEWROOT/union
+#    NEWROOT=$NEWROOT/union
+    mount -t tmpfs -o size="100%" tmpfs $NEWROOT/union
+    mkdir -p $NEWROOT/union/mnt/live/changes
+    mount -t aufs -o br=$NEWROOT/union/mnt/live/changes=rw:/mnt/live/41=rr:/mnt/live/10=rr:/mnt/live/01=rr:/mnt/live/00=rr aufs $NEWROOT
     mkdir -p $NEWROOT/proc $NEWROOT/sys $NEWROOT/dev
     #. linuxrc
 

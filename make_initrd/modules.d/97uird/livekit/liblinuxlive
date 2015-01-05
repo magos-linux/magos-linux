@@ -15,7 +15,7 @@
 FSTABLLFLAG="# AutoUpdate"
 
 # We have to set these variables very carefully
-UNION=sysroot
+UNION=union
 MEMORY=memory
 MOUNTDIR=mnt
 CHANGES=$MEMORY/changes
@@ -50,37 +50,6 @@ debug_log()
       log "- debug: $*"
    fi
 }
-# show information about the debug shell
-show_debug_banner()
-{
-   echo
-   echo "====="
-   echo ": Debugging started. Here is the root shell for you."
-   echo ": Type your desired commands or hit Ctrl+D to continue booting."
-   echo
-}
-
-# debug_shell
-# executed when debug boot parameter is present
-#
-debug_shell()
-{
-   if [ "$DEBUG_IS_ENABLED" ]; then
-      show_debug_banner
-      setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
-      echo
-   fi
-}
-
-fatal()
-{
-   echolog
-   header "Fatal error occured - $1"
-   echolog "Something went wrong and we can't continue. This should never happen."
-   echolog "Please reboot your computer with Ctrl+Alt+Delete ..."
-   echolog
-   setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
-
 
 # echogreen will echo $@ in green color
 # $1 = text
@@ -109,6 +78,27 @@ log()
    echo "$@" 2>/dev/null >>/var/log/livedbg
 }
 
+# show information about the debug shell
+show_debug_banner()
+{
+   echo
+   echo "====="
+   echo ": Debugging started. Here is the root shell for you."
+   echo ": Type your desired commands or hit Ctrl+D to continue booting."
+   echo
+}
+
+# debug_shell
+# executed when debug boot parameter is present
+#
+debug_shell()
+{
+   if [ "$DEBUG_IS_ENABLED" ]; then
+      show_debug_banner
+      ash < /dev/console
+      echo
+   fi
+}
 
 # header
 # $1 = text to show
@@ -118,6 +108,15 @@ header()
    echo "[0;1m""$@""[0;0m"
 }
 
+fatal()
+{
+   echolog
+   header "Fatal error occured - $1"
+   echolog "Something went wrong and we can't continue. This should never happen."
+   echolog "Please reboot your computer with Ctrl+Alt+Delete ..."
+   echolog
+   ash < /dev/console
+}
 
 allow_only_root()
 {
@@ -126,6 +125,39 @@ allow_only_root()
      echo "Only root can run $(basename $0)"; exit 1
   fi
 }
+#============================================================
+# MagOS debug functions
+#============================================================
+debug_mode() {
+if [ "$DEBUG_IS_ENABLED"  -o "$DEBUGMODE" == "yes" ] ; then
+name=$(basename $0)
+slash="/"
+[ "$(pwd)" == "/union" ] && slash=""
+if ! test -f  ${slash}var/log/magos/${name}.log ; then
+  echo "$0 --  debug mode enabled"
+  test -d ${slash}var/log/magos || mkdir -p ${slash}var/log/magos
+  echo $(date) >   ${slash}var/log/magos/${name}.log || echo "can not create log file"
+  $0 "$@" 2>&1 | tee -a ${slash}var/log/magos/${name}.log 
+  exit 0
+fi
+fi
+}
+
+echodebug() {
+[ "$DEBUG_IS_ENABLED"  -o "$DEBUGMODE" == "yes" ] && echo "$1"
+if [ -n "$2" ] ;then 
+  command=$2
+  shift
+  shift
+  if [ -z $1 ] ;then
+    $command 
+  else
+    $command "$@"
+  fi
+fi
+}
+
+
 
 # ===========================================================
 # text processing functions
@@ -364,7 +396,7 @@ device_filesystem()
    local NTFS
 
    if [ -e /bin/ntfsmount ]; then NTFS="ntfs-3g"; else NTFS="ntfs"; fi
-   blkid.large -s TYPE "$1" -o value | sed "s/msdos/vfat/" | sed "s/ntfs/$NTFS/"
+   blkid -s TYPE "$1" -o value | sed "s/msdos/vfat/" | sed "s/ntfs/$NTFS/"
 }
 
 # tell us if the given filesystem is supported
@@ -417,10 +449,10 @@ mount_device()
    if [ "$2" = "" ]; then return 1; fi
    if [ "$1" = "" ]; then rmdir "$2" 2>/dev/null; return 1; fi
    # skipping MBR
-   echo $(basename $1) | grep -q [a-z]$ && grep -q $(basename $1)[0-9] /proc/partitions  && return 1
+   echo $(basename "$1") | grep -q [a-z]$ && grep -q "$(basename "$1")"[0-9] /proc/partitions  && return 1
 
    mkdir -p "$2"
-   
+
    DEV="$1"
    if [ "$4" != "" ]; then FS="$4"; else FS=$(device_filesystem "$1"); fi
    if [ "$FS" ]; then OPTIONS=$(fs_options $FS mount); FS="-t $FS"; fi
@@ -436,7 +468,7 @@ mount_device()
       ERR=$?
    else
       [ $(cmdline_parameter fsck) ] && fsck_device "$DEV" $(echo $FS| sed "s/-t //" )
-      mount  -o $OPTIONS $FS "$DEV" "$2" >/dev/null 2>&1
+      mount -n -o $OPTIONS $FS "$DEV" "$2" >/dev/null 2>&1
       ERR=$?
    fi
 
@@ -447,12 +479,12 @@ mount_device()
        echolog "Mounting encrypted filesystem $DEV" >/dev/console 2>/dev/console
        times=3
        while [ $times -gt 0 ]; do
-          /usr/bin/losetup.real -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
+          /usr/bin/losetup.crypto -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
           [ $(cmdline_parameter fsck) ] && fsck_device "$LOOPDEV"
           mount -n -o $OPTIONS "$LOOPDEV" "$2" >/dev/null 2>&1
           ERR=$?
           [ $ERR -eq 0 ] && break
-          /usr/bin/losetup.real -d "$LOOPDEV"
+          /usr/bin/losetup.crypto -d "$LOOPDEV"
           times=$(expr $times - 1)
        done
    fi
@@ -565,9 +597,9 @@ union_insert_dir()
 {
    debug_log "union_insert_dir" "$*"
    if [ $(cmdline_parameter unionfs) ]; then
-	mount -n -o remount,add=:$2=$3 unionfs $1
-    else
-	mount -n -o remount,add:1:$2=$3 aufs $1
+	mount -n -o remount,add=:"$2"="$3" unionfs "$1"
+   else
+	mount -n -o remount,add:1:"$2"="$3" aufs "$1"
    fi
 }
 
@@ -617,9 +649,9 @@ union_insert_module()
    debug_log "union_insert_module" "$*"
    local TARGET MODPREF mod fs
 
-   TARGET="$3/$(basename $2)"
-   if ismountpoint $TARGET; then return 1; fi # skip already used modules
-   mkdir -p $TARGET
+   TARGET="$3/$(basename "$2")"
+   if ismountpoint "$TARGET"; then return 1; fi # skip already used modules
+   mkdir -p "$TARGET"
    MODPREF="$2"
    MODNAME="$(echo "$2" | cut -b $(($4+1))- )"
    [ -f "/$COPY2REP/$MODNAME" ] && MODPREF="/$COPY2REP/$MODNAME"
@@ -630,11 +662,11 @@ union_insert_module()
 	    else mod=ro ; fs=squashfs; 
     fi
    
-   mount_module $MODPREF $TARGET $mod $fs
+   mount_module "$MODPREF" "$TARGET" $mod $fs
    #Second attempt to avoid bug when activating module
-   if [ $? -ne 0 ]; then mount_module $MODPREF $TARGET $mod $fs ;fi
+   if [ $? -ne 0 ]; then mount_module "$MODPREF" "$TARGET" $mod $fs ;fi
    if [ $? -ne 0 ]; then echo "Cannot read module data. corrupted download?" >&2; return 1; fi
-   union_insert_dir $1 $TARGET $mod
+   union_insert_dir "$1" "$TARGET" $mod
    if [ $? -ne 0 ]; then echo "can't insert module to union" >&2; return 2; fi
    echo "$2" | cut -b $(($4+1))-
    echolog "$2" >/dev/null
@@ -665,9 +697,9 @@ union_insert_modules()
 # $4 = cmdline param
 copy_to()
 {
-   debug_log "copy_to" "$*"
    local C2PARAM MODNAME
    C2PARAM="$(echo $4 | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')"
+   debug_log "copy_to_ram" "$*"
    list_modules "$1" | while read MODULE; do
       MODNAME=$(echo $MODULE | cut -b ${#1}- | cut -b 2-)
       [ "$C2PARAM" ] && ! [ "$(echo $MODNAME | egrep -i $C2PARAM )" ] && continue
@@ -724,7 +756,7 @@ list_network_drivers()
    r8169 8139too 8139cp via-rhine forcedeth \
    e2100 eepro eexpress pcnet32  \
    3c501 3c503 3c505 3c507 3c509 3c515 tg3 jme \
-   virtio_net atl1 atl2 igb | tr " " "\n"
+   virtio_net atl1 atl1c atl2 igb alx | tr " " "\n"
 }
 
 # List all CD-ROMs
@@ -779,7 +811,7 @@ list_swap_devices()
 {
    debug_log "list_swap_devices" "$*"
    if [ "$(cmdline_parameter nohd)" != "" -o "$(cmdline_parameter noswap)" != "" ]; then return 1; fi
-   blkid.large -t TYPE="swap" -o device
+   blkid -t TYPE="swap" -o device
 }
 
 # List all block devices
@@ -951,14 +983,14 @@ find_n_run_scripts()
    RUNLEVEL=$(runlevel | awk '{print $2}')
    [ -z "$RUNLEVEL" ] || RCPATH=/etc/rc.d/rc$RUNLEVEL.d
    RUNSCRIPTS="$MOD$RCPATH|$MOD/usr/lib/magos/rc.local|$MOD/usr/lib/magos/rc.post"
-   echo $@ | grep -q start || RUNSCRIPTS=$MOD$RCPATH
+   echo $@ | grep -q start || RUNSCRIPTS="$MOD$RCPATH"
 
-   find $MOD | egrep $RUNSCRIPTS | cut -b ${#MOD}- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
+   find "$MOD" | egrep "$RUNSCRIPTS" | cut -b "${#MOD}"- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
        while read SCRIPT; do
          if [ "$SCRIPT" != "" -a -x "$SCRIPT" -a ! -d "$SCRIPT" ]; then
             # call the script by real path, not from the module
-            log "starting '$SCRIPT $@'"
-            ${SCRIPT} "$@"
+            log "starting '"$SCRIPT" $@'"
+            "${SCRIPT}" "$@"
          fi
        done
 }
@@ -1026,12 +1058,23 @@ modprobe_usb_modules()
 {
    debug_log "modprobe_hardware_modules" "$*"
    depmod
+   local ATAMODULES HWMODULES MANMODULES BLMODULES
+   MANMODULES="$(cmdline_value rdloaddriver | tr ',;' ' ')"
+   BLMODULES="$(cmdline_value blacklist | tr ',;' ' ')"
+   ALLATAMODS=$(ls -1 /lib/modules/*/kernel/drivers/ata|sed "s|\.ko.*$||")
+   for a in `lspci -v | grep -i modules | tr , \\\\n | sort -u | sed s/.*modules.//` ;do
+       if echo " $ALLATAMODS " | grep -q " $a " ;then
+          ATAMODULES="$ATAMODULES $a"
+       else
+          HWMODULES="$HWMODULES $a"
+       fi
+   done
+   echo "$HWMODULES" | grep -q [ou]hci-hcd || HWMODULES="$HWMODULES ohci-hcd uhci-hcd"
    local MODULES="ahci sd_mod sr_mod \
-                  `lspci -v | grep -i modules | tr -d , | sort -u | sed s/.*modules.//` \
-                  `lspci -v | grep -q [ou]hci-hcd || echo ohci-hcd uhci-hcd` ehci-hcd ehci-pci ehci-platform xhci-hcd \
-                  hid usbhid hid-generic usb-storage ide_cd"
-   for a in $MODULES ;do 
-      modprobe_module $a
+                  $MANMODULES $ATAMODULES $HWMODULES \
+                  ehci-hcd ehci-pci ehci-platform xhci-hcd hid usbhid hid-generic usb-storage ide_cd"
+   for a in $MODULES ;do
+       echo " $BLMODULES " | grep -q " $a " || modprobe_module $a
    done
 }
 
