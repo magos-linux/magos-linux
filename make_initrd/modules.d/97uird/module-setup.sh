@@ -68,7 +68,8 @@ install() {
     inst "$moddir/livekit/uird-init" "/uird-init"
 #    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
     inst "$moddir/livekit/liblinuxlive" "/liblinuxlive"
-
+    
+    inst "$moddir/livekit/basecfg.ini" "/basecfg.ini"
      
     inst /usr/lib/magos/scripts/httpfs /bin/httpfs
 #    inst /sbin/udhcpc 
