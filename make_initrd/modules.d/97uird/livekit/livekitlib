@@ -48,7 +48,7 @@ log()
 
 echolog()
 {
-   echo "$@"
+   echo "$@" >&2
    log "$@"
 }
 
@@ -69,6 +69,14 @@ debug_shell()
 {
    if [ "$DEBUG_IS_ENABLED" ]; then
       show_debug_banner
+      setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
+      echo
+   fi
+}
+shell_cmd()
+{
+   if [ "$(cmdline_parameter qs)" != "" ]; then 
+      echo "============== SHELL MODE ============="
       setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
       echo
    fi
@@ -752,30 +760,34 @@ find_data()
 }
 
 # Setup layer
-# $1 = layer directory
-# $2 = cmdline param name
+# $1 = data directory
+# $2 = layer directory
+# $3 = cmdline param name
 init_layer()
 {
     debug_log "init_layer" "$*"
     local NUM_SUBL OIFS
     NUM_SUBL=0
-    FROM=$(cmdline_value $2)
+    CMD_PARAM=$3
+    FROM=$(cmdline_value $CMD_PARAM)
     #LOAD=$(cmdline_value load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
     ARR_FROM=$(echo $FROM | tr -s ";," " ")
     for DATAFROM in $ARR_FROM; do
         if [ "$DATAFROM" ]; then
-            DATA=$1/$NUM_SUBL
+            DATA=$2/$NUM_SUBL
+            DATAMNTM=$1/$NUM_SUBL
             if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
                 init_ifcfg
-                echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $DATA)
-                echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $DATA)
-                echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $DATA)
-                echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $DATA)
+                echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $DATAMNTM)
+                echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $DATAMNTM)
+                echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $DATAMNTM)
+                echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $DATAMNTM)
             else
-                DATAFROM=$(find_data $DATAFROM $DATA)
+                DATAFROM=$(find_data $DATAFROM $DATAMNTM)
                 [ -b "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount block device
             fi
-            [ -d "$DATAFROM" ] && DATA="$DATAFROM" 
+#            [ -d "$DATAFROM" ] && DATA="$DATAFROM" 
+            [ -d "$DATAFROM" ] && mount_device $DATAFROM $DATA 
             [ -f "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount again, it may be loop device
             #   [ -d "$DATA/$LIVEKITNAME" ] && DATA="$DATA/$LIVEKITNAME"
             #   [ -f "$DATA/$SGN" ] || DATA=""
@@ -999,6 +1011,8 @@ init_ifcfg()
 {
    debug_log "init_ifcfg" "$*"
    local CLIENT GW MASK ETH
+   
+   modprobe af_packet 2>/dev/null
    
    IP=$(cmdline_value uird.ip)
    [ "$IP" = "" ] && IP=::
@@ -1351,7 +1365,8 @@ copy_to()
 copy_to_ram()
 {
     if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter uird.copy2ram)$(cmdline_value uird.copy2ram)" != "" ]; then
-        echolog "copying data to RAM, this may take some time..."
+        echo_green_star
+        echo "copying data to RAM, this may take some time..."
         [ "$2" = "" ] && return
         debug_log "copy_to_ram" "$*"
         copy_to $1 $2 RAM "$(cmdline_value uird.copy2ram)$(cmdline_value toram)"
@@ -1366,8 +1381,9 @@ copy_to_cache()
 {
     if [ "$(cmdline_parameter uird.copy2cache)$(cmdline_value uird.copy2cache)" != "" ]; then
         [ "$2" = "" ] && return
-        echolog "copying data to CACHE, this may take some time..."
-        debug_log "copy_to_rep" "$*"
+        echo_green_star
+        echo "copying data to CACHE, this may take some time..."
+        debug_log "copy_to_cache" "$*"
         copy_to $1 $2 CACHE "$(cmdline_value uird.copy2cache)"
     fi
 }

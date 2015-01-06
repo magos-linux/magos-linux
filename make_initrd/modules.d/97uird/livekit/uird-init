@@ -12,14 +12,16 @@
 UNION=$NEWROOT
 
 MEMORY=/memory
-CHANGES=$MEMORY/changes
-CACHE=$MEMORY/cache
-DATAMNT=$MEMORY/data
 BUNDLES=$MEMORY/bundles
+CHANGES=$MEMORY/changes
+DATAMNT=$MEMORY/data
 COPY2RAM=$MEMORY/copy2ram
 COPY2CACHE=$MEMORY/copy2cache
+
+LAYER_BASE=$MEMORY/layer-base
+LAYER_CACHE=$MEMORY/layer-cache
+
 MOUNTDIR=$DATAMNT
-LAYER_BASE=$DATAMNT/layer-base
 
 LIVEKITNAME="MagOS"
 
@@ -28,39 +30,48 @@ echo "0" >/proc/sys/kernel/printk
 header "Starting UIRD init <http://magos-linux.ru/>"
 
 mkdir -p $MEMORY
+mkdir -p $MOUNTDIR
+
 mount -t tmpfs -o size="100%" tmpfs $MEMORY
 
 debug_start
                                                                                                                                                       debug_shell
-init_aufs
 
 # find data dir with filesystem bundles
 #DATA="$(find_data 60 "$DATAMNT")"
 
 #init BASE layer
-init_layer $LAYER_BASE uird.from
+init_layer $DATAMNT/from $LAYER_BASE uird.from
+                                                                                                                                                      debug_shell
+# init CACHE layer
+init_layer $DATAMNT/cache $LAYER_CACHE uird.cache
+																	              debug_shell
+# copy to RAM if needed
+#DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
+#                                                                                                                                                      debug_shell
+
+# sync data from BASE layer to CACHE layer
+for d_dirs in "$LAYER_BASE" ;do
+    # copy to CACHE if needed
+    DATA_CACHE="$(copy_to_cache $d_dirs "$LAYER_CACHE")"
+done
                                                                                                                                                       debug_shell
 # setup persistent changes, if possible
 #persistent_changes "$DATA" "$CHANGES"
+#                                                                                                                                                      debug_shell
 
-# init CACHE layer
-init_layer $CACHE uird.cache
-																	              debug_shell
-                                                                                                                                                      debug_shell
-# copy to RAM if needed
-DATA_RAM="$(copy_to_ram "$DATA" "$COPY2RAM")"
-                                                                                                                                                      debug_shell
+# init aufs filesystem
+init_aufs
+
 # init aufs union
 init_union "$CHANGES" "$UNION"
                                                                                                                                                       debug_shell
-# add data from BASE layer to union
-for d_dirs in "$LAYER_BASE" ;do
-    # copy to CACHE if needed
-    DATA_CACHE="$(copy_to_cache $d_dirs "$CACHE")"
-done
 
 # add data to union
-for d_dirs in "$LAYER_BASE" "$DATA_CACHE";do
+for d_dirs in "$LAYER_BASE" ;do
+    union_append_bundles $d_dirs "$BUNDLES" "$UNION"
+done
+for d_dirs in "$LAYER_CACHE";do
     union_append_bundles $d_dirs "$BUNDLES" "$UNION"
 done
                                                                                                                                                       debug_shell
@@ -70,14 +81,13 @@ done
 
 # create empty fstab
 #fstab_create "$UNION"
-                                                                                                                                                      debug_shell
 #header "Live Kit done, starting $LIVEKITNAME"
 #change_root "$UNION"
 
 #header "!!ERROR occured, you shouldn't be here.!!"
 #/bin/sh
 
-echolog "recreating /etc/fstab and /mnt directories"
+echo "recreating /etc/fstab and /mnt directories"
 touch $UNION/etc/fstab
 #rmdir $UNION/mnt/* 2>/dev/null
 fstab_update $UNION
@@ -97,3 +107,4 @@ mount --move $MEMORY $UNION/$MEMORY
 
 header "UIRD init done, starting $LIVEKITNAME"
 
+shell_cmd

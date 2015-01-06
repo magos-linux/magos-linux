@@ -26,6 +26,5 @@ install() {
     dracut_install "$(type -p httpfs)"
     dracut_install "$(type -p sshfs)"
     dracut_install "$(type -p curlftpfs)"
-    
 }
 
