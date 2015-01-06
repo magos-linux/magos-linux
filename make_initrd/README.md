@@ -28,9 +28,11 @@
     uird.machines=
     uird.home=
 
-Вводится уровень кеша и соответствующий параметр uird.cache=. Служит для синхронизации удаленных репозиториев в локальные или частные (INTRANET) репозитории.
+Вводится уровень кеша layer-cache и соответствующий параметр uird.cache=. Служит для синхронизации удаленных репозиториев в локальные или частные (INTRANET) репозитории.
 
-Вводится 1 базовый уровень и параметр uird.from=:
+    uird.cache=path/cache
+
+Вводится базовый уровень layer-base и параметр uird.from=:
 
     uird.from=path/base;base.iso;http://path2/base;path/modules;http://path/modules/user1
 
