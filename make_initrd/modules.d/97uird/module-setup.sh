@@ -12,6 +12,16 @@ depends() {
 }
 
 installkernel() {
+    #install network modules
+    instmods af_packet 3c59x acenic de4x5 e1000 e1000e e100 epic100 hp100 \
+	    ne2k-pci pcnet32 8139too 8139cp tulip via-rhine r8169 atl1e yellowfin \
+	    tg3 dl2k ns83820 atl1 b44 bnx2 skge sky2 tulip depca 3c501 3c503 \
+	    3c505 3c507 3c509 3c515 ac3200 at1700 cosa cs89x0 de600 de620 e2100 \
+	    eepro eexpress eth16i ewrk3 forcedeth hostess_sv11 hp-plus hp ni52 \
+	    ni65 sb1000 sealevel smc-ultra sis900 smc9194 wd
+    
+    instmods nls_cp866 nls_utf8 nfs nfs_acl jbd jbd2 lockd
+
     return 0
 #    instmods aes-i586 aes_generic cbc loop cryptoloop zlib_deflate crc-t10dif crc16 \
 #             dca hid usbhid libphy mii virtio_net pcmcia pcmcia_core yenta_socket \
@@ -58,14 +68,22 @@ install() {
     inst "$moddir/livekit/uird-init" "/uird-init"
 #    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
     inst "$moddir/livekit/liblinuxlive" "/liblinuxlive"
-
+    
+    inst "$moddir/livekit/basecfg.ini" "/basecfg.ini"
      
     inst /usr/lib/magos/scripts/httpfs /bin/httpfs
-    inst /sbin/udhcpc 
+#    inst /sbin/udhcpc 
+    inst $(type -p rsync) /bin/rsync
+    inst $(type -p sshfs) /bin/sshfs
+    inst $(type -p curlftpfs) /bin/curlftpfs
+
+    _arch=$(uname -m)
+
+    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
     
 #    inst "$moddir/linuxlive/liblinuxlive" "/liblinuxlive"
 #    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
-#    dracut_install "$moddir/livelinux/locale/*"
     
     inst_hook cmdline 95 "$moddir/parse-root-uird.sh"
     inst_hook mount 99 "$moddir/mount-uird.sh"

@@ -73,6 +73,14 @@ debug_shell()
       echo
    fi
 }
+shell_cmd()
+{
+   if [ "$(cmdline_parameter qs)" != "" ]; then 
+      echo "============== SHELL MODE ============="
+      setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
+      echo
+   fi
+}
 
 fatal()
 {
@@ -91,8 +99,8 @@ cmdline_parameter()
 {
    debug_log "cmdline_parameter" "$*"
    log "searching for bootparam: $1"
-   ADDFILE=/tmp/cmdline
-   [ -f /livekitlib ] || ADDFILE=/mnt/live$ADDFILE 
+   ADDFILE=/memory/cmdline
+#   [ -f /livekitlib ] || ADDFILE=/mnt/live$ADDFILE 
    echo -n " " | cat - /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
 }
 
@@ -103,8 +111,8 @@ cmdline_value()
 {
    debug_log "cmdline_value" "$*"
    log "searching for bootparam value: $1"
-   ADDFILE=/tmp/cmdline
-   [ -f /livekitlib ] || ADDFILE=/mnt/live$ADDFILE
+   ADDFILE=/memory/cmdline
+#   [ -f /livekitlib ] || ADDFILE=/mnt/live$ADDFILE
    echo -n " " | cat - /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
 }
 
@@ -131,6 +139,18 @@ create_bundle()
    mksquashfs "$1" "$2" -comp xz -b 512K $3 $4 $5 $6 $7 $8 $9>/dev/null
 }
 
+setup_config()
+{
+    INIFILE=$(cmdline_value uird.config)
+    [ -z "$INIFILE" ] && INIFILE=$LIVEKITNAME.ini
+    [ -f "$LAYER_BASE/0/$INIFILE" ] && PATHINI="$LAYER_BASE/0/$INIFILE"
+    [ -f "$DATAMNT/0/$INIFILE" ] && PATHINI="$DATAMNT/0/$INIFILE"
+    [ -z "$PATHINI" ] || echolog "using $PATHINI config file"
+    [ -z "$PATHINI" ] && PATHINI=/dev/null
+    egrep -v '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /memory/$LIVEKITNAME.ini.gz
+    grep '^CMDLINE=' "$PATHINI" | sed s/^CMDLINE=// | tr -d [:cntrl:]\'\" >>/memory/cmdline
+    chmod 400 /memory/$LIVEKITNAME.ini.gz /memory/cmdline 2>/dev/null
+}
 
 # Move entire initramfs tree to tmpfs mount.
 # It's a bit tricky but is necessray to enable pivot_root
@@ -209,7 +229,7 @@ init_union()
    debug_log "init_union" "$*"
 
    echo_green_star
-   echo "Setting up union using AUFS"
+   echolog "Setting up union using AUFS"
    mkdir -p "$1"
    mkdir -p "$2"
 #   mount -t aufs -o xino="/tmp/.xino",trunc_xino,br="$1" aufs "$2"
@@ -394,6 +414,7 @@ fsck_device()
   if [ -f "$1" ] ;then
      echo $1 | grep -q ".img$" || return
   fi
+  echo_green_star
   echolog "Checking filesystem on $1 $2"  >/dev/console 2>/dev/console
   FS=
   if [ "$2" = "ntfs" ] ;then
@@ -546,7 +567,7 @@ mount_curlftpfs()
    [ "$(cmdline_value netfsopt)" ] && OPTIONS="-o $(cmdline_value netfsopt)"
 
    mkdir -p $2
-   /usr/bin/curlftpfs $OPTIONS $1 $2 </dev/console >/dev/console 2>/dev/console || return
+   /bin/curlftpfs $OPTIONS $1 $2 </dev/console >/dev/console 2>/dev/console || return
    if [ -f $2/$(basename $1) ] ;then
       echo $2/$(basename $1)
    else
@@ -567,7 +588,7 @@ mount_sshfs()
    mkdir -p $2
    times=3
    while [ $times -gt 0 ]; do
-     /usr/bin/sshfs ${1/ssh:??/} $2 $OPTIONS </dev/console >/dev/console 2>/dev/console
+     /bin/sshfs ${1/ssh:??/} $2 $OPTIONS </dev/console >/dev/console 2>/dev/console
      ERR=$?
      [ $ERR -eq 0 ] && break
      times=$(expr $times - 1)
@@ -752,30 +773,37 @@ find_data()
 }
 
 # Setup layer
-# $1 = layer directory
-# $2 = cmdline param name
+# $1 = data directory
+# $2 = layer directory
+# $3 = cmdline param name
 init_layer()
 {
     debug_log "init_layer" "$*"
+    
+    echo_green_star
+    echolog "Initialization of $(basename $2) to $1"
+    
     local NUM_SUBL OIFS
     NUM_SUBL=0
-    FROM=$(cmdline_value $2)
+    CMD_PARAM=$3
+    FROM=$(cmdline_value $CMD_PARAM)
     #LOAD=$(cmdline_value load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
     ARR_FROM=$(echo $FROM | tr -s ";," " ")
     for DATAFROM in $ARR_FROM; do
         if [ "$DATAFROM" ]; then
-            DATA=$1/$NUM_SUBL
+            DATA=$2/$NUM_SUBL
+            DATAMNTM=$1/$NUM_SUBL
             if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
                 init_ifcfg
-                echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $DATA)
-                echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $DATA)
-                echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $DATA)
-                echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $DATA)
+                echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $DATAMNTM)
+                echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $DATAMNTM)
+                echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $DATAMNTM)
+                echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $DATAMNTM)
             else
-                DATAFROM=$(find_data $DATAFROM $DATA)
+                DATAFROM=$(find_data $DATAFROM $DATAMNTM)
                 [ -b "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount block device
             fi
-            [ -d "$DATAFROM" ] && DATA="$DATAFROM" 
+            [ -d "$DATAFROM" ] && mount_device $DATAFROM $DATA 
             [ -f "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount again, it may be loop device
             #   [ -d "$DATA/$LIVEKITNAME" ] && DATA="$DATA/$LIVEKITNAME"
             #   [ -f "$DATA/$SGN" ] || DATA=""
@@ -999,6 +1027,11 @@ init_ifcfg()
 {
    debug_log "init_ifcfg" "$*"
    local CLIENT GW MASK ETH
+   
+   echo_green_star
+   echolog "Initialization network services"
+   
+   modprobe af_packet 2>/dev/null
    
    IP=$(cmdline_value uird.ip)
    [ "$IP" = "" ] && IP=::
@@ -1229,8 +1262,8 @@ list_modules()
    debug_log "list_modules" "$*"
    local LOAD NOLOAD
 
-   LOAD=$(cmdline_value load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
-   NOLOAD=$(cmdline_value noload | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+   LOAD=$(cmdline_value uird.load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
+   NOLOAD=$(cmdline_value uird.noload | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
    find_modules "$1" | while read LINE; do
       MODNAME=$(echo $LINE | cut -b ${#1}- | cut -b 2-)
 #      if [ "$(echo $LINE | grep /optional/)" ]; then
@@ -1258,9 +1291,8 @@ union_append_bundles()
    RO=$(cmdline_value uird.ro | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
 
    echo_green_star
-   echo "Adding bundles to union"
+   echolog "Adding $1 bundles to union"
    list_modules "$1" | while read BUNDLE; do
-      echo "* --> $BUNDLE"
       BUN="$(basename "$BUNDLE")"
       mkdir -p "$2/$BUN"
       
@@ -1271,8 +1303,15 @@ union_append_bundles()
       fi
       FS="$(device_bestfs "$BUNDLE")"
       OPTIONS="$(fs_options $FS mount)"
-      mount -o $OPTIONS $FS "$BUNDLE" "$2/$BUN"
-      mount -o remount,add:1:"$2/$BUN"="$MOD" aufs "$3"
+      
+      ismountpoint "$2/$BUN"
+      if [ $? -eq 0 ]; then
+        PRESERVE="true"
+      else
+        echolog "  --> $BUNDLE"
+        mount -o $OPTIONS $FS "$BUNDLE" "$2/$BUN"
+        mount -o remount,add:1:"$2/$BUN"="$MOD" aufs "$3"
+      fi
    done
 }
 
@@ -1285,7 +1324,7 @@ copy_rootcopy_content()
 
    if [ "$(ls -1 "$1/rootcopy/" 2>/dev/null)" != "" ]; then
       echo_green_star
-      echo "Copying content of rootcopy directory..."
+      echolog "Copying content of rootcopy directory..."
       cp -a "$1"/rootcopy/* "$2"
    fi
 }
@@ -1304,8 +1343,10 @@ copy_to_ram_livekit()
       echo "$1"
       return
    fi
-
-   echo "* Copying $LIVEKITNAME data to RAM..." >&2
+   
+   echo_green_star
+   echolog "Copying $LIVEKITNAME data to RAM..."
+   
    RAM="$(dirname "$2")"/toram
    mkdir  -p "$RAM"
    cp -a "$1"/* "$RAM"
@@ -1340,7 +1381,7 @@ copy_to()
 #      cp "$MODULE" "$2/$TARGET"
       rsync -a "$MODULE" "$2/$TARGET"
       if [ $? -ne 0 ]; then fatal "Not enough memory."; fi
-      echo $2
+#      echo $2
    done
 }
 
@@ -1350,10 +1391,11 @@ copy_to()
 #
 copy_to_ram()
 {
+    debug_log "copy_to_ram" "$*"
     if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter uird.copy2ram)$(cmdline_value uird.copy2ram)" != "" ]; then
-        echolog "copying data to RAM, this may take some time..."
+        echo_green_star
+        echolog "Copying data to RAM, this may take some time..."
         [ "$2" = "" ] && return
-        debug_log "copy_to_ram" "$*"
         copy_to $1 $2 RAM "$(cmdline_value uird.copy2ram)$(cmdline_value toram)"
     fi
 }
@@ -1364,10 +1406,11 @@ copy_to_ram()
 #
 copy_to_cache()
 {
+    debug_log "copy_to_cache" "$*"
     if [ "$(cmdline_parameter uird.copy2cache)$(cmdline_value uird.copy2cache)" != "" ]; then
         [ "$2" = "" ] && return
-        echolog "copying data to CACHE, this may take some time..."
-        debug_log "copy_to_rep" "$*"
+        echo_green_star
+        echolog "Copying data to CACHE, this may take some time..."
         copy_to $1 $2 CACHE "$(cmdline_value uird.copy2cache)"
     fi
 }
@@ -1501,6 +1544,8 @@ fstab_update()
 #      fstab_add_line $FSTABTMP tmpfs /dev/shm tmpfs defaults
 #      fstab_add_line $FSTABTMP tmpfs /tmp tmpfs defaults
 #   fi
+
+# need to fix for UIRD
    for a in "/$MOUNTDIR/$LIVEMEDIA" "/$MOUNTDIR/$LIVECHANGES" "/$LOOPMOUNT" "/$LIVEREPOSITORY" "/$MOUNTDIR/$LIVEHOME" ;do
       grep -q " $a " /proc/mounts || continue
       fstab_add_line $FSTABTMP $(grep " $a " /proc/mounts | head -1 | awk '{ print $1 " " $2 " " $3 " noauto," $4 }')
