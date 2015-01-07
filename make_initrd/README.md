@@ -9,7 +9,7 @@
     *.RWM.ENC - RW слой криптованый
     *.ROM.ENC - RO слой криптованый
 
-Ввиду множественности параметров ядра стоит ввести префикс параметров '**uird**'???  (unified init ram disk): 
+Ввиду множественности параметров ядра введен префикс параметров '**uird**'  (Unified Init Ram Disk): 
 
     uird.basecfg=
     uird.config=
@@ -22,19 +22,20 @@
     uird.ip=
     uird.netfsopt=
     uird.load=
+    uird.noload=
     uird.from=
     uird.changes=
     uird.cache=
     uird.machines=
     uird.home=
 
-Вводится уровень кеша layer-cache и соответствующий параметр uird.cache=. Служит для синхронизации удаленных репозиториев в локальные или частные (INTRANET) репозитории.
+Вводится уровень кеша layer-cache и соответствующий параметр uird.cache=. Служит для синхронизации удаленных репозиториев в локальные или частные (INTRANET) репозитории, а также для обновления системы.
 
-    uird.cache=path/cache
+    uird.cache=/MagOS/cache;/MagOS-Data/cache;/MagOS-Data/netlive
 
 Вводится базовый уровень layer-base и параметр uird.from=:
 
-    uird.from=path/base;base.iso;http://path2/base;path/modules;http://path/modules/user1
+    uird.from=/MagOS;/MagOS-Data;MagOS.iso;http://magos.sibsau.ru/repository/netlive/2014.64/MagOS;ftp://server/path/
 
 
 
@@ -43,10 +44,10 @@
 *     **/path/dir**   - директория на любом доступном носителе
 *     **/dev/[..]/path/dir**   - директория на заданном носителе
 *     **file-dvd.iso, file.img**   - образ диска (ISO, образ блочного устройства)
-*     **http://server/path/...**   - источник доступный по HTTP 
-*     **ssh://server/path/...**   - источник доступный по SSH
-*     **ftp://server/path/...**   - источник доступный по FTP
-*     **nfs://server/path/...**   - источник доступный по NFS
+*     **http://server/path/...**   - источник доступный по HTTP (используется httpfs) 
+*     **ssh://server/path/...**   - источник доступный по SSH (используется sshfs)
+*     **ftp://server/path/...**   - источник доступный по FTP (используется curlftpfs)
+*     **nfs://server/path/...**   - источник доступный по NFS 
 
 ### Порядок инициализации системы
 
@@ -60,14 +61,15 @@
 8. Осуществляется поиск модулей в base-уровне и подключение их на _[верхний-1]_ уровень AUFS с учетом фильтров, указанных в параметрах uird.load=, uird.ro=,uird.rw=, а также модулей в cache-уровне и RAM.
 9. ...
 
-### Структура конфигурационного файла
+### Структура конфигурационного файла по умолчанию
 
     ????? [/path/basecfg.ini]
     uird.config=MagOS.ini
     uird.ramsize=70%
-    uird.ro=*.xzm,*.rom;*.rom.enc
+    uird.ro=*.xzm;*.rom;*.rom.enc;*.pfs
     uird.rw=*.rwm;*.rwm.enc
-    uird.load=*;!/optional/
+    uird.load=*
+    uird.noload=/optional/;/machines/;/cache/
     uird.from=/MagOS;/MagOS-Data
     uird.changes=/MagOS-Data/changes
     uird.cache=/MagOS-Data/cache
@@ -78,7 +80,7 @@
 
 ### Реализация
 
-В основе реализации лежит набор скриптов инициализации dracut (модули base , busybox, network) и скрипты uird (livekitlib+uird-init).
+В основе реализации лежит набор скриптов инициализации dracut (модули base , busybox ) и скрипты uird (livekitlib+uird-init).
 
     cmdline-hook: parse-root-uird.sh (проверяет параметр root=uird:)
     mount-hook: mount-uird.sh (выполняет скрипт uird-init)
