@@ -80,33 +80,33 @@
 
 ### Структура файловой системы системной директории 
 
-/memory/
-├── bundles
-│   ├── 00-kernel.xzm
-│   ├── 01-firmware.xzm
-│   ├── 10-core.xzm
-│   ├── 80-eepm-1.5.2.xzm
-│   └── ...
-├── changes
-│   ├── etc
-│   ├── home
-│   ├── memory
-│   ├── run
-│   ├── var
-│   └── ...
-├── data
-│   ├── cache
-│   └── from
-├── layer-base
-│   ├── 0
-│   ├── 1
-│   └── ...
-├── layer-cache
-│   ├── 0
-│   ├── 1
-│   └── ...
-├── cmdline
-└── MagOS.ini.gz
+      /memory/
+      ├── bundles
+      │   ├── 00-kernel.xzm
+      │   ├── 01-firmware.xzm
+      │   ├── 10-core.xzm
+      │   ├── 80-eepm-1.5.2.xzm
+      │   └── ...
+      ├── changes
+      │   ├── etc
+      │   ├── home
+      │   ├── memory
+      │   ├── run
+      │   ├── var
+      │   └── ...
+      ├── data
+      │   ├── cache
+      │   └── from
+      ├── layer-base
+      │   ├── 0
+      │   ├── 1
+      │   └── ...
+      ├── layer-cache
+      │   ├── 0
+      │   ├── 1
+      │   └── ...
+      ├── cmdline
+      └── MagOS.ini.gz
 
 
 ### Реализация
