@@ -6,7 +6,8 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 mount_root() {
-
+    
+    /usr/bin/busybox --install
     . /uird-init
 
 }
