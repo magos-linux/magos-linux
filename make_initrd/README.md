@@ -33,10 +33,13 @@
 
     uird.cache=/MagOS/cache;/MagOS-Data/cache;/MagOS-Data/netlive
 
-Вводится базовый уровень layer-base и параметр uird.from=:
+Вводится базовый уровень layer-base и соответствующий параметр uird.from=:
 
     uird.from=/MagOS;/MagOS-Data;MagOS.iso;http://magos.sibsau.ru/repository/netlive/2014.64/MagOS;ftp://server/path/
 
+Вводится уровень домашних директорий пользователя layer-homes и соответствующий параметр uird.homes=:
+
+    uird.homes=/MagOS-Data/homes;nfs://magos.sibsau.ru/homes/n/e/neobht;ftp://server/path/;/MagOS-Data/home.img
 
 
 ### Типы источников
@@ -55,26 +58,27 @@
 2. Устанавливаются параметры из конфигурационного файла, которые еще не установлены в параметрах ядра
 3. Происходит монтирование источников **base**-уровня в порядке, указанном в параметре uird.from= 
 4. Происходит монтирование источников **cache**-уровня в порядке, указанном в параметре uird.cache= 
-5. Происходит подключение в самый _верхний_ уровень AUFS источника, указанного в параметре uird.changes=
-6. Осуществляется синхронизация base-уровня в cache-уровень с учетом параметра uird.copy2cache=
-7. Осуществляется синхронизация base,cache-уровней в RAM с учетом параметра uird.copy2ram=
-8. Осуществляется поиск модулей в base-уровне и подключение их на _[верхний-1]_ уровень AUFS с учетом фильтров, указанных в параметрах uird.load=, uird.ro=,uird.rw=, а также модулей в cache-уровне и RAM.
-9. ...
+5. Происходит монтирование источников **homes**-уровня в порядке, указанном в параметре uird.homes= 
+6. Происходит подключение в самый _верхний_ уровень AUFS источника персистентных изменений, указанного в параметре uird.changes=
+7. Осуществляется синхронизация base-уровня в cache-уровень с учетом параметра uird.copy2cache=
+8. Осуществляется синхронизация base,cache-уровней в RAM с учетом параметра uird.copy2ram=
+9. Осуществляется поиск модулей в RAM, cache-уровне, base-уровне и подключение их на _[верхний-1]_ уровень AUFS с учетом фильтров, указанных в параметрах uird.load=, uird.ro=,uird.rw=.
+10. ...
 
 ### Структура конфигурационного файла по умолчанию
 
     ????? [/path/basecfg.ini]
     uird.config=MagOS.ini
     uird.ramsize=70%
-    uird.ro=*.xzm;*.rom;*.rom.enc;*.pfs
+    uird.ro=*.xzm;*.rom;*.rom.enc;*.pfs;*.sfs
     uird.rw=*.rwm;*.rwm.enc
     uird.load=*
-    uird.noload=/optional/;/machines/;/cache/
+    uird.noload=/optional/;/machines/;/cache/;/homes/,/changes/
     uird.from=/MagOS;/MagOS-Data
     uird.changes=/MagOS-Data/changes
     uird.cache=/MagOS-Data/cache
     uird.machines=/MagOS-Data/machines
-    uird.home=/MagOS-Data/homes
+    uird.homes=/MagOS-Data/homes
     
 !!!Если параметр uird.basecfg= не задан, то используется /basecfg.ini внутри initrd.
 

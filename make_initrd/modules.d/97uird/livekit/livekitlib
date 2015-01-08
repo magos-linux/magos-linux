@@ -13,13 +13,15 @@ export TEXTDOMAIN=livekitlib.po.mo
 black='\033[0;30m'
 red='\033[0;31m'
 green='\033[0;32m'
-yellow='\033[0;33m'
+yellow='\033[1;33m'
+brown='\033[0;33m'
 blue='\033[0;34m'
-magenta='\033[0;35m'
+light_blue='\033[1;34m'
+magenta='\033[1;35m'
 cyan='\033[0;36m'
 white='\033[0;37m'
 purple='\033[0;35m'
-default='\033[0;39m'
+default='\033[0m'
 
 # Messages
 INIT_UNION="Инициализация файловой системы AUFS"
@@ -29,10 +31,15 @@ MOUNT_DATA_SOURCE="Поиск и инициализация источника:"
 MOUNT_DATA_SOURCE_USING="    используется источник:"
 MOUNT_DATA_SOURCE_NOT_FOUND="    источник не удалось найти или инициализировать"
 
+TESTING_FOR_POSIX="Тестирование файловой системы на совместимость с POSIX"
+POSIX_NOT_COMPATIBLE="    POSIX не поддерживается, используем POSIXOVERLAY"
+
 SETUP_CONFIG="Поиск и инициализация файла конфигурации:"
 SETUP_CONFIG_USING="  используется файл конфигурации:"
-SETUP_CHANGES="Инициализация источника для изменений:"
+SETUP_CHANGES="Инициализация источника для персистентных изменений:"
 SETUP_CHANGES_USING="  используется для изменений:"
+SETUP_MACHINES="Инициализация источника для машинно-зависимых изменений:"
+
 INIT_IFCFG="Инициализация сетевых сервисов"
 UNION_APPEND_BUNDLES="Подключение модулей в общий корень:"
 COPY_TO_RAM="Копирование данных в ОЗУ, это может занять длительное время, ожидайте..."
@@ -843,7 +850,7 @@ init_layer()
     debug_log "init_layer" "$*"
     
     echo_green_star
-    echolog "$INIT_LAYER" $yellow$(basename $2) " -> " $1
+    echolog "$INIT_LAYER" $brown$(basename $2) " -> " $1
     
     local NUM_SUBL OIFS
     NUM_SUBL=0
@@ -1281,49 +1288,55 @@ setup_changes()
     debug_log "setup changes" "$*"
     
     CHANGESVAL=$(cmdline_value uird.changes)
-    [ -z "$CHANGESVAL" ] && exit 0
+    [ -z "$CHANGESVAL" ] && return
     
     echo_green_star
-    echolog "$SETUP_CHANGES" $yellow"$2"
+    echolog "$SETUP_CHANGES" $brown"$2"
 
     if [ "$CHANGESVAL" -a "$CHANGESVAL" != "xzm" ]; then
 	mount_data_source $CHANGESVAL $2 $1
     else
 	rmdir $2
     fi
+    posix_test $1 $2
+}
+
+posix_test()
+{
     # test if the filesystem is writable so changes can be stored to it
     touch $2/empty 2>/dev/null && \
     rm -f $2/empty 2>/dev/null
     # if changes can't be mounted or the filesystem is not writable,
 # fallback to the default: tmpfs
-if [ $? -ne 0 ]; then
-   echo_green_star
-   echolog "changes not used or not writable, using memory only"
-   fumount $2
-   fumount $1
-   mkdir -p $2 # mount_device might removed it
+    if [ $? -ne 0 ]; then
+	echo_green_star
+	echolog "changes not used or not writable, using memory only"
+	fumount $2
+	fumount $1
+	mkdir -p $2 # mount_device might removed it
 
-else
+    else
    # So it is writable, we will keep the filesystem mounted.
    # Check if it supports links and chmod.
    # If not, overmount CHANGES using posixovl
-   echolog "testing the filesystem for posix compatibility"
-   touch $2/.empty1 && \
-   ln -sf $2/.empty1 $MEMORY/.empty2 2>/dev/null && \
-   chmod +x $2/.empty1 2>/dev/null  && \
-   test -x $2/.empty1 && \
-   chmod -x $2/.empty1 2>/dev/null  && \
-   test ! -x $2/.empty1 && \
-   rm $2/.empty1 $2/.empty2 2>/dev/null
+	echo -ne $blue"  * "$default
+	echolog "$TESTING_FOR_POSIX"
+	touch $2/.empty1 && \
+	ln -sf $2/.empty1 $2/.empty2 2>/dev/null && \
+	chmod +x $2/.empty1 2>/dev/null  && \
+	test -x $2/.empty1 && \
+	chmod -x $2/.empty1 2>/dev/null  && \
+	test ! -x $2/.empty1 && \
+	rm $2/.empty1 $2/.empty2 2>/dev/null
 
-   if [ $? -ne 0 ]; then
-      echolog "not compatible - starting posixovl"
-      rm $2/.empty1 $2/.empty2 2>/dev/null
-      mkdir -p $1
-      posixovl -F $1 -- -o attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache,allow_other
-      find $1 >/dev/null 2>&1 # cache everything now
-   fi
-fi
+	if [ $? -ne 0 ]; then
+    	    echolog $red"$POSIX_NOT_COMPATIBLE"
+    	    rm $2/.empty1 $2/.empty2 2>/dev/null
+    	    mkdir -p $1
+    	    posixovl -F $1 -- -o attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache,allow_other
+    	    find $1 >/dev/null 2>&1 # cache everything now
+	fi
+    fi
 
 
 }
@@ -1332,6 +1345,7 @@ fi
 # $2 = changes directory
 setup_machines()
 {
+    debug_log "setup machines" "$*"
     local CHANGESMNT
     
     CHANGESVAL=$(cmdline_value uird.changes)
@@ -1554,7 +1568,7 @@ copy_to()
       [ "$C2PARAM" ] && ! [ "$(echo $MODNAME | egrep -i $C2PARAM )" ] && continue
       TARGET=$(dirname "$MODULE" | cut -b ${#1}- | cut -b 2-)
       mkdir -p "$2/$TARGET"
-      echolog "  $3 <- $(basename $MODULE)"
+      echolog $yellow"  $3 $blue<- $purple$(basename $MODULE)"
 #      cp "$MODULE" "$2/$TARGET"
       rsync -a "$MODULE" "$2/$TARGET"
       if [ $? -ne 0 ]; then fatal "Not enough memory."; fi

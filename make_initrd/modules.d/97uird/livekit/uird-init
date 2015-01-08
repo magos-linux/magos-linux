@@ -78,7 +78,7 @@ setup_config
 setup_changes $DATAMNT/changes $CHANGES
                                                                                                                                                       debug_shell
 #setting up machines
-setup_machines $DATAMNT/changes $CHANGES
+setup_machines $DATAMNT/machines $CHANGES
                                                                                                                                                       debug_shell
 
 # sync data from BASE layer to CACHE layer
