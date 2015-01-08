@@ -70,9 +70,13 @@ install() {
     inst "$moddir/livekit/liblinuxlive" "/liblinuxlive"
     
     inst "$moddir/livekit/basecfg.ini" "/basecfg.ini"
+
+    inst "$moddir/livekit/i18n-lib.sh" "/i18n-lib.sh"
+    inst $(type -p gettext)
+    inst $(type -p loadkeys)
+    inst "$moddir/livekit/locale/ru/LC_MESSAGES/livekitlib.po.mo" "/locale/ru/LC_MESSAGES/livekitlib.po.mo"
      
     inst /usr/lib/magos/scripts/httpfs /bin/httpfs
-#    inst /sbin/udhcpc 
     inst $(type -p rsync) /bin/rsync
     inst $(type -p sshfs) /bin/sshfs
     inst $(type -p curlftpfs) /bin/curlftpfs
@@ -84,6 +88,7 @@ install() {
     
 #    inst "$moddir/linuxlive/liblinuxlive" "/liblinuxlive"
 #    inst "$moddir/linuxlive/linuxrc" "/linuxrc"
+#    /usr/bin/busybox --install
     
     inst_hook cmdline 95 "$moddir/parse-root-uird.sh"
     inst_hook mount 99 "$moddir/mount-uird.sh"

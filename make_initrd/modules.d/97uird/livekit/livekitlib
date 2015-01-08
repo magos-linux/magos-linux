@@ -6,10 +6,41 @@
 # Author: Mikhail Zaripov <http://magos-linux.ru>
 # Author: Anton Goroshkin <http://magos-linux.ru>
 
+export TEXTDOMAIN=livekitlib.po.mo
+. i18n-lib.sh
+
+# Colors text
+black='\033[0;30m'
+red='\033[0;31m'
+green='\033[0;32m'
+yellow='\033[0;33m'
+blue='\033[0;34m'
+magenta='\033[0;35m'
+cyan='\033[0;36m'
+white='\033[0;37m'
+purple='\033[0;35m'
+default='\033[0;39m'
+
+# Messages
+INIT_UNION="Инициализация файловой системы AUFS"
+INIT_LAYER="Инициализация:"
+
+MOUNT_DATA_SOURCE="Поиск и инициализация источника:"
+MOUNT_DATA_SOURCE_USING="    используется источник:"
+MOUNT_DATA_SOURCE_NOT_FOUND="    источник не удалось найти или инициализировать"
+
+SETUP_CONFIG="Поиск и инициализация файла конфигурации:"
+SETUP_CONFIG_USING="  используется файл конфигурации:"
+SETUP_CHANGES="Инициализация источника для изменений:"
+SETUP_CHANGES_USING="  используется для изменений:"
+INIT_IFCFG="Инициализация сетевых сервисов"
+UNION_APPEND_BUNDLES="Подключение модулей в общий корень:"
+COPY_TO_RAM="Копирование данных в ОЗУ, это может занять длительное время, ожидайте..."
+COPY_TO_CACHE="Копирование данных в КЭШ, это может занять длительное время, ожидайте..."
+
 # =================================================================
 # debug and output functions
 # =================================================================
-
 debug_start()
 {
     # global variable
@@ -29,7 +60,7 @@ debug_log()
 #
 header()
 {
-   echo "[0;1m""$@""[0;0m"
+   echo -e "\\033[0;1m""$@""\\033[0;0m"
 }
 
 
@@ -37,7 +68,7 @@ header()
 #
 echo_green_star()
 {
-   echo -ne "[0;32m""* ""[0;39m"
+   echo -ne $green"* "$default
 }
 
 # log - store given text in /var/log/livedbg
@@ -48,7 +79,7 @@ log()
 
 echolog()
 {
-   echo "$@"
+   i18n_display "$@"
    log "$@"
 }
 
@@ -73,13 +104,42 @@ debug_shell()
       echo
    fi
 }
+# start shell
 shell_cmd()
 {
-   if [ "$(cmdline_parameter qs)" != "" ]; then 
+   if [ "$(cmdline_parameter qs)" ]; then 
       echo "============== SHELL MODE ============="
       setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
       echo
    fi
+}
+# start quickshell
+start_quickshell()
+{
+    if [ "$(cmdline_parameter quickshell)$(cmdline_parameter qsb)" ] ; then
+	getty -n -l /bin/autologin 9600 tty2 linux &
+	getty -n -l /bin/autologin 9600 tty3 linux &
+	getty -n -l /bin/autologin 9600 tty4 linux &
+	getty -n -l /bin/autologin 9600 tty5 linux &
+	getty -n -l /bin/autologin 9600 tty6 linux &
+	automount
+	clear
+	cat ./quickshell.hlp
+	/bin/bash autologin
+	cd /
+	umount /mnt/*
+	export LANG=""
+	echo "continue...."
+    fi
+}
+
+# Resume from swsuspend
+resume_from_suspend()
+{
+    if [ -z $(cmdline_parameter noresume) ] ; then
+	RESUME_DEV=$(blkid.real | grep -m1 swsuspend | awk -F: '{print $1}')
+	[ -z "$RESUME_DEV" ] || resume -r $RESUME_DEV
+    fi
 }
 
 fatal()
@@ -122,7 +182,7 @@ cmdline_value()
 allow_only_root()
 {
   if [ "0$UID" -ne 0 ]; then
-     echo "Only root can run $(basename $0)"; exit 1
+     echolog "Only root can run" "$(basename $0)"; exit 1
   fi
 }
 
@@ -142,10 +202,12 @@ create_bundle()
 setup_config()
 {
     INIFILE=$(cmdline_value uird.config)
+    echo_green_star
+    echolog "$SETUP_CONFIG" "$INIFILE"
     [ -z "$INIFILE" ] && INIFILE=$LIVEKITNAME.ini
     [ -f "$LAYER_BASE/0/$INIFILE" ] && PATHINI="$LAYER_BASE/0/$INIFILE"
     [ -f "$DATAMNT/0/$INIFILE" ] && PATHINI="$DATAMNT/0/$INIFILE"
-    [ -z "$PATHINI" ] || echolog "using $PATHINI config file"
+    [ -z "$PATHINI" ] || echolog "$SETUP_CONFIG_USING" "$PATHINI"
     [ -z "$PATHINI" ] && PATHINI=/dev/null
     egrep -v '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /memory/$LIVEKITNAME.ini.gz
     grep '^CMDLINE=' "$PATHINI" | sed s/^CMDLINE=// | tr -d [:cntrl:]\'\" >>/memory/cmdline
@@ -203,7 +265,7 @@ init_zram()
 {
    debug_log "init_zram" "$*"
    echo_green_star
-   echo "Setting dynamic RAM compression using ZRAM"
+   echolog "Setting dynamic RAM compression using ZRAM"
    echo 536870912 > /sys/block/zram0/disksize # 512MB
    mkswap /dev/zram0 >/dev/null
    swapon /dev/zram0 -p 32767
@@ -229,7 +291,7 @@ init_union()
    debug_log "init_union" "$*"
 
    echo_green_star
-   echolog "Setting up union using AUFS"
+   echolog "$INIT_UNION"
    mkdir -p "$1"
    mkdir -p "$2"
 #   mount -t aufs -o xino="/tmp/.xino",trunc_xino,br="$1" aufs "$2"
@@ -415,7 +477,7 @@ fsck_device()
      echo $1 | grep -q ".img$" || return
   fi
   echo_green_star
-  echolog "Checking filesystem on $1 $2"  >/dev/console 2>/dev/console
+  echolog "Checking filesystem on" "$1 $2"  >/dev/console 2>/dev/console
   FS=
   if [ "$2" = "ntfs" ] ;then
      /usr/bin/ntfsfix "$1" </dev/console >/dev/console 2>/dev/console
@@ -502,7 +564,7 @@ mount_device()
        LOOPDEV=$(losetup -f)
        [ -z "$LOOPDEV" ] && LOOPDEV=$(mknod_next_loop_dev)
        OPTIONS=$(echo "$OPTIONS" | sed -r "s/,loop//g")
-       echolog "Mounting encrypted filesystem $DEV" >/dev/console 2>/dev/console
+       echolog "Mounting encrypted filesystem" "$DEV" >/dev/console 2>/dev/console
        times=3
        while [ $times -gt 0 ]; do
           /usr/bin/losetup.real -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
@@ -781,7 +843,7 @@ init_layer()
     debug_log "init_layer" "$*"
     
     echo_green_star
-    echolog "Initialization of $(basename $2) to $1"
+    echolog "$INIT_LAYER" $yellow$(basename $2) " -> " $1
     
     local NUM_SUBL OIFS
     NUM_SUBL=0
@@ -793,18 +855,7 @@ init_layer()
         if [ "$DATAFROM" ]; then
             DATA=$2/$NUM_SUBL
             DATAMNTM=$1/$NUM_SUBL
-            if [ "$(echo $DATAFROM | grep "://")" != ""  ]; then
-                init_ifcfg
-                echo $DATAFROM | grep -iq ^"http://" && DATAFROM=$(mount_httpfs $DATAFROM $DATAMNTM)
-                echo $DATAFROM | grep -iq ^"ftp://" && DATAFROM=$(mount_curlftpfs $DATAFROM $DATAMNTM)
-                echo $DATAFROM | grep -iq ^"ssh://" && DATAFROM=$(mount_sshfs $DATAFROM $DATAMNTM)
-                echo $DATAFROM | grep -iq ^"nfs://" && DATAFROM=$(mount_nfs $DATAFROM $DATAMNTM)
-            else
-                DATAFROM=$(find_data $DATAFROM $DATAMNTM)
-                [ -b "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount block device
-            fi
-            [ -d "$DATAFROM" ] && mount_device $DATAFROM $DATA 
-            [ -f "$DATAFROM" ] && mount_device $DATAFROM $DATA  # mount again, it may be loop device
+	    mount_data_source $DATAFROM $DATA $DATAMNTM
             #   [ -d "$DATA/$LIVEKITNAME" ] && DATA="$DATA/$LIVEKITNAME"
             #   [ -f "$DATA/$SGN" ] || DATA=""
             #   grep -q "`head -1 /VERSION`" $DATA/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || DATA=""
@@ -1029,7 +1080,7 @@ init_ifcfg()
    local CLIENT GW MASK ETH
    
    echo_green_star
-   echolog "Initialization network services"
+   echolog "$INIT_IFCFG"
    
    modprobe af_packet 2>/dev/null
    
@@ -1184,6 +1235,130 @@ find_data_livekitlib()
    fi
 
 }
+# mount data source to destination directory using mount point directory
+# $1 = source
+# $2 = destination directory
+# $3 = mount point directory
+mount_data_source()
+{
+    debug_log "mount_data_source" "$*"
+    SOURCE=$1
+    DST_DIR=$2
+    MNT_DIR=$3
+	
+	echo -ne $blue"  * "$default
+	
+	echolog "$MOUNT_DATA_SOURCE" $yellow"$SOURCE"$default
+	
+	mkdir -p $DST_DIR
+
+	if [ "$(echo $SOURCE | grep "://")" != ""  ]; then
+    	    init_ifcfg
+    	    echo $SOURCE | grep -iq ^"http://" && DATA_FROM=$(mount_httpfs $SOURCE $MNT_DIR)
+    	    echo $SOURCE | grep -iq ^"nfs://" && DATA_FROM=$(mount_nfs $SOURCE $MNT_DIR)
+    	    echo $SOURCE | grep -iq ^"ssh://" && DATA_FROM=$(mount_sshfs $SOURCE $MNT_DIR)
+    	    echo $SOURCE | grep -iq ^"ftp://" && DATA_FROM=$(mount_curlftpfs $SOURCE $MNT_DIR)
+	else
+    	    DATA_FROM=$(find_data $SOURCE $MNT_DIR)
+    	    [ -b "$DATA_FROM" ] && mount_device $DATA_FROM $DST_DIR # mount block device
+	fi
+   
+	if [ -r "$DATA_FROM" ] ;then
+    	    [ -d "$DATA_FROM" ] && mount_device $DATA_FROM $DST_DIR # mount dir
+    	    [ -f "$DATA_FROM" ] && mount_device $DATA_FROM $DST_DIR # mount again, it may be loop device
+    	    echolog "$MOUNT_DATA_SOURCE_USING" $yellow$DATA_FROM
+	else
+    	    echolog $red"$MOUNT_DATA_SOURCE_NOT_FOUND"
+    	    rmdir $DST_DIR
+	fi
+
+}
+# Setup changes
+# $1 = changes source
+# $2 = changes directory
+setup_changes()
+{
+    debug_log "setup changes" "$*"
+    
+    CHANGESVAL=$(cmdline_value uird.changes)
+    [ -z "$CHANGESVAL" ] && exit 0
+    
+    echo_green_star
+    echolog "$SETUP_CHANGES" $yellow"$2"
+
+    if [ "$CHANGESVAL" -a "$CHANGESVAL" != "xzm" ]; then
+	mount_data_source $CHANGESVAL $2 $1
+    else
+	rmdir $2
+    fi
+    # test if the filesystem is writable so changes can be stored to it
+    touch $2/empty 2>/dev/null && \
+    rm -f $2/empty 2>/dev/null
+    # if changes can't be mounted or the filesystem is not writable,
+# fallback to the default: tmpfs
+if [ $? -ne 0 ]; then
+   echo_green_star
+   echolog "changes not used or not writable, using memory only"
+   fumount $2
+   fumount $1
+   mkdir -p $2 # mount_device might removed it
+
+else
+   # So it is writable, we will keep the filesystem mounted.
+   # Check if it supports links and chmod.
+   # If not, overmount CHANGES using posixovl
+   echolog "testing the filesystem for posix compatibility"
+   touch $2/.empty1 && \
+   ln -sf $2/.empty1 $MEMORY/.empty2 2>/dev/null && \
+   chmod +x $2/.empty1 2>/dev/null  && \
+   test -x $2/.empty1 && \
+   chmod -x $2/.empty1 2>/dev/null  && \
+   test ! -x $2/.empty1 && \
+   rm $2/.empty1 $2/.empty2 2>/dev/null
+
+   if [ $? -ne 0 ]; then
+      echolog "not compatible - starting posixovl"
+      rm $2/.empty1 $2/.empty2 2>/dev/null
+      mkdir -p $1
+      posixovl -F $1 -- -o attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache,allow_other
+      find $1 >/dev/null 2>&1 # cache everything now
+   fi
+fi
+
+
+}
+
+# $1 = machines source
+# $2 = changes directory
+setup_machines()
+{
+    local CHANGESMNT
+    
+    CHANGESVAL=$(cmdline_value uird.changes)
+    [ -z "$CHANGESVAL" ] && exit 0
+    echo_green_star
+    echolog "$SETUP_MACHINES" $yellow"$1"
+#In case we using lzm|xzm as changes= parameter
+    if echo "$CHANGESVAL" | grep -q [XxLl][Zz][Mm]$ ;then
+	if [ "$CHANGESVAL" = "xzm" ] ;then
+    	    MUID=mac-$(cat /sys/class/net/eth0/address | tr -d :)
+    	    [ "$MUID" = "mac-" ] && MUID=vga-$(lspci -mm | grep -i vga | md5sum | cut -c 1-12)
+    	    [ -d "$DATAMNT/machines" ] && CHANGESMNT=$DATAMNT/machines
+    	    [ -z "$CHANGESMNT" ] && CHANGESMNT=$1/machines
+    	    if [ -f "$CHANGESMNT/static/$MUID.xzm"  ] ;then 
+        	CHANGESMNT=$CHANGESMNT/static/$MUID.xzm
+    	    else
+        	CHANGESMNT=$CHANGESMNT/dynamic/$MUID.xzm
+    	    fi
+	fi
+	if [ -f "$CHANGESMNT" ] ;then
+    	    echolog "unpacking $CHANGESMNT to memory"
+    	    unsquashfs -f -dest $2 "$CHANGESMNT" >/dev/null 2>&1
+	fi
+    echo "$CHANGESMNT" | sed s=/machines/static/=/machines/dynamic/= > $2/.savetomodule
+fi
+
+}
 
 # Activate persistent changes
 # $1 = data directory
@@ -1212,19 +1387,20 @@ persistent_changes()
 
    # if not, simply return back
    if [ $? -ne 0 ]; then
-      echo "* Persistent changes not writable or not used"
+      echolog "Persistent changes not writable or not used"
       return
    fi
 
    echo_green_star
-   echo "Testing persistent changes for posix compatibility"
+   echolog "Testing persistent changes for posix compatibility"
    touch "$T1" && ln -sf "$T1" "$T2" 2>/dev/null && \
    chmod +x "$T1" 2>/dev/null && test -x "$T1" && \
    chmod -x "$T1" 2>/dev/null && test ! -x "$T1" && \
    rm "$T1" "$T2" 2>/dev/null
 
    if [ $? -ne 0 ]; then
-      echo "* Activating dynamic sized storage for persistent changes"
+      echo_green_star
+      echolog "Activating dynamic sized storage for persistent changes"
       rm "$T1" "$T2" 2>/dev/null
 
       mount.dynfilefs "$CHANGES/changes.dat" 4000 "$2"
@@ -1234,7 +1410,8 @@ persistent_changes()
       mount -o loop,sync "$2/loop.fs" "$2"
       rmdir "$2/lost+found" 2>/dev/null
    else
-      echo "* Activating native persistent changes"
+      echo_green_star
+      echolog "Activating native persistent changes"
       mount --bind "$CHANGES" "$2"
    fi
 }
@@ -1291,7 +1468,7 @@ union_append_bundles()
    RO=$(cmdline_value uird.ro | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
 
    echo_green_star
-   echolog "Adding $1 bundles to union"
+   echolog "$UNION_APPEND_BUNDLES" $1 
    list_modules "$1" | while read BUNDLE; do
       BUN="$(basename "$BUNDLE")"
       mkdir -p "$2/$BUN"
@@ -1308,7 +1485,7 @@ union_append_bundles()
       if [ $? -eq 0 ]; then
         PRESERVE="true"
       else
-        echolog "  --> $BUNDLE"
+        echolog "  $blue-->" $purple"$BUNDLE"$default
         mount -o $OPTIONS $FS "$BUNDLE" "$2/$BUN"
         mount -o remount,add:1:"$2/$BUN"="$MOD" aufs "$3"
       fi
@@ -1392,9 +1569,9 @@ copy_to()
 copy_to_ram()
 {
     debug_log "copy_to_ram" "$*"
-    if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter uird.copy2ram)$(cmdline_value uird.copy2ram)" != "" ]; then
+    if [ "$(cmdline_parameter toram)$(cmdline_value toram)$(cmdline_parameter uird.copy2ram)$(cmdline_value uird.copy2ram)" ]; then
         echo_green_star
-        echolog "Copying data to RAM, this may take some time..."
+        echolog "$COPY_TO_RAM"
         [ "$2" = "" ] && return
         copy_to $1 $2 RAM "$(cmdline_value uird.copy2ram)$(cmdline_value toram)"
     fi
@@ -1407,10 +1584,10 @@ copy_to_ram()
 copy_to_cache()
 {
     debug_log "copy_to_cache" "$*"
-    if [ "$(cmdline_parameter uird.copy2cache)$(cmdline_value uird.copy2cache)" != "" ]; then
+    if [ "$(cmdline_parameter uird.copy2cache)$(cmdline_value uird.copy2cache)" ]; then
         [ "$2" = "" ] && return
         echo_green_star
-        echolog "Copying data to CACHE, this may take some time..."
+        echolog "$COPY_TO_CACHE"
         copy_to $1 $2 CACHE "$(cmdline_value uird.copy2cache)"
     fi
 }
