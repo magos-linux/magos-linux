@@ -69,7 +69,7 @@ install() {
 #    inst "$moddir/magos-lib.sh" "/lib/magos-lib.sh"
     inst "$moddir/livekit/liblinuxlive" "/liblinuxlive"
     
-    inst "$moddir/livekit/basecfg.ini" "/basecfg.ini"
+#    inst "$moddir/livekit/basecfg.ini" "/basecfg.ini"
 
     inst "$moddir/livekit/i18n-lib.sh" "/i18n-lib.sh"
     inst $(type -p gettext)
