@@ -32,13 +32,14 @@ MOUNT_DATA_SOURCE_USING="    используется источник:"
 MOUNT_DATA_SOURCE_NOT_FOUND="    источник не удалось найти или инициализировать"
 
 TESTING_FOR_POSIX="Тестирование файловой системы на совместимость с POSIX"
-POSIX_NOT_COMPATIBLE="    POSIX не поддерживается, используем POSIXOVERLAY"
+POSIX_NOT_COMPATIBLE="    POSIX не поддерживается, используется POSIXOVL"
 
 SETUP_CONFIG="Поиск и инициализация файла конфигурации:"
 SETUP_CONFIG_USING="  используется файл конфигурации:"
 SETUP_CHANGES="Инициализация источника для персистентных изменений:"
 SETUP_CHANGES_USING="  используется для изменений:"
 SETUP_MACHINES="Инициализация источника для машинно-зависимых изменений:"
+SETUP_HOMES="Подключение источников для домашних директорий:"
 
 INIT_IFCFG="Инициализация сетевых сервисов"
 UNION_APPEND_BUNDLES="Подключение модулей в общий корень:"
@@ -167,8 +168,9 @@ cmdline_parameter()
    debug_log "cmdline_parameter" "$*"
    log "searching for bootparam: $1"
    ADDFILE=/memory/cmdline
+   BASECFG=/memory/basecfg.ini
 #   [ -f /livekitlib ] || ADDFILE=/mnt/live$ADDFILE 
-   echo -n " " | cat - /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
+   echo -n " " | cat - /proc/cmdline $ADDFILE $BASECFG 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
 }
 
 # look into cmdline and echo value of $1 option
@@ -179,8 +181,9 @@ cmdline_value()
    debug_log "cmdline_value" "$*"
    log "searching for bootparam value: $1"
    ADDFILE=/memory/cmdline
-#   [ -f /livekitlib ] || ADDFILE=/mnt/live$ADDFILE
-   echo -n " " | cat - /proc/cmdline $ADDFILE 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
+   BASECFG=/memory/basecfg.ini
+#   [ -f /livekitlib ] || ADDFILE=/mnt/$ADDFILE
+   echo -n " " | cat - /proc/cmdline $ADDFILE $BASECFG 2>/dev/null | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
 }
 
 
@@ -208,13 +211,15 @@ create_bundle()
 
 setup_config()
 {
+    debug_log "setup config" "$*"
     INIFILE=$(cmdline_value uird.config)
     echo_green_star
-    echolog "$SETUP_CONFIG" "$INIFILE"
+    echolog "$SETUP_CONFIG" $brown"$INIFILE"
+    
     [ -z "$INIFILE" ] && INIFILE=$LIVEKITNAME.ini
     [ -f "$LAYER_BASE/0/$INIFILE" ] && PATHINI="$LAYER_BASE/0/$INIFILE"
     [ -f "$DATAMNT/0/$INIFILE" ] && PATHINI="$DATAMNT/0/$INIFILE"
-    [ -z "$PATHINI" ] || echolog "$SETUP_CONFIG_USING" "$PATHINI"
+    [ -z "$PATHINI" ] || echolog "$SETUP_CONFIG_USING" $yellow"$PATHINI"
     [ -z "$PATHINI" ] && PATHINI=/dev/null
     egrep -v '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /memory/$LIVEKITNAME.ini.gz
     grep '^CMDLINE=' "$PATHINI" | sed s/^CMDLINE=// | tr -d [:cntrl:]\'\" >>/memory/cmdline
@@ -633,7 +638,7 @@ mount_curlftpfs()
    local OPTIONS
    debug_log "mount_curlftpfs" "$*"
    OPTIONS=
-   [ "$(cmdline_value netfsopt)" ] && OPTIONS="-o $(cmdline_value netfsopt)"
+   [ "$(cmdline_value uird.netfsopt)" ] && OPTIONS="-o $(cmdline_value uird.netfsopt)"
 
    mkdir -p $2
    /bin/curlftpfs $OPTIONS $1 $2 </dev/console >/dev/console 2>/dev/console || return
@@ -653,7 +658,7 @@ mount_sshfs()
    local OPTIONS
    debug_log "mount_sshfs" "$*"
    OPTIONS=
-   [ "$(cmdline_value netfsopt)" ] && OPTIONS="-o $(cmdline_value netfsopt)"
+   [ "$(cmdline_value uird.netfsopt)" ] && OPTIONS="-o $(cmdline_value uird.netfsopt)"
    mkdir -p $2
    times=3
    while [ $times -gt 0 ]; do
@@ -677,10 +682,12 @@ mount_sshfs()
 mount_nfs()
 {
    debug_log "mount_nfs" "$*"
+   OPTIONS="nolock,rsize=4096,wsize=4096"
+   [ "$(cmdline_value uird.netfsopt)" ] && OPTIONS="$OPTIONS,$(cmdline_value uird.netfsopt)"
    mkdir -p $2
    modprobe nfs
    local SHARE=`echo $1 | sed s-^nfs://-- `
-   if mount -t nfs $SHARE $2 -o nolock,rsize=4096,wsize=4096 2>/dev/null ;then
+   if mount -t nfs $SHARE $2 -o $OPTIONS 2>/dev/null ;then
       echo $2
    elif mount -t nfs $(dirname $SHARE) $2 -o nolock,rsize=4096,wsize=4096 2>/dev/null ;then
       echo $2/$(basename $SHARE)
@@ -722,7 +729,6 @@ ismountpoint()
    MDIR=$(readlink -f "$1")
    cat /proc/mounts | cut -d " " -f 2 | egrep "^$MDIR\$" >/dev/null 2>&1
 }
-
 
 
 # Find file-path on given device
@@ -841,37 +847,6 @@ find_data()
    echo $RESULT
 }
 
-# Setup layer
-# $1 = data directory
-# $2 = layer directory
-# $3 = cmdline param name
-init_layer()
-{
-    debug_log "init_layer" "$*"
-    
-    echo_green_star
-    echolog "$INIT_LAYER" $brown$(basename $2) " -> " $1
-    
-    local NUM_SUBL OIFS
-    NUM_SUBL=0
-    CMD_PARAM=$3
-    FROM=$(cmdline_value $CMD_PARAM)
-    #LOAD=$(cmdline_value load | sed -r 's/\?/./g' |  sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
-    ARR_FROM=$(echo $FROM | tr -s ";," " ")
-    for DATAFROM in $ARR_FROM; do
-        if [ "$DATAFROM" ]; then
-            DATA=$2/$NUM_SUBL
-            DATAMNTM=$1/$NUM_SUBL
-	    mount_data_source $DATAFROM $DATA $DATAMNTM
-            #   [ -d "$DATA/$LIVEKITNAME" ] && DATA="$DATA/$LIVEKITNAME"
-            #   [ -f "$DATA/$SGN" ] || DATA=""
-            #   grep -q "`head -1 /VERSION`" $DATA/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || DATA=""
-        fi
-
-        NUM_SUBL=$((NUM_SUBL+1))
-    done
-
-}
 
 # Return device mounted for given directory
 # $1 = directory
@@ -1163,85 +1138,7 @@ download_data_pxe()
    echo "$1/$LIVEKITNAME"
 }
 
-# Find LIVEKIT data by mounting all devices
-# If found, keep mounted, else unmount
-# $1 = data directory target (mount here)
-# $2 = data directory which contains compressed bundles
-#
-find_data_try()
-{
-   debug_log "find_data_try" "$*"
 
-   local DEVICE FS FROM OPTIONS
-
-   mkdir -p "$1"
-   blkid.real | sort | cut -d: -f 1 | grep -E -v "/loop|/ram|/zram" | while read DEVICE; do
-      FROM="$2"
-      FS="$(device_bestfs "$DEVICE")"
-      OPTIONS="$(fs_options $FS)"
-      mount -r "$DEVICE" "$1" $FS $OPTIONS 2>/dev/null
-
-      # if the FROM parameter is actual file, mount it again as loop (eg. iso)
-      if [ -f "$1/$FROM" ]; then
-         mount -o remount,rw "$DEVICE" "$1" 2>/dev/null
-         mkdir -p "$1/../iso"
-         mount -o loop,ro "$1/$FROM" "$1/../iso" 2>/dev/null
-         FROM="../iso/$LIVEKITNAME"
-      fi
-
-      # search for bundles in the mounted directory
-      if [ "$(find "$1/$FROM" -maxdepth 2 -name "*.$BEXT" 2>/dev/null)" != "" ]; then
-         # we found at least one bundle/module here
-         mount -o remount,rw "$DEVICE" "$1" 2>/dev/null
-         echo "$1/$FROM" | tr -s "/" | sed -r "s:/[^/]+/[.][.]/:/:g"
-         return
-      fi
-
-      # unmount twice, since there could be mounted ISO as loop too. If not, it doesn't hurt
-      umount "$1" 2>/dev/null
-      umount "$1" 2>/dev/null
-   done
-}
-
-# Retry finding LIVEKIT data several times,
-# until timeouted or until data is found
-# $1 = timeout
-# $2 = data directory target (mount here)
-#
-find_data_livekitlib()
-{
-   debug_log "find_data" "$*"
-
-   local DATA FROM
-
-   if [ "$(cmdline_value ip)" != "" ]; then
-      download_data_pxe "$2"
-      return
-   fi
-
-   FROM="$(cmdline_value from)"
-   if [ "$FROM" = "" ]; then FROM="$LIVEKITNAME"; fi
-
-   echo_green_star >&2
-   echo -n "Looking for $LIVEKITNAME data in /$FROM .." | tr -s "/" >&2
-   for timeout in $(seq 1 $1); do
-      echo -n "." >&2
-      DATA="$(find_data_try "$2" "$FROM")"
-      if [ "$DATA" != "" ]; then
-         echo "" >&2
-         echo "* Found on $(mounted_device "$2")" >&2
-         echo "$DATA"
-         return
-      fi
-      sleep 1
-   done
-   echo "" >&2
-
-   if [ "$DATA" = "" ]; then
-      fatal "$LIVEKITNAME data not found"
-   fi
-
-}
 # mount data source to destination directory using mount point directory
 # $1 = source
 # $2 = destination directory
@@ -1280,6 +1177,39 @@ mount_data_source()
 	fi
 
 }
+
+# Initialization layer
+# $1 = data directory
+# $2 = layer directory
+# $3 = cmdline param name
+init_layer()
+{
+    debug_log "init_layer" "$*"
+    
+    echo_green_star
+    echolog "$INIT_LAYER" $brown$(basename $2) " -> " $1
+    
+    local NUM_SUBL FROM CMD_PARAM ARR_FROM DATAFROM DATA DATAMNTM
+    NUM_SUBL=0
+    CMD_PARAM=$3
+    FROM=$(cmdline_value $CMD_PARAM)
+    ARR_FROM=$(echo $FROM | tr -s ";," " ")
+    for DATAFROM in $ARR_FROM; do
+        if [ "$DATAFROM" ]; then
+            DATA=$2/$NUM_SUBL
+            DATAMNTM=$1/$NUM_SUBL
+	    mount_data_source $DATAFROM $DATA $DATAMNTM
+            #   [ -d "$DATA/$LIVEKITNAME" ] && DATA="$DATA/$LIVEKITNAME"
+            #   [ -f "$DATA/$SGN" ] || DATA=""
+            #   grep -q "`head -1 /VERSION`" $DATA/[Vv][Ee][Rr][Ss][Ii][Oo][Nn] 2>/dev/null || DATA=""
+        fi
+
+        NUM_SUBL=$((NUM_SUBL+1))
+    done
+
+}
+
+
 # Setup changes
 # $1 = changes source
 # $2 = changes directory
@@ -1349,11 +1279,12 @@ setup_machines()
     local CHANGESMNT
     
     CHANGESVAL=$(cmdline_value uird.changes)
-    [ -z "$CHANGESVAL" ] && exit 0
-    echo_green_star
-    echolog "$SETUP_MACHINES" $yellow"$1"
+    [ -z "$CHANGESVAL" ] && return
 #In case we using lzm|xzm as changes= parameter
     if echo "$CHANGESVAL" | grep -q [XxLl][Zz][Mm]$ ;then
+    echo_green_star
+    echolog "$SETUP_MACHINES" $yellow"$1"
+	
 	if [ "$CHANGESVAL" = "xzm" ] ;then
     	    MUID=mac-$(cat /sys/class/net/eth0/address | tr -d :)
     	    [ "$MUID" = "mac-" ] && MUID=vga-$(lspci -mm | grep -i vga | md5sum | cut -c 1-12)
@@ -1370,8 +1301,37 @@ setup_machines()
     	    unsquashfs -f -dest $2 "$CHANGESMNT" >/dev/null 2>&1
 	fi
     echo "$CHANGESMNT" | sed s=/machines/static/=/machines/dynamic/= > $2/.savetomodule
-fi
+    fi
 
+}
+
+
+# Setup homes
+# $1 = homes-layer
+# $2 = mount directory
+setup_homes()
+{
+    debug_log "setup homes" "$*"
+    
+    local MNT_HOME LAYER_HOMES HOMES_BR HOMES
+    
+    HOMES=$(cmdline_value uird.homes)
+    [ -z "$HOMES" ] && return
+    
+    LAYER_HOMES=$1
+    MNT_HOME=$2
+
+    echo_green_star
+    echolog "$SETUP_HOMES" $brown"$(basename $LAYER_HOMES)" " -> " "$MNT_HOME"
+
+    for d_dirs in "$LAYER_HOMES"/*; do
+	if [ -z $HOMES_BR ];then
+	    HOMES_BR="$d_dirs=rw" 
+	else
+	    HOMES_BR="$HOMES_BR:$d_dirs=rw"
+	fi
+    done
+    mount -t aufs -o br=$HOMES_BR aufs $MNT_HOME
 }
 
 # Activate persistent changes
@@ -1436,18 +1396,18 @@ persistent_changes()
 find_modules()
 {
    debug_log "find_modules" "$*"
-   ARR_FILTER=$(echo "$(cmdline_value uird.rw),$(cmdline_value uird.ro)" | tr -s ";," " ")
+   ARR_FILTER=$(echo $(cmdline_value uird.rw)","$(cmdline_value uird.ro) | tr -s ";," " ")
    for filter in $ARR_FILTER; do
         find "$1" -path "$filter"  2>/dev/null | sort
 
    done
 }
 
-# List all modules in all directories (base, modules, optional)
-# and filter out unneeded optional modules (not specified by load= kernel parameter)
-# separator for load and noload arguments is "," or ";"
+# List all modules in all directories
+# and filter out
+# separator for uird.load and uird.noload arguments is "," or ";"
 # $1 = layer directory
-#
+
 list_modules()
 {
    debug_log "list_modules" "$*"
@@ -1466,6 +1426,7 @@ list_modules()
       fi
    done
 }
+
 # Mount squashfs filesystem bundles
 # and add them to union
 # $1 = directory where to search for bundles
@@ -1482,7 +1443,7 @@ union_append_bundles()
    RO=$(cmdline_value uird.ro | sed -r 's/\?/./g' | sed -r 's/\*/.\*/g' | sed -r 's/,|;/|/g')
 
    echo_green_star
-   echolog "$UNION_APPEND_BUNDLES" $1 
+   echolog "$UNION_APPEND_BUNDLES" $brown$1 
    list_modules "$1" | while read BUNDLE; do
       BUN="$(basename "$BUNDLE")"
       mkdir -p "$2/$BUN"
@@ -1520,39 +1481,6 @@ copy_rootcopy_content()
    fi
 }
 
-# Copy data to RAM if requested
-# $1 = live data directory
-# $2 = changes directory
-#
-copy_to_ram_livekit()
-{
-   debug_log "copy_to_ram" "$*"
-
-   local MDIR MDEV RAM CHANGES
-
-   if grep -vq toram /proc/cmdline; then
-      echo "$1"
-      return
-   fi
-   
-   echo_green_star
-   echolog "Copying $LIVEKITNAME data to RAM..."
-   
-   RAM="$(dirname "$2")"/toram
-   mkdir  -p "$RAM"
-   cp -a "$1"/* "$RAM"
-   echo "$RAM"
-
-   MDIR="$(mounted_dir "$1")"
-   MDEV="$(mounted_device "$1")"
-   MDEV="$(losetup $MDEV 2>/dev/null | cut -d " " -f 3)"
-   umount "$MDIR" 2>/dev/null
-
-   if [ "$MDEV" ]; then # iso was mounted here, try to unmount the FS it resides on too
-      MDEV="$(mounted_device "$MDEV")"
-      umount "$MDEV" 2>/dev/null
-   fi
-}
 # Copy modules to directory
 # $1 = data directory
 # $2 = target directory
@@ -1606,61 +1534,6 @@ copy_to_cache()
     fi
 }
 
-# load filter
-#
-filter_load()
-{
-   local FILTER
-   FILTER=$(cmdline_value load)
-   if [ "$FILTER" = "" ]; then
-      cat -
-   else
-      cat - | egrep "$FILTER"
-   fi
-}
-
-# noload filter
-#
-filter_noload()
-{
-   local FILTER
-   FILTER=$(cmdline_value noload)
-   if [ "$FILTER" = "" ]; then
-      cat -
-   else
-      cat - | egrep -v "$FILTER"
-   fi
-}
-
-# sort modules by number even if they are in subdirectory
-#
-sortmod()
-{
-   cat - | sed -r "s,(.*/(.*)),\\2:\\1," | sort -n | cut -d : -f 2-
-}
-
-# Mount squashfs filesystem bundles
-# and add them to union
-# $1 = directory where to search for bundles
-# $2 = directory where to mount bundles
-# $3 = directory where union is mounted
-#
-union_append_bundles_livekitlib()
-{
-   debug_log "union_append_bundles" "$*"
-
-   local BUN
-
-   echo_green_star
-   echo "Adding bundles to union"
-   ( ls -1 "$1" | sort -n ; cd "$1" ; find . 2>/dev/null | sortmod | filter_load) | grep '[.]'$BEXT'$' | filter_noload | while read BUNDLE; do
-      echo "* --> $BUNDLE"
-      BUN="$(basename "$BUNDLE")"
-      mkdir -p "$2/$BUN"
-      mount -o loop -t squashfs "$1/$BUNDLE" "$2/$BUN"
-      mount -o remount,add:1:"$2/$BUN" aufs "$3"
-   done
-}
 
 # Create empty fstab properly
 # $1 = root directory

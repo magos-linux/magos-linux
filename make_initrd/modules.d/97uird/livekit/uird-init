@@ -46,7 +46,8 @@ resume_from_suspend
 
 mkdir -p $MEMORY
 
-cat /basecfg.ini >/memory/cmdline
+echo getcmdline >/memory/cmdline
+cat /basecfg.ini >/memory/basecfg.ini 2>/dev/null
 
 RAMSIZE=$(cmdline_value uird.ramsize)
 if [ "$RAMSIZE" = "" ]; then RAMSIZE="70%"; fi
@@ -54,7 +55,8 @@ mount -t tmpfs -o "size=$RAMSIZE" tmpfs $MEMORY
 
 mkdir -p $MOUNTDIR $CHANGES
 
-cat /basecfg.ini >/memory/cmdline
+getcmdline >/memory/cmdline
+cat /basecfg.ini >/memory/basecfg.ini 2>/dev/null
 
 
 # find data dir with filesystem bundles
@@ -102,31 +104,42 @@ init_aufs
 
 # init aufs union
 init_union "$CHANGES" "$UNION"
-                                                                                                                                                      debug_shell
 
+                                                                                                                                                      debug_shell
 # add data to union
-for d_dirs in "$COPY2RAM" "$LAYER_CACHE" "$LAYER_BASE"  ;do
-    union_append_bundles $d_dirs "$BUNDLES" "$UNION"
-done
+#for d_dirs in "$COPY2RAM" "$LAYER_CACHE" "$LAYER_BASE"  ;do
+#    union_append_bundles $d_dirs "$BUNDLES" "$UNION"
+#done
+
+[ "$(cmdline_value uird.copy2ram)$(cmdline_parameter uird.copy2ram)" ] && union_append_bundles $COPY2RAM "$BUNDLES" "$UNION"
+                                                                                                                                                      debug_shell
+[ "$(cmdline_value uird.cache)" ] && union_append_bundles $LAYER_CACHE "$BUNDLES" "$UNION"
+                                                                                                                                                      debug_shell
+[ "$(cmdline_value uird.from)" ] && union_append_bundles $LAYER_BASE "$BUNDLES" "$UNION"
+
+#setup homes by using aufs
+setup_homes "$LAYER_HOMES" "$UNION/home"                                                                                                                                                      debug_shell
                                                                                                                                                       debug_shell
 
 # rootcopy
 #copy_rootcopy_content "$DATA" "$UNION"
 
 echo_green_star
-echolog "Recreating /etc/fstab and /mnt directories"
+echolog "Обновление файла /etc/fstab и директории /mnt "
 touch $UNION/etc/fstab
 rmdir $UNION/mnt/* 2>/dev/null
 fstab_update $UNION
                                                                                                                                                       debug_shell
 
 # old compatibility
-mkdir -p $UNION/mnt/live
+mkdir -p $UNION/mnt/live 
 cp liblinuxlive $UNION/mnt/live/liblinuxlive
+ln -s /memory/data $UNION/mnt/livemedia
+                                                                                                                                                      debug_shell
 
 cd $UNION
 echo_green_star
-echolog "Starting rc.preinit scripts"
+echolog "Выполняются  rc.preinit скрипты"
 [ -x "etc/rc.d/rc.preinit" ] && /bin/bash etc/rc.d/rc.preinit
                                                                                                                                                       debug_shell
 

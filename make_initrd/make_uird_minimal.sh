@@ -8,6 +8,7 @@ dracut -N  -f -m "base busybox uird ntfs kernel-modules"  \
         --filesystems "aufs squashfs vfat msdos iso9660 isofs xfs ext3 ext4 fuse nfs cifs" \
         --confdir "dracut.conf.d" \
         -i initrd / \
+        --kernel-cmdline "uird.from=/MagOS uird.ro=*.xzm uird.load=/base/" \
         -c dracut.conf -v -M uird.cpio.xz $(uname -r) >dracut.log 2>&1
 
 
