@@ -110,6 +110,7 @@ movefiles ost_list modules_filelist/*-kernel '^lib/modules/'
 movefiles ost_list modules_filelist/*-kernel 'var/lib/dkms-binary'
 movefiles ost_list modules_filelist/*-kernel 'boot/initrd'
 movefiles ost_list modules_filelist/*-kernel 'boot/vmlinuz'
+movefiles ost_list modules_filelist/*-kernel 'boot/uird.magos.cpio.xz'
 movefiles ost_list modules_filelist/*-core '^dev/'
 movefiles ost_list modules_filelist/*-core '/magos/'
 movefiles ost_list modules_filelist/*-core '^etc/skel'
@@ -232,7 +233,7 @@ mkdir -p -m 755 var/lib/rpm/modules
 cp ../../modules_list/??-* var/lib/rpm/modules
 chmod 444 var/lib/rpm/modules/*
 cd ../
-rm -f *kernel*/boot/vmlinuz*
+rm -f *kernel*/boot/vmlinuz* *kernel*/boot/uird.magos.cpio.xz
 for a in * ;do
     [ -d "$a" ] || continue
     mkdir -p $a/var/lib/rpm/modules

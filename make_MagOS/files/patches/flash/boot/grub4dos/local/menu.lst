@@ -23,6 +23,11 @@ title MagOS-Чистый режим
 kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0
 initrd /MagOS/initrd.gz
 
+title MagOS-Чистый режим (тестирование UIRD)
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 root=uird:
+initrd /MagOS/uird.magos.cpio.xz
+
 #title MagOS-System profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent quiet changes=MagOS_save1.img
