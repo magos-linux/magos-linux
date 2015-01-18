@@ -13,6 +13,15 @@ DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
 debug_mode "$0" "$@"
 
+LINKFGLRX=/etc/ld.so.conf.d/GL/ati.conf
+LINKNVIDIA96xx=/etc/nvidia96xx/ld.so.conf
+LINKNVIDIA340=/etc/nvidia340/ld.so.conf
+LINKNVIDIA304=/etc/nvidia304/ld.so.conf
+LINKNVIDIA173=/etc/nvidia173/ld.so.conf
+LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
+LINKATI=/etc/ld.so.conf.d/GL/standard.conf
+LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
+
 [ ! -f etc/sysconfig/harddrake2/previous_hw ] && ! grep -q XORG_RES etc/sysconfig/MagOS && echo XORG_RES=auto >>etc/sysconfig/MagOS
 
 XDRIVER=$(cmdline_value xdriver)
@@ -51,30 +60,13 @@ if [ -z "$XDRIVER" ] ;then
   esac
   # testing nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx modules
   if [ "$XDRIVER" = "nvidia-current" ] ;then
-     chroot . modprobe nvidia-current
-     if ! lsmod | grep -q nvidia ;then
-        chroot . modprobe nvidia340
-        if lsmod | grep -q nvidia ;then
-           XDRIVER=nvidia340
-        else
-           chroot . modprobe nvidia304
-           if lsmod | grep -q nvidia ;then
-              XDRIVER=nvidia304
-           else
-              chroot . modprobe nvidia173
-              if lsmod | grep -q nvidia ;then
-                 XDRIVER=nvidia173
-              else
-                 chroot . modprobe nvidia96xx
-                 if lsmod | grep -q nvidia ;then
-                    XDRIVER=nvidia
-                 else
-                    XDRIVER=
-                 fi
-              fi
-           fi
-        fi
-     fi
+     XDRIVER=
+     for a in nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx do 
+         chroot . modprobe $a
+         lsmod | grep -q nvidia && XDRIVER=$a
+         [ -z "$XDRIVER" ] || break
+     done
+     [ -z "$XDRIVER" ] && XDRIVER=fbdev
   fi
   # testing fglrx radeon
   if [ "$XDRIVER" = "fglrx" ] ;then
@@ -105,28 +97,28 @@ if [ ! -f /memory/changes/etc/ld.so.cache ] ;then
   LDCACHE=$XDRIVER
   case $LDCACHE in
      fglrx)
-       LINK=/etc/fglrx/pxpress-free.ld.so.conf
+       LINK=$LINKFGLRX
      ;;
      nvidia)
-       LINK=/etc/nvidia96xx/ld.so.conf
+       LINK=$LINKNVIDIA96xx
      ;;
      nvidia340)
-       LINK=/etc/nvidia340/ld.so.conf
+       LINK=$LINKNVIDIA340
      ;;
      nvidia304)
-       LINK=/etc/nvidia304/ld.so.conf
+       LINK=$LINKNVIDIA304
      ;;
      nvidia173)
-       LINK=/etc/nvidia173/ld.so.conf
+       LINK=$LINKNVIDIA173
      ;;
      nvidia-current)
-       LINK=/etc/nvidia-current/ld.so.conf
+       LINK=$LINKNVIDIACUR
      ;;
      ati)
-       LINK=/etc/ld.so.conf.d/GL/ati.conf
+       LINK=$LINKATI
      ;;
      *)
-       LINK=/etc/ld.so.conf.d/GL/standard.conf
+       LINK=$LINKFBDEV
        LDCACHE=fbdev
      ;;
   esac
