@@ -29,7 +29,8 @@ initrd /MagOS/initrd.gz
 #initrd /MagOS/initrd.gz
 
 title MagOS Netlive
-kernel /boot/tools/ipxe.krn
+kernel /boot/tools/ipxe.lkrn
+#initrd script.ipxe
 
 title Additional software
 configfile /boot/grub4dos/menu-add.lst

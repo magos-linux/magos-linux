@@ -29,7 +29,8 @@ initrd /MagOS/initrd.gz
 #initrd /MagOS/initrd.gz
 
 title MagOS-Загрузка с Интернет
-kernel /boot/tools/ipxe.krn
+kernel /boot/tools/ipxe.lkrn
+#initrd script.ipxe
 
 title Стороннее
 configfile /boot/grub4dos/local/menu-add.lst
