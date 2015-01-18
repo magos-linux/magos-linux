@@ -1,0 +1,3 @@
+[submodule "make_initrd"]
+	path = make_initrd
+	url = https://github.com/neobht/uird.git
