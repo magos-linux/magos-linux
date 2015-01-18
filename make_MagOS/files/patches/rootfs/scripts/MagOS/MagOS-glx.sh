@@ -1,7 +1,7 @@
 #!/bin/bash
 chroot ./ /usr/sbin/alternatives --quiet --set gl_conf /etc/ld.so.conf.d/GL/standard.conf
 chroot ./ /sbin/ldconfig
-for a in fglrx ati nvidia340 nvidia304 nvidia173 nvidia96xx nvidia-current standard ;do
+for a in ati nvidia340 nvidia304 nvidia173 nvidia96xx nvidia-current standard ;do
   chroot ./ /usr/sbin/alternatives --quiet --set gl_conf /etc/ld.so.conf.d/GL/standard.conf
   LINK=$(chroot ./ /usr/sbin/alternatives --list gl_conf | grep -m1 $a)
   [ -z "$LINK" ] && continue
@@ -12,4 +12,7 @@ for a in fglrx ati nvidia340 nvidia304 nvidia173 nvidia96xx nvidia-current stand
   cp -p var/cache/ldconfig/* "usr/share/magos/ld.so.cache/$a/var/cache/ldconfig"
 done
 [ -d usr/share/magos/ld.so.cache/nvidia96xx ] && mv usr/share/magos/ld.so.cache/nvidia96xx usr/share/magos/ld.so.cache/nvidia
-mv usr/share/magos/ld.so.cache/standard   usr/share/magos/ld.so.cache/fbdev
+mv usr/share/magos/ld.so.cache/standard usr/share/magos/ld.so.cache/fbdev
+mkdir -p usr/share/magos/ld.so.cache/fglrx 
+mv usr/share/magos/ld.so.cache/ati/*    usr/share/magos/ld.so.cache/fglrx
+rmdir usr/share/magos/ld.so.cache/ati
