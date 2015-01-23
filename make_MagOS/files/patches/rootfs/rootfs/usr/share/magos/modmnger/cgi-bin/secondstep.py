@@ -32,6 +32,8 @@ step2_help=_('Selecting disks for  MagOS linux dirs. Catalogues MagOS, MagOS-Dat
 help_= _('Help!').encode('UTF-8')
 copy_OK = _('Copy MagOS dirs - OK').encode('UTF-8')
 copy_fail = _('Copy MagOS dirs - FAIL!!!').encode('UTF-8')
+do_not_copy = _('Do not copy').encode('UTF-8')
+
 
 def magos_install ():
 		dialog_text = ( copy_OK )
@@ -133,13 +135,16 @@ for key, val in logical.items():
 			print  not_mounted
 			
 		print '</td></tr>'
-
+print  '<tr><td  class="bordered_td"><input type="radio" name=magos id="magos_none" value="none"></td><td colspan="4" align="center">' + do_not_copy +'</td></tr>'
 print '</table>'
+
+
 print '<h3>' + magos_data_header + '</h3>'
 print '<table  id="magos-data-table"   class="bordered-table" >'
 print '<tr><td  class="bordered_td">' + flag + '</td><td  class="bordered_td">' +  device +  '</td><td  class="bordered_td">' + size + '</td>' 
 print '<td  class="bordered_td">' + free_size + '<td  class="bordered_td">' + mount_point + '</td></td> </tr>'
 
+data_checked = 'no'
 for key, val in logical.items():
 	if val[0][1] != 'swap':
 		print  '<tr  title="dirList: '
@@ -149,6 +154,9 @@ for key, val in logical.items():
 		print  '<td  class="bordered_td"><input type="radio" name="magos-data" id="' + key.replace('/', '-') + '" value="' + key + '"'
 		if  val[0][0] == 'magos-data' and  val[0][6] != '/mnt/livedata':
 			print ' checked '
+			data_checked = 'yes'
+		if  val[0][0] == 'magos' and  val[0][6] != '/mnt/livemedia'  and  data_checked != 'yes':
+			print ' checked '
 		print '></td>'
 		print '<td  class="bordered_td">' + key + '</td><td  class="bordered_td">' + val[0][2] + '</td><td  class="bordered_td">' + val[0][4] + '</td><td  class="bordered_td">' 
 		if val[0][6] != '/dev': 
@@ -157,7 +165,7 @@ for key, val in logical.items():
 			print  not_mounted
 			
 		print '</td></tr>'
-
+print  '<tr><td  class="bordered_td"><input type="radio" name=magos-data  id="magos_data_none" value="none"></td><td colspan="4"  align="center">' + do_not_copy +'</td></tr>'
 print '</table>'
 
 print '<h3>' + boot_header + '</h3>'
@@ -182,6 +190,7 @@ for key, val in logical.items():
 			print  not_mounted
 			
 		print '</td></tr>'
+print  '<tr><td  class="bordered_td"><input type="radio" name=boot id="boot_none" value="none"></td><td colspan="4"  align="center">' + do_not_copy +'</td></tr>'
 print '</table>'
 print '<br><br>'
 print '<input type="submit"  name="submit"    value="' + submit_2 + '"></form>'
