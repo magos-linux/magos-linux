@@ -38,7 +38,6 @@
       <Menuname inline="false">E-mail</Menuname>
       <Menuname inline="false">News</Menuname>
       <Menuname inline="false">Chat</Menuname>
-      <Menuname inline="false">Remote Access</Menuname>
       <Menuname inline="false">Capture</Menuname>
       <Menuname inline="false">Control</Menuname>
       <Separator/>
@@ -123,13 +122,6 @@
       </Include>
     </Menu>
     <Menu>
-      <Name>Remote Access</Name>
-      <Directory>magos-admin.directory</Directory>
-      <Include>
-        <Category>RemoteAccess</Category>
-      </Include>
-    </Menu>
-    <Menu>
       <Name>Control</Name>
       <Directory>magos-control.directory</Directory>
       <Include>
@@ -145,6 +137,7 @@
             </Not>
           </And>
           <Category>Dialup</Category>
+          <Category>RemoteAccess</Category>
       </Include>
     </Menu>
   </Menu>

@@ -61,7 +61,7 @@ if [ -z "$XDRIVER" ] ;then
   # testing nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx modules
   if [ "$XDRIVER" = "nvidia-current" ] ;then
      XDRIVER=
-     for a in nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx do 
+     for a in nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx ;do
          chroot . modprobe $a
          lsmod | grep -q nvidia && XDRIVER=$a
          [ -z "$XDRIVER" ] || break

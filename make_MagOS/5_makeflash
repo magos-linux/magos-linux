@@ -44,7 +44,6 @@ cd work/$FLASHNAME-$VERREL
 echo $VERREL $DISTRVERSION  > "$MYPATH/$DESTDIR"/$FLASHNAME/VERSION
 echo $VERREL $DISTRVERSION  > VERSION
 cp -L rootfs/boot/vmlinuz "$MYPATH/$DESTDIR"/$FLASHNAME/vmlinuz || exit 1
-cp -L rootfs/boot/uird.magos.cpio.xz "$MYPATH/$DESTDIR"/$FLASHNAME/uird.magos.cpio.xz || exit 1
 
 echo "Cоздание initrd"
 umountbranches "$(pwd)/initrd"
@@ -58,6 +57,7 @@ mount -o bind /dev initrd/rootfs/dev || exit 1
 mount -o bind /proc initrd/rootfs/proc || exit 1
 chroot initrd/rootfs /usr/lib/magos/scripts/mkinitrd /boot/initrd.gz || exit 1
 mv initrd/rootfs/boot/initrd.gz "$MYPATH/$DESTDIR/${FLASHNAME}" || exit 1
+[ -f initrd/rootfs/boot/uird.magos.cpio.xz ] && cp -L initrd/rootfs/boot/uird.magos.cpio.xz "$MYPATH/$DESTDIR"/$FLASHNAME/uird.magos.cpio.xz
 umountbranches "$(pwd)/initrd"
 rm -fr initrd
 

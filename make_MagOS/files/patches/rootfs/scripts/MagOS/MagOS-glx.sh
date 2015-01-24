@@ -12,7 +12,11 @@ for a in ati nvidia340 nvidia304 nvidia173 nvidia96xx nvidia-current standard ;d
   cp -p var/cache/ldconfig/* "usr/share/magos/ld.so.cache/$a/var/cache/ldconfig"
 done
 [ -d usr/share/magos/ld.so.cache/nvidia96xx ] && mv usr/share/magos/ld.so.cache/nvidia96xx usr/share/magos/ld.so.cache/nvidia
-mv usr/share/magos/ld.so.cache/standard usr/share/magos/ld.so.cache/fbdev
-mkdir -p usr/share/magos/ld.so.cache/fglrx 
-mv usr/share/magos/ld.so.cache/ati/*    usr/share/magos/ld.so.cache/fglrx
-rmdir usr/share/magos/ld.so.cache/ati
+mkdir -p usr/share/magos/ld.so.cache/fglrx/etc usr/share/magos/ld.so.cache/fbdev/etc
+mv usr/share/magos/ld.so.cache/standard/etc/ld.so.cache usr/share/magos/ld.so.cache/fbdev/etc
+mv usr/share/magos/ld.so.cache/standard/var             usr/share/magos/ld.so.cache/fbdev
+mv usr/share/magos/ld.so.cache/ati/etc/ld.so.cache      usr/share/magos/ld.so.cache/fglrx/etc
+mv usr/share/magos/ld.so.cache/ati/var                  usr/share/magos/ld.so.cache/fglrx
+cp -pfr usr/share/magos/ld.so.cache/fbdev/etc/ld.so.cache usr/share/magos/ld.so.cache/ati/etc
+cp -pfr usr/share/magos/ld.so.cache/fbdev/var             usr/share/magos/ld.so.cache/ati
+rm -fr usr/share/magos/ld.so.cache/standard
