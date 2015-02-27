@@ -1,6 +1,10 @@
 #!/bin/bash
 path=/mnt/livemedia/MagOS
-[ -d /mnt/livemedia/MagOS-Data ] && path=/mnt/livemedia/MagOS-Data
+[ -d /mnt/livedata/MagOS-Data ] && path=/mnt/livedata/MagOS-Data
+[ -d /memory/layer-base/0 ] && path=/memory/layer-base/0
+[ -d /memory/layer-base/1 ] && path=/memory/layer-base/1
+
+
 #[ -d /mnt/livedata/MagOS-Data ] && path=/mnt/livedata/MagOS-Data
 MODULEFORMATS=$(./cgi-bin/cfg.py modtype)
 SAVE2MODULEFORMAT=xzm

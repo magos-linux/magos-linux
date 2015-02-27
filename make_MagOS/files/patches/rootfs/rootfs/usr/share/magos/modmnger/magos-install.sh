@@ -17,6 +17,8 @@ MSG_time=$(gettext  "sync time, hours:min:sec:")
 
 echo  "${0}:  process is not finished correctly"  > /tmp/errorcode
 
+magos_src=$(dirname $(./cfg.py base_path))
+
 while getopts  d:m:b: option ;do
     case $option in
       "h" )
@@ -48,7 +50,8 @@ echo "MagOS - $magos_dest"
 echo "MagOS-Data  - $data_dest"
 echo "boot - $boot_dest"
 echo ------------------------------------------------- 
-magos_src=$(dirname $(./cfg.py base_path)) 
+
+ 
 
 if  [ -b "$magos_dest" ] ; then
 	test=$(cat /proc/mounts |grep $magos_dest | head -n 1 |awk '{print $2}')
@@ -87,24 +90,25 @@ fi
 
 if [ -d "$magos_dest"  ] ; then
 echo -------------------------------------------------
-	if [ -d "/mnt/livemedia/MagOS" ] ; then
-	echo "Copy /mnt/livemedia/MagOS to $magos_dest"
-	until rsync -av --progress   --exclude=*optional/*   	--exclude=*modules/*  --exclude=*machines/dynamic/*   --exclude=*machines/static/* --exclude=*rootcopy/*  /mnt/livemedia/MagOS $magos_dest  ; do  
+	if [ -d "$magos_src" ] ; then
+	echo "Copy MagOS dir to $magos_dest"
+	until rsync -av --progress   --exclude=*optional/* --exclude=*modules/* --exclude=*machines/dynamic/* --exclude=*machines/static/* --exclude=*rootcopy/*  $magos_src $magos_dest  ; do  
 		read   -p "copy MagOS dir error, retry? $MSG_YN"   a
 		[ "$a" == "y" -o "$a" == "Y" -o "$a" == "$MSG_y" -o "$a" == "$MSG_Y" ] || error "${LINENO}:  MagOS dir is not copyed" 2
 	done 
+	[ -d "${magos_dest}/0" ] && mv ${magos_dest}/0 ${magos_dest}/MagOS 
 	echo "$MSG_OK"
 	else
-	error  "/mnt/livemedia/MagOS is not exists"
+	error  "$magos_src is not exists"
 	fi
 fi 
 
 
 if [ -d "$boot_dest"  ] ; then
 echo -------------------------------------------------
-	if [ -f  "/mnt/livemedia/MagOS/boot.tar.bz2" ] ; then
-		echo "Unpacking /mnt/livemedia/MagOS/boot.tar.bz2 to  $boot_dest"
-		rsync  -av  /mnt/livemedia/MagOS/boot.tar.bz2  "$boot_dest" || error "${LINENO}:  copy boot.tar.gz  error"  2
+	if [ -f  "${magos_src}/boot.tar.bz2" ] ; then
+		echo "${magos_src}/boot.tar.bz2 to  $boot_dest"
+		rsync  -av  ${magos_src}/boot.tar.bz2  "$boot_dest" || error "${LINENO}:  copy boot.tar.gz  error"  2
 		cd $boot_dest
 		tar xvjf   ./boot.tar.bz2 || error "${LINENO}: unpack boot dir error"  3
 		rm -f  ./boot.tar.bz2
@@ -138,15 +142,15 @@ fi
 
 if [ -d "$data_dest"  ] ; then
 echo -------------------------------------------------
-echo "Unpacking /mnt/livemedia/MagOS/MagOS-Data.tar.bz2 to  $data_dest"
-	if [ -f  "/mnt/livemedia/MagOS/MagOS-Data.tar.bz2" ] ; then
-	rsync -av /mnt/livemedia/MagOS/MagOS-Data.tar.bz2  "$data_dest" || error "${LINENO}:  copy MagOS-Data.tar.gz  error"  2
+echo "Unpacking ${magos_src}/MagOS-Data.tar.bz2 to  $data_dest"
+	if [ -f  "${magos_src}/MagOS-Data.tar.bz2" ] ; then
+	rsync -av ${magos_src}/MagOS-Data.tar.bz2  "$data_dest" || error "${LINENO}:  copy MagOS-Data.tar.gz  error"  2
 	cd $data_dest
 	tar xvjf   ./MagOS-Data.tar.bz2 || error "${LINENO}: unpack MagOS-Data dir error"  3
 	rm -f  ./MagOS-Data.tar.bz2
 	echo "$MSG_OK"
 	else
-	error "${LINENO}:  /mnt/livemedia/MagOS/MagOS-Data.tar.bz2 is not found"
+	error "${LINENO}:  ${magos_src}/MagOS-Data.tar.bz2 is not found"
 	fi
 fi
 
