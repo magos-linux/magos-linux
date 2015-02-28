@@ -1,0 +1,34 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
+
+NEWLANG=$(cmdline_value lang)
+if [ "$NEWLANG" != "" -a -d usr/share/magos/langs/$NEWLANG ] ;then
+  cp -pfr usr/share/magos/langs/$NEWLANG/* ./
+  cp -f etc/sysconfig/i18n  etc/locale.conf
+fi
+
+. etc/locale.conf
+
+USE_LOCARCHIVE=no
+FORCE_LOCARCHIVE=no
+[ -f usr/lib/locale/locales-archive ] && USE_LOCARCHIVE=yes
+[ "$LANG" = "en_US.UTF-8" -o "$LANG" = "ru_RU.UTF-8" ] && USE_LOCARCHIVE=no
+if [ "$USE_LOCARCHIVE" = "yes" -o "$FORCE_LOCARCHIVE" = "yes" ] ;then
+   [ -z "$LOCALE"  ] && LOCALE=$(echo $LANG | sed s/[.].*//)
+   [ -z "$CHARSET" ] && CHARSET=$(echo $LANG | sed s/^.*[.]//)
+   [ -z "$CHARSET" ] && CHARSET=UTF-8
+   chroot . localedef -c -f "$CHARSET" -i "$LOCALE" $LANG
+fi

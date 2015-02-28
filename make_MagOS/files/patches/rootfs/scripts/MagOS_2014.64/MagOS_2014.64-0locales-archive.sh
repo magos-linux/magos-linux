@@ -1,4 +1,5 @@
 #!/bin/bash
-cat ../../../../files/locales-archive | while read a ;do
-   chroot . localedef --replace --add-to-archive "/usr/share/locale/$a" 
+rm -f usr/share/locale/locale-archive
+for a in en_US ru_RU ;do
+   chroot . localedef -c -f UTF-8 -i "$a" $a.UTF-8
 done

@@ -189,7 +189,7 @@ else
    cp -f /lib/libulockmgr.*        usr/lib   || exit 1
 fi
 [ -f /usr/share/pci.ids ] && cp -f /usr/share/pci.ids      usr/share 
-cp -pHR /usr/share/locale/ru_RU.UTF-8/* usr/share/locale/ru_RU.UTF-8 || exit 1
+[ -d /usr/share/locale/ru_RU.UTF-8 ] && cp -pHR /usr/share/locale/ru_RU.UTF-8/* usr/share/locale/ru_RU.UTF-8
 
 ln -sf ../usr/bin/mksquashfs   bin/mksquashfs || exit 1
 ln -sf ../usr/bin/unsquashfs   bin/unsquashfs || exit 1

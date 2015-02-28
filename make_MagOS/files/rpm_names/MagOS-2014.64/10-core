@@ -351,6 +351,7 @@ perl-Crypt-DES-
 perl-DBD-SQLite-
 perl-DBI-
 perl-DBIx-Simple-
+perl-DateTime-TimeZone-
 perl-Digest-HMAC-
 perl-Digest-SHA-
 perl-Digest-SHA1-
@@ -455,3 +456,18 @@ libstdc++6-
 libgcc1-
 attr-
 aufs-tools-
+libpwquality-common-
+lib64ntfs-3g85-
+pam_pwquality-
+perl-Class-Singleton-
+perl-DateTime-
+perl-DateTime-Locale-
+perl-List-AllUtils-
+perl-Params-Validate-
+perl-Module-Runtime-
+perl-Module-Implementation-
+perl-Try-Tiny-
+perl-namespace-clean-
+perl-B-Hooks-EndOfScope-
+perl-Package-Stash-
+perl-Sub-Exporter-Progressive-
