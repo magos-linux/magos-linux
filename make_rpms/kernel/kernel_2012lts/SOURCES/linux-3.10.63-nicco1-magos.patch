@@ -1040,8 +1040,8 @@ diff -auprN a/scripts/create_configs-QL b/scripts/create_configs-QL
 +    $to_add{AUFS_DEBUG} = "n";
 +    $values{NLS_CODEPAGE_437} = "m";
 +    $values{FAT_DEFAULT_CODEPAGE} = "866";
-+    $values{FAT_DEFAULT_IOCHARSET} = "utf8";
-+    $values{NLS_DEFAULT} = "utf8";
++    $values{FAT_DEFAULT_IOCHARSET} = "\"utf8\"";
++    $values{NLS_DEFAULT} = "\"utf8\"";
 +    $to_add{X86_16BIT} = "y";
 +}
  

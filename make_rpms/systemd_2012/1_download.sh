@@ -1,5 +1,5 @@
 #!/bin/bash
-URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/main/updates/systemd-208-28.src.rpm
+URL=http://mirror.rosalinux.com/rosa/rosa2012.1/repository/SRPMS/main/updates/systemd-208-30.src.rpm
 mkdir -p tmp/content rpmbuild/SOURCES rpmbuild/SPECS
 curl -# --retry-delay 2 --retry 5 -o tmp/source.src.rpm $URL || exit 1
 cd tmp/content

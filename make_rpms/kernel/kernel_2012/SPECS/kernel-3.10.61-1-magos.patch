@@ -1,6 +1,6 @@
-diff -aupr a/kernel-3.10.53-1.spec b/kernel-3.10.53-1.spec
---- a/kernel-3.10.53-1.spec	2014-08-18 06:54:31.000000000 +0400
-+++ b/kernel-3.10.53-1.spec	2014-08-18 18:11:11.298832616 +0400
+diff -aupr a/kernel-3.10.61-1.spec b/kernel-3.10.61-1.spec
+--- a/kernel-3.10.61-1.spec	2014-08-18 06:54:31.000000000 +0400
++++ b/kernel-3.10.61-1.spec	2014-08-18 18:11:11.298832616 +0400
 @@ -320,6 +320,48 @@ Packager: Nicolo' Costanza <abitrules@ya
  %{?_without_kirkwood: %global build_kirkwood 0}
  %{?_without_versatile: %global build_versatile 0}
