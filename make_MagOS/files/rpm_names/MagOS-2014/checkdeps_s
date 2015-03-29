@@ -1,2 +1,0 @@
-#!/bin/bash
-awk '{print $2 " " $1}' checkdeps.txt | sort > checkdeps_s.txt
