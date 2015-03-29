@@ -33,10 +33,11 @@ fi
 
 #using old values if hw not changed
 if [ -z "$XDRIVER" ] ;then
-  PCIID=$(lspci -n | grep -m1 " 0300: " | awk '{print $3}')
-  PCIVEN=$(echo $PCIID | awk -F: '{print $1}')
+  PCIID=$(lspci -nmm | grep -m1 0300\" | awk -F\" '{print $6}')
+  PCIVEN=$(lspci -nmm | grep -m1 0300\" | awk -F\" '{print $4}')
   . etc/sysconfig/harddrake2/service.conf
   [ "$PCIID" != "$VGAID" ] && XDRIVER=
+  #echo detected video $PCIVEN $PCIID
 fi
 
 #first of all look exceptions

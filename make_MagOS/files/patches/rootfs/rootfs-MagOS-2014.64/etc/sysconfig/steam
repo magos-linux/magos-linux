@@ -1,5 +1,0 @@
-# make links to steam folder for all users
-SHARESTEAM=no
-# path to steam components 
-STEAMCONF=/mnt/livedata/MagOS-Data/steam/.settings
-STEAMAPP=/mnt/livedata/MagOS-Data/steam/APP

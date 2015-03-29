@@ -1,8 +1,11 @@
+libntrack-qt41-
 libphonon4-
+libpoppler-qt4-
 libqassistant4-
 libqassistantclient1-
 libqt3-
 libqt3support4-
+libQt4Pas5-
 libqtclucene4-
 libqtcore4-
 libqtdbus4-
@@ -25,6 +28,7 @@ libqzion0-
 python-qt4-
 python-qt4-assistant-
 python-qt4-core-
+python-qt4-dbus-
 python-qt4-declarative-
 python-qt4-designer-
 python-qt4-gui-
@@ -43,11 +47,7 @@ python-qt4-xml-
 python-qt4-xmlpatterns-
 qt3-common-
 qt4-common-
+qt4-database-plugin-sqlite-
 qt4-qtdbus-
 qt4-xmlpatterns-
 scim-qt-
-python-qt4-dbus-
-libQt4Pas5-
-libntrack-qt41-
-libpoppler-qt4-
-qt4-database-plugin-sqlite-

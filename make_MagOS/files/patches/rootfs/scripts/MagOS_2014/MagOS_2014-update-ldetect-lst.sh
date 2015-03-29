@@ -1,3 +1,3 @@
 #!/bin/sh
-chroot ./ /usr/sbin/update-ldetect-lst
+LANG=C chroot ./ /usr/sbin/update-ldetect-lst
 exit 0

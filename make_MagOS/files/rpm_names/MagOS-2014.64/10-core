@@ -462,7 +462,6 @@ pam_pwquality-
 perl-Class-Singleton-
 perl-DateTime-
 perl-DateTime-Locale-
-perl-List-AllUtils-
 perl-Params-Validate-
 perl-Module-Runtime-
 perl-Module-Implementation-
@@ -471,3 +470,5 @@ perl-namespace-clean-
 perl-B-Hooks-EndOfScope-
 perl-Package-Stash-
 perl-Sub-Exporter-Progressive-
+perl-List-AllUtils-
+lib64nss_myhostname2-

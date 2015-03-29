@@ -12,12 +12,14 @@ lib64registry0-
 lib64samba-credentials0-
 lib64samba-hostconfig0-
 lib64samba-policy0-
+lib64samba-server0-
 lib64samba-util0-
 lib64samdb0-
 lib64smbclient0-
 lib64smbconf0-
 lib64smbldap0-
 lib64tevent-util0-
+lib64winbind2-
 perl-Convert-ASN1-
 perl-ldap-
 python-ldb-

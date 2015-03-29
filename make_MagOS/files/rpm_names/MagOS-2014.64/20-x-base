@@ -69,8 +69,8 @@ lib64audiofile1-
 lib64avahi-compat-libdns_sd1-
 lib64avahi-core7-
 lib64avahi-glib1-
-lib64avcodec55-
-lib64avformat55-
+lib64avcodec56-
+lib64avformat56-
 lib64avutil52-
 lib64bfb0-
 lib64blas3-
@@ -116,7 +116,7 @@ lib64egl1-
 lib64enca0-
 lib64enchant1-
 lib64esound0-
-lib64evdev1-
+lib64evdev2-
 lib64exif12-
 libexif12-common-
 lib64exiv2_13-
@@ -254,6 +254,7 @@ lib64poppler44-
 lib64portaudio2-
 lib64pulseaudio0-
 lib64pulsecommon5.0-
+lib64pulsecommon6.0-
 lib64pulseglib20-
 lib64pyglib2.0_0-
 lib64python3.4-
@@ -293,8 +294,8 @@ lib64speex1-
 lib64startup-notification-1_0-
 lib64svg1-
 lib64svg-cairo1-
-lib64swresample0-
-lib64swscaler2-
+lib64swresample1-
+lib64swscaler3-
 lib64taglib1-
 lib64tcl8.6-
 lib64thai0-

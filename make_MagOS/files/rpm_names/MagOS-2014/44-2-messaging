@@ -1,10 +1,10 @@
 bind-utils-
-gajim-
 mozilla-thunderbird-
 mozilla-thunderbird-enigmail-
 mozilla-thunderbird-enigmail-ru-
 mozilla-thunderbird-lightning-
 mozilla-thunderbird-ru-
+pyasn1-
 python-sqlite2-
 qutim2-
 qutim2-histman-
@@ -19,4 +19,3 @@ qutim2-twitter-
 qutim2-urlpreview-
 qutim2-vkontakte-
 qutim2-yandexnarod-
-pyasn1-

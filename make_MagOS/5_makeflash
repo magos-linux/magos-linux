@@ -36,7 +36,7 @@ echo "Подготовка"
 [ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
 mkdir -p "$DESTDIR" || exit 1
 mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional,rootcopy}
-mkdir -p "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy,cache}
+mkdir -p "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy,cache,steam,backgrounds/wallpapers/Default,backgrounds/screensaver/Default}
 mkdir -p "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic}
 cp -pR files/patches/flash/* "$DESTDIR" || exit 1
 [ -d files/patches/flash.$VERREL ] && cp -pfR files/patches/flash.$VERREL/* "$DESTDIR"

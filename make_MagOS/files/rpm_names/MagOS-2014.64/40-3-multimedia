@@ -48,9 +48,9 @@ lib64amrwb3-
 lib64ass4-
 lib64audio2-
 lib64avc1394_0-
-lib64avdevice55-
-lib64avfilter4-
-lib64avutil50-
+lib64avdevice56-
+lib64avfilter5-
+lib64avutil54-
 lib64bs2b0-
 lib64caca0-
 lib64cdda0-
@@ -112,11 +112,10 @@ lib64opusfile0-
 lib64orc-test0.4_0-
 lib64ortp9-
 lib64osip2_7-
-lib64postproc51-
-lib64postproc52-
+lib64postproc53-
 lib64projectm2-
 libprojectm-data-
-lib64pulsecore5.0-
+lib64pulsecore6.0-
 lib64qmmp0-
 lib64qmmpui0-
 lib64quicktime0-
