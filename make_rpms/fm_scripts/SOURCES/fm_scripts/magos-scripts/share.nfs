@@ -1,8 +1,10 @@
 #!/bin/bash
 export TEXTDOMAINDIR=/usr/share/magos/locale
 export TEXTDOMAIN=fm_scripts
-
+PWD=$(pwd)
 MSG1=$(gettext -s "is temporary shared via nfs, close this window to stop \n mount command example:")
+/bin/systemctl status rpcbind | grep -q masked && /bin/systemctl unmask rpcbind.sevice
+/bin/systemctl status nfs-server | grep -q masked && /bin/systemctl unmask nfs.sevice
 /bin/systemctl status rpcbind  | grep -q running  || service rpcbind start
 par=start
 end=stop
@@ -18,10 +20,12 @@ ip=""
 for arg in $(ip addr show |grep inet |awk '{print $2}' |sed s'/\/.*//' |grep -v 127.0.0.1) ; do
    echo $arg | grep -q 192.168  && ip=${ip}"mount -t nfs $arg:$realdir /mount/dir \n"
 done
+[ -z $ip ] && ip="mount -t nfs nfs_server_ip:/server/dir /mount/dir"
 mdialog --msgbox "\"$realdir\" $MSG1 \n $ip"
 string=${string//\\/\\\\} 
 string=${string//\//\\\/} 
 sed -i /"^$string$"/d /etc/exports
 /bin/systemctl $end nfs-server  && mdialog --passivepopup "NFS server stoped..."
 #mdialog --passivepopup "$(CONSOLETYPE=serial service nfs-server $end)"
+cd $PWD
 exit

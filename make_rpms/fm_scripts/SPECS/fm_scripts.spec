@@ -15,7 +15,7 @@ Scripts for dolphin, nautilus
 %prep
 %setup -q -n %{name}
 
-%post
+#%post
 
 
 %install
