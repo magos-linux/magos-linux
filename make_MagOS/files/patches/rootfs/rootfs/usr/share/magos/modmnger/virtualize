@@ -25,15 +25,23 @@ disk="$1"
 vm="$(echo VM${disk} |sed 's/\//_/g')-$$"
 file="/root/${vm}.vmdk"
 arch=$"(uname -i)"
+
+if [ "$arch" !=  "x86_64" ] ;then  
+pae=" --pae on "
+ostype=linux
+else
 pae=""
-[ "$arch" !=  "x86_64" ] && pae=" --pae on "
+ostype=Linux_64
+fi
+
 echo "disk - $disk"
 echo "VboxVM  - $vm"
 echo "file - $file"
 echo "arch - $arch"
+
 service virtualbox start 
 VBoxManage createvm --name "$vm" -register
-VBoxManage modifyvm "$vm" --memory 1024  --vram 64 --boot1 disk --acpi on  --ostype linux --sata on  --nic1 nat $pae  
+VBoxManage modifyvm "$vm" --memory 1024  --vram 64 --boot1 disk --acpi on  --ostype $ostype --sata on  --nic1 nat $pae  
 VBoxManage internalcommands createrawvmdk -filename "$file" -rawdisk "$disk"
 VBoxManage storageattach "$vm" --storagectl  "SATA" --port 0 --device 0 --type hdd --medium $file
 VBoxManage startvm "$vm"

@@ -92,7 +92,7 @@ if dialog_text != 'none':
 
 if  dialog_text != 'none' and  dialog_text == copy_OK :
 	print """<script>
-    setTimeout( 'location="./cgi-bin/thirdstep.py";', 3000 );
+    setTimeout( 'location="/cgi-bin/thirdstep.py";', 3000 );
     </script>"""
 
 

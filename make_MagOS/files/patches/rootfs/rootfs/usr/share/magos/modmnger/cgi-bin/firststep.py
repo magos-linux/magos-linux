@@ -99,7 +99,7 @@ if dialog_text != 'none':
  
 if  dialog_text != 'none' and  dialog_text == format_ok :
 	print """<script>
-    setTimeout( 'location="./cgi-bin/secondstep.py";', 3000 );
+    setTimeout( 'location="/cgi-bin/secondstep.py";', 3000 );
     </script>"""
 
 
