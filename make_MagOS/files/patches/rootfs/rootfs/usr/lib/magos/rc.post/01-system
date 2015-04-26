@@ -28,3 +28,5 @@ mv -f /etc/mtab.new /etc/mtab
 HWCLOCKOPIONS="--utc"
 [ "$UTC" = "false" ] && HWCLOCKOPIONS="--localtime"
 hwclock -s $HWCLOCKOPIONS
+
+[ -d /mnt/livemedia/MagOS-Data -a ! -d /mnt/livedata ] && ln -sf livemedia /mnt/livedata

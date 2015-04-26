@@ -70,18 +70,22 @@ grep -q "tmpfs /media tmpfs" etc/fstab || echo "tmpfs /media tmpfs size=1M 0 0 #
 if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
    sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
    blkid | grep -v loop | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do
-       grep -q "^$a " /proc/mounts etc/fstab && continue
-       DEVTYPE=$(blkid $a -s TYPE | awk -F\" '{print $2}' )
-       if [ "$DEVTYPE" != "" -a "$DEVTYPE" != "swap" -a "$DEVTYPE" != "udf" -a "$DEVTYPE" != "iso9660" ] ;then
-          DEVLABEL=$( blkid $a -s LABEL | awk -F\" '{print $2}' | tr -d [:cntrl:][:space:])
-          [ -z "$DEVLABEL" ] && DEVLABEL=$(get_name)
-          echo " $PARTITIONSNOMOUNT " | tr ',;' ' ' | grep -q " $DEVLABEL " && continue
-          DEVOPTS=$(fs_options $a fstab)
-          [ "$DEVTYPE" = "vfat" -o "$DEVTYPE" = "ntfs" ] && DEVOPTS="$DEVOPTS,uid=$PARTITIONSMOUNTUID"
-          echo "$a /media/$DEVLABEL $DEVTYPE $DEVOPTS 0 $FSCKFLAG #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
-          [ -d media/$DEVLABEL ] || mkdir -p media/$DEVLABEL
-       elif [ "$DEVTYPE" = "swap" ] ;then
-          grep -q "^$a none swap" etc/fstab || echo "$a none swap defaults 0 0 #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+       grep -q "^$a " etc/fstab && continue
+       if grep -q "^$a " /proc/mounts ;then
+          grep -m1 "^$a " /proc/mounts | grep /memory | sed s/$/" #PARTITIONSAUTOMOUNT=yes"/ >> etc/fstab
+       else
+         DEVTYPE=$(blkid $a | awk -FTYPE=\" '{print $2}'| sed s/\".*// )
+         if [ "$DEVTYPE" != "" -a "$DEVTYPE" != "swap" -a "$DEVTYPE" != "udf" -a "$DEVTYPE" != "iso9660" ] ;then
+            DEVLABEL=$( blkid $a | awk -FLABEL=\" '{print $2}'| sed s/\".*//  | tr -d [:cntrl:][:space:])
+            [ -z "$DEVLABEL" ] && DEVLABEL=$(get_name)
+            echo " $PARTITIONSNOMOUNT " | tr ',;' ' ' | grep -q " $DEVLABEL " && continue
+            DEVOPTS=$(fs_options $a fstab)
+            [ "$DEVTYPE" = "vfat" -o "$DEVTYPE" = "ntfs" ] && DEVOPTS="$DEVOPTS,uid=$PARTITIONSMOUNTUID"
+            echo "$a /media/$DEVLABEL $DEVTYPE $DEVOPTS 0 $FSCKFLAG #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+            [ -d media/$DEVLABEL ] || mkdir -p media/$DEVLABEL
+         elif [ "$DEVTYPE" = "swap" ] ;then
+            grep -q "^$a none swap" etc/fstab || echo "$a none swap defaults 0 0 #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+         fi
        fi
    done
 fi

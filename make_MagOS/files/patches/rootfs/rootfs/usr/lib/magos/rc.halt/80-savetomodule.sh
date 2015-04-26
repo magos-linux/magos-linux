@@ -10,7 +10,8 @@ PATH=/usr/lib/magos/scripts:$PATH
 
 # save2module mode parser
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
-SRC=/mnt/live/memory/changes
+CHSRC=$(readlink -f /mnt/live/memory/changes)
+IMSRC=$(readlink -f /mnt/live/memory/images)
 [ -z "$SAVETOMODULENAME" -a -w /mnt/livedata/$LIVECDNAME-Data/modules ] && SAVETOMODULENAME=/mnt/livedata/$LIVECDNAME-Data/modules/zz-save.$MODULEFORMAT
 [ -z "$SAVETOMODULENAME" -a -w /mnt/livemedia/$LIVECDNAME/modules ] && SAVETOMODULENAME=/mnt/livemedia/$LIVECDNAME/modules/zz-save.$MODULEFORMAT
 [ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
@@ -22,10 +23,13 @@ grep -q /machines/dynamic/ /.savetomodule 2>/dev/null  && [ -f $(sed s=dynamic=s
 if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo "Please wait. Saving changes to module $SAVETOMODULENAME"
    # if old module exists we have to concatenate it
-   if [ -d /mnt/live/memory/images/${SAVETOMODULENAME##*/} ]; then
+   if [ -d $IMSRC/${SAVETOMODULENAME##*/} ]; then
+      echo "Old module exists, we have to concatenate it"
       SRC=/mnt/live/tmp/save2module
       mkdir $SRC $SRC-rw
-      mount -t aufs -o shwh,br:$SRC-rw=rw:/mnt/live/memory/changes=rr:/mnt/live/memory/images/${SAVETOMODULENAME##*/}=rr aufs $SRC
+      mount -t aufs -o shwh,br:$SRC-rw=rw:$CHSRC=rr:$IMSRC/${SAVETOMODULENAME##*/}=rr aufs $SRC
+   else 
+      SRC=$CHSRC
    fi
    # preparing excluded files list
    echo -e "/tmp/includedfiles\n/tmp/excludedfiles" > /tmp/excludedfiles
@@ -53,7 +57,7 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    [ "$SAVETONOLZMA" = "yes" ] && SAVETOMODULEOPTIONS="$SAVETOMODULEOPTIONS -noI -noD -noF -nolzma"
    create_module $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS
    echo
-   [ "$SRC" = "/mnt/live/memory/changes" ] || umount "$SRC"
+   [ "$SRC" = "$CHSRC" ] || umount "$SRC"
 fi
 
 sync
