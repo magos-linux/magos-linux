@@ -92,7 +92,9 @@ if [ -d "$magos_dest"  ] ; then
 echo -------------------------------------------------
 	if [ -d "$magos_src" ] ; then
 	echo "Copy MagOS dir to $magos_dest"
-	until rsync -av --progress   --exclude=*optional/* --exclude=*modules/* --exclude=*machines/dynamic/* --exclude=*machines/static/* --exclude=*rootcopy/*  $magos_src $magos_dest  ; do  
+	rsync_opt="-av"
+	[ "$(cat /proc/mounts |grep "$magos_dest" | awk '{print $3}')" == "vfat" ] && rsync_opt="-rlv"
+	until rsync "$rsync_opt" --progress   --exclude=*optional/* --exclude=*modules/* --exclude=*machines/dynamic/* --exclude=*machines/static/* --exclude=*rootcopy/*  $magos_src $magos_dest  ; do  
 		read   -p "copy MagOS dir error, retry? $MSG_YN"   a
 		[ "$a" == "y" -o "$a" == "Y" -o "$a" == "$MSG_y" -o "$a" == "$MSG_Y" ] || error "${LINENO}:  MagOS dir is not copyed" 2
 	done 
@@ -108,12 +110,9 @@ if [ -d "$boot_dest"  ] ; then
 echo -------------------------------------------------
 	if [ -f  "${magos_src}/boot.tar.bz2" ] ; then
 		echo "${magos_src}/boot.tar.bz2 to  $boot_dest"
-		rsync  -av  ${magos_src}/boot.tar.bz2  "$boot_dest" || error "${LINENO}:  copy boot.tar.gz  error"  2
-		cd $boot_dest
-		tar xvjf   ./boot.tar.bz2 || error "${LINENO}: unpack boot dir error"  3
-		rm -f  ./boot.tar.bz2
-		echo "$MSG_OK"
-	else
+		cd "$boot_dest"
+		tar xvjf "${magos_src}/boot.tar.bz2"  && echo $MSG_OK
+		else
 		echo "/mnt/livemedia/MagOS/boot.tar.bz2 is not found, try to use  /mnt/livemedia/boot"
 		boot_path="/mnt/livemedia/boot"
 		until [ -f "${boot_path}/Install_MagOS.bat" ] ; do 
@@ -144,11 +143,8 @@ if [ -d "$data_dest"  ] ; then
 echo -------------------------------------------------
 echo "Unpacking ${magos_src}/MagOS-Data.tar.bz2 to  $data_dest"
 	if [ -f  "${magos_src}/MagOS-Data.tar.bz2" ] ; then
-	rsync -av ${magos_src}/MagOS-Data.tar.bz2  "$data_dest" || error "${LINENO}:  copy MagOS-Data.tar.gz  error"  2
-	cd $data_dest
-	tar xvjf   ./MagOS-Data.tar.bz2 || error "${LINENO}: unpack MagOS-Data dir error"  3
-	rm -f  ./MagOS-Data.tar.bz2
-	echo "$MSG_OK"
+	cd "$data_dest"
+	tar xvjf   "${magos_src}/MagOS-Data.tar.bz2"   && echo $MSG_OK
 	else
 	error "${LINENO}:  ${magos_src}/MagOS-Data.tar.bz2 is not found"
 	fi
