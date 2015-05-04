@@ -53,7 +53,7 @@ color3 FFFFFF
 color4 EF5A29
 color5 FFFFFF
 
-lua_load ~/.conky_orange.lua
+lua_load /etc/conky/conky_orange.lua
 lua_draw_hook_post main
 
 #${voffset 75}
@@ -80,7 +80,7 @@ ${goto 90}${font Droid:size=7,weight:normal}${color3}${top_mem name 1}${alignr}$
 ${goto 90}${font Droid:size=7,weight:normal}${color1}${top_mem name 2}${alignr}${top_mem mem 2}%
 ${goto 90}${font Droid:size=7,weight:normal}${color2}${top_mem name 3}${alignr}${top_mem mem 3}%
 
-${font Droid:bold:size=7}${color5}MagOS ${font Droid:size=7}${execi 99999 cat /etc/magos-release }${alignr} ${font Droid:size=7}${color3} Up $color4$alignr$uptime
+${font Droid:bold:size=7}${color5}MagOS ${font Droid:size=7}${execi 99999 cat /mnt/livemedia/MagOS/VERSION  }${alignr} ${font Droid:size=7}${color3} Up $color4$alignr$uptime
 ${color5}Kernel$color  $kernel ${alignr}${color5}Арх.$color $machine
 $color
 ${font Droid:size=7}${color3}${execi 99999 cat /proc/cpuinfo | grep "model name" -m1 | cut -d":" -f2 | cut -d" " -f2- | sed 's#Processor ##'}$font$color
