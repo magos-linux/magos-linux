@@ -1,0 +1,23 @@
+#!/bin/bash
+export TEXTDOMAINDIR=/usr/share/magos/locale
+export TEXTDOMAIN=fm_scripts
+MSG1=$(gettext -s "You have no write permissions, rerun it by root?")
+command="$1"
+shift
+files_args="$@"
+for a in $files_args ; do
+  if [ -e "$a" ]  ; then
+    [ -w "$a" ] && continue
+    mdialog --yesno "$MSG1"
+      if [ $? -eq 0 ] ; then
+	beesu $command $files_args &
+	exit 0
+      else
+	break 
+      fi
+  fi
+done
+$command $files_args &
+exit 0
+
+    

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=text/plain
+Type=Service
+Actions=edit;
+X-KDE-Priority=TopLevel
+
+[Desktop Action edit]
+Name=edit (write permissions control)
+Name[ru]=KWrite (контроль прав)
+Icon=accessories-text-editor
+Exec=permtest kwrite %f

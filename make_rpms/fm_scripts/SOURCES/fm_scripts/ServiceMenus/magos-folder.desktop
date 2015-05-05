@@ -1,11 +1,9 @@
 [Desktop Entry]
 Encoding=UTF-8
-ServiceTypes=KonqPopupMenu/Plugin,inode/directory
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=inode/directory
 Type=Service
 Actions=dir2lzm;dir2oldpc;open-as-root;nfs;smb;ftp;
-X-KDE-Submenu=folder actions
-X-KDE-Submenu[ru]=Действия с папками
-X-KDE-Priority=TopLevel
 
 [Desktop Action dir2lzm]
 Name=dir2lzm
@@ -28,17 +26,17 @@ Exec=kdesu dolphin %f
 [Desktop Action nfs]
 Name=nfs share
 Name[ru]=Временный доступ по NFS
-Icon=folder-remote
+Icon=folder-remote-nfs
 Exec=kdesu share.nfs %f
 
 [Desktop Action smb]
 Name=smb share
 Name[ru]=Временный доступ по smb
-Icon=folder-remote
+Icon=folder-remote-smb
 Exec=kdesu share.smb %f
 
 [Desktop Action ftp]
 Name=ftp share
 Name[ru]=Временный доступ по ftp
-Icon=folder-remote
+Icon=folder-remote-ftp
 Exec=kdesu share.ftp %f

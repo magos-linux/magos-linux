@@ -30,7 +30,7 @@ msgstr "Точка монтирования:"
 msgid "close this window to unmount image"
 msgstr "закройте это окно чтобы размонтировать"
 
-msgid "is temporary shared via ftp, close this window to stop \n adress to connect"
+msgid "is temporary shared via ftp, close this window to stop \n adress to connect:"
 msgstr "временно доступен по ftp, закройте это окно чтобы остановить \n адрес для подключения:"
 
 msgid "String to /etc/exports"
@@ -69,4 +69,5 @@ msgstr "Смонтировано успешно"
 msgid "unmount OK"
 msgstr "Размонтировано успешно"
 
-
+msgid "You have no write permissions, rerun it by root?"
+msgstr "У вас нет прав на запись, перезапустить под root?"

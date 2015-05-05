@@ -1,0 +1,34 @@
+[Desktop Entry]
+Encoding=UTF-8
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=application/x-raw-disk-image
+Type=Service
+X-KDE-Priority=TopLevel
+X-KDE-Submenu=Images
+X-KDE-Submenu[ru]=Образы, профили 
+Actions=resize;format;max;mount;
+
+[Desktop Action resize]
+Name=Resize image
+Name[ru]=Изменить размер фала (.img) 
+Icon=block-device
+Exec=kdesu profiler_helper resize %f
+
+[Desktop Action format]
+Name=format image
+Name[ru]=форматировать в ext3 файл (.img)
+Icon=block-device
+Exec=kdesu profiler_helper format %f
+
+[Desktop Action max]
+Name=max image size
+Name[ru]=увеличить .img чтоб он занял все свободное место
+Icon=block-device
+Exec=kdesu profiler_helper max %f
+
+[Desktop Action mount]
+Name=mount image
+Name[ru]=Подключить в эту папку (.img, .iso)
+Icon=application-x-cd-image
+Exec=kdesu mountimg %f
+
