@@ -40,9 +40,17 @@ fi
 }
 ADDMEMORY () {
 # провeрки
-if df ./ -t btrfs 2> /dev/null; then
-   die "Error: btrfs do not support swap files"
-fi
+#if df ./ -t btrfs 2> /dev/null; then
+#   die "Error: btrfs do not support swap files"
+#fi
+#df ./ | grep -q aufs && die "Error:Non block device selected."
+#df ./ | grep -q unionfs && die "Error:Non block device selected."
+testfs=""
+for a in $( cat /proc/mounts |grep -v btrfs |grep -e "^/dev/sd[a-z][1-9].*" |awk '{print $2}') ; do 
+testfs=${testfs}$(echo  $(pwd) |grep $a) 
+done
+[ -z $testfs ] && die "Please select dir in real hurd disk, supported ext2/4 (not nfs,aufs,unionfs etc)"
+
 
 if cat /proc/cmdline | grep -q changes ; then
     if ! cat /proc/cmdline | grep -q changes=xzm ; then
@@ -50,8 +58,7 @@ if cat /proc/cmdline | grep -q changes ; then
     fi
 fi
 
-df ./ | grep -q aufs && die "Error:Non block device selected."
-df ./ | grep -q unionfs && die "Error:Non block device selected."
+
 [ $1 -gt  $(df -m ./ | sed 1d | awk '{print $4}') ] && die "Error: Not enough free space!"
 # создавать swap или использовать готовый
 if ! [ -f $1 ] ; then
@@ -69,11 +76,11 @@ else
 fi
 # увеличиваем tmpfs
 newsize=$(expr $size + $(df -m | grep -m 1 /$ | awk '{print $2}'))
-echo $(cat /proc/mounts | grep "tmpfs /mnt/live/memory") >> /etc/fstab
-mount -o remount,size=${newsize}M /mnt/live/memory 
-# удаляем строку из fstab
-sed '/^tmpfs.*\/mnt\/live\/memory/d' /etc/fstab > /tmp/fstab
-mv -f /tmp/fstab /etc/fstab
+livememory="/mnt/live/memory"
+# for uird
+[ -d /memory ] && livememory=/memory
+echo $(cat /proc/mounts | grep "tmpfs $livememory") >> /etc/fstab
+mount -o remount,size=${newsize}M $livememory && sed -i '$d' /etc/fstab > /tmp/fstab
 # результат
 df /  -BM
 swapon -s
