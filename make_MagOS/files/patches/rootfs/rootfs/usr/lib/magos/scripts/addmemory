@@ -49,7 +49,7 @@ testfs=""
 for a in $( cat /proc/mounts |grep -v btrfs |grep -e "^/dev/sd[a-z][1-9].*" |awk '{print $2}') ; do 
 testfs=${testfs}$(echo  $(pwd) |grep $a) 
 done
-[ -z $testfs ] && die "Please select dir in real hurd disk, supported ext2/4 (not nfs,aufs,unionfs etc)"
+[ -z $testfs ] && die "Please select dir in real hard disk, supported ext2/4 (not nfs,aufs,unionfs etc)"
 
 
 if cat /proc/cmdline | grep -q changes ; then
