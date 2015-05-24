@@ -10,8 +10,10 @@
   <action id="org.freedesktop.udisks.filesystem-mount">
     <description>Mount a device</description>
     <description xml:lang="da">Montér en enhed</description>
+    <description xml:lang="ru">Смонтировать устройство</description>
     <message>Authentication is required to mount the device</message>
     <message xml:lang="da">Autorisering er påkrævet for at montere et fil system</message>
+    <message xml:lang="ru">Для монтирования устройства требуется аутентификация</message>
     <defaults>
       <allow_any>yes</allow_any>
       <allow_inactive>yes</allow_inactive>
@@ -22,8 +24,10 @@
   <action id="org.freedesktop.udisks.filesystem-mount-system-internal">
     <description>Mount a system-internal device</description>
     <description xml:lang="da">Montér en intern enhed</description>
+    <description xml:lang="ru">Смонтировать внутреннее системное устройство</description>
     <message>Authentication is required to mount the device</message>
     <message xml:lang="da">Autorisering er påkrævet for at montere et fil system</message>
+    <message xml:lang="ru">Для монтирования устройства требуется аутентификация</message>
     <defaults>
       <allow_any>yes</allow_any>
       <allow_inactive>yes</allow_inactive>
@@ -34,8 +38,10 @@
   <action id="org.freedesktop.udisks.filesystem-check">
     <description>Check file system on a device</description>
     <description xml:lang="da">Check fil system for en enhed</description>
+    <description xml:lang="ru">Проверка файловой системы на устройстве</description>
     <message>Authentication is required to check the file system on the device</message>
     <message xml:lang="da">Autorisering er påkrævet for at checke fil systemet på en enhed</message>
+    <message xml:lang="ru">Для проверки файловой системы требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -46,8 +52,10 @@
   <action id="org.freedesktop.udisks.filesystem-check-system-internal">
     <description>Check file system of a system-internal device</description>
     <description xml:lang="da">Check fil system for en intern enhed</description>
+    <description xml:lang="ru">Проверка файловой системы на внутреннем устройстве</description>
     <message>Authentication is required to check the file system on the device</message>
     <message xml:lang="da">Autorisering er påkrævet for at checke fil systemet på en enhed</message>
+    <message xml:lang="ru">Для проверки файловой системы требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -58,8 +66,10 @@
   <action id="org.freedesktop.udisks.filesystem-unmount-others">
     <description>Unmount a device mounted by another user</description>
     <description xml:lang="da">Afmontér en enhed monteret af en anden bruger</description>
+    <description xml:lang="ru">Отмонтировать устройство, смонтированное другим пользователем</description>
     <message>Authentication is required to unmount devices mounted by another user</message>
     <message xml:lang="da">Autorisering er påkrævet for at afmontere enheder monteret af en anden bruger</message>
+    <message xml:lang="ru">Для отмонтирования устройства, смонтированного другим пользователем, требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -70,8 +80,10 @@
   <action id="org.freedesktop.udisks.filesystem-lsof">
     <description>List open files</description>
     <description xml:lang="da">Vis åbne filer</description>
+    <description xml:lang="ru">Список открытых файлов</description>
     <message>Authentication is required to list open files on a mounted file system</message>
     <message xml:lang="da">Autorisering er påkrævet for at liste åbne filer</message>
+    <message xml:lang="ru">Для вывода списка открытых файлов на смонтированной файловой системе требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -82,8 +94,10 @@
   <action id="org.freedesktop.udisks.filesystem-lsof-system-internal">
     <description>List open files on a system-internal device</description>
     <description xml:lang="da">Vis åbne filer på en intern enhed</description>
+    <description xml:lang="ru">Список открытых файлов на внутреннем системном устройстве</description>
     <message>Authentication is required to list open files on a mounted file system</message>
     <message xml:lang="da">Autorisering er påkrævet for at liste åbne filer</message>
+    <message xml:lang="ru">Для вывода списка открытых файлов на смонтированной файловой системе требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -93,8 +107,10 @@
 
   <action id="org.freedesktop.udisks.drive-eject">
     <description>Eject media from a device</description>
+    <description xml:lang="ru">Удалите диск из устройства</description>
     <message>Authentication is required to eject media from the device</message>
     <message xml:lang="da">Autorisering er påkrævet for at skubbe medie ud af en enhed</message>
+    <message xml:lang="ru">Для извлечения диска из устройства требуется аутентификация</message>
     <defaults>
       <allow_any>yes</allow_any>
       <allow_inactive>yes</allow_inactive>
@@ -104,7 +120,9 @@
 
   <action id="org.freedesktop.udisks.drive-detach">
     <description>Detach a drive</description>
+    <description xml:lang="ru">Отключить устройство</description>
     <message>Authentication is required to detach the drive</message>
+    <message xml:lang="ru">Для отключения диска требуется аутентификация</message>
     <defaults>
       <allow_any>yes</allow_any>
       <allow_inactive>yes</allow_inactive>
@@ -115,8 +133,10 @@
   <action id="org.freedesktop.udisks.change">
     <description>Modify a device</description>
     <description xml:lang="da">Modificér en enhed</description>
+    <description xml:lang="ru">Изменить устройство</description>
     <message>Authentication is required to modify the device</message>
     <message xml:lang="da">Autorisering er påkrævet for at ændre en enhed</message>
+    <message xml:lang="ru">Для изменения устройства требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -127,8 +147,10 @@
   <action id="org.freedesktop.udisks.change-system-internal">
     <description>Modify a system-internal device</description>
     <description xml:lang="da">Modificér en intern enhed</description>
+    <description xml:lang="ru">Изменить внутреннее системное устройство</description>
     <message>Authentication is required to modify the device</message>
     <message xml:lang="da">Autorisering er påkrævet for at ændre en enhed</message>
+    <message xml:lang="ru">Для изменения устройства требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -139,8 +161,10 @@
   <action id="org.freedesktop.udisks.drive-ata-smart-refresh">
     <description>Refresh ATA SMART data</description>
     <description xml:lang="da">Læs ATA SMART data</description>
+    <description xml:lang="ru">Обновить данные ATA SMART</description>
     <message>Authentication is required to refresh ATA SMART data</message>
     <message xml:lang="da">Autorisering er påkrævet for at læse ATA SMART data</message>
+    <message xml:lang="ru">Для обновления данных ATA SMART требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -151,8 +175,10 @@
   <action id="org.freedesktop.udisks.drive-ata-smart-selftest">
     <description>Run ATA SMART Self Tests</description>
     <description xml:lang="da">Kør ATA SMART selv checks</description>
+    <description xml:lang="ru">Запустить самодигностику ATA SMART</description>
     <message>Authentication is required to run ATA SMART self tests</message>
     <message xml:lang="da">Autorisering er påkrævet for at køre ATA SMART selvcheck</message>
+    <message xml:lang="ru">Для запуска самодиагностики ATA SMART требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -163,8 +189,10 @@
   <action id="org.freedesktop.udisks.drive-ata-smart-retrieve-historical-data">
     <description>Retrieve historical ATA SMART data</description>
     <description xml:lang="da">Hent historisk ATA SMART data</description>
+    <description xml:lang="ru">Получить данные истории  ATA SMART</description>
     <message>Authentication is required to retrieve historical ATA SMART data</message>
     <message xml:lang="da">Autorisering er påkrævet for at hente historisk ATA SMART data</message>
+    <message xml:lang="ru">Для получения данных истории ATA SMART требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -175,8 +203,10 @@
   <action id="org.freedesktop.udisks.luks-unlock">
     <description>Unlock an encrypted device</description>
     <description xml:lang="da">Åbn en krypteret enhed</description>
+    <description xml:lang="ru">Разблокировать шифрованное устройство</description>
     <message>Authentication is required to unlock an encrypted device</message>
     <message xml:lang="da">Autorisering er påkrævet for at åbne en krypteret enhed</message>
+    <message xml:lang="ru">Для разблокировки шифрованного устройства требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -187,8 +217,10 @@
   <action id="org.freedesktop.udisks.luks-lock-others">
     <description>Lock an encrypted device unlocked by another user</description>
     <description xml:lang="da">Lås en krypteret enhed åbnet af en anden bruger</description>
+    <description xml:lang="ru">Lås en krypteret enhed åbnet af en anden bruger</description>
     <message>Authentication is required to lock an encrypted device unlocked by another user</message>
     <message xml:lang="da">Autorisering er påkrævet for at låse en krypteret enhed åbnet af en anden bruger</message>
+    <message xml:lang="ru">Для блокирования зашифрованного устройства, разблокированного другим пользователем, требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -199,8 +231,10 @@
   <action id="org.freedesktop.udisks.linux-md">
     <description>Configure Linux Software RAID</description>
     <description xml:lang="da">Konfigurér Software RAID</description>
+    <description xml:lang="ru">Настройка Linux Software RAID</description>
     <message>Authentication is required to configure Linux Software RAID devices</message>
     <message xml:lang="da">Autorisering er påkrævet for at konfigurere RAID enheder</message>
+    <message xml:lang="ru">Для настройки Software RAID устройства требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -221,8 +255,10 @@
   <action id="org.freedesktop.udisks.cancel-job-others">
     <description>Cancel a job initiated by another user</description>
     <description xml:lang="da">Afbryd job påbegyndt af en anden bruger</description>
+    <description xml:lang="ru">Отмена задачи, начатой другим пользователем</description>
     <message>Authentication is required to cancel a job initiated by another user</message>
     <message xml:lang="da">Autorisering er påkrævet for at afbryde et job påbegyndt af en anden bruger</message>
+    <message xml:lang="ru">Для отмены задания, начатого другим пользователем, требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -233,8 +269,10 @@
   <action id="org.freedesktop.udisks.inhibit-polling">
     <description>Inhibit media detection</description>
     <description xml:lang="da">Undertryk medie detektion</description>
+    <description xml:lang="ru">Запретить обнаружение диска</description>
     <message>Authentication is required to inhibit media detection</message>
     <message xml:lang="da">Autorisering er påkrævet for at undertrykke medie detektion</message>
+    <message xml:lang="ru">Для запрета обнаружения типа диска требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -244,7 +282,9 @@
 
   <action id="org.freedesktop.udisks.drive-set-spindown">
     <description>Set drive spindown timeout</description>
+    <description xml:lang="ru">Установить интервал остановки диска</description>
     <message>Authentication is required to configure drive spindown timeout</message>
+    <message xml:lang="ru">Для задания интервала остановки диска требуется аутентификация</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>

@@ -24,7 +24,7 @@ fi
 
 USE_LOCARCHIVE=no
 FORCE_LOCARCHIVE=no
-[ -f usr/lib/locale/locales-archive ] && USE_LOCARCHIVE=yes
+[ -f usr/lib/locale/locale-archive ] && USE_LOCARCHIVE=yes
 [ "$LANG" = "en_US.UTF-8" -o "$LANG" = "ru_RU.UTF-8" ] && USE_LOCARCHIVE=no
 if [ "$USE_LOCARCHIVE" = "yes" -o "$FORCE_LOCARCHIVE" = "yes" ] ;then
    [ -z "$LOCALE"  ] && LOCALE=$(echo $LANG | sed s/[.].*//)

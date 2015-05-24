@@ -12,9 +12,9 @@ lib64rlog5-
 lib64smi2-
 libsmi-mibs-std-
 lib64tsocks1-
-lib64wireshark3-
-lib64wiretap3-
-lib64wsutil3-
+lib64wireshark5-
+lib64wiretap4-
+lib64wsutil4-
 lib64xmlsec1_1-
 lib64xmlsec1-nss1-
 macchanger-

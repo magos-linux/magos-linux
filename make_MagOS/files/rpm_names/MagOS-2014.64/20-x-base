@@ -250,7 +250,7 @@ lib64png0-
 lib64png15-
 lib64png16-
 lib64png3-
-lib64poppler44-
+lib64poppler51-
 lib64portaudio2-
 lib64pulseaudio0-
 lib64pulsecommon5.0-
@@ -280,6 +280,7 @@ lib64SDL1.2_0-
 lib64SDL_image1.2_0-
 lib64SDL_net1.2_0-
 lib64selinux1-
+lib64sepol1-
 lib64sgutils2-
 lib64shairport1-
 lib64sigc++2.0_0-
