@@ -11,6 +11,13 @@ DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
 debug_mode "$0" "$@"
 
+XkbModel=pc105
+GRP_TOGGLE=ctrl_shift_toggle
+XkbLayout=us,ru
+KEYBOARD=ru
+KEYTABLE=ru4
+XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin
+
 . /etc/sysconfig/harddrake2/service.conf
 [ "$XDRIVER" != "nvidia" ] && rmmod nvidia
 
@@ -19,22 +26,35 @@ debug_mode "$0" "$@"
 [ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f /etc/X11/xorg.conf
 [ "$DELETE_XORG_CONF" = "yes" ] && rm -f /etc/X11/xorg.conf
 
-if [ -f /etc/X11/xorg.conf ] ;then
-  grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
-  [ -z "$XORG_RES" ] || sed -i 's|.*Modes.*|        Modes "'$XORG_RES'"|' /etc/X11/xorg.conf
-  if [  "$MONITOR" != "auto" ] ;then
-     if [ "$MONITOR" = "FLATPANEL" -o "$MONITOR" = "" ] ; then
-        VRH="" ; HRH=90 ; [ ${XORG_RES%%x*} -gt 1920 ] && HRH=100
-     elif [ "$MONITOR" = "PNP" ] ; then
-        VRH="-150" ; HRH=96 
-        STL=$(nl -ba /etc/X11/xorg.conf | grep -m 1 -i "Section.*Monitor" | awk '{ print $1}')
-        VNL=$(nl -ba /etc/X11/xorg.conf | sed -n $STL,1${STL}p | grep -m 1 -i VendorName | awk '{print $1}')
-        sed -i ${VNL}s/VendorName.*/"VendorName \"Plug'n Play\""/ /etc/X11/xorg.conf
-     fi
-     sed -i s/HorizSync.*/"HorizSync 28.8-$HRH"/ /etc/X11/xorg.conf
-     sed -i s/VertRefresh.*/"VertRefresh 60$VRH"/ /etc/X11/xorg.conf
-  fi
-  if echo $DPMS | egrep -qi 'no|off|false' ;then
+grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
+if ! [ -z "$XORG_RES" ] ;then 
+   XCF=/etc/X11/xorg.conf
+   grep -qi modes $XCF 2>/dev/null || XCF=/etc/X11/xorg.conf.d/00-modes.conf
+   grep -qi modes $XCF 2>/dev/null || cat >$XCF <<EOF
+Section "Screen"
+   Identifier "Screen"
+   SubSection "Display"
+        Modes "auto"
+   EndSubSection
+EndSection
+EOF
+   sed -i 's|^[[:space:]]*Modes.*|        Modes "'$XORG_RES'"|' $XCF
+fi
+
+if echo $DPMS | egrep -qi 'no|off|false' ;then
      sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
-  fi
+fi
+
+if ! grep -qi XkbOptions /etc/X11/xorg.conf ;then
+   . /etc/sysconfig/keyboard
+   cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
+Section "InputClass"
+        Identifier "system-keyboard"
+        MatchIsKeyboard "on"
+        Option "XkbLayout" "$XkbLayout"
+        Option "XkbModel" "$XkbModel"
+        Option "XkbVariant" "$KEYBOARD"
+        Option "XkbOptions" "$XkbOptions"
+EndSection
+EOF
 fi

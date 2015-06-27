@@ -32,3 +32,8 @@ if [ "$USE_LOCARCHIVE" = "yes" -o "$FORCE_LOCARCHIVE" = "yes" ] ;then
    [ -z "$CHARSET" ] && CHARSET=UTF-8
    chroot . localedef -c -f "$CHARSET" -i "$LOCALE" $LANG
 fi
+
+. etc/sysconfig/keyboard
+echo FONT=$SYSFONT >etc/vconsole.conf
+echo KEYMAP=$KEYBOARD >>etc/vconsole.conf
+[ -z "$KEYMAP_TOGGLE" ] || echo KEYMAP_TOGGLE=$KEYMAP_TOGGLE >>etc/vconsole.conf

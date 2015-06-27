@@ -37,5 +37,5 @@ read ISONAME
 
 mkisofs -o "$ISONAME" -v -J -R -D -A "$CDLABEL" -V "$CDLABEL" \
 -no-emul-boot -boot-info-table -boot-load-size 4 -b magos.ldr -c boot/grub4dos/boot.catalog \
--graft-points boot=../../../boot magos.ldr=../magos.ldr  \
+-graft-points boot=../../../boot EFI=../../../EFI magos.ldr=../magos.ldr  \
 MagOS/vmlinuz=../../../MagOS/vmlinuz MagOS/initrd.gz=../../../MagOS/initrd.gz

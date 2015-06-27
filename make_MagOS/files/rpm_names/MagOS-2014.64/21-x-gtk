@@ -68,6 +68,14 @@ lib64wx_gtk2u_media2.8_0-
 lib64wx_gtk2u_qa2.8_0-
 lib64wx_gtk2u_richtext2.8_0-
 lib64wx_gtk2u_xrc2.8_0-
+lib64wx_baseu3.0_0-
+lib64wx_baseu_net3.0_0-
+lib64wx_baseu_xml3.0_0-
+lib64wx_gtk2u_adv3.0_0-
+lib64wx_gtk2u_aui3.0_0-
+lib64wx_gtk2u_core3.0_0-
+lib64wx_gtk2u_xrc3.0_0-
+lib64wx_gtk2u_html3.0_0-
 perl-Cairo-
 perl-Cairo-GObject-
 perl-Glib-
@@ -88,6 +96,7 @@ vte3-
 webkit1.0-
 webkit1.0-webinspector-
 wxgtk2.8-
+wxgtk3.0-
 wxPythonGTK-wxversion-
 xdg-user-dirs-gtk-
 libwnck-
@@ -118,3 +127,7 @@ lib64gtkmm2.4_1-
 lib64gtkmm3.0_1-
 gtk-aurora-engine-
 lib64gtk-aurora-engine-
+libdbusmenu-tools-
+lib64gtk-modules3.0-
+lib64colord2-
+lib64colordprivate2-

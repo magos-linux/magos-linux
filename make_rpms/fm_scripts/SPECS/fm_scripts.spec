@@ -7,7 +7,8 @@ URL:            https://github.com/magos-linux/magos-linux/archive/master.zip
 Group:          System/Base
 Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
-Requires:       dolphin, konqueror
+#Requires:       dolphin, konqueror
+Requires:       dolphin
 
 %description
 Scripts for dolphin, konqueror

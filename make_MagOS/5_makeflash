@@ -69,11 +69,22 @@ for a in * ;do
 done
 cd "$MYPATH/$DESTDIR/$FLASHNAME/base"
 chmod 444 *
-md5sum *.$MODULEFORMAT >MD5SUM
 
 cd "$MYPATH"
 mkdir -p flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international 2>/dev/null
 mv "$DESTDIR/$FLASHNAME/"base/??-int-* flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
+
+cd "$MYPATH/$DESTDIR/$FLASHNAME"
+md5sum vmlinuz >MD5SUM
+[ -f initrd.gz ] && md5sum initrd.gz >>MD5SUM
+[ -f uird.magos.cpio.xz ] && md5sum uird.magos.cpio.xz >>MD5SUM
+md5sum base/*.$MODULEFORMAT >>MD5SUM
+
+cd "$MYPATH"
+cd ../graphics
+./make_default_themes.sh
+cp -p wallpapers/Default/*  $MYPATH"/$DESTDIR/$FLASHNAME-Data/backgrounds/wallpapers/Default"
+cp -p screensaver/Default/* $MYPATH"/$DESTDIR/$FLASHNAME-Data/backgrounds/screensaver/Default"
 
 cd "$MYPATH"
 echo "Создание файлов для сохранения данных" 

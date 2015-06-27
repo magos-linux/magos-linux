@@ -9,7 +9,7 @@ fi
 
 sleep 3
 
-BOOKMARKS=.kde4/share/apps/kfileplaces/bookmarks.xml
+BOOKMARKS=.local/share/user-places.xbel
 HIDELOOP=255
 HIDERAM=0
 FFP=$HOME/$BOOKMARKS

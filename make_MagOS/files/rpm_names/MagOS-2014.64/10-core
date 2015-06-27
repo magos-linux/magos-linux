@@ -472,3 +472,5 @@ perl-Package-Stash-
 perl-Sub-Exporter-Progressive-
 perl-List-AllUtils-
 lib64nss_myhostname2-
+python3-
+python3-dbus-

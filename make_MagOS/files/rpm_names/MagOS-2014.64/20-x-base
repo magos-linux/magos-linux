@@ -574,3 +574,6 @@ rosa-elementary-theme-
 gnome-icon-theme-
 tkinter-
 cabextract-
+python3-sip-
+python3-gi-
+python3-pillow-

@@ -97,3 +97,6 @@ task-printing-server-
 x125-
 xsane-
 z42tool-
+hplip-compat-libs-
+lib64hpipp0-
+python3-reportlab-

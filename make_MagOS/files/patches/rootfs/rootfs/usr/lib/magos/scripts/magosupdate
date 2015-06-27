@@ -1,0 +1,93 @@
+#!/bin/bash
+
+MAGOSPATH=/mnt/livemedia/MagOS
+[ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
+[ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
+ARCH=$(gawk '{print $1}' $MAGOSPATH/VERSION)
+VER=$(gawk '{print $2}' $MAGOSPATH/VERSION)
+HTTPURL=http://mirror.yandex.ru/mirrors/magos/netlive/$ARCH/MagOS/
+RSYNCURL=rsync://mirror.yandex.ru:/mirrors/magos/netlive/$ARCH/MagOS/
+. /etc/sysconfig/MagOS
+
+echo $(date +"%Y-%m-%d %H:%M:%S") magosupdate started by user $UID
+
+echo -n "Checking MagOS directory ..."
+if [ -f "$MAGOSPATH/vmlinuz" -a -d "$MAGOSPATH/base" ] ;then
+   echo " ok."
+else
+   echo " not found, exiting."
+   exit 1
+fi 
+
+echo -n "Checking for new version ..."
+wget -o /tmp/magosupdate_wget_log -O /tmp/magosupdate_VERSION "$HTTPURL/VERSION"
+NVER=$(gawk '{print $2}' /tmp/magosupdate_VERSION)
+if [ "0$NVER" -gt "0$VER" ] ;then
+   echo "found new version $NVER"
+else
+   if grep -q . /tmp/magosupdate_VERSION ;then
+      echo "not found."
+   else
+      echo "downloading error."
+   fi
+   exit 1
+fi
+
+echo -n "Checking directory $MAGOSPATH for write permissions ..."
+if [ ! -w "$MAGOSPATH/base" -a "$UID" != "0" ] ;then
+   echo -e " error.\nRestarting script as root.\n"
+   beesu -l /bin/bash $(readlink -f $0)
+   exit 1
+fi
+echo " ok."
+
+wall -n "MagOS update started. Please wait."
+echo -n "Preparing new directory ${MAGOSPATH}_${NVER}"
+mkdir -p "${MAGOSPATH}_${NVER}"
+cd "${MAGOSPATH}_${NVER}"
+mv -f /tmp/magosupdate_VERSION VERSION
+cp -pfr -t ./ "$MAGOSPATH/"*.sgn "$MAGOSPATH/"*.ini "$MAGOSPATH/machines" "$MAGOSPATH/rootcopy" "$MAGOSPATH/modules" "$MAGOSPATH/optional"
+[ -d base ] || cp -pfr -t ./ "$MAGOSPATH/base"
+echo " ok."
+
+echo  "Downloading MagOS files"
+wget -o /tmp/magosupdate_wget_log -O MD5SUM  "$HTTPURL/MD5SUM"
+wget -o /tmp/magosupdate_wget_log -O LICENSE "$HTTPURL/LICENSE"
+rsync --inplace -rtuc "$RSYNCURL/vmlinuz" ./
+KRNLS=$(md5sum vmlinuz | awk '{ print $1}')
+if ! grep -q "$KRNLS"[[:space:]]*"vmlinuz" MD5SUM ;then
+    echo "downloading error."
+    wall -n "MagOS update error"
+    exit 1
+fi
+grep -q initrd.gz          MD5SUM && rsync --inplace -rtuc "$RSYNCURL/initrd.gz"          ./
+grep -q uird.magos.cpio.xz MD5SUM && rsync --inplace -rtuc "$RSYNCURL/uird.magos.cpio.xz" ./
+rsync --inplace -rtuc "$RSYNCURL/boot.tar.bz2"       ./
+rsync --inplace -rtuc "$RSYNCURL/MagOS-Data.tar.bz2" ./
+
+echo  "Downloading base modules"
+rsync -rtc --delete --force "$RSYNCURL/base" ./
+
+echo  "Checking downloaded files"
+if ! md5sum -c MD5SUM ;then
+    echo "md5sum checking error."
+    wall -n "MagOS update error"
+    exit 1
+fi
+
+echo "Moving optional modules"
+cd base 
+for a in *.xzm ;do
+  [ -f "$MAGOSPATH/optional/$a" ] && mv -f $a ../optional
+done
+
+echo "Renaming livemedia folders"
+cd ../../
+rm -fr "${MAGOSPATH}.bak"
+mv "${MAGOSPATH}" "${MAGOSPATH}.bak" || exit 1
+mv "${MAGOSPATH}_${NVER}" "${MAGOSPATH}"
+
+echo "Update finished"
+wall -n "MagOS update finished. Please reboot."
+
+exit 0

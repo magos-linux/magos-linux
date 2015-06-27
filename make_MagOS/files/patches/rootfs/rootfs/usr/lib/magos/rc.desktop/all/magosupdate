@@ -1,0 +1,63 @@
+#!/bin/bash
+# Description: This script will generate initial passwords for samba users
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+DEBUGMODE=no
+. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
+MAGOSUPDATE=ask
+MAGOSPATH=/mnt/livemedia/MagOS
+[ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
+[ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+ARCH=$(gawk '{print $1}' $MAGOSPATH/VERSION)
+VER=$(gawk '{print $2}' $MAGOSPATH/VERSION)
+HTTPURL=http://mirror.yandex.ru/mirrors/magos/netlive/$ARCH/MagOS/
+RSYNCURL=rsync://mirror.yandex.ru:/mirrors/magos/netlive/$ARCH/MagOS/
+NEEDROOT=yes
+MSG01="Please select"
+MSG02="New version of MagOS Linux detected.\n Do you want to update it now?"
+MSG03="Yes, right now"
+MSG04="No, later"
+MSG05="Never, don't ask me again"
+MSG06="MagOS update is over"
+MSG07="MagOS updated. Please reboot computer."
+MSG08="Reboot now"
+MSG09="No, i will reboot later"
+MSG10="Update was unsuccessful. Please check errors."
+. /etc/sysconfig/MagOS
+. "/usr/share/locale/$(locale | grep LC_MESSAGES | sed s/^.*=// | sed s/[_].*//)/LC_MESSAGES/magosupdate" 2>/dev/null
+. "/usr/share/locale/$(locale | grep LC_MESSAGES | sed s/^.*=// | sed s/[.].*//)/LC_MESSAGES/magosupdate" 2>/dev/null
+
+echo $MAGOSUPDATE | grep -qi ^ask$ || exit 0
+[ -f $MAGOSPATH/.dontupdatemagos -o -f $HOME/.config/.dontupdatemagos ] && exit 0
+
+wget -o /tmp/magosupdate_wget_log_$UID -O /tmp/magosupdate_VERSION_$UID "$HTTPURL/VERSION"
+NVER=$(gawk '{print $2}' /tmp/magosupdate_VERSION_$UID)
+[ "0$NVER" -gt "0$VER" ] || exit 0
+
+[ -w $(dirname $MAGOSPATH) ] && NEEDROOT=no
+
+CHOISE=$(Xdialog --title "$MSG01" --radiolist "$MSG02" 0 0 4 "1" "$MSG03" on "2" "$MSG04" off "3" "$MSG05" off 2>&1 | tail -1)
+
+if [ "$CHOISE" = "3" ] ;then
+   touch $MAGOSPATH/.dontupdatemagos 2>/dev/null || touch $HOME/.config/.dontupdatemagos
+fi
+[ "$CHOISE" != "1" ] && exit 0
+
+if [ "$NEEDROOT" = "yes" ] ;then
+   beesu -l /bin/bash "/usr/lib/magos/scripts/magosupdate >>$MAGOSPATH/update.log 2>&1"
+else
+   /usr/lib/magos/scripts/magosupdate >>$MAGOSPATH/update.log 2>&1
+fi
+
+if grep -q $NVER $MAGOSPATH/VERSION ;then
+   CHOISE=$(Xdialog --title "$MSG06" --radiolist "$MSG07" 0 0 3 "1" "$MSG08" on "2" "$MSG09" off 2>&1 | tail -1)
+   [ "$CHOISE" = "1" ] || exit 0
+   systemctl reboot
+   reboot
+else
+   Xdialog --title "$MSG10" --no-cancel --textbox $MAGOSPATH/update.log 0 0
+fi

@@ -51,3 +51,6 @@ qt4-database-plugin-sqlite-
 qt4-qtdbus-
 qt4-xmlpatterns-
 scim-qt-
+python3-qt4-gui-
+python3-qt4-core-
+python3-qt4-dbus-
