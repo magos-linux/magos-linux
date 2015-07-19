@@ -1,0 +1,18 @@
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=/etc/rc.d/rc.local Compatibility for MagOS
+ConditionPathExists=/etc/rc.d/rc.local.MagOS
+
+[Service]
+Type=forking
+ExecStart=/etc/rc.d/rc.local.MagOS start
+TimeoutSec=0
+StandardOutput=tty
+RemainAfterExit=yes
+SysVStartPriority=99

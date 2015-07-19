@@ -1,0 +1,9 @@
+[Plymouth Theme]
+Name=MagOS
+Description=MagOS splash screen.
+ModuleName=script
+
+
+[script]
+ImageDir=/usr/share/plymouth/themes/MagOS
+ScriptFile=/usr/share/plymouth/themes/MagOS/MagOS.script

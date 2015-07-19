@@ -474,3 +474,5 @@ perl-List-AllUtils-
 lib64nss_myhostname2-
 python3-
 python3-dbus-
+lvm2-
+perl-Variable-Magic-

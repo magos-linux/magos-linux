@@ -3,6 +3,8 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
+INET=on
+
 if [ -f .config ] ;then 
   . .config
 else
@@ -14,7 +16,7 @@ cd loaded/$FLASHNAME-$VERREL
 
 rm -fr *.txt names urls re  2>/dev/null
 # Чтобы не загружать постоянно списки можно закоментарить следующую строку
-[ "$INET" = "good" ] && rm -fr media pubkeys urpmi 2>/dev/null
+[ "$INET" = "on" ] && rm -fr media pubkeys urpmi 2>/dev/null
 
 mkdir -p media pubkeys urpmi/etc/urpmi urpmi/var/lib/urpmi urls names re/preferred
 
@@ -129,7 +131,7 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
 done
 
 if grep -q . urls/$FLASHNAME-$VERREL 2>/dev/null ;then
-   if [ "$INET" = "good" ] ;then
+   if [ "$INET" = "on" ] ;then
        echo "Закачка файлов"
        cd ../cached_$VERREL
        wget -c -i ../$FLASHNAME-$VERREL/urls/$FLASHNAME-$VERREL || echo -e \n"Ошибка: Часть пакетов не загружена из-за ошибок, запустите скрипт ещё раз для их докачки"

@@ -1,0 +1,14 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /etc/sysconfig/compositing-wm
+. /usr/lib/magos/functions
+. /etc/sysconfig/MagOS
+
+DE=$(detectDE)
+
+if [ "$COMPOSITING_WM_START" = "yes" -a "$COMPOSITING_WM" = "compiz-fusion" -a "$DE" != "gnome-shell" -a  "$DE" != "gnome" ] ;then
+   sleep 5s
+   fusion-icon -f &
+fi

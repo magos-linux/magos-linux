@@ -1,0 +1,70 @@
+# Global properties
+title-text: ""
+title-font: "DejaVu Sans Bold 14"
+title-color: "#FFFFFF"
+message-font: "DejaVu Sans Bold 14"
+message-color: "#000000"
+message-bg-color: "#f6f6f6"
+desktop-image: "background.png"
+terminal-font: "Droid Sans Mono Regular 11"
+terminal-box: "item_normal_*.png"
+
++ image {
+                id = "__magoslogo__"
+                left = 50%-252
+                top = 10%
+                file = "Logo_MagOS.png"
+}
+
+# Show the boot menu
++ boot_menu {
+		left = 50%-342
+		width = 705
+		top = 50%-124
+		height = 325
+		item_font = "DejaVu Sans Bold 14"
+		selected_item_font = "DejaVu Sans Bold 14"
+		item_color = "#ffffff"
+		selected_item_color = "#033d6e"
+		item_height = 28
+		item_padding = 0
+		item_spacing = 8
+		icon_width = 2
+		icon_height = 0
+		item_pixmap_style = "item_normal_*.png"
+		selected_item_pixmap_style = "highlighted_*.png"
+		scrollbar = true
+		scrollbar_width = 10
+		scrollbar_thumb = "scrollbar_*.png"
+		scrollbar_frame = "scrollback_*.png"
+		menu_pixmap_style = "menu_bkg_*.png"
+}
+
+# Show a styled horizontal progress bar
++ progress_bar {
+                id = "__timeout__"
+                left = 50%-342
+                width = 705
+                top = 50%+221
+                height = 12
+                show_text = true
+                font = "DejaVu Sans Bold 14"
+                text_color = "#d4e0ec"
+                text = "@TIMEOUT_NOTIFICATION_LONG@"
+                bar_style = "progress_bar_*.png"
+                highlight_style = "progress_bar_*.png"
+}
+
+# Show an informational message.
++ hbox {
+		top = 100%-37
+		left = 50%-300
+		+ label {text = "E: " font = "DejaVu Sans Bold 14" color = "#7ebeec" align = "left"}
+		+ label {text = "Правка      " font = "DejaVu Sans Bold 14" color = "#d4e0ec" align = "left"}
+		+ label {text = "C: " font = "DejaVu Sans Bold 14" color = "#7ebeec" align = "left"}
+		+ label {text = "Командная строка      " font = "DejaVu Sans Bold 14" color = "#d4e0ec" align = "left"}
+                + label {text = "Enter: " font = "DejaVu Sans Bold 14" color = "#7ebeec" align = "left"}
+                + label {text = "Загрузка      " font = "DejaVu Sans Bold 14" color = "#d4e0ec" align = "left"}
+                + label {text = "ESC: " font = "DejaVu Sans Bold 14" color = "#7ebeec" align = "left"}
+                + label {text = "Отмена" font = "DejaVu Sans Bold 14" color = "#d4e0ec" align = "left"}
+}
