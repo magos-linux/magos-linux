@@ -1,6 +1,6 @@
 # This is a sample menu.lst file. You may make some changes to it.
 # Please install GRLDR boot strap code to MBR with the bootlace.com
-# utility under DOS/Win9x or Linux.
+# utility under Linux.
 
 timeout 30
 default 0
@@ -22,6 +22,11 @@ title MagOS-Чистый режим
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0
 initrd /MagOS/initrd.gz
+
+title MagOS-Чистый режим (тестирование UIRD)
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 root=uird:
+initrd /MagOS/uird.magos.cpio.xz
 
 #title MagOS-System profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn

@@ -1,0 +1,12 @@
+#!/bin/bash
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+. /usr/lib/magos/os-config
+. /etc/sysconfig/MagOS
+if [ "$DOMAINUSERSHWACCESS" ] ;then
+  for a in $(echo "$DOMAINUSERSHWACCESS" | tr ",;" " ") ;do
+    for b in $(echo "$DOMUSGR" | tr ",;" " ") ;do
+       usermod -a -G $b $a
+    done
+  done
+fi

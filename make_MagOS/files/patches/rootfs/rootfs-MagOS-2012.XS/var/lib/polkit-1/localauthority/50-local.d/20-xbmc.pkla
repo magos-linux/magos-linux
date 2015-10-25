@@ -1,6 +1,0 @@
-[Actions for xbmc user]
-Identity=unix-group:users
-Action=org.freedesktop.upower.*;org.freedesktop.consolekit.system.*;org.freedesktop.udisks.*
-ResultActive=yes
-ResultAny=yes
-ResultInactive=yes

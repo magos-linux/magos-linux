@@ -1,4 +1,0 @@
-#!/bin/sh
-gksu activate "$1"
-
-

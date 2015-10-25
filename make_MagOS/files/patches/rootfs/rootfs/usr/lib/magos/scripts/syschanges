@@ -1,0 +1,197 @@
+#!/bin/bash
+if [ $(id -un) != "root" ] ; then
+echo "Только с правами root"
+exit 1
+fi
+
+PWD=$(pwd)
+start=no
+finish=no
+filter="/var/log /var/spool /run /root /boot /proc /memory"
+md5=enable
+
+
+dir=$(date +$(basename $0)_%H%M%S)
+mkdir -p ./$dir/ctlpoint # копия changes до изменений, только "простые" (regular) файлы  
+if [ -d /memory/changes/$(pwd)/$dir/ctlpoint ] ; then
+  echo "###########################################################################################################"
+  echo "Выберите каталог изменения в котором не пишутся в /memory/changes"
+  echo "Для чистого режима это может быть /tmp, или любой смонтированный носитель"
+  echo "###########################################################################################################"
+  rm -rf ./$dir/ctlpoint
+  exit 3
+fi
+mkdir -p ./$dir/new 	# только новые "простые" файлы
+mkdir -p ./$dir/changed # только измененные "простые" файлы
+> ./$dir/ctlpoint.list 	# список "простых" файлов в changes до изменений
+> ./$dir/ctlpoint.noreg # список не regular файлов в changes до изменений
+> ./$dir/new.list 	# список новых "простых" файлов
+> ./$dir/new.noreg 	# список новых не regular файлов
+> ./$dir/changed.list 	# список измененных файлов
+> ./$dir/filtered.list 	# список отфильтрованных из new файлов
+
+
+
+ctl_point () {
+	[ $start != "yes" ] && echo "		Создается контрольная точка, ожидайте."
+	for file in $(find /memory/changes/) ; do 
+		if [ -f $file -o -d $file -o -L $file ]; then 
+		echo $file >> ./$dir/ctlpoint.list
+		else
+		echo $file >> ./$dir/ctlpoint.noreg
+		fi
+	done
+	[ $start != "yes" ] && echo "		Списки готовы. Копируем файлы..."
+	for file in $(cat  ./$dir/ctlpoint.list) ; do
+		mkdir -p ./$dir/ctlpoint/$(dirname $file |sed 's:/memory/changes/::')
+		cp -fr $file ./$dir/ctlpoint/$(dirname $file |sed 's:/memory/changes/::')/
+	done
+	
+}
+
+get_new () {
+	[ $finish != "yes" ] && echo "		Обработка каталога \"new\"."
+	for file in $(find /memory/changes/) ; do 
+		if [ -f $file -o -d $file -o -L $file ]; then 
+			if ! cat ./$dir/ctlpoint.list | grep -q $(echo $file |sed 's:^/memory/changes/:/:') ; then
+				test="ok"
+				for int in $filter ;do
+				if echo $file |sed 's:^/memory/changes::' |grep -q ^"$int" ; then
+				  test=file_in_filter
+				  echo $file >> ./$dir/filtered.list
+				  break
+				fi
+				done
+				[ $test == "ok" ] && echo $file >> ./$dir/new.list
+			fi
+		else
+			if ! cat ./$dir/ctlpoint.noreg | grep -q $(echo $file |sed 's:/memory/changes/:/:') ; then
+				echo $file >> ./$dir/new.noreg
+			fi
+		fi
+	done
+	[ $finish != "yes" ] && echo "		Списки готовы. Копируем файлы..."
+	for file in $(cat  ./$dir/new.list) ; do
+		mkdir -p ./$dir/new/$(dirname $file |sed 's:/memory/changes/::')
+		cp -fr $file ./$dir/new/$(dirname $file |sed 's:/memory/changes/::')/
+	done
+}
+
+get_changed () {
+	[ $finish != "yes" ] && echo "		Обработка каталога \"changed\"."
+	for file in $(find /memory/changes/ -cnewer ./$dir/ctlpoint.list ) ; do 
+		if [ -f $file ]; then 
+			new_md5=new_md5
+			old_md5=old_md5
+			if cat ./$dir/ctlpoint.list | grep -q $(echo $file |sed 's:/memory/changes/::') ; then
+				[ $md5 == "enable" ] && new_md5=$(md5sum $file |awk '{print $1}')
+				[ $md5 == "enable" ] && old_md5=$(md5sum ./$dir/ctlpoint/$(echo $file |sed 's:/memory/changes/:/:') |awk '{print $1}')
+				[ "$new_md5" != "$old_md5" ] && echo $file >> ./$dir/changed.list
+			fi
+		fi
+	done
+	[ $finish != "yes" ] && echo "		Списки готовы. Копируем файлы..."
+	for file in $(cat  ./$dir/changed.list) ; do
+		mkdir -p ./$dir/changed/$(dirname $file |sed 's:/memory/changes/::')
+		cp -fr $file ./$dir/changed/$(dirname $file |sed 's:/memory/changes/::')/
+	done
+}
+
+HELP () {
+cat <<EOF
+$(basename $0) - утилита для анализа измениений в ситеме за промежуток времени.
+
+Usage: $0 --nomd5 --nofilter --start --finish
+
+Вариант 1. Интерактивный.
+1. Запустить скрипт в терминале с правами root
+2. Дождаться сообщения о создании контрольной точки
+3. Не закрывая терминал со скриптом внести необходимые изменения в систему
+4. Вернуться к терминалу и продолжить работу скрипта клавишей ENTER
+5. Дождаться сообщения об окончании работы.
+
+Вариант 2. Для использовангия в скриптах 
+1. $(basename $0) --start
+2. внести изменения
+3. $(basename $0) --finish
+
+Утилита создаст в текущем каталоге папку $(basename $0)_ЧасМинСек в которой в отдельных подкаталогах будут собраны новые и измененные файлы, а также списки файлов.
+
+каталог ctlpoint -  копия changes до изменений, только "простые" (regular) файлы  
+каталог new 	 -  только новые "простые" файлы
+каталог changed  -  только измененные "простые" файлы
+ctlpoint.list    -  список "простых" файлов в changes до изменений
+ctlpoint.noreg   -  список не regular файлов в changes до изменений
+new.list 	 -  список новых "простых" файлов
+new.noreg        -  список новых не regular файлов
+changed.list     -  список измененных файлов
+filtered.list 	 -  список отфильтрованных из new файлов
+
+Внимание. Утилита не будет работать в каталоге изменения в котором пишутся в /changes
+
+параметры:
+--nomd5     не сверять контрольные суммы, ориентироваться только на время изменения.
+--nofilter  отключить встроенный фильтр ( $filter )
+--start     создать контрольную точку и завершить работу (--nomd5,--nofilter со --start не работают)
+--finish    расчитать изменения по контрольной точке созданнной командой $(basename $0)
+EOF
+exit
+}
+
+for arg in $@ ; do
+case $arg in
+   -h | --help )
+      HELP ;;
+   --nomd5 )
+      md5=disable ;;
+   --nofilter )
+      filter="" ;;
+   --start )
+      start=yes ;;
+   --finish )
+      finish=yes ;;
+esac
+done
+
+echo "" # да, это просто пустая строка :) 
+if [ $finish != "yes" ] ; then
+    ctl_point
+    if [ $start == "yes" ] ; then
+      echo "$(pwd)  $dir" > /tmp/syschanges.path
+      exit
+    fi
+	echo "" # да, это просто пустая строка :)
+	echo "###########################################################################################################"
+	echo "Создание контрольной точки завершено."
+	echo "Не закрывайте этот терминал и не прерывайте работу $(basename $0) до внесения необходимых изменений в систему."
+	echo "После окончания работы введите в этом терминале любой символ и нажмите ENTER"
+	echo "Чтобы прервать работу скрипта введите \"exit\" "
+	echo "###########################################################################################################"
+	echo -n "		"
+	read a
+	if [ ${a}_ == "exit_" ] ; then
+		rm -rf ./$dir 
+		exit 2
+	fi
+fi
+
+if [ $finish == "yes" ] ; then
+  [ -f /tmp/syschanges.path ] || exit 4
+  PWD=$(pwd)
+  syschanges_path=$(cat /tmp/syschanges.path)
+  dir=$(echo $syschanges_path |awk '{print $2}')
+  cd $(echo $syschanges_path |awk '{print $1}')
+  rm -f /tmp/syschanges.path
+fi
+
+get_new
+get_changed
+if [ $finish != "yes" ] ; then
+	echo "" # да, это просто пустая строка :)
+	echo "###########################################################################################################"
+	echo "Работа скрипта завершена"
+	echo "Разобранные по папкам изменения и списки файлов ищите в каталоге ./$dir"
+	echo "###########################################################################################################"
+	echo "" # да, это просто пустая строка :)
+fi
+cd $PWD

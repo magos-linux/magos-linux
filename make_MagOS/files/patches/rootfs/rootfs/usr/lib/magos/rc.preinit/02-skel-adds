@@ -14,7 +14,7 @@ DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
 debug_mode "$0" "$@"
  
-if [ -d /mnt/livedata -a ! -w /mnt/livemedia ] ;then
+if [ -d /mnt/livedata -a ! -w /mnt/livemedia -a -f usr/share/applications/install-helper.desktop ] ;then
    mkdir -p etc/skel/Desktop
    cp usr/share/applications/install-helper.desktop etc/skel/Desktop/ && echodebug "install-helper.desktop added  to skel "
 fi

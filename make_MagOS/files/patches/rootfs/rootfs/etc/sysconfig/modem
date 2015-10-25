@@ -1,5 +1,5 @@
 # Autorun dialup applications on device hotplug
-INTERACTIVE=yes
+INTERACTIVE=no
 
 # Time to detect provider
 TIMEOUT=60

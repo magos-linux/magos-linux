@@ -13,7 +13,7 @@ DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
 debug_mode "$0" "$@"
 
-sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
+[ -f etc/inittab ] && sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
 ln -sf /lib/systemd/system/graphical.target etc/systemd/system/default.target
 [ -x usr/bin/kdm ] || ln -sf /lib/systemd/system/gdm.service etc/systemd/system/display-manager.service
 [ -x usr/bin/gdm -o -x usr/bin/kdm ] || ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
@@ -50,7 +50,7 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          switch3doff
        ;;
        none)
-         sed -i 's/id:.:initdefault:/id:3:initdefault:/' etc/inittab
+         [ -f etc/inittab ] && sed -i 's/id:.:initdefault:/id:3:initdefault:/' etc/inittab
          ln -sf /lib/systemd/system/multi-user.target etc/systemd/system/default.target
        ;;
        kde)

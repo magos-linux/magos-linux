@@ -6,48 +6,45 @@
 #
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
-
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
-debug_mode "$0" "$@"
-
-XkbModel=pc105
-GRP_TOGGLE=ctrl_shift_toggle
-XkbLayout=us,ru
-KEYBOARD=ru
-KEYTABLE=ru4
-XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin
-
-. /etc/sysconfig/harddrake2/service.conf
+. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/os-config
+[ "$DEBUGMODE" = "yes" ] && debug_mode "$0" "$@"
+. $HARDCONF
 [ "$XDRIVER" != "nvidia" ] && rmmod nvidia
-
-[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+. /etc/sysconfig/MagOS
 
 [ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f /etc/X11/xorg.conf
 [ "$DELETE_XORG_CONF" = "yes" ] && rm -f /etc/X11/xorg.conf
 
 grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
-if ! [ -z "$XORG_RES" ] ;then 
-   XCF=/etc/X11/xorg.conf
-   grep -qi modes $XCF 2>/dev/null || XCF=/etc/X11/xorg.conf.d/00-modes.conf
-   grep -qi modes $XCF 2>/dev/null || cat >$XCF <<EOF
+if [ "$SETXORGRES" = "yes" ] ;then
+  if ! [ -z "$XORG_RES" ] ;then 
+     XCF=/etc/X11/xorg.conf
+     grep -qi modes $XCF 2>/dev/null || XCF=/etc/X11/xorg.conf.d/00-modes.conf
+     if grep -qi modes $XCF 2>/dev/null ;then
+        sed -i 's|^[[:space:]]*Modes.*|        Modes "'$XORG_RES'"|' $XCF
+     else
+        cat >$XCF <<EOF
 Section "Screen"
    Identifier "Screen"
    SubSection "Display"
-        Modes "auto"
+        Modes "$XORG_RES"
    EndSubSection
 EndSection
 EOF
-   sed -i 's|^[[:space:]]*Modes.*|        Modes "'$XORG_RES'"|' $XCF
+     fi
+  fi
 fi
 
 if echo $DPMS | egrep -qi 'no|off|false' ;then
      sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
 fi
 
-if ! grep -qi XkbOptions /etc/X11/xorg.conf ;then
-   . /etc/sysconfig/keyboard
-   cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
+if [ "$MKKBDFXORG" = "yes" ] ;then
+  if ! grep -qi XkbOptions /etc/X11/xorg.conf ;then
+     . /etc/sysconfig/keyboard
+     cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
 Section "InputClass"
         Identifier "system-keyboard"
         MatchIsKeyboard "on"
@@ -57,4 +54,6 @@ Section "InputClass"
         Option "XkbOptions" "$XkbOptions"
 EndSection
 EOF
+  fi
 fi
+

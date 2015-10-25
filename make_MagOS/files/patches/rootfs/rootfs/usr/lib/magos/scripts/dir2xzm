@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH=.:$(dirname $0):/usr/lib/magos/scripts:$PATH
-. liblinuxlive || exit 1
+. /usr/lib/magos/scripts/liblinuxlive || exit 1
 
 MODULEFORMAT=xzm
 

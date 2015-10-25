@@ -1,6 +1,0 @@
-#!/bin/bash
-if [ -d "$1" ] ; then
-   gksu -l share.nfs "$(pwd)/$1"
-else
-   notify-send "Операция доступна только для каталогов"
-fi

@@ -1304,11 +1304,11 @@ fstab_update()
    mkdir -p $1/etc $1/mnt
    cat $FSTAB 2>/dev/null | grep -v "$FSTABLLFLAG" >$FSTABTMP
 
-   if [ $(cmdline_parameter unionfs) ]; then
-        fstab_add_line $FSTABTMP unionfs / unionfs defaults
-    else
-	fstab_add_line $FSTABTMP aufs / aufs defaults
-   fi
+#   if [ $(cmdline_parameter unionfs) ]; then
+#        fstab_add_line $FSTABTMP unionfs / unionfs defaults
+#    else
+#	fstab_add_line $FSTABTMP aufs / aufs defaults
+#   fi
    fstab_add_line $FSTABTMP proc /proc proc defaults
    fstab_add_line $FSTABTMP sysfs /sys sysfs defaults
    fstab_add_line $FSTABTMP devpts /dev/pts devpts gid=5,mode=620

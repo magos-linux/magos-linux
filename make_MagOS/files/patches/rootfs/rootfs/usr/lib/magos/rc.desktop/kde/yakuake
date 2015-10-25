@@ -1,5 +1,6 @@
 #!/bin/sh
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
+. /usr/lib/magos/os-config
 
-yakuake &
+[ "$YAKUAKESTART" =  "yes" ] &&  yakuake &

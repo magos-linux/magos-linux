@@ -1,3 +1,22 @@
 #!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /usr/lib/magos/os-config
 . /etc/sysconfig/keyboard
-setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions
+
+[ "$RESETKBMODE" = "yes" ] && setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions
+
+. /etc/sysconfig/MagOS
+
+# Automatic detection PC/notebooks
+if [ -z "$NUMLOCK" ] ; then
+   if xinput list | grep -qi touchpad ; then
+      NUMLOCK=no
+   else
+      NUMLOCK=yes
+   fi
+fi
+
+[ "$NUMLOCK" = "yes" -o "$NUMLOCK" = "on" ] && numlockx on
+[ "$NUMLOCK" = "no" -o "$NUMLOCK" = "off" ] && numlockx off

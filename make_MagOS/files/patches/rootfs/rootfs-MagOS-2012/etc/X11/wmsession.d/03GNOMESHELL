@@ -1,6 +1,0 @@
-NAME=GNOMESHELL
-ICON=gnome-logo-icon-transparent.png
-DESC=GNOMESHELL Environment
-EXEC=/usr/bin/startgnome
-SCRIPT:
-exec /usr/bin/startgnome

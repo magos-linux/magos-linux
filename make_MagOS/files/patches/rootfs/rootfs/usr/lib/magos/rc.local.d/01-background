@@ -4,35 +4,35 @@
 # Authors: Mikhail Zaripov
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
-
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
 WALLPAPERSRES=1920x1080
-DEFWPDIR=/mnt/livedata/MagOS-Data/backgrounds/wallpapers/Default
-DEFSSDIR=/mnt/livedata/MagOS-Data/backgrounds/screensaver/Default
-SYSWPDIR=/usr/share/magos/wallpapers/Default
-SYSSSDIR=/usr/share/magos/screensaver/Default
-DEFWPFILE=/usr/share/magos/wallpapers/default.jpg
+WPDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/wallpapers/Default
+SSDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/screensaver/Default
+WPSYSDIR=/usr/share/magos/wallpapers/Default
+SSSYSDIR=/usr/share/magos/screensaver/Default
+WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
 [ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 
 # setting screensaver theme
-[ -z "$SSAVERTHEME" ] && SSAVERTHEME="$DEFSSDIR"
+[ -z "$SSAVERTHEME" ] && SSAVERTHEME="$SSDEFDIR"
 [ ! -d "$SSAVERTHEME" -a -d "$BACKGROUND" ] && SSAVERTHEME="$BACKGROUND"
-[ ! -d "$SSAVERTHEME" -a -d "$DEFWPDIR" ] && SSAVERTHEME="$DEFWPDIR"
-[ ! -d "$SSAVERTHEME" ] && SSAVERTHEME="$SYSWPDIR"
-rm -f "$SYSSSDIR"
-ln -sf "$SSAVERTHEME" "$SYSSSDIR"
+[ ! -d "$SSAVERTHEME" -a -d "$WPDEFDIR" ] && SSAVERTHEME="$WPDEFDIR"
+[ ! -d "$SSAVERTHEME" ] && SSAVERTHEME="$WPSYSDIR"
+rm -f "$SSSYSDIR"
+ln -sf "$SSAVERTHEME" "$SSSYSDIR"
 
 # selecting file for default wallpaper
-[ -z "$BACKGROUND" ] && BACKGROUND="$DEFWPDIR"
-[ -r "$BACKGROUND" ] || BACKGROUND="$SYSWPDIR"
+[ -z "$BACKGROUND" ] && BACKGROUND="$WPDEFDIR"
+[ -r "$BACKGROUND" ] || BACKGROUND="$WPSYSDIR"
 [ -d "$BACKGROUND" ] && BACKGROUND=$(find -L "$BACKGROUND" | egrep -i "[.]jpeg$|[.]jpg$" | sort -R | head -1)
 [ -f "$BACKGROUND" ] || exit 0
-rm -f "$DEFWPFILE"
-cp -Lp "$BACKGROUND" "$DEFWPFILE"
+rm -f "$WPDEFFILE"
+cp -Lp "$BACKGROUND" "$WPDEFFILE"
 
 [ -x /usr/bin/convert ] || exit 0
 
@@ -46,7 +46,7 @@ echo "$XORG_RES" | grep -q ^[0-9]*x[0-9]*$ || XORG_RES=$WALLPAPERSRES
 RESIZEOPT="-resize $XORG_RES -background black -gravity center -extent $XORG_RES"
 [ "$BACKGROUNDMODE" = "1" ] && RESIZEOPT="-resize $XORG_RES!"
 [ "$BACKGROUNDMODE" = "2" ] && RESIZEOPT="-resize $XORG_RES^ -gravity center -extent $XORG_RES"
-convert $RESIZEOPT "$DEFWPFILE" /tmp/background.jpg
+convert $RESIZEOPT "$WPDEFFILE" /tmp/background.jpg
 
 # Graffiti effects
 if [ "$GRAFFITI" = "yes" ] ;then
@@ -59,16 +59,20 @@ fi
 
 # placing warning about default passwords
 if [ "$GRAFFITI" != "no" -a -x /usr/bin/composite ] ;then
-   egrep -q '^root\:\$2a\$08\$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji|^user\:\$2a\$08\$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2' /etc/shadow && \
-         composite -gravity NorthWest /usr/share/magos/graffiti/warning.png /tmp/background.jpg /tmp/background2.jpg
+   A=0
+   grep -q "^root:$DEFAULTROOTPASSWD:" /etc/shadow && A=1
+   grep -q "^user:$DEFAULTPASSWD:" /etc/shadow && A=1
+   [ "$A" = "1" ] && composite -gravity NorthWest /usr/share/magos/graffiti/warning.png /tmp/background.jpg /tmp/background2.jpg
    [ -f /tmp/background2.jpg  ] && mv -f /tmp/background2.jpg /tmp/background.jpg
 #   disabled slow method
 #   convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red  -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg
 fi
 
 # replacing default wallpaper
-[ -f /tmp/background.jpg  ] && mv -f /tmp/background.jpg "$DEFWPFILE"
+[ -f /tmp/background.jpg  ] && mv -f /tmp/background.jpg "$WPDEFFILE"
 
 # making ksplash background
-mkdir -p "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
-convert "$DEFWPFILE" "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"
+if [ -d usr/share/apps/ksplash ] ;then
+   mkdir -p "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
+   convert "$WPDEFFILE" "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"
+fi

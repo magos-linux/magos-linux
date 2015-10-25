@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+# some cleanups
+rm -fr /tmp/* /mnt/live/memory/changes/usr/share/apps/ksplash/Themes/Default 2>/dev/null
+rm -f /mnt/live/memory/changes/usr/share/magos/wallpapers/default.jpg 2>/dev/null

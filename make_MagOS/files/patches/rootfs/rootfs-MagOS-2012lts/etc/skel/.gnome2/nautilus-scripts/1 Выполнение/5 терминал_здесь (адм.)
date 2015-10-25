@@ -1,9 +1,0 @@
-#!/bin/sh
-#
-#
-#This script opens a root-based gnome-terminal in the directory you select.
-# You need to have appropriate sudo priveleges.
-#Install in your ~/Nautilus/scripts directory.
-
-cd $NAUTILUS_SCRIPT_CURRENT_URI
-gksu gnome-terminal

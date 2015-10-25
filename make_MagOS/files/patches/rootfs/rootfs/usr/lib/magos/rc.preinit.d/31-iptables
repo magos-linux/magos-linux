@@ -33,8 +33,10 @@ else
 fi
 if [ "$ROUTER" = "yes" ] ;then
     sed -i s/".* -A POSTROUTING   -j MASQUERADE.*"/'[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables
-    sed -i /net.ipv4.ip_forward/d etc/sysctl.conf
-    echo "net.ipv4.ip_forward = 1" >>etc/sysctl.conf
+    PFP=etc/sysctl.conf
+    [ -f $PFP ] || PFP=etc/sysctl.d/magos.conf
+    sed -i /net.ipv4.ip_forward/d $PFP
+    echo "net.ipv4.ip_forward = 1" >>$PFP
     sed -i '/-A FORWARD -i eth0 -o eth0 -j DROP/d' etc/sysconfig/iptables
 else
     sed -i s/"^\[.* -A POSTROUTING   -j MASQUERADE.*"/'#ROUTER#[0:0] -A POSTROUTING   -j MASQUERADE'/ etc/sysconfig/iptables

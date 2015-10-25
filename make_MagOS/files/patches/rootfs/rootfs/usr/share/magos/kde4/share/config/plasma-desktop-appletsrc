@@ -24,7 +24,7 @@ desktop=-1
 formfactor=2
 immutability=1
 location=4
-plugin=panel
+plugin=rosapanel
 screen=0
 zvalue=150
 
@@ -36,33 +36,6 @@ zvalue[$d]
 
 [Containments][2][Applets][1][Shortcuts]
 global[$d]
-
-[Containments][2][Applets][11]
-geometry=1148,3,64,32
-immutability=1
-plugin=digital-clock
-zvalue=0
-
-[Containments][2][Applets][11][Configuration]
-Share=false
-announceInterval=0
-calendarType=locale
-defaultTimezone=Local
-displayHolidays=false
-holidaysRegion=
-plainClockColor=20,19,18
-plainClockFont=Sans Serif,32,-1,0,50,0,0,0,0,0
-showDate=true
-showDay=true
-showSeconds=false
-showTimezone=false
-showYear=false
-timeZones=
-useCustomColor=false
-
-[Containments][2][Applets][11][Configuration][PopupApplet]
-DialogHeight=271
-DialogWidth=279
 
 [Containments][2][Applets][12]
 geometry=1216,3,64,32
@@ -88,8 +61,11 @@ icon=mdvbutton
 [Containments][2][Applets][3]
 geometry=120,3,32,32
 immutability=1
-plugin=showdesktop
+plugin=rosaicon
 zvalue=0
+
+[Containments][2][Applets][3][Configuration]
+Url=file:///usr/share/applications/kde4/dolphin.desktop
 
 [Containments][2][Applets][3][LayoutInformation]
 Order=2
@@ -97,81 +73,71 @@ Order=2
 [Containments][2][Applets][4]
 geometry=156,3,32,32
 immutability=1
-plugin=icon
+plugin=rosaicon
 zvalue=0
 
 [Containments][2][Applets][4][Configuration]
 Url=file:///usr/share/applications/kde4/systemsettings.desktop
 
 [Containments][2][Applets][4][LayoutInformation]
-Order=4
+Order=3
 
 [Containments][2][Applets][5]
 geometry=192,3,32,32
 immutability=1
-plugin=icon
+plugin=rosaicon
 zvalue=0
 
 [Containments][2][Applets][5][Configuration]
-Url=file:///usr/share/applications/magos-ctrl-center.desktop
+Url=file:///usr/share/applications/firefox.desktop
 
 [Containments][2][Applets][5][LayoutInformation]
-Order=3
+Order=4
 
 [Containments][2][Applets][6]
 geometry=228,3,32,32
 immutability=1
-plugin=icon
+plugin=rosaicon
 zvalue=0
 
 [Containments][2][Applets][6][Configuration]
-Url=file:///usr/share/applications/firefox.desktop
+Url=file:///usr/share/applications/mandriva-mozilla-thunderbird.desktop
 
 [Containments][2][Applets][6][LayoutInformation]
 Order=5
 
 [Containments][2][Applets][7]
-geometry=264,3,40,32
+geometry=264,3,32,32
 immutability=1
-plugin=pager
+plugin=rosaicon
 zvalue=0
 
 [Containments][2][Applets][7][Configuration]
-displayedText=0
+Url=file:///usr/share/applications/doublecmd.desktop
 
 [Containments][2][Applets][7][LayoutInformation]
 Order=6
 
 [Containments][2][Applets][8]
-geometry=308,3,746,32
+geometry=300,3,32,32
 immutability=1
-plugin=tasks
+plugin=rosaicon
 zvalue=0
+
+[Containments][2][Applets][8][Configuration]
+Url=file:///usr/share/applications/kde4/kcalc.desktop
 
 [Containments][2][Applets][8][LayoutInformation]
 Order=7
 
 [Containments][2][Applets][9]
-geometry=1058,3,86,32
+geometry=336,3,40,32
 immutability=1
-plugin=systemtray
+plugin=pager
 zvalue=0
 
 [Containments][2][Applets][9][Configuration]
-AutoHidePopup=true
-Share=false
-alwaysShown=
-hidden=
-
-[Containments][2][Applets][9][Configuration][Applets][18]
-geometry=270,0,24,24
-immutability=1
-plugin=notifier
-zvalue=0
-
-[Containments][2][Applets][9][Configuration][Applets][18][Configuration]
-Share=false
-ShowDevices=2
+displayedText=0
 
 [Containments][2][Applets][9][LayoutInformation]
 Order=8

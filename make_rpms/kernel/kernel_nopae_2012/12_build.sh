@@ -1,1 +1,0 @@
-../kernel_2012/2_build.sh

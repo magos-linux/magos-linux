@@ -10,4 +10,10 @@ if [ ! -e lib/udev/devices/loop127 ] ;then
       mknod lib/udev/devices/loop$a b 7 $a
   done
 fi
+
+#Delete comments
+for a in lib/udev/rules.d/*.rules ;do
+  sed -i s/[[:space:]]'#'.*// $a
+done
+
 exit 0

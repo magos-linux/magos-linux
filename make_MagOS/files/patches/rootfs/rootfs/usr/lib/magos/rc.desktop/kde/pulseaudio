@@ -2,6 +2,7 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+. /usr/lib/magos/os-config
 . /etc/sound/profiles/current/profile.conf
 
-[ "$SOUNDPROFILE" = "pulse" ] && start-pulseaudio-kde &
+[ "$SOUNDPROFILE" = "pulse" -a "$PULSEAUDIOSTART" = "yes" ] && start-pulseaudio-kde &

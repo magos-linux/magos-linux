@@ -1,6 +1,6 @@
 # This is a sample menu.lst file. You may make some changes to it.
 # Please install GRLDR boot strap code to MBR with the bootlace.com
-# utility under DOS/Win9x or Linux.
+# utility under Linux.
 
 timeout 30
 default 0

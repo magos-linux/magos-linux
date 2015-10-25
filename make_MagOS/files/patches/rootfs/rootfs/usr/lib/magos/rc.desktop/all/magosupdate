@@ -4,18 +4,18 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
-MAGOSUPDATE=ask
 MAGOSPATH=/mnt/livemedia/MagOS
 [ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
 [ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 ARCH=$(gawk '{print $1}' $MAGOSPATH/VERSION)
 VER=$(gawk '{print $2}' $MAGOSPATH/VERSION)
-HTTPURL=http://mirror.yandex.ru/mirrors/magos/netlive/$ARCH/MagOS/
-RSYNCURL=rsync://mirror.yandex.ru:/mirrors/magos/netlive/$ARCH/MagOS/
+HTTPURL=$MUPDSRCHTTP/$ARCH/MagOS/
+RSYNCURL=$MUPDSRCRSYNC/$ARCH/MagOS/
 NEEDROOT=yes
 MSG01="Please select"
 MSG02="New version of MagOS Linux detected.\n Do you want to update it now?"

@@ -103,8 +103,8 @@ KERNLINUZ=$(ls -1 rootfs/boot/vmlinuz-* | sed 's|.*/||' | tail -1)
 [ -z "$KERNDEVEL" ] || [ -h $KERNMODULES/build ] || ln -s $KERNDEVEL $KERNMODULES/build
 [ -z "$KERNDEVEL" ] || [ -h $KERNMODULES/source ] || ln -s $KERNDEVEL $KERNMODULES/source
 
-if egrep -q 'cpio|rpmDigestAlgo|conflict' install_errors.log ;then 
-    echo "Обнаружены серьёзные ошибки при установке пакетов, см. файл work/$FLASHNAME-$VERREL/install_errors.log (ищите по cpio)"
+if egrep -q 'cpio|rpmDigestAlgo|conflict|output error' install_errors.log ;then 
+    echo "Обнаружены серьёзные ошибки при установке пакетов, см. файл work/$FLASHNAME-$VERREL/install_errors.log"
 else
     echo "Проверьте файл work/$FLASHNAME-$VERREL/install_errors.log, как правило там некритичные ошибки"
 fi

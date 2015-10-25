@@ -80,7 +80,6 @@ recode-
 reiser4progs-
 reiserfsprogs-
 smartmontools-
-systemd-tools-
 testdisk-
 tmpwatch-
 tolua++-
@@ -97,5 +96,5 @@ doublecmd-
 lib64ucl1-
 upx-
 peazip-
-branding-configs-common-
 gpart-
+lib64iniparser0-

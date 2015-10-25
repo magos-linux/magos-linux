@@ -11,120 +11,173 @@ ENABLED=yes
 
 DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
-LINKFGLRX=/etc/ld.so.conf.d/GL/ati.conf
-LINKNVIDIA96xx=/etc/nvidia96xx/ld.so.conf
-LINKNVIDIA340=/etc/nvidia340/ld.so.conf
-LINKNVIDIA304=/etc/nvidia304/ld.so.conf
-LINKNVIDIA173=/etc/nvidia173/ld.so.conf
-LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
-LINKATI=/etc/ld.so.conf.d/GL/standard.conf
-LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
+[ -f /memory/changes/etc/ld.so.cache ] && GLLDCONFIG=no
+[ -f /memory/changes/etc/X11/xorg.conf ] && CREATE_XORG_CONF=no
 
-[ ! -f etc/sysconfig/harddrake2/previous_hw ] && ! grep -q XORG_RES etc/sysconfig/MagOS && echo XORG_RES=auto >>etc/sysconfig/MagOS
+# forcing modes=auto for xorg.conf
+grep -q XORG_RES etc/sysconfig/MagOS || echo XORG_RES=auto >>etc/sysconfig/MagOS
 
-XDRIVER=$(cmdline_value xdriver)
+# reading last hw data VGAID CARDID XDRIVER
+. $HARDCONF
+# reading all values from etc/sysconfig/MagOS
+. etc/sysconfig/MagOS
 
-if [ "$XDRIVER" = "xorg" ] ;then
+# cmdline parameter has the highest priority
+CLXD=$(cmdline_value xdriver)
+if [ "$CLXD" ] ;then
+   if [ "$CLXD" != "$XDRIVER" -a "$XDRIVER" ];then
+      unset VGAID VGAVEN DELETE_XORG_CONF VGABUSID
+      [ -f $XFILE ] && mv $XFILE $XFILE.$XDRIVER.bak
+      CREATE_XORG_CONF=yes && GLLDCONFIG=yes
+   fi
+   XDRIVER=$CLXD
+fi
+
+# auto detecting hadware
+[ "$INTEGRATEDVGA" != "yes" ] && SORTOPT='-r'
+# scan all vga cards
+NUM=$(lspci -nmm | grep -c '0300"')
+# using VGABUSID if specified
+[ "$VGABUSID" ] && CARD=$(lspci -nmm | grep ^"$VGABUSID" | head -n1)
+# trying to find VGA card for specidied XDRIVER
+[ -z "$CARD" -a "$XDRIVER" = "intel" ] && CARD=$(lspci -nmm | grep '0300" "8086"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "fglrx" ] && CARD=$(lspci -nmm | grep '0300" "1002"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "ati" ]   && CARD=$(lspci -nmm | grep '0300" "1002"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "nouveau" ]   && CARD=$(lspci -nmm | grep '0300" "10de"' | sort $SORTOPT | head -n1)
+echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | grep '0300" "10de"' | sort $SORTOPT | head -n1)
+# if card are not found we are getting first/last card (it depends of INTEGRATEDVGA)
+[ -z "$CARD" ] && CARD=$(lspci -nmm | grep '0300"' | sort $SORTOPT | head -n1)
+
+PCIID=$(echo $CARD | awk -F\" '{print $6}')
+PCIVEN=$(echo $CARD | awk -F\" '{print $4}')
+
+# in case video was changed
+if [ "$PCIID" != "$VGAID" -a "$VGAID" ] ;then
+   [ -f $XFILE ] && mv $XFILE $XFILE.$VGAVEN:$VGAID.bak
+   unset VGAID VGAVEN DELETE_XORG_CONF VGABUSID
+   CREATE_XORG_CONF=yes && GLLDCONFIG=yes
+fi
+
+# deleting xorg.conf when xdriver=xorg specified
+[ "$XDRIVER" = "xorg" ] && DELETE_XORG_CONF=yes && CREATE_XORG_CONF=no && XDRIVER=
+
+# setting VGABUSID only on multicard hardware
+[ "$NUM" != "1" ] && VGABUSID=$(echo $CARD | awk '{print $1}')
+
+# looking exceptions
+if [ -z "$XDRIVER" ] ; then
+   XDRIVER=$(grep -im1 ^$PCIVEN:$PCIID usr/share/magos/hwdata/xdriver/* | awk -F: '{print $1}')
+   [ -z "$XDRIVER" ] || XDRIVER=$(basename $XDRIVER)
+fi
+
+# detecting XDRIVER
+if [ -z "$XDRIVER" ] ; then
+   [ "$PCIVEN" = "8086" ] && XDRIVER=intel
+   [ "$PCIVEN" = "1002" ] && XDRIVER=fglrx
+   [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia-current
+fi
+
+# testing nonfree nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx modules
+if [ "$XDRIVER" = "nvidia-current" ] ;then
    XDRIVER=
-   DELETE_XORG_CONF=yes
+   for a in $NVIDIATEST ;do
+       chroot . modprobe $a
+       lsmod | grep -q nvidia && XDRIVER=$a
+       [ -z "$XDRIVER" ] || break
+   done
+   [ -z "$XDRIVER" ] && XDRIVER=$FAILSAFENVIDIA
 fi
 
-#using old values if hw not changed
-if [ -z "$XDRIVER" ] ;then
-  PCIID=$(lspci -nmm | grep -m1 0300\" | awk -F\" '{print $6}')
-  PCIVEN=$(lspci -nmm | grep -m1 0300\" | awk -F\" '{print $4}')
-  . etc/sysconfig/harddrake2/service.conf
-  [ "$PCIID" != "$VGAID" ] && XDRIVER=
-  #echo detected video $PCIVEN $PCIID
+# testing nonfree fglrx module
+if [ "$XDRIVER" = "fglrx" ] ;then
+   chroot . modprobe fglrx
+   if ! lsmod | grep -q fglrx ;then
+      XDRIVER=$FAILSAFEATI
+   fi
 fi
 
-#first of all look exceptions
-if [ -z "$XDRIVER" ] ;then
-   XDRIVER=$(grep -im1 ^$PCIID usr/share/magos/hwdata/xdriver/* | awk -F: '{print $1}')
-   XDRIVER=$(basename $XDRIVER)
-fi
-
-#Detect hardware by vendors
-if [ -z "$XDRIVER" ] ;then
-  case $PCIVEN in
-      8086)
-         XDRIVER=intel
-      ;;
-      1002)
-         XDRIVER=fglrx
-      ;;
-      10de)
-         XDRIVER=nvidia-current
-      ;;
-  esac
-  # testing nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx modules
-  if [ "$XDRIVER" = "nvidia-current" ] ;then
-     XDRIVER=
-     for a in nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx ;do
-         chroot . modprobe $a
-         lsmod | grep -q nvidia && XDRIVER=$a
-         [ -z "$XDRIVER" ] || break
-     done
-     [ -z "$XDRIVER" ] && XDRIVER=fbdev
-  fi
-  # testing fglrx radeon
-  if [ "$XDRIVER" = "fglrx" ] ;then
-     chroot . modprobe fglrx
-     if ! lsmod | grep -q fglrx ;then
-        XDRIVER=ati
-     fi
-  fi
-fi
-
-# setting xdriver in harddrake config
+# storing data in config file
 if [ ! -z "$XDRIVER" ] ;then
-   sed -i /^XDRIVER=/d etc/sysconfig/harddrake2/service.conf
-   echo XDRIVER=$XDRIVER >> etc/sysconfig/harddrake2/service.conf
-   echo VGAID=$PCIID >> etc/sysconfig/harddrake2/service.conf
+   sed -i /^XDRIVER=/d $HARDCONF
+   sed -i /^VGAID=/d $HARDCONF
+   sed -i /^VGAVEN=/d $HARDCONF
+   sed -i /^VGABUSID=/d $HARDCONF
+   sed -i /DELETE_XORG_CONF=/d $HARDCONF
+   echo XDRIVER=$XDRIVER >> $HARDCONF
+   echo VGAID=$PCIID >> $HARDCONF
+   echo VGAVEN=$PCIVEN >> $HARDCONF
+   [ "$DELETE_XORG_CONF" = "yes" ] && echo DELETE_XORG_CONF=yes >> $HARDCONF
+   [ "$VGABUSID" ] && echo VGABUSID=$VGABUSID >> $HARDCONF
 fi
 
-sed -i /DELETE_XORG_CONF=/d etc/sysconfig/harddrake2/service.conf
-[ "$DELETE_XORG_CONF" = "yes" ] && echo DELETE_XORG_CONF=yes >> etc/sysconfig/harddrake2/service.conf
-
-# blocking conflict modules
+# removing blocking conflict modules if its forced
 [ "$XDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
 [ "$XDRIVER" = "nvidia" ] && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
 
-#First run ldconfig tweak
-if [ ! -f /memory/changes/etc/ld.so.cache ] ;then
-  [ -z "$XDRIVER" ] && XDRIVER=fbdev
-  LDCACHE=$XDRIVER
-  case $LDCACHE in
-     fglrx)
-       LINK=$LINKFGLRX
-     ;;
-     nvidia)
-       LINK=$LINKNVIDIA96xx
-     ;;
-     nvidia340)
-       LINK=$LINKNVIDIA340
-     ;;
-     nvidia304)
-       LINK=$LINKNVIDIA304
-     ;;
-     nvidia173)
-       LINK=$LINKNVIDIA173
-     ;;
-     nvidia-current)
-       LINK=$LINKNVIDIACUR
-     ;;
-     ati)
-       LINK=$LINKATI
-     ;;
-     *)
-       LINK=$LINKFBDEV
-       LDCACHE=fbdev
-     ;;
-  esac
-  if [ "$LDCACHE" != "fbdev" ] ;then
+# first run ldconfig tweak
+if [ "$GLLDCONFIG" = "yes" ] ;then
+  LINK=$LINKFBDEV
+  [ "$XDRIVER" = "" ] && LDCACHE=fbdev
+  [ "$XDRIVER" = "ati" ] && LINK=$LINKATI
+  [ "$XDRIVER" = "fglrx" ] && LINK=$LINKFGLRX
+  [ "$XDRIVER" = "nvidia" ] && LINK=$LINKNVIDIA96xx
+  [ "$XDRIVER" = "nvidia173" ] && LINK=$LINKNVIDIA173
+  [ "$XDRIVER" = "nvidia304" ] && LINK=$LINKNVIDIA304
+  [ "$XDRIVER" = "nvidia340" ] && LINK=$LINKNVIDIA340
+  [ "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
+  [ -z "$LDCACHE" ] && LDCACHE=$XDRIVER
+  if [ "$LDCACHE" != "fbdev" -a -d usr/share/magos/ld.so.cache/$LDCACHE ] ;then
       chroot . /usr/sbin/alternatives --quiet --set gl_conf $LINK 2>/dev/null 2>&1
       cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
   fi
+fi
+
+# create or delete xorg.conf
+if [ "$DELETE_XORG_CONF" = "yes" ] ;then
+    rm -f etc/X11/xorg.conf
+else 
+   if [ "$CREATE_XORG_CONF" = "yes" ] ;then
+      [ -d usr/share/magos/xorg/$XDRIVER      ] && cp -pfR usr/share/magos/xorg/$XDRIVER/* etc/X11
+      [ -d usr/share/magos/xorg/$PCIVEN       ] && cp -pfR usr/share/magos/xorg/$PCIVEN/*  etc/X11
+      [ -d usr/share/magos/xorg/$PCIVEN$PCIID ] && cp -pfR usr/share/magos/xorg/$PCIVEN$PCIID/* etc/X11
+   fi
+fi
+
+# bumblebee service for nvidia optimus card
+[ "$XDRIVER" = "intel" ] && lspci -nmm | grep -q '"0302" "10de"' && BUMBLEBEE=yes
+if [ "$BUMBLEBEE" = "yes" ] ;then
+   rm -f etc/systemd/system/bumblebeed.service
+
+   echo "$OPTIRUN" | tr ',;' \\n | while read a ;do
+     FILE=usr/share/applications/$a.desktop
+     [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop
+     if [ -f $FILE ] ;then
+        sed -i s/"Exec=primusrun "/"Exec="/ $FILE
+        grep -q optirun $FILE || sed -i s-"Exec="-"Exec=optirun "- $FILE
+     fi
+   done
+
+   echo "$PRIMUSRUN" | tr ',;' \\n | while read a ;do
+     FILE=usr/share/applications/$a.desktop
+     [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop
+     if [ -f $FILE ] ;then
+        sed -i s/"Exec=optirun "/"Exec="/ $FILE
+        grep -q optirun $FILE || sed -i s-"Exec="-"Exec=primusrun "- $FILE
+     fi
+   done
+fi
+
+#setting BusID option for multicard hardware
+if [ -f $XFILE -a "$VGABUSID" ] ;then
+   VGABUSID=$(echo "$VGABUSID" | tr '.' :)
+   if ! grep -q "$VGABUSID" $XFILE ;then
+      a=$XDRIVER
+      echo $a | grep -q nvidia && a=nvidia
+      a=$(grep -i driver.*$a $XFILE)
+      sed -i /BusID/d $XFILE
+      sed -i /"$a"/s/$/\\n'BusID "PCI:'$VGABUSID'"'/ $XFILE
+   fi
 fi

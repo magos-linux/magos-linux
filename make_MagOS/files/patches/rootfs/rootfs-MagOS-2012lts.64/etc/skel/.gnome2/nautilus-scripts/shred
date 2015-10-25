@@ -1,7 +1,0 @@
-#!/bin/bash
-if [ -w "$1" ] ; then
-   shred -u -f -z -n7 "$1"
-else
-   notify-send "Операция не позволяется"
-fi
- 

@@ -7,26 +7,8 @@
 
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
-
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
-debug_mode "$0" "$@"
-
-# If Linux installed on n[t]fs we have to omit killing rootfilesystem mounter when system halt.
-ps -A | egrep 'ntfsmount|rpciod|nfsiod|httpfs|curlftpfs' | awk '{ print $1 }' >> /var/run/sendsigs.omit
-
-# Correcting /etc/mtab
-for a in `grep /mnt/ /proc/mounts | grep -v '/mnt/live[ /]' | awk '{print $2}'` ;do
-   grep -q " $a " /etc/mtab || grep " $a " /proc/mounts >> /etc/mtab
-done
-grep -q usbfs.*devmode=664 /proc/mounts ||  mount -o remount,devmode=0664,devgid=43 /proc/bus/usb
-sort -u /etc/mtab > /etc/mtab.new
-mv -f /etc/mtab.new /etc/mtab
-
-#Setting clock
-. /etc/sysconfig/clock
-HWCLOCKOPIONS="--utc"
-[ "$UTC" = "false" ] && HWCLOCKOPIONS="--localtime"
-hwclock -s $HWCLOCKOPIONS
+. /usr/lib/magos/scripts/liblinuxlive
+[ "$DEBUGMODE" = "yes" ] && debug_mode "$0" "$@"
 
 [ -d /mnt/livemedia/MagOS-Data -a ! -d /mnt/livedata ] && ln -sf livemedia /mnt/livedata

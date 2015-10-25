@@ -19,7 +19,7 @@ ps | grep ntfsmount | awk '{ print $1 }' >> var/run/sendsigs.omit
 
 #Setting up local time zone
 . etc/sysconfig/clock
-[ "$UTC" = "false" ] && cp -pf usr/share/zoneinfo/$ZONE etc/localtime
+[ "$UTC" = "false" -a -f usr/share/zoneinfo/$ZONE ] && cp -pf usr/share/zoneinfo/$ZONE etc/localtime
 
 #Profile updating
 grep -q -f /VERSION etc/magos-release 2>/dev/null || rm -fr /memory/changes/var/lib/rpm  /memory/changes/var/lib/urpmi 2>/dev/null

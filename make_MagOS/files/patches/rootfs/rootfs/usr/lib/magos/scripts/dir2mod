@@ -94,7 +94,7 @@ HELP()
    echo
 }
 
-. liblinuxlive || exit 1
+. /usr/lib/magos/scripts/liblinuxlive || exit 1
 
 
 case $1 in

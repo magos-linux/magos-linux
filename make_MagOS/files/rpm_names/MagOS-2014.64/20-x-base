@@ -184,7 +184,7 @@ lib64id3tag0-
 lib64IDL2_0-
 lib64ieee1284_3-
 libimobiledevice-
-lib64imobiledevice4-
+lib64imobiledevice6-
 lib64IntelXvMC1-
 lib64isofs6-
 lib64jack0-
@@ -244,7 +244,7 @@ lib64pathplan4-
 lib64pciaccess0-
 lib64pixman1_0-
 libplist-
-lib64plist1-
+lib64plist3-
 lib64plymouth2-
 lib64png0-
 lib64png15-
@@ -309,7 +309,7 @@ lib64udisks2_0-
 lib64ulockmgr1-
 lib64unixODBC2-
 lib64upower-glib3-
-lib64usbmuxd2-
+lib64usbmuxd4-
 lib64v4l0-
 lib64v4l-wrappers-
 lib64va1-
@@ -577,3 +577,4 @@ cabextract-
 python3-sip-
 python3-gi-
 python3-pillow-
+xinput-

@@ -1,1 +1,0 @@
-../kernel_mods_2012lts/5_moverpms.sh

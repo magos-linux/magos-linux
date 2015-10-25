@@ -1,2 +1,2 @@
 [Directories-default]
-prefixes=/var/lib/mandriva/kde4-profiles/common,/var/lib/mandriva/kde4-profiles/flash,/usr/share/magos/kde4,
+prefixes=/var/lib/mandriva/kde4-profiles/common,/var/lib/mandriva/kde4-profiles/Default,/usr/share/magos/kde4

@@ -1,5 +1,5 @@
 #!/bin/sh
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
-
-guake &
+/usr/lib/magos/os-config
+[ "$GUAKESTART" = "yes" ] && guake &

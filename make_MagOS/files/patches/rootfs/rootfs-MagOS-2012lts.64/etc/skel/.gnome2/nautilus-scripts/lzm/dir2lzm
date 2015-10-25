@@ -1,6 +1,0 @@
-#!/bin/bash
-if [ -d "$1" ] ; then
-   dir2module "$1"
-else
-   notify-send "операция доступна только для каталогов"
-fi

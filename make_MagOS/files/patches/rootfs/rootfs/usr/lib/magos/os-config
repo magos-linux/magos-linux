@@ -1,0 +1,149 @@
+#this file contains different values for magos scripts
+
+
+##rc.desktop/all/* is launching when desktop is ready
+
+#rc.desktop/all/autoexec
+# autostart apps/scripts
+#AUTOEXEC=
+
+#rc.desktop/all/fusion-icon
+# timeout to start fusion-icon
+FUSIONICONTIMEOUT=5
+
+#rc.desktop/all/keyboard
+# set keyboard layout when system start
+RESETKBMODE=yes
+# set on/off/autoset numlock kbd mode
+#NUMLOCK
+
+#rc.desktop/all/magosupdate
+MAGOSUPDATE=ask
+MUPDSRCHTTP=http://mirror.yandex.ru/mirrors/magos/netlive
+MUPDSRCRSYNC=rsync://mirror.yandex.ru:/mirrors/magos/netlive
+
+#rc.desktop/all/xbindkeys
+XBINDKEYSSTART=yes
+XBINDKEYSOPTIONS=
+
+#rc.desktop/gnome/guake
+GUAKESTART=yes
+
+#rc.desktop/gnome/pulseaudio
+#rc.desktop/gnome-shell/pulseaudio
+#rc.desktop/kde/pulseaudio
+PULSEAUDIOSTART=yes
+
+#rc.desktop/kde/hideloop4dolphin
+# kde dolphin workaround. scripts hides loop devices in places bar
+HIDELOOP4DOLPHIN=yes
+DOLPHINBOOKMARKS=.local/share/user-places.xbel
+HIDELOOP=255
+HIDERAM=0
+
+#rc.desktop/kde/yakuake
+YAKUAKESTART=yes
+
+#rc.desktop/kde/parcellite
+PARCELLITESTART=yes
+
+#rc.domain.d/30-usershwaccess
+DOMUSGR=audio,video,usb,vboxusers,bumblebee,cdrom,lp
+
+#rc.halt/16-rpmdb
+#rc.post.d/05-rpmdb
+RPMDB2TMPFS=yes
+
+#rc.halt/20-timesave
+HALTSAVETIME=yes
+
+#rc.local.d/01-background
+WALLPAPERSRES=1920x1080
+WPDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/wallpapers/Default
+WPSYSDIR=/usr/share/magos/wallpapers/Default
+WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
+SSDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/screensaver/Default
+SSSYSDIR=/usr/share/magos/screensaver/Default
+
+#rc.local.d/10-network
+# start interface if its not networkmanager
+AUTOSTARTIFNNM=yes
+NFSMOUNTTM=10
+NFSMOUNTWAIT=6
+NFSOPTS="vers=3,nolock,users,noauto"
+
+#rc.local.d/31-sound
+# to set default alsa card in case of 0 card is HDMI (see aplay -l)
+SNDFINCARD=yes
+# mixer settings (see amixer)
+SNDMIXSET=yes
+SNDMIX_MASTER_N=Master
+SNDMIX_MASTER_VOL=35%
+SNDMIX_DEFAULT_VOL=90%
+SNDMIX_SWITCH_ON="IEC958 Playback Default,IEC958 Playback Switch"
+SNDMIX_SWITCH_OFF="Beep Playback Switch,Mic Playback Switch"
+
+#rc.local.d/51-gtk-update-icon-cache
+UPDATEGTKICONCACHE=yes
+UPDATEGTKICONOPTS="-fit /usr/share/icons/hicolor"
+
+#rc.local.d/51-mozilla_extensions
+REGISTERMOZEXT=yes
+
+#rc.local.d/81-samba
+# make random passwords for samba users (for home nets)
+MKSMBPWD=yes
+# display passwd
+SHDSMBPW=yes
+
+#rc.post.d/02-hwclock
+SETCLKATSTART=yes
+
+#rc.post.d/11-xorg
+HARDCONF=etc/sysconfig/harddrake2/service.conf
+# make /etc/X11/xorg.conf.d/00-keyboard.conf
+MKKBDFXORG=yes
+# options (only if its not specidied in /etc/sysconfig/keyboard )
+XkbModel=pc105
+GRP_TOGGLE=ctrl_shift_toggle
+XkbLayout=us,ru
+KEYBOARD=ru
+KEYTABLE=ru4
+XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin
+
+#rc.preinit/10-accounts
+DEFAULTPASSWD='$6$kCP2oNGB$LD4VUJfTMxTmzbZNZg16AYDjSQ6CB1hEaqzb49I91KntXDTVxux6KueiYj59HiHddL9zJwlQ4Y8hzvXRTwpFQ0'
+DEFAULTROOTPASSWD='$6$FMGNGYZ3$rFfdkmZQmz3ecxZd0Ia2qy6ZM9SEfN6mGHZZsffDrJ73mx9Fd6nuuoFFatLWQJyM5QDwO8nvLQR64ZEbMH7Bw1'
+DEFAULTUSER=user
+USERGROUPS=audio,video,usb,vboxusers,bumblebee,cdrom,lp
+NOSECUREROOTPASSWD=$DEFAULTROOTPASSWD
+ADMGROUPS=wheel
+ADMUID=500
+ADDADM=no
+
+#rc.preinit/50-xorg
+LINKFGLRX=/etc/ld.so.conf.d/GL/ati.conf
+LINKATI=/etc/ld.so.conf.d/GL/standard.conf
+LINKNVIDIA96xx=/etc/nvidia96xx/ld.so.conf
+LINKNVIDIA173=/etc/nvidia173/ld.so.conf
+LINKNVIDIA304=/etc/nvidia304/ld.so.conf
+LINKNVIDIA340=/etc/nvidia340/ld.so.conf
+LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
+LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
+NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx"
+FAILSAFENVIDIA=fbdev
+FAILSAFEATI=ati
+HARDCONF=etc/sysconfig/harddrake2/service.conf
+DELETE_XORG_CONF=no
+CREATE_XORG_CONF=yes
+GLLDCONFIG=yes
+BUMBLEBEE=no
+OPTIRUN=
+PRIMUSRUN=steam
+VGABUSID=
+INTEGRATEDVGA=yes
+SORTOPT=
+XFILE=etc/X11/xorg.conf
+
+#rc.preinit.d/53-language
+FORCE_LOCARCHIVE=no

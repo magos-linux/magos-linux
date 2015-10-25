@@ -92,6 +92,6 @@ cd "$MYPATH"/$DESTDIR/$FLASHNAME-Data || exit 1
 [ "$DATASIZE1" != "" ] && dd if=/dev/zero of=home.img bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j home.img >/dev/null 2>&1
 cd ..
 tar -jcf MagOS/MagOS-Data.tar.bz2 MagOS-Data
-tar -jcf MagOS/boot.tar.bz2 boot
+tar -jcf MagOS/boot.tar.bz2 boot EFI
 
 echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"

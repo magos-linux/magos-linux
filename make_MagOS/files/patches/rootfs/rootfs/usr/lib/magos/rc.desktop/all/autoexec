@@ -2,8 +2,9 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-. /mnt/live/liblinuxlive
+. /usr/lib/magos/scripts/liblinuxlive
 . /usr/lib/magos/functions
+. /usr/lib/magos/os-config
 . /etc/sysconfig/MagOS
 
 DE=$(detectDE)

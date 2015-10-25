@@ -324,7 +324,6 @@ networkmanager-
 nfs-utils-
 nss_ldap-
 nss_mdns-
-nss-myhostname-
 nss-shlibsign-
 ntfs-3g-
 ntp-client-
@@ -394,7 +393,6 @@ polkit-
 popt-data-
 portreserve-
 ppp-
-procps-
 psmisc-
 pwdb-conf-
 python-
@@ -404,8 +402,6 @@ rmt-
 rng-utils-
 rootcerts-
 rootfiles-
-rosa-release-common-
-rosa-release-Free-
 rpcbind-
 rpm-helper-
 rsyslog-
@@ -423,7 +419,6 @@ squashfs-tools-
 sudo-
 sysfsutils-
 systemd-
-systemd-sysvinit-
 systemd-units-
 sysvinit-tools-
 tar-
@@ -471,8 +466,20 @@ perl-B-Hooks-EndOfScope-
 perl-Package-Stash-
 perl-Sub-Exporter-Progressive-
 perl-List-AllUtils-
-lib64nss_myhostname2-
 python3-
 python3-dbus-
 lvm2-
 perl-Variable-Magic-
+procps-ng-
+branding-configs-fresh-
+branding-configs-common-
+perl-DateTime-TimeZone-Tzfile-
+lib64nm0-
+lib64nss_myhostname2-
+perl-Exporter-Tiny-
+lib64systemd0-
+perl-Date-ISO8601-
+lib64procps4-
+lib64xkbcommon0-
+perl-Params-Classify-
+p11-kit-

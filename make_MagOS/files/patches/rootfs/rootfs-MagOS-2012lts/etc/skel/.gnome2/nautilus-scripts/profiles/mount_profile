@@ -1,6 +1,0 @@
-#!/bin/bash
-if [ "${1##*.}" = "img" ] ; then
-   gksu -l profiler_helper mount "$(pwd)/$1"
-else
-   notify-send "операция доступна только для образов .img"
-fi

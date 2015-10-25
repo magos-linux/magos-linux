@@ -11,6 +11,7 @@ ENABLED=yes
 
 DEBUGMODE=no
 . /liblinuxlive  2>/dev/null  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
 
@@ -23,12 +24,13 @@ fi
 . etc/locale.conf
 
 USE_LOCARCHIVE=no
-FORCE_LOCARCHIVE=no
-[ -f usr/lib/locale/locales-archive -a -d usr/share/locale/$LANG ] && USE_LOCARCHIVE=yes
-[ "$LANG" = "" ] && USE_LOCARCHIVE=no
-[ "$LANG" = "en_US.UTF-8" -o "$LANG" = "ru_RU.UTF-8" ] && [ "$FORCE_LOCARCHIVE" != "yes" ] && USE_LOCARCHIVE=no
-if [ "$USE_LOCARCHIVE" = "yes" ] ;then
-      chroot . localedef --replace --add-to-archive "/usr/share/locale/$a"
+[ -f usr/lib/locale/locale-archive ] && USE_LOCARCHIVE=yes
+[ "$LANG" = "en_US.UTF-8" -o "$LANG" = "ru_RU.UTF-8" ] && USE_LOCARCHIVE=no
+if [ "$USE_LOCARCHIVE" = "yes" -o "$FORCE_LOCARCHIVE" = "yes" ] ;then
+   [ -z "$LOCALE"  ] && LOCALE=$(echo $LANG | sed s/[.].*//)
+   [ -z "$CHARSET" ] && CHARSET=$(echo $LANG | sed s/^.*[.]//)
+   [ -z "$CHARSET" ] && CHARSET=UTF-8
+   chroot . localedef -c -f "$CHARSET" -i "$LOCALE" $LANG
 fi
 
 . etc/sysconfig/keyboard
