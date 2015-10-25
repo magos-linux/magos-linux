@@ -24,7 +24,7 @@ fi
 disk="$1"
 vm="$(echo VM${disk} |sed 's/\//_/g')-$$"
 file="/root/${vm}.vmdk"
-arch=$"(uname -i)"
+arch=$(uname -i)
 
 if [ "$arch" !=  "x86_64" ] ;then  
 pae=" --pae on "
