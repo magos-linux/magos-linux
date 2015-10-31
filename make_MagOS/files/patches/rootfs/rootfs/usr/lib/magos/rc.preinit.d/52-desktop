@@ -81,6 +81,14 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=slim/' etc/sysconfig/desktop
          ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
        ;;
+       xdm)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=xdm/' etc/sysconfig/desktop
+         ln -sf /lib/systemd/system/xdm.service etc/systemd/system/display-manager.service
+       ;;
+       lightdm)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=lightdm/' etc/sysconfig/desktop
+         ln -sf /lib/systemd/system/lightdm.service etc/systemd/system/display-manager.service
+       ;;
        lan)
          sed -i s/ONBOOT=no/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null
        ;;
