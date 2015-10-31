@@ -3,7 +3,7 @@
 /* default color scheme */
 @define-color fg_color #333333;
 @define-color bg_color #EEE7DB;
-@define-color base_color #000000;
+@define-color base_color #EEE7DB;
 @define-color text_color #333333;
 @define-color selected_bg_color #3BA4EC;
 @define-color selected_fg_color #FFFFFF;

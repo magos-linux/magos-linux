@@ -14,15 +14,15 @@ DEBUGMODE=no
 
 # RPM5 vs ext3 bug workaround
 if [ "$RPMDB2TMPFS" = "yes" ] ;then
-  if ! grep -q "tmpfs /mnt/live/memory tmpfs" /proc/mounts ;then
+  if ! grep -q "/memory tmpfs" /proc/mounts ;then
     # RPM5 vs ext3 bug workaround
     if ! grep -q /var/lib/rpmdb /proc/mounts ;then
       [ -d /var/lib/rpmdb ] || mkdir -p /var/lib/rpmdb
       # Removing cache
       rm -f /var/lib/rpm/__db* 2>/dev/null
-      mount -o bind /var/lib/rpm /var/lib/rpmdb
-      mount -t tmpfs tmpfs /var/lib/rpm
-      rsync -a /var/lib/rpmdb/ /var/lib/rpm
+      mount -t tmpfs tmpfs /var/lib/rpmdb
+      rsync -a /var/lib/rpm/ /var/lib/rpmdb
+      mount -o bind /var/lib/rpmdb /var/lib/rpm
     fi
   fi
 fi

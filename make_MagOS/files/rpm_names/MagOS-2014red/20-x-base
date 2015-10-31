@@ -184,7 +184,7 @@ libid3tag0-
 libIDL2_0-
 libieee1284_3-
 libimobiledevice-
-libimobiledevice4-
+libimobiledevice6-
 libIntelXvMC1-
 libisofs6-
 libjack0-
@@ -244,7 +244,7 @@ libpathplan4-
 libpciaccess0-
 libpixman1_0-
 libplist-
-libplist1-
+libplist3-
 libplymouth2-
 libpng0-
 libpng15-
@@ -309,7 +309,7 @@ libudisks2_0-
 libulockmgr1-
 libunixODBC2-
 libupower-glib3-
-libusbmuxd2-
+libusbmuxd4-
 libv4l0-
 libv4l-wrappers-
 libva1-

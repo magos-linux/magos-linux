@@ -1,0 +1,100 @@
+diff -auprN a/kernel-3.14.46-1.spec b/kernel-3.14.43-1.spec
+--- a/kernel.spec	2015-02-28 20:51:47.000000000 +0300
++++ b/kernel.spec	2015-03-23 19:09:08.000000000 +0300
+@@ -324,6 +324,63 @@ Packager: Nicolo' Costanza <abitrules@ya
+ %{?_without_kirkwood: %global build_kirkwood 0}
+ %{?_without_versatile: %global build_versatile 0}
+ 
++%define build_modgz                     0
++%{?_with_modgz: %global build_modgz 1}
++# MagOS Linux settings
++%define build_for_magos 1
++%{?_with_build_for_magos: %global build_for_magos 1}
++%if %build_for_magos
++%define build_doc                       0
++%define build_source                    0
++%define build_devel             	1
++%define build_debug                     0
++%define build_desktop                   0
++%define build_netbook                   0
++%define build_server                    0
++%ifarch %{ix86}
++%define build_nrj_desktop               0
++%define build_nrj_desktop_pae           1
++%define build_nrjQL_desktop             0
++%define build_nrjQL_desktop_pae         1
++%endif
++%ifarch x86_64
++%define build_nrj_desktop               1
++%define build_nrj_desktop_pae           0
++%define build_nrjQL_desktop             1
++%define build_nrjQL_desktop_pae         0
++%endif
++%define build_nrj_realtime              0
++%define build_nrj_laptop                0
++%define build_nrj_netbook               0
++%define build_nrj_server                0
++%define build_nrj_server_games          0
++%define build_nrj_server_computing      0
++%define build_nrj_realtime_pae          0
++%define build_nrj_laptop_pae            0
++%define build_nrj_netbook_pae           0
++%define build_nrj_desktop_core2         0
++%define build_nrj_desktop_core2_pae     0
++%define build_nrjQL_realtime            0
++%define build_nrjQL_laptop              0
++%define build_nrjQL_netbook             0
++%define build_nrjQL_server              0
++%define build_nrjQL_server_games        0
++%define build_nrjQL_server_computing    0
++%define build_nrjQL_realtime_pae        0
++%define build_nrjQL_laptop_pae          0
++%define build_nrjQL_netbook_pae         0
++%define build_nrjQL_desktop_core2       0
++%define build_nrjQL_desktop_core2_pae   0
++%define build_perf                      0
++%define build_cpupower                  0
++%define build_modxz                     0
++%define build_modgz                     0
++%define build_iop32x            	0
++%define build_kirkwood          	0
++%define build_versatile         	0
++%define build_nosrc     		0
++%endif
++
+ # For the .nosrc.rpm
+ %define build_nosrc 	0
+ %{?_with_nosrc: %global build_nosrc 1}
+@@ -498,6 +555,11 @@ Source10: 	ftp://ftp.kernel.org/pub/linu
+ %endif
+ %endif
+ 
++%if %build_for_magos
++Patch101:       linux-%{patch_ver}-magos.patch
++# Source102:      aufs3-3.9-allin1.patch
++%endif
++
+ #END
+ ####################################################################
+ 
+@@ -1336,6 +1398,10 @@ sed -i -e 's,CONFIG_EFI_VARS=y,CONFIG_EF
+ %if %kgit
+ %patch2 -p1
+ %endif
++%if %build_for_magos
++%patch101 -p1 -d %{patches_dir}
++# cp -pf  %{SOURCE102} %{patches_dir}/patches-extras
++%endif
+ 
+ %{patches_dir}/scripts/apply_patches
+ %{patches_dir}/scripts/apply_patches-NRJ
+@@ -2062,7 +2128,8 @@ rm -rf %{target_source}/.tmp_depmod/
+ # compressing modules
+ %if %{build_modxz}
+ find %{target_modules} -name "*.ko" | %kxargs xz -6e
+-%else
++%endif
++%if %{build_modgz}
+ find %{target_modules} -name "*.ko" | %kxargs gzip -9
+ %endif
+ 
