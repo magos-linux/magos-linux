@@ -18,11 +18,5 @@ MEDIA_DEFAULT="\
 restricted-updates main-updates contrib-updates nonfree-updates \
 restricted-release main-release contrib-release nonfree-release"
 
-# Службы которые будут загружаться при загрузке. Порядок перечисления важен.
-INITDNEED="rsyslog acpid udev-post messagebus haldaemon alsa sound resolvconf  \
- iptables network networkmanager dm wine gpm xinetd"
-
 # ключи для команды mksquashfs при создании модулей
 MKSQOPT=" -b 512K "
-SQFSVER=4
-MODULEFORMAT=xzm

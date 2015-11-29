@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=MimeType
+Comment=XZM module
+MimeType=application/x-xzm;
+Patterns=*.lzm;*.xzm;

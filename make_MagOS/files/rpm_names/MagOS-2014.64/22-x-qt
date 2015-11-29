@@ -54,3 +54,15 @@ scim-qt-
 python3-qt4-gui-
 python3-qt4-core-
 python3-qt4-dbus-
+lib64qt5core5-
+lib64qt5gui5-
+lib64qt5dbus5-
+qt5-qtcore-i18n-
+lib64qt5widgets5-
+lib64qt5network5-
+lib64qt5printsupport5-
+lib64qt5x11extras5-
+lib64qt5svg5-
+lib64qt5gui5-x11-
+lib64qt5xcbqpa5-
+lib64qt5xcbqpa5-glx-

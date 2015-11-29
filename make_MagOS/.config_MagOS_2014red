@@ -19,11 +19,5 @@ restricted-updates main-updates nonfree-updates \
 restricted-release main-release nonfree-release \
 contrib-updates contrib-release "
 
-# Службы которые будут загружаться при загрузке. Порядок перечисления важен.
-INITDNEED="rsyslog acpid udev-post messagebus haldaemon alsa sound resolvconf  \
- iptables network networkmanager dm wine gpm xinetd"
-
 # ключи для команды mksquashfs при создании модулей
 MKSQOPT=" -b 512K "
-SQFSVER=4
-MODULEFORMAT=xzm

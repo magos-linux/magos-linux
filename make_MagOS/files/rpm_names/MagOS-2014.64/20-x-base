@@ -253,8 +253,7 @@ lib64png3-
 lib64poppler51-
 lib64portaudio2-
 lib64pulseaudio0-
-lib64pulsecommon5.0-
-lib64pulsecommon6.0-
+lib64pulsecommon7.1-
 lib64pulseglib20-
 lib64pyglib2.0_0-
 lib64python3.4-
@@ -335,7 +334,7 @@ lib64x11_6-
 libx11-common-
 lib64x11-xcb1-
 lib64x264_142-
-lib64x265_21-
+lib64x265_68-
 lib64x86_1-
 lib64xatracker2-
 lib64xau6-
@@ -562,7 +561,7 @@ xvinfo-
 zlibrary-common-
 lib64poppler-glib8-
 poppler-
-lib64webp4-
+lib64webp5-
 lib64gstreamer0.10_0-
 lib64gstreamer-plugins-base0.10-
 lib64gstreamer-plugins-base1.0_0-
@@ -578,3 +577,6 @@ python3-sip-
 python3-gi-
 python3-pillow-
 xinput-
+lib64xcb-util-renderutil0-
+lib64xcb-xkb1-
+lib64xkbcommon-x11_0-

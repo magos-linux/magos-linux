@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=XZM Module (De)activation
+Name[ru]=Подключение и отключение модулей XZM
+Exec=gactivate %F
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=GTK;
+MimeType=application/x-xzm;
+NoDisplay=true
