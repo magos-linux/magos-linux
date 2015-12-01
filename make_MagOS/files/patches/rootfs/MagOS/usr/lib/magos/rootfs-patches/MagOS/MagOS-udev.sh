@@ -12,7 +12,7 @@ mkdir -m 755 -p /run/udev/rules.d
 #Create loop devices
 if [ ! -e /lib/udev/devices/loop127 ] ;then
   for a in $(seq 1 127) ;do
-      mknod /lib/udev/devices/loop$a b 7 $a
+      mknod /lib/udev/devices/loop$a b 7 $a 2>/dev/null
   done
 fi
 

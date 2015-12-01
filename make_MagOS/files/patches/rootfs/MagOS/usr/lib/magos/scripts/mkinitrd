@@ -124,13 +124,13 @@ done
 echo "Creating $FILENAME for kernel $KERNEL"
 
 echo "Creating filesystem in $INITRDFOLD"
-rm -fr "$INITRDFOLD" || exit 1
-mkdir "$INITRDFOLD" || exit 1
-cd "$INITRDFOLD"
+rm -fr "$INITRDFOLD"
+mkdir -p "$INITRDFOLD" || exit 1
+cd "$INITRDFOLD" || exit 1
 cp -R --preserve /usr/share/magos/initrd/* ./ || exit 1
-[ -d /usr/lib64 ] && cp -fR --preserve /usr/share/magos/initrd64/* ./ || exit 1
+[ "$ARCH" = "64" ] && cp -fR --preserve /usr/share/magos/initrd64/* ./
 mkdir -p etc dev bin mnt proc lib sys tmp var/log etc/default usr/lib usr/bin usr/share/locale/ru_RU.UTF-8 lib/modules/$KERNEL/kernel/fs
-if [ -f /etc/magos-release ] ;then 
+if [ -f /etc/magos-release ] ;then
    cp -p /etc/magos-release ./VERSION || exit 1
 else
    cp -p /mnt/live/VERSION ./VERSION || exit 1

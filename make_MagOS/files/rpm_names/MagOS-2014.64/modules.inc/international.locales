@@ -5,5 +5,5 @@
 ^usr/share/inkscape/tutorials/potrace-.*.png
 ^usr/share/inkscape/tutorials/tutorial-.*.svg
 ^usr/share/libgweather/Locations..*.xml
-^usr/share/virtualbox/nls/.*.qm
+^usr/lib64/virtualbox/nls/.*.qm
 ^usr/share/doc/HTML/.*/

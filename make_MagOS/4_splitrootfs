@@ -124,7 +124,7 @@ for a in modules_list/??-* ;do
 done
 
 deletefiles content split_content/88-magos
-movefiles content modules_content/10-core '.'
+movefiles content split_content/10-core '.'
 
 echo "Располагаем файлы по модулям"
 

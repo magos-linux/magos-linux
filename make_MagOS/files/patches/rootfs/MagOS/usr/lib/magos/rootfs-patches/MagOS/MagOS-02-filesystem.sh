@@ -7,7 +7,7 @@ ln -sf ../tmp /var/tmp
 ln -sf /bin/true /sbin/fsck.aufs
 ln -sf $(ls boot/vmlinuz-* | tail -1 | sed 's|boot/||') /boot/vmlinuz
 ln -sf /usr/share/zoneinfo/$ZONE /etc/localtime
-if [ -d /usr/lib64 ] ;then
+if [ -d /lib64 ] ;then
    ln -sf ../bin64/httpfs /usr/lib/magos/scripts/httpfs
 else
    ln -sf ../bin/httpfs /usr/lib/magos/scripts/httpfs

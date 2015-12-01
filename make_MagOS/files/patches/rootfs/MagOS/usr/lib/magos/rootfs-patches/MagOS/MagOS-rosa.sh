@@ -1,8 +1,10 @@
 #!/bin/bash
 [ -f /etc/rosa-release ] || exit 0
 
-ln -sf /usr/share/magos/about/index-ru-magos.html /usr/share/mdk/about/index-ru.html
-ln -sf /usr/share/magos/about/index-ru-magos.html /usr/share/mdk/about/index.html
+if [ -d /usr/share/mdk/about ] ;then
+  ln -sf /usr/share/magos/about/index-ru-magos.html /usr/share/mdk/about/index-ru.html
+  ln -sf /usr/share/magos/about/index-ru-magos.html /usr/share/mdk/about/index.html
+fi
 ln -sf /usr/share/magos/screensaver/Default       /usr/share/mdk/screensaver
 ln -sf /usr/share/magos/wallpapers                /usr/share/mdk/backgrounds
 ln -sf magos.png                                  /usr/share/icons/mandriva.png

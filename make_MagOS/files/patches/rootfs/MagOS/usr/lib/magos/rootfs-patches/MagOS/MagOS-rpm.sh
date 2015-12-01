@@ -10,7 +10,7 @@ mv /var/lib/rpm/* /var/lib/rpmbase
 mount -n -t tmpfs tmpfs /var/lib/rpm
 mv /var/lib/rpmbase/* /var/lib/rpm
 
-rpm --import /var/lib/rpm/pubkeys/magos.pubkey
+[ -f /var/lib/rpm/pubkeys/magos.pubkey ] && rpm --import /var/lib/rpm/pubkeys/magos.pubkey
 
 cat /var/lib/rpm/modules/*-int-* | while read a ;do
     rpm -e --nodeps --noscripts --notriggers --justdb ${a%.rpm} 2>/dev/null
