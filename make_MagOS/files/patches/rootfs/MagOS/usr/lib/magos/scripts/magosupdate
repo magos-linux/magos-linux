@@ -1,6 +1,8 @@
 #!/bin/bash
 
 MAGOSPATH=/mnt/livemedia/MagOS
+MUPDRSYNCOPT="--progress"
+[ "$1" = "--auto" ] && MUPDRSYNCOPT=
 [ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
 [ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
 ARCH=$(gawk '{print $1}' $MAGOSPATH/VERSION)
@@ -53,20 +55,20 @@ echo " ok."
 echo  "Downloading MagOS files"
 wget -o /tmp/magosupdate_wget_log -O MD5SUM  "$HTTPURL/MD5SUM"
 wget -o /tmp/magosupdate_wget_log -O LICENSE "$HTTPURL/LICENSE"
-rsync --inplace -rtuc "$RSYNCURL/vmlinuz" ./
+rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/vmlinuz" ./
 KRNLS=$(md5sum vmlinuz | awk '{ print $1}')
 if ! grep -q "$KRNLS"[[:space:]]*"vmlinuz" MD5SUM ;then
     echo "downloading error."
     wall -n "MagOS update error"
     exit 1
 fi
-grep -q initrd.gz          MD5SUM && rsync --inplace -rtuc "$RSYNCURL/initrd.gz"          ./
-grep -q uird.magos.cpio.xz MD5SUM && rsync --inplace -rtuc "$RSYNCURL/uird.magos.cpio.xz" ./
-rsync --inplace -rtuc "$RSYNCURL/boot.tar.bz2"       ./
-rsync --inplace -rtuc "$RSYNCURL/MagOS-Data.tar.bz2" ./
+grep -q initrd.gz          MD5SUM && rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/initrd.gz"          ./
+grep -q uird.magos.cpio.xz MD5SUM && rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/uird.magos.cpio.xz" ./
+rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/boot.tar.bz2"       ./
+rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/MagOS-Data.tar.bz2" ./
 
 echo  "Downloading base modules"
-rsync -rtc --delete --force "$RSYNCURL/base" ./
+rsync $MUPDRSYNCOPT -rtc --delete --force "$RSYNCURL/base" ./
 
 echo  "Checking downloaded files"
 if ! md5sum -c MD5SUM ;then

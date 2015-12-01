@@ -48,9 +48,9 @@ fi
 [ "$CHOISE" != "1" ] && exit 0
 
 if [ "$NEEDROOT" = "yes" ] ;then
-   beesu -l /bin/bash "/usr/lib/magos/scripts/magosupdate >>$MAGOSPATH/update.log 2>&1"
+   beesu -l /bin/bash "/usr/lib/magos/scripts/magosupdate --auto >>$MAGOSPATH/update.log 2>&1"
 else
-   /usr/lib/magos/scripts/magosupdate >>$MAGOSPATH/update.log 2>&1
+   /usr/lib/magos/scripts/magosupdate --auto >>$MAGOSPATH/update.log 2>&1
 fi
 
 if grep -q $NVER $MAGOSPATH/VERSION ;then
