@@ -36,8 +36,7 @@ mkdir -p -m 755 mirror/rootfs/var/lib/rpm/modules
 cp -p ../../loaded/$FLASHNAME-$VERREL/names/??-* mirror/rootfs/var/lib/rpm/modules || exit 1
 
 echo "Изменение файлов дистрибутива"
-umount mirror/rootfs || exit 1
-mount -t aufs -o br:mirror/changes=rw:mirror/magos=ro:rootfs=ro aufs mirror/rootfs || exit 1
+cp -pfr mirror/magos/* mirror/rootfs
 mkdir -p mirror/rootfs/proc mirror/rootfs/sys mirror/rootfs/tmp mirror/rootfs/mnt/live
 mount -o bind /dev  mirror/rootfs/dev
 mount -o bind /proc mirror/rootfs/proc

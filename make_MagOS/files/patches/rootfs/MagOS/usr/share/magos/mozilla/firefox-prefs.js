@@ -33,3 +33,4 @@ user_pref("extensions.shownSelectionUI", true);
 user_pref("extensions.autoDisableScopes",0);
 user_pref("startup.homepage_welcome_url","");
 user_pref("datareporting.healthreport.uploadEnabled", false);
+user_pref("xpinstall.signatures.required", false);

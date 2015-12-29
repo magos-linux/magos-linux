@@ -61,8 +61,10 @@ fi
 
 # Resume from swsuspend
 if [ -z $(cmdline_parameter noresume) ] ; then
-   RESUME_DEV=$(blkid | grep -m1 swsuspend | awk -F: '{print $1}')
+   RESUME_DEV=$(blkid | grep -im1 type=.swsuspend | awk -F: '{print $1}')
    [ -z "$RESUME_DEV" ] || resume -r $RESUME_DEV
+   # if resume didnt work we have to mkswap or system will fail to emergencity mode
+   [ -z "$RESUME_DEV" ] || mkswap -L MagOS_swap $RESUME_DEV
 fi
 
 # make sure ext3 partitions are not mounted using ext2 driver,

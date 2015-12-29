@@ -29,9 +29,7 @@ XBINDKEYSOPTIONS=
 #rc.desktop/gnome/guake
 GUAKESTART=yes
 
-#rc.desktop/gnome/pulseaudio
-#rc.desktop/gnome-shell/pulseaudio
-#rc.desktop/kde/pulseaudio
+#rc.desktop/all/pulseaudio
 PULSEAUDIOSTART=yes
 
 #rc.desktop/kde/hideloop4dolphin
@@ -102,8 +100,9 @@ SETCLKATSTART=yes
 #rc.post.d/11-xorg
 HARDCONF=etc/sysconfig/harddrake2/service.conf
 # make /etc/X11/xorg.conf.d/00-keyboard.conf
+SETXORGRES=yes
 MKKBDFXORG=yes
-# options (only if its not specidied in /etc/sysconfig/keyboard )
+# options (only if its not specified in /etc/sysconfig/keyboard )
 XkbModel=pc105
 GRP_TOGGLE=ctrl_shift_toggle
 XkbLayout=us,ru
@@ -147,3 +146,8 @@ XFILE=etc/X11/xorg.conf
 
 #rc.preinit.d/53-language
 FORCE_LOCARCHIVE=no
+
+#rc.halt.pre/05-shutdown
+#rc.halt/05-shutdown
+HALTSERVICESSTOP="display-manager"
+HALTPROCESSESKILL="slim kdm X"

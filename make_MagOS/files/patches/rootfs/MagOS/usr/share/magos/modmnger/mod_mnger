@@ -1,0 +1,39 @@
+#!/bin/bash
+#адрес вынесен, чтоб делать типовые скрипты mod_info и т.д
+
+. /usr/lib/magos/functions
+
+DE=$(detectDE)
+if [ "$DE" == "kde" ] ; then
+	bwsr=./bwsr_qt.py
+else 
+	bwsr=./bwsr_gtk.py
+fi
+
+#test
+#bwsr=./bwsr_gtk.py
+
+
+address=http://127.0.0.1:8000/index.html
+
+if ! [ -z "$1" ] ; then
+address="http://127.0.0.1:8000/cgi-bin/open.py?modnameGET="$(python -c "import urllib, sys; print urllib.quote(sys.argv[1])" "$1")
+echo $address
+fi
+
+#проверка запущен ли сервер
+if [ $(wget  -q -O - 127.0.0.1:8000/start.id)_ == "started_" ] ; then
+	echo "server already started"
+    #проверка запущено ли вебкит окно с нужным адресом
+	if [ $(ps -ef |grep python.*bwsr_*.py.*$address |wc -l) -eq 1 ] ; then 
+		$bwsr $address
+	else
+		mdialog --yesno "modules manager already running, start new?" && $bwsr  $address
+	fi
+else
+./server.py &
+server_pid=$(echo $!)
+$bwsr $address
+kill -s 9 $server_pid
+fi
+exit 0 

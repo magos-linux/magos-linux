@@ -1,8 +1,6 @@
 #!/bin/bash
-#Disable pulse and switch on alsa
-[ -d /etc/sound/profiles/alsa ] || exit 0
-ln -sf /etc/sound/profiles/alsa /etc/alternatives/soundprofile
+alternatives --set soundprofile /etc/sound/profiles/pulse
 PFP=/etc/pulse/client.conf
-grep -q ^autospawn $PFP || echo "autospawn = no" >>$PFP
-
+sed -i 's|^.*autospawn.*$|autospawn = yes|' $PFP
+grep -q "autospawn = yes" $PFP || echo "autospawn = yes" >> $PFP
 exit 0

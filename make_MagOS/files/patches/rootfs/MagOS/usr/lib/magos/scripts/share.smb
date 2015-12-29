@@ -1,0 +1,35 @@
+#!/bin/bash
+[ -d "$1" ] || exit 1
+export TEXTDOMAINDIR=/usr/share/locale
+export TEXTDOMAIN=fm_script
+
+MSG1=$(gettext -s "is temporary shared via smb, close this window to stop")
+
+par=start
+end=stop
+service smb status | grep pid  && par=restart end=restart
+fullpath=$(readlink -f "$1")
+confname=$(basename "$fullpath" | tr [:punct:][:space:] _ )
+confname=${confname%%_}
+cp -f /etc/samba/smb.conf /etc/samba/smb.conf.bak
+cat >>/etc/samba/smb.conf <<EOF
+
+[$confname]
+  browseable = yes
+  writeable = yes
+  path = $fullpath
+  comment = temporary opened folder
+  valid users = @users
+  force group = users
+  public = yes
+  create mode = 0664
+  directory mode = 0775
+EOF
+mdialog --passivepopup "$(CONSOLETYPE=serial service smb $par)"
+mdialog --msgbox "$1  $MSG1"
+SMBBEG=$(nl -b a /etc/samba/smb.conf | grep "\[$confname\]" | tail -1 | awk '{print $1}')
+SMBEND=$(nl -b a /etc/samba/smb.conf | sed 1,${SMBBEG}d | grep -m1 "\[.*\]" | awk '{print $1}')
+[ "$SMBEND" ] || SMBEND=$(nl -b a /etc/samba/smb.conf | tail -1 | awk '{print $1}')
+sed -i $SMBBEG,${SMBEND}d /etc/samba/smb.conf
+mdialog --passivepopup "$(CONSOLETYPE=serial service smb $end)"
+exit 0

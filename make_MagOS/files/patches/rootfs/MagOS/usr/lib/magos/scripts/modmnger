@@ -1,0 +1,11 @@
+#!/bin/bash
+path_file=""
+if [ -n "$1" -a  -f "$1" ] ; then
+   cd $(dirname "$1") 
+   path_file=$(pwd)/$(basename "$1")
+else 
+	[ -n "$1" ] && echo "file $1 is not exist"
+fi
+cd /usr/share/magos/modmnger/
+./mod_mnger "$path_file"
+

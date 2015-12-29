@@ -1,0 +1,4 @@
+name = Google search modules
+action_name = MagOS modules search form
+url = /cgi-bin/search.py
+i18n = mod_mnger

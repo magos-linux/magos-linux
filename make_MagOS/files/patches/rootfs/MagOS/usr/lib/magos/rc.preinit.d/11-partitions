@@ -69,7 +69,7 @@ grep -q "tmpfs /media tmpfs" etc/fstab || echo "tmpfs /media tmpfs size=1M 0 0 #
 
 if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
    sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
-   blkid | grep -v loop | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do
+   blkid | egrep -v "loop|/dev/ram" | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do
        grep -q "^$a " etc/fstab && continue
        if grep -q "^$a " /proc/mounts ;then
           grep -m1 "^$a " /proc/mounts | grep /memory | sed s/$/" #PARTITIONSAUTOMOUNT=yes"/ >> etc/fstab

@@ -26,7 +26,6 @@ dosfstools-
 enchant-
 expect-
 florence-
-fm_scripts-
 fontconfig-
 fonts-ttf-ptsans-
 fonts-ttf-ptserif-
@@ -253,8 +252,7 @@ libpng3-
 libpoppler51-
 libportaudio2-
 libpulseaudio0-
-libpulsecommon5.0-
-libpulsecommon6.0-
+libpulsecommon7.1-
 libpulseglib20-
 libpyglib2.0_0-
 libpython3.4-
@@ -335,7 +333,7 @@ libx11_6-
 libx11-common-
 libx11-xcb1-
 libx264_142-
-libx265_21-
+libx265_68-
 libx86_1-
 libxatracker2-
 libxau6-
@@ -394,7 +392,6 @@ libzltext0.99-
 libzlui0.99-
 lm_sensors-
 luit-
-magic_keys-
 mandriva-theme-common-
 mandriva-theme-Rosa-
 mandriva-theme-Rosa-screensaver-
@@ -579,3 +576,7 @@ python3-gi-
 python3-pillow-
 xinput-
 libwebp5-
+libxcb-util-renderutil0-
+libxcb-xkb1-
+libxkbcommon-x11_0-
+libfftw3_3-

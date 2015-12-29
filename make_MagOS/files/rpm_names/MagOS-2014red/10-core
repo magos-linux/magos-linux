@@ -285,7 +285,7 @@ libwrap0-
 libxml2_2-
 libxtables10-
 libz1-
-libzip2-
+libzip4-
 lilo-
 locales-
 locales-en-
@@ -295,7 +295,6 @@ logrotate-
 lsb-release-
 lsof-
 lzmacmd-
-magos-tools-
 mailcap-
 makedev-
 man-
@@ -307,9 +306,7 @@ microcode-
 mingetty-
 mlocate-
 mobile-broadband-provider-info-
-modem_connect-
 modemmanager-
-modmnger-
 nail-
 nc6-
 ncurses-

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=MagOS modules manager
+Name[ru]=Менеджер модулей MagOS
+Comment=MagOS modules manager
+Comment[ru]=Менеджер модулей MagOS
+Exec=modmnger
+Icon=modmnger
+Terminal=false
+Type=Application
+StartupNotify=true
+MimeType=application/x-lzm;
+Categories=Settings;Systm;X-MandrivaLinux-CrossDesktop;

@@ -1,0 +1,128 @@
+#!/bin/bash
+#
+# /usr/lib/magos/scripts/rpmdrake2lzm
+#
+# Description: create LZM/XZM using rpmdrake (& dependences)
+# Author : Anton Goroshkin <http://magos-linux.ru>
+
+
+if [ "$(id -un)" != "root" ] ;then
+   beesu -l "/bin/bash '$0' $@"
+   exit 0
+fi
+
+export PATH=/usr/lib/magos/scripts:$PATH
+cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+
+. liblinuxlive
+
+mod_br=/mnt/live/memory/tmp/wiz_fly_mods
+#rpmdb_br=/mnt/live/memory/tmp/wiz_fly_rpmdb
+root_br=/mnt/live/memory/tmp/wiz_fly_rootfs
+mod_path=/mnt/live/memory/images
+
+#mkdir -p $rpmdb_br/var/lib/rpm
+
+
+rm -rf $mod_br $root_br
+mkdir -p $mod_br $root_br/var/lib/rpm
+
+#mount_br="$mod_br/=rw:$rpmdb_br/=rw"
+mount_br="$mod_br/=rw"
+
+for a in `ls -d $mod_path/??-*`; do
+    if [ $(cmdline_parameter unionfs) ];then
+	mount_br="$mount_br:$a=ro"
+    else
+	mount_br="$mount_br:$a=rr"
+    fi
+done
+
+if [ $(cmdline_parameter unionfs) ];then
+    mount -t unionfs -o dirs=$mount_br wiz_fly $root_br
+else
+    mount -t aufs -o br:$mount_br wiz_fly $root_br
+fi
+
+#mount -t tmpfs tmpfs_rpmdb $root_br/var/lib/rpm
+cp -R /var/lib/rpm/* $root_br/var/lib/rpm
+
+mkdir -p $root_br/{dev,proc,sys}
+
+#for tm in {dev,proc,sys,var/lib/rpm}; do
+for tm in {dev,proc,sys}; do
+    mount -o bind /$tm $root_br/$tm
+done
+
+mkdir -p $root_br/tmp
+/usr/sbin/rpmdrake --rpm-root=$root_br --urpmi-root=$root_br  $@
+err=0
+if [ $? != 0 ]; then 
+    echo "Error rpmdrake RPMs install";
+    err=1
+fi
+
+echo "Unmounting filesystems..."
+#for tm in {var/lib/rpm,sys,proc,dev}; do
+for tm in {sys,proc,dev}; do
+    while (grep -q $root_br/$tm /proc/mounts ) ; do
+	umount $root_br/$tm
+    done
+done
+
+rm -rf $root_br/{dev,proc,sys}
+
+#while (grep -q tmpfs_rpmdb /proc/mounts ) ; do
+#    umount tmpfs_rpmdb
+#done
+
+while (grep -q wiz_fly /proc/mounts ) ; do
+    umount wiz_fly
+done
+
+
+#dir2lzm $mod_br/var/lib/rpm $1_rpmbase.$MODULEFORMAT
+
+#rm -rf $mod_br/var/lib/rpm
+rm -rf $mod_br/tmp $mod_br/var/lib/urpmi $mod_br/var/lib/rpm $mod_br/var/cache/urpmi $mod_br/.wh*
+
+cd /mnt/livemedia/MagOS-Data/optional
+
+while [ "$mod_name" = ""  -o  -f "$mod_name"  ]; do # если файл с таким именем существует либо нет имени окошко появится снова 
+    mod_name=$(mdialog --getsavefilename *.$MODULEFORMAT) || exit -1 # при закрытии окошка mdialog вернет 1 и скрипт завершится
+done 
+
+#mdialog --passivepopup "Внимание!!! Данный процесс может занимать длительное время. Остановка прогрессбара - не признак зависания. Просто необходимо немного подождать"
+
+#dbus-launch mdialog --progressbar dir2lzm:$mod_br/var/lib/rpm:"$mod_name-rpmbase.lzm" chmod:666:"$mod_name-rpmbase.lzm" rm:-rf:$mod_br/var/lib/rpm rm:-rf:$mod_br/tmp dir2lzm:$mod_br:"$mod_name.lzm" chmod:666:"$mod_name.lzm"
+#mdialog --progressbar rm:-rf:$mod_br/var/lib/rpm rm:-rf:$mod_br/tmp dir2lzm:$mod_br:"$mod_name.lzm" chmod:666:"$mod_name.lzm"
+
+cd $mod_br
+if [ "x$err" != "x1" ]; then 
+    xterm -e "echo 'Creating $MODULEFORMAT module, please waiting... ' && dir2lzm ./ '$mod_name.$MODULEFORMAT'"
+    chmod 666 "$mod_name.$MODULEFORMAT"
+
+    #mdialog --msgbox "Создание модуля [$mod_name.lzm] завершено :)"
+
+    cXdialog --yesno "Создание модуля завершено :)\\n Подключить модуль для текущего сеанса?"
+
+    case $? in
+	0)
+    	    echo "Выбрано 'Да'."
+    	    gactivate "$mod_name.$MODULEFORMAT"
+        ;;
+	1)
+    	    echo "Выбрано 'Нет'."
+        ;;
+	    255)
+    	    echo "Нажата клавиша ESC."
+        ;;
+    esac
+
+fi
+
+rm -rf $mod_br
+#rm -rf $rpmdb_br
+rm -rf $root_br
+
+

@@ -61,9 +61,9 @@ cd "$MYPATH/work/$FLASHNAME-$VERREL"
 [ -d tmpfs ] && umount tmpfs 2>/dev/null
 rm -fr split tmpfs 2>/dev/null
 mkdir -p tmpfs split/modules split/modules_list split/modules_filelist "$MYPATH/loaded/rpmfiles_$VERREL"
-[ -d mirror/rootfs/dev ] || mount -t aufs -o br:mirror/changes=rw:mirror/magos=ro:rootfs=ro aufs mirror/rootfs || exit 1
+[ -d mirror/rootfs/dev ] || mount -t aufs -o br:mirror/changes=rw:rootfs=ro aufs mirror/rootfs || exit 1
 mount -t tmpfs tmpfs tmpfs
-mkdir -p tmpfs/modules_list tmpfs/modules_content tmpfs/modules_filelist tmpfs/modules_dirs tmpfs/split_dirs tmpfs/split_filelist tmpfs/split_content
+mkdir -p tmpfs/modules_list tmpfs/modules_content tmpfs/split_content
 
 echo "Обновление базы данных о файлах"
 cp "$MYPATH/loaded/$FLASHNAME-$VERREL/names/"??-* tmpfs/modules_list
@@ -74,20 +74,19 @@ diff tmpfs/modules_list/processed tmpfs/modules_list/$FLASHNAME-$VERREL | grep '
 done
 
 echo "Создание списков файлов системы"
-find mirror/rootfs ! -type d | sed s%mirror/rootfs/%% | sort > tmpfs/magos.files
-find mirror/rootfs   -type d | sed s%mirror/rootfs/%% | sed /^mirror/rootfs$/d | sort > tmpfs/magos.dirs
-cat tmpfs/magos.files tmpfs/magos.dirs | sort > tmpfs/magos.content
-cp tmpfs/magos.content tmpfs/content
+find mirror/rootfs ! -type d | sed s%mirror/rootfs/%% | sort > tmpfs/mirror.files
+find mirror/rootfs   -type d | sed s%mirror/rootfs/%% | sed /^mirror/rootfs$/d | sort > tmpfs/mirror.dirs
+cat tmpfs/mirror.files tmpfs/mirror.dirs | sort > tmpfs/mirror.content
+cp tmpfs/mirror.content tmpfs/content
+find mirror/magos | sed s%mirror/magos/%% | sed /^$/d | sort > tmpfs/split_content/88-magos
+cp "$MYPATH/files/locales/$FLASHNAME-$VERREL/locales" tmpfs/locales
 
 echo "Обработка исключений"
 cd tmpfs
-cp "$MYPATH/files/locales/$FLASHNAME-$VERREL/locales" locales
-find ../mirror/magos | sed s%../mirror/magos/%% | sed /^$/d | sort > split_content/88-magos
-
+deletefiles content split_content/88-magos
 cat  "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international.locales" | while read i ;do
    echo $i | grep -q . && movefiles content international "$i" locales
 done
-
 mv international split_content
 for a in "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international" "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/"??-* ;do
    MOD=$(basename $a)
@@ -123,7 +122,6 @@ for a in modules_list/??-* ;do
   rm -f tmpfile
 done
 
-deletefiles content split_content/88-magos
 movefiles content split_content/10-core '.'
 
 echo "Располагаем файлы по модулям"

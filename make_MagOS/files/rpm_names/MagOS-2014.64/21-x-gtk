@@ -131,3 +131,5 @@ libdbusmenu-tools-
 lib64gtk-modules3.0-
 lib64colord2-
 lib64colordprivate2-
+adwaita-icon-theme-
+gtk-update-icon-cache-

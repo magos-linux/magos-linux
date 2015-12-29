@@ -1,0 +1,9 @@
+
+#ZTE MF100
+SUBSYSTEMS=="usb", ATTRS{modalias}=="usb:v19D2p0031*", KERNEL=="ttyUSB*", ATTRS{bInterfaceNumber}=="00", ATTRS{bInterfaceProtocol}=="ff", SYMLINK="ttyUSB_utps_diag"
+SUBSYSTEMS=="usb", ATTRS{modalias}=="usb:v19D2p0031*", KERNEL=="ttyUSB*", ATTRS{bInterfaceNumber}=="01", ATTRS{bInterfaceProtocol}=="ff", SYMLINK="ttyUSB_utps_pcui"
+SUBSYSTEMS=="usb", ATTRS{modalias}=="usb:v19D2p0031*", KERNEL=="ttyUSB*", ATTRS{bInterfaceNumber}=="02", ATTRS{bInterfaceProtocol}=="ff", SYMLINK="ttyUSB_utps_modem", SYMLINK+="modem"
+
+SUBSYSTEMS=="usb", ATTRS{modalias}=="usb:v19D2p0016*", KERNEL=="ttyUSB*", ATTRS{bInterfaceNumber}=="00", ATTRS{bInterfaceProtocol}=="ff", SYMLINK="ttyUSB_utps_diag"
+SUBSYSTEMS=="usb", ATTRS{modalias}=="usb:v19D2p0016*", KERNEL=="ttyUSB*", ATTRS{bInterfaceNumber}=="01", ATTRS{bInterfaceProtocol}=="ff", SYMLINK="ttyUSB_utps_pcui"
+SUBSYSTEMS=="usb", ATTRS{modalias}=="usb:v19D2p0016*", KERNEL=="ttyUSB*", ATTRS{bInterfaceNumber}=="02", ATTRS{bInterfaceProtocol}=="ff", SYMLINK="ttyUSB_utps_modem", SYMLINK+="modem"

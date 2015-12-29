@@ -11,6 +11,7 @@ lib64pytalloc-util2-
 lib64registry0-
 lib64samba-credentials0-
 lib64samba-hostconfig0-
+lib64samba-passdb0-
 lib64samba-policy0-
 lib64samba-server0-
 lib64samba-util0-

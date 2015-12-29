@@ -1,0 +1,4 @@
+name = Mount repository
+action_name = Mount MagOS repository, search modules
+url = /cgi-bin/repo_wait.py
+i18n = mod_mnger

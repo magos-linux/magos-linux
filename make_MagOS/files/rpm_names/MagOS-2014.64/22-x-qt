@@ -66,3 +66,6 @@ lib64qt5svg5-
 lib64qt5gui5-x11-
 lib64qt5xcbqpa5-
 lib64qt5xcbqpa5-glx-
+lib64qt5sql5-
+lib64qt5xml5-
+lib64poppler-qt5-1-

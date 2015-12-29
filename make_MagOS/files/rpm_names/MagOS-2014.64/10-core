@@ -285,7 +285,7 @@ lib64wrap0-
 lib64xml2_2-
 lib64xtables10-
 lib64z1-
-lib64zip2-
+lib64zip4-
 libc6-
 lilo-
 locales-
@@ -296,7 +296,6 @@ logrotate-
 lsb-release-
 lsof-
 lzmacmd-
-magos-tools-
 mailcap-
 makedev-
 man-
@@ -308,9 +307,7 @@ microcode-
 mingetty-
 mlocate-
 mobile-broadband-provider-info-
-modem_connect-
 modemmanager-
-modmnger-
 nail-
 nc6-
 ncurses-

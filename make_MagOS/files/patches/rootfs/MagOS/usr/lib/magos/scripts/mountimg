@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export TEXTDOMAINDIR=/usr/share/locale
+export TEXTDOMAIN=fm_scripts
+
+MSG1=$(gettext -s  "Mount point:")
+MSG2=$(gettext -s "close this window to unmount image")
+NAME="$1"
+[ -f "$1" ] || exit 1
+point="${NAME%.*}"
+profiler mount $NAME
+mdialog --msgbox  "$MSG1 $point \n $MSG2" 
+profiler umount $NAME
+exit 0

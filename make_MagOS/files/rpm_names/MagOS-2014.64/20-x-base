@@ -26,7 +26,6 @@ dosfstools-
 enchant-
 expect-
 florence-
-fm_scripts-
 fontconfig-
 fonts-ttf-ptsans-
 fonts-ttf-ptserif-
@@ -147,7 +146,6 @@ lib64gif7-
 lib64gii1-
 lib64girepository1.0_1-
 lib64gl1-
-lib64glamor0-
 lib64glapi0-
 lib64glibmm2.4_1-
 lib64glu1-
@@ -156,6 +154,7 @@ lib64gphoto2_6-
 lib64gphoto2_port10-
 libgphoto-common-
 lib64gps19-
+lib64gps22-
 lib64gpsd0-
 lib64graphite2_3-
 lib64gs9-
@@ -199,7 +198,6 @@ lib64lame0-
 lib64lapack3-
 lib64lcms1-
 lib64lcms2_2-
-lib64llvm3.5-
 lib64lqr0-
 lib64lzo2_2-
 lib64mad0-
@@ -393,7 +391,6 @@ lib64zltext0.99-
 lib64zlui0.99-
 lm_sensors-
 luit-
-magic_keys-
 mandriva-theme-common-
 mandriva-theme-Rosa-
 mandriva-theme-Rosa-screensaver-
@@ -502,7 +499,6 @@ x11-driver-video-glint-
 x11-driver-video-intel-
 x11-driver-video-mach64-
 x11-driver-video-mga-
-x11-driver-video-modesetting-
 x11-driver-video-neomagic-
 x11-driver-video-nouveau-
 x11-driver-video-nv-
@@ -580,3 +576,7 @@ xinput-
 lib64xcb-util-renderutil0-
 lib64xcb-xkb1-
 lib64xkbcommon-x11_0-
+lib64fftw3_3-
+lib64llvm3.7-
+lib64epoxy0-
+lib64drm_amdgpu1-

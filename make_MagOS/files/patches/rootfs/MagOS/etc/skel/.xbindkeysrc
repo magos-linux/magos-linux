@@ -1,0 +1,151 @@
+# ~/.xbindkeysrc #
+###########################
+# xbindkeys configuration #
+###########################
+# Hotkeys list 
+" keyscripts list "
+  Mod4 + k
+
+# run - dialog
+" keyscripts run "
+  Mod4 + r
+
+" keyscripts run "
+  Alt + F2
+
+# xkill
+" xkill "
+  Mod4 + Escape
+
+# MagOS modules manager
+" mod_mnger "
+  Mod4 + m 
+
+# turn off screen
+" sleep 1 && xset dpms force off "
+  Mod4 + space
+
+# suspend mode
+" pm-suspend "
+  Mod4 + Return
+
+# open file manager
+" xdg-open ~/ "
+  Mod4 + e
+
+# google search from clipboard 
+" keyscripts search "
+  Mod4 + g
+
+# open url from clipboard in firefox
+" keyscripts url "
+  Mod4 + u
+
+# google-translate en -> rus from clipboard in passivepopup window (win+>)
+" keyscripts enrus passive "
+  Mod4 + period
+
+
+# google-translate en -> rus from clipboard in msgbox window (win+>)
+" keyscripts enrus msgbox "
+  Control+Mod4 + period
+
+# google-translate en ->  from clipboard in firefox (win+>)
+" keyscripts enrus firefox "
+  Shift+Mod4 + period
+
+# google-translate rus -> en from clipboard in passivepopup window (win+>)
+" keyscripts rusen passive"
+  Mod4 + comma
+
+# google-translate rus -> en from clipboard in msgbox window (win+>)
+" keyscripts rusen msgbox"
+  Control+Mod4 + comma
+
+# google-translate rus -> en  from clipboard in firefox (win+>)
+" keyscripts rusen firefox"
+  Shift+Mod4 + comma
+
+# lock screen
+" dbus-send --session --dest=org.freedesktop.ScreenSaver --type=method_call --print-reply /ScreenSaver org.freedesktop.ScreenSaver.Lock "
+  Mod4 + l
+
+# show desktop 
+" wmctrl -k on "
+  Mod4 + d
+
+# touchpad on/off
+" keyscripts touchpad "
+  Mod4 + t
+
+# bluetooth, wi-fi on/of
+" keyscripts rfswitch "
+  Mod4 + w
+
+# record desktop win+PrintScreen
+" keyscripts record "
+  Mod4 + Print
+
+# system info
+" keyscripts info "
+  Mod4 + i
+
+# netstat info
+" keyscripts network "
+  Mod4 + n
+
+# sreen scale 
+" keyscripts screen-scale "
+  Mod4 + s
+
+# change volume (by mouse weel)
+"amixer -q set Master 5+"
+  Mod4 + b:4
+
+"amixer -q set Master 5-"
+  Mod4 + b:5
+
+# screen rotate left
+"xrandr --orientation left"
+  Mod4 + Left
+
+# invert screen  
+"xrandr --orientation inverted"
+  Mod4 + Up
+
+# screen rotate right
+"xrandr --orientation right"
+  Mod4 + Right
+ 
+# normal screen orientation
+"xrandr --orientation normal"
+  Mod4 + Down
+
+# poweroff
+"poweroff"
+ Shift + XF86PowerOff
+
+
+# usrer's hotkeys
+" keyscripts mykeys 1 "
+  Mod4 + F1
+" keyscripts mykeys 2 "
+  Mod4 + F2
+" keyscripts mykeys 3 "
+  Mod4 + F3
+" keyscripts mykeys 4 "
+  Mod4 + F4
+" keyscripts mykeys 5 "
+  Mod4 + F5
+" keyscripts mykeys 6 "
+  Mod4 + F6
+" keyscripts mykeys 7 "
+  Mod4 + F7
+" keyscripts mykeys 8 "
+  Mod4 + F8
+" keyscripts mykeys 9 "
+  Mod4 + F9
+
+##################################
+# End of xbindkeys configuration #
+##################################

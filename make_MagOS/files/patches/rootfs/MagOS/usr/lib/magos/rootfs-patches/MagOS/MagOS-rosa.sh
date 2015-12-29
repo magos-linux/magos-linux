@@ -10,9 +10,9 @@ ln -sf /usr/share/magos/wallpapers                /usr/share/mdk/backgrounds
 ln -sf magos.png                                  /usr/share/icons/mandriva.png
 ln -sf magos.png                                  /usr/share/icons/mandriva-button-lxde.png
 #Firefox bookmarks
-ln -sf /usr/share/magos/bookmarks/magos-bookmarks.html /usr/share/mdk/bookmarks/mozilla/mozilla-download.html
-ln -sf /usr/share/magos/bookmarks/magos-bookmarks.html /usr/share/mdk/bookmarks/mozilla/mozilla-one.html
-ln -sf /usr/share/magos/bookmarks/magos-bookmarks.html /usr/share/mdk/bookmarks/mozilla/mozilla-powerpack.html
+#ln -sf /usr/share/magos/bookmarks/magos-bookmarks.html /usr/share/mdk/bookmarks/mozilla/mozilla-download.html
+#ln -sf /usr/share/magos/bookmarks/magos-bookmarks.html /usr/share/mdk/bookmarks/mozilla/mozilla-one.html
+#ln -sf /usr/share/magos/bookmarks/magos-bookmarks.html /usr/share/mdk/bookmarks/mozilla/mozilla-powerpack.html
 
 #Disable unmounting nfs livemedia
 sed -i s='if \[\[ "$rootfs"'='if grep -q " /mnt/livemedia nfs " /proc/mounts || \[\[ "$rootfs"'= /etc/rc.d/init.d/network

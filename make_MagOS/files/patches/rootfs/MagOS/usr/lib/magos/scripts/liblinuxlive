@@ -1006,7 +1006,7 @@ mdev_start_hotplug()
    echolog "creating /dev entries for block devices"
    mdev -s
    rm /dev/pty??* /dev/tty??* 2>/dev/null # remove unneeded pty and tty devices
-   echo /bin/mdev > /proc/sys/kernel/hotplug # use mdev as a hotplug handler
+   [ -f /proc/sys/kernel/hotplug ] && echo /bin/mdev > /proc/sys/kernel/hotplug # use mdev as a hotplug handler
 }
 
 # Modprobe kernel modules needed for the LiveCD
@@ -1071,7 +1071,7 @@ modprobe_usb_modules()
    echo "$HWMODULES" | grep -q [ou]hci-hcd || HWMODULES="$HWMODULES ohci-hcd uhci-hcd"
    local MODULES="ahci sd_mod sr_mod \
                   $MANMODULES $ATAMODULES $HWMODULES \
-                  ehci-hcd ehci-pci ehci-platform xhci-hcd hid usbhid hid-generic usb-storage ide_cd"
+                  ehci-hcd ehci-pci ehci-platform xhci-hcd xhci-pci xhci-plat-hcd hid usbhid hid-generic usb-storage uas ide_cd"
    for a in $MODULES ;do
        echo " $BLMODULES " | grep -q " $a " || modprobe_module $a
    done

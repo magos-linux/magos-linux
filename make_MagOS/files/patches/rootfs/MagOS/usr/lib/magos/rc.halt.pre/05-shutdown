@@ -1,0 +1,15 @@
+#!/bin/bash
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+PATH=/usr/lib/magos/scripts:$PATH
+. /usr/lib/magos/os-config
+
+for a in $HALTSERVICESSTOP ;do
+    [ -z "$a" ] || systemctl stop $a.service
+done
+
+for a in $HALTPROCESSESKILL ;do
+    [ -z "$a" ] || killall $a
+done

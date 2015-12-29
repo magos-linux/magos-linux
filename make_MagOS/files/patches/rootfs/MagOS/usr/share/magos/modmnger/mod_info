@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# detectDE do not work correct,  script started by root
+if ps -u `/usr/lib/magos/scripts/xuserrun  whoami` |grep -q start_kdeinit ; then
+	bwsr=./bwsr_qt.py
+else 
+	bwsr=./bwsr_gtk.py
+fi
+
+#test
+#bwsr=./bwsr_gtk.py
+
+[ $(id -un) != "root" ] && echo "must be root" && exit 1
+[ -z "$1" ] && exit 2
+modname=$(basename "$1" |  sed  s/\..zm$//)
+mkdir -p /tmp/squashfs/"$modname"
+mount -t squashfs -o loop -o ro "$1" /tmp/squashfs/"$modname"
+
+address="http://127.0.0.1:8000/cgi-bin/mod_info.py?modnameGET="$(python -c "import urllib, sys; print urllib.quote(sys.argv[1])" "$1")
+
+#проверка запущен ли сервер
+if [ $(wget  -q -O - 127.0.0.1:8000/start.id)_ == "started_" ] ; then
+	     /usr/lib/magos/scripts/xuserrun  $bwsr $address --simple
+else
+ ./server.py &
+ server_pid=$(echo $!)
+ /usr/lib/magos/scripts/xuserrun $bwsr $address --simple
+ kill -s 9 $server_pid
+fi
+cd /
+ umount /tmp/squashfs/*
+ rm -rf /tmp/squashfs
+ rm -f /tmp/modinfo
+exit 0 

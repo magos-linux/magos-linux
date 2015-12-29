@@ -1,0 +1,4 @@
+name = save2module mode setup
+action_name = enable and disable save2module mode, edit savelist file
+url = /cgi-bin/save2module.py 
+i18n = mod_mnger
