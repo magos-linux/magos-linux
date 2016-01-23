@@ -12,6 +12,7 @@ ENABLED=yes
 
 DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/os-config
 debug_mode "$0" "$@"
  
 if [ -d /mnt/livedata -a ! -w /mnt/livemedia -a -f usr/share/applications/install-helper.desktop ] ;then
@@ -23,6 +24,5 @@ if [ -f etc/sysconfig/steam ] ;then
   . etc/sysconfig/steam
   rm -f etc/skel/.steam etc/skel/.local/share/Steam 2>/dev/null
   [ -z "$STEAMCONF" ] || ln -sf "$STEAMCONF" etc/skel/.steam
-  [ -z "$STEAMAPP" ] && STEAMAPP=/mnt/livedata/MagOS-Data/steam
   ln -sf "$STEAMAPP" etc/skel/.local/share/Steam
 fi

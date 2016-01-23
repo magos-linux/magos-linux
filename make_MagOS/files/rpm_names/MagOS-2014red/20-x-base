@@ -146,7 +146,6 @@ libgif7-
 libgii1-
 libgirepository1.0_1-
 libgl1-
-libglamor0-
 libglapi0-
 libglibmm2.4_1-
 libglu1-
@@ -155,6 +154,7 @@ libgphoto2_6-
 libgphoto2_port10-
 libgphoto-common-
 libgps19-
+libgps22-
 libgpsd0-
 libgraphite2_3-
 libgs9-
@@ -198,7 +198,7 @@ liblame0-
 liblapack3-
 liblcms1-
 liblcms2_2-
-libllvm3.5-
+libllvm3.7-
 liblqr0-
 liblzo2_2-
 libmad0-
@@ -500,7 +500,6 @@ x11-driver-video-glint-
 x11-driver-video-intel-
 x11-driver-video-mach64-
 x11-driver-video-mga-
-x11-driver-video-modesetting-
 x11-driver-video-neomagic-
 x11-driver-video-nouveau-
 x11-driver-video-nv-
@@ -580,3 +579,5 @@ libxcb-util-renderutil0-
 libxcb-xkb1-
 libxkbcommon-x11_0-
 libfftw3_3-
+libepoxy0-
+libdrm_amdgpu1-

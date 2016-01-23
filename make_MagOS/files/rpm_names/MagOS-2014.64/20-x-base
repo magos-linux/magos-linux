@@ -44,7 +44,7 @@ hicolor-icon-theme-
 iceauth-
 imagemagick-
 iso-codes-
-jackit-
+jack-
 laptop-mode-tools-
 lcms2-
 lesstif-
@@ -580,3 +580,4 @@ lib64fftw3_3-
 lib64llvm3.7-
 lib64epoxy0-
 lib64drm_amdgpu1-
+python-ptyprocess-

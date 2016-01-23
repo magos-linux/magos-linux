@@ -37,7 +37,7 @@ gstreamer1.0-tools-
 gstreamer1.0-twolame-
 gstreamer1.0-vp8-
 gstreamer1.0-x264-
-jackit-example-clients-
+jack-example-clients-
 lame-
 ld10k1-
 lib64a52dec0-
@@ -74,8 +74,10 @@ lib64glew1.10-
 lib64gme0-
 libgpod-
 lib64gpod4-
+lib64gstadaptivedemux1.0_0-
 lib64gstbasevideo0.10_23-
 lib64gstbasevideo1.0_0-
+lib64gstcodecparsers1.0_0-
 lib64gstcontroller0.10_0-
 lib64gstdataprocol0.10_0-
 lib64gstmpegts1.0_0-devel-

@@ -151,3 +151,6 @@ FORCE_LOCARCHIVE=no
 #rc.halt/05-shutdown
 HALTSERVICESSTOP="display-manager"
 HALTPROCESSESKILL="slim kdm X"
+
+#rc.preinit/02-skel-adds
+STEAMAPP=/mnt/livedata/MagOS-Data/steam
