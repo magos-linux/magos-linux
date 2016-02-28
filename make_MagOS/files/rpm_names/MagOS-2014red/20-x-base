@@ -44,7 +44,7 @@ hicolor-icon-theme-
 iceauth-
 imagemagick-
 iso-codes-
-jackit-
+jack-
 laptop-mode-tools-
 lcms2-
 lesstif-
@@ -252,7 +252,7 @@ libpng3-
 libpoppler51-
 libportaudio2-
 libpulseaudio0-
-libpulsecommon7.1-
+libpulsecommon8.0-
 libpulseglib20-
 libpyglib2.0_0-
 libpython3.4-
@@ -581,3 +581,4 @@ libxkbcommon-x11_0-
 libfftw3_3-
 libepoxy0-
 libdrm_amdgpu1-
+python-ptyprocess-

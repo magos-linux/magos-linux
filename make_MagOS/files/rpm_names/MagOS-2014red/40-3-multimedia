@@ -37,7 +37,7 @@ gstreamer1.0-tools-
 gstreamer1.0-twolame-
 gstreamer1.0-vp8-
 gstreamer1.0-x264-
-jackit-example-clients-
+jack-example-clients-
 lame-
 ld10k1-
 liba52dec0-
@@ -115,7 +115,7 @@ libosip2_7-
 libpostproc53-
 libprojectm2-
 libprojectm-data-
-libpulsecore7.1-
+libpulsecore8.0-
 libqmmp1-
 libqmmpui1-
 libquicktime0-

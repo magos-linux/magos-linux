@@ -8,7 +8,7 @@ jasper-
 jpeg-progs-
 lib64babl0.1_0-
 lib64fftw3f3-
-lib64gegl0.2_0-
+lib64gegl0.3_0-
 lib64gimp2.0_0-
 lib64gimpbase2.0_0-
 lib64gimpcolor2.0_0-
@@ -37,3 +37,4 @@ pstoedit-
 python-pyxml-
 rawtherapee-
 recoverjpeg-
+lib64spiro0-
