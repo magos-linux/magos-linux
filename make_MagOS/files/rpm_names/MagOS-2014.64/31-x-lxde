@@ -15,7 +15,7 @@ lib64obt29-
 librsvg-
 lib64xfce4ui1_0-
 libxfce4ui-common-
-lib64xfce4util6-
+lib64xfce4util7-
 libxfce4util-common-
 libxfcegui4-
 lib64xfcegui4_4-
@@ -48,3 +48,4 @@ xlockmore-
 xscreensaver-
 xscreensaver-common-
 Rosa-theme-EE-screensaver-
+lib64obrender32-

@@ -1,17 +1,18 @@
 diff -auprN a/patches/series b/patches/series
---- a/patches/series	2015-09-24 08:29:36.000000000 +0300
-+++ b/patches/series	2015-10-16 18:54:30.414663772 +0300
-@@ -324,6 +324,7 @@ media-usb-pwc-lie-in-proc-usb-devices.pa
+--- a/patches/series	2016-03-11 20:04:59.000000000 +0300
++++ b/patches/series	2016-03-24 19:35:59.086707776 +0300
+@@ -176,6 +176,8 @@ hp-wmi-rfkill-fix.patch
+ ### Video
+ ###
  
- # Mandriva framebuffer boot logo
- # video-mandriva-logo.patch
 +video-magos-logo.patch
- 
- # https://qa.mandriva.com/show_bug.cgi?id=59260
- # https://bugzilla.kernel.org/show_bug.cgi?id=26232
++
+ ###
+ ### 3rdparty
+ ###
 diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 --- a/patches/video-magos-logo.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/video-magos-logo.patch	2015-10-16 18:54:30.417663689 +0300
++++ b/patches/video-magos-logo.patch	2016-03-24 19:35:59.087707753 +0300
 @@ -0,0 +1,936 @@
 +diff -auprN a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
 +--- a/drivers/video/logo/Kconfig	2013-07-01 02:13:29.000000000 +0400
@@ -950,9 +951,9 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 ++0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 
 ++
 diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
---- a/scripts/create_configs-withBFQ	2015-09-24 08:29:36.000000000 +0300
-+++ b/scripts/create_configs-withBFQ	2015-10-16 18:54:30.418663659 +0300
-@@ -1053,6 +1053,38 @@ sub config_nrj_desktop_core2_pae{
+--- a/scripts/create_configs-withBFQ	2016-03-11 20:04:59.000000000 +0300
++++ b/scripts/create_configs-withBFQ	2016-03-24 19:35:59.087707753 +0300
+@@ -1061,6 +1061,38 @@ sub config_nrj_desktop_core2_pae{
  
  # End > specific cpu level optimized nrj flavours
  
@@ -991,7 +992,7 @@ diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
  sub config_i386 {
  	my ($cpu, $nproc, $mem, $name) = @_;
  	dprint "config i386\n";
-@@ -1065,6 +1097,7 @@ sub config_i386 {
+@@ -1073,6 +1105,7 @@ sub config_i386 {
  	config_x86_cpu($cpu);
  	config_nproc_x86($nproc);
  	config_x86_highmem($mem);
@@ -999,7 +1000,7 @@ diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
  	
  	if ($enhanced_security == 0) {
  		config_security_basic();
-@@ -1106,6 +1139,7 @@ sub config_x86_64 {
+@@ -1114,6 +1147,7 @@ sub config_x86_64 {
  	}
  
  	config_nproc_x86_64($nproc);

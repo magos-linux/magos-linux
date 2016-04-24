@@ -98,3 +98,5 @@ upx-
 peazip-
 gpart-
 libiniparser0-
+dpkg-
+perl-Dpkg-

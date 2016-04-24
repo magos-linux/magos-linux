@@ -15,7 +15,7 @@ libobt29-
 librsvg-
 libxfce4ui1_0-
 libxfce4ui-common-
-libxfce4util6-
+libxfce4util7-
 libxfce4util-common-
 libxfcegui4-
 libxfcegui4_4-
@@ -48,3 +48,4 @@ xlockmore-
 xscreensaver-
 xscreensaver-common-
 Rosa-theme-EE-screensaver-
+libobrender32-

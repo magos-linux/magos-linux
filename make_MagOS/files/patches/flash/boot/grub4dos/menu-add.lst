@@ -26,6 +26,11 @@ chainloader (fd0)+1
 rootnoverify (fd0)
 map --floppies=1
 
+title Linux magos mode (experimental)
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 uird.scan=legacy
+initrd /MagOS/uird.magos.cpio.xz /MagOS/uird.soft.cpio.xz
+
 title Windows NT/2K/XP 
 find --set-root --ignore-floppies --ignore-cd /ntldr
 map () (hd0)

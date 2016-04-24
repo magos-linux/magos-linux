@@ -3,11 +3,12 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
+#delete all strings from $1 files founded in $2
 function deletefiles()
 {
  sort "$1" > "$1".tmp ; mv -f "$1".tmp "$1"
  sort "$2" > "$2".tmp ; mv -f "$2".tmp "$2"
- diff --suppress-common-lines "$1" "$2" | grep "<" | sed s/"^< "// >"$1".tmp  || exit 1
+ diff --suppress-common-lines "$1" "$2" |  sed -n /"^<"/p | sed s/"^< "// >"$1".tmp  || exit 1
  mv -f "$1".tmp "$1" || exit 1
 }
 
@@ -29,22 +30,12 @@ function moveallfiles()
 {
   sort "$1" > "$1".tmp ; mv -f "$1".tmp "$1"
   sort "$3" > "$3".tmp ; mv -f "$3".tmp "$3"
-  diff -aup "$1" "$3" | grep ^'[-][a-z]' | sed s/^-// > "$1.tmp"
-  diff -aup "$1" "$1.tmp" | grep ^'[-][a-z]' | sed s/^-// >> "$2"
+  diff --suppress-common-lines "$1" "$3"     | sed -n /"^<"/p | sed s/"^< "// > "$1".tmp
+  diff --suppress-common-lines "$1" "$1.tmp" | sed -n /"^<"/p | sed s/"^< "// >>"$2"
+#  diff -aup "$1" "$3" | grep ^'[-][a-z]' | sed s/^-// > "$1.tmp"
+#  diff -aup "$1" "$1.tmp" | grep ^'[-][a-z]' | sed s/^-// >> "$2"
   mv -f "$1.tmp" "$1"
 }
-
-function findmodbyfile()
-{
-   echo $(basename $(grep "$1" "$MYPATH/work/$FLASHNAME-$VERREL/tmpfs/"modules_filelist/??-* | sort | head -1 | awk -F: '{print $1}'))
-}
-
-function findmodbyrpm()
-{
-   echo $(basename $(grep "^$1" "$MYPATH/work/$FLASHNAME-$VERREL/tmpfs/"modules_list/??-* | sort | head -1 | awk -F: '{print $1}'))
-}
-
-
 
 if [ "`id -u`" != "0" ] ;then
    echo "Для доступа ко всем файлам каталога rootfs нужны права root" ; exit 1
@@ -74,11 +65,11 @@ diff tmpfs/modules_list/processed tmpfs/modules_list/$FLASHNAME-$VERREL | grep '
 done
 
 echo "Создание списков файлов системы"
-find mirror/rootfs ! -type d | sed s%mirror/rootfs/%% | sort > tmpfs/mirror.files
-find mirror/rootfs   -type d | sed s%mirror/rootfs/%% | sed /^mirror/rootfs$/d | sort > tmpfs/mirror.dirs
+find mirror/rootfs/* ! -type d | sed s%mirror/rootfs/%% | sort > tmpfs/mirror.files
+find mirror/rootfs/*   -type d | sed s%mirror/rootfs/%% | sort > tmpfs/mirror.dirs
 cat tmpfs/mirror.files tmpfs/mirror.dirs | sort > tmpfs/mirror.content
 cp tmpfs/mirror.content tmpfs/content
-find mirror/magos | sed s%mirror/magos/%% | sed /^$/d | sort > tmpfs/split_content/88-magos
+find mirror/magos/* | sed s%mirror/magos/%% | sort > tmpfs/split_content/88-magos
 cp "$MYPATH/files/locales/$FLASHNAME-$VERREL/locales" tmpfs/locales
 
 echo "Обработка исключений"
@@ -87,6 +78,7 @@ deletefiles content split_content/88-magos
 cat  "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international.locales" | while read i ;do
    echo $i | grep -q . && movefiles content international "$i" locales
 done
+
 mv international split_content
 for a in "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international" "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/"??-* ;do
    MOD=$(basename $a)
@@ -121,11 +113,13 @@ for a in modules_list/??-* ;do
   moveallfiles content split_content/$MOD modules_content/$MOD
   rm -f tmpfile
 done
-
 movefiles content split_content/10-core '.'
 
-echo "Располагаем файлы по модулям"
+echo "Проверка на неупакованные файлы"
+cat split_content/* | sort > splited.content
+diff -aup mirror.content splited.content || exit 1
 
+echo "Располагаем файлы по модулям"
 cp split_content/*   ../split/modules_filelist
 cp modules_list/*    ../split/modules_list
 cd ../split/modules_filelist
@@ -149,6 +143,7 @@ for a in * ;do
     mkdir -p $a/var/lib/rpm/modules
     cp -p *-core/var/lib/rpm/modules/$a $a/var/lib/rpm/modules 2>/dev/null
 done
+
 cd "$MYPATH"
 cp -pR files/patches/modules/* work/$FLASHNAME-$VERREL/split/modules
 umount work/$FLASHNAME-$VERREL/mirror/rootfs work/$FLASHNAME-$VERREL/tmpfs|| exit 1

@@ -449,7 +449,7 @@ libgcc1-
 attr-
 aufs-tools-
 libpwquality-common-
-lib64ntfs-3g85-
+lib64ntfs-3g87-
 pam_pwquality-
 perl-Class-Singleton-
 perl-DateTime-
@@ -481,3 +481,6 @@ lib64xkbcommon0-
 perl-Params-Classify-
 p11-kit-
 libreport-filesystem-
+neon-i18n-
+lib64pugixml1-
+lib64minizip1-

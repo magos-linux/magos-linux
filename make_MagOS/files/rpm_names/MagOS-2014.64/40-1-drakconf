@@ -100,3 +100,4 @@ xorriso-
 xsudo-sudoers-
 networkmanager-applet-
 perl-IPC-System-Simple-
+perl-Scalar-List-Utils-
