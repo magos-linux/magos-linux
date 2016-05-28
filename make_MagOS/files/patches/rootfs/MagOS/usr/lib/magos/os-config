@@ -123,13 +123,14 @@ ADDADM=no
 #rc.preinit/50-xorg
 LINKFGLRX=/etc/ld.so.conf.d/GL/ati.conf
 LINKATI=/etc/ld.so.conf.d/GL/standard.conf
-LINKNVIDIA96xx=/etc/nvidia96xx/ld.so.conf
+LINKNVIDIA96=/etc/nvidia96xx/ld.so.conf
 LINKNVIDIA173=/etc/nvidia173/ld.so.conf
 LINKNVIDIA304=/etc/nvidia304/ld.so.conf
 LINKNVIDIA340=/etc/nvidia340/ld.so.conf
+LINKNVIDIA360=/etc/nvidia360/ld.so.conf
 LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
 LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx"
+NVIDIATEST="nvidia nvidia360 nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current"
 FAILSAFENVIDIA=fbdev
 FAILSAFEATI=ati
 HARDCONF=etc/sysconfig/harddrake2/service.conf

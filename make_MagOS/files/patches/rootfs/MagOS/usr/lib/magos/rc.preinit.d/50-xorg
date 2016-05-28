@@ -77,11 +77,11 @@ fi
 if [ -z "$XDRIVER" ] ; then
    [ "$PCIVEN" = "8086" ] && XDRIVER=intel
    [ "$PCIVEN" = "1002" ] && XDRIVER=fglrx
-   [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia-current
+   [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia
 fi
 
-# testing nonfree nvidia-current nvidia340 nvidia304 nvidia173 nvidia96xx modules
-if [ "$XDRIVER" = "nvidia-current" ] ;then
+# testing nonfree nvidia nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current modules
+if [ "$XDRIVER" = "nvidia" ] ;then
    XDRIVER=
    for a in $NVIDIATEST ;do
        chroot . modprobe $a
@@ -123,14 +123,15 @@ if [ "$GLLDCONFIG" = "yes" ] ;then
   [ "$XDRIVER" = "" ] && LDCACHE=fbdev
   [ "$XDRIVER" = "ati" ] && LINK=$LINKATI
   [ "$XDRIVER" = "fglrx" ] && LINK=$LINKFGLRX
-  [ "$XDRIVER" = "nvidia" ] && LINK=$LINKNVIDIA96xx
+  [ "$XDRIVER" = "nvidia" -o "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
+  [ "$XDRIVER" = "nvidia96" ] && LINK=$LINKNVIDIA96
   [ "$XDRIVER" = "nvidia173" ] && LINK=$LINKNVIDIA173
   [ "$XDRIVER" = "nvidia304" ] && LINK=$LINKNVIDIA304
   [ "$XDRIVER" = "nvidia340" ] && LINK=$LINKNVIDIA340
-  [ "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
+  [ "$XDRIVER" = "nvidia360" ] && LINK=$LINKNVIDIA360
+  chroot . /usr/sbin/alternatives --quiet --set gl_conf $LINK 2>/dev/null 2>&1
   [ -z "$LDCACHE" ] && LDCACHE=$XDRIVER
   if [ "$LDCACHE" != "fbdev" -a -d usr/share/magos/ld.so.cache/$LDCACHE ] ;then
-      chroot . /usr/sbin/alternatives --quiet --set gl_conf $LINK 2>/dev/null 2>&1
       cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
   fi
 fi

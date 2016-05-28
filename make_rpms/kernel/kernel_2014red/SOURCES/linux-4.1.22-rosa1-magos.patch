@@ -1,7 +1,7 @@
 diff -auprN a/patches/series b/patches/series
---- a/patches/series	2016-03-11 20:04:59.000000000 +0300
-+++ b/patches/series	2016-03-24 19:35:59.086707776 +0300
-@@ -176,6 +176,8 @@ hp-wmi-rfkill-fix.patch
+--- a/patches/series	2016-04-22 11:30:28.000000000 +0300
++++ b/patches/series	2016-05-18 20:01:28.182884609 +0300
+@@ -179,6 +179,8 @@ hp-wmi-rfkill-fix.patch
  ### Video
  ###
  
@@ -12,7 +12,7 @@ diff -auprN a/patches/series b/patches/series
  ###
 diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 --- a/patches/video-magos-logo.patch	1970-01-01 03:00:00.000000000 +0300
-+++ b/patches/video-magos-logo.patch	2016-03-24 19:35:59.087707753 +0300
++++ b/patches/video-magos-logo.patch	2016-05-18 20:01:28.184884577 +0300
 @@ -0,0 +1,936 @@
 +diff -auprN a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
 +--- a/drivers/video/logo/Kconfig	2013-07-01 02:13:29.000000000 +0400
@@ -951,8 +951,8 @@ diff -auprN a/patches/video-magos-logo.patch b/patches/video-magos-logo.patch
 ++0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 
 ++
 diff -auprN a/scripts/create_configs-withBFQ b/scripts/create_configs-withBFQ
---- a/scripts/create_configs-withBFQ	2016-03-11 20:04:59.000000000 +0300
-+++ b/scripts/create_configs-withBFQ	2016-03-24 19:35:59.087707753 +0300
+--- a/scripts/create_configs-withBFQ	2016-04-22 11:30:28.000000000 +0300
++++ b/scripts/create_configs-withBFQ	2016-05-18 20:01:28.184884577 +0300
 @@ -1061,6 +1061,38 @@ sub config_nrj_desktop_core2_pae{
  
  # End > specific cpu level optimized nrj flavours

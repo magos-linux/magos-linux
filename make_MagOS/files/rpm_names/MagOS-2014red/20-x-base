@@ -582,3 +582,6 @@ libfftw3_3-
 libepoxy0-
 libdrm_amdgpu1-
 python-ptyprocess-
+libassimp3-
+libxcb-xinerama0-
+libpoly2tri1.0-
