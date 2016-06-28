@@ -5,5 +5,6 @@
     <comment xml:lang="ru">Рисунок Visio</comment>
     <icon name="libreoffice-oasis-drawing"/>
     <glob pattern="*.vsd"/>
+    <glob pattern="*.vsdx"/>
   </mime-type>
 </mime-info>

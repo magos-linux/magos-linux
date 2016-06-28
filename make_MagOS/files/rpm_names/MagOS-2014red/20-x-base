@@ -198,7 +198,7 @@ liblame0-
 liblapack3-
 liblcms1-
 liblcms2_2-
-libllvm3.7-
+libllvm3.8-
 liblqr0-
 liblzo2_2-
 libmad0-
@@ -585,3 +585,4 @@ python-ptyprocess-
 libassimp3-
 libxcb-xinerama0-
 libpoly2tri1.0-
+libllvm-plugins-

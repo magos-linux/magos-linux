@@ -483,3 +483,5 @@ libreport-filesystem-
 neon-i18n-
 libpugixml1-
 libminizip1-
+libaudit-common-
+libsmartcols1-

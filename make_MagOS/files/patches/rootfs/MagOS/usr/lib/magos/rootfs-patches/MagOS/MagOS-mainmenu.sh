@@ -74,7 +74,7 @@ update_app gnome-nettool.desktop "GTK;Network;Monitor;"
 update_app lxshortcut.desktop "GTK;X-LXDE-Settings;"
 update_app drakxservices.desktop "Settings;System;X-MandrivaLinux-CrossDesktop;"
 update_app XFdrake.desktop "GTK;Settings;HardwareSettings;"
-update_app XFdrake.desktop "Qt;Utility;Security;"
+update_app vidalia.desktop "Qt;Utility;Security;"
 
 update_app kde4/akonaditray.desktop "Qt;KDE;X-KDE-Utilities-PIM;"
 update_app kde4/dolphin.desktop "Qt;KDE;System;Utility;Core;FileManager;"
