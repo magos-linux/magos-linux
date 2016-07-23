@@ -204,7 +204,6 @@ lib64nettle4-
 lib64nfnetlink0-
 lib64nfsidmap0-
 lib64nl1-
-lib64nl_3-
 lib64nm-glib4-
 lib64nm-util2-
 lib64nspr4-
@@ -486,3 +485,11 @@ lib64pugixml1-
 lib64minizip1-
 libaudit-common-
 lib64smartcols1-
+lib64iperf0-
+lib64nl3_200-
+lib64nma0-
+python3-pkg-resources-
+lib64ssh_threads4-
+ppp-dhcp-
+lib64nl-genl3_200-
+lib64nl-route3_200-

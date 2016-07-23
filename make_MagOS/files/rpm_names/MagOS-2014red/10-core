@@ -204,7 +204,6 @@ libnettle4-
 libnfnetlink0-
 libnfsidmap0-
 libnl1-
-libnl_3-
 libnm-glib4-
 libnm-util2-
 libnspr4-
@@ -485,3 +484,11 @@ libpugixml1-
 libminizip1-
 libaudit-common-
 libsmartcols1-
+libiperf0-
+libnl3_200-
+libnma0-
+python3-pkg-resources-
+libssh_threads4-
+ppp-dhcp-
+libnl-genl3_200-
+libnl-route3_200-

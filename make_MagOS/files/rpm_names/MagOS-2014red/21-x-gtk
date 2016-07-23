@@ -136,3 +136,9 @@ libwx_gtk2u_stc2.8_0-
 libbonobo-
 adwaita-icon-theme-
 gtk-update-icon-cache-
+libavahi-ui-gtk3_0-
+libwebkit2gtk4.0_37-
+libjavascriptcoregtk4.0_18-
+webkit2gtk4.0-
+webkit4.0-
+libnm-gtk-gir1.0-

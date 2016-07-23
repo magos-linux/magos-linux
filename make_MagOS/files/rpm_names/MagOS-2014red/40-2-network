@@ -90,7 +90,6 @@ python-pybluez-
 python-pycrypto-
 rdesktop-
 remmina-
-remmina-plugins-
 rfkill-
 rp-pppoe-
 rsnapshot-
@@ -114,3 +113,17 @@ libixml2-
 libthreadutil6-
 openswan-
 ipsec-tools-
+libfreerdp-client2-
+libfreerdp-shadow2-
+libfreerdp2-
+libfreerdp-server2-
+libwinpr2-
+libvte2.91_0-
+libxfreerdp-client2-
+librdtk2-
+vte291-
+remmina-plugins-rdp-
+remmina-plugins-xdmcp-
+remmina-plugins-common-
+remmina-plugins-nx-
+remmina-plugins-vnc-

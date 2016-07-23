@@ -586,3 +586,4 @@ libassimp3-
 libxcb-xinerama0-
 libpoly2tri1.0-
 libllvm-plugins-
+python3-cairo-
