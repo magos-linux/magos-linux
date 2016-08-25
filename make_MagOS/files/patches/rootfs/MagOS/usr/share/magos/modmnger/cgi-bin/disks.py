@@ -4,7 +4,7 @@ import os, re, subprocess, shutil
 
 def getPhysical():
 	fdisk = {}
-	command = ('beesu fdisk -l')
+	command = ('beesu fdisk -l |grep /dev/sd')
 	ret = os.popen( command ).read()
 	for str in re.findall('Disk.* .*B', ret):
 		fdisk[str.split()[1].strip(':')] = str.split()[2:4]

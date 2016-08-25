@@ -23,7 +23,14 @@ PATH=.:$(dirname $0):/usr/lib:$PATH
 allow_only_root
 MODULE="$(basename "$1")"
 
+if [ -f /etc/initvars ] ; then
+. /etc/initvars
+IMAGES=$SYSMNT/bundles
+else
 IMAGES=/mnt/live/memory/images
+fi
+
+
 IPREV=empty
 
 if [ "$MODULE" = "" -o ! -e "$IMAGES/$MODULE" ]; then

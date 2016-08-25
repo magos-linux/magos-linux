@@ -41,8 +41,16 @@ PATH=.:$(dirname $0):/usr/lib:$PATH
 . /usr/lib/magos/scripts/liblinuxlive || exit 3
 
 allow_only_root
+if [ -f /etc/initvars ] ; then 
+. /etc/initvars
+IMAGES=${SYSMNT}/bundles
+MODULES=${SYSMNT}/copy2ram/modules
+CHANGES=${SYSMNT}/changes
+else
 IMAGES=/mnt/live/memory/images
 MODULES=/mnt/live/memory/modules
+CHANGES=/mnt/live/memory/changes
+fi
 
 # are we even using union?
 if [ "$(grep '^aufs / ' /proc/mounts)$(grep '^unionfs / ' /proc/mounts)" = "" ]; then
@@ -54,7 +62,7 @@ mkdir -p "$MODULES"
 
 # Test whether the module file is stored in union
 # if yes, then we must move it somewhere else (to RAM) else it can't be added
-if [ -e "/mnt/live/memory/changes/$(readlink -f "$MODULE")" ]; then
+if [ -e "${CHANGES}/$(readlink -f "$MODULE")" ]; then
    echo "module file is stored inside the union, moving to $MODULES first..."
    TARGET="$MODULES/$(basename "$MODULE")"
    mv "$MODULE" "$TARGET"
