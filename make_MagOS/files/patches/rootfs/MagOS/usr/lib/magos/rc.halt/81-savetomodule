@@ -1,0 +1,149 @@
+#!/bin/bash
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+#until  systemctl status target.shutdown |grep -q dead ; do 
+#echo sllleeepp
+#sleep 1 ;
+#done
+
+. /etc/initvars || exit 1
+. /usr/lib/${LIVEKITNAME,,}/scripts/livekitlib || exit 2
+. /etc/sysconfig/${LIVEKITNAME}
+
+BIN_BLKID=blkid
+BIN_LOSETUP=losetup
+
+MNT_DIR=${SYSMNT}/tmp/savetomodule_mnt
+mkdir -p $MNT_DIR
+
+###################################################################################################
+# fake function
+#device_mountdir()
+#{
+#	local RESULT
+#    debug_log "device_mountdir" "$*"
+#    RESULT=$(grep "^$1 " /proc/mounts | awk '{print $2}' |grep -v /layer-base/ | head -1 |  tr -s /)
+#    if [ -n $RESULT ] ;then
+#        echo $RESULT
+#    else
+#        echo $MNT_DIR
+#    fi
+#}
+####################################################################################################
+
+PATH=/usr/lib/${LIVEKITNAME,,}/scripts:$PATH
+[ -n $SAVETOMODULE ] || SAVETOMODULE=no
+[ -f /.savetomodule ] && SAVETOMODULE=yes
+echo "$uird_changes" | grep -q [XxLl][Zz][Mm]$ && SAVETOMODULE=yes
+[ $SAVETOMODULE != "yes" ] && exit 3
+
+# save2module mode parser
+CHSRC=${SYSMNT}/changes
+IMSRC=${SYSMNT}/bundles
+
+if [ -z "$SAVETOMODULENAME" ] ; then
+[ "$uird_mode" == "changes" ] && SAVETOMODULENAME=$uird_changes  
+[ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
+grep -q /machines/dynamic/ /.savetomodule 2>/dev/null  && [ -f $(sed s=dynamic=static= /.savetomodule) ] && SAVETOMODULE=no
+fi
+[ $SAVETOMODULE != "yes" ] && exit 3
+
+SAVETOMODULENAME=$(uuid_label_to_dev $SAVETOMODULENAME)
+
+devpart=$(echo $SAVETOMODULENAME |awk -F / '{print "/"$2"/"$3}' |grep ^/dev/s..[[:digit:]]*$)
+echo $SAVETOMODULENAME | grep -q ^.*:// && netpart=$(dirname $(echo $SAVETOMODULENAME | grep  ^.*://))
+dirpart=$(dirname $(echo $SAVETOMODULENAME | sed 's:^/dev/s..[[:digit:]]*::'))
+[ $dirpart == "." -o $dirpart == "/"] && dirpart=""
+echo $dirpart |grep  -q ^.*:// && dirpart=""
+filepart=$(basename $SAVETOMODULENAME)
+
+echo "devpart - $devpart"   #test string
+echo "netpart - $netpart"   #test string
+echo "dirpart - $dirpart"   #test string
+echo "filepart - $filepart" #test string
+ 
+if [ -n "$netpart" ] ; then
+	init_ifcfg
+	echo $netpart | grep -iq ^"nfs://" &&  DEST=$(mount_nfs $netpart $MNT_DIR)
+	echo $netpart | grep -iq ^"cifs://" && DEST=$(mount_cifs $netpart $MNT_DIR)
+	echo $netpart | grep -iq ^"ssh://" &&  DEST=$(mount_sshfs $netpart $MNT_DIR)
+	echo $netpart | grep -iq ^"ftp://" &&  DEST=$(mount_curlftpfs $netpart $MNT_DIR)
+	echo "mount_net $DEST"
+fi
+
+if [ -n "$devpart" ] ; then
+	MNT_DIR=$(device_mountdir $devpart) 
+	mount_device $devpart $MNT_DIR "rw"
+	DEST=$MNT_DIR
+	echo "mount_device $DEST"
+fi
+
+if [ -z $DEST ] ; then 
+	echo "find_data $dirpart/$filepart $MNT_DIR"
+	DEST=$(find_data $dirpart/$filepart $MNT_DIR "")
+	dirpart=$(dirname $DEST)
+	DEST=" "
+fi
+
+
+[ -e $DEST ] || exit 4
+
+
+SAVETOMODULENAME=${DEST}${dirpart}/${filepart}
+echo "savetomodulename - $SAVETOMODULENAME" #test string
+
+SAVETOMODULEDIR=${DEST}${dirpart}
+mkdir -p $SAVETOMODULEDIR
+echo "dir - $SAVETOMODULEDIR" #test string
+sleep 2 #test string
+
+FILELIST=/.savelist
+
+if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
+   echo "Please wait. Saving changes to module $SAVETOMODULENAME"
+   # if old module exists we have to concatenate it
+   if [ -d $IMSRC/${SAVETOMODULENAME##*/} ]; then
+      echo "Old module exists, we have to concatenate it"
+      SRC=${SYSMNT}/tmp/save2module
+      mkdir -p $SRC $SRC-rw
+      mount -t aufs -o shwh,br:$SRC-rw=rw:$CHSRC=rr:$IMSRC/${SAVETOMODULENAME##*/}=rr aufs $SRC
+   else 
+      SRC=$CHSRC
+   fi
+   
+   # preparing excluded files list
+   echo -e "/tmp/includedfiles\n/tmp/excludedfiles" > /tmp/excludedfiles
+   if [ -f "$FILELIST" ] ;then
+      grep ^! "$FILELIST" | cut -c 2- >/tmp/savelist.black
+      grep -v '^[!#]' "$FILELIST" | grep . >/tmp/savelist.white
+      grep -q . /tmp/savelist.white || echo '.' > /tmp/savelist.white
+      find $SRC/ -type l >/tmp/allfiles
+      find $SRC/ -type f >>/tmp/allfiles
+      sed -i 's|'$SRC'||' /tmp/allfiles
+      grep -f /tmp/savelist.white /tmp/allfiles | grep -vf /tmp/savelist.black > /tmp/includedfiles
+      grep -q . /tmp/savelist.black && grep -f /tmp/savelist.black /tmp/allfiles >> /tmp/excludedfiles
+      grep -vf /tmp/savelist.white /tmp/allfiles >> /tmp/excludedfiles
+      find $SRC/ -type d | sed 's|'$SRC'||' | while read a ;do
+          grep -q "^$a" /tmp/includedfiles && continue
+          echo "$a" | grep -vf /tmp/savelist.black | grep -qf /tmp/savelist.white && continue
+          echo "$a" >> /tmp/excludedfiles
+      done
+      rm -f /tmp/savelist* /tmp/allfiles /tmp/includedfiles
+   fi
+   sed -i 's|^/||' /tmp/excludedfiles
+   # backuping old module
+   # making module
+   #[ "$SAVETONOLZMA" = "yes" -o "$SAVETONOXZM" = "yes" ] && SAVETOMODULEOPTIONS="$SAVETOMODULEOPTIONS -noI -noD -noF -nolzma"
+   echo "create_bundle $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS" # test string
+   sleep 3 #test string
+   create_bundle $SRC "${SAVETOMODULENAME}.new" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS
+   [ -f "$SAVETOMODULENAME" ] && mv -f "$SAVETOMODULENAME" "${SAVETOMODULENAME}.bak"
+   mv -f "${SAVETOMODULENAME}.new" "$SAVETOMODULENAME"
+   sleep 3 #test string
+   echo
+   [ "$SRC" = "$CHSRC" ] || umount "$SRC"
+fi
+
+sync
+umount $MNT_DIR

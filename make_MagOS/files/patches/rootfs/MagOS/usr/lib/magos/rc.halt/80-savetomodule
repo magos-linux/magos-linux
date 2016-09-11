@@ -3,6 +3,9 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+#exit if uird
+[ -f /etc/initvars ] && exit
+
 . /usr/lib/magos/scripts/liblinuxlive
 . /etc/sysconfig/MagOS
 
