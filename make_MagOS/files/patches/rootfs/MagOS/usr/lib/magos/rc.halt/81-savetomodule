@@ -54,7 +54,7 @@ SAVETOMODULENAME=$(uuid_label_to_dev $SAVETOMODULENAME)
 devpart=$(echo $SAVETOMODULENAME |awk -F / '{print "/"$2"/"$3}' |grep ^/dev/s..[[:digit:]]*$)
 echo $SAVETOMODULENAME | grep -q ^.*:// && netpart=$(dirname $(echo $SAVETOMODULENAME | grep  ^.*://))
 dirpart=$(dirname $(echo $SAVETOMODULENAME | sed 's:^/dev/s..[[:digit:]]*::'))
-[ $dirpart == "." -o $dirpart == "/"] && dirpart=""
+[ $dirpart == "." -o $dirpart == "/" ] && dirpart=""
 echo $dirpart |grep  -q ^.*:// && dirpart=""
 filepart=$(basename $SAVETOMODULENAME)
 
@@ -135,9 +135,10 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    # backuping old module
    # making module
    #[ "$SAVETONOLZMA" = "yes" -o "$SAVETONOXZM" = "yes" ] && SAVETOMODULEOPTIONS="$SAVETOMODULEOPTIONS -noI -noD -noF -nolzma"
-   echo "create_bundle $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS" # test string
    sleep 3 #test string
-   create_bundle $SRC "${SAVETOMODULENAME}.new" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS
+   #create_bundle $SRC "${SAVETOMODULENAME}.new" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS
+   echo "mksquashfs $SRC "${SAVETOMODULENAME}.new" -comp xz -b 512K -ef /tmp/excludedfiles" # $SAVETOMODULEOPTIONS
+   mksquashfs $SRC "${SAVETOMODULENAME}.new" -comp xz -b 512K -ef /tmp/excludedfiles # $SAVETOMODULEOPTIONS
    [ -f "$SAVETOMODULENAME" ] && mv -f "$SAVETOMODULENAME" "${SAVETOMODULENAME}.bak"
    mv -f "${SAVETOMODULENAME}.new" "$SAVETOMODULENAME"
    sleep 3 #test string
