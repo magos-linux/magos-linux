@@ -80,16 +80,22 @@ if [ -n "$devpart" ] ; then
 fi
 
 if [ -z $DEST ] ; then 
-	echo "find_data $dirpart/$filepart $MNT_DIR"
+	echo "find_data $dirpart/$filepart "
 	DEST=$(find_data $dirpart/$filepart $MNT_DIR "")
-	dirpart=$(dirname $DEST)
-	DEST=" "
+	
+	if ! [ -z $DEST ]; then
+		dirpart=$(dirname $DEST)
+	else	
+		echo "$dirpart/$filepart is not found, try to find $dirpart"
+		DEST=$(find_data $dirpart/ $MNT_DIR "")
+		dirpart=$DEST
+	fi
+	echo DEST - $DEST
+	if ! [ -e $DEST ] ; then 
+	 echo "can't find $SAVETOMODULENAME, finish!!!"
+	 exit 
+	fi
 fi
-
-
-[ -e $DEST ] || exit 4
-
-
 SAVETOMODULENAME=${DEST}${dirpart}/${filepart}
 echo "savetomodulename - $SAVETOMODULENAME" #test string
 
@@ -97,6 +103,8 @@ SAVETOMODULEDIR=${DEST}${dirpart}
 mkdir -p $SAVETOMODULEDIR
 echo "dir - $SAVETOMODULEDIR" #test string
 sleep 2 #test string
+
+[ -e $ SAVETOMODULEDIR] || exit 4
 
 FILELIST=/.savelist
 
@@ -147,4 +155,4 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
 fi
 
 sync
-umount $MNT_DIR
+#umount $MNT_DIR
