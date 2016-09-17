@@ -2,6 +2,8 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+SAVETOMODULE=no
+
 #until  systemctl status target.shutdown |grep -q dead ; do 
 #echo sllleeepp
 #sleep 1 ;
@@ -23,19 +25,20 @@ mkdir -p $MNT_DIR
 #{
 #	local RESULT
 #    debug_log "device_mountdir" "$*"
-#    RESULT=$(grep "^$1 " /proc/mounts | awk '{print $2}' |grep -v /layer-base/ | head -1 |  tr -s /)
+#    RESULT=$(grep "^$1 " /proc/mounts | awk '{print $2}' |grep -v $SYSMNT | head -1 |  tr -s /)
 #    if [ -n $RESULT ] ;then
-#        echo $RESULT
-#    else
+#       echo $RESULT
+#   else
 #        echo $MNT_DIR
 #    fi
 #}
 ####################################################################################################
 
 PATH=/usr/lib/${LIVEKITNAME,,}/scripts:$PATH
-[ -n $SAVETOMODULE ] || SAVETOMODULE=no
+
 [ -f /.savetomodule ] && SAVETOMODULE=yes
 echo "$uird_changes" | grep -q [XxLl][Zz][Mm]$ && SAVETOMODULE=yes
+
 [ $SAVETOMODULE != "yes" ] && exit 3
 
 # save2module mode parser
@@ -47,6 +50,7 @@ if [ -z "$SAVETOMODULENAME" ] ; then
 [ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
 grep -q /machines/dynamic/ /.savetomodule 2>/dev/null  && [ -f $(sed s=dynamic=static= /.savetomodule) ] && SAVETOMODULE=no
 fi
+
 [ $SAVETOMODULE != "yes" ] && exit 3
 
 SAVETOMODULENAME=$(uuid_label_to_dev $SAVETOMODULENAME)
@@ -73,7 +77,7 @@ if [ -n "$netpart" ] ; then
 fi
 
 if [ -n "$devpart" ] ; then
-	MNT_DIR=$(device_mountdir $devpart) 
+	#MNT_DIR=$(device_mountdir $devpart) 
 	mount_device $devpart $MNT_DIR "rw"
 	DEST=$MNT_DIR
 	echo "mount_device $DEST"
@@ -82,29 +86,32 @@ fi
 if [ -z $DEST ] ; then 
 	echo "find_data $dirpart/$filepart "
 	DEST=$(find_data $dirpart/$filepart $MNT_DIR "")
+	echo ''
 	
 	if ! [ -z $DEST ]; then
 		dirpart=$(dirname $DEST)
 	else	
-		echo "$dirpart/$filepart is not found, try to find $dirpart"
-		DEST=$(find_data $dirpart/ $MNT_DIR "")
+		echo "$dirpart/$filepart was not found, try to find $dirpart"
+		DEST=$(find_data $dirpart $MNT_DIR "")
+		echo ''
 		dirpart=$DEST
 	fi
-	echo DEST - $DEST
-	if ! [ -e $DEST ] ; then 
-	 echo "can't find $SAVETOMODULENAME, finish!!!"
-	 exit 
+	if  [ -z $DEST  ] ; then 
+	 echo "can't find $SAVETOMODULENAME !!!"
+	 exit 5
 	fi
+DEST=""
 fi
-SAVETOMODULENAME=${DEST}${dirpart}/${filepart}
-echo "savetomodulename - $SAVETOMODULENAME" #test string
+
+SAVETOMODULENAME=$(echo ${DEST}${dirpart}/${filepart} | sed s://:/:g)
+echo "name - $SAVETOMODULENAME" #test string
 
 SAVETOMODULEDIR=${DEST}${dirpart}
 mkdir -p $SAVETOMODULEDIR
 echo "dir - $SAVETOMODULEDIR" #test string
 sleep 2 #test string
 
-[ -e $ SAVETOMODULEDIR] || exit 4
+[ -e $SAVETOMODULEDIR ] || exit 4
 
 FILELIST=/.savelist
 
@@ -155,4 +162,4 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
 fi
 
 sync
-#umount $MNT_DIR
+umount $MNT_DIR
