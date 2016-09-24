@@ -302,7 +302,6 @@ man-pages-
 mcs-
 mdadm-
 meta-task-
-microcode-
 mingetty-
 mlocate-
 mobile-broadband-provider-info-
@@ -493,3 +492,4 @@ lib64ssh_threads4-
 ppp-dhcp-
 lib64nl-genl3_200-
 lib64nl-route3_200-
+ntp-config-

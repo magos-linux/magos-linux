@@ -14,13 +14,10 @@ isight-firmware-tools-
 iwlwifi-3945-ucode-
 iwlwifi-4965-ucode-
 iwlwifi-agn-ucode-
-kernel-firmware-
-kernel-firmware-extra-
+linux-firmware-
 pcmcia-cis-firmware-
 prism54-firmware-
 radeon-firmware-
-ralink-firmware-
-rtlwifi-firmware-
 speedtouch-firmware-
 speedtouch-firmware-extractor-
 ueagle-firmware-

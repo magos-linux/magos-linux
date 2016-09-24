@@ -76,6 +76,7 @@ update_app drakxservices.desktop "Settings;System;X-MandrivaLinux-CrossDesktop;"
 update_app XFdrake.desktop "GTK;Settings;HardwareSettings;"
 update_app vidalia.desktop "Qt;Utility;Security;"
 update_app devedeng.desktop "AudioVideo;DiscBurning;"
+update_app android-file-transfer.desktop "Qt;Utility;FileManager;FileTools;"
 
 update_app kde4/akonaditray.desktop "Qt;KDE;X-KDE-Utilities-PIM;"
 update_app kde4/dolphin.desktop "Qt;KDE;System;Utility;Core;FileManager;"
