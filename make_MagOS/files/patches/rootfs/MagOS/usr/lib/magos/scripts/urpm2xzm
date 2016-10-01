@@ -14,7 +14,7 @@ cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULE
 [ "$1" = "" ] && exit -1
 # 
 ###########################################
-urpme $@ > /dev/null 2>&1                                  #
+urpme $@ > /dev/null 2>&1                 #
 rpmdbreset --copy                         #
 urpmi --test $@ || exit 2                 #
 ###########################################
