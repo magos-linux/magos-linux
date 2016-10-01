@@ -3,9 +3,9 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=fm_scripts
 PWD=$(pwd)
 MSG1=$(gettext -s "is temporary shared via nfs, close this window to stop \n mount command example:")
-/bin/systemctl status rpcbind | grep -q masked && /bin/systemctl unmask rpcbind.sevice
+/bin/systemctl status rpcbind | grep -q masked && /bin/systemctl unmask rpcbind
 /bin/systemctl status nfs-server | grep -q masked && /bin/systemctl unmask nfs.sevice
-/bin/systemctl status rpcbind  | grep -q running  || service rpcbind start
+/bin/systemctl status rpcbind  | grep -q running  || /bin/systemctl start rpcbind 
 par=start
 end=stop
 /bin/systemctl status nfs-server status | grep -q running  && par=restart end=restart
