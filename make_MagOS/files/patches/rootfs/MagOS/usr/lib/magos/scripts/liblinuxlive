@@ -1071,7 +1071,7 @@ modprobe_usb_modules()
    echo "$HWMODULES" | grep -q [ou]hci-hcd || HWMODULES="$HWMODULES ohci-hcd uhci-hcd"
    local MODULES="ahci sd_mod sr_mod \
                   $MANMODULES $ATAMODULES $HWMODULES \
-                  ehci-hcd ehci-pci ehci-platform xhci-hcd xhci-pci xhci-plat-hcd hid usbhid hid-generic usb-storage uas ide_cd"
+                  ehci-hcd ehci-pci ehci-platform xhci-hcd xhci-pci xhci-plat-hcd ohci-pci ohci-platform hid usbhid hid-generic usb-storage uas ide_cd"
    for a in $MODULES ;do
        echo " $BLMODULES " | grep -q " $a " || modprobe_module $a
    done

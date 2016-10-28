@@ -130,8 +130,9 @@ LINKNVIDIA340=/etc/nvidia340/ld.so.conf
 LINKNVIDIA360=/etc/nvidia360/ld.so.conf
 LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
 LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-NVIDIATEST="nvidia nvidia360 nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current"
-FAILSAFENVIDIA=fbdev
+#NVIDIATEST="nvidia360 nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current nouveau"
+NVIDIATEST="nvidia-current nvidia304 nvidia"
+FAILSAFENVIDIA=nouveau
 FAILSAFEATI=ati
 HARDCONF=etc/sysconfig/harddrake2/service.conf
 DELETE_XORG_CONF=no
@@ -155,3 +156,6 @@ HALTPROCESSESKILL="slim kdm X"
 
 #rc.preinit/02-skel-adds
 STEAMAPP=/mnt/livedata/MagOS-Data/steam
+
+#/usr/lib/magos/rc.post.d/03-modprobepreload
+MODPROBEPRELOAD=yes

@@ -41,10 +41,11 @@ INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/drivers/pcmcia/pcmcia_core. kernel/drivers/pcmcia/pcmcia. kernel/drivers/pcmcia/yenta_socket.
   kernel/net/sunrpc/sunrpc. kernel/net/sunrpc/auth_gss/auth_rpcgss. kernel/net/packet/af_packet.
   kernel/crypto/cbc. kernel/arch/x86/crypto/aes- '
-INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/scsi_mod. 
+INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/scsi_mod.
   kernel/lib/crc16. kernel/lib/crc-t10dif. kernel/crypto/aes_generic.
   kernel/drivers/usb/host/ehci-pci. kernel/drivers/usb/host/ehci-platform. kernel/drivers/hid/hid-generic.
-  kernel/drivers/usb/host/xhci-pci. kernel/drivers/usb/host/xhci-plat-hcd. 
+  kernel/drivers/usb/host/xhci-pci. kernel/drivers/usb/host/xhci-plat-hcd.
+  kernel/drivers/usb/host/ohci-pci. kernel/drivers/usb/host/ohci-plat-hcd.
   kernel/drivers/ide dkms-binary/fs/squashfs dkms-binary/lib/lzma kernel/fs/unionfs/unionfs.
   kernel/lib/zlib_inflate kernel/lib/zlib_deflate kernel/drivers/pcmcia/rsrc_nonstatic.
   kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage/uas. '

@@ -39,7 +39,7 @@ fi
 # auto detecting hadware
 [ "$INTEGRATEDVGA" != "yes" ] && SORTOPT='-r'
 # scan all vga cards
-NUM=$(lspci -nmm | grep -c '0300"')
+NUM=$(lspci -nmm | grep -c '[.]. "0300"')
 # using VGABUSID if specified
 [ "$VGABUSID" ] && CARD=$(lspci -nmm | grep ^"$VGABUSID" | head -n1)
 # trying to find VGA card for specidied XDRIVER
@@ -49,7 +49,7 @@ NUM=$(lspci -nmm | grep -c '0300"')
 [ -z "$CARD" -a "$XDRIVER" = "nouveau" ]   && CARD=$(lspci -nmm | grep '0300" "10de"' | sort $SORTOPT | head -n1)
 echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | grep '0300" "10de"' | sort $SORTOPT | head -n1)
 # if card are not found we are getting first/last card (it depends of INTEGRATEDVGA)
-[ -z "$CARD" ] && CARD=$(lspci -nmm | grep '0300"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" ] && CARD=$(lspci -nmm | grep '[.]. "0300"' | sort $SORTOPT | head -n1)
 
 PCIID=$(echo $CARD | awk -F\" '{print $6}')
 PCIVEN=$(echo $CARD | awk -F\" '{print $4}')
@@ -80,7 +80,7 @@ if [ -z "$XDRIVER" ] ; then
    [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia
 fi
 
-# testing nonfree nvidia nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current modules
+# testing nonfree nvidia modules (nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current)
 if [ "$XDRIVER" = "nvidia" ] ;then
    XDRIVER=
    for a in $NVIDIATEST ;do
@@ -88,6 +88,7 @@ if [ "$XDRIVER" = "nvidia" ] ;then
        lsmod | grep -q nvidia && XDRIVER=$a
        [ -z "$XDRIVER" ] || break
    done
+# nouveau driver
    [ -z "$XDRIVER" ] && XDRIVER=$FAILSAFENVIDIA
 fi
 
@@ -166,7 +167,7 @@ if [ "$BUMBLEBEE" = "yes" ] ;then
      [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop
      if [ -f $FILE ] ;then
         sed -i s/"Exec=optirun "/"Exec="/ $FILE
-        grep -q optirun $FILE || sed -i s-"Exec="-"Exec=primusrun "- $FILE
+        grep -q primusrun $FILE || sed -i s-"Exec="-"Exec=primusrun "- $FILE
      fi
    done
 fi
@@ -181,4 +182,10 @@ if [ -f $XFILE -a "$VGABUSID" ] ;then
       sed -i /BusID/d $XFILE
       sed -i /"$a"/s/$/\\n'BusID "PCI:'$VGABUSID'"'/ $XFILE
    fi
+fi
+
+#preloading nvidia kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
+if echo "$XDRIVER" | grep -q nvidia ;then
+   sed -i /^nvidia/d etc/modprobe.preload.
+   echo "$XDRIVER" >> etc/modprobe.preload
 fi

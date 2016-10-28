@@ -15,7 +15,8 @@ rm -fr 2>/dev/null \
    usr/share/doc/HTML/ru/kstars usr/share/doc/HTML/ru/kbruch usr/share/doc/HTML/ru/akregator \
    usr/share/help/C/cheese/figures/effects.png \
    boot/initrd* usr/share/doc/perl-Libconf/html/Libconf/Libconf \
-   usr/share/backgrounds/gnome
+   usr/share/backgrounds/gnome \
+   etc/modprobe.d/nvidia[0-9]*
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 
