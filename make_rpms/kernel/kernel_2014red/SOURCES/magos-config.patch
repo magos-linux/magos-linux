@@ -1,7 +1,7 @@
-diff -auprN a/kernel-x86_64.config b/kernel-x86_64.config
---- a/kernel-x86_64.config	2016-09-21 06:46:31.000000000 +0300
-+++ b/kernel-x86_64.config	2016-09-21 19:52:40.152068381 +0300
-@@ -5293,7 +5293,11 @@ CONFIG_DUMMY_CONSOLE_ROWS=25
+diff -aupr a/kernel-i586.config b/kernel-i586.config
+--- a/kernel-i586.config	2016-11-25 17:20:32.000000000 +0300
++++ b/kernel-i586.config	2016-11-25 18:11:41.051508600 +0300
+@@ -5388,7 +5388,11 @@ CONFIG_DUMMY_CONSOLE_ROWS=25
  CONFIG_FRAMEBUFFER_CONSOLE=y
  CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
  # CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
@@ -14,7 +14,7 @@ diff -auprN a/kernel-x86_64.config b/kernel-x86_64.config
  CONFIG_SOUND=m
  CONFIG_SOUND_OSS_CORE=y
  # CONFIG_SOUND_OSS_CORE_PRECLAIM is not set
-@@ -7398,8 +7402,8 @@ CONFIG_UDF_NLS=y
+@@ -7356,8 +7360,8 @@ CONFIG_UDF_NLS=y
  CONFIG_FAT_FS=m
  CONFIG_MSDOS_FS=m
  CONFIG_VFAT_FS=m
@@ -22,6 +22,6 @@ diff -auprN a/kernel-x86_64.config b/kernel-x86_64.config
 -CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
 +CONFIG_FAT_DEFAULT_CODEPAGE=866
 +CONFIG_FAT_DEFAULT_IOCHARSET="utf8"
- # CONFIG_FAT_DEFAULT_UTF8 is not set
  CONFIG_NTFS_FS=m
  # CONFIG_NTFS_DEBUG is not set
+ # CONFIG_NTFS_RW is not set
