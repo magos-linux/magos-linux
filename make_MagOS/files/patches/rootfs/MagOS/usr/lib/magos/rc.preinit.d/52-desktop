@@ -69,6 +69,10 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          echo -e "DISPLAYMANAGER=slim\nDESKTOP=LXDE" >etc/sysconfig/desktop
          ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
        ;;
+       steam)
+         echo -e "DISPLAYMANAGER=slim\nDESKTOP=Steam" >etc/sysconfig/desktop
+         ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
+       ;;
        kdm)
          sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=KDM/' etc/sysconfig/desktop
          ln -sf /lib/systemd/system/kdm.service etc/systemd/system/display-manager.service
@@ -88,6 +92,10 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
        lightdm)
          sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=lightdm/' etc/sysconfig/desktop
          ln -sf /lib/systemd/system/lightdm.service etc/systemd/system/display-manager.service
+       ;;
+       lxdm)
+         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=lxdm/' etc/sysconfig/desktop
+         ln -sf /lib/systemd/system/lxdm.service etc/systemd/system/display-manager.service
        ;;
        lan)
          sed -i s/ONBOOT=no/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null

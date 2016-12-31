@@ -13,6 +13,7 @@ DEBUGMODE=no
 . $HARDCONF
 [ "$XDRIVER" != "nvidia" ] && rmmod nvidia
 . /etc/sysconfig/MagOS
+. /etc/sysconfig/desktop
 
 [ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f /etc/X11/xorg.conf
 [ "$DELETE_XORG_CONF" = "yes" ] && rm -f /etc/X11/xorg.conf
@@ -37,7 +38,10 @@ EOF
   fi
 fi
 
-if echo $DPMS | egrep -qi 'no|off|false' ;then
+echo $DPMS | egrep -qi 'no|off|false' && DPMS=no
+[ "$STEAMNODPMS" = "yes" -a "$DESKTOP" = "Steam" ] && DPMS=no
+
+if [ "$DPMS" = "no" ] ;then
      sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
 fi
 

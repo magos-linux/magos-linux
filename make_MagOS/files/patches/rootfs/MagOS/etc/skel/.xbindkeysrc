@@ -18,15 +18,15 @@
   Mod4 + Escape
 
 # MagOS modules manager
-" mod_mnger "
-  Mod4 + m 
+" modmnger "
+  Mod4 + m
 
 # turn off screen
 " sleep 1 && xset dpms force off "
   Mod4 + space
 
 # suspend mode
-" pm-suspend "
+" systemctl suspend "
   Mod4 + Return
 
 # open file manager
@@ -41,30 +41,13 @@
 " keyscripts url "
   Mod4 + u
 
-# google-translate en -> rus from clipboard in passivepopup window (win+>)
-" keyscripts enrus passive "
-  Mod4 + period
-
-
-# google-translate en -> rus from clipboard in msgbox window (win+>)
-" keyscripts enrus msgbox "
-  Control+Mod4 + period
-
 # google-translate en ->  from clipboard in firefox (win+>)
 " keyscripts enrus firefox "
-  Shift+Mod4 + period
-
-# google-translate rus -> en from clipboard in passivepopup window (win+>)
-" keyscripts rusen passive"
-  Mod4 + comma
-
-# google-translate rus -> en from clipboard in msgbox window (win+>)
-" keyscripts rusen msgbox"
-  Control+Mod4 + comma
+  Mod4 + period
 
 # google-translate rus -> en  from clipboard in firefox (win+>)
 " keyscripts rusen firefox"
-  Shift+Mod4 + comma
+  Mod4 + comma
 
 # lock screen
 " dbus-send --session --dest=org.freedesktop.ScreenSaver --type=method_call --print-reply /ScreenSaver org.freedesktop.ScreenSaver.Lock "
@@ -99,10 +82,10 @@
   Mod4 + s
 
 # change volume (by mouse weel)
-"amixer -q set Master 5+"
+"amixer -q set Master 5+ ; pactl -- set-sink-volume @DEFAULT_SINK@ +5%"
   Mod4 + b:4
 
-"amixer -q set Master 5-"
+"amixer -q set Master 5-; pactl -- set-sink-volume @DEFAULT_SINK@ -5%"
   Mod4 + b:5
 
 # screen rotate left

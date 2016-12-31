@@ -93,10 +93,12 @@ rfswitch ()
 
 record()
 {
+  RMDOPT=
+  ps -A | grep -q pulseaudio && RMDOPT="--device pulse"
   killall xbindkeys
-  recordmydesktop --stop-shortcut Mod4+Print
+  recordmydesktop --stop-shortcut Mod4+Print $RMDOPT
   xbindkeys
-  mdialog --passivepopup "$MSG4"  
+  mdialog --passivepopup "$MSG4"
 }
 
 network ()

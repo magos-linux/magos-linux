@@ -39,17 +39,17 @@ fi
 # auto detecting hadware
 [ "$INTEGRATEDVGA" != "yes" ] && SORTOPT='-r'
 # scan all vga cards
-NUM=$(lspci -nmm | grep -c '[.]. "0300"')
+NUM=$(lspci -nmm | sed s/"Class "// | grep -c '[.]. "0300"')
 # using VGABUSID if specified
-[ "$VGABUSID" ] && CARD=$(lspci -nmm | grep ^"$VGABUSID" | head -n1)
+[ "$VGABUSID" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep ^"$VGABUSID" | head -n1)
 # trying to find VGA card for specidied XDRIVER
-[ -z "$CARD" -a "$XDRIVER" = "intel" ] && CARD=$(lspci -nmm | grep '0300" "8086"' | sort $SORTOPT | head -n1)
-[ -z "$CARD" -a "$XDRIVER" = "fglrx" ] && CARD=$(lspci -nmm | grep '0300" "1002"' | sort $SORTOPT | head -n1)
-[ -z "$CARD" -a "$XDRIVER" = "ati" ]   && CARD=$(lspci -nmm | grep '0300" "1002"' | sort $SORTOPT | head -n1)
-[ -z "$CARD" -a "$XDRIVER" = "nouveau" ]   && CARD=$(lspci -nmm | grep '0300" "10de"' | sort $SORTOPT | head -n1)
-echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | grep '0300" "10de"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "intel" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "8086"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "fglrx" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "ati" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "nouveau" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
+echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
 # if card are not found we are getting first/last card (it depends of INTEGRATEDVGA)
-[ -z "$CARD" ] && CARD=$(lspci -nmm | grep '[.]. "0300"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '[.]. "0300"' | sort $SORTOPT | head -n1)
 
 PCIID=$(echo $CARD | awk -F\" '{print $6}')
 PCIVEN=$(echo $CARD | awk -F\" '{print $4}')
@@ -149,7 +149,7 @@ else
 fi
 
 # bumblebee service for nvidia optimus card
-[ "$XDRIVER" = "intel" ] && lspci -nmm | grep -q '"0302" "10de"' && BUMBLEBEE=yes
+[ "$XDRIVER" = "intel" ] && lspci -nmm | sed s/"Class "// | grep -q '"0302" "10de"' && BUMBLEBEE=yes
 if [ "$BUMBLEBEE" = "yes" ] ;then
    rm -f etc/systemd/system/bumblebeed.service
 

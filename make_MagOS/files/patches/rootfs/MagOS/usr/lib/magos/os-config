@@ -109,6 +109,7 @@ XkbLayout=us,ru
 KEYBOARD=ru
 KEYTABLE=ru4
 XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin
+STEAMNODPMS=yes
 
 #rc.preinit/10-accounts
 DEFAULTPASSWD='$6$kCP2oNGB$LD4VUJfTMxTmzbZNZg16AYDjSQ6CB1hEaqzb49I91KntXDTVxux6KueiYj59HiHddL9zJwlQ4Y8hzvXRTwpFQ0'
@@ -140,7 +141,7 @@ CREATE_XORG_CONF=yes
 GLLDCONFIG=yes
 BUMBLEBEE=no
 OPTIRUN=
-PRIMUSRUN=steam
+PRIMUSRUN=
 VGABUSID=
 INTEGRATEDVGA=yes
 SORTOPT=
@@ -159,3 +160,11 @@ STEAMAPP=/mnt/livedata/MagOS-Data/steam
 
 #/usr/lib/magos/rc.post.d/03-modprobepreload
 MODPROBEPRELOAD=yes
+
+#/usr/lib/magos/scripts/startsteam
+PRIMUSLMOD=81-libs4primus.xzm
+PRIMUSLPATH=http://mirror.yandex.ru/mirrors/magos/modules/2014.64
+PRIMUS32LIB=/usr/lib/libGL.so.1
+PRDNL="wget -O "
+USERMODSPATH=/mnt/livedata/MagOS-Data/modules
+

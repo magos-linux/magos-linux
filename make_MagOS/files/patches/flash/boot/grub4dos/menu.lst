@@ -20,8 +20,10 @@ initrd /MagOS/initrd.gz
 
 title MagOS Clean mode
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 lang=en
-initrd /MagOS/initrd.gz
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=uird:
+initrd /MagOS/uird.magos.cpio.xz
+#kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=/dev/ram0 rw
+#initrd /MagOS/initrd.gz
 
 #title MagOS System profile
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn

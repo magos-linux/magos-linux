@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/lib/magos/scripts/startsteam steam://open/bigpicture

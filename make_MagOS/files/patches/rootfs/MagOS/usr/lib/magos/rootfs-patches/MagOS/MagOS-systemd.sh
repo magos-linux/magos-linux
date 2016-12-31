@@ -6,7 +6,7 @@ canberra-system-bootup canberra-system-shutdown-reboot canberra-system-shutdown"
 SERVICESFORCEMASK="ldconfig xinetd lvm2-activation-early lvm2-activation-net lvm2-activation smb nmb remount-rootfs \
 NetworkManager-wait-online arp-ethers.service dbus-org.freedesktop.Avahi"
 SERVICESSTOP="dhcpd wine"
-SERVICESSTART="virtualbox"
+SERVICESSTART="virtualbox systemd-resolved"
 for a in ${SERVICESMASK} ;do
     [ -f /lib/systemd/system/$a.service ] &&  ln -s '/dev/null' "/etc/systemd/system/$a.service"
 done
