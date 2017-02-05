@@ -3,23 +3,24 @@
 </h3>
 
 <p>
-There are two types of boot options available. First, there are
-options that affect the system. Second, there are kernel
-options. Some of the more common options are:
+There are two types of boot options available. First - options that affect the system. Second - kernel options. 
+You can use both types in bootloader command line. There are some samples, that may be usefull for you.
 </p>
 
 <p>
-a) system options
-<ul>
- <li>Copy to RAM - System will be copied to RAM and will be started from memory. This require more than 2GB RAM.</li>
-</ul>
+Copy to RAM (copy2ram). System will be copied to RAM and will be started from memory. This requires more than 2GB RAM.
 </p>
- 
+
 <p>
-b) kernel options
-<ul>
- <li>>Safe Setting - Hardware failsafe parameters. Select this if you encounter hangs
- while booting or irreproducible errors. This option disables DMA
- for IDE drives and all power management features.</li>
-</ul>
+Video safe setting (no3ddesktop xdriver=fbdev). Video failsafe parameters . Select this if you encounter problems
+while starting graphical desktop. This option forces to use very similar video driver fbdev and switches off compiz-fusion effects.
+</p>
+
+<p>
+No modules (noload=/modules/ uird.noload=/modules/). Do not load external modules from /modules/ folders. If you installed 
+external modules and it made you system unfunctional you can disable ones there.
+</p>
+
+<p>
+Flight mode (rfkill.default_state=0 flightmode). Turn off wireless devices. You can disable wifi, bluetooth, etc devices there.
 </p>

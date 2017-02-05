@@ -13,7 +13,9 @@
 /magosother.options [
   ""
   "copy2ram"
-  "apm=off acpi=off mce=off barrier=off ide=nodma idewait=50 i8042.nomux psmouse.proto=bare irqpoll pci=nommconf nopat no3ddesktop xdriver=free noload=/modules/"
+  "no3ddesktop xdriver=fbdev"
+  "noload=/modules/ uird.noload=/modules/"
+  "rfkill.default_state=0 flightmode"
 ] def
 
 
@@ -31,7 +33,9 @@
   xmenu .xm_list [
     /txt_kernel_default
     /txt_copy2ram
-    /txt_kernel_safe
+    /txt_video_safe
+    /txt_no_modules
+    /txt_flightmode
   ] put
   xmenu .xm_title /txt_magos_sp put
 

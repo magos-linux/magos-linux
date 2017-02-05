@@ -13,8 +13,8 @@
 /magosdesktop.options [
   ""
   "desktop=kde"
-  "desktop=gnome"
   "desktop=lxde"
+  "desktop=steam"
   "desktop=none"
 ] def
 
@@ -33,8 +33,8 @@
   xmenu .xm_list [
     /txt_desktop_default
     "KDE"
-    "Gnome"
     "LXDE"
+    "Steam"
     /txt_desktop_console
   ] put
   xmenu .xm_title /txt_desktop put

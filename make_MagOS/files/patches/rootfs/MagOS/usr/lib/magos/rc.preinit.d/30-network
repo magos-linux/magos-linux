@@ -50,3 +50,8 @@ if  ! [ -z "$HTTP_PROXY$FTP_PROXY" ] ;then
     chmod 755 etc/profile.d/proxy.sh etc/profile.d/proxy.csh
 fi
 
+if [ "$(cmdline_parameter flightmode)" ] ;then
+   for a in etc/sysconfig/network-scripts/ifcfg-w* ;do
+       sed -i s/ONBOOT=yes/ONBOOT=no/ $a 2>/dev/null
+   done
+fi

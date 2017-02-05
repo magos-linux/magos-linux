@@ -186,6 +186,6 @@ fi
 
 #preloading nvidia kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
 if echo "$XDRIVER" | grep -q nvidia ;then
-   sed -i /^nvidia/d etc/modprobe.preload.
+   sed -i /^nvidia/d etc/modprobe.preload
    echo "$XDRIVER" >> etc/modprobe.preload
 fi

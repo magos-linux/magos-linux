@@ -1,8 +1,5 @@
 #!/bin/sh
 
-PRIMUSLMOD=81-libs4primus.xzm
-PRIMUSLPATH=http://magos.sibsau.ru/repository/modules/2014.64
-PRIMUS32LIB=/usr/lib/libGL.so.1
 PRDNL="wget -O "
 USERMODSPATH=/mnt/livedata/MagOS-Data/modules
 . /usr/lib/magos/os-config
@@ -49,30 +46,31 @@ if ! wmctrl -m | grep -qi name ;then
 
 fi
 
-# Checking for bumblebee
-if systemctl status bumblebeed.service | grep -q "Loaded:[[:space:]]*loaded" ;then
-   [ -x /usr/bin/primusrun ] && PRRUN=primusrun
+# Checking for mesa gl
+if glxinfo | grep -qi vendor.*mesa ;then
    #Primus needs 32bit libs to work. Check for x64
-   if [ "$(uname -i)" = "x86_64" ];then
-      #Are 32bit libs installed?
-      if ! [ -f "$PRIMUS32LIB" ] ;then
-         #Downloading xzm module
-         xterm -e "$PRDNL /tmp/$PRIMUSLMOD $PRIMUSLPATH/$PRIMUSLMOD || rm -f /tmp/$PRIMUSLMOD"
-         if [ -f /tmp/$PRIMUSLMOD ] ;then
-            #Installing xzm module
-            MODCMD1="mv -f /tmp/$PRIMUSLMOD $USERMODSPATH/$PRIMUSLMOD ;"
-            if [ -w $USERMODSPATH ] ;then
-               "$MODCMD1"
-               ROOTCMD=
-            else
-               ROOTCMD="$MODCMD1"
-            fi
-            #Activating module
-            ROOTCMD="$ROOTCMD activate $USERMODSPATH/$PRIMUSLMOD"
-            beesu -l "$ROOTCMD"
+   if [ "$(uname -i)" = "x86_64" -a ! -f "$GL32LIB" ] ;then
+      #Downloading xzm module
+      xterm -e "$PRDNL /tmp/$GL32MOD $GL32URL/$GL32MOD || rm -f /tmp/$GL32MOD"
+      if [ -f /tmp/$GL32MOD ] ;then
+         #Installing xzm module
+         MODCMD1="mv -f /tmp/$GL32MOD $USERMODSPATH/$GL32MOD ;"
+         if [ -w $USERMODSPATH ] ;then
+            "$MODCMD1"
+            ROOTCMD=
+         else
+            ROOTCMD="$MODCMD1"
          fi
+         #Activating module
+         ROOTCMD="$ROOTCMD activate $USERMODSPATH/$GL32MOD"
+         beesu -l "$ROOTCMD"
       fi
    fi
+fi
+
+# Checking for bumblebeed.service
+if systemctl status bumblebeed.service | grep -q "Loaded:[[:space:]]*loaded" ;then
+   [ -x /usr/bin/primusrun ] && PRRUN=primusrun
 else
    PRRUN=
 fi

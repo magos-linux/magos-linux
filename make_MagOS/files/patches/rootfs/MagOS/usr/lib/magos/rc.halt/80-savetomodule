@@ -3,9 +3,6 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-#exit if uird
-[ -f /etc/initvars ] && exit
-
 . /usr/lib/magos/scripts/liblinuxlive
 . /etc/sysconfig/MagOS
 
@@ -18,11 +15,14 @@ IMSRC=$(readlink -f /mnt/live/memory/images)
 [ -z "$SAVETOMODULENAME" -a -w /mnt/livedata/$LIVECDNAME-Data/modules ] && SAVETOMODULENAME=/mnt/livedata/$LIVECDNAME-Data/modules/zz-save.$MODULEFORMAT
 [ -z "$SAVETOMODULENAME" -a -w /mnt/livemedia/$LIVECDNAME/modules ] && SAVETOMODULENAME=/mnt/livemedia/$LIVECDNAME/modules/zz-save.$MODULEFORMAT
 [ -f /.savetomodule ] && grep -q . /.savetomodule && SAVETOMODULENAME="$(cat /.savetomodule)"
-SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
-FILELIST=/.savelist
 [ -f /.savetomodule ] && SAVETOMODULE=${SAVETOMODULE-yes}
 grep -q save2module /proc/cmdline && SAVETOMODULE=${SAVETOMODULE-yes}
-grep -q /machines/dynamic/ /.savetomodule 2>/dev/null  && [ -f $(sed s=dynamic=static= /.savetomodule) ] && SAVETOMODULE=no
+# if machine was freezed
+egrep -q '/dynamic/|/static/' /.savetomodule 2>/dev/null  && [ -f "$(sed s=dynamic=static= /.savetomodule)" ] && SAVETOMODULE=no
+# if machine was unfreezed
+grep -q /static/ /.savetomodule 2>/dev/null && [ ! -f "$(cat /.savetomodule)" ] && SAVETOMODULENAME=$(sed s=static=dynamic= /.savetomodule)
+SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"
+FILELIST=/.savelist
 if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo "Please wait. Saving changes to module $SAVETOMODULENAME"
    # if old module exists we have to concatenate it
@@ -63,4 +63,5 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    [ "$SRC" = "$CHSRC" ] || umount "$SRC"
 fi
 
-sync
+echo -n "Syncing block devices..."
+sync && echo " done."

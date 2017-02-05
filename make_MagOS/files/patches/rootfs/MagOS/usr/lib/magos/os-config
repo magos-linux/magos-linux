@@ -162,9 +162,9 @@ STEAMAPP=/mnt/livedata/MagOS-Data/steam
 MODPROBEPRELOAD=yes
 
 #/usr/lib/magos/scripts/startsteam
-PRIMUSLMOD=81-libs4primus.xzm
-PRIMUSLPATH=http://mirror.yandex.ru/mirrors/magos/modules/2014.64
-PRIMUS32LIB=/usr/lib/libGL.so.1
+GL32MOD=81-libs4mesagl32.xzm
+GL32URL=http://mirror.yandex.ru/mirrors/magos/modules/2014.64
+GL32LIB=/usr/lib/libGL.so.1
 PRDNL="wget -O "
 USERMODSPATH=/mnt/livedata/MagOS-Data/modules
 

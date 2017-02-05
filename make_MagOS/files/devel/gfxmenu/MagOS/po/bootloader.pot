@@ -477,3 +477,19 @@ msgstr ""
 #. txt_magos_sp
 msgid "Other"
 msgstr ""
+
+#. menu item for magosother (cf. txt_video_safe)
+#. txt_video_safe
+msgid "Video fail safe"
+msgstr ""
+
+#. menu item for magosother (cf. txt_no_modules)
+#. txt_no_modules
+msgid "No modules"
+msgstr ""
+
+#. menu item for magosother (cf. txt_flightmode)
+#. txt_flightmode
+msgid "Flight mode"
+msgstr ""
+

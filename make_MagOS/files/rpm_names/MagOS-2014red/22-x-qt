@@ -97,3 +97,7 @@ libqt5webkitwidgets5-
 libqt5webchannel5-
 libqt53dquickrender5-
 libqt53drender5-
+python3-qt5-core-
+python3-qt5-dbus-
+python3-qt5-gui-
+python3-qt5-widgets-

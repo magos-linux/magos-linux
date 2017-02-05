@@ -577,7 +577,7 @@ lib64xcb-util-renderutil0-
 lib64xcb-xkb1-
 lib64xkbcommon-x11_0-
 lib64fftw3_3-
-lib64llvm3.8-
+lib64llvm3.9-
 lib64epoxy0-
 lib64drm_amdgpu1-
 python-ptyprocess-

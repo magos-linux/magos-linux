@@ -13,15 +13,23 @@ gfxmenu /boot/grub4dos/gfxmenu
 color black/cyan yellow/cyan
 splashimage /boot/grub4dos/boot_xpm.gz
 
-title MagOS Home profile
+title MagOS Linux with saving data
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 lang=en home=home.img changes=xzm
-initrd /MagOS/initrd.gz
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=uird: uird.home=home.img uird.mode=machines
+initrd /MagOS/uird.magos.cpio.xz
 
-title MagOS Clean mode
+title MagOS Linux Clean mode
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=uird:
 initrd /MagOS/uird.magos.cpio.xz
+
+#title MagOS Home profile (initrd)
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+#kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 lang=en home=home.img changes=xzm
+#initrd /MagOS/initrd.gz
+
+#title MagOS Clean mode (initrd)
+#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=/dev/ram0 rw
 #initrd /MagOS/initrd.gz
 
@@ -30,7 +38,7 @@ initrd /MagOS/uird.magos.cpio.xz
 #kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 lang=en changes=MagOS_save1.img
 #initrd /MagOS/initrd.gz
 
-title MagOS Netlive
+title MagOS Linux Netlive
 kernel /boot/tools/ipxe.lkrn
 #initrd script.ipxe
 
