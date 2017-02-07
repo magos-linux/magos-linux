@@ -70,14 +70,14 @@ for tm in {var/lib/rpm,sys,proc,dev}; do
     done
 done
 
-rm -rf $root_br/{dev,proc,sys}
-
 while (grep -q wiz_fly /proc/mounts ) ; do
     umount wiz_fly
 done
 
 rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/tmp
+rm -rf $mod_br/{dev,proc,sys}
+
 ###########################################################################################
 ls -a $mod_br |grep  -q ^[[:alnum:]]*$  && dir2xzm $mod_br "$(basename $1).$MODULEFORMAT" #
 ###########################################################################################
