@@ -11,7 +11,7 @@ ENABLED=yes
 
 DEBUGMODE=no
 INIGZFILE=/memory/MagOS.ini.gz
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/functions
 debug_mode "$0" "$@"
 
 [ -f $INIGZFILE ] || INIGZFILE=/tmp/MagOS.ini.gz
@@ -33,4 +33,3 @@ gunzip -c $INIGZFILE | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'
       fi
    fi
 done
-

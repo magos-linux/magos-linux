@@ -15,18 +15,29 @@ if [ "$1" = "" ] ;then
    usage
 fi
 
+# uird/initrd vars
+IMGPATH=/mnt/live/memory/images
+CHPATH=/mnt/live/memory/changes
+if [ -d /memory/changes ];then
+   IMGPATH=/memory/bundles
+   CHPATH=/memory/changes
+fi
+
 case "$1" in
    --copy)
      echo remove rpm DB ...
-     rm -fr /var/lib/rpm
+     rm -fr /var/lib/rpm/*
      echo copy initial rpm DB ...
-     cp -pr /mnt/live/memory/images/40-1-drakconf.xzm/var/lib/rpm /var/lib
+     find "$IMGPATH" -maxdepth 4 -path "*/var/lib/rpm" | sort | while read a ;do
+       echo  "$a -> /var/lib/rpm"
+       cp -prf "$a"/* /var/lib/rpm
+     done
      echo Done.
      ;;
    --erase)
      echo remove rpm DB changes ...
-     rm -fr /mnt/live/memory/changes/var/lib/rpm
-     echo Done.
+     rm -fr "$CHPATH/var/lib/rpm"
+     echo Done. Please reboot.
      ;;
    *)
      usage

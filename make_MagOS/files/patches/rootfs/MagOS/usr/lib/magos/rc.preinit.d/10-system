@@ -10,7 +10,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/functions
 debug_mode "$0" "$@"
 
 . etc/sysconfig/MagOS
@@ -21,11 +21,15 @@ ps | grep ntfsmount | awk '{ print $1 }' >> var/run/sendsigs.omit
 . etc/sysconfig/clock
 [ "$UTC" = "false" -a -f usr/share/zoneinfo/$ZONE ] && ln -sf /usr/share/zoneinfo/$ZONE etc/localtime
 
-#Profile updating
-grep -q -f /VERSION etc/magos-release 2>/dev/null || rm -fr /memory/changes/var/lib/rpm  /memory/changes/var/lib/urpmi 2>/dev/null
-cp -f /VERSION etc/magos-release
-
 #devfs support
 if [ -d run/udev/rules.d ] ;then
   mount -t devtmpfs none dev
 fi
+
+#Profile updating
+VERSION=$(head -1 /VERSION)
+[ -z "$VERSION" ] && VERSION=$(head -1 /memory/layer-base/0/VERSION)
+if [ ! -z "$VERSION" -a -f etc/magos-release ] ;then
+  grep -q "$VERSION" etc/magos-release 2>/dev/null || rm -fr /memory/changes/var/lib/rpm  /memory/changes/var/lib/urpmi 2>/dev/null
+fi
+[ ! -z "$VERSION" ] && echo "$VERSION"  > etc/magos-release

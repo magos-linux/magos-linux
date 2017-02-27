@@ -16,7 +16,7 @@ shift
 
 export PATH=/usr/lib/magos/scripts:$PATH
 
-. liblinuxlive
+. /usr/lib/magos/functions
 
 if [ -f /mnt/live/VERSION ]; then
     memory_path=/mnt/live/memory

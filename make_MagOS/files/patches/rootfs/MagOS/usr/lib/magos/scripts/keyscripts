@@ -36,7 +36,8 @@ rm -f /tmp/listkeys
 
 info ()
 {
-  . liblinuxlive
+  . /etc/os-release
+  LIVECDNAME="$NAME"
   UPTIME=$(uptime | awk '{print "time - "$1", up - "$3}') 
   RAM=$(free -m | grep Mem | awk '{ print "total - "$2",  free - "$4}')
   SWAP=$(free -m | grep Swap | awk '{ print "total - "$2",  free - "$4}')
@@ -53,7 +54,7 @@ info ()
   else
      PROF_SIZE=$(df -h / |grep aufs | awk '{print " ["$5"] total - "$2", free - "$4}')
   fi
-  echo "$LIVECDNAME $VERSION" > ~/info.txt
+  echo "$LIVECDNAME ($VERSION)" > ~/info.txt
   echo "UPTIME: $UPTIME" >> ~/info.txt
   echo "KERNEL: $KERNEL" >> ~/info.txt
   echo "RAM: $RAM" >> ~/info.txt

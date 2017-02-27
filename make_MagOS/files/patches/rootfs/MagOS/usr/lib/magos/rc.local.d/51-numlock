@@ -7,7 +7,7 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
-. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 . /etc/sysconfig/MagOS

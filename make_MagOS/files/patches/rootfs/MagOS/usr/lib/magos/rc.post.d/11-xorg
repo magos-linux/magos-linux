@@ -7,9 +7,9 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
-. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/functions
 . /usr/lib/magos/os-config
-[ "$DEBUGMODE" = "yes" ] && debug_mode "$0" "$@"
+debug_mode "$0" "$@"
 . $HARDCONF
 [ "$XDRIVER" != "nvidia" ] && rmmod nvidia
 . /etc/sysconfig/MagOS

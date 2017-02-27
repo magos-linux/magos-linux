@@ -6,7 +6,7 @@ fi
 
 export PATH=/usr/lib/magos/scripts:$PATH
 
-. /usr/lib/magos/scripts/liblinuxlive || exit 2
+. /usr/lib/magos/functions
 
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && addparam="" || addparam="-nolzma"
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm

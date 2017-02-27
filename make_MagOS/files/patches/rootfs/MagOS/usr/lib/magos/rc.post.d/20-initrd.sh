@@ -4,8 +4,8 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /usr/lib/magos/scripts/liblinuxlive
-[ "$DEBUGMODE" = "yes" ] && debug_mode "$0" "$@"
+. /usr/lib/magos/functions
+debug_mode "$0" "$@"
 
 # free some space if pxe server are not using
 if [ -d /mnt/livemedia/MagOS ] ;then

@@ -18,7 +18,7 @@ if [ -e /usr/bin/kdeactivate -a "$DISPLAY" -a ! "$CALLED_BY_KDE_HELPER" ]; then
 fi
 
 PATH=.:$(dirname $0):/usr/lib:$PATH
-. /usr/lib/magos/scripts/liblinuxlive || exit 5
+. /usr/lib/magos/functions || exit 5
 
 allow_only_root
 MODULE="$(basename "$1")"

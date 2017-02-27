@@ -1,6 +1,6 @@
 diff -auprN a/kernel.spec b/kernel.spec
---- a/kernel.spec	2016-09-21 06:46:31.000000000 +0300
-+++ b/kernel.spec	2016-09-21 21:16:20.000000000 +0300
+--- a/kernel.spec	2017-02-23 12:30:21.000000000 +0300
++++ b/kernel.spec	2017-02-23 12:31:11.801914984 +0300
 @@ -71,6 +71,18 @@
  %define build_modxz		1
  # End of user definitions
@@ -20,7 +20,7 @@ diff -auprN a/kernel.spec b/kernel.spec
  # buildtime flags
  %{?_without_nrj_desktop: %global build_nrj_desktop 0}
  %{?_without_nrj_laptop: %global build_nrj_laptop 0}
-@@ -227,6 +239,11 @@ Patch118:	0003-block-bfq-add-Early-Queue
+@@ -233,6 +245,11 @@ Patch120:	tunnels-Don-t-apply-GRO-to-mul
  # then, it seems, even if we place "Patch: <..>" under a conditional.
  Source701:	sanitize-memory.patch
  ####################################################################
@@ -32,7 +32,7 @@ diff -auprN a/kernel.spec b/kernel.spec
  
  # Defines for the things that are needed for all the kernels
  #
-@@ -630,6 +647,11 @@ cp %{SOURCE112} .
+@@ -636,6 +653,11 @@ cp %{SOURCE112} .
  FLAVOURS="${FLAVOURS} nrj-laptop"
  %endif
  
@@ -44,7 +44,7 @@ diff -auprN a/kernel.spec b/kernel.spec
  CONFIG_DIR=arch/x86/configs
  mkdir -p "${CONFIG_DIR}"
  
-@@ -1123,7 +1145,8 @@ find %{target_source}/include -name .ins
+@@ -1129,7 +1151,8 @@ find %{target_source}/include -name .ins
  # compressing modules
  %if %{build_modxz}
  find %{target_modules} -name "*.ko" | %kxargs xz -6e

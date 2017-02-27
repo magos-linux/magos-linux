@@ -8,7 +8,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /usr/lib/magos/scripts/liblinuxlive
-[ "$DEBUGMODE" = "yes" ] && debug_mode "$0" "$@"
+. /usr/lib/magos/functions
+debug_mode "$0" "$@"
 . /etc/sysconfig/MagOS
 [ "$DNS_RENEW" = "yes" -a -f /mnt/live/etc/resolv.conf ] && cat /mnt/live/etc/resolv.conf >> /etc/resolvconf/resolv.conf.d/head

@@ -1,61 +1,62 @@
 #!/bin/bash
-#Authors: ilfat, betcher <magos-linux.ru> 
+#Authors: ilfat, betcher <magos-linux.ru>
 
-COMP_ALG="lz4 -Xhc"
+MKSQFS_FASTALG="lz4 -Xhc"
+. /usr/lib/magos/os-config
 
 if . /etc/initvars ;then
-	BASE_DIR=$SYSMNT/layer-base/0/base
+  BASE_DIR=$SYSMNT/layer-base/0/base
 elif
-	[ -d /mnt/livemedia/MagOS ] ;then
-	BASE_DIR=/mnt/livemedia/MagOS/base
+  [ -d /mnt/livemedia/MagOS ] ;then
+  BASE_DIR=/mnt/livemedia/MagOS/base
 else
-	echo "Скрипт не предназначен для работы на вашей системе."
-	exit 1
+  echo "Скрипт не предназначен для работы на вашей системе."
+  exit 1
 fi
 
-help () {
-	if [[ "$LANG" == ru_RU* ]] ;then
-		echo ""
-		echo "$0 <Каталог/с/модулями> <параметры сжатия для mksquashfs>"
-		echo "Без параметров перепакует системный каталог /base в $COMP_ALG"
-		echo "Примеры:"
-		echo "$0 - перепаковать $BASE_DIR в $COMP_ALG"
-		echo "$0 /path/mydir - перепаковать /path/mydir в $COMP_ALG"
-		echo "$0 lz4  - перепаковать $BASE_DIR в lz4"
-		echo "$0 /path/mydir gzip - перепаковать /path/mydir в gzip"
-		
-	else
-		echo "Help caming soon."
-	fi
-exit
+help ()
+{
+  if [[ "$LANG" == ru_RU* ]] ;then
+    echo ""
+    echo "$0 <Каталог/с/модулями> <параметры сжатия для mksquashfs>"
+    echo "Без параметров перепакует системный каталог /base в $MKSQFS_FASTALG"
+    echo "Примеры:"
+    echo "$0 - перепаковать $BASE_DIR в $MKSQFS_FASTALG"
+    echo "$0 /path/mydir - перепаковать /path/mydir в $MKSQFS_FASTALG"
+    echo "$0 lz4  - перепаковать $BASE_DIR в lz4"
+    echo "$0 /path/mydir gzip - перепаковать /path/mydir в gzip"
+  else
+    echo "Help is coming soon."
+  fi
+  exit 0
 }
 
 [ "$1_" == "-h_" -o "$1_" == "--help_" ] && help
-        
+
 if ! [ $1 ] ; then
-	echo "$0 перепакует модули в каталоге $BASE_DIR с алгоритмом $COMP_ALG"
-	echo -n "Продолжить Y/y, помощь H/h, для выхода Enter :"
-	read item
-	case "$item" in
-		y|Y) true ;;
-		h|H) help ;;
-		*) exit ;;
-	esac
-	elif [ -d "$1" ] ;then
-        BASE_DIR="$1"
-        shift
+  echo "$0 перепакует модули в каталоге $BASE_DIR с алгоритмом $MKSQFS_FASTALG"
+  echo -n "Продолжить Y/y, помощь H/h, для выхода Enter :"
+  read item
+  case "$item" in
+    y|Y) true ;;
+    h|H) help ;;
+    *) exit ;;
+  esac
+elif [ -d "$1" ] ;then
+  BASE_DIR="$1"
+  shift
 fi
 
-[ $1 ] && COMP_ALG="$@"
+[ $1 ] && MKSQFS_FASTALG="$@"
 
 echo "Каталог с модулями для перепаковки: $BASE_DIR"
-echo -e "Алгоритм сжатия: $COMP_ALG\n"
+echo -e "Алгоритм сжатия: $MKSQFS_FASTALG\n"
 
 #exit # test exit
 
 if [ "$UID" -ne 0 ] ;then
-   echo "Для работы сценария требуются права root."
-   exit 1
+  echo "Для работы сценария требуются права root."
+  exit 1
 fi
 
 MNT_DIR=/tmp/mount_point
@@ -65,38 +66,38 @@ LIST=$(find $BASE_DIR -mindepth 1 -maxdepth 1 )
 mkdir -p $MNT_DIR
 
 for a in $LIST; do
-	module=$(realpath $a)
-	file $module |grep -q Squashfs || continue
-	mount $module $MNT_DIR
-	mksquashfs $MNT_DIR /tmp/$(basename $module) -b 512K -comp $COMP_ALG -noappend
-	if [ $? -ne 0 ] ;then
-		echo "Ошибка! mksquashfs $MNT_DIR /tmp/$(basename $module) -b 512K -comp $COMP_ALG"
-		umount $MNT_DIR
-		exit 2
-    fi
-	umount $MNT_DIR
-	if ! rsync -a /tmp/$(basename $module) $a && rm -f /tmp/$(basename $module) ; then
-		echo "Ошибка! rsync"
-		exit 3
-	fi
-	rm -f /tmp/$(basename $module)
+  module=$(realpath $a)
+  file $module |grep -q Squashfs || continue
+  mount $module $MNT_DIR
+  mksquashfs $MNT_DIR /tmp/$(basename $module) -b 512K -comp $MKSQFS_FASTALG -noappend
+  if [ $? -ne 0 ] ;then
+    echo "Ошибка! mksquashfs $MNT_DIR /tmp/$(basename $module) -b 512K -comp $MKSQFS_FASTALG"
+    umount $MNT_DIR
+    exit 2
+  fi
+  umount $MNT_DIR
+  if ! rsync -a /tmp/$(basename $module) $a && rm -f /tmp/$(basename $module) ; then
+    echo "Ошибка! rsync"
+    exit 3
+  fi
+  rm -f /tmp/$(basename $module)
 done
 rm -rf $MNT_DIR
 BASE_SIZE_NEW=$(sync && du -sm $BASE_DIR |awk '{print $1}')
 
-        echo
-        echo "==============================="
-        echo "Размер до конвертации:    $BASE_SIZE_OLD""M"
-        echo "Размер после конвертации: $BASE_SIZE_NEW""M"
-        echo "==============================="
+echo
+echo "==============================="
+echo "Размер до конвертации:    $BASE_SIZE_OLD""M"
+echo "Размер после конвертации: $BASE_SIZE_NEW""M"
+echo "==============================="
+echo
+echo "Требуется перезагрузка!"
+echo -n "Перезагрузить сейчас? (Y/N) :"
 
-        echo
-        echo "Требуется перезагрузка!"
-        echo -n "Перезагрузить сейчас? (Y/N) :"
+read item
 
-        read item
 case "$item" in
-	y|Y) echo "Перезагружаемся.." && sleep 3 && systemctl reboot ;;
-	*) exit ;;
+  y|Y) echo "Перезагружаемся.." && sleep 3 && systemctl reboot ;;
+  *) exit ;;
 esac
 

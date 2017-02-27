@@ -20,7 +20,7 @@ urpmi --test $@ || exit 2                 #
 ###########################################
 
 export PATH=/usr/lib/magos/scripts:$PATH
-. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/functions
 
 #############################
 uird=yes                    #
@@ -46,16 +46,16 @@ for a in `ls -d $mod_path/??-*`; do
       mount_br="$mount_br:$a=ro"
     else
       mount_br="$mount_br:$a=rr"
-    fi                                                                                                                                                                      
-done                                                                                                                                                                        
-                                                                                                                                                                            
-if [ $(cmdline_parameter unionfs) ];then                                                                                                                                    
-    mount -t unionfs -o dirs=$mount_br wiz_fly $root_br                                                                                                                     
-else                                                                                                                                                                        
-    mount -t aufs -o br:$mount_br wiz_fly $root_br                                                                                                                          
-fi                                                                                                                                                                          
-                                                                                                                                                                            
-mkdir -p $root_br/{dev,proc,sys}                                                                                                                                            
+    fi
+done
+
+if [ $(cmdline_parameter unionfs) ];then
+    mount -t unionfs -o dirs=$mount_br wiz_fly $root_br
+else
+    mount -t aufs -o br:$mount_br wiz_fly $root_br
+fi
+
+mkdir -p $root_br/{dev,proc,sys}
 
 for tm in {dev,proc,sys,var/lib/rpm}; do
     mount -o bind /$tm $root_br/$tm

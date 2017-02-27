@@ -2,7 +2,6 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-. /usr/lib/magos/scripts/liblinuxlive
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 . /etc/sysconfig/MagOS
@@ -19,4 +18,3 @@ echo "$AUTOEXEC$DELIM$EXEC" | tr ',;' \\n | while read a ;do
      [ "$NEEDDE" -a "$NEEDDE" != "$DE" ] && continue
      [ -z "$PROGRAM" ] || "$PROGRAM" &
 done
-

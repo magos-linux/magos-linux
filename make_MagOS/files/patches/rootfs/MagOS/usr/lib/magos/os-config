@@ -51,6 +51,7 @@ DOMUSGR=audio,video,usb,vboxusers,bumblebee,cdrom,cdwriter,lp,floppy
 #rc.halt/16-rpmdb
 #rc.post.d/05-rpmdb
 RPMDB2TMPFS=yes
+RPMDBCONVERT=yes
 
 #rc.halt/20-timesave
 HALTSAVETIME=yes
@@ -168,3 +169,8 @@ GL32LIB=/usr/lib/libGL.so.1
 PRDNL="wget -O "
 USERMODSPATH=/mnt/livedata/MagOS-Data/modules
 
+#/usr/lib/magos/functions
+MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
+
+#/usr/lib/magos/scripts/magosrepack
+MKSQFS_FASTALG="lz4 -Xhc"

@@ -10,7 +10,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/functions
 debug_mode "$0" "$@"
 
 . etc/sysconfig/MagOS
@@ -35,4 +35,3 @@ if ! [ -z "$SAMBADOMAIN" ] ;then
     sed -i s/"workgroup = .*"/"workgroup = $SAMBADOMAIN"/ etc/samba/smb.conf
     sed -i s/"^NT_DOMAIN=.*"/"NT_DOMAIN=$SAMBADOMAIN"/ etc/ntlmaps.cfg
 fi
-

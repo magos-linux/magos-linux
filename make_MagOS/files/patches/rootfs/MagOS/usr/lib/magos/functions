@@ -97,3 +97,121 @@ detectDE()
     [ -z "$SESSION" ] && SESSION=lxde
     echo $SESSION
 }
+
+# ===========================================================
+# liblinuxlive functions
+# ===========================================================
+
+debug_log()
+{
+   if grep -q "debug" /proc/cmdline ; then
+      echo "- debug: $*" >&2
+      log "- debug: $*"
+   fi
+}
+
+log()
+{
+   echo "$@" 2>/dev/null >>/var/log/magoslog
+}
+
+debug_mode()
+{
+  if [ "$(cmdline_parameter debug)" -o "$DEBUGMODE" == "yes" ] ; then
+     name=$(basename $0)
+     slash="/"
+     [ "$(pwd)" == "/union" ] && slash=""
+     if ! test -f  ${slash}var/log/magos/${name}.log ; then
+        echo "$0 --  debug mode enabled"
+        test -d ${slash}var/log/magos || mkdir -p ${slash}var/log/magos
+        echo $(date) >   ${slash}var/log/magos/${name}.log || echo "can not create log file"
+        $0 "$@" 2>&1 | tee -a ${slash}var/log/magos/${name}.log
+        exit 0
+     fi
+  fi
+}
+
+echodebug()
+{
+  [ "$DEBUG_IS_ENABLED" -o "$DEBUGMODE" == "yes" ] && echo "$1"
+  if [ -n "$2" ] ;then
+    command=$2
+    shift ; shift
+    if [ -z $1 ] ;then
+      $command
+    else
+      $command "$@"
+    fi
+  fi
+}
+
+# Create module
+# call mksquashfs with apropriate arguments
+# $1 = directory which will be compressed to squashfs module
+# $2 = output filesystem module file
+# $3..$9 = optional arguments like -keep-as-directory or -b 123456789
+#
+create_module()
+{
+   MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
+   . /usr/lib/magos/os-config
+   mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null
+   [ $? -ne 0 ] && return 1
+   chmod 444 "$2"
+}
+
+# look into cmdline and echo $1 back if $1 is set
+# $1 = value name, case sensitive, for example 'debug'
+#
+cmdline_parameter()
+{
+   . /etc/sysconfig/MagOS || . etc/sysconfig/MagOS
+   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
+}
+
+# look into cmdline and echo value of $1 option
+# $1 = value name, case sensitive, for example 'changes'
+#
+cmdline_value()
+{
+   . /etc/sysconfig/MagOS || . etc/sysconfig/MagOS
+   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
+}
+
+# Find and run all scripts from the given module
+# This function is used by the activate and deactivate script when the distro
+# is already started, not during live setup
+# $1 = mounted module full path
+# $2..$n = optional arguments for the scripts, eg. 'start'
+#
+find_n_run_scripts()
+{
+   debug_log "find_n_run_scripts" "$*"
+   local MOD
+
+   MOD="$1"
+   shift
+
+   RCPATH=/etc/rc.d/init.d
+   RUNLEVEL=$(runlevel | awk '{print $2}')
+   [ -z "$RUNLEVEL" ] || RCPATH=/etc/rc.d/rc$RUNLEVEL.d
+   RUNSCRIPTS="$MOD$RCPATH|$MOD/usr/lib/magos/rc.local|$MOD/usr/lib/magos/rc.post"
+   echo $@ | grep -q start || RUNSCRIPTS="$MOD$RCPATH"
+
+   find "$MOD" | egrep "$RUNSCRIPTS" | cut -b "${#MOD}"- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
+       while read SCRIPT; do
+         if [ "$SCRIPT" != "" -a -x "$SCRIPT" -a ! -d "$SCRIPT" ]; then
+            # call the script by real path, not from the module
+            log "starting '"$SCRIPT" $@'"
+            "${SCRIPT}" "$@"
+         fi
+       done
+}
+
+# test if the script is started by root user. If not, exit
+allow_only_root()
+{
+  if [ "0$UID" -ne 0 ]; then
+     echo "Only root can run $(basename $0)"; exit 1
+  fi
+}

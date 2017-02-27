@@ -10,7 +10,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/functions
 debug_mode "$0" "$@"
 
 [ -f etc/inittab ] && sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
@@ -117,4 +117,3 @@ Exec=/usr/share/X11/xdm/Xsession $DESKTOP
 Icon=
 Type=Application
 EOF
-

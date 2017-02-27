@@ -10,7 +10,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
+. usr/lib/magos/functions
 . usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
@@ -140,7 +140,7 @@ fi
 # create or delete xorg.conf
 if [ "$DELETE_XORG_CONF" = "yes" ] ;then
     rm -f etc/X11/xorg.conf
-else 
+else
    if [ "$CREATE_XORG_CONF" = "yes" ] ;then
       [ -d usr/share/magos/xorg/$XDRIVER      ] && cp -pfR usr/share/magos/xorg/$XDRIVER/* etc/X11
       [ -d usr/share/magos/xorg/$PCIVEN       ] && cp -pfR usr/share/magos/xorg/$PCIVEN/*  etc/X11

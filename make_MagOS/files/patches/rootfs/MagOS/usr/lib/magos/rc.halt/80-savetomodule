@@ -3,7 +3,7 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/functions
 . /etc/sysconfig/MagOS
 
 PATH=/usr/lib/magos/scripts:$PATH

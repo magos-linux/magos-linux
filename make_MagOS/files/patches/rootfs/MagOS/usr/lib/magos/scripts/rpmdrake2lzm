@@ -14,7 +14,7 @@ fi
 export PATH=/usr/lib/magos/scripts:$PATH
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
 
-. liblinuxlive
+. /usr/lib/magos/functions
 
 mod_br=/mnt/live/memory/tmp/wiz_fly_mods
 #rpmdb_br=/mnt/live/memory/tmp/wiz_fly_rpmdb
@@ -124,5 +124,3 @@ fi
 rm -rf $mod_br
 #rm -rf $rpmdb_br
 rm -rf $root_br
-
-

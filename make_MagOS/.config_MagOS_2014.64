@@ -19,4 +19,4 @@ restricted-updates main-updates contrib-updates nonfree-updates \
 restricted-release main-release contrib-release nonfree-release"
 
 # ключи для команды mksquashfs при создании модулей
-MKSQOPT=" -b 512K "
+MKSQOPT="-b 512K -comp xz -Xbcj x86"

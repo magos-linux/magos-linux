@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH=.:$(dirname $0):/usr/lib/magos/scripts:$PATH
-. /usr/lib/magos/scripts/liblinuxlive || exit 1
+. /usr/lib/magos/functions || exit 1
 
 MODULEFORMAT=xzm
 
@@ -30,7 +30,7 @@ function makelocaldoc()
    fi
 }
 
-function updateDocDate() 
+function updateDocDate()
 {
    for file in $(ls -1 "$dirname"/usr/share/doc/modules/ ) ; do
       mv -f "$dirname/usr/share/doc/modules/$file" "$dirname/usr/share/doc/modules/$rootname"$(echo $file | awk -F. /UTF/'{print "."$(NF-1)"."$NF}') > /dev/null 2>&1    # '

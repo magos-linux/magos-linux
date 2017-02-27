@@ -38,18 +38,19 @@ if ! echo "$MODULE" | egrep -qi 'lzm|xzm|rom|enc' ;then
 fi
 
 PATH=.:$(dirname $0):/usr/lib:$PATH
-. /usr/lib/magos/scripts/liblinuxlive || exit 3
+. /usr/lib/magos/scripts/liblinuxlive
+. /usr/lib/magos/functions
 
 allow_only_root
 if [ -f /etc/initvars ] ; then 
-. /etc/initvars
-IMAGES=${SYSMNT}/bundles
-MODULES=${SYSMNT}/copy2ram/modules
-CHANGES=${SYSMNT}/changes
+  . /etc/initvars
+  IMAGES=${SYSMNT}/bundles
+  MODULES=${SYSMNT}/copy2ram/modules
+  CHANGES=${SYSMNT}/changes
 else
-IMAGES=/mnt/live/memory/images
-MODULES=/mnt/live/memory/modules
-CHANGES=/mnt/live/memory/changes
+  IMAGES=/mnt/live/memory/images
+  MODULES=/mnt/live/memory/modules
+  CHANGES=/mnt/live/memory/changes
 fi
 
 # are we even using union?

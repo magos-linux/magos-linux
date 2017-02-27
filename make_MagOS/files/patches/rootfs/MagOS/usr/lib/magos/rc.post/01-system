@@ -8,7 +8,7 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
-. /usr/lib/magos/scripts/liblinuxlive
-[ "$DEBUGMODE" = "yes" ] && debug_mode "$0" "$@"
+. /usr/lib/magos/functions
+debug_mode "$0" "$@"
 
 [ -d /mnt/livemedia/MagOS-Data -a ! -d /mnt/livedata ] && ln -sf livemedia /mnt/livedata

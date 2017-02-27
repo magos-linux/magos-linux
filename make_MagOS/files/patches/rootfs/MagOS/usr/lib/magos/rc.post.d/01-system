@@ -9,8 +9,8 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
-. /usr/lib/magos/scripts/liblinuxlive
-[ "$DEBUGMODE" = "yes" ] && debug_mode "$0" "$@"
+. /usr/lib/magos/functions
+debug_mode "$0" "$@"
 
 # sysctl variables
 [ -f /etc/sysctl.conf ] && sysctl -p /etc/sysctl.conf

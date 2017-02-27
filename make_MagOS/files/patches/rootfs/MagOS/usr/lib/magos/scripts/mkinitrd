@@ -5,10 +5,11 @@
 
 export PATH=/usr/lib/magos/scripts:$PATH 
 
-. /usr/lib/magos/scripts/liblinuxlive || exit 1
+. /usr/lib/magos/functions || exit 1
 
 ARCH=32
 [ -d /lib64 ] && ARCH=64
+MODULEFORMAT=xzm
 
 # libraries to be placed in initrd/lib (links)
 INIRAMDLIBS1="ld-linux.so.2 ld-linux-x86-64.so.2 linux-vdso.so.1 libblkid.so.1 libc.so.6 libdl.so.2 libgcc_s.so libpthread.so.0
@@ -49,6 +50,9 @@ INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kern
   kernel/drivers/ide dkms-binary/fs/squashfs dkms-binary/lib/lzma kernel/fs/unionfs/unionfs.
   kernel/lib/zlib_inflate kernel/lib/zlib_deflate kernel/drivers/pcmcia/rsrc_nonstatic.
   kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage/uas. '
+
+INITRDNETWORKDRIVERS='3c59x e100 eepro100 e1000 hp100 ne2k-pci r8169 8139too 8139cp via-rhine forcedeth e2100 eepro eexpress pcnet32
+   3c501 3c503 3c505 3c507 3c509 3c515 tg3 jme virtio_net atl1 atl1c atl2 igb alx'
 
 MYPATH="$(pwd)"
 INITRDFOLD=/tmp/mkinitrd-$$
@@ -254,7 +258,7 @@ for mod in $INITRDMODULESOPT; do
 done
 
 echo "copying network modules"
-for mod in $(list_network_drivers); do
+for mod in $INITRDNETWORKDRIVERS ; do
    cat /lib/modules/$KERNEL/modules.dep | fgrep /$mod.ko | while read LINE; do
       for dep in $(echo $LINE | tr -d ":" ); do
          copy_mod $dep $KERNEL || exit 1

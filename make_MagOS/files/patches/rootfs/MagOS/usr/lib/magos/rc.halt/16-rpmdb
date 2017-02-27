@@ -1,18 +1,20 @@
 #!/bin/bash
+# RPM5 vs profile bug workaround
 
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 . /usr/lib/magos/os-config
 
-[ "$RPMDB2TMPFS" != "yes" ] && exit 0
-rm -f /var/lib/rpm/__db* 2>/dev/null
-# RPM5 vs EXTFS bug workaround
-if [ -d /var/lib/rpmdb ] ;then
-   umount /var/lib/rpm
-   rsync -a --del /var/lib/rpmdb/ /var/lib/rpm
-   # if packages are not changed then delete all changes from /var/lib/rpm
-   [ -f /mnt/live/memory/changes/var/lib/rpm/Packages ] || rm -fr /mnt/live/memory/changes/var/lib/rpm
-fi
-umount /var/lib/rpmdb && rmdir /var/lib/rpmdb
+[ "$RPMDBCONVERT" = "yes"  -a -x /usr/lib/rpm/bin/dbconvert ] && /usr/lib/rpm/bin/dbconvert
+[ "$RPMDBCONVERT" = "auto" -a -x /usr/lib/rpm/bin/dbconvert -a -f /var/lib/rpm/__db.001 ] && /usr/lib/rpm/bin/dbconvert
 
-sync
+[ "$RPMDB2TMPFS" != "yes" ] && exit 0
+grep -q " /var/lib/rpm " /proc/mounts || exit 0
+
+CHPATH=/mnt/live/memory/changes
+[ -d /memory/changes ] && CHPATH=/memory/changes
+mkdir -p $CHPATH/var/lib/rpm
+rsync -a --del /var/lib/rpm/* $CHPATH/var/lib/rpm
+losetup -d $(losetup -a | grep -m1 /var/lib/rpm/.umount_lock | gawk -F: '{ print $1}')
+rm -f /var/lib/rpm/.umount_lock
+umount /var/lib/rpm

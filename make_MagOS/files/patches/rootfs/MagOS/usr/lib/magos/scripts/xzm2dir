@@ -12,9 +12,7 @@ if [ ! -d "$2" ]; then
 fi
 
 PATH=.:$(dirname $0):/usr/lib:$PATH
-. /usr/lib/magos/scripts/liblinuxlive || exit 1
-
-
+. /usr/lib/magos/functions
 
 echo $1 | grep -iq lzm$ && UNSQUASHFS=unsquashfs3 || UNSQUASHFS=unsquashfs
 

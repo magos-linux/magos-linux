@@ -477,7 +477,6 @@ x11-data-cursor-themes-
 x11-data-xkbdata-
 x11-driver-input-
 x11-driver-input-acecad-
-x11-driver-input-aiptek-
 x11-driver-input-evdev-
 x11-driver-input-fpit-
 x11-driver-input-hyperpen-
@@ -497,11 +496,9 @@ x11-driver-video-fbdev-
 x11-driver-video-geode-
 x11-driver-video-glint-
 x11-driver-video-intel-
-x11-driver-video-mach64-
 x11-driver-video-mga-
 x11-driver-video-neomagic-
 x11-driver-video-nouveau-
-x11-driver-video-nv-
 x11-driver-video-openchrome-
 x11-driver-video-qxl-
 x11-driver-video-r128-
@@ -509,7 +506,6 @@ x11-driver-video-s3-
 x11-driver-video-s3virge-
 x11-driver-video-savage-
 x11-driver-video-sis-
-x11-driver-video-sisimedia-
 x11-driver-video-sisusb-
 x11-driver-video-tdfx-
 x11-driver-video-trident-
@@ -586,3 +582,9 @@ lib64xcb-xinerama0-
 lib64poly2tri1.0-
 lib64llvm-plugins-
 python3-cairo-
+x11-driver-input-libinput-
+x11-driver-video-amdgpu-
+lib64input10-
+libinput-
+lib64wacom2-
+libwacom-

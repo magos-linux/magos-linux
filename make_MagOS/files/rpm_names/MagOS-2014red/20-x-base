@@ -478,12 +478,12 @@ x11-data-cursor-themes-
 x11-data-xkbdata-
 x11-driver-input-
 x11-driver-input-acecad-
-x11-driver-input-aiptek-
 x11-driver-input-evdev-
 x11-driver-input-fpit-
 x11-driver-input-hyperpen-
 x11-driver-input-joystick-
 x11-driver-input-keyboard-
+x11-driver-input-libinput-
 x11-driver-input-mouse-
 x11-driver-input-mutouch-
 x11-driver-input-penmount-
@@ -498,11 +498,9 @@ x11-driver-video-fbdev-
 x11-driver-video-geode-
 x11-driver-video-glint-
 x11-driver-video-intel-
-x11-driver-video-mach64-
 x11-driver-video-mga-
 x11-driver-video-neomagic-
 x11-driver-video-nouveau-
-x11-driver-video-nv-
 x11-driver-video-openchrome-
 x11-driver-video-qxl-
 x11-driver-video-r128-
@@ -510,11 +508,8 @@ x11-driver-video-s3-
 x11-driver-video-s3virge-
 x11-driver-video-savage-
 x11-driver-video-sis-
-x11-driver-video-sisimedia-
-x11-driver-video-sisusb-
 x11-driver-video-tdfx-
 x11-driver-video-trident-
-x11-driver-video-v4l-
 x11-driver-video-vboxvideo-
 x11-driver-video-vesa-
 x11-driver-video-vmware-
@@ -587,3 +582,8 @@ libxcb-xinerama0-
 libpoly2tri1.0-
 libllvm-plugins-
 python3-cairo-
+x11-driver-video-amdgpu-
+libinput-
+libinput10-
+libwacom2-
+libwacom-

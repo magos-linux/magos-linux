@@ -7,7 +7,7 @@ ghostscript-
 ghostscript-common-
 ghostscript-fonts-
 ghostscript-module-X-
-gxneur-
+kdeneur-
 hsqldb1.8.0-
 hunspell-
 hyphen-en-
@@ -39,8 +39,8 @@ libpst-
 lib64textcat0-
 lib64visio0.1_1-
 lib64wps0.3_3-
-lib64xneur19-
-lib64xnconfig19-
+lib64xneur20-
+lib64xnconfig20-
 lib64xosd2-
 lib64ytnef0-
 lpsolve-
