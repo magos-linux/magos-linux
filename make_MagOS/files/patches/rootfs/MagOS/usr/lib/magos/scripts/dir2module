@@ -7,16 +7,23 @@ fi
 export PATH=/usr/lib/magos/scripts:$PATH
 
 . /usr/lib/magos/functions
+. /usr/lib/magos/os-config
 
-cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && addparam="" || addparam="-nolzma"
 cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
 
 case $1 in
-   --nocompress | --oldpc )
+   --nocompress )
       shift
-      create_module "$1" "$1.oldpc.$MODULEFORMAT"  -noI -noD -noF $addparam  ;;
+      [ "$MODULEFORMAT" = "lzm"  ] && addparam=-nolzma
+      create_module "$1" "$1.noxz.$MODULEFORMAT" -noI -noD -noF $addparam 
+      ;;
+   --oldpc )
+      shift
+      create_module "$1" "$1.oldpc.$MODULEFORMAT" $MKSQFS_FASTALG 
+      ;;
    * )
-      create_module "$1" "$1.$MODULEFORMAT"  ;;
+      create_module "$1" "$1.$MODULEFORMAT"  
+      ;;
 esac
 if [ $? -eq 0 ] ; then
    mdialog --msgbox "Модуль готов"

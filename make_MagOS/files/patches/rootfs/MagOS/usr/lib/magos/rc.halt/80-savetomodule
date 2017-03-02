@@ -4,7 +4,9 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 . /usr/lib/magos/functions
+. /usr/lib/magos/os-config
 . /etc/sysconfig/MagOS
+SAVETOMODULEOPTIONS="$MKSQFS_FASTALG"
 
 PATH=/usr/lib/magos/scripts:$PATH
 
@@ -57,7 +59,8 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    # backuping old module
    [ -f "$SAVETOMODULENAME" ] && mv -f "$SAVETOMODULENAME" "${SAVETOMODULENAME}.bak"
    # making module
-   [ "$SAVETONOLZMA" = "yes" -o "$SAVETONOXZM" = "yes" ] && SAVETOMODULEOPTIONS="$SAVETOMODULEOPTIONS -noI -noD -noF -nolzma"
+   [ "$SAVETONOLZMA" = "yes" -o "$SAVETONOXZM" = "yes" ] && SAVETOMODULEOPTIONS="-noI -noD -noF"
+   [ "$SAVETONOLZMA" = "yes" ] && SAVETOMODULEOPTIONS="$SAVETOMODULEOPTIONS -nolzma"
    create_module $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS
    echo
    [ "$SRC" = "$CHSRC" ] || umount "$SRC"

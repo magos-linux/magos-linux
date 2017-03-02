@@ -1,8 +1,8 @@
 #!/bin/bash
 #Authors: ilfat, betcher <magos-linux.ru>
 
-MKSQFS_FASTALG="lz4 -Xhc"
 . /usr/lib/magos/os-config
+. /etc/sysconfig/MagOS
 
 if . /etc/initvars ;then
   BASE_DIR=$SYSMNT/layer-base/0/base
@@ -23,10 +23,17 @@ help ()
     echo "Примеры:"
     echo "$0 - перепаковать $BASE_DIR в $MKSQFS_FASTALG"
     echo "$0 /path/mydir - перепаковать /path/mydir в $MKSQFS_FASTALG"
-    echo "$0 lz4  - перепаковать $BASE_DIR в lz4"
-    echo "$0 /path/mydir gzip - перепаковать /path/mydir в gzip"
+    echo "$0 -comp lz4  - перепаковать $BASE_DIR в lz4"
+    echo "$0 /path/mydir -comp gzip - перепаковать /path/mydir в gzip"
   else
-    echo "Help is coming soon."
+    echo ""
+    echo "$0 <folder/with/modules> <compression options for  mksquashfs>"
+    echo "Without any parameters $0 will repack system folder /base with options $MKSQFS_FASTALG"
+    echo "Examples:"
+    echo "$0 - repack $BASE_DIR with options $MKSQFS_FASTALG"
+    echo "$0 /path/mydir - repack /path/mydir with options $MKSQFS_FASTALG"
+    echo "$0 -comp lz4  - repack $BASE_DIR with lz4 algorythm"
+    echo "$0 /path/mydir -comp gzip - repack /path/mydir with gzip algorythm"
   fi
   exit 0
 }
@@ -69,9 +76,9 @@ for a in $LIST; do
   module=$(realpath $a)
   file $module |grep -q Squashfs || continue
   mount $module $MNT_DIR
-  mksquashfs $MNT_DIR /tmp/$(basename $module) -b 512K -comp $MKSQFS_FASTALG -noappend
+  mksquashfs $MNT_DIR /tmp/$(basename $module) $MKSQFS_FASTALG -noappend
   if [ $? -ne 0 ] ;then
-    echo "Ошибка! mksquashfs $MNT_DIR /tmp/$(basename $module) -b 512K -comp $MKSQFS_FASTALG"
+    echo "Ошибка! mksquashfs $MNT_DIR /tmp/$(basename $module) $MKSQFS_FASTALG"
     umount $MNT_DIR
     exit 2
   fi

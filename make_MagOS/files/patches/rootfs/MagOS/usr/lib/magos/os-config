@@ -173,4 +173,4 @@ USERMODSPATH=/mnt/livedata/MagOS-Data/modules
 MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
 
 #/usr/lib/magos/scripts/magosrepack
-MKSQFS_FASTALG="lz4 -Xhc"
+MKSQFS_FASTALG="-b 512K -comp lz4 -Xhc"
