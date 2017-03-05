@@ -1,12 +1,16 @@
 #!/bin/bash
 PATH=.:$(dirname $0):/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/functions || exit 1
+. /etc/initvars 2>/dev/null
+
 
 MODULEFORMAT=xzm
 
 function makename()
 {
-  rootname="$nn-$(basename $dirname)-$(cat /mnt/live/VERSION | awk '{ print $1 }')-$user-$date"
+  VERSION=$(cat /mnt/live/VERSION 2>/dev/null | awk '{ print $1 }') 
+  [ $VERSION  ] || VERSION=$(cat $SYSMNT/layer-base/0/VERSION | awk '{ print $1 }')
+  rootname="$nn-$(basename $dirname)-$VERSION-$user-$date"
   modname="$DESTDIR/$rootname.$MODULEFORMAT"
 }
 
@@ -149,9 +153,9 @@ done
 shift $((OPTIND - 1))
 date=$(date +%Y%m%d)
 dirname="$1"
-[ -z "$nn" ] && nn=NN
-#[ -z "$user" ] && user=$(xuserrun whoami)
-[ -z "$user" ] && user=$(who | awk '/ :0 /{ print $1 }')
+[ -z "$nn" ] && nn=99
+[ -z "$user" ] && user=$(xuserrun whoami)
+#[ -z "$user" ] && user=$(who | awk '/ :0 /{ print $1 }')
 [ -z "$dirname" ] && help && exit 1
 [ -z "$DESTDIR" ] && DESTDIR=./
 
