@@ -153,10 +153,10 @@ echodebug()
 #
 create_module()
 {
-   MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
    . /usr/lib/magos/os-config
-   mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null
-   [ $? -ne 0 ] && return 1
+   . /etc/sysconfig/MagOS
+   echo " $@ " | egrep -q ' -comp | -noD ' && MKSQFS_OPTS=
+   mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null || return 1
    chmod 444 "$2"
 }
 
