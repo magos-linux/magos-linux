@@ -121,7 +121,7 @@ fi
 # first run ldconfig tweak
 if [ "$GLLDCONFIG" = "yes" ] ;then
   LINK=$LINKFBDEV
-  [ "$XDRIVER" = "" ] && LDCACHE=fbdev
+  [ "$XDRIVER" = "" -o "$XDRIVER" = "vesa" ] && LDCACHE=fbdev
   [ "$XDRIVER" = "ati" ] && LINK=$LINKATI
   [ "$XDRIVER" = "fglrx" ] && LINK=$LINKFGLRX
   [ "$XDRIVER" = "nvidia" -o "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
@@ -184,8 +184,10 @@ if [ -f $XFILE -a "$VGABUSID" ] ;then
    fi
 fi
 
-#preloading nvidia kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
-if echo "$XDRIVER" | grep -q nvidia ;then
-   sed -i /^nvidia/d etc/modprobe.preload
+#preloading kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
+if echo "$XDRIVER" | egrep -q 'nvidia|fglrx|nouveau' ;then
+   sed -i /^nvidia/d  etc/modprobe.preload
+   sed -i /^nouveau/d etc/modprobe.preload
+   sed -i /^fglrx/d   etc/modprobe.preload
    echo "$XDRIVER" >> etc/modprobe.preload
 fi

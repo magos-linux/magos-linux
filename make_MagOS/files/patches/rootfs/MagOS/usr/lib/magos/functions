@@ -153,10 +153,10 @@ echodebug()
 #
 create_module()
 {
+   MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
    . /usr/lib/magos/os-config
-   . /etc/sysconfig/MagOS
-   echo " $@ " | egrep -q ' -comp | -noD ' && MKSQFS_OPTS=
-   mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null || return 1
+   mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null
+   [ $? -ne 0 ] && return 1
    chmod 444 "$2"
 }
 
@@ -166,7 +166,7 @@ create_module()
 cmdline_parameter()
 {
    . /etc/sysconfig/MagOS || . etc/sysconfig/MagOS
-   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | tr -d " "
+   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | head -1 | tr -d " "
 }
 
 # look into cmdline and echo value of $1 option
@@ -175,7 +175,7 @@ cmdline_parameter()
 cmdline_value()
 {
    . /etc/sysconfig/MagOS || . etc/sysconfig/MagOS
-   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | cut -d "=" -f 2-
+   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | head -1 | cut -d "=" -f 2-
 }
 
 # Find and run all scripts from the given module
