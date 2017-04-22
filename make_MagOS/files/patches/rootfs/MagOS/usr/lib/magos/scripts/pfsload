@@ -1,0 +1,152 @@
+#!/bin/sh
+#Mount filesystem to AUFS
+#VERSION 3.6
+. $(which pfs)
+allow_only_root
+mntmode="upper"
+
+for arg in "$@"
+do
+  case "${arg}" in
+    "-u"   | "--upper") mntmode="upper";;
+    "-l"   | "--lower") mntmode="lower";;
+    "-n"   | "--no-update") fupdate="no";;
+    "-r"   | "--toram" ) toram="yes" ;;
+    "--ro" | "--read-only" ) romode="yes";;
+    "-h"   | "--help") infile=""; break;;
+    "-"*[A-Za-z]*) exitmsg "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" 1 ;;
+    *) infile="${arg}";;
+  esac
+done
+if [ "${infile}" = "" ]; then
+  echo "Usage: $(basename "$0") [OPTIONS] FILESYSTEM${IFS}${IFS}Options:"
+  echo " -u,   --upper    (default) Mount filesystem to upper layer (AUFS)."
+  echo " -l,   --lower    Mount filesystem to lower layer (AUFS)."
+  echo " -n,   --no-update Do not check for update caches"
+  echo " --ro, --read-only Mount read-only"
+  echo " -r,   --toram copy module to RAM disk (tmpfs) before loading"
+fi
+ 
+toram () {
+mkdir -p ${copyramdir}
+freeram=$(checkramfreeb)
+filesize="`expr $(du -k "${fsfile}" | cut -f 1)`"
+minram="$(expr ${filesize} + ${TMPFSLIMIT})"
+[ ${minram} -gt ${freeram} ] && exitmsg "Not enouth free RAM space" 3
+[ "$(stat  --format=%T -f $copyramdir )" != "tmpfs" ] && mountb -t tmpfs tmpfs "${copyramdir}"
+if [ -f "${copyramdir}/${fsname}" ] ;then 
+	pfsunload -r ${fsname} 
+	exitmsg "File already in ram and mounted" $?
+fi
+#echo "\"${fsname}\" copying to RAM..."
+cp -afL "${fsfile}" "${copyramdir}" || return 2
+echo  "${copyramdir}/$(basename ${fsfile})" | sed 's://:/:g'
+}
+
+if [ -f "${infile}" ]; then
+  fsfile="$(realpath "${infile}")"
+  [ $toram ] && fsfile=$(toram)
+  devtype="file"
+elif [ -b "${infile}" ]; then
+  fsfile="${infile}"
+  devtype="dev"
+elif [ -d "${infile}" ]; then
+  fsfile="$(realpath "${infile}")"
+  devtype="dir"
+else
+  exitmsg "Object \"${infile}\" not found!"  2
+fi
+
+if [ "${devtype}" != "dir" ]; then
+  fstype=$(fs_type "${fsfile}")
+  [ "${fstype}" = "" ] && exitmsg "Unknown file system -- \"$fsfile\"" 3
+  [ checksfsxzb 2>/dev/null ] || exitmsg "Kernel not support PFS!" 4
+else
+  fsinfo="$(df -aT "${fsfile}" | tail -n 1 | tr -s ' ' '_' | cut -d'_' -f 2)"
+  case "${fsinfo}" in
+    "ntfs"|"fat32"|"aufs") exitmsg "\"$fsinfo\" -- isn't supported FS" 5;;
+  esac
+  fstype="${fsinfo}"
+fi
+  
+fsname="$(basename "${fsfile}")"
+mountpoint="${prefixmp}${fsname}"
+[ -d "${mountpoint}" ] && rmdir "${mountpoint}" 2>/dev/null
+[ -d "${mountpoint}" ] && exitmsg "Object \"${fsfile}\" is mounted!" 6
+
+if [ "${devtype}:${fstype}" = "file:squashfs" ]; then
+  sync
+  freeloop=0
+  looplist="$(losetupb -a)"
+  while true ; do
+    echo "${looplist}" | grep -q -F "/dev/loop${freeloop}" && freeloop="$(expr ${freeloop} + 1)" || break
+  done
+  if [ ! -b /dev/loop${freeloop} ]; then
+    mknod -m660 /dev/loop${freeloop} b 7 ${freeloop}
+    chown root.root /dev/loop${freeloop}
+    sync
+  fi
+  [ -b /dev/loop${freeloop} ] || exitmsg "Error! Free loop devices is not found!" 7
+  losetupb /dev/loop${freeloop} "${fsfile}"
+  status=$?
+else
+  status=0
+fi
+
+if [ ${status} -eq 0 ]; then
+  mkdir -p "${mountpoint}"
+  sync
+  case "${devtype}" in
+    "file" )  if [ "${fstype}" = "squashfs" ]; then
+                mountb -t squashfs -o ro /dev/loop${freeloop} "${mountpoint}" >/dev/null #2>&1
+              else
+                [ "${romode}" ] && optmnt="loop,ro" || optmnt="loop"
+                mountb -t ${fstype} -o ${optmnt} "${fsfile}" "${mountpoint}" >/dev/null #2>&1
+              fi;;
+    "dev" )   [ "${romode}" ] && optmnt="ro" || optmnt="rw"
+              mountb -t ${fstype} -o ${optmnt} "${fsfile}" "${mountpoint}" >/dev/null ;;
+    "dir" )   mountb -t ${fstype} --bind "${fsfile}" "${mountpoint}" >/dev/null ;;
+  esac 
+  status=$?
+  
+  if [ ${status} -eq 0 ]; then
+    sync
+    [ "$devtype" == "file" ] && requires=$(checkdeps "${mountpoint}")
+    if [ "${mntmode}" = "upper" ]; then
+		nlayer=1
+		[ -w $(aufs-n 1) ] && nlayer=2
+		[ -w "${mountpoint}" ] && nlayer=1
+		mountb -o remount,add:${nlayer}:"${mountpoint}"=ro / >/dev/null #2>&1
+    else
+      mountb -o remount,append:"${mountpoint}"=ro / >/dev/null #2>&1
+    fi
+    status=$?
+    sync
+    if [ ${status} -eq 0 ]; then
+      if [ "${fupdate}" != "no" ] ; then 
+		pfs_update_caches "${mountpoint}"
+		for script in $(ls $(dirname $0)/runpfsload-*) ; do 
+			$script "${mountpoint}" &
+		done
+      fi 
+    else
+      umountb -d "${mountpoint}" >/dev/null
+	  rmdir "${mountpoint}" >/dev/null
+	  exitmsg "AUFS error!" ${status}
+    fi
+  else
+    losetupb -d /dev/loop${freeloop}
+    rmdir "${mountpoint}" >/dev/null
+	exitmsg "Unable to mount \"${fsfile}\" in \"${mountpoint}\"." ${status}
+  fi
+else
+  rmdir "${mountpoint}" 2>/dev/null
+  exitmsg "Mount error!" ${status}
+fi
+sync
+
+for dep in $requires ; do
+	echo "need: $dep"
+done
+
+exit 0

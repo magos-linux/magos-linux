@@ -1,0 +1,8 @@
+#!/bin/sh
+#all runpfsload-* scripts will run by pfsload after inserting module to root file system
+#all runpfsunload-* scripts will run by pfsunload after removing module from root file system
+#$1 is module mount point
+
+#echo "$1 complete"
+true
+

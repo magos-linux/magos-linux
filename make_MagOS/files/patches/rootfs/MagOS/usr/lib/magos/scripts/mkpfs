@@ -1,0 +1,121 @@
+#!/bin/sh
+#PFS module creator 
+#VERSION 3.7
+. $(which pfs)
+
+D(){
+    sourcelist="$(find "$1" -maxdepth 1 -mindepth 1 -type d |sort)"
+    [ "$sourcelist" ] || exitmsg "no directory in '$2'" 1
+    ondir=
+    [ "${userout}" = "" ] && [ ! "`echo "$arglist" |grep "\-o "`" ] && userout="./$(basename "$1").$EXT"
+}
+M(){
+    sourcelist="$(find "$1" -maxdepth 1 -mindepth 1 -type f |egrep ".pfs$|.xzm$|.sfs$|.squashfs$|.$EXT$" |sort)"
+    [ "$sourcelist" ] || exitmsg "no modules in '$2'" 1
+    onmod=
+    [ "${userout}" = "" ] && [ ! "`echo "$arglist" |grep "\-o "`" ] && userout="./$(basename "$1").$EXT"
+}
+
+#help
+HLP(){
+echo "Usage: $0 <list of sources> -o out.$EXT"
+echo "Examples:"
+echo "$0 ./dir 			-make dir.pfs from dir"
+echo "$0 1.$EXT 2.$EXT -o 3.$EXT	-collect 1.$EXT and 2.$EXT to contaner 3.$EXT"
+echo "$0 * -o ./big.$EXT		-collect all dirs and squashfs modules from current dir to big.$EXT" 
+echo
+echo "Параметры (ключи):"
+echo "	-o / --out-file - указывает название выходного файла .$EXT."
+echo "	-w - не включать AUFS тени."
+echo "	-l / --local - сборка на месте, без использования aufs."
+echo "	-f / --fast - быстрая компрессия (размер .$EXT больше, но создается быстрее)."
+echo "	-comp / параметры для mksquashfs, компрессия размер блока и проч."
+echo "Алиасы (сокращения):"
+echo " -d | --dir - Только каталоги"
+echo "	$(basename $0) -d dir ---> $(basename $0)" '$(find dir -maxdepth 1 -mindepth 1 -type d ) -o dir.$EXT'
+echo " -m | --mod - Только модули"
+echo "	$(basename $0) -m dir ---> $(basename $0)" '$(find dir -maxdepth 1 -mindepth 1 -type f ) -o dir.$EXT'
+exit 1
+}
+
+allow_only_root
+
+#check kernel
+checksfsxzb >/dev/null 2>&1
+exitmsg "Kernel is not support squashfs/aufs" $?
+
+#parsing for "-comp" arg
+argslist="$@"
+if  echo $argslist |grep -q "\-*comp .*" ; then
+	compression="$(echo $@ |sed 's/^.*\-*comp//')"
+	argslist="$(echo $@ |sed 's/\-*comp.*$//')"
+fi
+
+#get opts
+sourcelist=""
+inplace=""
+for arg in $argslist
+do
+  case "${arg}" in
+    "-o" | "--out-file") onuserout="on";;
+    "-d") ondir="on";;
+    "-m") onmod="on";;
+    "-h" | "--help")  HLP ;exit 1;;
+    "-q" | "--quiet" ) devnull='>/dev/null' ;;
+    "-no-progress" | "--no-progress") noprogress="-no-progress";;
+    "-processors" | "--processors" ) numproc="on";;
+    "-w") wh="-regex -e ".wh..wh."";;
+    "-l" | "--local" ) inplace=yes ;;
+    "-f" | "--fast" | "-g" ) [ "$compression_fast" ] && compression="$compression_fast" || compression="gzip";;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; HLP; exit 1;;
+    *) if [ "${usepkname}" = "on" ]; then packname="${arg}"
+       elif [ "${ondir}" = "on" ]; then D "${arg}"
+       elif [ "${onmod}" = "on" ]; then M "${arg}"
+       elif [ "${onuserout}" = "on" ]; then userout="${arg}"
+       elif [ "${numproc}" = "on" ]; then useproc="-processors ${arg}"
+       else sourcelist="${sourcelist} ${arg}"; fi
+       onuserout="off"; usepkname="off"; usindlib="off"; numproc="off";;
+  esac
+done
+
+[ "${userout}" = "" ] && userout="./$(basename $(echo $sourcelist | awk '{print $1}')).${EXT}"
+[ "$sourcelist" ] || HLP
+#1 dir, in place mode
+if [ -d $sourcelist 2>/dev/null -a "$inplace" == "yes" ] ;then
+    eval echo "==== In place mode ====" $devnull
+    [ ! "`ls $sourcelist`" ] && exitmsg "directory '$sourcelist' empty" 1
+    mklist $sourcelist && mksqmod $sourcelist "${userout}" && exit 0 
+    exitmsg "mkpfs error" 2
+fi
+
+#test sources, source must be dir or squashfs module
+for source in $sourcelist ;do
+	[ -d $source ] && continue
+	[ "$(fs_type $source)" == "squashfs" ] && continue
+	exitmsg "Type of source \"$source\" is not correct" 2
+done	
+
+[ -d "$sourcelist" ] && { ls "$sourcelist" 2>/dev/null || exitmsg "\"`echo $sourcelist`\" is empty" 2 ; }
+
+#make root aufs
+n="$(mkaufs || exitmsg "mkaufs error" 2)"
+nn="$(echo "$n" | sed -n 's/^.*\([0-9]\)$/\1/p')"
+[ -d "$n" ] || exitmsg "error mounting aufs" 3
+
+#add sources as aufs layers
+for  i in $sourcelist ;do
+    eval addlayer "$nn" "$i" "$devnull" || exitmsg "can't insert layer to aufs $nn" 5
+    [ -d "$i" ] && mklist "$i" "$n"
+done 
+bundles=$(find $(echo $n |sed 's:aufs:bundles:') -maxdepth 1 -mindepth 1 -type d 2>/dev/null)
+
+#mklist for modules
+for i in $bundles ;do
+	name="$(basename "${i%.*}")" 
+	mklist "$i" "$n" "$name"
+done 
+
+mksqmod "${n}" "${userout}"
+exitmsg "mksqmod error" $?
+delaufs "$nn" 
+exitmsg "delaufs error" $?

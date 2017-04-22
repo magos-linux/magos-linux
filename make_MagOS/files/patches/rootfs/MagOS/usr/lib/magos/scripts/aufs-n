@@ -1,0 +1,87 @@
+#!/bin/sh
+#aufs layers list
+#VERSION 3.6
+. `which pfs`
+
+header () {
+echo "AUFS layers (top layer \"0\" covers all lower )"
+echo ""
+printf %3s "N "; printf %-65s "Bundle Mount point " ; printf "Layer perms\n"
+printf %-68s "   Source " ;  printf  "Bundle perms\n\n"
+}
+usage () {
+	echo -e "$(basename $0) util, detailed information about root aufs\n" 
+	echo "Usage:" 
+	echo "	$(basename $0)        - human readble format"
+	echo "	$(basename $0) N      - returns mount point of layer \"N\" "
+	echo "	$(basename $0) --raw  - full list formated for pipes"
+	echo "	$(basename $0) --raw  '"'$n $source'"'   - return only needed values"
+	echo "avaliable values:"
+	echo '  $n - layer number'
+	echo '  $source - source of layer (module,image,dir,etc)'
+	echo '  $bname_source - source base name'
+	echo '  $dname_source - source dir name'
+	echo '  $bundle - source mount point' 
+	echo '  $bname_bundle - bundle base name'
+    echo '  $dname_bundle - bundle dir name'
+    echo '  $layer_perm -  layer aufs mounting permissions (ro,rw)'
+    echo '  $bundle_perm - bundle mounting permissions (ro,rw)'
+     
+}
+
+listing () {
+N=0
+while true ;  do 
+    a="$( cat /sys/fs/aufs/si_${prefix}/br$N 2>/dev/null)"
+	[ $a ] || break
+	N=$(expr $N + 1)
+	n=$(seq -w 0 99 |sed -n "${N}p") # needed 01 02 03, not 1 2 3
+    layer_perm=$(echo $a |awk -F= '{print $2}')
+    bundle=$(echo $a |awk -F= '{print $1}')
+    bundle_perm=$( [ -w $bundle ] && echo rw || echo ro )
+    loop=$(findmnt  $bundle -o SOURCE | tail -n1 ) ; [ $loop ] || loop=$(df $bundle |tail -n1 | awk '{print $1}')
+    source=$(losetupb |grep "$loop " |awk '{print $NF}') ; [ $source ] || source=$loop
+    if [ $human ] ; then 
+      printf %3s "$n "; 
+      
+      printf %-65s "$bundle " ; printf %b "${color_default}"
+      [ "$layer_perm" == "rw" ] && printf %b "${color_green}" ; 
+      printf "$layer_perm\n" ; printf %b "${color_default}"
+      
+      [ "$source" == "tmpfs" ] && printf %b "${color_blue}" ;
+      echo "$source" |grep -q "^/dev/.*$"  && printf %b "${color_yellow}" ;
+      
+      printf %-68s "   $source " ;  printf %b "${color_default}"
+      [ "$bundle_perm" == "rw" ] && printf %b "${color_green}" ;
+      printf  "$bundle_perm\n" ; printf %b "${color_default}"
+      echo ''
+    else
+	  dname_source=$(dirname $source) ; bname_source=$(basename $source)
+      dname_bundle=$(dirname $bundle) ; bname_bundle=$(basename $bundle)
+      eval echo "$returnMe"
+    fi
+    
+done
+}
+
+prefix=$(grep ' / aufs' /proc/mounts | cut -f2 -d= | tr ',' ' ' | cut -f1 -d' ')
+
+
+if  echo $@ |grep -q "\-\-raw" ; then
+	returnMe="$(echo $@ |sed 's/^.*\-*raw//')"
+	[ "$returnMe" ] || returnMe='$n $bundle $layer_perm  $source $bundle_perm'
+fi
+
+if [ ! $1 ] ;then 
+	human=yes
+	header
+	listing
+	exit
+elif [ "$1" == "--raw" ] ; then
+	listing
+	exit
+elif echo $1 |grep -q '^[[:digit:]]*$' ; then
+	cat /sys/fs/aufs/si_${prefix}/br$1 |head -n1 |sed 's/=.*//'
+else 
+    usage     
+fi  

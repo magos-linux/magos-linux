@@ -1,0 +1,34 @@
+#!/bin/sh
+# Mount file  ("Ext2", "Ext3", "Ext4", "SquashFS", "ISO")
+#VERSION 3.6
+. $(which pfs)
+allow_only_root
+
+if [ ! "$1" ]; then
+  echo "Usage: $(basename "$0") FILE" >&2; exit 1
+fi
+if [ -f "$1" ]; then
+  mntfile="$(realpath "$1")"
+else
+  echo "$(basename "$0"): File \"$1\" not found!" >&2; exit 1
+fi
+if [ "$2" ]; then
+  mntpoint="$2"
+else
+  mntpoint=/mnt/$(echo "${mntfile}" | tr ' ' '_' | sed "s#^\.##g" | sed "s#/#+#g")
+  [ -d "${mntpoint}" ] && rmdir "${mntpoint}" 2>/dev/null
+  if [ -d "${mntpoint}" ]; then
+    echo "$(basename "$0"): File \"${mntfile}\" is mounted!" >&2; exit 1
+  else
+    mkdir -p "${mntpoint}"
+  fi
+fi
+
+fstype=$(fs_type ${mntfile})
+if [ "${fstype}" = "" ]; then
+  echo "Filesystem not supported!" >&2; exit 1
+fi
+sync
+
+busybox mount -t ${fstype} -o loop "${mntfile}" "${mntpoint}"
+exit $?

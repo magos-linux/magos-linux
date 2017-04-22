@@ -1,0 +1,32 @@
+#!/bin/sh
+#Find dynamic libraries from all packages (for PuppyRus)
+#VERSION 3.6
+. $(which pfs)
+
+for arg in "$@"
+do
+  case "${arg}" in 
+    "-s" | "--short") shortnames="on";;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'"; exit 1;;
+    *) rootdir="${arg}";;
+  esac
+done
+[ "${rootdir}" = "" ] && rootdir="."
+if [ ! -d "${rootdir}" ]; then
+  echo "Directory \"${rootdir}\" not found!" >&2; exit 1
+fi
+
+alllibs="$(lddcheck "${rootdir}")"
+if [ "${alllibs}" != "" ]; then
+  allpackslib="$(find ${PFSDIR}/ -mindepth 3 -maxdepth 3 -type f -name 'pfs.files' | while read listfiles; do namepack="$(echo "${listfiles}" | cut -f5 -d'/')"; listpack="$(cat "${listfiles}" | sed -e 's:^[^/]*::' -e 's:[\]:\\\\:g' | grep -E '\.so$|\.so\.[0-9]' | tr -d '\n')"; [ "${listpack}" != "" ] && echo "${namepack}${listpack}"; done)"
+  packageslist="`echo "${alllibs}" | while read chlib; do packlib="$(echo "${allpackslib}" | grep -F "${chlib}" | cut -f1 -d'/')"; if [ "${packlib}" != "" ]; then [ "${shortnames}" = "on" ] && packlib="$(echo "${packlib}" | sed 's/-i[0-9][0-9][0-9]//;s/-[0-9]*\..*//')"; echo "$(echo "${packlib}" | sort -u | sed 's/$/ \/ /' | tr -d '\n' | sed 's/ \/ $//')"; else echo "/${chlib}"; fi; done | grep .`"
+  if [ "${packageslist}" != "" ]; then
+    showpacklist="$(echo "${packageslist}" | grep -v -E '^/' | grep -v '^[[:space:],\t]*$' | sort -uf)"
+    dubpacks="$(echo "${showpacklist}" | while read checkdpack; do echo "${showpacklist}" | grep -F "${checkdpack}"; done | sort | uniq -d)"
+    echo "${showpacklist}${dubpacks}" | sort -f | uniq -u
+    libsnotf="$(echo "${packageslist}" | grep -E '^/' | sed 's/^\///')"
+    [ "${libsnotf}" != "" ] && echo "WARNING! Not found dynamic libraries: ${IFS}${libsnotf}" >&2
+  fi
+fi
+
+exit 0

@@ -1,0 +1,29 @@
+.TH pfs-utils 8  "marсh, 2017" "version 3.*" "PFS-UTILS"
+.SH NAME
+pfs-utils \- scripts kit to manage squashfs modules for live linux distributions 
+.SH DESCRIPTION
+Scripts collection to create, merge, extract and load/unload pfs modules
+.TP
+\- mkpfs \- create and merge modules
+.TP
+\- pfsextraxt \- extract packages from module, install packages 
+.TP
+\- pfsload \- insert modules (dirs, images) to root file system  
+.TP
+\- pfsunload \- remove modules from root file system
+.TP
+\- pfsuninstall \- remove package files from system
+.TP
+\- pfsrebuild \- rebuild loaded (installed) modules (packsges)  whith current changes
+.TP
+\- sync2layer \- create layer and move changes from top RW layer to new
+.TP
+\- pfsinfo \- list packsges in module
+.TP
+\- pfs \- pfs-utils scripts library 
+.SH EXIT STATUS
+all utils returns a zero exit status if the job finished susfull.
+.SH AUTHOR
+forum.puppyrus.org team (sfs, zay, DdShuruck)
+.SH SEE ALSO
+mksquashfs(1)

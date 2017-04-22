@@ -1,0 +1,136 @@
+#!/bin/sh
+#PFS module extractor
+#VERSION 3.6
+. $(which pfs)
+
+HLP(){
+echo "\
+$(basename $0) - Распаковщик для модулей pfs
+Использование:
+    $(basename $0) file.pfs - если модуль составной - разобрать на составляющие модули в папку ./file 
+    $(basename $0) file.pfs - если модуль простой - распаковать
+    $(basename $0) file.pfs pack1 pack2 - извлечь из file.pfs только модули pack1 и pack2 
+    
+Параметры (ключи):
+	-i / --install   распаковать в систему т.е. \"установить\"
+	-o / --out-dir path/dir - создать каталог dir и распаковывать в него  
+	-d / --nopfs - разобрать на каталоги вместо модулей
+	-no-progress - не показывать строку прогресса.
+	-f  / --fast - быстрая компрессия (размер .pfs больше, но создается быстрее).
+	-comp comp pars - параметры сжатия для mksquashfs (такие же как у mksquashfs). Внимание, параметр должен быть последним.
+" >&2 ;exit 1
+}
+
+extract_simple () {
+#unsquashfs non component-pfs or simple squashfs  
+    [ "$sourcelist" ] && exitmsg "File '${pfs}' is not component-pfs.  Can't extract packages: $sourcelist" 1
+    if [ $i ] ; then
+		dir="/" && mkdir -p ${PFSDIR}/install/
+    else
+		[ $dir ] || dir="./"
+		dir=$dir/$(basename $pfs |sed "s/\.${EXT}$//") && mkdir -p $dir
+    fi
+    eval unsquashfs -f -dest "${dir}" "${pfs}" $noprogress $useproc "$devnull" 
+    exitmsg "Unsquashfs error" $?
+    [ $i ] || return 0 # need zero exit code
+    mv -f ${PFSDIR}/mount/`pfsinfo "${pfs}"` ${PFSDIR}/install/ || exitmsg "$i install error" $?
+}
+
+extract_contaner () {
+#extract packages from contaner
+pfsinfo "$pfs" |while read m ;do
+    if  [ "$sourcelist" ] 	;then 
+		echo $sourcelist |grep -q "$m" || continue
+    fi
+    eval echo  "package: $m    -- processing..." $devnull
+    n="$(mkaufs || exitmsg "mkaufs error" 2)"
+	nn="$(echo "$n" | sed -n 's/^.*\([0-9]\)$/\1/p')"
+	[ -d "$n" ] || exitmsg "error mounting aufs" 3
+    bundle=$(addlayer "$nn" "$pfs" || exitmsg "can't insert layer to aufs $n" 5)
+    cat "$SYSMNT/aufs${nn}${PFSDIR}/mount/${m}/pfs.files" | while read F; do 
+	touch "$SYSMNT/aufs$nn$F" 2>/dev/null || cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
+    done
+
+    emp="$SYSMNT/aufs$nn/${PFSDIR}/mount/$m/pfs.dirs.empty"
+    [ -f "$emp" ] && cat "$emp" | while read F; do 
+	touch "$SYSMNT/aufs$nn$F" 2>/dev/null || cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
+    done
+
+    mklist "$SYSMNT/changes$nn" "$SYSMNT/aufs$nn" "$m" 
+    [ $dir ] || dir=$(basename $pfs |sed "s/\.${EXT}$//")
+	if [ "$d" ] ; then	
+		mkdir -p "$dir/$m" && cp -a "$SYSMNT/changes$nn"/* "$dir/$m"
+	elif [ "$i" ] ; then
+		cp -a "$SYSMNT/changes$nn"/* /
+		mv -f ${PFSDIR}/mount/$m ${PFSDIR}/install/
+		eval echo  "package: $m  install complete" $devnull 
+    else
+		mkdir -p "$dir" && mksqmod "$SYSMNT/changes$nn" "$dir/$m.$EXT"
+    fi
+    delaufs $nn ; echo ''
+done 
+}
+
+installDir ()  {
+sourcedir=$(echo $sourcelist |sed 's:^\ *::')
+eval echo "directory: $sourcedir installing..." $devnull 
+mklist "$sourcedir"   /
+cp -a "$sourcedir"/*   /
+mkdir -p ${PFSDIR}/install/
+mv -f ${PFSDIR}/mount/$(basename "${sourcedir}") ${PFSDIR}/install/
+exit
+}
+
+[ "$1" ] || HLP
+allow_only_root
+
+#check kernel
+checksfsxzb >/dev/null 2>&1
+exitmsg "Kernel is not support squashfs/aufs" $?
+
+wh="-regex -e ".wh..wh.""
+
+argslist="$@"
+if  echo $argslist |grep -q "\-*comp .*" ; then
+	compression="$(echo $@ |sed 's/^.*\-*comp//')"
+	argslist="$(echo $@ |sed 's/\-*comp.*$//')"
+fi
+
+#get opts
+sourcelist=""
+for arg in $argslist
+do
+  case "${arg}" in
+    "-o" | "--out-dir") onuserout="on";;
+    "-d" | "--nopfs") d=yes ;;
+    "-i" | "--install") i=yes ;;
+    "-h" | "--help")  HLP ;exit 1;;
+    "-q" | "--quiet" ) devnull='>/dev/null' ;;
+    "-no-progress" | "--no-progress") noprogress="-no-progress";;
+    "-processors"  | "--processors" ) numproc="on";;
+    "-f" | "--fast"  ) [ "$compression_fast" ] && compression="$compression_fast" || compression="gzip";;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; HLP; exit 1;;
+    *) if [ "${onuserout}" = "on" ]; then dir="${arg}"
+        elif [ "${numproc}" = "on" ]; then useproc="-processors ${arg}"
+        else sourcelist="${sourcelist} ${arg}"; fi
+        onuserout="off";  numproc="off";;
+  esac
+done
+
+for item in $sourcelist ; do
+	if [ "$(fs_type $item)" == "squashfs" ] ; then
+	pfs=$item
+	sourcelist=$(echo "$sourcelist" |sed "s:"$item"::")
+	break
+	fi 
+done
+
+[ ! $pfs ] &&  [ $i ]  && [ -d $sourcelist ] && installDir
+[ $pfs ] || exitmsg "There is no source pfs module" 2 
+echo $sourcelist  |grep -q [[:alnum:]] || unset sourcelist
+if [ "$(unsquashfs -l ${pfs} |grep ${PFSDIR}/mount |egrep '.files$' |wc -l)" -lt 2 ];then
+	extract_simple
+else
+	extract_contaner
+fi
+

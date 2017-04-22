@@ -1,0 +1,40 @@
+#!/bin/sh
+#Read list PFS packages
+#VERSION 3.6
+. $(which pfs)
+
+for arg in "$@"
+do
+  case "${arg}" in
+    "--deps" | "--dependens") deps="yes";;
+    "-m" | "--mount" | "--mount-packages") readdir="mount";;
+    "-i" | "--install" | "--install-packages") readdir="install";;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
+    *) inpack="${arg}";;
+  esac
+done
+
+if [ "${inpack}" ]; then
+  if [ -f "${inpack}" ]; then 
+    pack="$(realpath "${inpack}")"
+  else
+    echo "File \"${inpack}\" not found!" >&2; exit 1
+  fi
+fi
+
+if [ "${pack}" ]; then
+  disktypeb "${pack}" | grep -qi "squashfs.*version\ *4\."
+  exitmsg "File \"$1\" is not PFS!" $?
+  if [ "${deps}" ] ; then 
+	unsquashfs -d /tmp/deps "${pack}" -r ${PFSDIR}/mount/*/pfs.depends > /dev/null
+	find /tmp/deps -type f -exec cat "{}" \; |sort |uniq |grep -v "^$"
+	rm -fr /tmp/deps
+  else
+	unsquashfs -l "${pack}" | grep squashfs-root${PFSDIR}/mount/.*/pfs.files |sed -e 's:squashfs-root.*/mount/::' -e 's:/pfs.files::'
+  fi
+else
+  [ "${readdir}" != "install" ] && [ -d "${PFSDIR}/mount" ] && echo "$(find "${PFSDIR}/mount/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -f)"
+  [ "${readdir}" != "mount" ] && [ -d "${PFSDIR}/install" ] && echo "$(find "${PFSDIR}/install/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -f)"
+fi
+
+exit 0

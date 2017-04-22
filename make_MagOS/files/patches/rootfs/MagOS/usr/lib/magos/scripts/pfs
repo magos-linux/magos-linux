@@ -1,0 +1,327 @@
+#!/bin/sh
+#library for pfs-utils (https://github.com/pfs-utils)
+#Authors: puppyrus.org : Zay, DdShurick, sfs
+#Author: magos-linux.ru: Betcher
+#License: GPL v3
+#VERSION 3.6
+
+PFSDIR=/etc/packages
+TMPFSLIMIT=100000
+EXT=pfs
+
+copyramdir="/tmp/.mountRAM"
+prefixmp="/mnt/."
+changesDir="/mnt/live/memory/changes/"
+SYSMNT=/$(cut -f2 -d/ /sys/fs/aufs/si_$(grep ' / aufs' /proc/mounts | cut -f2 -d= | tr ',' ' ' | cut -f1 -d' ')/br0)
+if [ -f /etc/initvars ] ; then
+        . /etc/initvars
+        copyramdir=${SYSMNT}/copy2ram/
+        prefixmp=${SYSMNT}/bundles/
+        changesDir=${SYSMNT}/changes/
+fi
+
+compression="xz -b 512K"
+compression_fast="lz4"
+if echo $compression |grep -q xz; then
+	if uname -m | grep -q -e "86" -e "32" -e "64" ;then
+	compression="$compression -Xbcj x86" 
+	else 
+	compression="$compression -Xbcj x86,arm"
+	fi
+fi
+
+#user config
+[ -f /etc/pfs.cfg ] && . /etc/pfs.cfg
+
+usage () {
+	echo -e "$(basename $0) is a library for pfs-utils \n" 
+	echo "Usage:" 
+	echo "	$(basename $0) <function> <pars>"
+	echo "		OR"
+	echo -e "	. $(realpath $0) ;  <function> <pars> \n"
+	echo "functions list:"
+	echo "$(cat $0 |grep '^.*\ *().*{\ *$' |sed 's/().*{//')"
+	exit 1
+}
+
+color_red='\033[0;31m'
+color_green='\033[0;32m'
+color_yellow='\033[0;33m'
+color_blue='\033[0;34m'
+color_default='\033[0m'
+
+exitmsg () {
+	if [ "$2" -ne 0 ] ; then
+	echo -ne "$color_red" ; echo "$1" ; echo -ne "$color_default\n"
+	exit $2
+	fi
+} 
+
+allow_only_root() {
+    if [ "0$UID" -ne 0 ]; then
+        exitmsg "Only root can run $0" -1
+    fi
+}
+
+mklist () {
+#mklist source_dir [dest_dir] [pack_name]
+source_dir="$(realpath "$1")"
+[ "$2" ] && dest_dir="$(realpath "$2")" || dest_dir="$source_dir"
+pack_name="$(basename "$1")"
+[ "$3" ] && pack_name="$3"
+#[ "$(pwd)" != "/" ] && find "${source_dir}${PFSDIR}/mount/" -mindepth 1 -maxdepth 1  -exec rm -rf "{}" \; 2>/dev/null
+mkdir -p "${dest_dir}${PFSDIR}/mount/${pack_name}" &&
+echo 'name="'$pack_name'"' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.specs" &&
+find "${source_dir}" ! -type d        | sed "s:$source_dir::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.files" &&
+find "${source_dir}"   -type d -empty | sed "s:$source_dir::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" &&
+[ -s "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" ] || rm "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty"
+exitmsg "mklist error" $?
+}
+
+checkramfreeb () {
+	local free  
+if [[ -x $(which checkramfree) ]] ; then
+	echo $(checkramfree) 
+else
+   free=$(df $copyramdir -B 1024 |grep tmpfs |awk '{print $4}')
+   freeram="$(free | grep 'Mem:' | tr -s ' ' | cut -f 4 -d ' ')"
+   echo $free
+fi 2>/dev/null
+}
+
+checksfsxzb () {
+grep squashfs /proc/filesystems || return 1
+grep aufs /proc/filesystems     || return 1
+#check xz
+kerneluname="$(uname -r)"
+kernel1ver="$(echo -n "${kerneluname}" | cut -f 1 -d '.' | cut -f 1 -d '-')"
+if [ ${kernel1ver} -lt 3 ];then
+  kernel2ver="$(echo -n "${kerneluname}" | cut -f 2 -d '.' | cut -f 1 -d '-')"
+  if [ ${kernel2ver} -lt 6 ];then
+    return 1
+  else
+    kernel3ver="$(echo -n "${kerneluname}" | cut -f 3 -d '.' | cut -f 1 -d '-')"
+    if [ ${kernel3ver} -lt 38 ]; then
+      return 1
+    fi
+  fi
+fi
+return 0
+}
+
+disktypeb () {
+if disktype $1 2>/dev/null ; then 
+	return 0
+else
+	ftest=$(file $1)
+	if $(echo $ftest |egrep -qi cannot.*open) ; then
+		echo $ftest
+		return 1
+	elif $(echo $ftest |egrep -qi block.*special) ;then
+		echo $(blkid -s TYPE $1)
+		return 0
+	else 
+		echo $ftest
+		return 0
+	fi
+fi
+}
+
+fs_type () {
+diskinfo="$(disktypeb "$1" 2>/dev/null)"
+if echo "${diskinfo}" | grep -qi -F "Ext2" ;then
+  echo 'ext2'
+elif echo "${diskinfo}" | grep -qi -F "Ext3" ;then
+  echo 'ext3'
+elif echo "${diskinfo}" | grep -qi -F "Ext4" ;then
+  echo 'ext4'
+elif echo "${diskinfo}" | grep -qi -F "squashfs" ;then
+  echo 'squashfs'
+elif echo "${diskinfo}" | grep  -qi "ISO.*9660" ;then
+  echo 'iso9660'
+fi
+}
+
+lddcheck () {
+	local rootdir alllibs
+[ "${1}" != "" ] && rootdir="${1}" || rootdir="./"
+if [ ! -d "${rootdir}" ]; then
+  echo "Directory \"${rootdir}\" not found!" >&2; exit 1
+fi
+alllibs="$(find "${rootdir}" ! -type d -name "*.so*")" 
+find "${rootdir}" -type f -executable | while read chfile; do [ "$(file --brief "${chfile}" | grep -E "LSB executable|shared object")" ] && ldd "${chfile}" 2>/dev/null; done | grep -E '\.so$|\.so\.[0-9]' | sed 's/(..........)/()/' | sort -u | sed 's/[ \t]*//;s/.* =>  ()//;s/ => .*$//;s/ ()//' | while read exlib; do echo "${alllibs}" | grep -q -F "${exlib}" || echo "${exlib}"; done | grep -v -F "linux-gate.so" | sort -uf
+return 0
+}
+
+losetupb () {
+	if [ -x "$(which losetup-FULL)" ]; then
+  losetup-FULL $@
+elif   [ -x /sbin/losetup ] ; then
+	/sbin/losetup $@ || exit 1
+elif   [ -x "$(which losetup)" ] ; then
+	losetup $@ || exit 1
+fi 2>/dev/null
+return $?
+}
+
+mountb () {
+if [ -x "$(which busybox)" ]; then
+  if busybox --list | grep -q -F mount; then
+    busybox mount $@
+  else
+    [ -x "$(which mount)" ] && mount $@ || return 1
+  fi
+else
+  [ -x "$(which mount)" ] && mount $@ || return 1
+fi
+return $?
+}
+
+umountb () {
+if [ -x "$(which busybox)" ]; then
+  if busybox --list | grep -q -F umount; then
+    busybox umount $@
+  else
+    [ -x "$(which umount)" ] && umount $@ || return 1
+  fi
+else
+  [ -x "$(which umount)" ] && umount $@ || return 1
+fi
+return $?
+}
+
+
+mkaufs () {
+#make new aufs
+N=1
+while [ -f $SYSMNT/aufs${N}.lock ] ; do  N=$(($N +1)) ; done 
+echo "$SYSMNT/aufs$N" > $SYSMNT/aufs${N}.lock
+mkdir $SYSMNT/changes$N
+mount -t tmpfs tmpfs /$SYSMNT/changes$N
+mkdir $SYSMNT/aufs$N
+mount -t aufs -o dirs=/$SYSMNT/changes$N/=rw aufs /$SYSMNT/aufs$N && echo "$SYSMNT/aufs$N" || return 1
+}
+
+delaufs () {
+#remove aufs 
+[ $1 ] || return 1
+umount $SYSMNT/aufs$1 2>/dev/null
+rmdir $SYSMNT/aufs$1 2>/dev/null
+if [ "$(grep changes$1 /proc/mounts)" ]; then
+	umount -d $SYSMNT/changes$1 &&	rmdir $SYSMNT/changes$1
+else
+	rm -rf $SYSMNT/changes$1
+fi 2>/dev/null
+if [ -d $SYSMNT/bundles$1 ]; then
+	ls -1 $SYSMNT/bundles$1 | while read D
+	do
+		umount -d $SYSMNT/bundles$1/$D && 	rmdir $SYSMNT/bundles$1/$D
+	done
+	 rmdir $SYSMNT/bundles$1
+fi 2>/dev/null
+if [ "$(grep tmpfs$1 /proc/mounts)" ]; then
+	umount $SYSMNT/tmpfs$1 && 	rmdir $SYSMNT/tmpfs$1
+else
+	rm -rf  $SYSMNT/tmpfs$1
+fi 2>/dev/null
+ls -1 $SYSMNT | egrep  "aufs${1}$|changes${1}$|bundles${1}$" && return 3
+rm -f $SYSMNT/aufs${1}.lock
+}
+
+addlayer () {
+#add new aufs layer, $1 - aufs number, $2 - layer source
+NEWLAYER=$(realpath "$2") || return 1
+AUFSMNT="/"
+case "$1" in
+	0) shift;;
+	[1-9]) N=$1
+		if [ $N -lt $(ls -d /sys/fs/aufs/si_* | wc -w) ]; then
+			AUFSMNT=$SYSMNT/aufs$N
+			shift
+		else
+			return 2
+		fi
+	;;
+	*) return 3
+esac
+[ "$(grep aufs$N /proc/mounts)" ] || return 4
+MODNAME="$(basename "$NEWLAYER")"
+if df $NEWLAYER |grep -q ^aufs ;then
+	[ "$(grep $SYSMNT/tmpfs$N /proc/mounts)" ] || ( mkdir $SYSMNT/tmpfs$N && mount -t tmpfs tmpfs $SYSMNT/tmpfs$N )
+	cp -auPR "$NEWLAYER" "$SYSMNT/tmpfs$N/"
+	NEWLAYER="${SYSMNT}/tmpfs${N}/$(basename $NEWLAYER)"
+fi
+case $(file -b $NEWLAYER) in
+	*directory) ;;
+	Squashfs*4.0*|Linux*ext*)
+		mkdir -p "$SYSMNT/bundles$N/$MODNAME"
+		mount -o loop "$NEWLAYER" "/$SYSMNT/bundles$N/$MODNAME"
+		NEWLAYER="$SYSMNT/bundles$N/$MODNAME"
+	;;
+	*) return 5 ;;
+esac
+mount -o remount,add:1:"$NEWLAYER" "$AUFSMNT" || return 5
+echo $NEWLAYER
+}
+
+mksqmod(){
+#make module
+eval mksquashfs "${1}" "${2}" -comp ${compression} -noappend ${noprogress} ${useproc} $wh $devnull
+exitmsg "error create squashfs module" $?
+}
+
+pfsramfree () {
+#rm unmounted modules and empty dirs from $copyramdir 
+if [ "$1" ]; then
+	[ -f "$1" ] && fsname="`basename $(realpath "$1")`" || fsname="$(basename "$1")"
+	fullname=$(echo "${copyramdir}/${fsname}" |sed 's://:/:')
+	[ -f "$fullname" ] &&  rm -f "$fullname" || return 1
+else
+	if [ -d "${copyramdir}" ]; then
+    find "${copyramdir}" -mindepth 1 -type f 2>/dev/null | while read rampfs ; do
+		losetupb -a | grep -q "${rampfs}" || rm -f "$rampfs"
+    done
+    find "${copyramdir}" -mindepth 1 -type d -empty 2>/dev/null | while read empdir ; do
+		rmdir --parents $empdir 2>/dev/null
+	done
+	fi
+fi
+}
+
+pfs_update_caches () {
+#update caches, icons, menus, etc after load/unload modules
+[ "$(find "$1"{,/usr{,/local,/X11R6}}/lib -type f -name "*.so" 2>/dev/null)" ] && ldconfig &
+[ -d "$1/usr/share/mime/" ] && update-mime-database /usr/share/mime &
+[ -d "$1/usr/lib/gdk-pixbuf-2.0/" ]  && gdk-pixbuf-query-loaders --update-cache &
+[ -d "$1/usr/share/icons/hicolor/" ] && gtk-update-icon-cache -f -i -q /usr/share/icons/hicolor &
+[ -d "$1/usr/share/glib-2.0/schemas/" ]  && glib-compile-schemas /usr/share/glib-2.0/schemas/ &
+if [ -d "$1/usr/share/applications/" -o -d "$1/usr/local/share/applications/" ] ; then 
+	update-desktop-database -q &
+	touch /usr/share/applications/screensavers &
+fi
+for font_dir in /usr/share/fonts{,/default}/TTF  /usr/X11R6/lib/X11/fonts/TTF ; do
+    if [ -d "$1/${font_dir}" ]; then
+	fcneed=on
+	mkfontscale ${font_dir} & 
+	mkfontdir ${font_dir} &
+    fi
+done
+[ $fcneed ] && fc-cache -f -s &
+}
+
+checkdeps () {
+# $1 module mount point
+list=$(find ${1}${PFSDIR}/mount/ -name pfs.depends -exec cat "{}" \; |sort |uniq)
+founded=$(echo -e "$list\n$(pfsinfo |sort |uniq)" |sort |uniq -d)
+echo -e "$founded\n$list" |sort |uniq -u
+}
+
+if [ "$(basename $0)" == "pfs" ] ;then
+[ $1 ] || usage
+command="$1" 
+shift
+$command $@
+exitmsg "$command  ERROR!!!" "$?"
+fi 
+
+

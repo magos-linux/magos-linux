@@ -1,0 +1,83 @@
+#!/bin/sh
+#Read depends of PFS packages
+#VERSION 3.6
+. $(which pfs)
+
+for arg in "$@"
+do
+  case "${arg}" in
+    "-m" | "--mount" | "--mount-packages") readdir="mount";;
+    "-i" | "--install" | "--install-packages") readdir="install";;
+    "-a" | "--all") alldeps="on";;
+    "-f" | "--file" ) readfile="on";;
+    "-p" | "--print-all" ) printall="on";;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
+    *) [ "${readfile}" != "on" ] && namepacks="${namepacks}${IFS}${arg}" || infile="${arg}"; readfile="off";;
+  esac
+done
+if [ "${infile}" ]; then
+  if [ -f "${infile}" ]; then 
+    fsfile="$(realpath "${infile}")"
+  else
+    echo "File \"${infile}\" not found!" >&2; exit 1
+  fi
+fi
+[ -d "${PFSDIR}/mount/" ] && packslistM="$(find "${PFSDIR}/mount/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null)"
+[ -d "${PFSDIR}/install/" ] && packslistI="$(find "${PFSDIR}/install/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null)"
+
+if [ "${fsfile}" ]; then
+  disktypeb "${fsfile}" | grep -q -F "squashfs, version 4"
+  if [ $? -gt 0 ]; then
+    echo "File \"${fsfile}\" is not PFS!" >&2; exit 1
+  fi
+  packslistF="$(unsquashfs -l "${pack}" 2>/dev/null | grep '${PFSDIR}/mount/' | cut -f5 -d'/' | sort -uf)"
+  tmpdir="$(mktemp -d)"
+  mkdir -p "${tmpdir}"
+  depslist="`unsquashfs -l "${fsfile}" | grep '${PFSDIR}/mount/.*/pfs.depends' | cut -f5 -d'/' | while read pack
+  do 
+    unsquashfs -d "${tmpdir}/${pack}" "${fsfile}" -ef "${PFSDIR}/mount/${pack}/pfs.depends" -n >/dev/null 2>&1
+    echo "$(cat "${tmpdir}/${pack}${PFSDIR}/mount/${pack}/pfs.depends" 2>/dev/null)"
+    rm -f "${tmpdir}/${pack}${PFSDIR}/mount/${pack}/pfs.depends" 2>/dev/null
+    rmdir "${tmpdir}/${pack}${PFSDIR}/mount/${pack}" 2>/dev/null
+    rmdir "${tmpdir}/${pack}${PFSDIR}/mount" 2>/dev/null
+    rmdir "${tmpdir}/${pack}${PFSDIR}" 2>/dev/null
+    rmdir "${tmpdir}/${pack}/etc" 2>/dev/null
+    rmdir "${tmpdir}/${pack}" 2>/dev/null
+  done | sed 's/[ \t]*$//' | sort -u`"
+  rmdir "${tmpdir}" 2>/dev/null
+  packslist="$(echo "${packslistF}${IFS}${packslistM}${IFS}${packslistI}" | sort -u)"
+else
+  packslist="$(echo "${packslistM}${IFS}${packslistI}" | sort -u)"
+  if [ "${readdir}" != "install" ]; then
+    if [ "${namepacks}" != "" ]; then
+      readlistM="$(echo "${namepacks}" | while read readpack; do [ "${readpack}" != "" ] && echo "${packslistM}" | grep -F "${readpack}"; done | sort -u)"
+    else
+      readlistM="${packslistM}"
+    fi
+    dplistM="`echo "${readlistM}" | while read package; do
+      [ -f "${PFSDIR}/mount/${package}/pfs.depends" ] && echo "$(cat "${PFSDIR}/mount/${package}/pfs.depends")"
+    done`"
+  fi
+  if [ "${readdir}" != "mount" ]; then
+    if [ "${namepacks}" != "" ]; then
+      readlistI="$(echo "${namepacks}" | while read readpack; do [ "${readpack}" != "" ] && echo "${packslistI}" | grep -F "${readpack}"; done | sort -u)"
+    else
+      readlistI="${packslistI}"
+    fi
+    dplistI="`echo "${readlistI}" | while read package; do
+      [ -f "${PFSDIR}/install/${package}/pfs.depends" ] && echo "$(cat "${PFSDIR}/install/${package}/pfs.depends")"
+    done`"
+  fi
+  depslist="$(echo "${dplistM}${IFS}${dplistI}" | sed 's/[ \t]*$//' | sort -u)"
+fi
+
+if [ "${alldeps}" != "on" ]; then
+  allcheckdeps="$(echo "${depslist}" | grep -v '^[[:space:],\t]*$' | while read checkpack; do
+  if [ "$(echo "${checkpack}" | sed 's/ \/ /\n/g' | while read varpack; do echo "${packslist}" | grep -q -F "${varpack}" 2>/dev/null && echo "${varpack}" && break; done)" = "" ]; then [ "${printall}" != "on" ] && echo "$(echo "${checkpack}" | sed 's/^.* \/ //g' )" || echo "${checkpack}"; fi; done | grep . | sed 's/[ \t]*$//' | sort -uf)"
+else
+  if [ "${printall}" != "on" ]; then allcheckdeps="$(echo "${depslist}" | sed 's/[ \t]*$//;s/^.* \/ //g' | sort -uf | grep -v '^[[:space:],\t]*$')"
+  else allcheckdeps="$(echo "${depslist}" | sed 's/[ \t]*$//' | sort -uf | grep -v '^[[:space:],\t]*$')"; fi
+fi
+[ "${allcheckdeps}" != "" ] && echo "${allcheckdeps}"
+
+exit 0

@@ -1,0 +1,35 @@
+#!/bin/sh
+#Uninstall packages
+#VERSION 3.6
+. $(which pfs)
+allow_only_root
+
+if [ ! "$1" ]; then
+  echo "Usage: $(basename "$0") PACKAGE" >&2; exit 1
+fi
+package_name=$(basename $1 |sed 's/\.pfs$//')
+
+fileslist="${PFSDIR}/install/$package_name/pfs.files"
+if [ -f "${fileslist}" ]; then 
+  if [ -d "/tmp/.pfs/uninstall/$package_name" ]; then
+    echo "Progress is already running!" >&2; exit 1    
+  fi
+  mkdir -p "/tmp/.pfs/uninstall/$package_name"
+  mv "${fileslist}" "/tmp/.pfs/uninstall/$package_name"
+  rm -rf "${PFSDIR}/install/$package_name/" 
+  finded="$(find ${PFSDIR}/ -mindepth 3 -maxdepth 3 -type f -name 'pfs.files' | while read listfiles; do cat "${listfiles}" | sed -e 's:[\]:\\\\\\\\:g'; done)"
+  listfiles="$(cat "/tmp/.pfs/uninstall/$package_name/pfs.files" | sed -e 's:^[^/]*::' -e 's:[\]:\\\\:g')"
+  echo "${listfiles}" | while read file; do echo "${finded}" | grep -q -F "${file}" || rm -f "${file}" 2>/dev/null; done
+  echo "${listfiles}" | grep -q -F "/lib/modules" && depmod &
+  [ ! -z "$(which ldconfig)" ] && echo "${listfiles}" | grep -q -F "/lib" && ldconfig &
+  echo "${listfiles}" | grep -q -F "/usr/share/glib-2.0/schemas" && glib-compile-schemas /usr/share/glib-2.0/schemas/ &
+  rm -rf "/tmp/.pfs/uninstall/$package_name"
+else
+  [ "`pfsinfo "$1"`" = "$package_name" ] && { echo "Package \"$package_name\" is not installed!" >&2; exit 1 ; }
+  for i in `pfsinfo "$1"` ;do
+    pfsuninstall "$i.pfs"
+  done
+fi
+sync
+
+exit 0

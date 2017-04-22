@@ -1,0 +1,116 @@
+#!/bin/bash
+#Util to move files to second aufs layer
+#VERSION 3.6
+. $(which pfs)
+allow_only_root 
+FILELIST=/.savelist
+#changesDir=/memory/changes
+rm -f /tmp/savelist* /tmp/allfiles /tmp/includedfiles /tmp/excludedfiles  
+
+function help () {
+echo "\
+$(basename $0) -- util move files from upper system aufs layer to second layer
+It helps you to clear tmpfs diskspace, or to save changes
+
+Usage:
+$(basename $0) <newlayer> 	- create new layer and move files
+$(basename $0)	 	- move files to existing second aufs layer
+
+If <newlayer> name has no extintion, $(basename $0) create directory-layer.
+If <newlayer> has extintion \".rom\" $(basename $0) create fs in file layer (ext3).
+
+Please edit file \"/.savelist\" to specifу files to move:
+!/path/file - pattern to delete from white list
+/path/file  - pattern to add back to white list from delete list
+" 
+exit 0
+}
+
+function dirlayer () {
+[ -d $layername ] || mkdir -p $layername
+cat /proc/mounts | grep -q "$layername" &&  exitmsg "$layername already mounted" 1
+pfsload -u $layername
+}
+
+function filelayer () {
+if ! file $layername |grep -q ext ; then
+	[ -f $layername ] && exitmsg "Unsupported file format" 2
+	dd if=/dev/zero of="$layername" bs=1 count=1 seek=2G 2>&1 &&  \ 
+	mkfs.ext3 -F -j "$layername" 2>&1 || exitmsg "Error create image file $layername" 3
+	pfsload $layername
+	else
+	cat /proc/mounts | grep -q "$layername"  &&  exitmsg "$layername already mounted" 1
+	pfsload -u $layername
+fi
+}
+
+function mkwhitelist () {
+	echo -e "/tmp/includedfiles\n/tmp/excludedfiles" > /tmp/excludedfiles
+	if ! [ -f "$FILELIST" ] ;then
+	echo "make /.savelist"
+cat > "$FILELIST" <<EndOF
+!/dev
+!/proc
+!/sys
+!/run
+!/memory
+!/tmp
+!/mnt
+!/media
+!/var/spool
+#!/var/log
+EndOF
+	fi
+	grep ^! "$FILELIST" | sed 's:!:\^:' > /tmp/savelist.black
+	grep -v '^[!#]' "$FILELIST" && grep -v '^[!#]' "$FILELIST" >/tmp/savelist.white
+	find ${changesDir} \( -type l -o -type f \) | sed 's|'${changesDir}'|/|' >/tmp/allfiles
+	find ${changesDir}  -type d -empty | sed 's|'${changesDir}'|/|' >>/tmp/allfiles
+	grep -q . /tmp/savelist.black && grep -f /tmp/savelist.black /tmp/allfiles >> /tmp/excludedfiles
+	sed -i 's:^/:\^/:' /tmp/excludedfiles
+	grep -vf /tmp/excludedfiles /tmp/allfiles > /tmp/includedfiles
+	[ -f /tmp/savelist.white ] && grep -f /tmp/savelist.white /tmp/allfiles >> /tmp/includedfiles
+	cat /tmp/includedfiles
+}
+
+function  sync2layer () {
+	layermp=$(aufs-n 1)
+	[ -d  $layermp -a -w $layermp ] || exitmsg "Layer mounted RO" 4
+	filelist=$(mkwhitelist |sort |uniq )
+	for file in $filelist ; do
+	echo "$file" |grep -q .wh* && continue
+	echo "$file" |grep -q  "$layermp" && continue
+	[ -e $file ] || continue
+	cp -uPR --parents ${file} ${layermp}/ || ( sync ; mount -o remount $layermp ; mount -o remount / ; exitmsg "Copy $file error" 2 )
+		if [ -f $file ] ; then
+			if lsof $file >/dev/null 2>&1; then
+				[ $? == 0 ] && echo -ne "$file ${color_blue} -- is open now,  copied ${color_default}\n"
+				continue
+			fi 
+		rm -f ${changesDir}${file}  &&	echo -ne "${file} -- ${color_green}moved ${color_default}\n"
+		continue
+		fi
+		[ -d $file ] && echo -ne "$file ${color_yellow} -- is empty dir, created ${color_default}\n" && continue
+		[ -L $file ] && echo -ne "$file  -- is link, created ${color_default}\n" && continue
+		echo  -ne "$file ${color_red} -- uknown type, copied ${color_default}\n"
+	done
+	sync
+	mount -o remount $layermp && mount -o remount /
+}
+
+if ! [ $1 ] ; then
+sync2layer
+exit
+fi 
+[ "$1" == "-h" -o "$1" == "--help" ] && help
+
+layername="$1"
+
+if echo $layername |egrep -q "\.rom$" ; then
+	filelayer || exitmsg "pfsload $layername ERROR" 5
+else
+	dirlayer || exitmsg "pfsload $layername ERROR" 6
+fi 
+
+sync2layer
+
+exit
