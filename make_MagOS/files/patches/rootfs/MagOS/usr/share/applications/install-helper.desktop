@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=MagOS install helper
-Name[ru]= Инсталлятор MagOS
-Comment=Simple MagOS linux installator 
+Name[ru]=Установка MagOS
+Comment=Simple MagOS linux installator
 Comment[ru]= Помощник в установке MagOS linux
 Exec=installator
 Icon=install-helper

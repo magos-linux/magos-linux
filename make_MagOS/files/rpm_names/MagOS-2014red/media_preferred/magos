@@ -3,6 +3,7 @@ magos-ctrl-center-
 steam-
 aufs-tools-
 x11-driver-video-nvidia304-
+kernel-headers-
 kernel-nrj-desktop-
 kernel-nrj-desktop-devel-
 kernel-nrj-desktop-devel-latest-
