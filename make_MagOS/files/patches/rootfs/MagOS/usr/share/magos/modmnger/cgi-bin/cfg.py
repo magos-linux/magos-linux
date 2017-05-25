@@ -4,12 +4,6 @@ import os, sys
 
 def config(index):
 	cfg = {
-	'base_path': 'auto',
-	'mod_path': 'auto',
-	'opt_path': 'auto',
-	'data_mod_path': 'auto',
-	'data_opt_path': 'auto',
-	'copy2ram': 'auto',
 	'css': '/css/default.css',
 	'jquery_css': '/css/smoothness/jquery-ui-1.8.20.custom.css',
 	'jquery': '/js/jquery.js',
@@ -25,18 +19,6 @@ def config(index):
 	else:
 	  init = 'initrd'
 		
-	if os.path.exists('/mnt/live/etc/modules'):
-		f = open('/mnt/live/etc/modules', 'r') 
-		a = []
-		for string in f.readlines():
-			a.append(string)
-		f.close()
-		arr = {}
-		for item in a:
-			item =  item.replace('\n', '').replace(' ','')
-			if len(item) > 4:
-				arr[item.split('=')[0]] =  item.split('=')[1]
-	
 	if os.path.exists('/etc/initvars'):
 		f = open('/etc/initvars', 'r') 
 		a = []
@@ -48,69 +30,6 @@ def config(index):
 			item =  item.replace('\n', '').replace(' ','')
 			if len(item) > 4:
 				initvars[item.split('=')[0]] =  item.split('=')[1]
-	
-		
-	if cfg['base_path'] == 'auto':
-	  if init == 'uird':
-	    cfg['base_path'] = (initvars['SYSMNT'] + '/layer-base/0/base').replace('//','/')
-	  else:
-	    cfg['base_path'] = '/mnt/livemedia/MagOS/base'
-	  
-	
-	if cfg['mod_path'] == 'auto':
-	  if init == 'uird':
-	    cfg['mod_path'] = (initvars['SYSMNT'] + '/layer-base/0/modules').replace('//','/')
-	  else:
-	    try: 
-	      cfg['mod_path'] = (arr['MAGOSMODS'] + '/modules').replace('//','/')
-	    except: 
-	      cfg['mod_path'] = '/mnt/livemedia/MagOS/modules'
-	  if not os.path.isdir(cfg['mod_path']):
-	    cfg['mod_path'] = 'no_modules'
-		
-	
-	if cfg['opt_path'] == 'auto':
-	  if init == 'uird':
-	    cfg['opt_path'] = (initvars['SYSMNT'] + '/layer-base/0/optional').replace('//','/')
-	  else:
-	    try:
-	      cfg['opt_path'] = (arr['MAGOSMODS'] + '/optional').replace('//','/')
-	    except:
-	      cfg['opt_path'] = '/mnt/livemedia/MagOS/optional'
-	  if not os.path.isdir(cfg['opt_path']):
-	      cfg['opt_path'] = 'no_opt'
-		
-			
-	if cfg['data_mod_path'] == 'auto':
-	  if init == 'uird':
-	    cfg['data_mod_path'] = (initvars['SYSMNT'] + '/layer-base/1/modules').replace('//','/')
-	  else:
-	    try:
-	      cfg['data_mod_path'] = (arr['MAGOSDATAMODS'] + '/modules').replace('//','/')
-	    except:
-	      cfg['data_mod_path'] = '/mnt/livemedia/MagOS-Data/modules'
-	  if not os.path.isdir(cfg['data_mod_path']):
-	    cfg['data_mod_path'] = 'no_data_modules'
-			
-	if cfg['data_opt_path'] == 'auto':
-	  if init == 'uird':
-	    cfg['data_opt_path'] = (initvars['SYSMNT'] + '/layer-base/0/optional').replace('//','/')
-	  else:
-	    try:
-	      cfg['data_opt_path'] = (arr['MAGOSDATAMODS'] + '/optional').replace('//','/')
-	    except:
-	      cfg['data_opt_path'] = '/mnt/livemedia/MagOS-Data/optional'
-	  if not os.path.isdir(cfg['data_opt_path']):
-	      cfg['data_opt_path'] = 'no_data_optional'
-				
-	if cfg['copy2ram'] == 'auto':
-	  if init == 'uird':
-	    cfg['copy2ram'] = (initvars['SYSMNT'] + '/copy2ram').replace('//','/')
-	  else:
-	    try:
-	      cfg['copy2ram'] = arr['CACHE'].replace('//','/')
-	    except:
-	      cfg['copy2ram'] = ''
 			
 	if cfg['repository'] == 'auto':
 	    try:

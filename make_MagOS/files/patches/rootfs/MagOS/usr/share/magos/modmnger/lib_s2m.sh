@@ -10,14 +10,7 @@ GETPATH(){
 }
 
 GET_ACTIVE_MODS(){
-	if ! /sbin/losetup -a  >/dev/null 2>&1; then 
-		beesu "/bin/bash $0 --get-mods"
-		exit 0
-	fi    
-	for modtype in $MODULEFORMATS; do 
-		$getroot /sbin/losetup -a | sed s/'.*('// | sed s/').*'// | grep -i .$modtype$ | while read a ;do 
-		echo "$(basename "$a")"////"$(dirname "$a")" ;done | sort
-	done 
+aufs-n --raw '${bname_source}////$dname_source' |grep -v tmpfs 
 }
 
 MKSAVELIST() {

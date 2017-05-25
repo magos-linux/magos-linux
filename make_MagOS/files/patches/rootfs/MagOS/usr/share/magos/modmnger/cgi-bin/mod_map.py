@@ -4,18 +4,8 @@ import sys, os, re, cgi, lib_mod_map, cfg, gettext
 
 gettext.install('mod_mnger', './locale', unicode=True)
 
-allEnabled = []
 dialog_text = 'none'
 n = 1 
-
-# Определяем пути, см cfg.py
-paths = cfg.config('all')
-base = paths['base_path']
-modules = paths['mod_path']
-optional = paths['opt_path']
-data_modules = paths['data_mod_path']
-data_optional = paths['data_opt_path']
-copy2ram = paths['copy2ram']
 
 # анализ cgi запроса
 form = cgi.FieldStorage()
@@ -31,14 +21,8 @@ else:
 		dialog_text = lib_mod_map.deactivate( modname )
 	elif action == 'delete':
 		dialog_text = lib_mod_map.delmod( modname )
-	elif action == 'move2optional':
-		dialog_text = lib_mod_map.mv2( modname, optional )
-	elif action == 'move2modules':
-		dialog_text = lib_mod_map.mv2( modname, modules )
-	elif action == 'move2data_optional':
-		dialog_text = lib_mod_map.mv2( modname, data_optional )
-	elif action == 'move2data_modules':
-		dialog_text = lib_mod_map.mv2( modname, data_modules )		
+	elif action == 'move':
+		dialog_text = lib_mod_map.mv2( modname )
 	elif action == 'install': # actions for open.py	
 		if data_modules != 'no_data_modules':
 			dialog_text = lib_mod_map.install( modname, data_modules )
@@ -73,9 +57,9 @@ update = _('Update').encode('UTF-8')
 empty = _('Empty').encode('UTF-8')
 
 # функция создает форму с активным модулем
-def printULgreen ( a, fullname ):
-	global n
-	n = n + 1 
+def printULgreen ( num, a, fullname ):
+	global n, modArr
+	n = n + 1
 	ID = a.replace( '-', '_').replace( '.', '__').replace(' ','__') + str(n)
 	liID = ('liID_' + ID)
 	formID = ('formID_' + ID)
@@ -89,10 +73,11 @@ def printULgreen ( a, fullname ):
 	print '<input name="modname" type="hidden"' ;	print  "".join(fullname)
 	print '<input name="action" type="hidden" value="deactivate"  id=\'' + inputID + '\'></form>'
 	print '<div id="' + liID + '" onclick="', submitCommand, 'action(\'' + inputID + '\','  '\'deactivate\')"'
-	print 'onmouseover="textBig(\'' + liID + '\')" onmouseout="textNormal(\'' + liID + '\')">'
-	print '<font color="green">', a, '</font></div></td>'
+	print 'onmouseover="textBig(\'' + liID + '\')" onmouseout="textNormal(\'' + liID + '\') "'
+	print 'oncontextmenu="alert(\'' + fullname[1] + '/' + fullname[3] + '\');return false">'
+	print '<font color="green">', num + ' &nbsp;&nbsp;&nbsp;' + a , '</font></div></td>'
 	print '<td colspan="3" class="td_actions" onclick="action(\'' + inputID + '\', \'modInfo\'); ', submitCommand, '"><img src="/images/info.svg" alt="info"></td></tr>'
-	allEnabled.append(a)
+	del modArr[num]
 
 #Функця создает форму с деактивированным модулем
 def printULgrey ( b,  fullname, mv2  ):
@@ -111,8 +96,9 @@ def printULgrey ( b,  fullname, mv2  ):
 	print '<input name="modname" type="hidden"' ;	print  "".join(fullname)
 	print '<input name="action" type="hidden" value="activate"  id=\'' + inputID + '\'></form>'
 	print '<div id="' + liID + '" onclick="', submitCommand, 'action(\'' + inputID + '\','  '\'activate\')"'
-	print 'onmouseover="textBig(\'' + liID + '\')" onmouseout="textNormal(\'' + liID + '\')">'
-	print '<font color="grey">', b, '</font></div>'
+	print 'onmouseover="textBig(\'' + liID + '\')" onmouseout="textNormal(\'' + liID + '\')" '
+	print 'oncontextmenu="alert(\'' + fullname[1] + '/' + fullname[3] + '\');return false">'
+	print '<font color="grey">', ' ---&nbsp;&nbsp;&nbsp;',  b, '</font></div>'
 	if mv2 != 'none':
 	    print '<td class="td_actions" onclick="action(\'' + inputID + '\', \'' + mv2 + '\'); ', submitCommand, '"><img src="/images/move.svg" alt="' + mv2 + '"> </td>'	
 	    print '<td class="td_actions" onclick="action(\'' + inputID + '\', \'delete\'); ', submitCommand, '"><img src="/images/delete.svg" alt="delete"></td>'
@@ -121,49 +107,36 @@ def printULgrey ( b,  fullname, mv2  ):
 		print '<td class="td_actions"></td>'
 	print '<td class="td_actions" onclick="action(\'' + inputID + '\', \'modInfo\'); ', submitCommand, '"><img src="/images/info.svg" alt="info"></td></tr>'
 
-# функция создает заголовок для подкаталога
-def printSubdirHeader(subdir, subdirType, mv2, pathDir):
-	global n
-	n = n + 1 
-	if subdirType == 'green':
-		print '<tr'
-		if n%2==0:
-			print 'class="tr_grey"'
-		print '><td align="left" colspan="4">'
-		print '<font color="green" ><strong>' +  subdir.replace(pathDir, '') + ':</strong></font></td></tr>'
-	else:
-		ID = subdir.replace( '-', '__').replace( '.', '__').replace('/','__').replace(' ','__')
-		liID = ('liID_' + ID)
-		formID = ('formID_' + ID)
-		inputID = ('inputID_' + ID)
-		submitCommand = (formID + '.submit();')
-		fullname = ('value="',  subdir, '">')
-		print ' <tr'
-		if n%2==0:
-			print 'class="tr_grey"'
-		print '><td align="left" > '
-		print '<form action="/cgi-bin/mod_map.py" method="post" name=\'' + formID + '\'>'
-		print '<input name="modname" type="hidden"' ;	print  "".join(fullname)
-		print '<input name="action" type="hidden" value="' + mv2 + '" id=\'' + inputID + '\'></form>'
-		print '<div id="' + liID + '">'
-		print '<strong><font color="grey">', subdir.replace(pathDir, '') + ':'  
-		print '</font></strong></div></td><td class="td_actions"></td>'
-		print '<td class="td_actions" onclick="action(\'' + inputID + '\', \'' + mv2 + '\'); ', submitCommand, '"><img src="/images/move.svg" alt="' + mv2 + '"> </td>'	
-		print '<td class="td_actions" onclick="action(\'' + inputID + '\', \'delete\'); ', submitCommand, '"><img src="/images/delete.svg" alt="delete"></td>'
-		print  '</tr>'
-	
 
 # Создает таблицу для одного каталога
-def printTable(pathDir, header,  title,  mv2): 
+def printTable(pathDir, header,  title,  mv2):
+	global tables, qmod
 	print '<table id="' + header + '" class="mod_table"><tr>'
 	print '<td class="table_header" colspan="4" title="' + title + '">' + header + '</td></tr>'
 	modGreen = lib_mod_map.getModGreen(modArr, pathDir)
 	modGrey = lib_mod_map.getModGrey(modGreen, pathDir)
+	def addFrame ():
+		global qmod, tables
+		if qmod == 15:
+			qmod = -2
+			print '</table></td>'
+			if tables == 4 or tables == 8 or tables == 12:
+				print '</tr><tr>'
+			print '<td  width="25%" valign="top"><table id="' + header +'_' + str(tables) + '" class="mod_table">'
+			tables = tables + 1
+			qmod=qmod + 1
+			
 	if not len(modGreen) == len(modGrey) == 0:
-		for a in modGreen:
-			fullname = ('value="', pathDir,'/', a, '">')
-			printULgreen ( a, fullname )
+		l = modGreen.keys() 
+		l = list(l) 
+		l.sort()
+		for key in l:
+			addFrame ()
+			qmod=qmod + 1
+			fullname = ('value="', pathDir,'/', modGreen[key], '">')
+			printULgreen ( key, modGreen[key], fullname )
 		for b in modGrey:
+			addFrame ()
 			fullname = ('value="', pathDir,'/', b, '">')
 			printULgrey( b, fullname,  mv2 )
 	else:
@@ -172,27 +145,16 @@ def printTable(pathDir, header,  title,  mv2):
 						
 		
 	print '</table>'
-	for subdir in lib_mod_map.getSubdirs(pathDir, 'not_include_root'):
-		subdirType = lib_mod_map.testSubdirs(lib_mod_map.getSubdirs(subdir, 'include_root'), modArr)
-		if not  subdirType == 'none':
-			print '<table class="subdir_table" >'
-			printSubdirHeader( subdir,  subdirType, mv2, pathDir)
-			modGreen = lib_mod_map.getModGreen(modArr, subdir)
-			for a in modGreen:
-				fullname = ('value="', subdir,'/', a, '">')
-				printULgreen ( a,  fullname )
-			for b in lib_mod_map.getModGrey(modGreen, subdir):
-				fullname = ('value="', subdir ,'/', b, '">')
-				printULgrey( b, fullname,  'none' )
-			print '</table>'
 
 #получаем список активированных модулей
 modArr = lib_mod_map.getModArr()
-
+folders = lib_mod_map.getFolders(modArr)
 # make html header
 cfg.html_header()
 cfg.hide_div()
 
+qmod = 0 
+tables=0
 # make html body
 print """
 <style>
@@ -225,47 +187,29 @@ if dialog_text != 'none':
 print '<table id="big_mod_table" border="1">'
 print '<tr><td colspan="4"><a href="/cgi-bin/mod_map.py">'+ update+ '</a></td></tr>'
 print '<tr>'
-
-print '<td  width="25%" valign="top" rowspan="2">'
-printTable(base,  'Base',  title_base,  'none')
-print '</td>'
-
-print '<td width="25%" valign="top">'
-printTable(modules,  'Modules',  title_modules,  'move2optional')
-print '</td>'
-
-print '<td width="25%" valign="top">'
-printTable(optional,  'Optional',  title_optional,  'move2modules')
-print '</td>'
-
-print '<td  width="25%" valign="top" >'
-if os.path.isdir(copy2ram) and (copy2ram + 'base').replace('/', '') != base.replace('/', '') :
-	printTable(copy2ram,  'Copy2ram',  title_copy2ram,  'none')
-else:
-	print '<p class="disabled">' + no_cache + '</p>'
-print '</td></tr>'
-
-print '<tr>'
-print '<td width="25%" valign="top">'
-if data_modules != 'no_data_modules':
-	printTable(data_modules,  'Data-modules',  title_data_modules,  'move2data_optional')
-else:
-	print '<p class="disabled">' + no_data_modules + '</p>'
-print '</td>'
-print '<td width="25%" valign="top">'
-if data_optional != 'no_data_optional':
-	printTable(data_optional,  'Data-optional',  title_data_optional,  'move2data_modules')
-else:
-	print '<p class="disabled">' + no_data_optional + '</p>'
-print '</td>'
-
-print '<td valign="top" width="25%" >'
-print '<table id="another_table" class="mod_table"><tr>'
-print '<td class="table_header" colspan="4" title="' + title_another + '">'+ another + '</td></tr>'
-for a in (set(modArr) - set(allEnabled)):
-	fullname = ('value="', a, '">')
-	printULgreen( a, fullname)
-print '</table>'
-print '</td></tr>'
+for frame in folders:
+	if os.path.isdir(frame):
+		if tables == 4 or tables == 8 or tables == 12:
+			print '</tr><tr>'
+		print '<td  width="25%" valign="top" >'
+		if '/modules' in frame:
+			mv2='move'
+		elif '/optional' in frame:
+			mv2='move'
+		else:
+			mv2 = 'none'
+		tables = tables + 1
+		qmod = 0
+		printTable(frame,  frame, frame ,  mv2 )
+		print '</td>'
+		
+if not len(modArr) == 0:
+	print '<td valign="top" width="25%" >'
+	print '<table id="another_table" class="mod_table"><tr>'
+	print '<td class="table_header" colspan="4" title="' + title_another + '">'+ another + '</td></tr>'
+	for key, val in modArr.items():
+		fullname = ('value="',  val[1], '/', val[0], '">')
+		printULgreen( key, val[0], fullname)
+	print '</table></td>'
 print '</table>'
 print '</div></body></html>'
