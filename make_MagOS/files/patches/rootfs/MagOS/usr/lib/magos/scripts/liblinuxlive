@@ -1060,6 +1060,7 @@ modprobe_usb_modules()
    local ATAMODULES HWMODULES MANMODULES BLMODULES
    MANMODULES="$(cmdline_value rdloaddriver | tr ',;' ' ')"
    BLMODULES="$(cmdline_value blacklist | tr ',;' ' ')"
+   STORMODULES=$(ls -1 /lib/modules/*/kernel/drivers/usb/storage/ | grep ums|sed "s|\.ko.*$||")
    ALLATAMODS=$(ls -1 /lib/modules/*/kernel/drivers/ata|sed "s|\.ko.*$||")
    for a in `lspci -v | grep -i modules | tr , \\\\n | sort -u | sed s/.*modules.//` ;do
        if echo " $ALLATAMODS " | grep -q " $a " ;then
@@ -1071,7 +1072,8 @@ modprobe_usb_modules()
    echo "$HWMODULES" | grep -q [ou]hci-hcd || HWMODULES="$HWMODULES ohci-hcd uhci-hcd"
    local MODULES="ahci sd_mod sr_mod \
                   $MANMODULES $ATAMODULES $HWMODULES \
-                  ehci-hcd ehci-pci ehci-platform xhci-hcd xhci-pci xhci-plat-hcd ohci-pci ohci-platform hid usbhid hid-generic usb-storage uas ide_cd"
+                  ehci-hcd ehci-pci ehci-platform xhci-hcd xhci-pci xhci-plat-hcd ohci-pci ohci-platform hid usbhid hid-generic \
+                  usb-storage uas $STORMODULES ide_cd"
    for a in $MODULES ;do
        echo " $BLMODULES " | grep -q " $a " || modprobe_module $a
    done
