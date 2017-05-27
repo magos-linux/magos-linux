@@ -18,79 +18,50 @@ def getPlugins(dir):
 	return items
 
 def getModArr():
-	command = ('./lib_s2m.sh --get-mods ')
+	command = ('aufs-n --raw \'${n}////${bname_source}////$dname_source \' ')
 	ret = os.popen( command ).read()
 	arr = {}
 	for key_val in ret.split('\n'):
-	    if len(key_val.split('////')) == 2:		
-			arr[key_val.split('////')[0]] = key_val.split('////')[1]
+	    if len(key_val.split('////')) == 3:		
+		  if key_val.split('////')[1] != 'tmpfs': 
+		    arr[key_val.split('////')[0]] = (key_val.split('////')[1].replace('[', '').replace(']', ''),key_val.split('////')[2].replace('[', '').replace(']', ''))
 	return arr
 
+def getFolders(modArr):
+	folders = []
+	dirlist = []
+	for val in modArr.values():
+		folders.append(val[1])
+	for item in folders:
+		dirlist.append(item) 
+		dirlist.append(item.replace( 'modules', 'optional') ) 
+	dirlist = list(set(dirlist))
+	dirlist.sort()
+	return dirlist	
 
 def getModGreen(modArr, dirPath):
-	green_list = []
+	green_arr = {}
 	for key, val in modArr.items():
-	    if val == dirPath:
-		green_list.append(key)
-		green_list.sort()
-	return green_list
-
+	    if val[1] == dirPath:
+			green_arr[key] = val[0]
+	return green_arr
 	
-def getModGrey(green_list, dirPath):
+def getModGrey(green_arr, dirPath):
 	dirlist = os.listdir(dirPath)
 	grey_list = []
+	green_list = []
 	dirLs = []
 	for file in dirlist:
 		for modtype in cfg.config('modtype'):
 			dirLs += re.findall('^.*.'+ modtype + '$', file)
-	for a in (set(dirLs) - set(green_list)):  
-		grey_list.append(a)
-		grey_list.sort()
+			list(dirLs)
+	for val in green_arr.values():
+		green_list.append(val)
+	grey_list = list( set(dirLs) - set(green_list) )  
 	return grey_list 
 		
-
-def getSubdirs (dir, root):
-	if root == 'include_root':
-		listDirs = [dir,]
-	else:
-		listDirs = []
-	for name in os.listdir(dir):
-		path = os.path.join(dir, name)
-		if os.path.isdir(path):
-			try:
-				wc = len(os.listdir(path))
-			except:
-				wc = 0
-			if not wc == 0 :
-				listDirs.append(path)
-				listDirs += getSubdirs(path, 'not_include')
-	return listDirs
-
-def testSubdirs(dir, modArr):
-	xzmList = []
-	exitcode = 'none'
-	for a in dir:
-		for modtype in cfg.config('modtype'):
-			names = glob.glob(a + '/*.' + modtype)
-			for name in names:
-				xzmList.append(name)
-			
-	if not len(xzmList) == 0:
-			exitcode = 'grey'
-	a = []
-	for key, value in modArr.items():
-		a.append(value + '/' + key)
-		for mod in xzmList:
-			for file in a:
-				if mod  == file:
-					exitcode = 'green'
-					break
-		if exitcode == 'green':
-			break
-	return exitcode
-		
 def activate (modname):
-	command = ('beesu activate "' + modname.replace(' ', '\ ') + '"')
+	command = ('beesu pfsload "' + modname.replace(' ', '\ ') + '"')
 	ret = subprocess.call(command, shell=True)
 	if ret == 0:
 		dialog_text = (modname + '<br>activation - OK!!!')
@@ -99,7 +70,7 @@ def activate (modname):
 	return dialog_text
  	
 def deactivate (modname):
-	command = ('beesu deactivate "' + modname.replace(' ', '\ ') + '"')
+	command = ('beesu pfsunload "' + modname.replace(' ', '\ ') + '"')
 	ret = subprocess.call(command, shell=True)
 	if ret == 0:
 		dialog_text = (modname + '<br>deactivation - OK!!!')
@@ -108,12 +79,16 @@ def deactivate (modname):
 	return dialog_text
 
 	 
-def mv2 (modname, destDir):
+def mv2 (modname):
 	dialog_text = (modname + '<br>rename - OK!!!')
+	if '/modules/' in modname:
+		dest=modname.replace('/modules/', '/optional/')
+	elif '/optional/' in modname:
+		dest=modname.replace( '/optional/', '/modules/')
 	try:
-		shutil.move(modname.replace(' ', '\ '), destDir)
+		shutil.move(modname.replace(' ', '\ '), dest)
 	except:
-		command = ('beesu  mv -f "' + modname.replace(' ', '\ ') + ' ' + destDir + '/"')
+		command = ('beesu  mv -f "' + modname.replace(' ', '\ ') + ' ' + dest + '"')
 		ret = subprocess.call(command, shell=True)
 		if ret != 0:
 			dialog_text = (modname + '<br>rename FAIL!!!')
@@ -144,7 +119,7 @@ def install (modname, destDir):
 
 
 def modinfo (modname):
-	command = ('beesu  ./mod_info  "%s" ')  %  modname.replace(' ', '\ ') 
+	command = ('./mod_info  "%s" ')  %  modname.replace(' ', '\ ') 
 	#print command
 	subprocess.Popen(command, shell=True)
 	

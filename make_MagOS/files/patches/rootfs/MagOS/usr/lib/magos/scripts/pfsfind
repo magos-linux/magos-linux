@@ -1,0 +1,84 @@
+#!/bin/sh
+#Find file in root aufs
+#VERSION 3.6
+. $(which pfs)
+
+usage () {
+	echo -e "$(basename $0) util, find file (\$1) in modules mounted to root aufs  and in $changesDir\n" 
+	echo "Usage:" 
+	echo "	$(basename $0)  filename        - find \"filename\"  (human readble format)"
+	echo "	$(basename $0)  filename --raw  - find \"filename\"  (output separated by spaces)"
+	echo "	$(basename $0)  filename --raw  '"'$n $module'"'   - return only needed values"
+	echo "avaliable values:"
+	echo '  $n - layer number'
+	echo '  $module - modulename'
+    echo '  $submodule - submodule name (one of module sources)'
+    echo '  $path - path to file'
+    echo '  $bundle - bundle (module mount point)'
+    
+}
+
+header () {
+echo "Find file in root aufs"
+echo ""
+printf %3s "N "; printf %-50s "Module " ; printf %-30s "SubModule" ; printf  "PATH\n"
+}
+
+listing (){
+[ -d $p ] || exit 0
+f="$(basename "$1")"
+list1=$(aufs-n --raw '$bundle' |sed 1d |while read bdl ; do   find "$bdl"  \( -type f -o -type l \) -name "$f" |sed 's#^'$(dirname $bdl)/'## ; s/'$f'$//' ; done)
+list2=$(find "$changesDir" \( -type f -o -type l \) -name "$f" |sed 's#^'$changesDir'#tmpfs/# ; s/'$f'$//')
+list="$list1 $list2"
+aufs-n --raw '$n $bundle $dname_source $bname_source' | while read a; do
+	for b in $list ; do
+		if [ "$(echo $a |awk '{print $NF}')" == "$(echo $b |awk -F/ '{print $1}' )" ]  ; then
+			n="$(echo $a |awk '{print $1}')"
+			module="$(echo $a |awk '{print $3 "/" $4}')" 
+			bundle=$(echo $a | awk '{print $2}')
+			path="$(echo $b | sed "s:"$(echo $a |awk '{print $NF}')"::")"
+			modPFSDIR=$bundle${PFSDIR}
+			if [ -d $modPFSDIR ] ; then
+				submodule=$(find  ${modPFSDIR}  -mindepth 3 -maxdepth 3 -type f -name 'pfs.files' | while read listfiles; do  
+				cat "${listfiles}" | sed "s:^:"$(basename $(dirname $listfiles))" :"  
+				done | grep ${path}${findname}$ | cut -f1 -d' ' |sort |uniq |tr '\n' ';' |sed 's/;$//' )
+			else
+				submodule="is_not_pfs"
+			fi
+			
+			if [ $human ] ; then 			
+				printf %3s "$n "
+				printf %-50s "$module" 
+				printf %-30s "$submodule" 
+				printf  "$path\n"
+			else
+				eval echo "$returnMe"
+			fi
+		fi
+	done
+done
+}
+
+case "$1" in 
+  "") usage; exit 1;;
+  "-"*[A-Za-z]*) usage; exit 1;;
+  *) findname="$1";;
+esac
+
+if  echo $@ |grep -q "\-\-raw" ; then
+	returnMe="$(echo $@ |sed 's/^.*\-*raw//')"
+	[ "$returnMe" ] || returnMe='$n $bundle $module $submodule  $path'
+fi
+
+if [ ! "$2" ] ;then 
+	human=yes
+	header
+	listing $1
+	exit
+elif [ "$2" == "--raw" ] ; then
+	listing $1
+	exit
+else 
+	usage
+fi
+exit 0

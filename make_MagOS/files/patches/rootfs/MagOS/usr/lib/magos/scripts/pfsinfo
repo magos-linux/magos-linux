@@ -6,7 +6,7 @@
 for arg in "$@"
 do
   case "${arg}" in
-    "--deps" | "--dependens") deps="yes";;
+    "-s" | "--stat") stat="yes";;
     "-m" | "--mount" | "--mount-packages") readdir="mount";;
     "-i" | "--install" | "--install-packages") readdir="install";;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
@@ -25,10 +25,41 @@ fi
 if [ "${pack}" ]; then
   disktypeb "${pack}" | grep -qi "squashfs.*version\ *4\."
   exitmsg "File \"$1\" is not PFS!" $?
-  if [ "${deps}" ] ; then 
-	unsquashfs -d /tmp/deps "${pack}" -r ${PFSDIR}/mount/*/pfs.depends > /dev/null
-	find /tmp/deps -type f -exec cat "{}" \; |sort |uniq |grep -v "^$"
-	rm -fr /tmp/deps
+  if [ "${stat}" ] ; then
+	Comptype=$(unsquashfs -s  "${pack}" |grep ompression |awk '{print $NF}' | tr "\n" " ")
+	[ "$Comptype" ] || exitmsg "$pack Is non squshfs module" 1
+	bpack=$(basename ${pack})
+	mkdir -p /tmp/squashfs/"${bpack}"
+	mount -t squashfs -o loop -o ro "${pack}" /tmp/squashfs/"${bpack}"
+	[ -e /tmp/squashfs/${bpack}${PFSDIR}/mount ] && ispfs=yes
+
+	Msize=$(du -s --block-size 1024 ${pack} |awk '{print $1}') 
+	Usize=$(du -s --block-size 1024  /tmp/squashfs/"${bpack}" |awk '{print $1}')
+	echo "Compression algorithm: $Comptype"
+	echo "Module size: $Msize"
+	echo "Uncompressed size: $Usize"
+	echo "Compression ratio: $( echo "scale=2 ; $Usize / $Msize" |bc), ($( echo "scale=2 ; 100 * $Msize  / $Usize  " |bc)%)"
+	if [ "$ispfs" == "yes" ] ; then
+		Deps=$(find /tmp/squashfs/${bpack}${PFSDIR}/mount  -type f -name pfs.depends -exec cat "{}" \; |sort |uniq |grep -v "^$" | tr "\n" "   ")
+		Packs=$(ls -1   --indicator-style=none /tmp/squashfs/${bpack}${PFSDIR}/mount  | tr "\n" "   ")
+		echo "Packages: $Packs"
+		echo "Dependenses: $Deps"
+		echo ''
+		standard_files="pfs.files pfs.depends pfs.dirs.empty"
+		for file in $(find /tmp/squashfs/${bpack}${PFSDIR}/mount  -type f) ; do
+			if ! echo $standard_files | grep -q $(basename $file) ; then
+				echo "[ $(echo $file |sed "s:/tmp/squashfs/${bpack}::")  ]"
+				cat $file |grep -v "^$"
+				echo ''
+		fi
+		done
+	else 
+		echo "Packages: -----"
+		echo "Dependenses:  -----"
+	fi
+		
+	umount /tmp/squashfs/"${bpack}"
+	rmdir  /tmp/squashfs/"${bpack}"
   else
 	unsquashfs -l "${pack}" | grep squashfs-root${PFSDIR}/mount/.*/pfs.files |sed -e 's:squashfs-root.*/mount/::' -e 's:/pfs.files::'
   fi
