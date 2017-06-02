@@ -123,6 +123,11 @@ def modinfo (modname):
 	#print command
 	subprocess.Popen(command, shell=True)
 	
+def  pfsfind (findit):
+	command = ('./pfs_find  "%s" ')  %  findit 
+	#print command
+	subprocess.Popen(command, shell=True)
+	
 def ftpmount (url, action):
 	mountpoint = cfg.config('mountpoint')
 	if action == 'mount':

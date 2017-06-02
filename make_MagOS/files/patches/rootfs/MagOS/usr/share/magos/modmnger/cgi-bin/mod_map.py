@@ -11,9 +11,12 @@ n = 1
 form = cgi.FieldStorage()
 modname = form.getvalue('modname') or 'none' 
 action = form.getvalue('action') or 'none'
+findit = form.getvalue('findit') or 'none'
 
 if modname == 'none':
-	pass
+    pass
+elif modname == 'finditplease':
+    lib_mod_map.pfsfind( findit )
 else:
 	if action == 'activate':
 		dialog_text = lib_mod_map.activate( modname )
@@ -55,7 +58,22 @@ no_cache = _('No copy2ram cache').encode('UTF-8')
 another = _('Another modules').encode('UTF-8')
 update = _('Update').encode('UTF-8')
 empty = _('Empty').encode('UTF-8')
+pfsfind = _('Find file in modules').encode('UTF-8')
 
+def print_updateform ():
+    print '<form action="/cgi-bin/mod_map.py">'
+    print '<input type="submit" value="' + update + '"></form>'
+
+
+def print_findform ():
+    print '<form action="/cgi-bin/mod_map.py" >'
+    print '<input name="modname" type="hidden" id="modname" value="finditplease" >'
+    print '<input name="findit" type="text" id="findit" >'
+    print '<input type="submit" value="' + pfsfind  + '">'
+    print '</form>'
+ 
+	
+	
 # функция создает форму с активным модулем
 def printULgreen ( num, a, fullname ):
 	global n, modArr
@@ -160,7 +178,12 @@ print """
 <style>
     body{
     cursor: pointer /* cursor like hand */
-    }
+    }<script type="text/javascript">
+$(function(){
+	$("input:text, input:submit").button();
+	$("div.set").buttonset();
+});
+
 </style> """
 
 # javascript functions 
@@ -175,6 +198,12 @@ print """
 	function action( elmId, action ) {
 	document.getElementById( elmId ).value=action;
 	}
+	
+	$(function(){
+	$("input:text, input:submit").button();
+	$("div.set").buttonset();
+});
+
  	</script> """
 
 
@@ -184,9 +213,14 @@ if dialog_text != 'none':
 	print dialog_text + '</div>'
 
 #рисуем таблицы
-print '<table id="big_mod_table" border="1">'
-print '<tr><td colspan="4"><a href="/cgi-bin/mod_map.py">'+ update+ '</a></td></tr>'
-print '<tr>'
+print '<table width="100%"><tr ><td>'
+print_updateform()
+print '</td><td align="right">'
+print_findform()
+print '</td></tr></table>'
+
+
+print '<table id="big_mod_table" border="1"><tr>'
 for frame in folders:
 	if os.path.isdir(frame):
 		if tables == 4 or tables == 8 or tables == 12:
