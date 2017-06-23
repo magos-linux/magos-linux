@@ -17,7 +17,13 @@ MSG_time=$(gettext  "sync time, hours:min:sec:")
 
 echo  "${0}:  process is not finished correctly"  > /tmp/errorcode
 
-magos_src=$(dirname $(./cfg.py base_path))
+
+if [ -f /etc/initvars ] ; then
+	.	 /etc/initvars
+	magos_src="${SYSMNT}/data/from/0/MagOS"
+else
+	magos_src=/mnt/livemedia/MagOS
+fi
 
 while getopts  d:m:b: option ;do
     case $option in

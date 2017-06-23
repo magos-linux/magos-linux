@@ -20,7 +20,7 @@ fi
 
 
 device="$1"
-devsize=$(fdisk -l 2>/dev/null |grep Disk.*${device} |awk '{print $5}')
+devsize=$(fdisk -l 2>/dev/null |egrep "^.*${device}:" |awk '{print $5}')
 echo  "${0}:  process is not finished correctly"  > /tmp/errorcode
 
  
