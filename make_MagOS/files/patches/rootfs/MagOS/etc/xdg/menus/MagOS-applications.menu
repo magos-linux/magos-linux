@@ -593,6 +593,13 @@
             <Category>X-LXDE-Settings</Category>
       </Include>
     </Menu>
+    <Menu>
+      <Name>LXQT</Name>
+      <Directory>magos-lxqt.directory</Directory>
+      <Include>
+            <Category>X-LXQT-Settings</Category>
+      </Include>
+    </Menu>
   </Menu>
 
   <Menu>

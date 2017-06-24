@@ -26,4 +26,5 @@ task-compiz-stable-
 lib64gltf0.0_0-
 primus-
 lib64primus_gl1-
-
+vulkan-
+lib64vulkan1-

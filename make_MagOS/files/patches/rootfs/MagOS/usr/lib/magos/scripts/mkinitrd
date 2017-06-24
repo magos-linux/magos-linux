@@ -19,14 +19,16 @@ INIRAMDLIBS1="ld-linux.so.2 ld-linux-x86-64.so.2 linux-vdso.so.1 libblkid.so.1 l
 INIRAMDLIBS2="libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 libpopt.so.0 libsysfs.so.2 libpci.so.3 libkmod.so.2
   libresolv.so.2 libnss_files.so.2 libnss_dns.so.2 libattr.so.1 libacl.so.1
   libaal-1.0.so.5 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libreadline.so.6 libreiser4-1.0.so.7 librepair-1.0.so.7 libntfs.so.10
-  libstdc++.so.6 libntfs-3g.so.8? libply-splash-core.so.2 libply.so.2 libgthread-2.0.so.0 libutil.so.1
+  libstdc++.so.6 libntfs-3g.so.?? libply-splash-core.so.2 libply.so.2 libgthread-2.0.so.0 libutil.so.1
   libncurses.so.5 libtermcap.so.2 libcap.so.2 libncursesw.so.5"
 
 # binaries for /bin
 INIRAMDBIN1="busybox.static lspci httpfs blkid blockdev"
 # binaries for /usr/bin
 INIRAMDBIN2='dosfsck fsck fsck.ext2 fsck.reiser4 reiserfsck rsync losetup ntfsfix mksquashfs unsquashfs
-  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server resume sshfs shred cat ls dialog loadkeys unrar curlftpfs'
+  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server sshfs shred cat ls dialog loadkeys unrar curlftpfs'
+# optional binaries for /usr/bin
+INIRAMDBINOPT="resume"
 
 INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/fs/isofs kernel/fs/fat kernel/fs/ntfs kernel/fs/ext3
@@ -36,7 +38,7 @@ INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/drivers/block/loop. kernel/drivers/block/cryptoloop. kernel/drivers/scsi/sr_mod.
   kernel/drivers/ata kernel/drivers/scsi/vmw_pvscsi.
   kernel/drivers/usb/storage
-  kernel/drivers/usb/host/ehci-hcd. 
+  kernel/drivers/usb/host/ehci-hcd.
   kernel/drivers/usb/host/ohci-hcd. kernel/drivers/usb/host/uhci-hcd. kernel/drivers/usb/host/xhci-hcd.
   kernel/drivers/hid/hid. kernel/drivers/hid/usbhid/usbhid.
   kernel/drivers/pcmcia/pcmcia_core. kernel/drivers/pcmcia/pcmcia. kernel/drivers/pcmcia/yenta_socket.
@@ -66,20 +68,23 @@ RAM0SIZE=20000
 function copy_lib()
 {
  [ -h $2/$1 ] && rm -f $2/`readlink $1 | awk -F/ '{ print $(NF)}'` $2/$1
- LIBPATH=
- [ -h /usr/lib/$1 ] && LIBPATH=/usr/lib/$(basename /usr/lib/$1)
- [ -h /usr/lib64/$1 ] && LIBPATH=/usr/lib64/$(basename /usr/lib64/$1)
- [ -h /lib/$1 ] && LIBPATH=/lib/$(basename /lib/$1)
- [ -h /lib64/$1 ] && LIBPATH=/lib64/$(basename /lib64/$1)
- if [ "$LIBPATH" = "" ] ;then echo "Warning: $1 - symlink not found" ; return ;fi
- LIBNAME=$(basename $LIBPATH)
- REALLIB=$(basename $(readlink $LIBPATH))
- [ -f "/usr/lib/$REALLIB" ] && cp -p "/usr/lib/$REALLIB" $2
- [ -f "/usr/lib64/$REALLIB" ] && cp -p "/usr/lib64/$REALLIB" $2
- [ -f "/lib/$REALLIB" ] && cp -p "/lib/$REALLIB" $2
- [ -f "/lib64/$REALLIB" ] && cp -p "/lib64/$REALLIB" $2
- if ! [ -f $2/$REALLIB ] ;then echo "$1 - file $REALLIB not found" ; return ;fi
- ln -sf $REALLIB $2/$LIBNAME
+ LIBFOUND=
+ for a in /usr/lib64 /lib64 /usr/lib /lib ;do
+    LIBFOUND=$(ls -1 $a/$1 2>/dev/null)
+    [ ! -z "$LIBFOUND" ] && break
+ done
+ if [ ! -z "$LIBFOUND" ] ;then
+    for a in $LIBFOUND ;do
+       LINK=$(basename $a)
+       LIB=$(readlink -f $a)
+       DIR=$(dirname $a)
+       [ -f $LIB ] || LIB=$DIR/$LIB
+       cp -pf $LIB $2
+       [ "$LIB" != "$a" ] && ln -sf $(basename $LIB) $2/$LINK
+    done
+ else
+    echo " Warning: $1 not found"
+ fi
 }
 # Copy binaries
 # $1 - filename
@@ -88,7 +93,7 @@ function copy_bin()
 {
  for a in /usr/lib/magos/scripts /sbin /usr/sbin /bin /usr/bin ;do
     [ -x "$a/$1" ] || continue
-    cp -L $a/$1 $2 && break
+    cp -Lf $a/$1 $2 && break
  done
  if [ ! -x "$2/$1" ] ;then
     echo $1 not found !
@@ -210,6 +215,9 @@ for a in $INIRAMDBIN1 ;do
 done
 for a in $INIRAMDBIN2 ;do
   copy_bin $a usr/bin || exit 1
+done
+for a in $INIRAMDBINOPT ;do
+  copy_bin $a usr/bin
 done
 
 mv bin/busybox.static bin/busybox || exit 1

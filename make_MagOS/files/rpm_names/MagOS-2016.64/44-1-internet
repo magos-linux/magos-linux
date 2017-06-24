@@ -7,7 +7,6 @@ firefox-en_GB-
 firefox-ru-
 geoclue-
 geoip-
-indexhtml-
 lib64eiskaltdcpp2.2-
 lib64farstream0.1_0-
 lib64geoclue0-
@@ -15,4 +14,5 @@ lib64geoipupdate0-
 lib64gypsy0-
 qbittorrent-
 qbittorrent-nox-
-lib64torrent-rasterbar8-
+lib64torrent-rasterbar9-
+lib64boost_random1.61.0-

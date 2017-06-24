@@ -76,3 +76,9 @@ syslinux-
 syslinux-nonlinux-
 zenity-
 lib64bdevid6.0.93-
+lib64nash6.0.93-
+lib64cc1_0-
+lib64mount-devel-
+lib64systemd-devel-
+lib64gcrypt-devel-
+lib64gpg-error-devel-

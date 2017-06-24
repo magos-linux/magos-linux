@@ -40,9 +40,6 @@ lib64iptcdata0-
 libiptcdata-i18n-
 lib64javascriptcoregtk1.0_0-
 lib64json-glib1.0_0-
-lib64lua5.2-
-lib64mediaart1.0_0-
-lib64metacity-private0-
 lib64nautilus-extension1-
 lib64ORBit-CosNaming2_0-
 lib64ORBit-imodule2_0-
@@ -140,3 +137,9 @@ webkit2gtk4.0-
 webkit4.0-
 lib64nm-gtk-gir1.0-
 breeze-gtk2-theme-
+breeze-gtk3-theme-
+breeze-gtk-theme-common-
+lib64soup-gnome-2.4_1-
+lib64wx_gtk2u_qa3.0_0-
+lib64suil-x11-in-gtk2-
+lib64suil-qt4-in-gtk2-

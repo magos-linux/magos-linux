@@ -2,7 +2,6 @@ augeas-lenses-
 db52_recover-
 drakconf-icons-
 drakguard-
-drakmenustyle-
 drakx-finish-install-
 drakx-installer-matchbox-
 drakx-kbd-mouse-x11-
@@ -87,7 +86,6 @@ python-rpm5utils-
 rpm-
 rpmdrake-
 rpm-manbo-setup-
-rpm-mandriva-setup-
 smart-
 smart-update-
 t1utils-
@@ -101,3 +99,5 @@ xsudo-sudoers-
 networkmanager-applet-
 perl-IPC-System-Simple-
 perl-Scalar-List-Utils-
+lib64jansson4-
+system-tools-backends2-

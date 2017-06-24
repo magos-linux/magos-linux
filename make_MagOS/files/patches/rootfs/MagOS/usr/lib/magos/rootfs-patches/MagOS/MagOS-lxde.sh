@@ -1,4 +1,5 @@
 #!/bin/bash
+[ -x /usr/bin/startlxde ] || exit 0
 # Default wallpaper
 ln -sf /usr/share/magos/wallpapers/default.jpg /usr/share/wallpapers/default.jpg
 

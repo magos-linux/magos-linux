@@ -10,7 +10,6 @@ kfloppy-
 kgamma-
 kgpg-
 kolourpaint-
-konsole-
 kppp-
 kppp-provider-
 krename-
@@ -24,13 +23,9 @@ lib64k3bdevice6-
 lib64k3blib6-
 libkcddb-
 lib64kcddb4-
-libkdcraw-
 lib64kgetcore4-
-lib64kolourpaint_lgpl4-
 lib64kwalletbackend4-
-lib64musicbrainz5_0-
-lib64okularcore5-
-lib64podofo0.9.1-
+lib64musicbrainz5_1-
 okular-
 okular-chm-
 okular-pdf-
@@ -38,3 +33,5 @@ okular-postscript-
 okular-tiff-
 sweeper-
 yakuake-
+lib64okular5core7-
+lib64okular-qml-

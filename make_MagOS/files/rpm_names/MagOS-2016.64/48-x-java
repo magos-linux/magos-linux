@@ -7,3 +7,5 @@ rootcerts-java-
 timezone-java-
 jline-
 copy-jdk-configs-
+lksctp-tools-
+lib64sctp1-

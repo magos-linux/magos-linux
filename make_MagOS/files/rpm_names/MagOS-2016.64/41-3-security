@@ -5,7 +5,6 @@ encfs-
 etherape-
 ipset-
 keepassx-
-lib64encfs6-
 lib64ipset3-
 lib64mnl0-
 lib64rlog5-
@@ -32,3 +31,6 @@ tsocks-
 wireshark-
 wireshark-tools-
 vidalia-
+lib64encfs1.9-
+lib64wscodecs1-
+libsmi-

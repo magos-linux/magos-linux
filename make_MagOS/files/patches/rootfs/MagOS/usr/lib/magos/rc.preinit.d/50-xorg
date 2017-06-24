@@ -142,7 +142,7 @@ if [ "$DELETE_XORG_CONF" = "yes" ] ;then
     rm -f etc/X11/xorg.conf
 else
    if [ "$CREATE_XORG_CONF" = "yes" ] ;then
-      [ -d usr/share/magos/xorg/$XDRIVER      ] && cp -pfR usr/share/magos/xorg/$XDRIVER/* etc/X11
+      [ ! -z "$XDRIVER" -a -d usr/share/magos/xorg/$XDRIVER ] && cp -pfR usr/share/magos/xorg/$XDRIVER/* etc/X11
       [ -d usr/share/magos/xorg/$PCIVEN       ] && cp -pfR usr/share/magos/xorg/$PCIVEN/*  etc/X11
       [ -d usr/share/magos/xorg/$PCIVEN$PCIID ] && cp -pfR usr/share/magos/xorg/$PCIVEN$PCIID/* etc/X11
    fi

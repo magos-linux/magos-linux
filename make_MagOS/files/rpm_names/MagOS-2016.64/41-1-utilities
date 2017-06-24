@@ -28,10 +28,8 @@ grub2-theme-rosa-
 gsmartcontrol-
 gucharmap-
 lib64gucharmap2_90_7-
-hcl-
 hexedit-
 hfsutils-
-hso-rezero-
 htop-
 isomaster-
 jfsutils-
@@ -47,7 +45,6 @@ lib64imlib2_1-loaders-
 lib64lzmadec0-
 lib64newt0.52-
 lib64parted-fs-resize0-
-lib64quvi7-
 libquvi-scripts-
 lib64reiser4_1.1_0-
 lib64repair1.1_0-
@@ -84,7 +81,6 @@ testdisk-
 tmpwatch-
 tolua++-
 totem-pl-parser-i18n-
-unionfs-utils-
 unrar-
 wmctrl-
 xdelta3-
@@ -104,3 +100,4 @@ hardinfo-
 android-file-transfer-
 android-tools-
 lz4-r
+lib64reiserfscore0-

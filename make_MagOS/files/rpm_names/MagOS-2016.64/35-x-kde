@@ -4,7 +4,6 @@ ffmpegthumbs-
 fprintd-
 fprintd-pam-
 gwenview-
-kcm_touchpad-
 kde4-nsplugins-
 kde4-windeco-dekorator-
 kdeartwork4-kscreensaver-
@@ -38,7 +37,6 @@ knetworkmanager-common-
 knetworkmanager-openvpn-
 knetworkmanager-pptp-
 knetworkmanager-vpnc-
-ksaneplugin-
 kscreen-
 lib64akonadi-contact4-
 lib64akonadi-socialutils4-
@@ -52,15 +50,12 @@ lib64dolphinprivate4-
 lib64epub0-
 lib64fprint0-
 lib64glesv2_2-
-lib64gwenviewlib4-
 lib64iodbc2-
 libkactivities-
 lib64kactivities6-
 lib64kactivities-models1-
-lib64kbookmarkmodel_private4-
 lib64kcalcore4-
 lib64kcalutils4-
-lib64kdcraw23-
 lib64kdeclarative5-
 lib64kdecorations4-
 lib64kdefakes5-
@@ -76,8 +71,6 @@ lib64knminternals4-
 lib64knm_nm-
 lib64knmservice4-
 lib64knmui4-
-lib64konqsidebarplugin4-
-lib64konquerorprivate4-
 libksane-
 libkscreen-
 lib64kscreen1-
@@ -102,15 +95,12 @@ lib64plasma-geolocation-interface4-
 lib64powerdevilconfigcommonprivate4-
 lib64powerdevilcore0-
 lib64powerdevilui4-
-lib64prison0-
 lib64processcore4-
 lib64processui4-
 lib64qaccessibilityclient0-
 lib64qalculate5-
 libqalculate-data-
 lib64qjson0-
-lib64qmobipocket1-
-lib64raw_r15-
 lib64solidcontrolfuture4-
 lib64solidcontrolnm4-
 lib64solidcontrolnmifaces4-
@@ -118,8 +108,6 @@ lib64speechd2-
 lib64systemsettingsview2-
 lib64weather_ion6-
 lib64xcb-damage0-
-mandriva-galaxy-
-mandriva-galaxy-data-
 mandriva-kde4-config-common-
 mandriva-kde-translation-
 plasma-applet-battery-
@@ -152,7 +140,6 @@ plasma-desktoptheme-aya-
 plasma-desktoptheme-default-
 plasma-desktoptheme-rosa-
 plasma-krunner-powerdevil-
-plasma-runner-contacts-
 plasma-runner-converter-
 plasma-scriptengine-python-
 plasma-wallpaper-timeoftheday-
@@ -171,3 +158,4 @@ libfprint-common-
 kmoonhelper-
 kio-mtp-
 kde4-style-oxygen-
+kde4-style-breeze-

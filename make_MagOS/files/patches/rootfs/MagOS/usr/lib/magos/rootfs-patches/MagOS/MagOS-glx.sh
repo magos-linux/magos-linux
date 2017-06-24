@@ -11,7 +11,7 @@ for a in ati nvidia340 nvidia304 nvidia173 nvidia96xx nvidia-current standard ;d
   cp -p /var/cache/ldconfig/* "/usr/share/magos/ld.so.cache/$a/var/cache/ldconfig"
 done
 mv      /usr/share/magos/ld.so.cache/nvidia96xx /usr/share/magos/ld.so.cache/nvidia 2>/dev/null
-mv      /usr/share/magos/ld.so.cache/ati        /usr/share/magos/ld.so.cache/fglrx
+mv      /usr/share/magos/ld.so.cache/ati        /usr/share/magos/ld.so.cache/fglrx  2>/dev/null
 mv      /usr/share/magos/ld.so.cache/standard   /usr/share/magos/ld.so.cache/fbdev
 cp -pfr /usr/share/magos/ld.so.cache/fbdev      /usr/share/magos/ld.so.cache/ati
 exit 0
