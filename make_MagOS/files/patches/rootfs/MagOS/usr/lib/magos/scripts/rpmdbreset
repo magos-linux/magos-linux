@@ -3,11 +3,16 @@ usage()
 {
    echo "Warning ! This script returns rpm base to initial state!"
    echo
-   echo "Usage: $0 --copy|--erase"
+   echo "Usage: $0 --copy|--erase|--rebuild  MASK"
    echo "--copy  Will copy DB from module to rootfs. It is usefull for clean mode."
    echo "        It works immediately."
+   echo "--rebuild  Will rebuild DB from module to rootfs after deleting (deactivating) some base modules. "
+   echo "        It may be slow."
    echo "--erase Will clear changes in rootfs (/mnt/live/memory/changes/var/lib/rpm)."
    echo "        It is usefull for save change mode. It works after reboot."
+   echo "MASK - the mask (egrep format) and egrep keys for modules list where $(basename $0) will search rpm data base files"
+   echo "default MASK - \".\""
+   echo "example: $(basename $0) --copy '-v 99-saves' "
    exit 1
 }
 
@@ -15,20 +20,55 @@ if [ "$1" = "" ] ;then
    usage
 fi
 
+if [ $(id -un) != "root" ] ; then  
+echo "Only root can run \"$(basename $0)\" "
+echo ''
+usage
+fi
+
+if [[ $2 ]] ; then
+	MASK="$2"
+	echo "using mask: $MASK"
+else	
+	MASK='.'
+fi
+
 # uird/initrd vars
 IMGPATH=/mnt/live/memory/images
 CHPATH=/mnt/live/memory/changes
-if [ -d /memory/changes ];then
-   IMGPATH=/memory/bundles
-   CHPATH=/memory/changes
+if [ -f /etc/initvars ] ; then
+	.  /etc/initvars
+   IMGPATH=$SYSMNT/bundles
+   CHPATH=$SYSMNT/changes
 fi
 
+function rebuild () {
+	lsbundles=$(aufs-n --raw '$bname_source' |awk -F. '{print $1}' | egrep $MASK)
+	lsrpmlists=$(ls /var/lib/rpm/modules |grep -v '81\-int\-')
+	diff=$(echo -e "${lsbundles}\n${lsrpmlists}" | sort | uniq -u)
+	deactivated=$(echo -e "${diff}\n${lsrpmlists}" | sort | uniq -d)
+	if [[ -z $deactivated ]] ; then
+		echo "All base MagOS modules are activated"
+		echo ''
+		usage
+		exit 2
+	fi
+	for list in $deactivated ;do
+		echo processing module $list
+		cat /var/lib/rpm/modules/${list} | while read a ;do
+		echo ${a%.rpm}
+		rpm -e --nodeps --noscripts --notriggers --justdb ${a%.rpm}
+		done
+	done 
+	
+}
+	
 case "$1" in
    --copy)
      echo remove rpm DB ...
      rm -fr /var/lib/rpm/*
      echo copy initial rpm DB ...
-     find "$IMGPATH" -maxdepth 4 -path "*/var/lib/rpm" | sort | while read a ;do
+     find "$IMGPATH" -maxdepth 4 -path "*/var/lib/rpm" | egrep $MASK | sort | while read a ; do
        echo  "$a -> /var/lib/rpm"
        cp -prf "$a"/* /var/lib/rpm
      done
@@ -39,6 +79,10 @@ case "$1" in
      rm -fr "$CHPATH/var/lib/rpm"
      echo Done. Please reboot.
      ;;
+     --rebuild)
+     rebuild
+     ;;
+     
    *)
      usage
      ;;
