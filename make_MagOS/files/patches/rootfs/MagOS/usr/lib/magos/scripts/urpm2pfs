@@ -1,4 +1,3 @@
- 
 #!/bin/bash
 #
 # /usr/lib/magos/scripts/urpm2pfs
@@ -20,6 +19,7 @@ echo "-u | --urpmidb - save /var/lib/urpmi/* in module "
 echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme packages"
 exit 
 }
+
 
 [ "$1" ] ||  HLP
 
@@ -75,7 +75,7 @@ mod_path=/mnt/live/memory/images                          #
 [ "$uird" != "no" ] && mod_path=$SYSMNT/bundles           #
 
 function umount_all () {
-for tm in {var/lib/rpm,sys,proc,dev}; do
+for tm in {etc/urpmi,sys,proc,dev}; do
     while (grep -q $root_br/$tm /proc/mounts ) ; do
         umount $root_br/$tm
     done
@@ -98,9 +98,9 @@ for a in $(aufs-n --raw '$bname_source' | sed 1d | egrep $MASK); do
 done
 mount -t aufs -o br:$mount_br wiz_fly $root_br
 
-mkdir -p $root_br/{dev,proc,sys}
+mkdir -p $root_br/{dev,proc,sys,/etc/urpmi}
 
-for tm in {dev,proc,sys}; do
+for tm in {dev,proc,sys,/etc/urpmi}; do
     mount -o bind /$tm $root_br/$tm
 done
 
@@ -111,7 +111,7 @@ done
 
 if [ "$erase" == "no" ] ; then
   /usr/sbin/urpmi.update -a --urpmi-root=$root_br
-  /usr/sbin/urpmi  --urpmi-root=$root_br --root=$root_br $packages $urpmipars
+  /usr/sbin/urpmi  --urpmi-root=$root_br --root=$root_br $packages $urpmipars && result=ok
 fi
 
 umount_all
@@ -120,13 +120,15 @@ umount_all
 rm -rf $mod_br/tmp
 rm -rf $mod_br/{dev,proc,sys}
 
-if ls -a $mod_br |grep  -q ^[[:alnum:]]*$ ; then
+if [ $result ] ; then
     mv $mod_br $(dirname $mod_br)/$NAME
     if [ "$erase" == "no" ] ; then
       mkpfs  $(dirname $mod_br)/$NAME -o ${NAME}
     else 
       mkpfs -l $(dirname $mod_br)/$NAME -o erase_${NAME} 
     fi
+else 
+	echo "Error install packages: $packages"
 fi
 
 rm -rf $mod_br
