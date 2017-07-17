@@ -40,10 +40,10 @@ exit 1
 
 allow_only_root
 
-#check kernel
+check_kernel(){
 checksfsxzb >/dev/null 2>&1
-exitmsg "Kernel is not support squashfs/aufs" $?
-
+exitmsg "Kernel is not support squashfs/aufs. Work only 'mkpfs -l'" $?
+}
 #parsing for "-comp" arg
 argslist="$@"
 if  echo $argslist |grep -q "\-*comp .*" ; then
@@ -77,6 +77,7 @@ do
        onuserout="off"; usepkname="off"; usindlib="off"; numproc="off";;
   esac
 done
+[ "$inplace" ] || check_kernel
 
 [ "${userout}" = "" ] && userout="./$(basename $(echo $sourcelist | awk '{print $1}')).${EXT}"
 [ "$sourcelist" ] || HLP
@@ -115,7 +116,7 @@ for i in $bundles ;do
 	mklist "$i" "$n" "$name"
 done 
 
-mksqmod "${n}" "${userout}"
-exitmsg "mksqmod error" $?
+mksqmod "${n}" "${userout}" noexit
+exitmsg "mksqmod error" $?  noexit
 delaufs "$nn" 
 exitmsg "delaufs error" $?

@@ -12,7 +12,8 @@ EXT=pfs
 copyramdir="/tmp/.mountRAM"
 prefixmp="/mnt/."
 changesDir="/mnt/live/memory/changes/"
-SYSMNT=/$(cut -f2 -d/ /sys/fs/aufs/si_$(grep ' / aufs' /proc/mounts | cut -f2 -d= | tr ',' ' ' | cut -f1 -d' ')/br0)
+aufsroot="$(`which busybox` mount |egrep '^aufs on / type aufs')" 
+[ "$aufsroot" ] && SYSMNT=/$(cut -f2 -d/ /sys/fs/aufs/si_$(grep ' / aufs' /proc/mounts | cut -f2 -d= | tr ',' ' ' | cut -f1 -d' ')/br0)
 if [ -f /etc/initvars ] ; then
         . /etc/initvars
         copyramdir=${SYSMNT}/copy2ram/
@@ -50,10 +51,10 @@ color_yellow='\033[0;33m'
 color_blue='\033[0;34m'
 color_default='\033[0m'
 
-exitmsg () {
+exitmsg() {
 	if [ "$2" -ne 0 ] ; then
 	echo -ne "$color_red" ; echo "$1" ; echo -ne "$color_default\n"
-	exit $2
+	[ "$3" ] || exit $2 
 	fi
 } 
 
@@ -90,6 +91,7 @@ fi 2>/dev/null
 }
 
 checksfsxzb () {
+[ "$aufsroot" ] || return 1
 grep squashfs /proc/filesystems || return 1
 grep aufs /proc/filesystems     || return 1
 #check xz
@@ -153,43 +155,9 @@ find "${rootdir}" -type f -executable | while read chfile; do [ "$(file --brief 
 return 0
 }
 
-losetupb () {
-	if [ -x "$(which losetup-FULL)" ]; then
-  losetup-FULL $@
-elif   [ -x /sbin/losetup ] ; then
-	/sbin/losetup $@ || exit 1
-elif   [ -x "$(which losetup)" ] ; then
-	losetup $@ || exit 1
-fi 2>/dev/null
-return $?
-}
-
-mountb () {
-if [ -x "$(which busybox)" ]; then
-  if busybox --list | grep -q -F mount; then
-    busybox mount $@
-  else
-    [ -x "$(which mount)" ] && mount $@ || return 1
-  fi
-else
-  [ -x "$(which mount)" ] && mount $@ || return 1
-fi
-return $?
-}
-
-umountb () {
-if [ -x "$(which busybox)" ]; then
-  if busybox --list | grep -q -F umount; then
-    busybox umount $@
-  else
-    [ -x "$(which umount)" ] && umount $@ || return 1
-  fi
-else
-  [ -x "$(which umount)" ] && umount $@ || return 1
-fi
-return $?
-}
-
+losetupb() { losetup $@ || losetup-FULL $@   ; }
+  mountb() {   mount $@ || busybox mount $@  ; }
+ umountb() {  umount $@ || busybox mount $@  ; }
 
 mkaufs () {
 #make new aufs
@@ -267,7 +235,7 @@ echo $NEWLAYER
 mksqmod(){
 #make module
 eval mksquashfs "${1}" "${2}" -comp ${compression} -noappend ${noprogress} ${useproc} $wh $devnull
-exitmsg "error create squashfs module" $?
+exitmsg "error create squashfs module" $? $3
 }
 
 pfsramfree () {
@@ -323,5 +291,3 @@ shift
 $command $@
 exitmsg "$command  ERROR!!!" "$?"
 fi 
-
-

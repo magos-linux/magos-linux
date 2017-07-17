@@ -30,5 +30,5 @@ if [ "${fstype}" = "" ]; then
 fi
 sync
 
-busybox mount -t ${fstype} -o loop "${mntfile}" "${mntpoint}"
+`which busybox` mount -t ${fstype} -o loop "${mntfile}" "${mntpoint}"
 exit $?

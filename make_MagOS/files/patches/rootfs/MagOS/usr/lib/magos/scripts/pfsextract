@@ -32,14 +32,14 @@ extract_simple () {
     fi
     eval unsquashfs -f -dest "${dir}" "${pfs}" $noprogress $useproc "$devnull" 
     exitmsg "Unsquashfs error" $?
-    [ $i ] || return 0 # need zero exit code
+    [ ! "$i" ] && rm -R $dir$PFSDIR && return 0 # need zero exit code
     mv -f ${PFSDIR}/mount/`pfsinfo "${pfs}"` ${PFSDIR}/install/ || exitmsg "$i install error" $?
 }
 
 extract_contaner () {
 #extract packages from contaner
 pfsinfo "$pfs" |while read m ;do
-    if  [ "$sourcelist" ] 	;then 
+    if  [ "`echo $sourcelist| sed 's/^ //'`" ]  ;then
 		echo $sourcelist |grep -q "$m" || continue
     fi
     eval echo  "package: $m    -- processing..." $devnull
@@ -48,18 +48,19 @@ pfsinfo "$pfs" |while read m ;do
 	[ -d "$n" ] || exitmsg "error mounting aufs" 3
     bundle=$(addlayer "$nn" "$pfs" || exitmsg "can't insert layer to aufs $n" 5)
     cat "$SYSMNT/aufs${nn}${PFSDIR}/mount/${m}/pfs.files" | while read F; do 
-	touch "$SYSMNT/aufs$nn$F" 2>/dev/null || cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
+	touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
     done
 
     emp="$SYSMNT/aufs$nn/${PFSDIR}/mount/$m/pfs.dirs.empty"
     [ -f "$emp" ] && cat "$emp" | while read F; do 
-	touch "$SYSMNT/aufs$nn$F" 2>/dev/null || cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
+	touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
     done
 
     mklist "$SYSMNT/changes$nn" "$SYSMNT/aufs$nn" "$m" 
     [ $dir ] || dir=$(basename $pfs |sed "s/\.${EXT}$//")
 	if [ "$d" ] ; then	
-		mkdir -p "$dir/$m" && cp -a "$SYSMNT/changes$nn"/* "$dir/$m"
+		mkdir -p "$dir/$m" && cp -a "$SYSMNT/changes$nn"/* "$dir/$m" &&
+		rm -R $dir/$m$PFSDIR
 	elif [ "$i" ] ; then
 		cp -a "$SYSMNT/changes$nn"/* /
 		mv -f ${PFSDIR}/mount/$m ${PFSDIR}/install/
