@@ -2,10 +2,9 @@
 #
 # /usr/lib/magos/scripts/urpm2pfs
 #
-# Description: create LZM/XZM from RPM (& dependences)
+# Description: create XZM (pfs) module from RPM (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
 # Author : Alexandr Betkher <http://magos-linux.ru>
-# $1=RPM file or name program
 
 [ $(id -un) != "root" ] && exit
 HLP () {
@@ -93,7 +92,7 @@ umount_all
 rm -rf $mount_br $root_br
 mkdir -p $mount_br $root_br
 
-for a in $(aufs-n --raw '$bname_source' | sed 1d | egrep $MASK); do
+for a in $(aufs-n --raw '$bname_source' | sed 1d | tac | egrep $MASK); do
       mount_br="$mount_br:${mod_path}/${a}=rr"
 done
 mount -t aufs -o br:$mount_br wiz_fly $root_br
