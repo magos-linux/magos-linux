@@ -51,19 +51,13 @@ done
 
 if [[ -z "${packages}${urpmipars}" ]] ; then
   echo "Masked Modules:"
-  aufs-n --raw '$bname_source' | sed 1d | egrep $MASK
+  aufs-n --raw '$bname_source' | sed 1d | tac | egrep $MASK
   echo ''
   HLP
   exit
 fi
 
 [ $NAME ] || NAME=$(echo $packages |awk '{print $1}').xzm
-
-#echo ----$MASK
-#echo ----$NAME
-#echo ----$urpmipars
-#echo ----$packages
-#echo ----$rpmdb
 
 export PATH=/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/functions
@@ -100,8 +94,8 @@ mkdir -p $mount_br $root_br
 for a in $(aufs-n --raw '$bname_source' | sed 1d | tac | egrep $MASK); do
       mount_br="$mount_br:${mod_path}/${a}=rr"
 done
-mount -t aufs -o br:$mount_br wiz_fly $root_br
 
+mount -t aufs -o br:$mount_br wiz_fly $root_br || exit 2
 mkdir -p $root_br/{dev,proc,sys,/etc/urpmi}
 
 for tm in {dev,proc,sys,/etc/urpmi}; do
@@ -115,7 +109,8 @@ done
 
 if [ "$erase" == "no" ] ; then
   /usr/sbin/urpmi.update -a --urpmi-root=$root_br
-  /usr/sbin/urpmi  --urpmi-root=$root_br --root=$root_br $packages $urpmipars && result=ok
+  /usr/sbin/urpmi  --urpmi-root=$root_br --root=$root_br $packages $urpmipars 
+  result=$?
 fi
 
 umount_all
@@ -124,7 +119,7 @@ umount_all
 rm -rf $mod_br/tmp
 rm -rf $mod_br/{dev,proc,sys}
 
-if [ $result ] ; then
+if [ "$result"  -eq 0 ] ; then
     mv $mod_br $(dirname $mod_br)/$NAME
     if [ "$erase" == "no" ] ; then
       mkpfs  $(dirname $mod_br)/$NAME -o ${NAME}
@@ -133,6 +128,8 @@ if [ $result ] ; then
     fi
 else 
 	echo "Error install packages: $packages"
+	echo "urpmi exitcode: $result, must be zero"
+	echo "RTFM man urpmi" 
 fi
 
 rm -rf $mod_br
