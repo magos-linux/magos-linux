@@ -50,7 +50,7 @@ do
   esac
 done
 
-if [[ -z "$packages" ]] ; then
+if [[ -z "${packages}${urpmipars}" ]] ; then
   echo "Masked Modules:"
   aufs-n --raw '$bname_source' | sed 1d | egrep $MASK
   echo ''
