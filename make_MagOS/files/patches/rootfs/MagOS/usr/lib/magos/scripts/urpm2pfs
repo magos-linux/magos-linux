@@ -20,9 +20,6 @@ echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme p
 exit 
 }
 
-
-[ "$1" ] ||  HLP
-
 MASK="."
 urpmipars=""
 packages=""
@@ -52,6 +49,14 @@ do
         name="no";  mask="no";;
   esac
 done
+
+if [[ -z "$packages" ]] ; then
+  echo "Masked Modules:"
+  aufs-n --raw '$bname_source' | sed 1d | egrep $MASK
+  echo ''
+  HLP
+  exit
+fi
 
 [ $NAME ] || NAME=$(echo $packages |awk '{print $1}').xzm
 
