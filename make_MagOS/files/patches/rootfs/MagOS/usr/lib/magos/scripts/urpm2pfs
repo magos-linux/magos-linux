@@ -13,6 +13,7 @@ echo "$(basename $0) keys:"
 echo "-h | --help - this help"
 echo "-n | -o | --name - name for the module"
 echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db, default \".\" "
+echo "--mask clean - special mask value "clean" to choose base magos modules only"
 echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
 echo "-u | --urpmidb - save /var/lib/urpmi/* in module "
 echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme packages"
@@ -48,6 +49,13 @@ do
         name="no";  mask="no";;
   esac
 done
+
+if [ "$MASK" == "clean" ] ; then
+	for a in $(ls  /var/lib/rpm/modules |grep  -v "^81-int-");do 
+		MSK="${MSK}|${a}.xzm"
+	done 
+	MASK=$(echo "${MSK}|88-magos.xzm)" | sed 's/^|/(/')
+fi
 
 if [[ -z "${packages}${urpmipars}" ]] ; then
   echo "Masked Modules:"

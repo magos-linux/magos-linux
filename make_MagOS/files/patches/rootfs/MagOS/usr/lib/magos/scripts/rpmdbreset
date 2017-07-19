@@ -3,7 +3,7 @@ usage()
 {
    echo "Warning ! This script returns rpm base to initial state!"
    echo
-   echo "Usage: $0 --copy|--erase|--rebuild  MASK"
+   echo "Usage: $0 --copy|--erase|--rebuild  MASK/clean"
    echo "--copy  Will copy DB from module to rootfs. It is usefull for clean mode."
    echo "        It works immediately."
    echo "--rebuild  Will rebuild DB from module to rootfs after deleting (deactivating) some base modules. "
@@ -12,6 +12,7 @@ usage()
    echo "        It is usefull for save change mode. It works after reboot."
    echo "MASK - the mask (egrep format) and egrep keys for modules list where $(basename $0) will search rpm data base files"
    echo "default MASK - \".\""
+   echo "clean   -  special mask value "clean" to choose base magos modules only"
    echo "example: $(basename $0) --copy '-v 99-saves' "
    exit 1
 }
@@ -31,6 +32,13 @@ if [[ $2 ]] ; then
 	echo "using mask: $MASK"
 else	
 	MASK='.'
+fi
+
+if [ "$MASK" == "clean" ] ; then
+	for a in $(ls  /var/lib/rpm/modules |grep  -v "^81-int-");do 
+		MSK="${MSK}|${a}.xzm"
+	done 
+	MASK=$(echo "${MSK}|88-magos.xzm)" | sed 's/^|/(/')
 fi
 
 # uird/initrd vars
