@@ -23,10 +23,11 @@ exit
 MASK="."
 urpmipars=""
 packages=""
-rpmdb=no
-urpmidb=no
+rpmdb="no"
+urpmidb="no"
 erase="no"
 argslist="$@"
+result="-1"
 
 if  echo $argslist |grep -q "\-*urpmi .*" ; then
     urpmipars="$(echo $@ |sed 's/^.*\-*urpmi//')"
@@ -41,7 +42,7 @@ do
     "-m" | "--mask") mask="yes" ;;
     "-r" | "--rpmdb") rpmdb="yes" ;;
     "-u" | "--urpmidb") urpmidb="yes" ;;
-    "-e" | "--erase") erase="" ;;
+    "-e" | "--erase") erase="yes" ;;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" = "yes" ]; then NAME="${arg}"
         elif [ "${mask}" = "yes" ]; then MASK="${arg}"
@@ -99,7 +100,7 @@ umount_all
 rm -rf $mount_br $root_br
 mkdir -p $mount_br $root_br
 
-for a in $(aufs-n --raw '$bname_source' | sed 1d | tac | egrep $MASK); do
+for a in $(aufs-n --raw '$bname_source' | sed 1d  | egrep $MASK); do
       mount_br="$mount_br:${mod_path}/${a}=rr"
 done
 
@@ -111,13 +112,14 @@ for tm in {dev,proc,sys,/etc/urpmi}; do
 done
 
 mkdir -p $root_br/tmp
+
 for pack in $packages ; do
-/usr/sbin/urpme --root=$root_br --urpmi-root=$root_br $pack 2>/dev/null
+/usr/sbin/urpme --urpmi-root=$root_br $pack 2>/dev/null 
 done
 
 if [ "$erase" == "no" ] ; then
   /usr/sbin/urpmi.update -a --urpmi-root=$root_br
-  /usr/sbin/urpmi  --urpmi-root=$root_br --root=$root_br $packages $urpmipars 
+  /usr/sbin/urpmi  --urpmi-root=$root_br  $packages $urpmipars 
   result=$?
 fi
 
@@ -127,12 +129,16 @@ umount_all
 rm -rf $mod_br/tmp
 rm -rf $mod_br/{dev,proc,sys}
 
-if [ "$result"  -eq 0 ] ; then
+if [ "$result"  -eq 0 -o "$erase" == "yes" ] ; then
     mv $mod_br $(dirname $mod_br)/$NAME
     if [ "$erase" == "no" ] ; then
-      mkpfs  $(dirname $mod_br)/$NAME -o ${NAME}
+      mkpfs  $(dirname $mod_br)/$NAME -o ${NAME} && [ -f "${NAME}" ]  && echo "${NAME}"
     else 
-      mkpfs -l $(dirname $mod_br)/$NAME -o erase_${NAME} 
+      if mkpfs -l $(dirname $mod_br)/$NAME -o erase_${NAME} && [ -f  "erase_${NAME}" ] ; then
+		echo "erase_${NAME}"
+      else
+		echo "Error create erase_${NAME}, may be package is not in rpm DB"
+	  fi
     fi
 else 
 	echo "Error install packages: $packages"
