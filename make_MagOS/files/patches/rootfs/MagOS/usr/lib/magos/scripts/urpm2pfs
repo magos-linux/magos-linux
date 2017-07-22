@@ -100,7 +100,7 @@ umount_all
 rm -rf $mount_br $root_br
 mkdir -p $mount_br $root_br
 
-for a in $(aufs-n --raw '$bname_source' | sed 1d  | egrep $MASK); do
+for a in $(aufs-n --raw '$bname_source' | sed 1d | egrep $MASK); do
       mount_br="$mount_br:${mod_path}/${a}=rr"
 done
 
