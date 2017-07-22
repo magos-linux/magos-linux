@@ -116,9 +116,9 @@ if [ ${status} -eq 0 ]; then
 		nlayer=1
 		[ -w $(aufs-n 1) ] && nlayer=2
 		[ -w "${mountpoint}" ] && nlayer=1
-		mountb -o remount,add:${nlayer}:"${mountpoint}"=ro / >/dev/null #2>&1
+		mountb -o remount,add:${nlayer}:"${mountpoint}"=ro+wh / >/dev/null #2>&1
     else
-      mountb -o remount,append:"${mountpoint}"=ro / >/dev/null #2>&1
+      mountb -o remount,append:"${mountpoint}"=ro+wh / >/dev/null #2>&1
     fi
     status=$?
     sync

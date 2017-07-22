@@ -155,9 +155,10 @@ find "${rootdir}" -type f -executable | while read chfile; do [ "$(file --brief 
 return 0
 }
 
-losetupb() { losetup $@ || losetup-FULL $@   ; }
-  mountb() {   mount $@ || busybox mount $@  ; }
- umountb() {  umount $@ || busybox mount $@  ; }
+
+losetupb() { /sbin/losetup $@ || losetup-FULL $@   ; }
+mountb() { mount $@ || busybox mount $@  ; }
+umountb() {  umount $@ || busybox mount $@  ; }
 
 mkaufs () {
 #make new aufs
@@ -228,7 +229,7 @@ case $(file -b $NEWLAYER) in
 	;;
 	*) return 5 ;;
 esac
-mount -o remount,add:1:"$NEWLAYER" "$AUFSMNT" || return 5
+mount -o remount,add:1:"$NEWLAYER"=ro+wh "$AUFSMNT" || return 5
 echo $NEWLAYER
 }
 

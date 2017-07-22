@@ -36,7 +36,7 @@ while true ;  do
 	[ $a ] || break
 	N=$(expr $N + 1)
 	n=$(seq -w 0 99 |sed -n "${N}p") # needed 01 02 03, not 1 2 3
-    layer_perm=$(echo $a |awk -F=/memory/bundles/88-magos.xzm '{print $2}')
+    layer_perm=$(echo $a |awk -F=  '{print $2}')
     bundle=$(echo $a |awk -F= '{print $1}')
     bundle_perm=$( [ -w $bundle ] && echo rw || echo ro )
     loop=$(findmnt  $bundle -o SOURCE | tail -n1  | tr -d '],['  ) ; [ $loop ] || loop=$(df $bundle |tail -n1 | awk '{print $1}')

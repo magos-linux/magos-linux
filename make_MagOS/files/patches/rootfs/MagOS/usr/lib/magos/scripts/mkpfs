@@ -85,7 +85,7 @@ done
 if [ -d $sourcelist 2>/dev/null -a "$inplace" == "yes" ] ;then
     eval echo "==== In place mode ====" $devnull
     [ ! "`ls $sourcelist`" ] && exitmsg "directory '$sourcelist' empty" 1
-    mklist $sourcelist && mksqmod $sourcelist "${userout}" && exit 0 
+    mklist $sourcelist $sourcelist $userout && mksqmod $sourcelist "${userout}" && exit 0 
     exitmsg "mkpfs error" 2
 fi
 
@@ -106,7 +106,7 @@ nn="$(echo "$n" | sed -n 's/^.*\([0-9]\)$/\1/p')"
 #add sources as aufs layers
 for  i in $sourcelist ;do
     eval addlayer "$nn" "$i" "$devnull" || exitmsg "can't insert layer to aufs $nn" 5
-    [ -d "$i" ] && mklist "$i" "$n"
+    [ -d "$i" ] && mklist "$i" "$n" $([ $(echo $sourcelist  |wc -w) -eq 1 ] && echo $userout )
 done 
 bundles=$(find $(echo $n |sed 's:aufs:bundles:') -maxdepth 1 -mindepth 1 -type d 2>/dev/null)
 
