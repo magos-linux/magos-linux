@@ -29,6 +29,7 @@ if ! [ -z "$THEME" ] ;then
            THEMEKDEWIDGET=${THEMEKDEWIDGET-oxygen}
            THEMEKWIN=${THEMEKWIN-kwin3_oxygen}
            THEMEPLASMA=${THEMEPLASMA-Aya}
+           THEMELXQT=${THEMELXQT-$THEME}
            ;;
     esac
 fi
@@ -84,4 +85,9 @@ fi
 
 if [ "$THEMEICONLXDE" != "" ] ;then
    sed -i 's|sNet/IconThemeName=.*|sNet/IconThemeName='"$THEMEICONLXDE"'|' /etc/xdg/lxsession/LXDE/desktop.conf
+fi
+
+if [ "$THEMELXQT" != "" -a -d /usr/share/lxqt/themes ] ;then
+   rm -f /usr/share/lxqt/themes/Default
+   ln -sf "$THEMELXQT"  "/usr/share/lxqt/themes/Default"
 fi

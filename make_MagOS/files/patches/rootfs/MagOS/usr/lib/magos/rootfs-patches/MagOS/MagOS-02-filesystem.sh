@@ -17,6 +17,7 @@ fi
 [ -f /sbin/mount.davfs ] || ln -sf /usr/sbin/mount.davfs /sbin/mount.davfs
 [ -f /usr/lib/chkpwd/tcb_chkpwd ]   && chown root:shadow usr/lib/chkpwd/tcb_chkpwd   && chmod 2711 usr/lib/chkpwd/tcb_chkpwd
 [ -f /usr/lib64/chkpwd/tcb_chkpwd ] && chown root:shadow usr/lib64/chkpwd/tcb_chkpwd && chmod 2711 usr/lib64/chkpwd/tcb_chkpwd
+[ -f /var/lib/dbus/machine-id ] || ln -sf /etc/machine-id /var/lib/dbus/machine-id
 
 #Default runlevel
 [ -f /etc/inittab ] && sed -i s/":3:initdefault:"/":5:initdefault:"/ /etc/inittab

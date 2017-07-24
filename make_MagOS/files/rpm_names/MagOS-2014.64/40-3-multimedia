@@ -49,8 +49,11 @@ lib64ass5-
 lib64audio2-
 lib64avc1394_0-
 lib64avdevice56-
+lib64avdevice57-
 lib64avfilter5-
+lib64avfilter6-
 lib64avutil54-
+lib64avutil55-
 lib64bs2b0-
 lib64caca0-
 lib64cdda0-
@@ -115,6 +118,7 @@ lib64orc-test0.4_0-
 lib64ortp9-
 lib64osip2_7-
 lib64postproc53-
+lib64postproc54-
 lib64projectm2-
 libprojectm-data-
 lib64pulsecore8.0-
@@ -179,4 +183,4 @@ youmagic-
 lib64rosampcore1-
 lib64gstbadvideo1.0_0-
 lib64gstbadbase1.0_0-
-lib64avresample2-
+lib64avresample3-

@@ -69,7 +69,9 @@ lib64avahi-compat-libdns_sd1-
 lib64avahi-core7-
 lib64avahi-glib1-
 lib64avcodec56-
+lib64avcodec57-
 lib64avformat56-
+lib64avformat57-
 lib64avutil52-
 lib64bfb0-
 lib64blas3-
@@ -293,7 +295,9 @@ lib64startup-notification-1_0-
 lib64svg1-
 lib64svg-cairo1-
 lib64swresample1-
+lib64swresample2-
 lib64swscaler3-
+lib64swscaler4-
 lib64taglib1-
 lib64tcl8.6_0-
 lib64thai0-
@@ -589,3 +593,4 @@ libinput-
 lib64wacom2-
 libwacom-
 lib64potrace0-
+lib64SDL2_2.0_0-

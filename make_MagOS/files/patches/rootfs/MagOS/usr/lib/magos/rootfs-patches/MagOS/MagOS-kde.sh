@@ -16,4 +16,14 @@ if [ -d /usr/share/apps/desktoptheme ] ;then
  done
 fi
 
+#for Xsession based dm's
+PFP=/etc/X11/wmsession.d/01KDE4
+cat >>$PFP <<EOF
+NAME=KDE4
+DESC=KDE Desktop
+EXEC=/usr/bin/startkde
+SCRIPT:
+exec /usr/bin/startkde
+EOF
+
 exit 0

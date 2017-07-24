@@ -588,3 +588,8 @@ libinput10-
 libwacom2-
 libwacom-
 libpotrace0-
+libSDL2_2.0_0-
+libswscaler4-
+libswresample2-
+libavcodec57-
+libavformat57-

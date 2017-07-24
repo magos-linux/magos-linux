@@ -7,6 +7,7 @@ function update_app
 
 ln -sf MagOS-applications.menu /etc/xdg/menus/applications.menu
 ln -sf MagOS-applications.menu /etc/xdg/menus/kde-applications.menu
+ln -sf MagOS-applications.menu /etc/xdg/menus/lxqt-applications.menu
 
 update_app cheese.desktop "GNOME;AudioVideo;Recorder;"
 update_app devede.desktop "AudioVideo;DiscBurning;"

@@ -17,4 +17,6 @@ sed -i s%sNet/ThemeName=.*%sNet/ThemeName=Default% $PFP
 sed -i s%sNet/IconThemeName=.*%sNet/IconThemeName=rosa% $PFP
 sed -i s%sGtk/CursorThemeName=.*%sGtk/CursorThemeName=rosa-flat% $PFP
 
+[ -d /usr/share/magos/lxde/skel ] && cp -aprf /usr/share/magos/lxde/skel /etc
+
 exit 0

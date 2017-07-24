@@ -16,7 +16,9 @@ rm -fr 2>/dev/null \
    usr/share/help/C/cheese/figures/effects.png \
    boot/initrd* usr/share/doc/perl-Libconf/html/Libconf/Libconf \
    usr/share/backgrounds/gnome \
-   etc/modprobe.d/nvidia[0-9]*
+   etc/xdg/autostart/org.kde.kgpg.desktop \
+   etc/modprobe.d/nvidia[0-9]* \
+   etc/machine-id var/lib/dbus/machine-id
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 

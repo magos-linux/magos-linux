@@ -16,7 +16,7 @@ cd loaded/$FLASHNAME-$VERREL
 
 rm -fr *.txt names urls re  2>/dev/null
 # Чтобы не загружать постоянно списки можно закоментарить следующую строку
-[ "$INET" = "on" ] && rm -fr media pubkeys urpmi 2>/dev/null
+#[ "$INET" = "on" ] && rm -fr media pubkeys urpmi 2>/dev/null
 
 mkdir -p media pubkeys urpmi/etc/urpmi urpmi/var/lib/urpmi urls names re/preferred
 

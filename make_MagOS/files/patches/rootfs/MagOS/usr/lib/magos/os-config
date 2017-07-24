@@ -174,3 +174,6 @@ MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
 
 #/usr/lib/magos/scripts/magosrepack
 MKSQFS_FASTALG="-b 512K -comp lz4 -Xhc"
+
+#/usr/lib/magos/rc.desktop/lxqt/qterminal
+QTERMINALSTART=yes
