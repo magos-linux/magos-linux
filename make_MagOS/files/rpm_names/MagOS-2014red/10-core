@@ -496,3 +496,7 @@ liblz4_1-r
 cracklib-common-
 libpcre16_0-
 libopencl1-
+lksctp-tools-
+libsctp1-
+lua-
+lua-posix-

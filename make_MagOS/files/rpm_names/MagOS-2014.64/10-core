@@ -497,3 +497,7 @@ ntp-config-
 lib64lz4_1-r
 lib64pcre16_0-
 lib64opencl1-
+lksctp-tools-
+lib64sctp1-
+lua-
+lua-posix-

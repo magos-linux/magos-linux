@@ -594,3 +594,6 @@ lib64wacom2-
 libwacom-
 lib64potrace0-
 lib64SDL2_2.0_0-
+x11-font-type1-
+x11-font-bitstream-type1-
+x11-font-xfree86-type1-
