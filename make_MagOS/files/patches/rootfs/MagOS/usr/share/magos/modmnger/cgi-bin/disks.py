@@ -13,7 +13,7 @@ def getPhysical():
 def getLogical():
 	arr = {}
 	arrmnt = getmntArr()
-	command = ('beesu /sbin/blkid -s TYPE  -s LABEL |grep  "/dev/sd"')
+	command = ('/sbin/blkid -s TYPE  -s LABEL |grep  "/dev/sd"')
 	for key_val  in os.popen( command ).read().split('\n'):
 		if len(key_val.split()) > 1:
 			if len(key_val.split()) == 3:
@@ -35,7 +35,7 @@ def getLogical():
 		else:
 			add = [ '---', '---','---', '---', '---' ]
 			arr[key] = val + add 
-			if  val[0] != 'swap':
+			if  val[1] != 'swap':
 				arr[key] = arr.get(key), ['is not mounted',]
 			else:
 				arr[key] = arr.get(key), ['swap partition',]
@@ -56,19 +56,19 @@ if __name__ == '__main__':
 	logical =  getLogical()
 	mnt = getmntArr()
 
-	print logical
-	print '-----------------------------------***'
-	print physical 
-	print '-----------------------------------***'
-	print mnt
+	#print logical
+	#print '-----------------------------------***'
+	#print physical 
+	#print '-----------------------------------***'
+	#print mnt
 	
-	
-	#for key, val in physical.items():
-	#	print 'disk:' + key + '  ' + val[0] + '  ' +val[1]
-	#	for key1, val1 in logical.items():
-	#		if key1[:-1] == key:
-	#			print key1 + ':   ', val1[0] 
-	#			print 'dirList: '
-	#			for f in val1[1]: 	print f
+	for key, val in physical.items():
+		print key + ':    ' + val[0] + '  ' +val[1]
+		for key1, val1 in logical.items():
+			if key1[:-1] == key:
+				print key1 + ':   LABEL=' + val1[0][0], 'FS=' + val1[0][1], 'SIZE='+ val1[0][2], 'USED=' + val1[0][3], 'FREE=' + val1[0][4], 'USED%=' + val1[0][5], 'MOUNT=' + val1[0][6]
+				print '            ', val1[1]
+		print ''
+		
 
 
