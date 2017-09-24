@@ -215,7 +215,6 @@ lib64numa1-
 lib64nutscan1-
 lib64oil0.3_0-
 liboil-tools-
-lib64openssl1.0.0-
 lib64openssl-engines1.0.0-
 lib64p11-kit0-
 lib64pam0-
@@ -501,3 +500,5 @@ lksctp-tools-
 lib64sctp1-
 lua-
 lua-posix-
+lib64crypto1.0.0-
+lib64ssl1.0.0-

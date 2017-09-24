@@ -214,7 +214,6 @@ libnuma1-
 libnutscan1-
 liboil0.3_0-
 liboil-tools-
-libopenssl1.0.0-
 libopenssl-engines1.0.0-
 libp11-kit0-
 libpam0-
@@ -500,3 +499,5 @@ lksctp-tools-
 libsctp1-
 lua-
 lua-posix-
+libcrypto1.0.0-
+libssl1.0.0-
