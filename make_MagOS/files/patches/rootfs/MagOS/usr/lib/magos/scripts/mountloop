@@ -4,7 +4,30 @@
 #
 # Description: Mount loop 
 # Author : Anton Goroshkin <http://magos-linux.ru>
+# Last edited : Mikhail Zaripov <http://magos-linux.ru>
 
-dl=$(losetup -f)
-/usr/lib/magos/scripts/losetupenc -e "$1" $dl "$2"
-mount $dl "$3"
+if [ "$1" == "" -o  "$2" == "" -o  "$1" == "--help" -o ! -f "$1" -o ! -d "$2" ] ;then
+  echo Mount encrypted loopback file
+  echo Usage: $0 filename.enc created_directory [options for cryptsetup]
+  exit 0
+fi
+
+FNAME="$1" ; shift
+DNAME="$1" ; shift
+MNAME=magosmountedencloop
+
+if grep /dev/mapper/$MNAME.*$(readlink -f $DNAME) /proc/mounts  ;then
+  echo Error! $DNAME is already mounted!
+  exit 1
+fi
+
+echo Mointing encrypted filesystem $FNAME to folder $DNAME
+
+for a in $(seq 0 254) ;do
+    [ -f /dev/mapper/$MNAME$a -o -b /dev/mapper/$MNAME$a ] && continue
+    MNAME=$MNAME$a ;break
+done
+
+read -s -pPassword: ; echo "$REPLY" | cryptsetup open --type loopaes "$FNAME" "$MNAME" --key-file - $@
+echo
+mount /dev/mapper/"$MNAME" "$DNAME"

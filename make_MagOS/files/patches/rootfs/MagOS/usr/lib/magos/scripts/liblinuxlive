@@ -472,19 +472,27 @@ mount_device()
    fi
 
    if [ $ERR -ne 0 ] && [ -f "$DEV" ] && echo "$DEV" | grep -q .enc$ ; then
-       LOOPDEV=$(losetup -f)
-       [ -z "$LOOPDEV" ] && LOOPDEV=$(mknod_next_loop_dev)
-       OPTIONS=$(echo "$OPTIONS" | sed -r "s/,loop//g")
+       for a in $(seq 0 254) ;do
+          [ -f /dev/mapper/magosencdev$a -o -b /dev/mapper/magosencdev$a ] && continue
+          LOOPDEV=magosencdev$a ;break
+       done
        echolog "Mounting encrypted filesystem $DEV" >/dev/console 2>/dev/console
        times=3
        while [ $times -gt 0 ]; do
-          /usr/bin/losetup.crypto -e AES256 "$LOOPDEV" "$DEV" >/dev/console </dev/console 2>/dev/console
-          [ $(cmdline_parameter fsck) ] && fsck_device "$LOOPDEV"
-          mount -n -o $OPTIONS "$LOOPDEV" "$2" >/dev/null 2>&1
-          ERR=$?
-          [ $ERR -eq 0 ] && break
-          /usr/bin/losetup.crypto -d "$LOOPDEV"
-          times=$(expr $times - 1)
+          read -s -pPassword: >/dev/console </dev/console 2>/dev/console ; echo $REPLY | cryptsetup open --type loopaes "$DEV" "$LOOPDEV" --key-file -
+          mount -n -o ro "/dev/mapper/$LOOPDEV" "$2" >/dev/null 2>&1
+          ismountpoint "$2" ; ERR=$?
+          if [ $ERR -ne 0 ]; then
+             echo incorrect! >/dev/console
+             cryptsetup close "$LOOPDEV"
+             times=$(expr $times - 1)
+          else
+             echo accepted! >/dev/console
+             umount "$2"
+             [ $(cmdline_parameter fsck) ] && fsck_device "/dev/mapper/$LOOPDEV"
+             mount -n -o rw "/dev/mapper/$LOOPDEV" "$2" >/dev/null 2>&1
+             break
+          fi
        done
    fi
 

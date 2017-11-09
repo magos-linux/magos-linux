@@ -4,7 +4,16 @@
 #
 # Description: Umount loop
 # Author : Anton Goroshkin <http://magos-linux.ru>
+# Last edited : Mikhail Zaripov <http://magos-linux.ru>
 
-dl=$(grep "$1" /proc/mounts | cut -d " " -f 1)
-umount "$1"
-/usr/lib/magos/scripts/losetupenc -d $dl
+if [ "$1" == "" -o  "$2" != "" -o  "$1" == "--help" -o ! -d "$1" ] ;then
+  echo Umount encrypted loopback file from directory
+  echo Usage: $0 mounted_directory
+  exit 0
+fi
+
+DNAME=$(readlink -f "$1")
+MNAME=$(grep -m1 " $DNAME " /proc/mounts | cut -d " " -f 1)
+
+umount "$DNAME"
+cryptsetup close "$MNAME"

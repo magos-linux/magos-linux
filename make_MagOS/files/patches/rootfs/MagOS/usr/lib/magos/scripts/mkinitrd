@@ -16,17 +16,17 @@ INIRAMDLIBS1="ld-linux.so.2 ld-linux-x86-64.so.2 linux-vdso.so.1 libblkid.so.1 l
   librt.so.1 libuuid.so.1 libz.so.1 libm.so.6 liblzma.so.?"
 
 # libraries to be placed in initrd/usr/lib (links)
-INIRAMDLIBS2="libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 libpopt.so.0 libsysfs.so.2 libpci.so.3 libkmod.so.2
+INIRAMDLIBS2='libelf.so.1 libglib-2.0.so.0 liblzo2.so.2 libm.so.6 libpcre.so.0 libpopt.so.0 libsysfs.so.2 libpci.so.3 libkmod.so.2
   libresolv.so.2 libnss_files.so.2 libnss_dns.so.2 libattr.so.1 libacl.so.1
-  libaal-1.0.so.5 libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libreadline.so.6 libreiser4-1.0.so.7 librepair-1.0.so.7 libntfs.so.10
+  libaal-1.0.so.? libcom_err.so.2 libe2p.so.2 libext2fs.so.2 libreadline.so.? libreiser* librepair-* libntfs.so.10
   libstdc++.so.6 libntfs-3g.so.?? libply-splash-core.so.2 libply.so.2 libgthread-2.0.so.0 libutil.so.1
-  libncurses.so.5 libtermcap.so.2 libcap.so.2 libncursesw.so.5"
+  libncurses.so.5 libtermcap.so.2 libcap.so.2 libncursesw.so.? libcryptsetup.so.? libuuid.so.1 libgcrypt.so.?? libudev.so.1 libgpg-error.so.0 libdevmapper.so.*'
 
 # binaries for /bin
 INIRAMDBIN1="busybox.static lspci httpfs blkid blockdev"
 # binaries for /usr/bin
 INIRAMDBIN2='dosfsck fsck fsck.ext2 fsck.reiser4 reiserfsck rsync losetup ntfsfix mksquashfs unsquashfs
-  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server sshfs shred cat ls dialog loadkeys unrar curlftpfs'
+  ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server sshfs shred cat ls dialog loadkeys unrar curlftpfs cryptsetup'
 # optional binaries for /usr/bin
 INIRAMDBINOPT="resume"
 
@@ -43,7 +43,7 @@ INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/drivers/hid/hid. kernel/drivers/hid/usbhid/usbhid.
   kernel/drivers/pcmcia/pcmcia_core. kernel/drivers/pcmcia/pcmcia. kernel/drivers/pcmcia/yenta_socket.
   kernel/net/sunrpc/sunrpc. kernel/net/sunrpc/auth_gss/auth_rpcgss. kernel/net/packet/af_packet.
-  kernel/crypto/cbc. kernel/arch/x86/crypto/aes- '
+  kernel/crypto/cbc. kernel/arch/x86/crypto/aes- kernel/drivers/md/dm-crypt. '
 INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/scsi_mod.
   kernel/lib/crc16. kernel/lib/crc-t10dif. kernel/crypto/aes_generic.
   kernel/drivers/usb/host/ehci-pci. kernel/drivers/usb/host/ehci-platform. kernel/drivers/hid/hid-generic.
@@ -81,6 +81,7 @@ function copy_lib()
        [ -f $LIB ] || LIB=$DIR/$LIB
        cp -pf $LIB $2
        [ "$LIB" != "$a" ] && ln -sf $(basename $LIB) $2/$LINK
+       true
     done
  else
     echo " Warning: $1 not found"

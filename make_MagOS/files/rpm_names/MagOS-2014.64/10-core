@@ -502,3 +502,6 @@ lua-
 lua-posix-
 lib64crypto1.0.0-
 lib64ssl1.0.0-
+lib64networkmanager-gir1.0-
+lib64jansson4-
+lib64nmclient-gir1.0-

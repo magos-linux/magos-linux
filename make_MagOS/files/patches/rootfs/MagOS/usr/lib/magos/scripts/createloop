@@ -4,17 +4,31 @@
 #
 # Description: Create loop
 # Author : Anton Goroshkin <http://magos-linux.ru>
+# Last edited : Mikhail Zaripov <http://magos-linux.ru>
 
+# $1=filename
+# $2=size
 
-# $1=enc
-# $2=filename
-# $3=size
+if [ "$1" == "" -o "$1" == "--help" ] ;then
+  echo Create encrypted loopback file
+  echo Usage: $0 filename size[GgMmKk] [options for cryptsetup]
+  exit 0
+fi
 
-dd if=/dev/zero of="$2" bs="$3" count=1 >/dev/null
+FNAME="$1" ; shift
+SIZE=$(echo $1 | tr -d [a-z][A-Z])
+METR=$(echo $1 | tr -d [0-9])
+METR=$(echo $METR | tr [a-z] [A-Z])
+shift
 
-dl=$(losetup -f)
-/usr/lib/magos/scripts/losetupenc -e "$1" $dl "$2"
+echo Creating encrypted filesystem $FNAME with size $SIZE x 1${METR}bytes.
 
-echo "y" | mkfs.ext3 $dl >/dev/null
+dd if=/dev/zero of="$FNAME" bs="$SIZE" count=1$METR >/dev/null
 
-losetup -d $dl
+cryptsetup close magosnewencloop0 2>/dev/null
+
+read -pPassword: ; echo $REPLY | cryptsetup open --type loopaes ""$FNAME"" magosnewencloop0 --key-file - $@
+
+mkfs.ext3 /dev/mapper/magosnewencloop0 
+
+cryptsetup close magosnewencloop0

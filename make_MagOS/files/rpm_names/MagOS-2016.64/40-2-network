@@ -122,3 +122,5 @@ python-idna-
 python-ipaddress-
 python-pyasn1-
 python-setuptools-
+nethogs-
+iftop-
