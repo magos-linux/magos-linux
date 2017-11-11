@@ -31,8 +31,7 @@ INIRAMDBIN2='dosfsck fsck fsck.ext2 fsck.reiser4 reiserfsck rsync losetup ntfsfi
 INIRAMDBINOPT="resume"
 
 INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
-  kernel/fs/isofs kernel/fs/fat kernel/fs/ntfs kernel/fs/ext3
-  kernel/fs/jbd kernel/fs/reiserfs kernel/fs/xfs
+  kernel/fs/isofs kernel/fs/fat kernel/fs/ntfs kernel/fs/reiserfs kernel/fs/xfs
   kernel/fs/nfs/ kernel/fs/nfs_common kernel/fs/lockd kernel/fs/fscache
   kernel/fs/nls/nls_cp866. kernel/fs/nls/nls_utf8.
   kernel/drivers/block/loop. kernel/drivers/block/cryptoloop. kernel/drivers/scsi/sr_mod.
@@ -43,7 +42,7 @@ INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
   kernel/drivers/hid/hid. kernel/drivers/hid/usbhid/usbhid.
   kernel/drivers/pcmcia/pcmcia_core. kernel/drivers/pcmcia/pcmcia. kernel/drivers/pcmcia/yenta_socket.
   kernel/net/sunrpc/sunrpc. kernel/net/sunrpc/auth_gss/auth_rpcgss. kernel/net/packet/af_packet.
-  kernel/crypto/cbc. kernel/arch/x86/crypto/aes- kernel/drivers/md/dm-crypt. '
+  kernel/arch/x86/crypto/aes- kernel/drivers/md/dm-crypt. '
 INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/scsi_mod.
   kernel/lib/crc16. kernel/lib/crc-t10dif. kernel/crypto/aes_generic.
   kernel/drivers/usb/host/ehci-pci. kernel/drivers/usb/host/ehci-platform. kernel/drivers/hid/hid-generic.
@@ -51,7 +50,8 @@ INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kern
   kernel/drivers/usb/host/ohci-pci. kernel/drivers/usb/host/ohci-plat-hcd.
   kernel/drivers/ide dkms-binary/fs/squashfs dkms-binary/lib/lzma kernel/fs/unionfs/unionfs.
   kernel/lib/zlib_inflate kernel/lib/zlib_deflate kernel/drivers/pcmcia/rsrc_nonstatic.
-  kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage/uas. '
+  kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage/uas.
+  kernel/fs/ext3 kernel/fs/jbd kernel/crypto/cbc. '
 
 INITRDNETWORKDRIVERS='3c59x e100 eepro100 e1000 hp100 ne2k-pci r8169 8139too 8139cp via-rhine forcedeth e2100 eepro eexpress pcnet32
    3c501 3c503 3c505 3c507 3c509 3c515 tg3 jme virtio_net atl1 atl1c atl2 igb alx'

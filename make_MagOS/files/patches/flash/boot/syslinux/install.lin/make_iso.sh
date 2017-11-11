@@ -35,6 +35,6 @@ read ISONAME
 mkisofs -o "$ISONAME" -v -J -R -D -A "$CDLABEL" -V "$CDLABEL" \
 -no-emul-boot -boot-info-table -boot-load-size 4 \
 -b boot/syslinux/isolinux.bin -c boot/syslinux/isolinux.boot -m '*_save*' \
--graft-points MagOS=../../../MagOS boot=../../../boot EFI=../../../EFI isolinux.cfg=../syslinux.cfg
+-graft-points MagOS=../../../MagOS boot=../../../boot EFI=../../../EFI isolinux.cfg=../syslinux.cfg isomode=../iso_conf
 
 

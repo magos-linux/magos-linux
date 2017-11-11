@@ -501,3 +501,6 @@ lua-
 lua-posix-
 libcrypto1.0.0-
 libssl1.0.0-
+libnetworkmanager-gir1.0-
+libjansson4-
+libnmclient-gir1.0-

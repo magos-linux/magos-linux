@@ -1,6 +1,8 @@
 #!/bin/bash
 ZONE=Europe/Moscow
 
+touch /etc/sysconfig/MagOS
+
 cp -pf /etc/pam.d/system-auth /etc/pam.d/system-auth-default
 
 ln -sf ../tmp /var/tmp

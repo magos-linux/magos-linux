@@ -13,6 +13,10 @@ gfxmenu /boot/grub4dos/gfxmenu
 color black/cyan yellow/cyan
 splashimage /boot/grub4dos/boot_xpm.gz
 
+iftitle [if exist /isomode] MagOS Linux-Run from ISO/DVD
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=uird: uird.force
+initrd /MagOS/uird.magos.cpio.xz
+
 title MagOS Linux with saving data
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=uird: uird.home=home.img uird.mode=machines

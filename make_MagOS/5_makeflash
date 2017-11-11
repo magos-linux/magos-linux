@@ -18,7 +18,7 @@ echo "Подготовка"
 DISTRVERSION=$(date +%Y%m%d)
 DESTDIR=flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
 [ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
-mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional,rootcopy} \
+mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional} \
   "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy,cache,steam,backgrounds/wallpapers/Default,backgrounds/screensaver/Default} \
   "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic} \
   flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international || exit 1
