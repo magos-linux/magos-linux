@@ -14,17 +14,17 @@ color white/black yellow/blue
 splashimage /boot/grub4dos/boot_xpm.gz
 
 iftitle [if exist /isomode] MagOS Linux-Загрузка с ISO/DVD
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 root=uird: uird.force
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.force scantimeout=3
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux-С сохранением данных
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 root=uird: uird.home=home.img uird.mode=machines
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux-Чистый режим
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 root=uird:
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0
 initrd /MagOS/uird.magos.cpio.xz
 
 #title MagOS Linux-С сохранением данных (initrd)

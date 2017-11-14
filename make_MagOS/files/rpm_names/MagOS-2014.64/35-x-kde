@@ -33,11 +33,6 @@ kmag-
 kmix-
 kmousetool-
 kmozillahelper-
-knetworkmanager-
-knetworkmanager-common-
-knetworkmanager-openvpn-
-knetworkmanager-pptp-
-knetworkmanager-vpnc-
 ksaneplugin-
 kscreen-
 lib64akonadi-contact4-
@@ -134,7 +129,6 @@ plasma-applet-kolourpicker-
 plasma-applet-konqprofiles-
 plasma-applet-konsoleprofiles-
 plasma-applet-luna-
-plasma-applet-networkmanagement-
 plasma-applet-notes-
 plasma-applet-nowplaying-
 plasma-applet-pastebin-
@@ -170,3 +164,6 @@ kde4-integration-
 libfprint-common-
 kmoonhelper-
 kio-mtp-
+plasma-nm-
+lib64ModemManagerQt0-
+lib64NetworkManagerQt1-
