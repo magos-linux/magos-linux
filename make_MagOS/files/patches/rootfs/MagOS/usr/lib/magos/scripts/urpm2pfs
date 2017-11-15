@@ -6,11 +6,11 @@
 # Author : Anton Goroshkin <http://magos-linux.ru>
 # Author : Alexandr Betkher <http://magos-linux.ru>
 
-[ $(id -un) != "root" ] && exit
 HLP () {
 echo "Usage: $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --urpmi <keys for urpmi>"   
 echo "$(basename $0) keys:"
 echo "-h | --help - this help"
+echo "-l | --load - mount the module after creation"
 echo "-n | -o | --name - name for the module"
 echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db, default \".\" "
 echo "--mask clean - special mask value "clean" to choose base magos modules only"
@@ -38,6 +38,7 @@ for arg in $argslist
 do
   case "${arg}" in
     "-h" | "--help" ) HLP;;
+    "-l" | "--load" ) load="yes";;
     "-n" | "-o" | "--name") name="yes";;
     "-m" | "--mask") mask="yes" ;;
     "-r" | "--rpmdb") rpmdb="yes" ;;
@@ -50,6 +51,8 @@ do
         name="no";  mask="no";;
   esac
 done
+
+
 
 if [ "$MASK" == "clean" ] ; then
 	for a in $(ls  /var/lib/rpm/modules |grep  -v "^81-int-");do 
@@ -66,7 +69,22 @@ if [[ -z "${packages}${urpmipars}" ]] ; then
   exit
 fi
 
-[ $NAME ] || NAME=$(echo $packages |awk '{print $1}').xzm
+if [ $(id -un) != "root" ] ; then 
+echo "Must be root"
+exit 2
+fi
+
+if [ $NAME ] ; then
+  if [ -d $NAME ] ; then
+    NAME=${NAME}/$(echo $packages |awk '{print $1}').xzm
+    erase_NAME=$(dirname $NAME)/erase_$(basename $NAME)
+  else
+    erase_NAME=${NAME}
+  fi
+else
+  NAME=$(echo $packages |awk '{print $1}').xzm
+  erase_NAME=erase_${NAME}
+fi
 
 export PATH=/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/functions
@@ -113,39 +131,48 @@ done
 
 mkdir -p $root_br/tmp
 
-for pack in $packages ; do
-/usr/sbin/urpme --urpmi-root=$root_br $pack 2>/dev/null 
-done
-
 if [ "$erase" == "no" ] ; then
-  /usr/sbin/urpmi.update -a --urpmi-root=$root_br
-  /usr/sbin/urpmi  --urpmi-root=$root_br  $packages $urpmipars 
+  for pack in $packages ; do
+    /usr/sbin/urpme --root=$root_br $pack 2>/dev/null 
+  done
+  if [ "$urpmidb" == "yes" ] ; then
+    /usr/sbin/urpmi.update -a --urpmi-root=$root_br
+    /usr/sbin/urpmi  --urpmi-root=$root_br  $packages $urpmipars
+  else
+    /usr/sbin/urpmi  --root=$root_br  $packages $urpmipars
+  fi
   result=$?
+  urpm=urpmi
+  action=install
+else
+  /usr/sbin/urpme --root=$root_br $packages 2>/dev/null 
+  result=$?
+  urpm=urpme
+  action=erase
 fi
 
 umount_all
 [ "$rpmdb" == "no" ] &&  rm -rf $mod_br/var/lib/rpm
-[ "$urpmidb" == "no" ] &&  rm -rf $mod_br/var/lib/urpmi
-rm -rf $mod_br/tmp
-rm -rf $mod_br/{dev,proc,sys}
+rm -rf $mod_br/{tmp,dev,proc,sys}
 
-if [ "$result"  -eq 0 -o "$erase" == "yes" ] ; then
-    mv $mod_br $(dirname $mod_br)/$NAME
-    if [ "$erase" == "no" ] ; then
-      mkpfs  $(dirname $mod_br)/$NAME -o ${NAME} && [ -f "${NAME}" ]  && echo "${NAME}"
-    else 
-      if mkpfs -l $(dirname $mod_br)/$NAME -o erase_${NAME} && [ -f  "erase_${NAME}" ] ; then
-		echo "erase_${NAME}"
-      else
-		echo "Error create erase_${NAME}, may be package is not in rpm DB"
-	  fi
-    fi
-else 
-	echo "Error install packages: $packages"
-	echo "urpmi exitcode: $result, must be zero"
-	echo "RTFM man urpmi" 
+if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
+  if mkpfs $mod_br -o ${NAME} && MODULE="$(readlink -e ${NAME})" ; then
+    [ "$load" = "yes" ] && pfsload $MODULE >/dev/null && echo "Mounted successfully"
+    echo "$MODULE"
+  else 
+    echo "Error create module"
+  fi
+elif [ "$result"  -eq 0 ] ; then
+  if mkpfs -l $mod_br -o ${erase_NAME} && MODULE="$(readlink -e ${erase_NAME})" ; then
+    [ "$load" = "yes" ] && pfsload $MODULE >/dev/null && echo "Mounted successfully"
+    echo "$MODULE"
+  else
+    echo "Error create module"
+  fi
+else
+    echo "Error $action packages: $packages"
+    echo "$urpm exitcode: $result, must be zero"
+    echo "RTFM man $urpm" 
 fi
 
-rm -rf $mod_br
-rm -rf $root_br
-rm -rf $(dirname $mod_br)/$NAME
+rm -rf $mod_br $root_br
