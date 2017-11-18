@@ -17,14 +17,14 @@ title ..Back to main menu
 configfile /boot/grub4dos/menu.lst
 
 title Memtest
-kernel /boot/tools/memtest
+kernel /boot/grub4dos/memtest
 
-title Hardware_Detection_Tool
-map /boot/tools/hdt.img (fd0)
-map --hook
-chainloader (fd0)+1
-rootnoverify (fd0)
-map --floppies=1
+#title Hardware_Detection_Tool
+#map /boot/tools/hdt.img (fd0)
+#map --hook
+#chainloader (fd0)+1
+#rootnoverify (fd0)
+#map --floppies=1
 
 title Linux magos mode (experimental)
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn

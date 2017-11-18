@@ -27,6 +27,14 @@ title MagOS Linux Clean mode
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en
 initrd /MagOS/uird.magos.cpio.xz
 
+iftitle [if exist /MagOS.bak/MagOS.sgn] title MagOS Linux with saving data (previous version)
+kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.home=home.img uird.mode=machines uird.from=MagOS.bak;MagOS-Data
+initrd /MagOS.bak/uird.magos.cpio.xz
+
+iftitle [if exist /MagOS.bak/MagOS.sgn] title MagOS Linux Clean mode (previous version)
+kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.from=MagOS.bak;MagOS-Data
+initrd /MagOS.bak/uird.magos.cpio.xz
+
 #title MagOS Linux Home profile (initrd)
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 lang=en home=home.img changes=xzm
@@ -43,7 +51,7 @@ initrd /MagOS/uird.magos.cpio.xz
 #initrd /MagOS/initrd.gz
 
 title MagOS Linux Netlive
-kernel /boot/tools/ipxe.lkrn
+kernel /boot/grub4dos/ipxe.lkrn
 #initrd script.ipxe
 
 title Additional software

@@ -78,8 +78,10 @@ case "$1" in
      echo copy initial rpm DB ...
      find "$IMGPATH" -maxdepth 4 -path "*/var/lib/rpm" | egrep $MASK | sort | while read a ; do
        echo  "$a -> /var/lib/rpm"
-       cp -prf "$a"/* /var/lib/rpm
+       cp  -rf "$a"/* /var/lib/rpm
      done
+     chown 0.0 -R /var/lib/rpm
+     chmod o-w -R /var/lib/rpm
      echo Done.
      ;;
    --erase)

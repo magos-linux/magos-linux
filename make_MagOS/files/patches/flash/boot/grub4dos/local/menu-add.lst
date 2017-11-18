@@ -17,14 +17,14 @@ title .. Назад в главное меню
 configfile /boot/grub4dos/local/menu.lst
 
 title Memtest - Проверка памяти
-kernel /boot/tools/memtest
+kernel /boot/grub4dos/memtest
 
-title Hardware_Detection_Tool - Определение оборудования
-map /boot/tools/hdt.img (fd0)
-map --hook
-chainloader (fd0)+1
-rootnoverify (fd0)
-map --floppies=1
+#title Hardware_Detection_Tool - Определение оборудования
+#map /boot/tools/hdt.img (fd0)
+#map --hook
+#chainloader (fd0)+1
+#rootnoverify (fd0)
+#map --floppies=1
 
 title Linux magos mode (экспериментально)
 #find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
