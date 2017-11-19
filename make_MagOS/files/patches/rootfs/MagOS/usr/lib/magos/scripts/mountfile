@@ -2,16 +2,25 @@
 # Mount file  ("Ext2", "Ext3", "Ext4", "SquashFS", "ISO")
 #VERSION 3.6
 . $(which pfs)
-allow_only_root
 
-if [ ! "$1" ]; then
-  echo "Usage: $(basename "$0") FILE" >&2; exit 1
-fi
-if [ -f "$1" ]; then
-  mntfile="$(realpath "$1")"
-else
-  echo "$(basename "$0"): File \"$1\" not found!" >&2; exit 1
-fi
+#help
+HLP(){
+echo "Usage: $0 <file>"
+echo OR
+echo "Usage: $0 <file> <mount point>"
+exit 1
+}
+
+case "$1" in
+    "" | -h | --help)  HLP ;;
+    *) if ! [ -f $1 ] ; then 
+    echo "$1 - file nofound "
+    HLP  ; fi ;;
+esac
+
+allow_only_root
+mntfile="$(realpath "$1")"
+
 if [ "$2" ]; then
   mntpoint="$2"
 else

@@ -2,7 +2,13 @@
 #Unmount filesystem from AUFS
 #VERSION 3.6
 . $(which pfs)
-allow_only_root
+HLP () {
+  echo "Usage: $(basename "$0") FYLESYSTEM (squashfs module, dir, iso, img, etc) "
+  echo "-n  --no-update  - do not update icon caches, fonts, etc"
+  echo "-s  --saveram    - do not remoove module from RAM after unmounting" 
+  echo "-h  --help       - this help"
+  exit 2
+}
 
 for arg in "$@"
 do
@@ -14,9 +20,10 @@ do
     *) infile="${arg}";;
   esac
 done
-if [ "${infile}" = "" ]; then
-  echo "Usage: $(basename "$0") FYLESYSTEM"; exit
-fi
+
+[ "${infile}_" = "_" ] && HLP
+
+allow_only_root
 
 if [ -f "${infile}" ] ; then 
 	fsname="$(basename $(realpath "${infile}"))" 
@@ -25,16 +32,17 @@ else
 	fsname="$(basename "${infile}")"
 fi
 
-mountpoint="${prefixmp}${fsname}"
+#mountpoint="${prefixmp}${fsname}"
+mountpoint="`awk '/'${fsname}'/ {print $2}' /proc/mounts`"
 if [ -d "${mountpoint}" ]; then
   sync
   mountb -t aufs -o remount,del:"${mountpoint}"/ aufs / #>/dev/null 2>&1
   stataufs=$?
   sync
   if [ "${fupdate}" != "no" -a ${stataufs} -eq 0 ] ; then
-	  pfs_update_caches "${mountpoint}"
-	for script in $(ls $(dirname $0)/runpfsunload-*) ; do 
-	  $script "${mountpoint}" &
+	  pfs_update_caches "${mountpoint}" 
+	for script in $(find $(dirname $0) -maxdepth 1 -name "runpfsunload*" -user root) ; do 
+	  $script "${mountpoint}"  & 
 	done
   fi
   

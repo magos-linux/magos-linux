@@ -3,9 +3,18 @@
 #VERSION 3.6
 . $(which pfs)
 
+HLP(){
+echo   "Usage: $0 <par>" 
+echo   "-s --stat         statistic"
+echo   "-m --mount   mount submodules"
+echo   "-i --install      installed submodules"
+exit 1
+}
+
 for arg in "$@"
 do
   case "${arg}" in
+	"-h" | "--help" ) HLP ;;
     "-s" | "--stat") stat="yes";;
     "-m" | "--mount" | "--mount-packages") readdir="mount";;
     "-i" | "--install" | "--install-packages") readdir="install";;

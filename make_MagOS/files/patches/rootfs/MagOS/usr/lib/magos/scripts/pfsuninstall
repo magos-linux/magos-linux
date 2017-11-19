@@ -2,11 +2,24 @@
 #Uninstall packages
 #VERSION 3.6
 . $(which pfs)
-allow_only_root
 
-if [ ! "$1" ]; then
-  echo "Usage: $(basename "$0") PACKAGE" >&2; exit 1
-fi
+#help
+HLP(){
+echo "Usage:" 
+echo "$0 <submodule>"
+exit 1
+}
+
+for arg in $@
+do
+  case "${arg}" in
+    "-h" | "--help")  HLP ;exit 1;;
+  esac
+done
+
+[ $1 ] || HLP
+
+allow_only_root
 package_name=$(basename $1 |sed 's/\.pfs$//')
 
 fileslist="${PFSDIR}/install/$package_name/pfs.files"
