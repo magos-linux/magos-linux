@@ -48,12 +48,31 @@ pfsinfo "$pfs" |while read m ;do
 	[ -d "$n" ] || exitmsg "error mounting aufs" 3
     bundle=$(addlayer "$nn" "$pfs" || exitmsg "can't insert layer to aufs $n" 5)
     cat "$SYSMNT/aufs${nn}${PFSDIR}/mount/${m}/pfs.files" | while read F; do 
-	touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
+	if [ ! -h "$bundle/$F" ];then
+	    #ntf -w "$bundle/$F"
+	    touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
+	else  
+	    #ntf -w "$bundle/$F" "$SYSMNT/aufs${nn}"
+	    cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
+	fi
     done
 
     emp="$SYSMNT/aufs$nn/${PFSDIR}/mount/$m/pfs.dirs.empty"
     [ -f "$emp" ] && cat "$emp" | while read F; do 
-	touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
+	F=$(echo $F |sed s':\$::')
+        if [ -d "$F" -o -f "$F" ] ; then
+	    touch "$SYSMNT/aufs$nn$F"
+	elif [ -h "$F" ] ;then
+	    ntf -q  "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
+	    #cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
+	else
+	    PWD=$(pwd)
+	    #touch "$SYSMNT/aufs$nn$F"
+	    #cd "$bundle" ; cp -a  "$F" "$SYSMNT/aufs${nn}/`dirname "$F"`"
+	    cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
+	    cd $PWD
+	fi
+#	touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
     done
 
     mklist "$SYSMNT/changes$nn" "$SYSMNT/aufs$nn" "$m" 
@@ -83,13 +102,6 @@ exit
 }
 
 [ "$1" ] || HLP
-allow_only_root
-
-#check kernel
-checksfsxzb >/dev/null 2>&1
-exitmsg "Kernel is not support squashfs/aufs" $?
-
-wh="-regex -e ".wh..wh.""
 
 argslist="$@"
 if  echo $argslist |grep -q "\-*comp .*" ; then
@@ -105,7 +117,7 @@ do
     "-o" | "--out-dir") onuserout="on";;
     "-d" | "--nopfs") d=yes ;;
     "-i" | "--install") i=yes ;;
-    "-h" | "--help")  HLP ;exit 1;;
+    "-h" | "--help")  HLP ;;
     "-q" | "--quiet" ) devnull='>/dev/null' ;;
     "-no-progress" | "--no-progress") noprogress="-no-progress";;
     "-processors"  | "--processors" ) numproc="on";;
@@ -117,6 +129,14 @@ do
         onuserout="off";  numproc="off";;
   esac
 done
+
+allow_only_root
+
+#check kernel
+checksfsxzb >/dev/null 2>&1
+exitmsg "Kernel is not support squashfs/aufs" $?
+wh="-regex -e ".wh..wh.""
+
 
 for item in $sourcelist ; do
 	if [ "$(fs_type $item)" == "squashfs" ] ; then

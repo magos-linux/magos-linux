@@ -1,9 +1,17 @@
 #!/bin/sh
 # Unmount file for PuppyRus ("Ext2", "Ext3", "Ext4", "SquashFS", "ISO")
 #VERSION 3.6
-if [ ! "$1" ]; then
-  echo "Usage: $(basename "$0") FILE" >&2; exit 1
-fi
+#help
+HLP(){
+echo "Usage: $0 <file>"
+exit 1
+}
+case "$1" in
+    "" | -h | --help)  HLP ;;
+    *) if ! [ -f $1 ] ; then 
+    echo "$1 - file not found "
+    HLP  ; fi ;;
+esac
 
 [ -f "$1" ] && mntfile="$(realpath "$1")" || mntfile="$1"
 mntpoint=/mnt/$(echo "${mntfile}" | tr ' ' '_' | sed "s#^\.##g" | sed "s#/#+#g")

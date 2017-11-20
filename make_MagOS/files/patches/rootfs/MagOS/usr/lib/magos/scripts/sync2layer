@@ -2,14 +2,14 @@
 #Util to move files to second aufs layer
 #VERSION 3.6
 . $(which pfs)
-allow_only_root 
+
 FILELIST=/.savelist
 #changesDir=/memory/changes
 rm -f /tmp/savelist* /tmp/allfiles /tmp/includedfiles /tmp/excludedfiles  
 
 function help () {
 echo "\
-$(basename $0) -- util move files from upper system aufs layer to second layer
+$(basename $0) -- this util move the files from upper system aufs layer to second layer
 It helps you to clear tmpfs diskspace, or to save changes
 
 Usage:
@@ -97,11 +97,14 @@ function  sync2layer () {
 	mount -o remount $layermp && mount -o remount /
 }
 
+[ "$1" == "-h" -o "$1" == "--help" ] && help
+
+allow_only_root
+
 if ! [ $1 ] ; then
 sync2layer
 exit
 fi 
-[ "$1" == "-h" -o "$1" == "--help" ] && help
 
 layername="$1"
 

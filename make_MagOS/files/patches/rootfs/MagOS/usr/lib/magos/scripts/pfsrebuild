@@ -3,15 +3,24 @@
 #VERSION 3.6
 . $(which pfs)
 
-if [ ! "$1" ]; then
-  echo "Usage: $(basename "$0") <PACKAGE> <args for mkpfs> " >&2; exit 1
-fi
+#help
+HLP(){
+echo "Usage: $(basename "$0") <PACKAGE> <args for mkpfs>"
+exit 1
+}
 
+case "$1" in
+    "" | -h | --help)  HLP ;;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- $1" ; HLP ;;
+esac
+
+allow_only_root
 package_name=$(basename $1 |sed "s/\.${EXT}$//")
+#package_name=$(basename $1)
 shift
 
-fileslist="${PFSDIR}/install/$package_name/pfs.files"
-[ -f $fileslist ] || fileslist="${PFSDIR}/mount/$package_name/pfs.files"
+fileslist="${PFSDIR}/install/${package_name}.${EXT}/pfs.files"
+[ -f $fileslist ] || fileslist="${PFSDIR}/mount/${package_name}.${EXT}/pfs.files"
 dirsempty=$(echo $fileslist | sed 's/pfs.files/pfs.dirs.empty/')
 
 # find pfs files in pfs contaners

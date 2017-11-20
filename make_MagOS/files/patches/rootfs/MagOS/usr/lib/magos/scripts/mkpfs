@@ -38,12 +38,11 @@ echo "	$(basename $0) -m dir ---> $(basename $0)" '$(find dir -maxdepth 1 -minde
 exit 1
 }
 
-allow_only_root
-
 check_kernel(){
 checksfsxzb >/dev/null 2>&1
 exitmsg "Kernel is not support squashfs/aufs. Work only 'mkpfs -l'" $?
 }
+
 #parsing for "-comp" arg
 argslist="$@"
 if  echo $argslist |grep -q "\-*comp .*" ; then
@@ -77,10 +76,14 @@ do
        onuserout="off"; usepkname="off"; usindlib="off"; numproc="off";;
   esac
 done
-[ "$inplace" ] || check_kernel
 
+[ "$sourcelist" ] || HLP 
+
+allow_only_root
+
+[ "$inplace" ] || check_kernel
 [ "${userout}" = "" ] && userout="./$(basename $(echo $sourcelist | awk '{print $1}')).${EXT}"
-[ "$sourcelist" ] || HLP
+
 #1 dir, in place mode
 if [ -d $sourcelist 2>/dev/null -a "$inplace" == "yes" ] ;then
     eval echo "==== In place mode ====" $devnull
