@@ -7,7 +7,7 @@ Flushing filesystem buffers, this may take a while...|Сброс буферов 
 Hit enter for|Нажмите Ввод чтобы выбрать|
 If you use|Если вы используете|
 Installing syslinux boot loader for|Установка загрузчика syslinux для|
-is mounted with noexec parameter, trying to remount...|подключено с параметром noexec, попробую исправить|
+is mounted with noexec parameter, copying syslinux to|подключено с параметром noexec, копирую syslinux в|
 Make sure you run this script from a mounted device.|Убедитесь что вы запустили скрипт с нужного устройства|
 Press Enter to continue, or Ctrl+C to abort...|Нажмите Ввод для продолжения или Ctrl-C для отмены...|
 Read the information above and then press Enter to exit...|Прочтите информацию и нажмите Вввод для завершения...|
@@ -26,3 +26,5 @@ Welcome to MagOS boot installer|Скрипт для установки MagOS|
 will be overwritten.|будет изменена.|
 You have to set boot flag on partition youself.|Установите на разделе флаг boot самостоятельно.|
 You have to set legacy_boot flag on partition youself.|Установите на разделе флаг legacy_boot самостоятельно.|
+You have not rights to write on |Нет прав для записи на устройство |
+Run as root.|Запустите скрипт под правами root.|

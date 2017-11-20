@@ -1,17 +1,19 @@
 #!/bin/bash
-
 set -e
 TARGET=""
 MBR=""
 SYSLINUXFS=" btrfs xfs "
-
-LOCF=`pwd`/`locale | grep ^LANG= | awk -F= '{print $2}'`
+WP=$(readlink -f "$0")
+WP=$(dirname "$WP")
+LOCF="$WP"/`locale | grep ^LANG= | awk -F= '{print $2}'`
+TMPBIN="/tmp/$USER-syslinux4magos.tmp"
 function t_echo()
 {
   STR=""
   while [ "$1" != "" ] ;do
-       if grep -q "^$1|" $LOCF 2>/dev/null ;then
-          STR="$STR `grep "^$1|" $LOCF | awk -F\| '{print $2}'`"
+       if grep -q "^$1|" "$LOCF" 2>/dev/null ;then
+          LSTR=$(grep "^$1|" "$LOCF" | awk -F\| '{print $2}')
+          STR="$STR $LSTR"
        else
           STR="$STR $1"
        fi
@@ -20,33 +22,34 @@ function t_echo()
   echo $STR
 }
 
-# Find out which partition or disk are we using
-MYMNT=$(readlink -f "$0")
-while [ "$MYMNT" != "" -a "$MYMNT" != "." -a "$MYMNT" != "/" -a "$TARGET" == "" ]; do
-   MYMNT=$(dirname "$MYMNT")
-   TARGET=$(egrep "[^[:space:]]+[[:space:]]+$MYMNT[[:space:]]+" /proc/mounts | cut -d " " -f 1)
-done
-
-if [ "$TARGET" = "" ]; then
-   t_echo "Can't find device to install to."
-   t_echo "Make sure you run this script from a mounted device."
-   exit 1
-fi
-
-if [ "$(cat /proc/mounts | grep "^$TARGET[[:space:]]" | grep noexec)" ]; then
-   t_echo "The disk" $TARGET "is mounted with noexec parameter, trying to remount..."
-   mount -o remount,exec "$TARGET"
-fi
-
-MBR=$(echo "$TARGET" | sed -r "s/[0-9]+\$//g")
-NUM=${TARGET:${#MBR}}
-FS=$(grep "$TARGET " /proc/mounts | gawk '{print $3}')
-cd "$MYMNT"
 clear
 t_echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 t_echo "Welcome to MagOS boot installer"
 t_echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 echo
+# Find out which partition or disk are we using
+MYMNT="$WP"
+while [ "$MYMNT" != "" -a "$MYMNT" != "." -a "$MYMNT" != "/" -a "$TARGET" == "" ]; do
+    MYMNT=$(dirname "$MYMNT")
+    TARGET=$(df "$MYMNT" | grep "[[:space:]]$MYMNT"$ | gawk '{print $1}')
+done
+
+if [ "$TARGET" == "" -o "$MYMNT" == "/" ]; then
+   t_echo "Can't find device to install to."
+   t_echo "Make sure you run this script from a mounted device."
+   exit 1
+fi
+
+MBR=$(echo "$TARGET" | sed -r "s/[0-9]+\$//g")
+NUM=${TARGET:${#MBR}}
+FS=$(grep -m1 "$TARGET " /proc/mounts | gawk '{print $3}')
+FSOPTS=$(grep -m1 "$TARGET " /proc/mounts | gawk '{ print $4}')
+
+if ! [ -w "$TARGET" ] ;then
+  t_echo "You have not rights to write on " "$TARGET""!" "Run as root."
+  exit 1
+fi
+
 t_echo "This installer will setup disk" "$MYMNT" "($TARGET,$FS)" "to boot only MagOS."
 if [ "$MBR" != "$TARGET" ]; then
    t_echo
@@ -62,12 +65,21 @@ clear
 t_echo "Flushing filesystem buffers, this may take a while..."
 sync
 
+SYSLINUX="$MYMNT/boot/syslinux/extlinux"
+
+if egrep -q "^$TARGET[[:space:]].*(noexec|showexec)" /proc/mounts ; then
+   t_echo "The disk" $TARGET "is mounted with noexec parameter, copying syslinux to" "$TMPBIN"
+   cp -f "$SYSLINUX" "$TMPBIN" || exit 1
+   SYSLINUX="$TMPBIN"
+   chmod 775 "$TMPBIN"
+fi
+
 # setup MBR if the device is not in superfloppy format
 if [ "$MBR" != "$TARGET" ]; then
    GPT= ; if fdisk -l "$MBR" | grep -qi gpt ;then GPT=gpt ;fi
    BACKUP=mbr$GPT-$(date +%Y%m%d-%H%M%S).bak
-   t_echo "Saving current  MBR to file" $BACKUP...
-   dd if=$MBR of=./boot/magos/$BACKUP count=1
+   t_echo "Saving current  MBR to file" "$MYMNT/boot/magos/$BACKUP"...
+   dd if=$MBR of="$MYMNT/boot/magos/$BACKUP" count=1
    if [ "$GPT" == "" ] ;then
      if [ -x /sbin/parted -o -x /usr/sbin/parted ] ;then
        t_echo "Activating partition" $TARGET...
@@ -84,11 +96,11 @@ if [ "$MBR" != "$TARGET" ]; then
      fi
    fi
    t_echo "Updating MBR on" $MBR...
-   cat ./boot/syslinux/lib/mbr$GPT.bin > $MBR
+   cat "$MYMNT/boot/syslinux/lib/mbr$GPT.bin" > $MBR
 fi
 
 t_echo "Installing syslinux boot loader for" "$MYMNT" "($TARGET,$FS)..."
-./boot/syslinux/extlinux -i "$MYMNT" || exit 1
+"$SYSLINUX" -i "$MYMNT" || exit 1
 
 t_echo "Setting up syslinux for" "$FS..."
 DEFAULT=grub4dos
@@ -96,7 +108,8 @@ if echo "$SYSLINUXFS" | grep -q " $FS " ;then
   DEFAULT=menu
   if ! t_echo "Setting up syslinux for" | grep -q "Setting up syslinux for" ;then  DEFAULT=local ;fi
 fi
-sed -i s/DEFAULT.*/"DEFAULT $DEFAULT"/ ./boot/syslinux/syslinux.cfg
+sed -i s/DEFAULT.*/"DEFAULT $DEFAULT"/ "$MYMNT/boot/syslinux/syslinux.cfg"
+if [ -f "$TMPBIN" ] ;then rm -f "$TMPBIN" ;fi
 
 t_echo "Disk" "$MYMNT" "($TARGET)" "should be bootable now. Installation finished."
 
