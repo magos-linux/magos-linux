@@ -6,7 +6,7 @@
 #VERSION 3.6
 
 #help
-HLP(){
+HELP(){
 echo "$0 is a helper library for Pfs-utils scripts" ; echo ""
 echo "Usage:" 
 echo "$0 <function> <pars>"
@@ -20,7 +20,7 @@ exit 1
 for arg in $@
 do
   case "${arg}" in
-    "-h" | "--help")  HLP ;exit 1;;
+    "-h" | "--help") [ "`basename $0`" = "pfs" ] && { HELP ;exit 1 ; } ;;
   esac
 done
 
@@ -94,8 +94,8 @@ pack_name="$(basename "$1")"
 mkdir -p "${dest_dir}${PFSDIR}/mount/${pack_name}" &&
 echo 'name="'$pack_name'"' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.specs" &&
 find "${source_dir}" ! -type d        | sed "s:$source_dir::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.files" &&
-find "${source_dir}"   -type d -empty | sed "s:$source_dir::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" &&
-[ -s "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" ] || rm "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty"
+find "${source_dir}"   -type d -empty | sed "s:$source_dir::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" #&&
+#[ -s "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" ] || rm "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty"
 #exitmsg "mklist error" $?
 }
 
@@ -307,7 +307,7 @@ echo -e "$founded\n$list" |sort |uniq -u
 }
 
 if [ "$(basename $0)" == "pfs" ] ;then
-[ $1 ] || HLP
+[ $1 ] || HELP
 command="$1" 
 shift
 $command $@
