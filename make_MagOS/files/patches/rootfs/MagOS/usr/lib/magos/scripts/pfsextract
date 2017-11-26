@@ -49,10 +49,8 @@ pfsinfo "$pfs" |while read m ;do
     bundle=$(addlayer "$nn" "$pfs" || exitmsg "can't insert layer to aufs $n" 5)
     cat "$SYSMNT/aufs${nn}${PFSDIR}/mount/${m}/pfs.files" | while read F; do 
 	if [ ! -h "$bundle/$F" ];then
-	    #ntf -w "$bundle/$F"
 	    touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
 	else  
-	    #ntf -w "$bundle/$F" "$SYSMNT/aufs${nn}"
 	    cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
 	fi
     done
@@ -62,8 +60,8 @@ pfsinfo "$pfs" |while read m ;do
 	F=$(echo $F |sed s':\$::')
         if [ -d "$F" -o -f "$F" ] ; then
 	    touch "$SYSMNT/aufs$nn$F"
-	elif [ -h "$F" ] ;then
-	    ntf -q  "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
+	#elif [ -h "$F" ] ;then
+	    #ntf -q  "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
 	    #cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
 	else
 	    PWD=$(pwd)
