@@ -16,7 +16,7 @@ DEBUGMODE=no
 debug_mode "$0" "$@"
 
 if [ -f usr/share/applications/install-helper.desktop ] ;then
-  if ! [ -d /memory/layer-base/1 -o -w /memory/layer-base/0 -o -d /mnt/livedata -o -w /mnt/livemedia ] ;then
+  if ! [ -w /memory/layer-base/0 -o -d /mnt/livedata -o -w /mnt/livemedia ] ;then
     mkdir -p etc/skel/Desktop
     cp usr/share/applications/install-helper.desktop etc/skel/Desktop/ && echodebug "install-helper.desktop added  to skel "
   fi

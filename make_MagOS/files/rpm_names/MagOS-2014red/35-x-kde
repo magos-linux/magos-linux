@@ -165,5 +165,5 @@ libfprint-common-
 kmoonhelper-
 kio-mtp-
 plasma-nm-
-lib64ModemManagerQt0-
-lib64NetworkManagerQt1-
+libModemManagerQt0-
+libNetworkManagerQt1-

@@ -23,9 +23,9 @@ function t_echo()
 }
 
 clear
-t_echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+t_echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 t_echo "Welcome to MagOS boot installer"
-t_echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+t_echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 echo
 # Find out which partition or disk are we using
 MYMNT="$WP"
@@ -50,12 +50,14 @@ if ! [ -w "$TARGET" ] ;then
   exit 1
 fi
 
-t_echo "This installer will setup disk" "$MYMNT" "($TARGET,$FS)" "to boot only MagOS."
+t_echo "This installer will setup disk to boot MagOS."
+t_echo "Disk:" "$MYMNT" "($TARGET,$FS)"
 if [ "$MBR" != "$TARGET" ]; then
-   t_echo
+   echo
    t_echo "Warning! Master boot record (MBR) of" $MBR "will be overwritten."
-   t_echo "If you use" $MBR "to boot any existing operating system, it will not work"
-   t_echo "anymore. Only MagOS will boot from this device. Be careful!"
+   t_echo "If you are using disk to boot any existing operating system,"
+   t_echo "it will not work anymore. Only MagOS will boot from this device."
+   t_echo "Be careful!"
 fi
 t_echo
 t_echo "Press Enter to continue, or Ctrl+C to abort..."
@@ -78,21 +80,21 @@ fi
 if [ "$MBR" != "$TARGET" ]; then
    GPT= ; if fdisk -l "$MBR" | grep -qi gpt ;then GPT=gpt ;fi
    BACKUP=mbr$GPT-$(date +%Y%m%d-%H%M%S).bak
-   t_echo "Saving current  MBR to file" "$MYMNT/boot/magos/$BACKUP"...
+   t_echo "Saving current MBR to" "$MYMNT/boot/magos/$BACKUP"
    dd if=$MBR of="$MYMNT/boot/magos/$BACKUP" count=1
    if [ "$GPT" == "" ] ;then
      if [ -x /sbin/parted -o -x /usr/sbin/parted ] ;then
        t_echo "Activating partition" $TARGET...
        parted -s $MBR set $NUM boot on
      else
-       t_echo "Can't find utility" "parted.""You have to set boot flag on partition youself."
+       t_echo "Can't find utility" "parted." "You have to set boot flag on partition youself."
      fi
    else
      if [ -x /sbin/parted -o -x /usr/sbin/parted ] ;then
        t_echo "Activating partition" $TARGET...
        parted -s $MBR set $NUM legacy_boot on
      else
-       t_echo "Can't find utility" "parted.""You have to set legacy_boot flag on partition youself."
+       t_echo "Can't find utility" "parted." "You have to set legacy_boot flag on partition youself."
      fi
    fi
    t_echo "Updating MBR on" $MBR...
@@ -111,7 +113,8 @@ fi
 sed -i s/DEFAULT.*/"DEFAULT $DEFAULT"/ "$MYMNT/boot/syslinux/syslinux.cfg"
 if [ -f "$TMPBIN" ] ;then rm -f "$TMPBIN" ;fi
 
-t_echo "Disk" "$MYMNT" "($TARGET)" "should be bootable now. Installation finished."
+t_echo "Disk" "$MYMNT" "($TARGET)" "should be bootable now."
+t_echo "Installation finished."
 
 echo
 t_echo "Read the information above and then press Enter to exit..."
