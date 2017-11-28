@@ -4,7 +4,7 @@ import os, re, subprocess, shutil
 
 def getPhysical():
 	fdisk = {}
-	command = ('beesu LC_MESSAGES=en fdisk -l |grep /dev/sd')
+	command = ('beesu LC_MESSAGES=C fdisk -l |grep /dev/sd')
 	ret = os.popen( command ).read()
 	for str in re.findall('Disk.* .*B', ret):
 		fdisk[str.split()[1].strip(':')] = str.split()[2:4]
@@ -13,7 +13,7 @@ def getPhysical():
 def getLogical():
 	arr = {}
 	arrmnt = getmntArr()
-	command = ('/sbin/blkid -s TYPE  -s LABEL |grep  "/dev/sd"')
+	command = ('beesu LC_MESSAGES=C /sbin/blkid -s TYPE  -s LABEL |grep  "/dev/sd"')
 	for key_val  in os.popen( command ).read().split('\n'):
 		if len(key_val.split()) > 1:
 			if len(key_val.split()) == 3:
