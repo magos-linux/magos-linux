@@ -24,8 +24,8 @@ devsize=$(fdisk -l 2>/dev/null |egrep "^.*${device}:" |awk '{print $5}')
 echo  "${0}:  process is not finished correctly"  > /tmp/errorcode
 
  
-if  [  "$devsize"  -le 4294967296 ] ;  then
-	# устройство меньше 4G, один раздел в фат 
+if  [  "$devsize"  -le 8589934592 ] ;  then
+	# устройство меньше 8G, один раздел в фат
 	type=type1
 elif  [  "$devsize"  -le 68719476736 ] ; then
 	# устройство меньше 64G, два раздела ext3 под магос и fat/ntfs под данные
@@ -47,18 +47,18 @@ error () {
 if  [ $type == "type1" -o $type == "type4" ] ; then
 	./parted.sh  $device $type ||  error "parted error" 1 
 	./magos-install.sh -m ${device}1  -b ${device}1 -d ${device}1  ||  error "copy dirs error" 2
-	cd  /tmp/tmp_mounts/$(basename ${device}1)/boot
-	./Install_MagOS.bat  ||  error "bootloader install error" 3
+	cd  /tmp/tmp_mounts/$(basename ${device}1)/boot/magos
+	./Install.bat  ||  error "bootloader install error" 3
 elif  [ $type == "type2" ] ; then
 	./parted.sh  $device $type ||  error "parted error" 1
 	./magos-install.sh -m ${device}2  -b ${device}2 -d ${device}2  ||  error "copy dirs error" 2
-	cd  /tmp/tmp_mounts/$(basename ${device}2)/boot
-	./Install_MagOS.bat  ||  error "bootloader install error" 3
+	cd  /tmp/tmp_mounts/$(basename ${device}2)/boot/magos
+	./Install.bat  ||  error "bootloader install error" 3
 elif  [ $type == "type3" ] ; then
 	./parted.sh  $device $type ||  error "parted error" 1
 	./magos-install.sh -m ${device}1  -b ${device}1 -d ${device}3  ||  error "copy dirs error" 2
-	cd  /tmp/tmp_mounts/$(basename ${device}1)/boot
-	./Install_MagOS.bat  ||  error "bootloader install error" 3
+	cd  /tmp/tmp_mounts/$(basename ${device}1)/boot/magos
+	./Install.bat  ||  error "bootloader install error" 3
 fi
 
 

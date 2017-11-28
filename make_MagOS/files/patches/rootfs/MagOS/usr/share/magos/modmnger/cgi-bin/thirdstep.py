@@ -36,7 +36,7 @@ def getBootDevs():
 	boot_mount_points = []
 	for key, val in logical.items():
 		if val[0][1] in boot_filter != '0':  
-			if val[0][6] != '/dev' and  os.path.isfile( val[0][6] + '/boot/Install_MagOS.bat'):
+			if val[0][6] != '/dev' and  os.path.isfile( val[0][6] + '/boot/magos/Install.bat'):
 				boot_mount_points.append( [key, val[0][6]] )
 	return boot_mount_points 
 

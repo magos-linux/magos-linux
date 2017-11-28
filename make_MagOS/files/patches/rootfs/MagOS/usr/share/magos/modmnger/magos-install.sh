@@ -121,7 +121,7 @@ echo -------------------------------------------------
 		else
 		echo "/mnt/livemedia/MagOS/boot.tar.bz2 is not found, try to use  /mnt/livemedia/boot"
 		boot_path="/mnt/livemedia/boot"
-		until [ -f "${boot_path}/Install_MagOS.bat" ] ; do 
+		until [ -f "${boot_path}/magos/Install.bat" ] ; do 
 			read -p "Please enter path to \"boot\" dir (MagOS boot dir), or push ENTER to get boot dir from repository:   "  a
 			if [ -z $a ] ; then
 				VERSION=$(cat /mnt/livemedia/MagOS/VERSION |awk '{print $1}')
@@ -135,7 +135,7 @@ echo -------------------------------------------------
 				boot_path=$a
 			fi
 			[ "$(basename  "$boot_path")" != "boot" ] && boot_path=${boot_path}/boot 
-			[ -f "${boot_path}/Install_MagOS.bat" ] || echo "Try again, or close this window to quit" 
+			[ -f "${boot_path}/magos/Install.bat" ] || echo "Try again, or close this window to quit" 
 		done
 		echo "Copy $boot_path  to $boot_dest"
 		rsync  -av  "$boot_path" "$boot_dest"   || error "${LINENO}:  copy boot dir error"  2

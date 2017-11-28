@@ -51,11 +51,11 @@ type1 () {
     fi
 }
 
-# тип второй: воторой раздел 2GB под магос, первый под данные fat или nfs
+# тип второй: воторой раздел 5GB под магос, первый под данные fat или nfs
 type2 () {
-	part1=$((($devsize  - 2300000000) / 1000 / 1000))
-	[ "$part1" -lt 500 ] && error "$MSG_space"  7  
-	part2=2000
+	part1=$((($devsize  - 5243000000) / 1000 / 1000))
+	[ "$part1" -lt 500 ] && error "$MSG_space"  7
+	part2=5000
 	fs_part1=fat32
 	[ "$part1" -gt  4000 ] && fs_part1=ntfs
 	fs_part2=ext3
@@ -89,8 +89,8 @@ type2 () {
 type3 () {
 		fs_part1=ext2
 		fs_part3=ext3
-		part1=$((($devsize  - 2147483648) / 1024 / 1024 / 10))
-		[ "$part1" -lt 2048 ] && part1=2048
+		part1=$((($devsize  - 4294967296) / 1024 / 1024 / 10))
+		[ "$part1" -lt 4096 ] && part1=4096
 		[ "$part1" -gt 20000 ] && part1=20000
 		part_swap=$(expr $(free -m |grep Mem: |awk '{print $2}')  \*  2)
 		part3=$(expr $devsize / 1000000 - $part1 - $part_swap)
