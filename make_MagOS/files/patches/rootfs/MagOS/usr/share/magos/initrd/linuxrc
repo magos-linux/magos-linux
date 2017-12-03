@@ -21,6 +21,7 @@ header "starting Linux Live scripts <http://www.linux-live.org/>"
 echo "0" >/proc/sys/kernel/printk
 
 modprobe_module loop
+modprobe_module squashfs
 modprobe_module squashfs-lzma
 
 # /usr and some drivers are compressed in initrd 

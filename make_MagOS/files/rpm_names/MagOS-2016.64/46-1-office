@@ -30,8 +30,7 @@ lib64mspub0.1_1-
 lib64mwaw0.3_3-
 lib64mythes1.2_0-
 lib64odfgen0.1_1-
-lib64orcus0.11_0-
-lib64orcus-parser0.11_0-
+lib64orcus-parser0.12_0-
 libpst-
 lib64textcat0-
 lib64visio0.1_1-
@@ -74,3 +73,7 @@ geronimo-specs-poms-
 geronimo-jaf-1.1-api-
 lib64exttextcat2.0_0-
 lib64wps0.4_4-
+lib64orcus0.12_0-
+lib64staroffice0.0_0-
+lib64gltf0.1_1-
+lib64zmf0.0_0-

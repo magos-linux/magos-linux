@@ -229,6 +229,13 @@ for i in $(bin/busybox --help | grep -v Copyright | grep , | tr , " "); do
    ln -s busybox bin/$i 2>/dev/null
 done
 
+if [ -x /bin/kmod ] ;then
+   cp -pf /bin/kmod  bin
+   for a in lsmod rmmod insmod modinfo modprobe depmod ;do
+      ln -sf kmod bin/$a
+   done
+fi
+
 if [ "$ARCH" = "64" ] ;then
    ln -s lib lib64
    ln -s lib usr/lib64

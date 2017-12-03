@@ -103,10 +103,10 @@ lib64ksgrd5_7-
 lib64ksignalplotter5_7-
 lib64kwin4_effect_builtins1-
 lib64kwin5-
-lib64kwineffects10-
-lib64kwinglutils10-
+lib64kwineffects11-
+lib64kwinglutils11-
 lib64kwin-qml-
-lib64kwinxrenderutils10-
+lib64kwinxrenderutils11-
 lib64kworkspace5_5-
 lib64milou5-
 lib64milou-qml-
@@ -378,6 +378,7 @@ sddm-theme-circles-
 sddm-theme-elarun-
 sddm-theme-maldives-
 sddm-theme-maui-
+sddm-theme-maya-
 signon-
 signon-plugin-oauth2-
 signon-ui-
@@ -400,3 +401,6 @@ libqalculate-data-
 mandriva-kde-translation-
 lib64kdecorations4-
 plasma5-color-scheme-oxygen-cold-
+lib64kioarchive5-
+plasma5-baloo-widgets-i18n-
+plasma5-libkcompactdisc-i18n-

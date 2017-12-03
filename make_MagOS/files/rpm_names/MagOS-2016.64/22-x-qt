@@ -129,3 +129,14 @@ qt5-qtquickcontrols-i18n-
 qt5-qtquickcontrols2-i18n-
 qt5-qtwebengine-i18n-
 qt5-qtwebsockets-i18n-
+lib64qt53danimation5-
+lib64qt53dquickanimation5-
+lib64qt53dquickextras5-
+lib64qt53dquickscene2d5-
+lib64qt5-qtcanvas3d-qml-
+lib64qt5-qtgraphicaleffects-qml-
+lib64qt5-qtquickcontrols2-qml-
+lib64qt5-qtquickcontrols-qml-
+lib64qt5quickcontrols2_5-
+lib64qt5quicktemplates2_5-
+lib64qt5xcbqpa5-egl-

@@ -21,7 +21,7 @@ DESTDIR=flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
 mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional} \
   "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy,cache,steam,backgrounds/wallpapers/Default,backgrounds/screensaver/Default} \
   "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic} \
-  flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international || exit 1
+  flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international || exit 1
 chmod 777 "$DESTDIR"/$FLASHNAME-Data/steam
 echo $VERREL $DISTRVERSION > "$MYPATH/$DESTDIR"/$FLASHNAME/VERSION || exit 1
 cp -pR files/patches/flash/* "$DESTDIR" || exit 1
@@ -36,7 +36,8 @@ for a in * ;do
     mksquashfs $a "$MYPATH/$DESTDIR/$FLASHNAME/base/$a.xzm" $MKSQOPT >/dev/null 2>/dev/null || exit 1
 done
 chmod 444 "$MYPATH/$DESTDIR/$FLASHNAME/base/"*.xzm
-mv "$MYPATH/$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}-international
+mv "$MYPATH/$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international
+mv "$MYPATH/$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}
 
 echo "Вычисление контрольных сумм"
 cd "$MYPATH/$DESTDIR/$FLASHNAME"

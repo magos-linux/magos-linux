@@ -8,7 +8,6 @@ cdi2iso-
 cdrdao-
 cdrkit-
 cdrkit-genisoimage-
-cdrkit-isotools-
 conky-
 ddrescue-
 dos2unix-
@@ -101,3 +100,12 @@ android-file-transfer-
 android-tools-
 lz4-r
 lib64reiserfscore0-
+cdrkit-genisoimage-
+cdrskin-
+lib64burn4-
+cdrtools-
+libcap-utils-
+yelp-
+gnome-doc-utils-
+lib64yelp0-
+yelp-xsl-

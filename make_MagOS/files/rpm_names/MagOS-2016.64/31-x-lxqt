@@ -2,7 +2,6 @@ task-lxqt-
 slim-
 lxqt-about-
 lxqt-admin-
-lxqt-common-
 lxqt-config-
 lxqt-globalkeys-
 lxqt-notificationd-
@@ -24,6 +23,7 @@ openbox-
 qterminal-
 trojita-
 compton-
+libfm-qt-
 lib64fm-qt_3-
 lib64lxqt0-
 lib64obrender32-
@@ -41,3 +41,7 @@ lib64muparser2-
 lib64statgrab6-
 menu-cache-
 lib64sysstat-qt5_0-
+lxqt-themes-
+lib64Qt5Xdg3-
+lib64Qt5XdgIconLoader3-
+libqtxdg-

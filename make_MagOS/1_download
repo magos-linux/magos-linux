@@ -89,11 +89,13 @@ rm -f re/tmp.txt
 if [ -d ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred ];then
    for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred/*` ;do
        awk '{ print "^" $1 "$" }' "$a" >  re/preferred/${a##*/} || exit 1
-       awk '{ print "^" $1 "$" }' "$a" >> re/excluded.txt || exit 1
+       awk '{ print "^" $1 "$" }' "$a" >> re/excluded.txt.tmp || exit 1
        cat media/${a##*/} | LC_ALL=C sort -rV >re/names_${a##*/}.txt || exit 1
        cat urls/${a##*/} | LC_ALL=C sort -rV >re/urls_${a##*/}.txt || exit 1
    done
 fi
+sort -u re/excluded.txt.tmp > re/excluded.txt 
+rm -f re/excluded.txt.tmp
 
 echo "Создание списков rpm пакетов"
 for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
@@ -115,17 +117,20 @@ for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
     done
     #поиск пакетов с указанных источников
     grep -f re/excluded.txt "$a" | while read b ;do
-         EXMD=$( grep -m1 "\\^$b\\$" re/preferred/* | awk -F: '{print $1}' | sed 's|.*/||') 
+         EXMD=$(grep "\\^$b\\$" re/preferred/* | awk -F: '{print $1}' | sed 's|.*/||' | sort -r)
          [ -z "$EXMD" ] && exit 1
          RPMNM=
          [ -f ../../files/rpm_names/$FLASHNAME-$VERREL/special ] && RPMNM=$(grep -m1 "^$b[0-9]" ../../files/rpm_names/$FLASHNAME-$VERREL/special)
-         [ -z "$RPMNM" ] && RPMNM=$(grep -m1 "^$b[0-9]" re/names_"$EXMD".txt)
+         for c in $EXMD ;do
+             [ -z "$RPMNM" ] && RPMNM=$(grep -m1 "^$b[0-9]" re/names_"$c".txt)
+             [ -z "$RPMNM" ] || EXMDFND=$c
+         done
          if [ -z "$RPMNM" ] ;then
             echo "$b" >> re/not_founded.txt
          else
             echo $RPMNM >> names/$SHNM || exit 1
             grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL.list
-            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_$EXMD.txt >> urls/$FLASHNAME-$VERREL
+            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_$EXMDFND.txt >> urls/$FLASHNAME-$VERREL
          fi
     done
 done
