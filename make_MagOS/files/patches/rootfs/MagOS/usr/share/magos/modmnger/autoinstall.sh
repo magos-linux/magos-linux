@@ -4,11 +4,8 @@
 export TEXTDOMAINDIR=./locale
 export TEXTDOMAIN=install-helper
 #alias _="gettext -s "
-MSG_Vbox=$(gettext "You can test your new MagOS installation in Virtualbox. ")
+MSG_Vbox=$(gettext "You can test your new MagOS installation in Virtualbox. \n Enter "b/bios" or "e/efi" to begin test ")
 MSG_log=$(gettext   "Installation log is in autoinstall.log file, in your home folder")
-MSG_YN=$(gettext   "YES(y), or NO(n)")
-MSG_y=$(gettext   "y")
-MSG_Y=$(gettext   "Y")
 MSG_wait=$(gettext   "Wait sync...")
 MSG_time=$(gettext  "sync time, hours:min:sec:")
 
@@ -18,6 +15,7 @@ $0 "$@" 2>&1 | tee /home/$(xuserrun whoami)/autoinstall.log
 exit ${PIPESTATUS[0]}
 fi
 
+PWD0=$(pwd)
 device="$1"
 devsize=$(fdisk -l 2>/dev/null |egrep "^.*${device}:" |awk '{print $5}')
 echo  "${0}:  process is not finished correctly"  > /tmp/errorcode
@@ -45,7 +43,7 @@ error () {
 
 if  [ $type == "type1" -o $type == "type4" ] ; then
 	./parted.sh  $device $type ||  error "parted error" 1 
-	./magos-install.sh -m ${device}1  -b ${device}1 -d ${device}1  -e ${device}1 ||  error "copy dirs error" 2
+	./magos-install.sh -m ${device}1  -b ${device}1 -d ${device}1  ||  error "copy dirs error" 2
 	cd  /tmp/tmp_mounts/$(basename ${device}1)/boot/magos
 	./Install.bat  ||  error "bootloader install error" 3
 elif  [ $type == "type2" ] ; then
@@ -60,18 +58,17 @@ elif  [ $type == "type3" ] ; then
 	./Install.bat  ||  error "bootloader install error" 3
 fi
 
-
+cd $PWD0
 echo "$MSG_wait" 
 echo "$MSG_time" 
 /usr/bin/time  -f %E  sync
 
-cd /usr/share/magos/modmnger
-echo "$MSG_Vbox"
-echo "$MSG_YN"
-read a
-[ "$a" == "y" -o "$a" == "Y" -o "$a" == "$MSG_y" -o "$a" == "$MSG_Y" ] && ./virtualize $device
+#cd /usr/share/magos/modmnger
+echo -e "$MSG_Vbox"
+read aaa
+[ "$aaa" == "b" -o "$aaa" == "bios" ]  && ./virtualize $device
+[ "$aaa" == "e" -o "$aaa" == "efi" ] && ./virtualize $device --efi 
 echo "$MSG_log"
- 
 sleep 5
 
 exit 0

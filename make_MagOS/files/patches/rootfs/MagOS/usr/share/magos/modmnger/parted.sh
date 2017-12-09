@@ -148,25 +148,6 @@ type4 () {
 	mkfs.$fs_part1  -L magos ${device}1 || error "${LINENO}: mkfs error"  6
 }
 
-#все в ntfs
-type5 () {
-	part1=$(($devsize / 1024 / 1024))
-	fs_part1=ntfs
-	echo "----------------------------------------------"
-	echo "$MSG_size 1:   $(echo "scale=2;  $part1 / 1024" | bc) GiB"
-	echo "$MSG_fs 1:  $fs_part1"
-	echo "----------------------------------------------"
-
-	read -p "$MSG_continue  "
-	
-	try_to_clear
-
-	parted  -a optimal -s $device   mkpart  NTFS 0% 100%  || error "${LINENO}: Parted error" 5
-	mkfs.ntfs -f -L magos ${device}1  || error "${LINENO}: mkfs error"  6
-	
-}
-
-
 try_to_clear () {
 	if cat /proc/mounts |grep -q $device ; then
 		echo "Trying to unmount disks..."
