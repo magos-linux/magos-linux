@@ -4,7 +4,7 @@
 import  gettext, os, cgi,  subprocess
 import cfg, disks
 
-boot_filter=('vfat', 'ntfs', 'ext3', 'linux-native', 'ext2')
+boot_filter=('vfat', 'ntfs', 'ext3', 'linux-native', 'ext2', 'ext4', 'btrfs')
 
 gettext.install('install-helper', './locale', unicode=True)
 dialog_text = 'none'
@@ -34,11 +34,12 @@ comment1  =_('standard bootloader').encode('UTF-8')
  
 def getBootDevs():
 	boot_mount_points = []
+	boot_mount_points.append( [ 'none', 'none' ] )
 	for key, val in logical.items():
 		if val[0][1] in boot_filter != '0':  
-			if val[0][6] != '/dev' and  os.path.isfile( val[0][6] + '/boot/magos/Install.bat'):
+			if os.path.isfile( val[0][6] + '/boot/magos/Install.bat'):
 				boot_mount_points.append( [key, val[0][6]] )
-	return boot_mount_points 
+	return boot_mount_points
 
 
 def bootloader_install():
@@ -124,12 +125,12 @@ if len(boot_devs[0][0]) != 0:
 	print '<table  class="bordered-table">' 
 	print '<tr><td class="bordered_td">' + flag + '</td><td class="bordered_td">' +  device +  '</td><td class="bordered_td">' + mount_point + '</td></tr>'
 	for dev in boot_devs:
-		print  '<tr><td class="bordered_td"><input type="radio" name="boot-mount" id="' + dev[0].replace('/', '-') + '" value="' + dev[1] + '"></td>'
-		print '<td class="bordered_td">' + dev[0] + '</td><td class="bordered_td">' + dev[1] + '</td></tr>' 
+		if dev[0] != 'none':
+			print  '<tr><td class="bordered_td"><input type="radio" name="boot-mount" id="' + dev[0].replace('/', '-') + '" value="' + dev[1] + '"></td>'
+			print '<td class="bordered_td">' + dev[0] + '</td><td class="bordered_td">' + dev[1] + '</td></tr>' 
 	print '</table>'
 	print '<input type="submit"  name="submit"    value="' + submit_3 + '"></form>'
-else:
-	print '<p>' + no_boot + '</p>'
+	
 
 print '</body></html>'
 

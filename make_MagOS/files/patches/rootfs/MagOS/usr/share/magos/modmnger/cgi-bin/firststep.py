@@ -15,7 +15,7 @@ select_disk = _('Please select disk to format:').encode('UTF-8')
 select_type = _('Please select partitions:').encode('UTF-8')
 gparted = _('Use gparted').encode('UTF-8')
 none= _('Nothing to do').encode('UTF-8')
-title_type5= _('Standard fat32  flash drive for simple MagOS  installation.').encode('UTF-8')
+title_type1= _('Standard fat32  flash drive for simple MagOS  installation.').encode('UTF-8')
 title_type6= _('For NTFS flash drive, is not recomended to install MagOS.').encode('UTF-8')
 title_type2= _('ext3 for MagOS installation, and fat32 or ntfs (if more then 4GB) for data. MagOS will invisible from windows').encode('UTF-8')
 title_type3= _('Recomended partitions for install MagOS in hdd').encode('UTF-8')
@@ -122,12 +122,12 @@ print '<form action="/cgi-bin/firststep.py" method="post" name=ds_form>'
 print '<table  class="bordered-table" >'
 print '<tr><td class="bordered_td">' + flag + '</td><td class="bordered_td">' +  device +  '</td><td class="bordered_td">' + size + '</td> </tr>'
 for key, val in physical.items():
-	print '<tr><td class="bordered_td" rowspan="2"><input type="radio"    name="physical"  value="' + key + '"></td><td class="bordered_td"><b>' + key + '</b></td><td class="bordered_td" > ' + val[0]  + ' ' + val[1] + '</td></tr>'
-	print '<tr><td colspan="2">'
+	print '<tr><td class="bordered_td" rowspan="2"><input type="radio"    name="physical"  value="' + key + '"></td><td class="bordered_td"><b>' + key + ':</b></td><td class="bordered_td" > ' + val[0]  + ' ' + val[1] + '</td></tr>'
+	print '<tr><td colspan="2"><table width="100%">'
 	for key1, val1 in logical.items():
 			if key1[:-1] == key:
-				print '<i>' + key1 + ':</i>  ' + val1[0][0] + ';   ' + val1[0][1]  
-				print '<div title="dirList:             '
+				print '<tr><td class="bordered_td" width="20%"><i>' + key1 + '</td><td class="bordered_td"></i> label:  ' + val1[0][0] + '<br>FS:  ' + val1[0][1]  
+				print '<div title="dirList:'
 				for f in val1[1]: 	
 					print f + ', '
 				print '">mount: '  
@@ -135,17 +135,16 @@ for key, val in physical.items():
 					print  val1[0][6]
 				else: 
 					print  not_mouted
-				print  '</div><br>'
-	print '</td></tr>'
+				print  '</div></td></tr>'
+	print '</table></td></tr>'
 print '</table>'
 
 print '<h2>' + select_type + '</h2>' 
 print '<table  class="bordered-table" >'
-print '<tr align="center" title="' + title_type5 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type5"></td><td align="left" ><div id="fat32_400">fat-32</div></td></tr>'
-print '<tr align="center" title="' + title_type6 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type6"></td><td align="left" ><div id="ntfs_400">ntfs</div></td></tr>'
-print '<tr align="center" title="' + title_type4 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type4"></td><td align="left" ><div id="ext3_400">ext3</div></td></tr>'
-print '<tr align="center" title="' + title_type2 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type2"></td><td align="left" ><div id="fat32_250">fat-32 / ntfs</div><div id="ext3_150">ext 3</div></td></tr>'
-print '<tr align="center" title="' + title_type3 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type3"></td><td align="left" ><div id="ext2_100">ext 2</div><div id="swap40">swap</div><div id="ext3_260">ext 3</div></td></tr></table>'
+print '<tr align="center" title="' + title_type1 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type5"></td><td align="left" ><div id="fat32_100">fat32 (100% disk space)</div></td></tr>'
+print '<tr align="center" title="' + title_type4 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type4"></td><td align="left" ><div id="ext4_100">ext4  (100% disk space)</div></td></tr>'
+print '<tr align="center" title="' + title_type2 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type2"></td><td align="left" ><div id="fat32_50">fat32 / exfat (for data)</div><div id="efi_15">fat16 (32MiB ESP/EFI)</div><div id="ext4_35">ext4 (5GiB for MagOS dirs)</div></td></tr>'
+print '<tr align="center" title="' + title_type3 + '"><td class="bordered_td"><input type="radio"    name="format-type"  value="type3"></td><td align="left" ><div id="ext4_30">ext4 (5GiB < 10% < 20GiB) for MagOS and boot dirs</div><div id="swap20">swap (RAM*2 < 10GiB) </div><div id="efi_15">fat32 (100MiB ESP/EFI)</div><div id="ext4_35">ext4 (for MagOS-Data dir)</div></td></tr></table>'
 print '</td></tr></table>' 
 print '<input type="submit"  name="submit"    value="' + submit_ +'">'
 print '</form>'

@@ -6,8 +6,9 @@ import cfg, disks
 gettext.install('install-helper', './locale', unicode=True)
 
 # file system filters for boot and MagOS dirs
-boot_filter=('vfat', 'ntfs', 'ext3', 'linux-native', 'ext2')
-magos_filter=('vfat', 'ntfs', 'ext3', 'linux-native', 'ext2')
+boot_filter=('vfat', 'ntfs', 'ext3', 'linux-native', 'ext2', 'ext4', 'btrfs')
+magos_filter=('vfat', 'ntfs', 'ext3', 'linux-native', 'ext2', 'ext4', 'btrfs')
+efi_filter=('vfat', 'fat32', 'fat16')
 
 dialog_text = 'none'
 
@@ -20,6 +21,7 @@ prev_ = _('Prev...').encode('UTF-8')
 magos_header = _('Please select disk to MagOS dir').encode('UTF-8')
 magos_data_header = _('Please select disk to MagOS-Data dir').encode('UTF-8')
 boot_header = _('Please select disk to boot dir').encode('UTF-8')
+efi_header = _('Please select disk to EFI dir').encode('UTF-8')
 flag = _('flag').encode('UTF-8')
 device = _('device').encode('UTF-8')
 size = _('size').encode('UTF-8')
@@ -37,7 +39,7 @@ do_not_copy = _('Do not copy').encode('UTF-8')
 
 def magos_install ():
 		dialog_text = ( copy_OK )
-		command = ('beesu  xterm -e ./magos-install.sh  -m ' + magos + ' -d ' + magos_data   + ' -b  ' + boot  + ' ' )
+		command = ('beesu  xterm -e ./magos-install.sh  -m ' + magos + ' -d ' + magos_data   + ' -b  ' + boot  + ' -e' + efi + ' ' )
 		ret = subprocess.call(command, shell=True)
 		try:
 			f = open('/tmp/errorcode', 'r')
@@ -56,7 +58,7 @@ form = cgi.FieldStorage()
 magos = form.getvalue('magos') or  'none' 
 boot = form.getvalue('boot') or 'none'
 magos_data = form.getvalue('magos-data') or 'none'
- 
+efi = form.getvalue('efi') or 'none' 
 	
 if magos != 'none' or boot != 'none' or magos_data != 'none':
 	dialog_text=magos_install() 
@@ -125,7 +127,7 @@ for key, val in logical.items():
 			print f + ' '
 		print '">'	
 		print  '<td  class="bordered_td"><input type="radio" name=magos id="' + key.replace('/', '-') + '" value="' + key + '"'
-		if  val[0][0] == 'magos' and val[0][6] != '/mnt/livemedia':
+		if  val[0][0] == 'MAGOS' and val[0][6] != '/memory/data/from/0':
 			print ' checked '
 		print  '></td>'
 		print '<td  class="bordered_td">' + key + '</td><td  class="bordered_td">' + val[0][2] + '</td><td  class="bordered_td">' + val[0][4] + '</td><td  class="bordered_td">' 
@@ -152,10 +154,10 @@ for key, val in logical.items():
 			print f + ' '
 		print '">'	
 		print  '<td  class="bordered_td"><input type="radio" name="magos-data" id="' + key.replace('/', '-') + '" value="' + key + '"'
-		if  val[0][0] == 'magos-data' and  val[0][6] != '/mnt/livedata':
+		if  val[0][0] == 'MAGOS-DATA' and  val[0][6] != '/memory/data/from/1':
 			print ' checked '
 			data_checked = 'yes'
-		if  val[0][0] == 'magos' and  val[0][6] != '/mnt/livemedia'  and  data_checked != 'yes':
+		if  val[0][0] == 'MAGOS' and  val[0][6] != '/memory/data/from/0'  and  data_checked != 'yes':
 			print ' checked '
 		print '></td>'
 		print '<td  class="bordered_td">' + key + '</td><td  class="bordered_td">' + val[0][2] + '</td><td  class="bordered_td">' + val[0][4] + '</td><td  class="bordered_td">' 
@@ -180,7 +182,7 @@ for key, val in logical.items():
 			print f + ' '
 		print '">'	
 		print  '<td  class="bordered_td"><input type="radio" name="boot" id="' + key.replace('/', '-') + '" value="' + key + '"'
-		if  val[0][0] == 'magos' and val[0][6] != '/mnt/livemedia':
+		if  val[0][0] == 'MAGOS' and val[0][6] != '/memory/data/from/0':
 			print ' checked '
 		print '></td>'
 		print '<td  class="bordered_td">' + key + '</td><td  class="bordered_td">' + val[0][2] + '</td><td  class="bordered_td">' + val[0][4] + '</td><td  class="bordered_td">' 
@@ -192,6 +194,34 @@ for key, val in logical.items():
 		print '</td></tr>'
 print  '<tr><td  class="bordered_td"><input type="radio" name=boot id="boot_none" value="none"></td><td colspan="4"  align="center">' + do_not_copy +'</td></tr>'
 print '</table>'
+
+print '<h3>' + efi_header + '</h3>'
+print '<table  id="efi-table"   class="bordered-table" >'
+print '<tr><td  class="bordered_td">' + flag + '</td><td  class="bordered_td">' +  device +  '</td><td  class="bordered_td">' + size + '</td>' 
+print '<td  class="bordered_td">' + free_size + '<td  class="bordered_td">' + mount_point + '</td></td> </tr>'
+
+for key, val in logical.items():
+	if val[0][1] in efi_filter != '0':
+		print  '<tr  title="dirList: '
+		for f in val[1]: 	
+			print f + ' '
+		print '">'	
+		print  '<td  class="bordered_td"><input type="radio" name="efi" id="' + key.replace('/', '-') + '" value="' + key + '"'
+		if  val[0][0] == 'EFI' or val[0][0] == 'MAGOS':
+			print ' checked '
+		print '></td>'
+		print '<td  class="bordered_td">' + key + '</td><td  class="bordered_td">' + val[0][2] + '</td><td  class="bordered_td">' + val[0][4] + '</td><td  class="bordered_td">' 
+		if val[0][6] != '/dev': 
+			print  val[0][6]
+		else: 
+			print  not_mounted
+			
+		print '</td></tr>'
+print  '<tr><td  class="bordered_td"><input type="radio" name=efi id="efi_none" value="none"></td><td colspan="4"  align="center">' + do_not_copy +'</td></tr>'
+print '</table>'
+
+
+
 print '<br><br>'
 print '<input type="submit"  name="submit"    value="' + submit_2 + '"></form>'
 print '</body></html>'

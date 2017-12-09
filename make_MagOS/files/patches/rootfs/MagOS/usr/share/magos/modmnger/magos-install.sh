@@ -25,7 +25,7 @@ else
 	magos_src=/mnt/livemedia/MagOS
 fi
 
-while getopts  d:m:b: option ;do
+while getopts  d:m:b:e: option ;do
     case $option in
       "h" )
           help && exit
@@ -39,6 +39,10 @@ while getopts  d:m:b: option ;do
       "d")
           data_dest=$OPTARG
           ;;
+	  "e")
+          efi_dest=$OPTARG
+          ;;
+
       
     esac
 done
@@ -55,6 +59,7 @@ echo -------------------------------------------------
 echo "MagOS - $magos_dest" 
 echo "MagOS-Data  - $data_dest"
 echo "boot - $boot_dest"
+echo "EFI - $efi_dest"
 echo ------------------------------------------------- 
 
  
@@ -83,6 +88,20 @@ if  [ -b "$boot_dest" ] ; then
 	fi
 fi
 
+
+
+if  [ -b "$efi_dest" ] ; then
+	test=$(cat /proc/mounts |grep $efi_dest | head -n 1 |awk '{print $2}')
+	if [ -d "$test" ] ; then 
+		efi_dest=$test
+		test=""
+	else
+		mkdir -p /tmp/tmp_mounts/$(basename $efi_dest)
+		mount $efi_dest  /tmp/tmp_mounts/$(basename $efi_dest)  || error "${LINENO}:  mount error"  1
+		efi_dest="/tmp/tmp_mounts/$(basename $efi_dest)"
+	fi
+fi
+
 if  [ -b "$data_dest" ] ; then
 	test=$(cat /proc/mounts |grep $data_dest | head -n 1 |awk '{print $2}')
 	if [ -d "$test" ] ; then 
@@ -93,6 +112,10 @@ if  [ -b "$data_dest" ] ; then
 		data_dest="/tmp/tmp_mounts/$(basename $data_dest)"
 	fi
 fi
+
+echo boot destinantion: $boot_dest
+echo efi destinantion: $efi_dest
+
 
 if [ -d "$magos_dest"  ] ; then
 echo -------------------------------------------------
@@ -112,39 +135,6 @@ echo -------------------------------------------------
 fi 
 
 
-if [ -d "$boot_dest"  ] ; then
-echo -------------------------------------------------
-	if [ -f  "${magos_src}/boot.tar.bz2" ] ; then
-		echo "${magos_src}/boot.tar.bz2 to  $boot_dest"
-		cd "$boot_dest"
-		tar xvjf "${magos_src}/boot.tar.bz2"  && echo $MSG_OK
-		else
-		echo "/mnt/livemedia/MagOS/boot.tar.bz2 is not found, try to use  /mnt/livemedia/boot"
-		boot_path="/mnt/livemedia/boot"
-		until [ -f "${boot_path}/magos/Install.bat" ] ; do 
-			read -p "Please enter path to \"boot\" dir (MagOS boot dir), or push ENTER to get boot dir from repository:   "  a
-			if [ -z $a ] ; then
-				VERSION=$(cat /mnt/livemedia/MagOS/VERSION |awk '{print $1}')
-				cd /tmp
-				until wget -rt 3 ftp://magos.sibsau.ru/netlive/${VERSION}/boot  ; do
-				read -p "Can not get  boot dir, retry?"
-				[ "$a" == "y" -o "$a" == "Y" -o "$a" == "$MSG_y" -o "$a" == "$MSG_Y" ] || error "${LINENO}:  Boot dir is not copyed. " 2
-				done
-				boot_path=/tmp/magos.sibsau.ru/netlive/${VERSION}/boot
-			else
-				boot_path=$a
-			fi
-			[ "$(basename  "$boot_path")" != "boot" ] && boot_path=${boot_path}/boot 
-			[ -f "${boot_path}/magos/Install.bat" ] || echo "Try again, or close this window to quit" 
-		done
-		echo "Copy $boot_path  to $boot_dest"
-		rsync  -av  "$boot_path" "$boot_dest"   || error "${LINENO}:  copy boot dir error"  2
-		echo "$MSG_OK"
-		rm -rf  /tmp/magos.sibsau.ru  2> /dev/null
-	fi
-fi 
-
-
 if [ -d "$data_dest"  ] ; then
 echo -------------------------------------------------
 echo "Unpacking ${magos_src}/MagOS-Data.tar.bz2 to  $data_dest"
@@ -155,6 +145,25 @@ echo "Unpacking ${magos_src}/MagOS-Data.tar.bz2 to  $data_dest"
 	error "${LINENO}:  ${magos_src}/MagOS-Data.tar.bz2 is not found"
 	fi
 fi
+
+if [ -d "$boot_dest"  ] ; then
+echo -------------------------------------------------
+	if [ -f  "${magos_src}/boot.tar.bz2" ] ; then
+		echo "${magos_src}/boot.tar.bz2 to  $boot_dest"
+		cd "$boot_dest"
+		tar xvjf "${magos_src}/boot.tar.bz2"  && echo $MSG_OK
+		[ -d "$efi_dest"  ] && mv ${boot_dest}/EFI ${efi_dest}/ && echo "EFI moved to ${efi_dest}/" 
+		else
+		echo ".../MagOS/boot.tar.bz2 is not found"
+		echo "Continue <Y(yes)/N(no)>" ; read qqq
+		case $qqq in
+			N | n | no | NO )
+			exit;;
+			*) 
+			echo "Continue..." ;; 
+		esac
+	fi
+fi 
 
 echo "$MSG_wait" 
 echo "$MSG_time" 

@@ -24,56 +24,72 @@ a {color:#3366CC;text-decoration:none;font-weight:bold;}
 
  
 
-#fat32_400 {
+#fat32_100 {
     width: 100%;
     height: 30px;
     background: #18D918;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
 }
 
-#ntfs_400 {
-    width: 100%;
-    height: 30px;
-    background: #42E5AC ;
-}
-
-
-#ext3_400 {
+#ext4_100 {
     width: 100%;
     height: 30px;
     background: #7590AE;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
 }
 
-#fat32_250 {
+#fat32_50 {
 	float: left;
-    width: 60%;
+    width: 50%;
     height: 30px;
     background: #18D918;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
 }
 
-#ext3_150 { 
+#efi_15 { 
 	float: left;
-    width: 40%;
+    width: 15%;
+    height: 30px;
+    background: #E98706;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+
+#ext4_35 { 
+	float: left;
+    width: 35%;
     height: 30px;
     background: #7590AE;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
 }
 
-#ext2_100 {
-   float: left; 
+
+#ext4_30 {
+    float: left; 
+    width: 30%;
+    height: 30px;
+    background: #7590AE;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+#swap20 {
+	float: left;
     width: 20%;
     height: 30px;
-    background: #9DB8D2;
-}
-
-#ext3_260 {
-    float: left; 
-    width: 70%;
-    height: 30px;
-    background: #7590AE;
-}
-
-#swap40 {
-	float: left;
-    width: 10%;
-    height: 30px;
     background: #C1665A;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
 }
