@@ -56,8 +56,10 @@ if [ "$(cmdline_parameter findswap)" ] ;then
 fi
 
 #Creating partitions in /etc/fstab
-if [ "$TMPFS" != "no" ] ;then
-   grep -q "/memory tmpfs" /proc/mounts || echo "tmpfs /tmp tmpfs defaults 0 0 # AutoUpdate" >>etc/fstab
+if [ "$TMPFS" == "no" ] ;then
+   ln -sf /dev/null etc/systemd/system/tmp.mount
+fi 
+
    if [ "$VARTMPFS" = "no" -a -h var/tmp ] ;then
       rm -f var/tmp 2>/dev/null
       mkdir -m 1777 var/tmp
@@ -65,7 +67,6 @@ if [ "$TMPFS" != "no" ] ;then
       rm -fr var/tmp 2>/dev/null
       ln -s ../tmp var/tmp
    fi
-fi
 grep -q "tmpfs /media tmpfs" etc/fstab || echo "tmpfs /media tmpfs size=1M 0 0 # AutoUpdate" >>etc/fstab
 
 if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
