@@ -4,7 +4,7 @@
 export TEXTDOMAINDIR=./locale
 export TEXTDOMAIN=install-helper
 #alias _="gettext -s "
-MSG_Vbox=$(gettext "You can test your new MagOS installation in Virtualbox. \n Enter "b/bios" or "e/efi" to begin test ")
+MSG_Vbox=$(gettext "  You can test your new MagOS installation in Virtualbox. \n  Enter "b/bios" or "e/efi" to begin test ")
 MSG_log=$(gettext   "Installation log is in autoinstall.log file, in your home folder")
 MSG_wait=$(gettext   "Wait sync...")
 MSG_time=$(gettext  "sync time, hours:min:sec:")

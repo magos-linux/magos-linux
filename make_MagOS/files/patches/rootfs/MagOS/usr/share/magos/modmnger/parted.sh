@@ -43,6 +43,7 @@ type1 () {
 	try_to_clear
 	
 	parted  -a optimal -s $device   mkpart FAT32   1MiB 100% || error "${LINENO}: Parted error" 5
+	set 1 msftdata on
 	mkfs.vfat -F 32 -n MAGOS ${device}1  || error "${LINENO}: mkfs error"  6
 
 }
@@ -71,11 +72,12 @@ type2 () {
 	read -p "$MSG_continue  "
 	try_to_clear
 	
+	parted   -a optimal  -s $device  mkpart DATA 1MiB  $(($part1 + 1))MiB  || error "${LINENO}: Parted error" 5
+	set 1 msftdata on
+	
 	if [ "$fs_part1" ==  "exfat" ] ; then
-		parted   -a optimal  -s $device  mkpart DATA 1MiB  $(($part1 + 1))MiB  || error "${LINENO}: Parted error" 5
 		mkfs.exfat -n DATA ${device}1  || error "${LINENO}: mkfs error"  6
 	else
-		parted  -a  optimal -s $device  mkpart DATA 1MiB $(($part1 + 1))MiB || error "${LINENO}: Parted error" 5
 		mkfs.vfat -F 32 -n data ${device}1 || error "${LINENO}: mkfs error"  6
     fi
     
