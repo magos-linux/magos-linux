@@ -20,7 +20,7 @@ echo  "${0}:  process is not finished correctly"  > /tmp/errorcode
 
 if [ -f /etc/initvars ] ; then
 	.	 /etc/initvars
-	magos_src="${SYSMNT}/data/from/0/MagOS"
+	magos_src="${SYSMNT}/layer-base/0"
 else
 	magos_src=/mnt/livemedia/MagOS
 fi
@@ -113,8 +113,8 @@ if  [ -b "$data_dest" ] ; then
 	fi
 fi
 
-echo boot destinantion: $boot_dest
-echo efi destinantion: $efi_dest
+#echo boot destinantion: $boot_dest
+#echo efi destinantion: $efi_dest
 
 
 if [ -d "$magos_dest"  ] ; then

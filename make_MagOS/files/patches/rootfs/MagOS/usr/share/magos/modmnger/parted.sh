@@ -85,8 +85,7 @@ type2 () {
 	mkfs.vfat -F 16 -n EFI ${device}2 || error "${LINENO}: mkfs error"  6
 	
 	parted  -a optimal -s $device  mkpart MAGOS $(($part1 + $part2 + 1))MiB  100% || error "${LINENO}: Parted error" 5
-	mkfs.ext4 -L MAGOS ${device}3 || error "${LINENO}: mkfs error"  6
-	tune2fs -m 0 ${device}3
+	mkfs.ext4 -L MAGOS -m 0 ${device}3 || error "${LINENO}: mkfs error"  6
 }
 
 # тип третий: MagOS - EFI - SWAP - MagOS-Data
@@ -121,8 +120,7 @@ type3 () {
 		
 		try_to_clear
 		parted  -a optimal -s $device  mkpart MAGOS  1MiB $(($part1 + 1))MiB  || error "${LINENO}: Parted error" 5
-		mkfs.$fs_part1  -L MAGOS ${device}1  || error "${LINENO}: mkfs error"  6
-		tune2fs -m 0 ${device}1
+		mkfs.$fs_part1 -m 0  -L MAGOS ${device}1  || error "${LINENO}: mkfs error"  6
 		
 		parted  -a  optimal -s $device  mkpart ESP $(($part1 + 1))MiB $(($part1 + $part2 + 1))MiB set 2 esp on || error "${LINENO}: Parted error" 5
 		mkfs.vfat -F 32 -n EFI ${device}2 || error "${LINENO}: mkfs error"  6
@@ -130,8 +128,7 @@ type3 () {
 		parted  -a optimal -s $device  mkpart linux-swap  $(($part1 + $part2 + 1))MiB $(($part1 + $part2 + $part3 + 1))MiB  || error "${LINENO}: Parted error" 5
 		mkswap  ${device}3  || error "${LINENO}: mkfs error"  6
 		parted  -a optimal -s $device  mkpart MAGOS-DATA  $(($part1 + $part2 + $part3 + 1))MiB 100% || error "${LINENO}: Parted error" 5
-		mkfs.$fs_part4  -L MAGOS-DATA ${device}4 || error "${LINENO}: mkfs error"  6
-		tune2fs -m 0 ${device}4
+		mkfs.$fs_part4  -L MAGOS-DATA -m 0 ${device}4 || error "${LINENO}: mkfs error"  6
 }
 # четвертый: все в ext4 (в основном для виртуалок)
 type4 () {
@@ -147,7 +144,7 @@ type4 () {
 	try_to_clear
 	
 	parted  -a optimal -s $device   mkpart  $fs_part1 0% 100% || error "${LINENO}: Parted error" 5
-	mkfs.$fs_part1  -L magos ${device}1 || error "${LINENO}: mkfs error"  6
+	mkfs.$fs_part1  -m 0 -L magos ${device}1 || error "${LINENO}: mkfs error"  6
 }
 
 try_to_clear () {
