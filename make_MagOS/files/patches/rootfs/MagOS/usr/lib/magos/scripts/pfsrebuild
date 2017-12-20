@@ -15,12 +15,12 @@ case "$1" in
 esac
 
 allow_only_root
-package_name=$(basename $1 |sed "s/\.${EXT}$//")
+package_name=$(basename ${1%.$EXT})
 #package_name=$(basename $1)
 shift
 
-fileslist="${PFSDIR}/install/${package_name}.${EXT}/pfs.files"
-[ -f $fileslist ] || fileslist="${PFSDIR}/mount/${package_name}.${EXT}/pfs.files"
+fileslist="${PFSDIR}/install/${package_name}/pfs.files"
+[ -f $fileslist ] || fileslist="${PFSDIR}/mount/${package_name}/pfs.files"
 dirsempty=$(echo $fileslist | sed 's/pfs.files/pfs.dirs.empty/')
 
 # find pfs files in pfs contaners
