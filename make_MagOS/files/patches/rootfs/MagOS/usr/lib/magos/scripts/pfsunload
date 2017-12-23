@@ -39,15 +39,16 @@ if [ -d "${mountpoint}" ]; then
   mountb -t aufs -o remount,del:"${mountpoint}"/ aufs / #>/dev/null 2>&1
   stataufs=$?
   sync
+ UP(){
   if [ "${fupdate}" != "no" -a ${stataufs} -eq 0 ] ; then
 	  pfs_update_caches "${mountpoint}" 
 	for script in $(find $(dirname $0) -maxdepth 1 -name "runpfsunload*" -user root) ; do 
 	  $script "${mountpoint}"  & 
 	done
   fi
-  
+ }
   losetupb |grep -q "${copyramdir}${fsname}"  && ramfree=yes 
-  umountb -d "${mountpoint}" #>/dev/null 2>&1
+  UP && umountb -d "${mountpoint}" #>/dev/null 2>&1
   status=$?
   sync
   rmdir "${mountpoint}" >/dev/null

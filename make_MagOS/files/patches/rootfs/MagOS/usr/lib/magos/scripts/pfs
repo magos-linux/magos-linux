@@ -41,8 +41,8 @@ if [ -f /etc/initvars ] ; then
         changesDir=${SYSMNT}/changes/
 fi
 
-compression="xz -b 512K"
-compression_fast="lz4"
+compression="-b 512K -comp xz"
+compression_fast="-comp lz4"
 if echo $compression |grep -q xz; then
 	if uname -m | grep -q -e "86" -e "32" -e "64" ;then
 	compression="$compression -Xbcj x86" 
@@ -65,11 +65,13 @@ usage () {
 	exit 1
 }
 
+COL(){
 color_red='\033[0;31m'
 color_green='\033[0;32m'
 color_yellow='\033[0;33m'
 color_blue='\033[0;34m'
 color_default='\033[0m'
+}
 
 exitmsg() {
 	if [ "$2" -ne 0 ] ; then
@@ -242,7 +244,11 @@ if [ "$(cat /proc/mounts |egrep '^'`df "$NEWLAYER" |tail -1 |cut -f1 -d " "`' ' 
 	NEWLAYER="${SYSMNT}/tmpfs${N}/$(basename $NEWLAYER)"
 fi
 case $(file -b $NEWLAYER) in
-	*directory) ;;
+	*directory) 
+		mkdir -p "$SYSMNT/bundles$N/$MODNAME"
+		mount --bind "$NEWLAYER" "/$SYSMNT/bundles$N/$MODNAME"
+		NEWLAYER="$SYSMNT/bundles$N/$MODNAME"
+	;;
 	Squashfs*4.0*|Linux*ext*)
 		mkdir -p "$SYSMNT/bundles$N/$MODNAME"
 		mount -o loop "$NEWLAYER" "/$SYSMNT/bundles$N/$MODNAME"
@@ -256,7 +262,7 @@ echo $NEWLAYER
 
 mksqmod(){
 #make module
-eval mksquashfs "${1}" "${2}" -comp ${compression} -noappend ${noprogress} ${useproc} $wh $devnull
+eval mksquashfs "${1}" "${2}" ${compression} -noappend ${noprogress} ${useproc} $wh $devnull
 exitmsg "error create squashfs module" $? $3
 }
 
@@ -280,7 +286,7 @@ fi
 
 pfs_update_caches () {
 #update caches, icons, menus, etc after load/unload modules
-[ "$(find "$1"{,/usr{,/local,/X11R6}}/lib -type f -name "*.so" 2>/dev/null)" ] && ldconfig &
+[ "$(find "$1"{,/usr{,/local,/X11R6}}/lib -type f -name "*.so" 2>/dev/null)" ] && ldconfig #&
 [ -d "$1/usr/share/mime/" ] && update-mime-database /usr/share/mime &
 [ -d "$1/usr/lib/gdk-pixbuf-2.0/" ]  && gdk-pixbuf-query-loaders --update-cache &
 [ -d "$1/usr/share/icons/hicolor/" ] && gtk-update-icon-cache -f -i -q /usr/share/icons/hicolor &

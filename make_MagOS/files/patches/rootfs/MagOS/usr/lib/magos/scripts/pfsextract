@@ -17,7 +17,7 @@ $(basename $0) - Распаковщик для модулей pfs
 	-d / --nopfs - разобрать на каталоги вместо модулей
 	-no-progress - не показывать строку прогресса.
 	-f  / --fast - быстрая компрессия (размер .pfs больше, но создается быстрее).
-	-comp comp pars - параметры сжатия для mksquashfs (такие же как у mksquashfs). Внимание, параметр должен быть последним.
+	--mksqfs - параметры для mksquashfs. Внимание, параметр должен быть последним.
 " >&2 ;exit 1
 }
 
@@ -101,10 +101,11 @@ exit
 
 [ "$1" ] || HLP
 
+#parsing for "--mksqfs" arg
 argslist="$@"
-if  echo $argslist |grep -q "\-*comp .*" ; then
-	compression="$(echo $@ |sed 's/^.*\-*comp//')"
-	argslist="$(echo $@ |sed 's/\-*comp.*$//')"
+if  echo $argslist |grep -q "\-*mksqfs .*" ; then
+	compression="$(echo $@ |sed 's/^.*\-*mksqfs//')"
+	argslist="$(echo $@ |sed 's/\-*mksqfs.*$//')"
 fi
 
 #get opts
@@ -146,7 +147,8 @@ done
 
 [ ! $pfs ] &&  [ $i ]  && [ -d $sourcelist ] && installDir
 [ $pfs ] || exitmsg "There is no source pfs module" 2 
-echo $sourcelist  |grep -q [[:alnum:]] || unset sourcelist
+#echo $sourcelist  |grep -q [[:alnum:]] || unset sourcelist
+sourcelist="`echo $sourcelist |tr -d " "`"
 if [ "$(unsquashfs -l ${pfs} |grep ${PFSDIR}/mount |egrep '.files$' |wc -l)" -lt 2 ];then
 	extract_simple
 else
