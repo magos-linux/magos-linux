@@ -1,0 +1,23 @@
+[Desktop Entry]
+Name=MagOS-Linux
+Comment=MagOS-Linux Plasma Theme
+
+X-KDE-PluginInfo-Author=Mikhail Zaripov
+X-KDE-PluginInfo-Email=m3for@mail.ru
+X-KDE-PluginInfo-Name=magos
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Website=http://www.magos-linux.ru
+X-KDE-PluginInfo-Category=
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=true
+X-Plasma-API=5.0
+
+[Settings]
+FallbackTheme=default
+
+[Wallpaper]
+defaultWallpaperTheme=default
+defaultFileSuffix=.jpg
+defaultWidth=2560
+defaultHeight=1600

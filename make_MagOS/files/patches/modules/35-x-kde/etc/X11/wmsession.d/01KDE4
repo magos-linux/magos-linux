@@ -1,0 +1,5 @@
+NAME=KDE4
+DESC=KDE Desktop
+EXEC=/usr/bin/startkde
+SCRIPT:
+exec /usr/bin/startkde

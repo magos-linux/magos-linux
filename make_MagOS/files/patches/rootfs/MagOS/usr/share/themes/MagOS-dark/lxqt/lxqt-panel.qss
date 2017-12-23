@@ -178,11 +178,10 @@ QCalendarWidget QWidget {
 #MainMenu {
     margin: 2px;
     padding: 1px;
-    border-radius: 4px;
+    border: none;
     qproperty-icon: url(magos.svg);
 /*    color: #f2f1f0; */
     background: transparent;
-    border: none;
 }
 
 #MainMenu:pressed {

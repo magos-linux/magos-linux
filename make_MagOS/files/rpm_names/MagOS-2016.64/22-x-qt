@@ -6,7 +6,6 @@ lib64qassistantclient1-
 lib64qt3-
 lib64qt3support4-
 lib64Qt4Pas5-
-lib64qtclucene4-
 lib64qtcore4-
 lib64qtdbus4-
 lib64qtdeclarative4-
@@ -140,3 +139,19 @@ lib64qt5-qtquickcontrols-qml-
 lib64qt5quickcontrols2_5-
 lib64qt5quicktemplates2_5-
 lib64qt5xcbqpa5-egl-
+lib64Qt5GLib2.0_0-
+lib64Qt5GStreamerQuick1.0_0-
+qt5-gstreamer-
+lib64Qt5GStreamerUi1.0_0-
+lib64kf5solid5-
+lib64kf5solid-qml-
+lib64kf5windowsystem5-
+kwindowsystem-
+kwindowsystem-i18n-
+lib64Qt5GStreamer1.0_0-
+solid-i18n-
+lib64qtclucene4-
+sddm-
+sddm-theme-elarun-
+sddm-theme-maldives-
+sddm-theme-maya-

@@ -1,0 +1,18 @@
+[Desktop Entry]
+Comment=MagOS-Linux
+Encoding=UTF-8
+Keywords=Logout;Lock;Suspend;Shutdown;Hibernate;
+Name=MagOS
+Type=Service
+
+X-KDE-ServiceTypes=Plasma/LookAndFeel
+X-KDE-ParentApp=
+X-KDE-PluginInfo-Author=www.magos-linux.ru
+X-KDE-PluginInfo-Category=
+X-KDE-PluginInfo-Email=www.magos-linux.ru
+X-KDE-PluginInfo-License=GPLv2+
+X-KDE-PluginInfo-Name=org.magos.desktop
+X-KDE-PluginInfo-Version=2.0
+X-KDE-PluginInfo-Website=http://www.magos-linux.ru
+X-KDE-fallbackPackage=org.kde.breeze.desktop
+X-Plasma-MainScript=defaults

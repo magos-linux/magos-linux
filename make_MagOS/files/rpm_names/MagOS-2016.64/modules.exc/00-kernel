@@ -1,3 +1,4 @@
-/nvidia-current.ko
+/nvidia-
+/nvidia.ko
 /nvidia304.ko
-/fglrx.ko
+/dkms-binary/nvidia

@@ -2,7 +2,7 @@
  * General panel settings
  */
 LXQtPanel #BackgroundWidget {
-    background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #EFEFEF, stop:0.25 #e9e9e9, stop: 0.5 #dfdfdf, stop: 0.75 #d7d7d7, stop:1 #c0c0c0);
+    background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fffbf4, stop:1 #dbebde);
 }
 
 /* PositionBottom */
@@ -81,7 +81,7 @@ Plugin > QWidget > QToolButton:pressed {
  * Menus
  */
 QMenu {
-    background: palette(window);
+    background: #dbebde;
     border: 1px solid #AAA;
     border-radius: 2px;
     color: palette(text);
@@ -172,7 +172,7 @@ LXQtTaskButton {
 }
 
 #TaskBar LXQtGroupPopup {
-    background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #EFEFEF, stop:0.25 #e9e9e9, stop: 0.5 #dfdfdf, stop: 0.75 #d7d7d7, stop:1 #c0c0c0);
+    background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #eefff1, stop:1 #dbebde);
     border: 1px solid #80a8d3;
 }
 /*
@@ -180,11 +180,11 @@ LXQtTaskButton {
  */
 #Clock #TimeLabel {
     font-size: 10pt;
-    color: #606060;
+    color: #dbebde;
 }
 #Clock #DateLabel {
     font-size: 8pt;
-    color: #606060;
+    color: #eefff1;
 }
 
 /*
@@ -203,11 +203,10 @@ TrayIcon {
  */
 #MainMenu {
     margin: 1px;
-    border: 1px solid #004e6c;
-    border-radius: 3px;
+    border: none;
     background: transparent;
     qproperty-icon: url(magos.svg);
-    color: #EEEEEE;
+    color: #dbebde;
 }
 
 #MainMenu ActionView {
@@ -232,7 +231,7 @@ TrayIcon {
  * Mount plugin
  */
 #LXQtMountPopup {
-    background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #EFEFEF, stop:0.25 #e9e9e9, stop: 0.5 #dfdfdf, stop: 0.75 #d7d7d7, stop:1 #c0c0c0);
+    background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #eefff1, stop:1 #dbebde);
     border: 1px solid #a59f94;
     padding: 2px;
 }

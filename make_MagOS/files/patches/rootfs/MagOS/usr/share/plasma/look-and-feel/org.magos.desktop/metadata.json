@@ -1,0 +1,24 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Mikhail Zaripov"
+            }
+        ],
+        "Category": "",
+        "Description": "Default MagOS-Linux theme",
+        "Description[ru]": "Оформление MagOS-Linux по-умолчанию",
+        "Id": "org.magos.desktop",
+        "License": "GPLv2+",
+        "Name": "MagOS-Linux",
+        "Name[ru]": "MagOS-Linux",
+        "ServiceTypes": [
+            "Plasma/LookAndFeel"
+        ],
+        "Version": "1.0",
+        "Website": "http://www.magos-linux.ru/"
+    },
+    "Keywords": "Desktop, Workspace, Appearance, Look and Feel, Logout, Lock, Suspend, Shutdown, Hibernate,",
+    "X-KDE-ParentApp": "",
+    "X-Plasma-MainScript": "defaults"
+}

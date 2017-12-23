@@ -18,7 +18,9 @@ rm -fr 2>/dev/null \
    usr/share/backgrounds/gnome \
    etc/xdg/autostart/org.kde.kgpg.desktop \
    etc/modprobe.d/nvidia[0-9]* \
-   etc/machine-id var/lib/dbus/machine-id
+   etc/machine-id var/lib/dbus/machine-id \
+   usr/share/xsessions/openbox*.desktop usr/share/kio_desktop/DesktopLinks/* \
+   usr/share/sddm/themes/elarun/images/background.png
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 

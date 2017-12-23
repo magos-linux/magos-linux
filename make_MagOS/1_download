@@ -3,7 +3,8 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
-INET=on
+ONLINE=yes
+TMPDIR=/tmp/$(basename $0)-$UID
 
 if [ -f .config ] ;then 
   . .config
@@ -11,182 +12,216 @@ else
   echo "Не вижу файла .config" ;  exit 1
 fi
 
-mkdir -p loaded/cached_$VERREL loaded/$FLASHNAME-$VERREL
-cd loaded/$FLASHNAME-$VERREL
+rm -fr "$TMPDIR"
+mkdir -p $TMPDIR/{modules/names,modules/rpmfiles,urls,re/preferred,media,pubkeys,urpmi/etc/urpmi,urpmi/var/lib/urpmi,tmp,rpms} cache/$FLASHNAME-$VERREL/{media,modules/names,modules/rpmfiles,urls,pubkeys,urpmi/etc/urpmi,urpmi/var/lib/urpmi,rpmstore,rpminfo/rpmfiles}
 
-rm -fr *.txt names urls re  2>/dev/null
-# Чтобы не загружать постоянно списки можно закоментарить следующую строку
-[ "$INET" = "on" ] && rm -fr media pubkeys urpmi 2>/dev/null
-
-mkdir -p media pubkeys urpmi/etc/urpmi urpmi/var/lib/urpmi urls names re/preferred
-
-# Создание информации об источниках
-echo -e "{\n}\n" >  urpmi/etc/urpmi/urpmi.cfg
 echo "Загрузка списков хранилищ пакетов"
-cd media
-for a in `gawk '{print $2}' ../../../files/media/media_list-$STATUS-$VERREL-$ARCH` ;do
+echo -e "{\n}\n" >  $TMPDIR/urpmi/etc/urpmi/urpmi.cfg
+for a in `gawk '{print $2}' files/media/media_list-$STATUS-$VERREL-$ARCH` ;do
         echo -e "$a"
-        MEDIAURL=`grep " $a " ../../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $1}'`
-        MEDIAKEY=`grep " $a " ../../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $3}'`
-        MEDIAUPD=`grep " $a " ../../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $4}'`
-        MEDIAADD=`grep " $a " ../../../files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $5}'`
+        MEDIAURL=`grep " $a " files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $1}'`
+        MEDIAKEY=`grep " $a " files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $3}'`
+        MEDIAUPD=`grep " $a " files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $4}'`
+        MEDIAADD=`grep " $a " files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $5}'`
 
-        if ! [ -f "$a" ] ;then
-           curl -# --retry-delay 2 --retry 5 -o .listing -l "$MEDIAURL/" || exit 1
-           if grep -q -i "a href=" .listing ;then 
-               sed -i 's|<'[Aa]' |\n<a |g' .listing
-               sed -i s/\'/\"/g .listing
-               awk -F'<[Aa] [Hh][Rr][Ee][Ff]=["]?'  '{ print $2 }' .listing | awk -F'[" ]' '{print $1}' | grep .rpm |  sed s/'%2b'/'+'/g | sed s/'%25'/'%'/g | LC_ALL=C sort -V >> "$a"
+        if [ "$ONLINE" == "yes" ] ;then
+           curl -# --retry-delay 2 --retry 5 -o $TMPDIR/tmp/.listing -l "$MEDIAURL/" || exit 1
+           if grep -q -i "a href=" $TMPDIR/tmp/.listing ;then
+               sed -i 's|<'[Aa]' |\n<a |g' $TMPDIR/tmp/.listing
+               sed -i s/\'/\"/g $TMPDIR/tmp/.listing
+               awk -F'<[Aa] [Hh][Rr][Ee][Ff]=["]?'  '{ print $2 }' $TMPDIR/tmp/.listing | awk -F'[" ]' '{print $1}' | grep .rpm |  sed s/'%2b'/'+'/g | sed s/'%25'/'%'/g | LC_ALL=C sort -V >> $TMPDIR/media/"$a"
            else
-               grep .rpm .listing | LC_ALL=C sort -V >> "$a"
+               grep .rpm $TMPDIR/tmp/.listing | LC_ALL=C sort -V >> $TMPDIR/media/"$a"
            fi
-           sed -i s/'%2B'/'+'/g "$a"
-           if [ -f ../../../files/rpm_names/$FLASHNAME-$VERREL/excluded ] ;then
-              mv "$a" "$a"_full
-              grep -vf ../../../files/rpm_names/$FLASHNAME-$VERREL/excluded "$a"_full > "$a"
-              grep -f  ../../../files/rpm_names/$FLASHNAME-$VERREL/excluded "$a"_full > "$a".excluded
-              grep -q . "$a".excluded || rm -f "$a".excluded
+           sed -i s/'%2B'/'+'/g $TMPDIR/media/"$a"
+           if [ -f files/rpm_names/$FLASHNAME-$VERREL/excluded ] ;then
+              mv $TMPDIR/media/"$a" $TMPDIR/media/"$a"_full
+              grep -vf files/rpm_names/$FLASHNAME-$VERREL/excluded $TMPDIR/media/"$a"_full > $TMPDIR/media/"$a"
+              grep -f  files/rpm_names/$FLASHNAME-$VERREL/excluded $TMPDIR/media/"$a"_full > $TMPDIR/media/"$a".excluded
+              grep -q . $TMPDIR/media/"$a".excluded || rm -f $TMPDIR/media/"$a".excluded
            fi
-           rm -f .listing "$a"_full 2>/dev/null
+           rm -f $TMPDIR/tmp/.listing $TMPDIR/media/"$a"_full 2>/dev/null
            if [ "$MEDIAKEY" != "" -a "$MEDIAKEY" != "0" ] ;then
-               curl -# --retry-delay 2 --retry 5 -o ../pubkeys/$a.pubkey "$MEDIAURL/media_info/pubkey" || exit 1
+               curl -# --retry-delay 2 --retry 5 -o $TMPDIR/pubkeys/$a.pubkey "$MEDIAURL/media_info/pubkey" || exit 1
            fi
+
            if [ "$MEDIAUPD" != "skip" -a "$MEDIAUPD" != "nomediainfo" ] ;then
-               mkdir ../urpmi/var/lib/urpmi/$a
-               curl -# --retry-delay 2 --retry 5 -o ../urpmi/var/lib/urpmi/$a/MD5SUM "$MEDIAURL/media_info/MD5SUM" || exit 1
-               curl -# --retry-delay 2 --retry 5 -o ../urpmi/var/lib/urpmi/$a/synthesis.hdlist.cz "$MEDIAURL/media_info/synthesis.hdlist.cz" || exit 1
+               mkdir $TMPDIR/urpmi/var/lib/urpmi/$a
+               curl -# --retry-delay 2 --retry 5 -o $TMPDIR/urpmi/var/lib/urpmi/$a/MD5SUM "$MEDIAURL/media_info/MD5SUM" || exit 1
+               curl -# --retry-delay 2 --retry 5 -o $TMPDIR/urpmi/var/lib/urpmi/$a/synthesis.hdlist.cz "$MEDIAURL/media_info/synthesis.hdlist.cz" || exit 1
            fi
            echo
+        else
+           cp cache/$FLASHNAME-$VERREL/media/$a $TMPDIR/media || exit 1
+           [ "$MEDIAKEY" != "" -a "$MEDIAKEY" != "0" ] && cp cache/$FLASHNAME-$VERREL/pubkeys/$a.pubkey $TMPDIR/pubkeys
+           [ "$MEDIAUPD" != "skip" -a "$MEDIAUPD" != "nomediainfo" ] && cp -r cache/$FLASHNAME-$VERREL/urpmi/var/lib/urpmi/$a $TMPDIR/urpmi/var/lib/urpmi
         fi
-        cat "$a" | awk '{ print "'$MEDIAURL/'" $1 }' | LC_ALL=C sort -V > "../urls/$a"
+        awk '{ print "'$MEDIAURL/'" $1 }' "$TMPDIR/media/$a" | LC_ALL=C sort -V > "$TMPDIR/urls/$a"
         if [ "$MEDIAUPD" != "skip" ] ;then
-            echo "$a $MEDIAURL {" >>../urpmi/etc/urpmi/urpmi.cfg
-            [ "$MEDIAKEY" != "0" ] && echo "  key-ids: $MEDIAKEY" >>../urpmi/etc/urpmi/urpmi.cfg
-            [ "$MEDIAUPD" != "" -a  "$MEDIAUPD" != "nomediainfo" ] && echo "  $MEDIAUPD" >>../urpmi/etc/urpmi/urpmi.cfg
-            [ "$MEDIAADD" != "" ] && echo "  $MEDIAADD" >>../urpmi/etc/urpmi/urpmi.cfg
-            echo -e "}\n"  >>../urpmi/etc/urpmi/urpmi.cfg
+            echo "$a $MEDIAURL {" >> $TMPDIR/urpmi/etc/urpmi/urpmi.cfg
+            [ "$MEDIAKEY" != "0" ] && echo "  key-ids: $MEDIAKEY" >> $TMPDIR/urpmi/etc/urpmi/urpmi.cfg
+            [ "$MEDIAUPD" != "" -a  "$MEDIAUPD" != "nomediainfo" ] && echo "  $MEDIAUPD" >> $TMPDIR/urpmi/etc/urpmi/urpmi.cfg
+            [ "$MEDIAADD" != "" ] && echo "  $MEDIAADD" >> $TMPDIR/urpmi/etc/urpmi/urpmi.cfg
+            echo -e "}\n"  >> $TMPDIR/urpmi/etc/urpmi/urpmi.cfg
         fi
 done
-cd ../
 echo
 
 # создаём список уже загруженных пакетов
-ls -1 ../cached_$VERREL | grep [.]rpm$ > re/local_rpms.txt
+ls -1 cache/$FLASHNAME-$VERREL/rpmstore | grep [.]rpm$ > $TMPDIR/re/local_rpms.txt
 
 # создание списка пакетов в источниках в соответствии с их приоритетом
-touch re/names_default_media.txt re/urls_default_media.txt re/preferred/null re/excluded.txt
+touch $TMPDIR/re/names_default_media.txt $TMPDIR/re/urls_default_media.txt $TMPDIR/re/preferred/null $TMPDIR/re/excluded.txt
 for a in $MEDIA_DEFAULT ;do
-    cat media/$a | LC_ALL=C sort -rV >re/tmp.txt || exit 1
-    cat re/names_default_media.txt re/tmp.txt >re/tmp2.txt || exit 1
-    mv re/tmp2.txt re/names_default_media.txt || exit 1
-    cat urls/$a | LC_ALL=C sort -rV >re/tmp.txt || exit 1
-    cat re/urls_default_media.txt re/tmp.txt >re/tmp2.txt || exit 1
-    mv re/tmp2.txt re/urls_default_media.txt || exit 1
+    cat $TMPDIR/media/$a | LC_ALL=C sort -rV >$TMPDIR/tmp/re.txt || exit 1
+    cat $TMPDIR/re/names_default_media.txt $TMPDIR/tmp/re.txt >$TMPDIR/tmp/re2.txt || exit 1
+    mv  $TMPDIR/tmp/re2.txt $TMPDIR/re/names_default_media.txt || exit 1
+    cat $TMPDIR/urls/$a | LC_ALL=C sort -rV >$TMPDIR/tmp/re.txt || exit 1
+    cat $TMPDIR/re/urls_default_media.txt $TMPDIR/tmp/re.txt >$TMPDIR/tmp/re2.txt || exit 1
+    mv  $TMPDIR/tmp/re2.txt $TMPDIR/re/urls_default_media.txt || exit 1
 done
-rm -f re/tmp.txt
 
 # создание списка исключений
-if [ -d ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred ];then
-   for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/media_preferred/*` ;do
-       awk '{ print "^" $1 "$" }' "$a" >  re/preferred/${a##*/} || exit 1
-       awk '{ print "^" $1 "$" }' "$a" >> re/excluded.txt.tmp || exit 1
-       cat media/${a##*/} | LC_ALL=C sort -rV >re/names_${a##*/}.txt || exit 1
-       cat urls/${a##*/} | LC_ALL=C sort -rV >re/urls_${a##*/}.txt || exit 1
+if [ -d files/rpm_names/$FLASHNAME-$VERREL/media_preferred ];then
+   for a in `ls -1 files/rpm_names/$FLASHNAME-$VERREL/media_preferred/*` ;do
+       awk '{ print "^" $1 "$" }' "$a" >  $TMPDIR/re/preferred/${a##*/} || exit 1
+       awk '{ print "^" $1 "$" }' "$a" >> $TMPDIR/re/excluded.txt.tmp   || exit 1
+       cat $TMPDIR/media/${a##*/} | LC_ALL=C sort -rV >$TMPDIR/re/names_${a##*/}.txt || exit 1
+       cat $TMPDIR/urls/${a##*/}  | LC_ALL=C sort -rV >$TMPDIR/re/urls_${a##*/}.txt  || exit 1
    done
 fi
-sort -u re/excluded.txt.tmp > re/excluded.txt 
-rm -f re/excluded.txt.tmp
+sort -u $TMPDIR/re/excluded.txt.tmp > $TMPDIR/re/excluded.txt
 
 echo "Создание списков rpm пакетов"
-for a in `ls -1 ../../files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
+for a in `ls -1 files/rpm_names/$FLASHNAME-$VERREL/??-*` ;do
     SHNM=${a##*/}
     echo $SHNM
     #поиск обычных пакетов
-    grep -v -f re/excluded.txt "$a" | while read b ;do
+    grep -v -f $TMPDIR/re/excluded.txt "$a" | while read b ;do
          [ -z "$b" ] && continue
          RPMNM=
-         [ -f ../../files/rpm_names/$FLASHNAME-$VERREL/special ] && RPMNM=$(grep -m1 "^$b[0-9]" ../../files/rpm_names/$FLASHNAME-$VERREL/special)
-         [ -z "$RPMNM" ] &&  RPMNM=$(grep -m1 "^$b[0-9]" re/names_default_media.txt)
+         [ -f files/rpm_names/$FLASHNAME-$VERREL/special ] && RPMNM=$(grep -m1 "^$b[0-9]" files/rpm_names/$FLASHNAME-$VERREL/special)
+         [ -z "$RPMNM" ] &&  RPMNM=$(grep -m1 "^$b[0-9]" $TMPDIR/re/names_default_media.txt)
          if [ -z "$RPMNM" ] ;then
-            echo "$b" >> re/not_founded.txt
+            echo "$b" >> $TMPDIR/not_founded.txt
          else
-            echo $RPMNM >> names/$SHNM || exit 1
-            grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL.list
-            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL
+            echo $RPMNM >> $TMPDIR/modules/names/$SHNM || exit 1
+            grep -m1 "/$RPMNM$"  $TMPDIR/re/urls_default_media.txt >> $TMPDIR/urls/$FLASHNAME-$VERREL.list
+            grep -m1 -q ^$RPMNM$ $TMPDIR/re/local_rpms.txt || grep -m1 "/$RPMNM$" $TMPDIR/re/urls_default_media.txt >> $TMPDIR/downloadlist.txt
          fi
     done
     #поиск пакетов с указанных источников
-    grep -f re/excluded.txt "$a" | while read b ;do
-         EXMD=$(grep "\\^$b\\$" re/preferred/* | awk -F: '{print $1}' | sed 's|.*/||' | sort -r)
+    grep -f $TMPDIR/re/excluded.txt "$a" | while read b ;do
+         EXMD=$(grep "\\^$b\\$" $TMPDIR/re/preferred/* | awk -F: '{print $1}' | sed 's|.*/||' | sort -r)
          [ -z "$EXMD" ] && exit 1
          RPMNM=
-         [ -f ../../files/rpm_names/$FLASHNAME-$VERREL/special ] && RPMNM=$(grep -m1 "^$b[0-9]" ../../files/rpm_names/$FLASHNAME-$VERREL/special)
+         [ -f files/rpm_names/$FLASHNAME-$VERREL/special ] && RPMNM=$(grep -m1 "^$b[0-9]" files/rpm_names/$FLASHNAME-$VERREL/special)
          for c in $EXMD ;do
-             [ -z "$RPMNM" ] && RPMNM=$(grep -m1 "^$b[0-9]" re/names_"$c".txt)
-             [ -z "$RPMNM" ] || EXMDFND=$c
+             if [ -z "$RPMNM" ] ;then
+                RPMNM=$(grep -m1 "^$b[0-9]" $TMPDIR/re/names_"$c".txt)
+                [ -z "$RPMNM" ] || EXMDFND=$c
+             fi
          done
          if [ -z "$RPMNM" ] ;then
-            echo "$b" >> re/not_founded.txt
+            echo "$b" >> $TMPDIR/not_founded.txt
          else
-            echo $RPMNM >> names/$SHNM || exit 1
-            grep -m1 "/$RPMNM$" re/urls_default_media.txt >> urls/$FLASHNAME-$VERREL.list
-            grep -m1 -q ^$RPMNM$ re/local_rpms.txt || grep -m1 "/$RPMNM$" re/urls_$EXMDFND.txt >> urls/$FLASHNAME-$VERREL
+            echo $RPMNM >> $TMPDIR/modules/names/$SHNM || exit 1
+            grep -m1 "/$RPMNM$"  $TMPDIR/re/urls_$EXMDFND.txt >> $TMPDIR/urls/$FLASHNAME-$VERREL.list
+            grep -m1 -q ^$RPMNM$ $TMPDIR/re/local_rpms.txt || grep -m1 "/$RPMNM$" $TMPDIR/re/urls_$EXMDFND.txt >> $TMPDIR/downloadlist.txt
          fi
     done
 done
 
-if grep -q . urls/$FLASHNAME-$VERREL 2>/dev/null ;then
-   if [ "$INET" = "on" ] ;then
-       echo "Закачка файлов"
-       cd ../cached_$VERREL
-       wget -c -i ../$FLASHNAME-$VERREL/urls/$FLASHNAME-$VERREL || echo -e \n"Ошибка: Часть пакетов не загружена из-за ошибок, запустите скрипт ещё раз для их докачки"
-   else
-       echo "Ссылки сохранены в loaded/$FLASHNAME-$VERREL/urls/$FLASHNAME-$VERREL"
-   fi
+if [ -f $TMPDIR/downloadlist.txt -a "$ONLINE" == "yes" ]  ;then
+   echo "Закачка файлов"
+   wget -P cache/$FLASHNAME-$VERREL/rpmstore -c -i $TMPDIR/downloadlist.txt && mv -f $TMPDIR/downloadlist.txt $TMPDIR/downloaded.txt
+   [ -f $TMPDIR/downloadlist.txt ] && echo -e \\n"Ошибка: Часть пакетов не загружена из-за ошибок."
 fi
 
-cd "$MYPATH"
+if [ -f $TMPDIR/downloadlist.txt ] ;then
+   echo -e "Ссылки сохранены в $TMPDIR/downloadlist.txt"\\n"Работа скрипта прекращена"
+   exit 0
+fi
 
 echo "Создаем источник для установки"
-rm -fr "loaded/$FLASHNAME-$VERREL/rpms"
-mkdir "loaded/$FLASHNAME-$VERREL/rpms"
-cat loaded/$FLASHNAME-$VERREL/names/??-* | while read a ;do
-    ln -sf ../../cached_$VERREL/$a loaded/$FLASHNAME-$VERREL/rpms || exit 1
+ln -sf "$MYPATH/cache/$FLASHNAME-$VERREL/rpmstore" $TMPDIR/rpmstore
+cat $TMPDIR/modules/names/??-* | while read a ;do
+    ln -sf ../rpmstore/$a "$TMPDIR/rpms" || exit 1
 done
 
-echo "Обновление базы данных о скриптах"
-mkdir -p loaded/rpmscripts_$VERREL
-touch loaded/rpmscripts_$VERREL/scripts loaded/rpmscripts_$VERREL/noscripts
-cat loaded/$FLASHNAME-$VERREL/names/??-* | LC_ALL=C sort >loaded/rpmscripts_$VERREL/rpms_$FLASHNAME-$VERREL
-cat loaded/rpmscripts_$VERREL/scripts loaded/rpmscripts_$VERREL/noscripts | LC_ALL=C sort > loaded/rpmscripts_$VERREL/processed
-diff loaded/rpmscripts_$VERREL/processed loaded/rpmscripts_$VERREL/rpms_$FLASHNAME-$VERREL | grep '> ' | sed s/^..// \
+echo "Обновление базы данных пакетов"
+cp -prf "cache/$FLASHNAME-$VERREL/rpminfo" $TMPDIR
+touch $TMPDIR/rpminfo/scripts $TMPDIR/rpminfo/noscripts
+cat  $TMPDIR/modules/names/??-* | LC_ALL=C sort >$TMPDIR/rpmlist.txt
+cat  $TMPDIR/rpminfo/scripts $TMPDIR/rpminfo/noscripts | LC_ALL=C sort > $TMPDIR/tmp/processed
+diff $TMPDIR/tmp/processed $TMPDIR/rpmlist.txt | grep '> ' | sed s/^..// \
     | while read a ;do
-    if ! rpm -qp --scripts "loaded/$FLASHNAME-$VERREL/rpms/$a" | grep -q . ;then
-       echo $a >> loaded/rpmscripts_$VERREL/noscripts
+    if ! rpm -qp --scripts "$TMPDIR/rpms/$a" | grep -q . ;then
+       echo $a >> $TMPDIR/rpminfo/noscripts
     elif echo $a | grep -qf files/rpm_names/$FLASHNAME-$VERREL/noscripts ;then
-       echo $a >> loaded/rpmscripts_$VERREL/noscripts
+       echo $a >> $TMPDIR/rpminfo/noscripts
     else
-       echo $a >> loaded/rpmscripts_$VERREL/scripts
+       echo $a >> $TMPDIR/rpminfo/scripts
     fi
 done
+ls -1 $TMPDIR/rpminfo/rpmfiles/*.rpm  2>/dev/null | sed 's|.*/||' | LC_ALL=C sort > $TMPDIR/tmp/processed
+diff $TMPDIR/tmp/processed $TMPDIR/rpmlist.txt | grep '> ' | sed s/^..// | while read a ;do
+     rpm -qlp $TMPDIR/rpms/$a | grep -vi "^(" | sed s-^/-- > $TMPDIR/rpminfo/rpmfiles/$a
+done
 
-[ -d loaded/$FLASHNAME-$VERREL/rpms/media_info ] && rm -fr loaded/$FLASHNAME-$VERREL/rpms/media_info
+echo "Поиск конфликтов"
+mkdir -p $TMPDIR/tmp/module $TMPDIR/tmp/system
+for a in $TMPDIR/modules/names/??-* ;do
+    tar -c -C $TMPDIR/rpminfo/rpmfiles -T $a | tar -x -C $TMPDIR/tmp/module || exit 1
+    cat $TMPDIR/tmp/module/*.rpm | sort    >  $TMPDIR/modules/rpmfiles/${a##*/}
+    cat $TMPDIR/tmp/module/*.rpm | sort -u >> $TMPDIR/tmp/allfiles
+    mv -f $TMPDIR/tmp/module/* $TMPDIR/tmp/system
+done
+sort $TMPDIR/tmp/allfiles > $TMPDIR/tmp/allfiles.1
+sort -u $TMPDIR/tmp/allfiles > $TMPDIR/tmp/allfiles.2
+diff $TMPDIR/tmp/allfiles.2 $TMPDIR/tmp/allfiles.1 | grep '^>.*/.*' | sed s/'^>.'// |sort -u > $TMPDIR/tmp/conflicts
+cat $TMPDIR/tmp/conflicts | while read a ;do 
+   grep -q "$a/" $TMPDIR/tmp/allfiles.1 && continue
+   [ -d "/$a" -o -h "/$a" ] && continue
+   echo "   $a" >>$TMPDIR/conflicts.txt
+   grep $a $TMPDIR/tmp/system/* | sed s=$TMPDIR/tmp/system/== >>$TMPDIR/conflicts.txt
+done
+
 echo "Создание базы пакетов"
-genhdlist2 loaded/$FLASHNAME-$VERREL/rpms || exit 1
+genhdlist2 $TMPDIR/rpms || exit 1
 
 echo "Проверка зависимостей"
-mkcd --checkdeps loaded/$FLASHNAME-$VERREL/rpms >loaded/$FLASHNAME-$VERREL/checkdeps.txt 2>/dev/null
-sed -i /^mkcd_build_hdlist/d loaded/$FLASHNAME-$VERREL/checkdeps.txt
-sed -i /^done$/d loaded/$FLASHNAME-$VERREL/checkdeps.txt
-if grep -q . loaded/$FLASHNAME-$VERREL/checkdeps.txt ;then
-   cat loaded/$FLASHNAME-$VERREL/checkdeps.txt
-   echo "Обнаружены ошибки зависимости пакетов. Нужно добавить или убрать пакеты в files/rpm_names/* и перезапустить сборку с начала"
+mkcd --checkdeps $TMPDIR/rpms >$TMPDIR/checkdeps.txt 2>/dev/null
+sed -i /^mkcd_build_hdlist/d $TMPDIR/checkdeps.txt
+sed -i /^done$/d $TMPDIR/checkdeps.txt
+if grep -q . $TMPDIR/checkdeps.txt ;then
+   echo -e \\n"Обнаружены ошибки зависимости пакетов. Нужно добавить или убрать пакеты в files/rpm_names/* и перезапустить сборку с начала"
+   cat $TMPDIR/checkdeps.txt
 fi
 
-if [ -f loaded/$FLASHNAME-$VERREL/re/not_founded.txt ] ;then 
-   echo "Ошибка: Не все пакеты были найдены в источниках."
-   cat loaded/$FLASHNAME-$VERREL/re/not_founded.txt
+if [ -f $TMPDIR/not_founded.txt ] ;then 
+   echo -e \\n"Ошибка: Не все пакеты были найдены в источниках."
+   cat $TMPDIR/not_founded.txt
 fi
+
+if [ -f $TMPDIR/conflicts.txt ] ;then
+   echo -e \\n"Обнаружены конфликты в пакетах. В случае, если найденные совпадения являются папками или ссылками, это не помешает установке."
+   cat $TMPDIR/conflicts.txt
+fi
+
+echo -e \\n"Обновление кеша"
+if [ "$ONLINE" == "yes" ] ;then
+   rm -fr cache/$FLASHNAME-$VERREL/{media,pubkeys,urpmi}
+   cp -r -t cache/$FLASHNAME-$VERREL  $TMPDIR/media $TMPDIR/pubkeys $TMPDIR/urpmi
+fi
+rm -fr cache/$FLASHNAME-$VERREL/{modules,urls,rpminfo,rpms} cache/$FLASHNAME-$VERREL/*.txt
+cp -r -t cache/$FLASHNAME-$VERREL $TMPDIR/modules $TMPDIR/urls $TMPDIR/rpminfo $TMPDIR/rpms $TMPDIR/*.txt
+#rm- fr $TMPDIR
 
 echo "Работа скрипта завершена."
-exit 0
+
+cd "$MYPATH"
+if [ -f .auto ] ;then
+   wall "Запуск следующего скрипта ./2_make_distro через 20 секунд"
+   bash ./2_make_distro
+fi

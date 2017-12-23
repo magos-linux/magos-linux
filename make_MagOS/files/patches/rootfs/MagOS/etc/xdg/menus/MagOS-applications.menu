@@ -13,6 +13,9 @@
     <Menuname inline="false">Education</Menuname>
     <Menuname inline="false">Sciences</Menuname>
     <Menuname inline="false">Documentation</Menuname>
+    <Menuname inline="false">SystemSettings</Menuname>
+    <Menuname show_empty="false">X-Leave</Menuname>
+    <Menuname show_empty="false" inline="true">Screensaver</Menuname>
     <Merge type="menus"/>
     <Merge type="files"/>
     <Separator/>
@@ -131,6 +134,8 @@
             <Or>
                <Category>Monitor</Category>
                <Category>Filesystems</Category>
+               <Category>Control</Category>
+               <Category>Settings</Category>
             </Or>
             <Not>
                <Category>Capture</Category>
@@ -399,6 +404,7 @@
           <Category>Office</Category>
           <Category>X-KDE-Utilities-PIM</Category>
           <Category>Development</Category>
+          <Category>FileTools</Category>
           <Category>X-MandrivaLinux-System-FileTools</Category>
           <Category>X-MandrivaLinux-MoreApplications-Education</Category>
           <Category>Education</Category>
@@ -456,6 +462,7 @@
       <Directory>magos-file.directory</Directory>
       <Include>
         <Category>FileManager</Category>
+        <Category>FileTools</Category>
         <Category>X-MandrivaLinux-System-FileTools</Category>
       </Include>
     </Menu>
@@ -480,140 +487,6 @@
     </Menu>
   </Menu>
 
-  <Menu>
-    <Name>SystemSettings</Name>
-    <Directory>magos-settings.directory</Directory>
-    <Layout>
-      <Menuname>KDE</Menuname>
-      <Menuname>GNOME</Menuname>
-      <Menuname>LXDE</Menuname>
-      <Menuname>System</Menuname>
-      <Menuname>Hardware</Menuname>
-      <Menuname>Printing</Menuname>
-      <Merge type="menus"/>
-      <Merge type="files"/>
-      <Separator/>
-    </Layout>
-    <Include>
-      <Filename>magos-ctrl-center.desktop</Filename>
-      <Filename>mandriva-drakconf.desktop</Filename>
-      <Filename>rpmdrake.desktop</Filename>
-    </Include>
-    <Menu>
-      <Name>System</Name>
-      <Directory>magos-systemtools.directory</Directory>
-      <Include>
-        <And>
-          <Or>
-            <Category>PackageManager</Category>
-            <Category>DesktopSettings</Category>
-            <Category>Settings</Category>
-            <Category>X-MandrivaLinux-System-SunJava6u22</Category>
-            <Category>X-MandrivaLinux-System-Configuration-Other</Category>
-            <Category>X-MandrivaLinux-System-Monitoring</Category>
-          </Or>
-          <Not>
-            <Filename>rpmdrake.desktop</Filename>
-            <Filename>magos-ctrl-center.desktop</Filename>
-            <Category>HardwareSettings</Category>
-            <Category>Printing</Category>
-            <Category>TerminalEmulator</Category>
-            <Category>X-LXDE-Settings</Category>
-            <Category>X-KDE-settings-peripherals</Category>
-            <Category>X-KDE-settings-hardware</Category>
-            <Category>X-KDE-settings-power</Category>
-            <Category>Calculator</Category>
-            <Category>X-GNOME-PersonalSettings</Category>
-            <Category>Monitor</Category>
-            <And>
-              <Category>DesktopSettings</Category>
-              <Category>GNOME</Category>
-            </And>
-          </Not>
-        </And>
-      </Include>
-    </Menu>
-    <Menu>
-      <Name>Hardware</Name>
-      <Directory>magos-hardware.directory</Directory>
-      <Include>
-        <And>
-          <Or>
-            <Category>HardwareSettings</Category>
-            <Category>X-KDE-settings-peripherals</Category>
-            <Category>X-KDE-Utilities-Peripherals</Category>
-            <Category>X-KDE-settings-hardware</Category>
-            <Category>X-KDE-settings-power</Category>
-            <Category>TelephonyTools</Category>
-          </Or>
-          <Not>
-            <Category>Printing</Category>
-            <Category>Monitor</Category>
-            <Category>X-MandrivaLinux-System-Configuration-Printing</Category>
-          </Not>
-        </And>
-      </Include>
-    </Menu>
-    <Menu>
-      <Name>Printing</Name>
-      <Directory>magos-printing.directory</Directory>
-      <Include>
-          <Category>Printing</Category>
-          <Category>X-MandrivaLinux-System-Configuration-Printing</Category>
-      </Include>
-    </Menu>
-    <Menu>
-      <Name>KDE</Name>
-      <Directory>magos-kde.directory</Directory>
-      <Include>
-            <Filename>kde4-systemsettings.desktop</Filename>
-            <Category>X-KDE-Utilities-PIM</Category>
-            <Category>X-KDE-More</Category>
-            <Category>X-KDE-Utilities-Desktop</Category>
-      </Include>
-    </Menu>
-    <Menu>
-      <Name>GNOME</Name>
-      <Directory>magos-gnome.directory</Directory>
-      <Include>
-         <Or>
-           <Category>X-MandrivaLinux-System-Configuration-GNOME</Category>
-           <Category>X-GNOME-PersonalSettings</Category>
-           <And>
-             <Category>DesktopSettings</Category>
-             <Category>GNOME</Category>
-           </And>
-         </Or>
-      </Include>
-    </Menu>
-    <Menu>
-      <Name>LXDE</Name>
-      <Directory>magos-lxde.directory</Directory>
-      <Include>
-            <Category>X-LXDE-Settings</Category>
-      </Include>
-    </Menu>
-    <Menu>
-      <Name>LXQT</Name>
-      <Directory>magos-lxqt.directory</Directory>
-      <Include>
-            <Category>X-LXQT-Settings</Category>
-      </Include>
-    </Menu>
-  </Menu>
-
-  <Menu>
-    <Name>Development</Name>
-    <Directory>magos-development.directory</Directory>
-    <Layout>
-      <Merge type="menus"/>
-      <Merge type="files"/>
-    </Layout>
-    <Include>
-          <Category>X-MandrivaLinux-MoreApplications-Development</Category>
-          <Category>Development</Category>
-    </Include>
-  </Menu>
   
   <Menu>
     <Name>Games</Name>
@@ -672,19 +545,167 @@
       <Category>Documentation</Category>
     </Include>
   </Menu>
-<!--
+
   <Menu>
-    <Name>Other</Name>
-    <Directory>magos-other.directory</Directory>
-    <OnlyUnallocated/>
+    <Name>SystemSettings</Name>
+    <Directory>magos-settings.directory</Directory>
+    <Layout>
+      <Menuname>KDE</Menuname>
+      <Menuname>Plasma</Menuname>
+      <Menuname>GNOME</Menuname>
+      <Menuname>LXQT</Menuname>
+      <Menuname>LXDE</Menuname>
+      <Menuname>System</Menuname>
+      <Menuname>Hardware</Menuname>
+      <Menuname>Printing</Menuname>
+      <Merge type="menus"/>
+      <Merge type="files"/>
+      <Separator/>
+    </Layout>
     <Include>
-	    <All/>
+      <Filename>magos-ctrl-center.desktop</Filename>
+      <Filename>mandriva-drakconf.desktop</Filename>
+      <Filename>rpmdrake.desktop</Filename>
     </Include>
-    <Exclude>
-	    <Category>Core</Category>
-    </Exclude>
+    <Menu>
+      <Name>System</Name>
+      <Directory>magos-systemtools.directory</Directory>
+      <Include>
+        <And>
+          <Or>
+            <Category>PackageManager</Category>
+            <Category>DesktopSettings</Category>
+            <Category>Settings</Category>
+            <Category>X-MandrivaLinux-System-SunJava6u22</Category>
+            <Category>X-MandrivaLinux-System-Configuration-Other</Category>
+            <Category>X-MandrivaLinux-System-Monitoring</Category>
+          </Or>
+          <Not>
+            <Filename>rpmdrake.desktop</Filename>
+            <Filename>magos-ctrl-center.desktop</Filename>
+            <Category>HardwareSettings</Category>
+            <Category>TelephonyTools</Category>
+            <Category>Printing</Category>
+            <Category>TerminalEmulator</Category>
+            <Category>X-LXDE-Settings</Category>
+            <Category>X-LXQT-Settings</Category>
+            <Category>X-KDE-settings-peripherals</Category>
+            <Category>X-KDE-settings-hardware</Category>
+            <Category>X-KDE-settings-power</Category>
+            <Category>Calculator</Category>
+            <Category>X-GNOME-PersonalSettings</Category>
+            <Category>Monitor</Category>
+            <And>
+              <Category>DesktopSettings</Category>
+              <Category>GNOME</Category>
+            </And>
+          </Not>
+        </And>
+      </Include>
+    </Menu>
+    <Menu>
+      <Name>Hardware</Name>
+      <Directory>magos-hardware.directory</Directory>
+      <Include>
+        <And>
+          <Or>
+            <Category>HardwareSettings</Category>
+            <Category>X-KDE-settings-peripherals</Category>
+            <Category>X-KDE-Utilities-Peripherals</Category>
+            <Category>X-KDE-settings-hardware</Category>
+            <Category>X-KDE-settings-power</Category>
+            <Category>TelephonyTools</Category>
+          </Or>
+          <Not>
+            <Category>Printing</Category>
+            <Category>Monitor</Category>
+            <Category>X-MandrivaLinux-System-Configuration-Printing</Category>
+          </Not>
+        </And>
+      </Include>
+    </Menu>
+    <Menu>
+      <Name>Printing</Name>
+      <Directory>magos-printing.directory</Directory>
+      <Include>
+          <Category>Printing</Category>
+          <Category>X-MandrivaLinux-System-Configuration-Printing</Category>
+      </Include>
+    </Menu>
+    <Menu>
+      <Name>KDE</Name>
+      <Directory>magos-kde.directory</Directory>
+      <Include>
+            <Filename>kde4-systemsettings.desktop</Filename>
+            <Category>X-KDE-Settings</Category>
+      </Include>
+    </Menu>
+    <Menu>
+      <Name>Plasma</Name>
+      <Directory>magos-plasma.directory</Directory>
+      <Include>
+            <Filename>kde5-systemsettings.desktop</Filename>
+            <Category>X-KDE5-Settings</Category>
+            <Category>X-Plasma-Settings</Category>
+      </Include>
+    </Menu>
+    <Menu>
+      <Name>GNOME</Name>
+      <Directory>magos-gnome.directory</Directory>
+      <Include>
+         <Or>
+           <Category>X-MandrivaLinux-System-Configuration-GNOME</Category>
+           <Category>X-GNOME-PersonalSettings</Category>
+           <And>
+             <Category>DesktopSettings</Category>
+             <Category>GNOME</Category>
+           </And>
+         </Or>
+      </Include>
+    </Menu>
+    <Menu>
+      <Name>LXDE</Name>
+      <Directory>magos-lxde.directory</Directory>
+      <Include>
+            <Category>X-LXDE-Settings</Category>
+      </Include>
+    </Menu>
+    <Menu>
+      <Name>LXQT</Name>
+      <Directory>magos-lxqt.directory</Directory>
+      <Include>
+            <Category>X-LXQT-Settings</Category>
+      </Include>
+    </Menu>
   </Menu>
--->
+  <Menu>
+    <Name>Development</Name>
+    <Directory>magos-development.directory</Directory>
+    <Layout>
+      <Merge type="menus"/>
+      <Merge type="files"/>
+    </Layout>
+    <Include>
+          <Category>X-MandrivaLinux-MoreApplications-Development</Category>
+          <Category>Development</Category>
+    </Include>
+  </Menu>
+
+  <Menu>
+    <Name>X-Leave</Name>
+    <Directory>lxqt-leave.directory</Directory>
+    <Include>
+       <And>
+          <Category>X-Leave</Category>
+       </And>
+    </Include>
+  </Menu>
+  <Menu>
+    <Name>Screensaver</Name>
+    <Include>
+        <Filename>lxqt-lockscreen.desktop</Filename>
+    </Include>
+  </Menu>
   <Menu>
     <Name>.hidden</Name>
     <Directory>magos-hidden.directory</Directory>

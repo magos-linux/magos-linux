@@ -52,7 +52,6 @@ libsecret1_0-
 libtotem-plparser18-
 libvte2_90_9-
 libwebkitgtk1.0_0-
-libwebp4-
 libwnck-
 libwnck-1_22-
 libwx_baseu2.8_0-
@@ -143,4 +142,3 @@ webkit2gtk4.0-
 webkit4.0-
 libnm-gtk-gir1.0-
 adwaita-gtk2-theme-
-qgtkstylealt-

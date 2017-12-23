@@ -1,0 +1,62 @@
+[Appmenu Style]
+Style=InApplication
+
+[General]
+BrowserApplication[$e]=!firefox
+ColorScheme=MagOS
+XftAntialias=true
+XftHintStyle=hintslight
+XftSubPixel=rgb
+desktopFont=Droid Sans,10,-1,5,50,0,0,0,0,0
+fixed=Monospace,10,-1,5,50,0,0,0,0,0
+font=Droid Sans,10,-1,5,50,0,0,0,0,0
+menuFont=Droid Sans,10,-1,5,50,0,0,0,0,0
+smallestReadableFont=Droid Sans,9,-1,5,50,0,0,0,0,0
+taskbarFont=Droid Sans,10,-1,5,50,0,0,0,0,0
+toolBarFont=Droid Sans,9,-1,5,50,0,0,0,0,0
+
+[Icons]
+Theme=rosa
+
+[PanelIcons]
+Size=256
+
+[KDE]
+LookAndFeelPackage=org.magos.desktop
+AutoSelectDelay=-1
+ChangeCursor=true
+DoubleClickInterval=400
+ShowIconsInMenuItems=true
+ShowIconsOnPushButtons=true
+SingleClick=false
+StartDragDist=4
+StartDragTime=500
+WheelScrollLines=3
+contrast=7
+widgetStyle=breeze
+
+[KFileDialog Settings]
+Automatically select filename extension=true
+Breadcrumb Navigation=true
+Decoration position=0
+LocationCombo Completionmode=5
+PathCombo Completionmode=5
+Previews=false
+Show Bookmarks=false
+Show Full Path=false
+Show Speedbar=true
+Show hidden files=false
+Sort by=Name
+Sort directories first=true
+Sort reversed=false
+Speedbar Width=152
+View Style=Simple
+listViewIconSize=0
+
+[Toolbar style]
+ToolButtonStyle=TextBesideIcon
+ToolButtonStyleOtherToolbars=TextBesideIcon
+
+[WM]
+activeFont=Droid Sans,10,-1,5,50,0,0,0,0,0
+

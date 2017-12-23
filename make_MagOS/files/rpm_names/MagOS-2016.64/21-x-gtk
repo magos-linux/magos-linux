@@ -46,7 +46,6 @@ lib64ORBit-imodule2_0-
 lib64pangomm2.4_1-
 lib64proxy1-
 lib64rarian0-
-lib64secret1_0-
 lib64totem-plparser18-
 lib64vte2_90_9-
 lib64webkitgtk1.0_0-
@@ -143,3 +142,4 @@ lib64soup-gnome-2.4_1-
 lib64wx_gtk2u_qa3.0_0-
 lib64suil-x11-in-gtk2-
 lib64suil-qt4-in-gtk2-
+lib64nm-gtk0-

@@ -1,0 +1,30 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+DN=MagOS
+FF=MagOS.sgn
+NPATH=$(find flash -type f | grep $FF | sort -n | tail -1)
+NPATH=$(dirname "$NPATH")
+[ -z "$NPATH" -o ! -d "$NPATH" ] && exit 1
+echo Found last version $NPATH.
+
+mkdir -p "$NPATH".noxzm/{base,modules,optional,rootcopy,machines/dynamic,machines/static}
+cp -p  "$NPATH"/* "$NPATH".noxzm
+
+echo Creating modules...
+
+ls work/MagOS-2014.64/split/modules | grep -v -- 81-int | sed s-'/$'-- | while read a ; do
+ echo $a
+ dir2noxzm work/MagOS-2014.64/split/modules/$a "$NPATH".noxzm/base/$a.xzm
+done
+
+echo Calculating md5 sums...
+cd "$NPATH".noxzm
+chmod a+r -R *
+md5sum vmlinuz >MD5SUM
+[ -f initrd.gz ] && md5sum initrd.gz >>MD5SUM
+[ -f uird.magos.cpio.xz ] && md5sum uird.magos.cpio.xz >>MD5SUM
+md5sum base/*.xzm >>MD5SUM
+echo Done

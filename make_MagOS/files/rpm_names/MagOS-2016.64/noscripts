@@ -6,4 +6,9 @@
 ^netprofile-
 ^partimage-
 ^locales-
-^dracut-aufs-
+^dracut-
+^shadow-utils-
+^makedev-
+^grub-
+^grub2-
+^plymouth-

@@ -2,7 +2,6 @@ djview4-
 djvulibre-
 fbreader-
 fonts-ttf-dejavu-
-fonts-ttf-liberation-
 ghostscript-
 ghostscript-common-
 ghostscript-fonts-
@@ -13,7 +12,6 @@ hyphen-en-
 lib64abw0.1_1-
 lib64boost_date_time1.61.0-
 lib64boost_iostreams1.61.0-
-lib64clucene-contribs-lib2-
 lib64cmis0.5_5-
 lib64e-book0.1_1-
 lib64eot0-
@@ -23,7 +21,6 @@ lib64evview3_3-
 libexttextcat-data-
 lib64freehand0.1_1-
 lib64gxps2-
-lib64hyphen0-
 lib64kpathsea6-
 lib64langtag1-
 lib64mspub0.1_1-
@@ -31,9 +28,7 @@ lib64mwaw0.3_3-
 lib64mythes1.2_0-
 lib64odfgen0.1_1-
 lib64orcus-parser0.12_0-
-libpst-
 lib64textcat0-
-lib64visio0.1_1-
 lib64xneur20-
 lib64xnconfig20-
 lib64xosd2-
@@ -77,3 +72,7 @@ lib64orcus0.12_0-
 lib64staroffice0.0_0-
 lib64gltf0.1_1-
 lib64zmf0.0_0-
+lib64clucene-core2-
+lib64clucene_shared2-
+lib64clucene-contribs-lib2-
+lib64qt5clucene5-

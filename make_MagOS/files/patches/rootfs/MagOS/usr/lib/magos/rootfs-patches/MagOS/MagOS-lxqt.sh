@@ -25,8 +25,19 @@ PFP=/etc/xdg/lxqt/lxqt.conf
 #sed -i s%sGtk/CursorThemeName=.*%sGtk/CursorThemeName=rosa-flat% $PFP
 
 PFP=/etc/xdg/lxqt/panel.conf
-[ -f $PFP ] && sed -i s%apps.2.desktop=.*%'apps\\2\\desktop=/usr/share/applications/firefox.desktop'% $PFP
-[ -f $PFP ] && sed -i s%apps.3.desktop=.*%'apps\\3\\desktop=/usr/share/applications/doublecmd.desktop'% $PFP
+if [ -f $PFP ] ;then
+   grep -q 'apps\\3\\desktop=' $PFP || sed -i 's|^apps\\size=2$|apps\\3\\desktop= \napps\\size=3|' $PFP
+   grep -q 'apps\\4\\desktop=' $PFP || sed -i 's|^apps\\size=3$|apps\\4\\desktop= \napps\\size=4|' $PFP
+   grep -q 'apps\\5\\desktop=' $PFP || sed -i 's|^apps\\size=4$|apps\\5\\desktop= \napps\\size=5|' $PFP
+   sed -i 's|apps\\2\\desktop=.*|apps\\2\\desktop=/usr/share/applications/firefox.desktop|' $PFP
+   sed -i 's|apps\\3\\desktop=.*|apps\\3\\desktop=/usr/share/applications/mandriva-mozilla-thunderbird.desktop|' $PFP
+   sed -i 's|apps\\4\\desktop=.*|apps\\4\\desktop=/usr/share/applications/doublecmd.desktop|' $PFP
+   sed -i 's|apps\\5\\desktop=.*|apps\\5\\desktop=/usr/share/applications/gcalctool.desktop|' $PFP
+   sed -i 's|quicklaunch, taskbar,|quicklaunch, desktopswitch, taskbar,|' $PFP
+fi
+
+PFP=/etc/xdg/openbox/rc.xml
+[ -f $PFP ] && sed -i 's|<number>.</number>|<number>4</number>|' $PFP
 
 PFP=/etc/X11/wmsession.d/04LXQT
 cat >>$PFP <<EOF
@@ -36,5 +47,6 @@ EXEC=/usr/bin/startlxqt
 SCRIPT:
 exec /usr/bin/startlxqt
 EOF
+
 
 exit 0

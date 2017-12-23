@@ -3,12 +3,8 @@ dhcp-server-
 freenx-
 hostapd-
 hostap-utils-
-lib64xcomp3-
-lib64xcompext3-
-lib64xcompshad3-
 ntp-
 nxagent-
-nxproxy-
 openssh-server-
 pdnsd-
 proftpd-

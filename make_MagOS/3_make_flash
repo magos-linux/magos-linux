@@ -1,0 +1,164 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+#delete all strings from $1 files founded in $2
+function deletefiles()
+{
+ sort "$1" > "$1".tmp ; mv -f "$1".tmp "$1"
+ sort "$2" > "$2".tmp ; mv -f "$2".tmp "$2"
+ diff --suppress-common-lines "$1" "$2" |  sed -n /"^<"/p | sed s/"^< "// >"$1".tmp  || exit 1
+ mv -f "$1".tmp "$1" || exit 1
+}
+
+#move string from $1 to $2 with expression $3
+function movefiles()
+{
+   grep "$3" "$1" > "$2".tmp
+   [ -f "$4" ] && grep -v -f "$4" "$2".tmp > "$2".tmp2
+   [ -f "$2".tmp2 ] &&  mv -f "$2".tmp2 "$2".tmp
+   deletefiles "$1" "$2".tmp
+   cat "$2" "$2".tmp 2> /dev/null | sort > "$2".sorted
+   mv -f "$2".sorted "$2"
+   rm -f "$2".tmp
+}
+
+#move string from file $1 to $2 all string from file $3
+#files $1 and $2 must be sorted
+function moveallfiles()
+{
+  sort "$1" > "$1".tmp ; mv -f "$1".tmp "$1"
+  sort "$3" > "$3".tmp ; mv -f "$3".tmp "$3"
+  diff --suppress-common-lines "$1" "$3"     | sed -n /"^<"/p | sed s/"^< "// > "$1".tmp
+  diff --suppress-common-lines "$1" "$1.tmp" | sed -n /"^<"/p | sed s/"^< "// >>"$2"
+  mv -f "$1".tmp "$1"
+}
+
+if [ "`id -u`" != "0" ] ;then
+   echo "Для доступа ко всем файлам каталога rootfs нужны права root" ; exit 1
+fi
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+echo "Подготовка"
+TMPDIR=/tmp/make_$FLASHNAME-$VERREL
+rm -fr $TMPDIR cache/$FLASHNAME-$VERREL/modules/{files,xzm}
+mkdir -p $TMPDIR/tmp cache/$FLASHNAME-$VERREL/modules/{files,xzm}
+cd cache/$FLASHNAME-$VERREL
+cp -rf -t $TMPDIR modules *.content
+cp $TMPDIR/system.content $TMPDIR/tmp/content
+cp $TMPDIR/magos.content  $TMPDIR/modules/files/88-magos
+cp "$MYPATH/files/locales/$FLASHNAME-$VERREL/locales" $TMPDIR/locales
+
+echo "Обработка исключений"
+movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/10-core "^dev/"
+movefiles $TMPDIR/tmp/content $TMPDIR/tmp/deleted '^boot/vmlinuz'
+movefiles $TMPDIR/tmp/content $TMPDIR/tmp/deleted '^boot/initrd'
+deletefiles $TMPDIR/tmp/content $TMPDIR/modules/files/88-magos
+cat "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international.locales" | while read i ;do
+   echo $i | grep -q . && movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/international "$i" $TMPDIR/locales
+done
+for a in "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international" "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/"??-* ;do
+   MOD=$(basename $a)
+   echo $MOD
+   cat "$a" | while read i ;do
+      echo $i | grep -q . && movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/$MOD "$i"
+   done
+   cat "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.exc/$MOD" 2> /dev/null | while read i ;do
+      echo $i | grep -q . && movefiles $TMPDIR/modules/files/$MOD $TMPDIR/tmp/content "$i"
+   done
+done
+
+echo "Вынесение языковых файлов во внешние модули"
+for a in "$MYPATH/files/locales/$FLASHNAME-$VERREL/"*-int-* ;do
+  LOCALES=$(cat $a)
+  echo $(basename $a) $LOCALES
+  for l in $LOCALES ;do
+    movefiles $TMPDIR/modules/files/international $TMPDIR/modules/files/$(basename $a) "[-._/]$l[-._@/]"
+  done
+done
+movefiles $TMPDIR/modules/files/international $TMPDIR/tmp/content '.'
+rm -f $TMPDIR/modules/files/international
+
+echo "Создание списков файлов для модулей"
+for a in $TMPDIR/modules/rpmfiles/??-* ;do
+  MOD=$(basename $a)
+  echo $MOD
+  moveallfiles $TMPDIR/tmp/content $TMPDIR/modules/files/$MOD $TMPDIR/modules/rpmfiles/$MOD
+done
+cp -p $TMPDIR/tmp/content $TMPDIR/nonmodules.content
+movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/10-core '.'
+cp -pr -t modules $TMPDIR/modules/files
+
+echo "Проверка на неупакованные файлы"
+cat $TMPDIR/modules/files/* $TMPDIR/tmp/deleted | sort > $TMPDIR/tmp/splited.content
+diff -aup $TMPDIR/system.content $TMPDIR/tmp/splited.content || exit 1
+
+echo "Упаковка файлов в модули"
+CHANGES=changes
+ROOTFS=rootfs
+[ -f tmpchanges/.wh..wh.aufs ] && CHANGES=tmpchanges
+[ -f tmprootfs/sbin/init -o -h tmprootfs/sbin/init ] && ROOTFS=tmprootfs
+mount | grep -q " on $PWD/aufs type aufs " || mount -t aufs -o br:$CHANGES=rw:$ROOTFS=ro aufs aufs || exit 1
+for a in $TMPDIR/modules/files/??-* ;do
+  MOD=$(basename $a)
+  echo $MOD
+  rm -fr $TMPDIR/tmp/module 2>/dev/null
+  mkdir -p $TMPDIR/tmp/module/var/lib/rpm/modules
+  tar -c --ignore-failed-read --no-recursion -C aufs -T $a 2>>$TMPDIR/split_errors.txt | tar -x -C $TMPDIR/tmp/module  || exit 1
+  [ -f aufs/var/lib/rpm/modules/$MOD ]        && cp -p    aufs/var/lib/rpm/modules/$MOD       $TMPDIR/tmp/module/var/lib/rpm/modules
+  [ -d "$MYPATH"/files/patches/modules/$MOD ] && cp -prf "$MYPATH"/files/patches/modules/$MOD/* $TMPDIR/tmp/module
+  mksquashfs $TMPDIR/tmp/module $TMPDIR/tmp/module.xzm $MKSQOPT >/dev/null 2>/dev/null || exit 1
+  mv $TMPDIR/tmp/module.xzm modules/xzm/$MOD.xzm
+done
+
+echo "Создание сборки"
+DISTRVERSION=$(cat VERSION | awk '{print $2}')
+DESTDIR="$MYPATH"/flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
+[ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
+mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional} \
+  "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy,cache,steam,backgrounds/wallpapers/Default,backgrounds/screensaver/Default} \
+  "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic} \
+  "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international || exit 1
+chmod 777 "$DESTDIR"/$FLASHNAME-Data/steam
+cp -pR "$MYPATH"/files/patches/flash/* "$DESTDIR" || exit 1
+[ -d "$MYPATH"/files/patches/flash.$VERREL ] && cp -pfR "$MYPATH"/files/patches/flash.$VERREL/* "$DESTDIR"
+cp -L aufs/boot/vmlinuz   "$DESTDIR"/$FLASHNAME || exit 1
+cp -L aufs/boot/initrd.gz "$DESTDIR"/$FLASHNAME || exit 1
+cp -L VERSION "$DESTDIR"/$FLASHNAME || exit 1
+mv -f modules/xzm/* "$DESTDIR/$FLASHNAME/base"
+chmod 444 "$DESTDIR/$FLASHNAME/base/*"
+mv "$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international
+mv "$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION} 2>/dev/null
+
+echo "Добавление графического материала"
+cd "$MYPATH/../graphics" || exit 1
+./make_default_themes.sh
+cp -p wallpapers/Default/*  "$DESTDIR/$FLASHNAME-Data/backgrounds/wallpapers/Default"
+cp -p screensaver/Default/* "$DESTDIR/$FLASHNAME-Data/backgrounds/screensaver/Default"
+
+echo "Создание файлов для сохранения данных и архивов папок"
+cd $DESTDIR
+[ "$DATASIZE1" != "" ] && dd if=/dev/zero of=$FLASHNAME-Data/home.img bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j $FLASHNAME-Data/home.img >/dev/null 2>&1
+tar -jcf $FLASHNAME/$FLASHNAME-Data.tar.bz2 $FLASHNAME-Data
+tar -jcf $FLASHNAME/boot.tar.bz2 boot EFI
+
+echo "Вычисление контрольных сумм"
+cd "$DESTDIR/$FLASHNAME"
+md5sum vmlinuz >MD5SUM
+[ -f initrd.gz ] && md5sum initrd.gz >>MD5SUM
+[ -f uird.magos.cpio.xz ] && md5sum uird.magos.cpio.xz >>MD5SUM
+md5sum base/*.xzm >>MD5SUM
+
+echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"
+cd "$MYPATH"
+if [ -f .auto ] ;then
+   wall "Зборка завершена"
+   [ -f .reboot ]   && reboot
+   [ -f .poweroff ] && poweroff
+fi

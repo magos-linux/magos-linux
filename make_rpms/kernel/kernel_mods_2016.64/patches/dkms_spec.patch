@@ -1,0 +1,21 @@
+diff -auprN a/etc/dkms/template-dkms-mkrpm.spec b/etc/dkms/template-dkms-mkrpm.spec
+--- a/etc/dkms/template-dkms-mkrpm.spec	2015-04-28 15:11:48.000000000 +0300
++++ b/etc/dkms/template-dkms-mkrpm.spec	2017-02-23 15:26:47.514684350 +0300
+@@ -14,7 +14,7 @@
+ %define _dkmsbinarydir %_localstatedir/lib/dkms-binary
+ %define moduledkmsbinarydir %{_dkmsbinarydir}/%{module_name}/%{fake_version}
+ 
+-%define kernel_flavour_rx /(.*)-(\\D.*)/
++%define kernel_flavour_rx /([\\d\\.]*)-(.*)-(\\d.*)/
+ %define kernel_flavour_cmd perl -e '$ARGV[0] =~ %kernel_flavour_rx and print "$2\\n"'
+ # find latest kernel for each flavour of the defined kernels
+ %define kernels_latest %(perl -e 'foreach my $ver (sort(qw(%kernel_versions))) { $ver =~ %kernel_flavour_rx and $kernels{$1} = $ver }; print join(" ", values(%%kernels)) . "\\n"')
+@@ -35,7 +35,7 @@ dkms binary kernel modules for the %{mod
+ built for the %{kernel_versions} kernel(s).
+ 
+ %(for kernel in %kernel_versions; do kflavour=`%kernel_flavour_cmd $kernel`; \
+-      kversion=`rpm -qf --qf '%%{version}-%%{release}' /lib/modules/$kernel`; \
++      kversion=`rpm -qf --qf '%%{version}-%%{release}' /lib/modules/$kernel/modules.dep`; \
+       echo -e "\
+ %package -n %{module_name}-kernel-$kernel\n\
+ Summary:	%{module_name} driver for kernel ${kernel} \n\

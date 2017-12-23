@@ -1,5 +1,4 @@
 task-lxqt-
-slim-
 lxqt-about-
 lxqt-admin-
 lxqt-config-
@@ -45,3 +44,6 @@ lxqt-themes-
 lib64Qt5Xdg3-
 lib64Qt5XdgIconLoader3-
 libqtxdg-
+xscreensaver-
+xscreensaver-common-
+fortune-mod-

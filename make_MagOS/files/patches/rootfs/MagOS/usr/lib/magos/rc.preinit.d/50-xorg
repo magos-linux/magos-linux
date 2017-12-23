@@ -44,7 +44,6 @@ NUM=$(lspci -nmm | sed s/"Class "// | grep -c '[.]. "0300"')
 [ "$VGABUSID" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep ^"$VGABUSID" | head -n1)
 # trying to find VGA card for specidied XDRIVER
 [ -z "$CARD" -a "$XDRIVER" = "intel" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "8086"' | sort $SORTOPT | head -n1)
-[ -z "$CARD" -a "$XDRIVER" = "fglrx" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
 [ -z "$CARD" -a "$XDRIVER" = "ati" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
 [ -z "$CARD" -a "$XDRIVER" = "nouveau" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
 echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
@@ -76,7 +75,7 @@ fi
 # detecting XDRIVER
 if [ -z "$XDRIVER" ] ; then
    [ "$PCIVEN" = "8086" ] && XDRIVER=intel
-   [ "$PCIVEN" = "1002" ] && XDRIVER=fglrx
+   [ "$PCIVEN" = "1002" ] && XDRIVER=ati
    [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia
 fi
 
@@ -90,14 +89,6 @@ if [ "$XDRIVER" = "nvidia" ] ;then
    done
 # nouveau driver
    [ -z "$XDRIVER" ] && XDRIVER=$FAILSAFENVIDIA
-fi
-
-# testing nonfree fglrx module
-if [ "$XDRIVER" = "fglrx" ] ;then
-   chroot . modprobe fglrx
-   if ! lsmod | grep -q fglrx ;then
-      XDRIVER=$FAILSAFEATI
-   fi
 fi
 
 # storing data in config file
@@ -123,7 +114,6 @@ if [ "$GLLDCONFIG" = "yes" ] ;then
   LINK=$LINKFBDEV
   [ "$XDRIVER" = "" -o "$XDRIVER" = "vesa" ] && LDCACHE=fbdev
   [ "$XDRIVER" = "ati" ] && LINK=$LINKATI
-  [ "$XDRIVER" = "fglrx" ] && LINK=$LINKFGLRX
   [ "$XDRIVER" = "nvidia" -o "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
   [ "$XDRIVER" = "nvidia96" ] && LINK=$LINKNVIDIA96
   [ "$XDRIVER" = "nvidia173" ] && LINK=$LINKNVIDIA173
@@ -185,9 +175,8 @@ if [ -f $XFILE -a "$VGABUSID" ] ;then
 fi
 
 #preloading kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
-if echo "$XDRIVER" | egrep -q 'nvidia|fglrx|nouveau' ;then
+if echo "$XDRIVER" | egrep -q 'nvidia|nouveau' ;then
    sed -i /^nvidia/d  etc/modprobe.preload
    sed -i /^nouveau/d etc/modprobe.preload
-   sed -i /^fglrx/d   etc/modprobe.preload
    echo "$XDRIVER" >> etc/modprobe.preload
 fi

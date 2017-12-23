@@ -1,0 +1,177 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+TMPROOTFS=no
+SIZETMPFS=12G
+RPMIOPT=" --ignoresize --nodigest --nosignature --nosuggest "
+#RPMIOPT=" --ignoresize --nosignature --nosuggest "
+
+if [ "`id -u`" != "0" ] ;then
+   echo "Для установки пакетов нужны права root"
+   exit 1
+fi
+
+if [ -f .config ] ;then
+  . .config
+else
+  echo "Не вижу файла .config" ;  exit 1
+fi
+
+function umountbranches()
+{
+ while grep -q "$1" /proc/mounts ;do
+    grep "$1" /proc/mounts | awk '{print $2}' | while read a ;do
+          echo umount "$a" ; umount "$a" 2>/dev/null
+    done
+ done
+}
+TMPDIR=/tmp/make_$FLASHNAME-$VERREL
+umountbranches $(readlink -f cache/$FLASHNAME-$VERREL)
+rm -fr $TMPDIR cache/$FLASHNAME-$VERREL/{changes,tmpchanges,aufs,rootfs,tmprootfs,magos,install_errors.diff} 2>/dev/null
+mkdir -p $TMPDIR/{rpmlist,rpms1,rpms2,tmp} cache/$FLASHNAME-$VERREL/{tmpchanges,aufs,magos}
+
+echo "Создаём список пакетов для установки"
+ln -sf "$(readlink -f cache/$FLASHNAME-$VERREL/rpmstore)" -f $TMPDIR/rpmstore
+cp -r -t $TMPDIR cache/$FLASHNAME-$VERREL/rpms cache/$FLASHNAME-$VERREL/rpminfo
+cd $TMPDIR/rpmlist || exit 1
+mkcd -d --buildhdlist ../rpms >/dev/null  2>&1 || exit 1
+
+echo "Обработка списка пакетов"
+awk '{print $1}' depslist.ordered | awk -F: '{print $1}' |  grep -v ^dkms-[a-ln-z] | while read a ;do
+   grep -m1 "^$a" ../rpminfo/scripts   >>depslist.ordered.2 && continue
+   grep -m1 "^$a" ../rpminfo/noscripts >>depslist.ordered.1 && continue
+   echo Not found $a ;exit 1
+done
+tar -c -C ../rpms -T depslist.ordered.1 | tar -x -C ../rpms1  || exit 1
+tar -c -C ../rpms -T depslist.ordered.2 | tar -x -C ../rpms2  || exit 1
+
+echo "Подготовка к установке пакетов"
+ROOTFS="$MYPATH/cache/$FLASHNAME-$VERREL/rootfs"
+[ "$TMPROOTFS" == "yes" ] && ROOTFS="$MYPATH/cache/$FLASHNAME-$VERREL/tmprootfs"
+mkdir -p "$ROOTFS"/var/lib/rpm || exit 1
+if [ "$TMPROOTFS" == "yes" ] ;then
+   mount -t tmpfs -o size=$SIZETMPFS tmpfs "$ROOTFS" || exit 1
+else
+   mount -t tmpfs tmpfs "$ROOTFS/var/lib/rpm" || exit 1
+fi
+cd "$ROOTFS"
+
+echo "Распаковка базовых пакетов"
+for a in `cat $MYPATH/files/rpm_names/$FLASHNAME-$VERREL/base` ;do
+    cat $TMPDIR/rpmlist/depslist.ordered.1 $TMPDIR/rpmlist/depslist.ordered.2 | grep $a | while read b ;do
+        echo $b
+        rpm2cpio $TMPDIR/rpms/$b | cpio -i -d || exit 1
+    done
+done
+
+echo "Импортирование ключей"
+for a in ../pubkeys/*.pubkey ;do
+   rpm  --root "$ROOTFS" --import $a  || exit 1
+done
+
+echo "Установка основных пакетов"
+LC_ALL=C TMPDIR=/tmp rpm -iv $RPMIOPT --noscripts --nodeps --root "$ROOTFS" $TMPDIR/rpms1/*.rpm >$TMPDIR/install_log1.txt  2>&1 || exit 1
+makedev dev
+
+echo "Установка пакетов co скриптами"
+mkdir -p dev proc sys
+mount --bind /proc proc || exit 1
+mount --bind /sys  sys  || exit 1
+mount --bind /dev  dev  || exit 1
+[ -f sbin/mkinitrd ] && mv sbin/mkinitrd sbin/mkinitrd.real
+ln -sf /bin/true sbin/mkinitrd
+cp -pr $TMPDIR/rpms2 tmp
+mkdir tmp/rpmstore
+mount --bind $(readlink -f $TMPDIR/rpmstore) tmp/rpmstore || exit 1
+for a in `cat $TMPDIR/rpmlist/depslist.ordered.2` ;do
+      LC_ALL=C TMPDIR=/tmp chroot . /bin/rpm -iv $RPMIOPT --nodeps /tmp/rpms2/$a >>$TMPDIR/install_log2.txt 2>&1
+done
+umount tmp/rpmstore sys/fs/fuse/connections sys dev proc 2>/dev/null
+
+echo "Сжатие базы rpm"
+[ -x usr/lib/rpm/bin/dbconvert ] && chroot . /usr/lib/rpm/bin/dbconvert
+mkdir -p var/lib/rpm/pubkeys
+cp -p ../pubkeys/*.pubkey var/lib/rpm/pubkeys || exit 1
+if [ "$TMPROOTFS" != "yes" ] ;then
+   cp -pr var/lib/rpm var/lib/rpm_base || exit 1
+   umount var/lib/rpm || exit 1
+   rmdir var/lib/rpm
+   mv var/lib/rpm_base var/lib/rpm
+fi
+
+echo "Обработка журналов установки"
+cat $TMPDIR/install_log1.txt $TMPDIR/install_log2.txt | sed /^warning:/d | sed /"^Preparing packages"/d  > $TMPDIR/install_log.txt
+egrep "[.]noarch$|[.]x86_64$|[.]i586$" $TMPDIR/install_log.txt > $TMPDIR/install_list.txt
+diff -u1 -aup $TMPDIR/install_log.txt $TMPDIR/install_list.txt | sed  /^@@/d  > ../install_errors.diff
+
+if egrep -q 'cpio|rpmDigestAlgo|conflict|output error' ../install_errors.diff ;then 
+   echo "Обнаружены серьёзные ошибки при установке пакетов, см. файл cache/$FLASHNAME-$VERREL/install_errors.diff"
+   exit 1
+fi
+
+echo "Создание ссылок для ядра"
+KERN=$(find lib/modules -maxdepth 2 -name modules.dep | tail -1 | awk -F/ '{print $3}')
+KERNSRC=/$(find usr/src -maxdepth 2 -type f -name .config | tail -1  | sed s=/.config==)
+[ -h lib/modules/$KERN/build  ] || ln -sf ../../..$KERNSRC lib/modules/$KERN/build
+[ -h lib/modules/$KERN/source ] || ln -sf ../../..$KERNSRC lib/modules/$KERN/source
+[ -h boot/vmlinuz -o -f boot/vmlinuz ] || ln -sf $(ls -1 boot | grep vmlinuz | tail -1) boot/vmlinuz
+
+echo "Подготовка к изменению дистрибутива"
+rm -fr tmp/*
+cd ..
+mount -t tmpfs tmpfs tmpchanges || exit 1
+mount -t aufs -o br:tmpchanges=rw:$ROOTFS=ro aufs aufs || exit 1
+
+echo "Удаление файлов для уменьшения размера"
+cp -p $MYPATH/files/patches/rootfs/$FLASHNAME/usr/lib/magos/rootfs-patches/$FLASHNAME-clean_distr.sh aufs || exit 1
+chroot aufs /MagOS-clean_distr.sh || exit 1
+rm -f aufs/MagOS-clean_distr.sh
+
+echo "Добавление файлов в дистрибутив"
+[ -d urpmi ] && cp -pfR urpmi/* aufs
+for a in $FLASHNAME $FLASHNAME-$VERREL ;do
+    [ -d $MYPATH/files/patches/rootfs/$a ] && cp -pfR $MYPATH/files/patches/rootfs/$a/* magos
+done
+mkdir -p -m 755 aufs/var/lib/rpm/modules
+cp -p modules/names/??-* aufs/var/lib/rpm/modules || exit 1
+
+echo "Изменение файлов дистрибутива"
+cp -pfr magos/* aufs
+mkdir -p aufs/{dev,proc,sys,mnt/live}
+mount -o bind /dev  aufs/dev
+mount -o bind /proc aufs/proc
+mount -o bind /sys  aufs/sys
+echo $VERREL $(date +%Y%m%d) > VERSION
+cp VERSION aufs/mnt/live/VERSION
+
+chroot aufs /usr/lib/magos/rootfs-patches/$FLASHNAME-patch_distr.sh
+[ -f aufs/usr/lib/magos/rootfs-patches/${FLASHNAME}_${VERREL}-patch_distr.sh ] && chroot aufs /usr/lib/magos/rootfs-patches/${FLASHNAME}_${VERREL}-patch_distr.sh
+ln -sf /proc/mounts aufs/etc/mtab
+rm -fr aufs/tmp/* aufs/mnt/*
+umount aufs/{dev,proc,sys} 
+
+echo "Создание списков файлов системы"
+find magos/* | sed s%^magos/%% | sort > magos.content
+find aufs/* | sed s%^aufs/%% | sort > system.content
+
+umount aufs
+rm -fr tmpchanges/{dev,proc,sys,mnt,tmp}
+
+echo "Сохранение данных из памяти на диск"
+if [ "$TMPROOTFS" == "yes" ] ;then
+   rm -fr rootfs/*
+   cp -pr $ROOTFS rootfs
+fi
+cp -pr tmpchanges aufs
+mv aufs/tmpchanges changes
+
+echo "Проверьте файл cache/$FLASHNAME-$VERREL/install_errors.diff, как правило там некритичные ошибки"
+echo "Работа скрипта завершена, в cache/$FLASHNAME-$VERREL/rootfs установлен наш дистрибутив"
+
+cd "$MYPATH"
+if [ -f .auto ] ;then
+   wall "Запуск следующего скрипта ./3_make_flash через 20 секунд"
+   bash ./3_make_flash
+fi

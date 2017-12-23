@@ -15,8 +15,6 @@ debug_mode "$0" "$@"
 
 [ -f etc/inittab ] && sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
 ln -sf /lib/systemd/system/graphical.target etc/systemd/system/default.target
-[ -x usr/bin/kdm ] || ln -sf /lib/systemd/system/gdm.service etc/systemd/system/display-manager.service
-[ -x usr/bin/gdm -o -x usr/bin/kdm ] || ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
 
 switch3don()
 {
@@ -118,9 +116,8 @@ done
 [ "$(cmdline_parameter 3ddesktop)" ] && switch3don
 [ "$(cmdline_parameter no3ddesktop)" ] && switch3doff
 
-#GDM3 default session fix
 . etc/sysconfig/desktop
-cat >etc/X11/dm/Sessions/00DEFAULT.desktop <<EOF
+cat >etc/X11/wmsession.d/00DEFAULT <<EOF
 [Desktop Entry]
 Encoding=UTF-8
 Name=DEFAULT
@@ -129,3 +126,5 @@ Exec=/usr/share/X11/xdm/Xsession $DESKTOP
 Icon=
 Type=Application
 EOF
+[ -d usr/share/xsessions ] && cp -pf etc/X11/wmsession.d/00DEFAULT usr/share/xsessions/default.desktop
+[ -d etc/X11/dm/Sessions ] && cp -pf etc/X11/wmsession.d/00DEFAULT etc/X11/dm/Sessions/00DEFAULT.desktop

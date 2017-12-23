@@ -7,7 +7,6 @@ inkscape-
 jasper-
 jpeg-progs-
 lib64babl0.1_0-
-lib64fftw3f3-
 lib64gegl0.3_0-
 lib64gimp2.0_0-
 lib64gimpbase2.0_0-
@@ -38,3 +37,4 @@ rawtherapee-
 recoverjpeg-
 lib64spiro0-
 lib64potrace0-
+libpst-

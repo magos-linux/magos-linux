@@ -1,9 +1,15 @@
 ^glibc
 ^dkms-
 ^kernel-desktop-
-^mandriva-theme-Powerpack-
+^kernel-nrj-desktop-
 ^mandriva-theme-Rosa-
 ^netprofile-
 ^partimage-
 ^suspend-
 ^locales-
+^dracut-
+^shadow-utils-
+^makedev-
+^grub-
+^grub2-
+^plymouth-

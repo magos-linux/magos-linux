@@ -1,2 +1,3 @@
-video/nvidia.ko
-video/nvidia-
+/video/nvidia.ko
+/video/nvidia-
+/dkms-binary/nvidia-current/

@@ -37,3 +37,8 @@ libxxf86vm1-
 libnettle6-
 libxcb-xfixes0-
 libVirtualGL-
+libgldispatch0-
+libglvnd-egl-
+libglvnd-gles-
+libglvnd-glx-
+libopengl0-

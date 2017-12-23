@@ -14,7 +14,6 @@ lib64samba-policy0-
 lib64samba-server0-
 lib64samba-util0-
 lib64samdb0-
-lib64smbclient0-
 lib64smbconf0-
 lib64smbldap0-
 lib64tevent-util0-
@@ -29,3 +28,4 @@ samba-common-
 samba-python-
 samba-server-
 samba-winbind-
+lib64wbclient0-

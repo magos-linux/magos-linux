@@ -46,26 +46,23 @@ if ! wmctrl -m | grep -qi name ;then
 
 fi
 
-# Checking for mesa gl
-if glxinfo | grep -qi vendor.*mesa ;then
-   #Primus needs 32bit libs to work. Check for x64
-   if [ "$(uname -i)" = "x86_64" -a ! -f "$GL32LIB" ] ;then
-      #Downloading xzm module
-      xterm -e "$PRDNL /tmp/$GL32MOD $GL32URL/$GL32MOD || rm -f /tmp/$GL32MOD"
-      if [ -f /tmp/$GL32MOD ] ;then
-         #Installing xzm module
-         MODCMD1="mv -f /tmp/$GL32MOD $USERMODSPATH/$GL32MOD ;"
-         if [ -w $USERMODSPATH ] ;then
-            "$MODCMD1"
-            ROOTCMD=
-         else
-            ROOTCMD="$MODCMD1"
-         fi
-         #Activating module
-         ROOTCMD="$ROOTCMD activate $USERMODSPATH/$GL32MOD"
-         beesu -l "$ROOTCMD"
-      fi
-   fi
+#Steam needs 32bit libs to work. Check for x64
+if [ "$(uname -i)" = "x86_64" -a ! -f "$GL32LIB" ] ;then
+  #Downloading xzm module
+  xterm -e "$PRDNL /tmp/$GL32MOD $GL32URL/$GL32MOD || rm -f /tmp/$GL32MOD"
+  if [ -f /tmp/$GL32MOD ] ;then
+     #Installing xzm module
+     MODCMD1="mv -f /tmp/$GL32MOD $USERMODSPATH/$GL32MOD ;"
+     if [ -w $USERMODSPATH ] ;then
+        "$MODCMD1"
+        ROOTCMD=
+     else
+        ROOTCMD="$MODCMD1"
+     fi
+     #Activating module
+     ROOTCMD="$ROOTCMD activate $USERMODSPATH/$GL32MOD"
+     beesu -l "$ROOTCMD"
+  fi
 fi
 
 # Checking for bumblebeed.service
