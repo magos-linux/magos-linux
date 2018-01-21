@@ -35,7 +35,7 @@ mkdir -p ${copyramdir}
 freeram=$(checkramfreeb)
 filesize="`expr $(du -k "${fsfile}" | cut -f 1)`"
 minram="$(expr ${filesize} + ${TMPFSLIMIT})"
-[ ${minram} -gt ${freeram} ] && exitmsg "Not enouth free RAM space" 3
+[ "${minram}" -gt "${freeram}" ] && exitmsg "Not enouth free RAM space" 3
 [ "$(stat  --format=%T -f $copyramdir )" != "tmpfs" ] && mountb -t tmpfs tmpfs "${copyramdir}"
 if [ -f "${copyramdir}/${fsname}" ] ;then 
 	pfsunload -r ${fsname} 
@@ -115,7 +115,7 @@ if [ ${status} -eq 0 ]; then
   
   if [ ${status} -eq 0 ]; then
     sync
-    [ "$devtype" == "file" ] && requires=$(checkdeps "${mountpoint}")
+    [ "$devtype" == "file" ] && requires=$(checkdeps "${mountpoint}" 2>/dev/null)
     if [ "${mntmode}" = "upper" ]; then
 		nlayer=1
 		[ -w $(aufs-n 1) ] && nlayer=2
@@ -128,7 +128,7 @@ if [ ${status} -eq 0 ]; then
     sync
     if [ ${status} -eq 0 ]; then
       if [ "${fupdate}" != "no" ] ; then 
-		pfs_update_caches "${mountpoint}"
+		pfs_update_caches "${mountpoint}" 
 		for script in $(find $(dirname $0) -maxdepth 1 -name "runpfsload*" -user root) ; do 
 			$script "${mountpoint}" &
 		done

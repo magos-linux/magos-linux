@@ -30,6 +30,7 @@ echo "	-o / --out-file - указывает название выходного 
 echo "	-w - не включать AUFS тени."
 echo "	-l / --local - сборка на месте, без использования aufs."
 echo "	-f / --fast - быстрая компрессия (размер .$EXT больше, но создается быстрее)."
+echo "  --mkilst  add files list to simple (non contaner) module"
 echo "	--mksqfs / параметры для mksquashfs, компрессия размер блока и проч.(Внимание параметр должен быть последним)"
 echo "Алиасы (сокращения):"
 echo " -d | -D - Только каталоги"
@@ -66,6 +67,7 @@ do
     "-processors" | "--processors" ) numproc="on";;
     "-w") wh="-regex -e ".wh..wh."";;
     "-l" | "--local" ) inplace=yes ;;
+    "--mklist" ) make_list=yes ;;
     "-f" | "--fast" | "-g" ) [ "$compression_fast" ] && compression="$compression_fast" || compression="gzip";;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; HLP; exit 1;;
     *) if [ "${usepkname}" = "on" ]; then packname="${arg}"
@@ -94,7 +96,8 @@ fi
 if [ -d $sourcelist 2>/dev/null -a "$inplace" == "yes" ] ;then
     eval echo "==== In place mode ====" $devnull
     [ ! "$(ls -a $sourcelist)" ] && exitmsg "directory '$sourcelist' empty" 1
-    mklist $sourcelist $sourcelist ${userout%.$EXT} && mksqmod $sourcelist "${userout}" && exit 0 
+    [ $make_list ] && mklist $sourcelist $sourcelist ${userout%.$EXT} 
+    mksqmod $sourcelist "${userout}" && exit 0 
     exitmsg "mkpfs error" 2
 fi
 
@@ -119,7 +122,7 @@ done
 
 if [ $(echo "$sourcelist" | wc -w) -eq 1 ] ;then
   # if source is only one - submodule name is $userout with no prefix (pfs,xzm,etc)
-  mklist "$i" "$n" $([ $(echo $sourcelist  |wc -w) -eq 1 ] && echo ${userout%.$EXT} )
+  [ $make_list ] && mklist "$i" "$n" $([ $(echo $sourcelist  |wc -w) -eq 1 ] && echo ${userout%.$EXT} )
 else	
   bundles=$(find $(echo $n |sed 's:aufs:bundles:') -maxdepth 1 -mindepth 1 -type d )
   #mklist for modules, submodule name is basename source with no prefix

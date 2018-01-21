@@ -16,7 +16,6 @@ esac
 
 allow_only_root
 package_name=$(basename ${1%.$EXT})
-#package_name=$(basename $1)
 shift
 
 fileslist="${PFSDIR}/install/${package_name}/pfs.files"
@@ -24,15 +23,17 @@ fileslist="${PFSDIR}/install/${package_name}/pfs.files"
 dirsempty=$(echo $fileslist | sed 's/pfs.files/pfs.dirs.empty/')
 
 # find pfs files in pfs contaners
-if ! [ -f $fileslist ] ;then
+if [  -d ${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/   -a ! -f $fileslist ] ; then
 	package_list=$(ls ${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/)
 	echo "$package_list"
 	if [[ -n $package_list ]] ; then
 		pfs_in_contaner=''
 		for pack in $package_list ; do
-			pfsrebuild  $pack --nopfs
-			pfs_in_contaner="$pfs_in_contaner ./$pack"
+			echo "pfsrebuild  "$pack" --nopfs"
+			pfsrebuild  "$pack" --nopfs
+			pfs_in_contaner="$pfs_in_contaner ./${pack%.$EXT}"
 		done
+		echo "mkpfs $pfs_in_contaner -o ${package_name}.$EXT $@"
 		mkpfs $pfs_in_contaner -o ${package_name}.$EXT $@
 		exitmsg "can't create contaner" $?
 	else
@@ -41,9 +42,10 @@ if ! [ -f $fileslist ] ;then
 exit
 fi
 
-if [[ -f ${fileslist} ]]; then 
+if [ -f ${fileslist} -o ! -d "${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/ " ] ; then 
   buildir="./build_${package_name}/${package_name}"
   mkdir -p "$buildir"
+  [ -f ${fileslist} ]  ||  mklist ${prefixmp}${package_name}.${EXT} / ${package_name}
   tar -c -p --ignore-failed-read --no-recursion -T $fileslist  2>/dev/null | tar -x -p -C ${buildir}
   if [[ -f  ${dirsempty} ]] ; then
 	cat $dirsempty | sed -e 's:^[^/]*::' -e 's:[\]:\\\\:g' | while read emptydir ; do
@@ -52,7 +54,7 @@ if [[ -f ${fileslist} ]]; then
 	done
   fi
   # --nopfs parametr - make build dir and exit 
-  if echo "$@" | grep -q "\-\-nopfs" ; then 
+  if echo "$@" | grep -q "\-nopfs" ; then 
 	rm -rf ./${package_name} && mv -f ${buildir} ./
   else
 	mkpfs  ${buildir} -o ${package_name}.$EXT $@

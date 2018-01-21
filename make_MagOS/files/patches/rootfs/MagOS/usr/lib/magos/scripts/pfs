@@ -90,7 +90,7 @@ mklist () {
 #mklist source_dir [dest_dir] [pack_name]
 source_dir="$(realpath "$1")"
 [ "$2" ] && dest_dir="$(realpath "$2")" || dest_dir="$source_dir"
-pack_name="$(basename "$1")"
+pack_name="$(basename "${1%.$EXT}")"
 [ "$3" ] && pack_name="$3"
 #[ "$(pwd)" != "/" ] && find "${source_dir}${PFSDIR}/mount/" -mindepth 1 -maxdepth 1  -exec rm -rf "{}" \; 2>/dev/null
 mkdir -p "${dest_dir}${PFSDIR}/mount/${pack_name}" &&
@@ -180,7 +180,7 @@ return 0
 
 losetupb() { losetup $@ || losetup-FULL $@   ; }
 mountb()   { mount $@ || busybox mount $@  ; }
-umountb()  { umount $@ || busybox mount $@  ; }
+umountb()  { umount $@ || busybox umount $@  ; }
 
 mkaufs () {
 #make new aufs
@@ -311,6 +311,22 @@ list=$(find ${1}${PFSDIR}/mount/ -name pfs.depends -exec cat "{}" \; |sort |uniq
 founded=$(echo -e "$list\n$(pfsinfo |sort |uniq)" |sort |uniq -d)
 echo -e "$founded\n$list" |sort |uniq -u
 }
+
+lsblocked () {
+LSOF=$( lsof   | awk '{print $9}' |grep "\/..*" | egrep -v "/proc|/sys|/run|/tmp|/dev|/home" | sort -u)
+for a in $LSOF ; do
+[ -f $a ] || continue
+[ -f $changesDir/$a ] && continue
+blockFiles="$blockFiles\n$a"
+done
+
+for bundle in $(aufs-n --raw '$bundle') ; do
+if [[ -n $(echo -e "${blockFiles}\n$(find $bundle | sed "s:$bundle::")" |sort |uniq -d) ]] ; then 
+echo "$bundle"
+fi
+done
+}
+
 
 if [ "$(basename $0)" == "pfs" ] ;then
 [ $1 ] || HELP
