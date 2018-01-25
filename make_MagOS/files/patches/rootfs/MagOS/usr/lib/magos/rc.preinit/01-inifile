@@ -17,19 +17,34 @@ debug_mode "$0" "$@"
 [ -f $INIGZFILE ] || INIGZFILE=/tmp/MagOS.ini.gz
 # MagOS.ini processing
 FNAME=etc/sysconfig/MagOS
+FMOD=
 touch $FNAME
 gunzip -c $INIGZFILE | egrep '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
 gunzip -c $INIGZFILE | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
-   echo $a | egrep -q '^[:space:]*#|^[:space:]*$' && continue
-   if echo $a | grep -q "^\[.*\][:space:]*" ;then
-      FNAME=`echo "$a" | tr -d '[ ]' | sed s-^/--`
+   echo "$a" | egrep -q '^[[:space:]]*#|^[[:space:]]*$' && continue
+   if echo "$a" | grep -q "^\[.*\][[:space:]]*" ;then
+      FNAME=`echo "$a" | tr '[]' '|' | awk -F'|' '{print $2}' | sed s-^/--`
+      FMOD=`echo "$a" | tr '[]' '|' | awk -F'|' '{print $3}' | tr -d ' '`
+      if [ ! -z "$FMOD" ] ;then
+         mkdir -p "`dirname "$FNAME"`"
+         [ -e "$FNAME" ] || touch "$FNAME"
+         chmod "$FMOD" "$FNAME"
+      fi
+   elif echo "$a" | grep -q "^-" ;then
+      nv="`echo "$a" |sed 's/^-//'`"
+      sed -i /^"$nv"$/d "$FNAME"
+   elif echo "$a" | grep -q "^|" ;then
+      echo "$a" | sed 's/^|//' >> "$FNAME"
+   elif echo "$a" | grep -q "^+" ;then
+      nv="`echo "$a" |sed 's/^+//'`"
+      grep -q "$nv" "$FNAME" || echo "$nv" >> "$FNAME"
    else
       nv=`echo $a | awk -F= '{print $1}'`
       [ "$nv" = "" ] && continue
-      if ! grep -q "^[[:space:]]*$nv=" $FNAME 2>/dev/null ;then
-         grep -q "^$a$" $FNAME 2>/dev/null || echo "$a" >>$FNAME
+      if ! grep -q "^[[:space:]]*$nv=" "$FNAME" 2>/dev/null ;then
+         grep -q "^$a$" "$FNAME" 2>/dev/null || echo "$a" >>"$FNAME"
       else
-         sed -i 's|'"^[[:space:]]*$nv=.*$"'|'"$a"'|' $FNAME
+         sed -i 's|'"^[[:space:]]*$nv=.*$"'|'"$a"'|' "$FNAME"
       fi
    fi
 done

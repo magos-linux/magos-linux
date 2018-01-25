@@ -32,13 +32,13 @@ Image {
     property int interfaceVersion: org_kde_plasma_screenlocker_greeter_interfaceVersion ? org_kde_plasma_screenlocker_greeter_interfaceVersion : 0
     signal clearPassword()
 
-    source: "../components/artwork/background.png"
+    source: "/usr/share/magos/wallpapers/default.jpg"
     fillMode: Image.PreserveAspectCrop
     asynchronous: false
 
     onStatusChanged: {
         if (status == Image.Error) {
-            source = "../components/artwork/background.png";
+            source = "/usr/share/magos/wallpapers/default.jpg";
         }
     }
 

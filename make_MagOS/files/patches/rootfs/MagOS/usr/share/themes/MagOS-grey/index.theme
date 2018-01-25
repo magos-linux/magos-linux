@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=MagOS-grey
+Type=X-GNOME-Metatheme
+Comment=Based on Breeze theme from Rosa 2016.1
+
+[X-GNOME-Metatheme]
+GtkTheme=MagOS-grey
+MetacityTheme=MagOS-grey
+IconTheme=rosa

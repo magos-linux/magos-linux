@@ -132,7 +132,7 @@ cp -L aufs/boot/vmlinuz   "$DESTDIR"/$FLASHNAME || exit 1
 cp -L aufs/boot/initrd.gz "$DESTDIR"/$FLASHNAME || exit 1
 cp -L VERSION "$DESTDIR"/$FLASHNAME || exit 1
 mv -f modules/xzm/* "$DESTDIR/$FLASHNAME/base"
-chmod 444 "$DESTDIR/$FLASHNAME/base/*"
+chmod 444 "$DESTDIR/$FLASHNAME/base/"*
 mv "$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international
 mv "$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION} 2>/dev/null
 

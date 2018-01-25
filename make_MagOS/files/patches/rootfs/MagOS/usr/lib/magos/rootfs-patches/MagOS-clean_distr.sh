@@ -20,7 +20,8 @@ rm -fr 2>/dev/null \
    etc/modprobe.d/nvidia[0-9]* \
    etc/machine-id var/lib/dbus/machine-id \
    usr/share/xsessions/openbox*.desktop usr/share/kio_desktop/DesktopLinks/* \
-   usr/share/sddm/themes/elarun/images/background.png
+   usr/share/sddm/themes/elarun/images/background.png \
+   etc/xdg/plasma-workspace/env/gtk*.sh
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 
@@ -68,7 +69,5 @@ rm -fr 2>/dev/null usr/share/mdk/desktop/free/* usr/share/mdk/screensaver usr/sh
    usr/share/mdk/desktop/free/* usr/share/mdk/desktop/one/*  usr/share/mdk/desktop/powerpack/* \
    var/lib/mandriva/kde4-profiles/Default/share/apps/ksplash/Themes
 [ -d usr/share/icons/rosa -a -d usr/share/icons/rosa-flat ] && rm -fr usr/share/icons/rosa-flat
-
-rm -f dev/null
 
 exit 0

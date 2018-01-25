@@ -27,11 +27,11 @@ title MagOS Linux Clean mode
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en
 initrd /MagOS/uird.magos.cpio.xz
 
-iftitle [if exist /MagOS.bak/MagOS.sgn] title MagOS Linux with saving data (previous version)
+iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux with saving data (previous version)
 kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.home=home.img uird.mode=machines uird.from=MagOS.bak;MagOS-Data
 initrd /MagOS.bak/uird.magos.cpio.xz
 
-iftitle [if exist /MagOS.bak/MagOS.sgn] title MagOS Linux Clean mode (previous version)
+iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux Clean mode (previous version)
 kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.from=MagOS.bak;MagOS-Data
 initrd /MagOS.bak/uird.magos.cpio.xz
 

@@ -1,0 +1,19 @@
+[Desktop Entry]
+Encoding=UTF-8
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=all/allfiles;
+Type=Service
+X-KDE-Priority=TopLevel
+Actions=thunderbird;delete;
+
+[Desktop Action thunderbird]
+Name=thunderbird
+Name[ru]=Отправить с thunderbird
+Icon=mozilla-thunderbird
+Exec=thunderbird -P guest -compose "attachment=file://%U"
+
+[Desktop Action delete]
+Name=delete (permissions control)
+Name[ru]=Удалить (контроль прав)
+Icon=editdelete
+Exec=permtest rm -f %U

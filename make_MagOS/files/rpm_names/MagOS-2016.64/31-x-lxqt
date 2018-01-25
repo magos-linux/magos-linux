@@ -47,3 +47,14 @@ libqtxdg-
 xscreensaver-
 xscreensaver-common-
 fortune-mod-
+dconf-
+gvfs-
+gvfs-archive-
+gvfs-fuse-
+gvfs-gphoto2-
+gvfs-iphone-
+gvfs-mtp-
+gvfs-smb-
+lib64dconf1-
+lib64dconf-gio-modules-
+lib64gvfs0-

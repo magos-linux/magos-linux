@@ -46,7 +46,9 @@ for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
     chroot . usr/sbin/adduser -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1 || chroot . usr/sbin/useradd -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1
   fi
   # add to groups
-  chroot . usr/sbin/usermod -a -G $ADDGROUPS $NEEDEDUSER >/dev/null  2>&1
+  for b in $(echo $ADDGROUPS | tr ",;" " " ) ;do
+    chroot . usr/sbin/usermod -a -G $b $NEEDEDUSER >/dev/null  2>&1
+  done
   # set passwordd
   [ "$NEEDEDPASS" = "" ] || set_passwd "$NEEDEDUSER" "$NEEDEDPASS"
   # create home

@@ -75,3 +75,6 @@ spec-helper-
 syslinux-
 syslinux-nonlinux-
 zenity-
+qemu-img-
+lib64vdeplug3-
+lib64tcmalloc4-

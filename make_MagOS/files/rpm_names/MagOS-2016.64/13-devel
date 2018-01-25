@@ -74,3 +74,6 @@ lib64mount-devel-
 lib64systemd-devel-
 lib64gcrypt-devel-
 lib64gpg-error-devel-
+qemu-img-
+lib64vdeplug3-
+lib64tcmalloc4-

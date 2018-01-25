@@ -68,6 +68,13 @@ if [ -d $PFP ] ;then
   ln -sf magosbutton.svg $PFP/share/icons/oxygen/scalable/mdvbutton.svg
 fi
 
+PFP=/usr/share/icons/rosa
+if [ -d $PFP ] ;then
+   for a in $PFP/*[0-9]x[0-9]* ;do
+       [ -d $a/places ] && ln -sf ../../../magos.svg $a/places/start-here.svg
+   done
+fi
+
 PFP=/etc/xdg/openbox/rc.xml
 [ -f $PFP ] && sed -i 's|<name>Clearlooks</name>|<name>Default</name>|' $PFP
 PFP=/var/lib/mandriva/kde4-profiles/common/share/config/kwinrc

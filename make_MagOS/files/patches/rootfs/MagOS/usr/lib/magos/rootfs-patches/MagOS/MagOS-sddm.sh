@@ -13,8 +13,8 @@ PFP=/usr/share/sddm/themes/elarun/theme.conf
 PFP=/usr/share/sddm/themes/maldives/theme.conf
 [ -f $PFP ] && sed -i s%^background=.*%background=/usr/share/magos/wallpapers/default.jpg% $PFP
 sed -i s/" root root "/" sddm sddm "/ /usr/lib/tmpfiles.d/sddm.conf
-PFP=/lib/systemd/system/sddm.service
-grep -q EnvironmentFile $PFP || sed -i 's|^ExecStart=|EnvironmentFile=/etc/sysconfig/sddm\nExecStart=|' $PFP
+#PFP=/lib/systemd/system/sddm.service
+#grep -q EnvironmentFile $PFP || sed -i 's|^ExecStart=|EnvironmentFile=/etc/sysconfig/sddm\nExecStart=|' $PFP
 
 
 exit 0

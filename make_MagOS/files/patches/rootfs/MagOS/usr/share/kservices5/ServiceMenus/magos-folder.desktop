@@ -1,0 +1,42 @@
+[Desktop Entry]
+Encoding=UTF-8
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=inode/directory;
+Type=Service
+Actions=dir2lzm;dir2oldpc;open-as-root;nfs;smb;ftp;
+
+[Desktop Action dir2lzm]
+Name=dir2lzm
+Name[ru]=Свернуть каталог в lzm модуль
+Icon=application-x-lzma-compressed-tar
+Exec=dir2module %f
+
+[Desktop Action dir2oldpc]
+Name=dir2oldpc
+Name[ru]=Свернуть каталог в lzm без сжатия
+Icon=application-x-lzma-compressed-tar
+Exec=dir2module --nocompress %f
+
+[Desktop Action open-as-root]
+Name=Open folder as root
+Name[ru]=Открыть с правами root
+Icon=folder-red
+Exec=kdesu dolphin %f
+
+[Desktop Action nfs]
+Name=nfs share
+Name[ru]=Временный доступ по NFS
+Icon=folder-remote-nfs
+Exec=kdesu share.nfs %f
+
+[Desktop Action smb]
+Name=smb share
+Name[ru]=Временный доступ по smb
+Icon=folder-remote-smb
+Exec=kdesu share.smb %f
+
+[Desktop Action ftp]
+Name=ftp share
+Name[ru]=Временный доступ по ftp
+Icon=folder-remote-ftp
+Exec=kdesu share.ftp %f

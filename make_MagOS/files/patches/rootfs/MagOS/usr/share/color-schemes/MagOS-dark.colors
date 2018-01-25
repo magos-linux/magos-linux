@@ -88,7 +88,7 @@ ForegroundPositive=145,221,100
 ForegroundVisited=64,128,255
 
 [General]
-colorScheme=MagOS-dark
+ColorScheme=MagOS-dark
 Name=MagOS-dark
 shadeSortColumn=true
 

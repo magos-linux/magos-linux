@@ -150,7 +150,7 @@ chroot aufs /usr/lib/magos/rootfs-patches/$FLASHNAME-patch_distr.sh
 [ -f aufs/usr/lib/magos/rootfs-patches/${FLASHNAME}_${VERREL}-patch_distr.sh ] && chroot aufs /usr/lib/magos/rootfs-patches/${FLASHNAME}_${VERREL}-patch_distr.sh
 ln -sf /proc/mounts aufs/etc/mtab
 rm -fr aufs/tmp/* aufs/mnt/*
-umount aufs/{dev,proc,sys} 
+umount aufs/{dev,proc,sys}
 
 echo "Создание списков файлов системы"
 find magos/* | sed s%^magos/%% | sort > magos.content

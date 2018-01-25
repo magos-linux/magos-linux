@@ -501,7 +501,6 @@ lua-
 perl-Log-Message-
 perl-Object-Accessor-
 libsoup-common-
-lib64tinyxml2_3-
 lua-posix-
 perl-Log-Message-Simple-
 lib64lmdb0-
@@ -533,3 +532,4 @@ lib64xmlsec1_1-
 lib64xmlsec1-nss1-
 bc-
 lib64xslt1-
+lib64tinyxml2_5-

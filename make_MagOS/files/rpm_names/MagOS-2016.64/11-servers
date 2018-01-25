@@ -1,6 +1,6 @@
 cpqarrayd-
 dhcp-server-
-freenx-
+nx-
 hostapd-
 hostap-utils-
 ntp-
@@ -11,3 +11,4 @@ proftpd-
 screen-
 tftp-server-
 xinetd-
+freenx-

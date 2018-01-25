@@ -88,6 +88,7 @@ ForegroundPositive=120,183,83
 ForegroundVisited=100,74,155
 
 [General]
+ColorScheme=MagOS
 Name=MagOS
 shadeSortColumn=true
 

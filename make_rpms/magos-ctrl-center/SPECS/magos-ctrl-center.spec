@@ -1,6 +1,6 @@
 Name: magos-ctrl-center
 Version: 0.1.2
-Release: 1
+Release: 2
 Summary: MagOS Control Center
 Group: System/Configuration/Other
 License: GPLv3+
@@ -15,7 +15,7 @@ BuildRequires: python
 #BuildRequires: python-simplejson
 Requires: python, pygtk2.0, python-webkitgtk, python-simplejson
 Requires: beesu
-Requires: lxde-common
+#Requires: lxde-common
 BuildArch: noarch
 
 #drakuser
@@ -115,9 +115,12 @@ cp -f %SOURCE1 ./share/%{name}/frontend/images/
 cp -f %SOURCE2 ./share/%{name}/frontend/images/
 cp -f %SOURCE3 ./share/%{name}/frontend/images/menu/
 cp -f %SOURCE4 ./share/%{name}/items/
+mkdir ./share/icons
+cp -f %SOURCE3 ./share/icons/%{name}.svg
 sed -i -e 's/"beesu drakconnect"/"nm-connection-editor"/g' ./share/%{name}/items/x0002x
 sed -i /"OnlyShowIn="/d ./share/applications/%{name}.desktop
 sed -i s/Categories=.*/'Categories=X-MandrivaLinux-CrossDesktop;System;'/ ./share/applications/%{name}.desktop
+sed -i s/Icon=.*/Icon=%{name}/ ./share/applications/%{name}.desktop
 
 %build
 ./make build_pkg
@@ -134,9 +137,14 @@ cp -rf ./share/* %buildroot/%{_datadir}
 %doc AUTHORS COPYING
 %{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
+%{_datadir}/icons/%{name}.svg
 %{_datadir}/%{name}
 
 %changelog
+* Tue Jan 02 2018 Mikhail Zaripov <m3for@mail.ru> - 0.1.2-2
+- lxde removed from dependencies
+- icon added
+
 * Fri Nov 28 2014 Mikhail Zaripov <m3for@mail.ru> - 0.1.2-1
 - updated magos menu
 

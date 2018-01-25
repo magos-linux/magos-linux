@@ -27,11 +27,11 @@ title MagOS Linux-Чистый режим
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0
 initrd /MagOS/uird.magos.cpio.xz
 
-iftitle [if exist /MagOS.bak/MagOS.sgn] title MagOS Linux-С сохранением данных (предыдущая версия)
+iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux-С сохранением данных (предыдущая версия)
 kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines uird.from=MagOS.bak;MagOS-Data
 initrd /MagOS.bak/uird.magos.cpio.xz
 
-iftitle [if exist /MagOS.bak/MagOS.sgn] title MagOS Linux-Чистый режим (предыдущая версия)
+iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux-Чистый режим (предыдущая версия)
 kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.from=MagOS.bak;MagOS-Data
 initrd /MagOS.bak/uird.magos.cpio.xz
 

@@ -18,6 +18,7 @@ DIROPENBOX=openbox-3
 [ -d /usr/share/lxqt/themes/MagOS ]            || ln -sf /usr/share/themes/MagOS/lxqt        /usr/share/lxqt/themes/MagOS
 [ -d /usr/share/lxqt/themes/MagOS-green ]      || ln -sf /usr/share/themes/MagOS-green/lxqt  /usr/share/lxqt/themes/MagOS-green
 [ -d /usr/share/lxqt/themes/MagOS-dark  ]      || ln -sf /usr/share/themes/MagOS-dark/lxqt   /usr/share/lxqt/themes/MagOS-dark
+[ -d /usr/share/lxqt/themes/MagOS-grey  ]      || ln -sf /usr/share/themes/MagOS-grey/lxqt   /usr/share/lxqt/themes/MagOS-grey
 
 PFP=/etc/xdg/lxqt/lxqt.conf
 [ -f $PFP ] && sed -i s%^theme=.*%theme=Default% $PFP
