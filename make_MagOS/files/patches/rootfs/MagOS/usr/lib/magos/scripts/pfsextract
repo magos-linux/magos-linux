@@ -32,9 +32,22 @@ extract_simple () {
     fi
     eval unsquashfs -f -dest "${dir}" "${pfs}" $noprogress $useproc "$devnull" 
     exitmsg "Unsquashfs error" $?
-    [ ! "$i" ] && rm -R $dir$PFSDIR && return 0 # need zero exit code
-    mv -f ${PFSDIR}/mount/`pfsinfo "${pfs}"` ${PFSDIR}/install/ || exitmsg "$i install error" $?
-}
+    if [ "$i" ] ;  then   
+		PFSINFO=$(pfsinfo "$pfs")
+		if [ "$PFSINFO" ] ; then 
+			mv ${PFSDIR}/mount/"$PFSINFO" ${PFSDIR}/install/
+		else 
+			mkdir -p ${PFSDIR}/install/$(basename "${pfs%.$EXT}")
+			unsquashfs -l "$pfs" |sed 's/squashfs-root//' | grep "^\/.*"	 > ${PFSDIR}/install/$(basename "${pfs%.$EXT}")/pfs.files 
+			[ $? -ne 0 ] && exitmsg "$i install error" $?
+			return 0
+		fi 
+	else
+		rm -R ${dir}${PFSDIR} 2>/dev/null 
+		return 0 # need zero exit code
+	fi
+    
+ }
 
 extract_contaner () {
 #extract packages from contaner
@@ -60,17 +73,11 @@ pfsinfo "$pfs" |while read m ;do
 	F=$(echo $F |sed s':\$::')
         if [ -d "$F" -o -f "$F" ] ; then
 	    touch "$SYSMNT/aufs$nn$F"
-	#elif [ -h "$F" ] ;then
-	    #ntf -q  "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
-	    #cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
 	else
 	    PWD=$(pwd)
-	    #touch "$SYSMNT/aufs$nn$F"
-	    #cd "$bundle" ; cp -a  "$F" "$SYSMNT/aufs${nn}/`dirname "$F"`"
 	    cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
 	    cd $PWD
 	fi
-#	touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
     done
 
     mklist "$SYSMNT/changes$nn" "$SYSMNT/aufs$nn" "$m" 

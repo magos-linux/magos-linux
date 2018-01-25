@@ -33,10 +33,10 @@ else
 fi
 
 #mountpoint="${prefixmp}${fsname}"
-mountpoint="`awk '/'${fsname}'/ {print $2}' /proc/mounts`"
+mountpoint="$(awk '/'${fsname}'/ {print $2}' /proc/mounts)"
 if [ -d "${mountpoint}" ]; then
   sync
-  mountb -t aufs -o remount,del:"${mountpoint}"/ aufs / #>/dev/null 2>&1
+  mountb -t aufs -o remount,del:"${mountpoint}"/ aufs /  2>/dev/null
   stataufs=$?
   sync
  UP(){
@@ -48,7 +48,7 @@ if [ -d "${mountpoint}" ]; then
   fi
  }
   losetupb |grep -q "${copyramdir}${fsname}"  && ramfree=yes 
-  UP && umountb -d "${mountpoint}" #>/dev/null 2>&1
+  UP && umountb -d "${mountpoint}" 2>/dev/null 
   status=$?
   sync
   rmdir "${mountpoint}" >/dev/null
@@ -57,9 +57,26 @@ if [ -d "${mountpoint}" ]; then
   sync
 else
   echo "Object \"${fsname}\" not mounted." >&2
-  status=1
+  status=22
 fi
 if 	[ $ramfree ] ; then
 	[ $saveram ] || pfsramfree "${fsname}" 
 fi
+
+
+if [ "$status" -ne 0 -a "$status" -ne 22 ] ;then
+  for a in $( lsof / |awk '{print $9}' |grep "\/..*" | egrep -v "/proc|/sys|/run|/tmp|/dev|/home" | sort -u) ; do
+    [ -f "$a" ] || continue
+    [ -f  "$mountpoint/$a"	] && FILES="$FILES $a"
+  done
+fi
+
+if [ "$FILES" ] ; then 
+  echo '' ; echo "Files opened from $1:"
+    for f in $FILES ; do 
+    echo -n $f 
+  [ -f  "$changesDir/$f" ] && echo " - changed" || echo '' 
+  done
+fi
+
 exit ${status}

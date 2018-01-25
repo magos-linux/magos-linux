@@ -20,12 +20,12 @@ done
 [ $1 ] || HLP
 
 allow_only_root
-package_name=$(basename $1 |sed 's/\.pfs$//')
+package_name=$(basename ${1%.$EXT} )
 
 fileslist="${PFSDIR}/install/$package_name/pfs.files"
 if [ -f "${fileslist}" ]; then 
   if [ -d "/tmp/.pfs/uninstall/$package_name" ]; then
-    echo "Progress is already running!" >&2; exit 1    
+    echo "Process is already running!" >&2; exit 1    
   fi
   mkdir -p "/tmp/.pfs/uninstall/$package_name"
   mv "${fileslist}" "/tmp/.pfs/uninstall/$package_name"
@@ -38,8 +38,8 @@ if [ -f "${fileslist}" ]; then
   echo "${listfiles}" | grep -q -F "/usr/share/glib-2.0/schemas" && glib-compile-schemas /usr/share/glib-2.0/schemas/ &
   rm -rf "/tmp/.pfs/uninstall/$package_name"
 else
-  [ "`pfsinfo "$1"`" = "$package_name" ] && { echo "Package \"$package_name\" is not installed!" >&2; exit 1 ; }
-  for i in `pfsinfo "$1"` ;do
+  [ "$(pfsinfo "$1")" = "$package_name" ] && { echo "Package \"$package_name\" is not installed!" >&2; exit 1 ; }
+  for i in $(pfsinfo "$1") ;do
     pfsuninstall "$i.pfs"
   done
 fi
