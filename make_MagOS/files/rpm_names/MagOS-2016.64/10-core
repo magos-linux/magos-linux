@@ -533,3 +533,14 @@ lib64xmlsec1-nss1-
 bc-
 lib64xslt1-
 lib64tinyxml2_5-
+cpqarrayd-
+dhcp-server-
+hostapd-
+hostap-utils-
+ntp-
+openssh-server-
+pdnsd-
+proftpd-
+screen-
+tftp-server-
+xinetd-
