@@ -544,3 +544,11 @@ proftpd-
 screen-
 tftp-server-
 xinetd-
+libnfsidmap-
+gssproxy-
+lib64verto-tevent1-
+lib64ini_config5-
+lib64ref_array1-
+lib64basicobjects0-
+lib64collection4-
+lib64path_utils1-

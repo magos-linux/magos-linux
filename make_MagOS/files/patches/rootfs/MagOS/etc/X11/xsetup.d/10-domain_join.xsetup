@@ -2,25 +2,26 @@
 # to be sourced
 # MagOS-linux.ru
 # Author M.Zaripov
-
+export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 if [ ! -z "$ADSERVER" ] ;then
-   /sbin/service ntpd stop
+   # Time synchronization
+   systemctl stop ntpd
    /usr/sbin/ntpdate $ADSERVER >/dev/null 2>&1
-   /sbin/service ntpd start
+   systemctl start ntpd
+
    if ! echo -e "\n\n\n" | net ads testjoin ;then
-      /usr/share/magos/ad_join/ad_join.pl && return 1
+      /usr/share/magos/ad_join/ad_join.pl
    fi
+
    xsetroot -cursor_name left_ptr
-   /sbin/service smb restart
-   /sbin/service winbind restart
-   sleep 1
+   systemctl restart smb
+   systemctl restart winbind
    # launch some rc scripts
    for a in /usr/lib/magos/rc.domain/* ;do
-      [ -x $a ] && $a 2>/dev/null
+      [ -x $a ] && $a
    done
    for a in /usr/lib/magos/rc.domain.d/* ;do
-      [ -x $a ] && $a 2>/dev/null &
+      [ -x $a ] && $a &
    done
 fi
-

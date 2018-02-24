@@ -503,3 +503,11 @@ libssl1.0.0-
 libnetworkmanager-gir1.0-
 libjansson4-
 libnmclient-gir1.0-
+libnfsidmap-
+gssproxy-
+libverto-tevent1-
+libini_config5-
+libref_array1-
+libbasicobjects0-
+libcollection4-
+libpath_utils1-

@@ -158,7 +158,7 @@ md5sum base/*.xzm >>MD5SUM
 echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"
 cd "$MYPATH"
 if [ -f .auto ] ;then
-   wall "Зборка завершена"
+   wall "Сборка завершена"
    [ -f .reboot ]   && reboot
    [ -f .poweroff ] && poweroff
 fi
