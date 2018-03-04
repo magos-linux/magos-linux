@@ -16,16 +16,16 @@ fi
 export PATH=/usr/lib/magos/scripts:$PATH
 
 
-MSG_MOVE="was moved into MagOS/optional"
-MSG_NOMOVE="was not moved into MagOS/optional"
+MSG_MOVE="was moved into MagOS-Data/optional"
+MSG_NOMOVE="was not moved into MagOS-Data/optional"
 MSG_ACT="ACTIVATED"
 MSG_ACT_ERR="ERROR while activating module"
 MSG_DEACT="DEACTIVATED"
 MSG_MOD="module"
 
 if [ "$LANG" = "ru_RU.UTF-8" ] ;then
-   MSG_MOVE="перенесен в MagOS/optional"
-   MSG_NOMOVE="перенести в MagOS/optional не удалось"
+   MSG_MOVE="перенесен в MagOS-Data/optional"
+   MSG_NOMOVE="перенести в MagOS-Data/optional не удалось"
    MSG_ACT="ПОДКЛЮЧЕН"
    MSG_ACT_ERR="ОШИБКА при активации модуля"
    MSG_DEACT="ОТКЛЮЧЕН"
@@ -37,13 +37,16 @@ for module in $@ ; do
    FULLNAME="$module"
    TERM=""
    [ "$(echo $FULLNAME | grep .enc )" ] && TERM="xterm -e"
-   DESNAME="/mnt/livemedia/MagOS/optional/$FILENAME"
+   [ -d /mnt/livedata/MagOS-Data/optional/ ] && DESNAME="/mnt/livedata/MagOS-Data/optional/$FILENAME"
+   [ -z "$DESNAME" -a -d /mnt/livemedia/MagOS-Data/optional/ ] && DESNAME="/mnt/livemedia/MagOS-Data/optional/$FILENAME"
+   [ -z "$DESNAME" -a -d /mnt/livemedia/MagOS/optional/ ] && DESNAME="/mnt/livemedia/MagOS/optional/$FILENAME"
    MSG1=
    if [ `echo $module | grep -i /tmp` ] ;then
       mv "$module" "$DESNAME"
       if [ $? -eq 0 ] ;then
          FULLNAME="$DESNAME"
          MSG1="$MSG_MOVE"
+         ln -s "$DESNAME" "$module"
       else
          MSG1="$MSG_NOMOVE"
       fi
@@ -55,12 +58,13 @@ for module in $@ ; do
    else
      $TERM activate "$FULLNAME" 2> /var/log/xzm.log
      if [ $? -ne 0 ] ;then
-         ERROR=`cat /var/log/xzm.log`
+      ERROR=`cat /var/log/xzm.log`
       mdialog --error "$MSG_ACT_ERR \n $ERROR"
      else
-      [ -f "/mnt/live/memory/modules/$FILENAME" ] && ln "/mnt/live/memory/modules/$FILENAME" "$module" || ln -s "/mnt/live/memory/modules/$FILENAME" "$module"
+      [ ! -f "$module" -a -f "/mnt/live/memory/modules/$FILENAME" ] && ln -s "/mnt/live/memory/modules/$FILENAME" "$module"
       mdialog --msgbox "$MSG_MOD $FILENAME $MSG_ACT \n $MSG1 "
-      fi
+     fi
    fi
 done
 exit 0
+
