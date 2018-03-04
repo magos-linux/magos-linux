@@ -1,6 +1,6 @@
 Name: magos-ctrl-center
 Version: 0.1.2
-Release: 2
+Release: 3
 Summary: MagOS Control Center
 Group: System/Configuration/Other
 License: GPLv3+
@@ -118,6 +118,7 @@ cp -f %SOURCE4 ./share/%{name}/items/
 mkdir ./share/icons
 cp -f %SOURCE3 ./share/icons/%{name}.svg
 sed -i -e 's/"beesu drakconnect"/"nm-connection-editor"/g' ./share/%{name}/items/x0002x
+sed -i /drakgw/d ./share/%{name}/items/x0002x
 sed -i /"OnlyShowIn="/d ./share/applications/%{name}.desktop
 sed -i s/Categories=.*/'Categories=X-MandrivaLinux-CrossDesktop;System;'/ ./share/applications/%{name}.desktop
 sed -i s/Icon=.*/Icon=%{name}/ ./share/applications/%{name}.desktop
