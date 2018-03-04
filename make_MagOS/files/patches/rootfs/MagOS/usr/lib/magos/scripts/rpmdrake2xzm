@@ -6,29 +6,32 @@
 # Author : Anton Goroshkin <http://magos-linux.ru>
 # Edited by Mikhail Zaripov <http://magos-linux.ru>
 
-
 if [ "$(id -un)" != "root" ] ;then
    beesu -l "/bin/bash '$0' $@"
    exit 0
 fi
 
 export PATH=/usr/lib/magos/scripts:$PATH
+MODULEFORMAT=xzm
+URPMITMP=/tmp/rpmdrake2xzm
+mod_path=/mnt/live/memory/images
 . /usr/lib/magos/functions
 
-MODULEFORMAT=xzm
-BUF=1024M
-mod_br=/mnt/live/memory/tmp/wiz_fly_mods
-root_br=/mnt/live/memory/tmp/wiz_fly_rootfs
-mod_path=/mnt/live/memory/images
+root_br="$URPMITMP/root"
+mod_br="$URPMITMP/changes"
+mod_file="$URPMITMP/rpmdrake2xzm.img"
+err=0
 mount_mode="rr"
 [ $(cmdline_parameter unionfs) ] && mount_mode="ro"
-err=0
 
-rm -rf $mod_br $root_br
-mkdir -p $mod_br $root_br
-dd if=/dev/zero of=/tmp/rpmdrake2xzm.img bs=1 count=0 seek=$BUF
-mkfs.ext2 /tmp/rpmdrake2xzm.img
-mount /tmp/rpmdrake2xzm.img $mod_br
+rm -rf "$mod_br" "$root_br" 2>/dev/null
+mkdir -p "$mod_br" "$root_br"
+SPACE=$(LC_ALL=C df -BM "$URPMITMP" --output=avail | tail -1 | tr -d M) # free space in folder
+[ ! -z "$SPACE" ] && SPACE=$(echo "$SPACE""*80/100" | bc)        # 80% of free space in folder
+[ ! -z "$SPACE" -a -z "$URPMISPACE" ] && URPMISPACE="$SPACE"M
+[ -z "$URPMISPACE" ] && URPMISPACE=1024M
+dd if=/dev/zero of="$mod_file" bs=1 count=0 seek="$URPMISPACE" && mkfs.ext2 "$mod_file"
+mount -o loop "$mod_file" "$mod_br" || exit 1
 
 mount_br="$mod_br=rw"
 for a in `ls -d $mod_path/??-*`; do
@@ -36,57 +39,54 @@ for a in `ls -d $mod_path/??-*`; do
 done
 
 if [ $(cmdline_parameter unionfs) ];then
-    mount -t unionfs -o dirs=$mount_br unionfs $root_br
+    mount -t unionfs -o dirs="$mount_br" unionfs "$root_br"
 else
-    mount -t aufs -o br:$mount_br aufs $root_br
+    mount -t aufs -o br:"$mount_br" aufs "$root_br"
 fi
 
-mkdir -p $root_br/{dev,proc,sys,tmp}
+mkdir -p "$root_br"/{dev,proc,sys,tmp}
 for tm in {dev,proc,sys}; do
-    mount -o bind /$tm $root_br/$tm
+    mount -o bind /$tm "$root_br"/$tm
 done
 
-/usr/sbin/rpmdrake --rpm-root=$root_br --urpmi-root=$root_br  $@
+/usr/sbin/rpmdrake --rpm-root="$root_br" --urpmi-root="$root_br"  $@
 if [ $? != 0 ] ;then
     echo "Error rpmdrake RPMs install";
     err=1
 fi
-[ ! -f $mod_br/var/lib/rpm/Packages ] && err=1 # ничего не установлено
+[ ! -f "$mod_br/var/lib/rpm/Packages" ] && err=1 # nothing was installed
 
 echo "Unmounting filesystems..."
-grep $root_br/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm ;do
-      umount $tm
+grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm ;do
+      umount "$tm"
 done
-umount $root_br
+umount "$root_br"
 
-rm -rf $mod_br/tmp $mod_br/var/tmp $mod_br/var/cache/urpmi $mod_br/etc/urpmi $mod_br/var/lib/{rpm,menu,urpmi} $mod_br/usr/share/applications/mimeinfo.cache $mod_br/.wh* 2>/dev/null
-find $mod_br/usr/share/icons -type f -name icon-theme.cache 2>/dev/null | xargs rm -f 
-rmdir $mod_br/{dev,proc,sys,lost+found} $mod_br/var/cache $mod_br/var/lib $mod_br/var $mod_br/etc 2>/dev/null # удаляем каталоги, если они есть и если пустые
+rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br/var/cache/urpmi" "$mod_br/etc/urpmi" "$mod_br"/var/lib/{rpm,menu,urpmi} "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
+find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f 
+rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
 
 cd /mnt/livedata/MagOS-Data/optional || cd /mnt/livemedia/MagOS-Data/optional || cd /mnt/livemedia/MagOS/optional
 
 if [ "x$err" != "x1" ]; then
-  while [ -z "$mod_name" -o -f "$mod_name.$MODULEFORMAT" -o -d "$mod_name.$MODULEFORMAT" -o -d "$mod_name" ]; do # если файл с таким именем существует либо нет имени окошко появится снова
-    mod_name=$(mdialog --getsavefilename *.$MODULEFORMAT) || mod_name=-1 # если отмена
-    mod_name=$(echo $mod_name | sed s/[.]$MODULEFORMAT$//) # чтобы не было двойного расширения
+  while [ -z "$mod_name" -o -f "$mod_name.$MODULEFORMAT" -o -d "$mod_name.$MODULEFORMAT" -o -d "$mod_name" ]; do # checks for name. do not overwrite files
+    mod_name=$(mdialog --getsavefilename *.$MODULEFORMAT) || mod_name=-1 # if Cancel
+    mod_name=$(echo $mod_name | sed s/[.]$MODULEFORMAT$//) 
   done
   [ "$mod_name" = "-1" ] && err=1
   mod_name="$mod_name".$MODULEFORMAT
 fi
 
-#mdialog --passivepopup "Внимание!!! Данный процесс может занимать длительное время. Остановка прогрессбара - не признак зависания. Просто необходимо немного подождать"
-#dbus-launch mdialog --progressbar dir2xzm:$mod_br/var/lib/rpm:"$mod_name-rpmbase.xzm" chmod:666:"$mod_name-rpmbase.xzm" rm:-rf:$mod_br/var/lib/rpm rm:-rf:$mod_br/tmp dir2xzm:$mod_br:"$mod_name.xzm" chmod:666:"$mod_name.xzm"
-#mdialog --progressbar rm:-rf:$mod_br/var/lib/rpm rm:-rf:$mod_br/tmp dir2xzm:$mod_br:"$mod_name.xzm" chmod:666:"$mod_name.xzm"
-
 if [ "x$err" != "x1" ]; then
-    cd $mod_br
+    cd "$mod_br"
     xterm -e "echo 'Creating $MODULEFORMAT module, please waiting... ' && dir2xzm ./ '$mod_name'"
     chmod 664 "$mod_name"
     cXdialog --yesno "Создание модуля завершено :)\\n Подключить модуль для текущего сеанса?"
-    [ $? = 0 ] && gactivate "$mod_name" # Выбрано 'Да'
+    [ $? = 0 ] && gactivate "$mod_name"
     cd /tmp
 fi
 
-umount $mod_br
-rmdir $mod_br $root_br
-rm -f /tmp/rpmdrake2xzm.img
+umount "$mod_br"
+rm -f "$mod_file"
+rmdir "$mod_br" "$root_br" 
+[ -h "$URPMITMP" ] || rmdir "$URPMITMP"

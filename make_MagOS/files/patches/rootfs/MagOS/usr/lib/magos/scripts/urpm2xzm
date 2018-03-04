@@ -7,20 +7,25 @@
 #
 # $1=RPM file or name program
 
-[ $(id -un) != "root" ] && exit
+
+if [ "$1" == "" -o "$1" == "--help" -o $(id -un) != "root" ] ;then
+  echo urpm2xzm creates xzm module for rpm package and dependencies by using urpmi. This scripts needs root account.
+  echo Usage: $0 <rpm package>
+  exit 0
+fi
 
 MODULEFORMAT=xzm
 
-[ "$1" = "" ] && exit -1
-# 
-###########################################
-urpme $@ > /dev/null 2>&1                 #
-rpmdbreset --copy                         #
-urpmi --test $@ || exit 2                 #
-###########################################
-
 export PATH=/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/functions
+
+# 
+###########################################
+#urpme $@ > /dev/null 2>&1                 #
+#rpmdbreset --copy                         #
+#urpmi --test $@ || exit 2                 #
+###########################################
+
 
 #############################
 uird=yes                    #
