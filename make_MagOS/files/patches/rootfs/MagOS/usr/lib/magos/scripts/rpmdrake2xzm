@@ -49,6 +49,7 @@ for tm in {dev,proc,sys}; do
     mount -o bind /$tm "$root_br"/$tm
 done
 
+xterm -e "echo 'Updating urpmi sources, please wait' && /usr/sbin/urpmi.update -a --urpmi-root='$root_br'"
 /usr/sbin/rpmdrake --rpm-root="$root_br" --urpmi-root="$root_br"  $@
 if [ $? != 0 ] ;then
     echo "Error rpmdrake RPMs install";
@@ -62,7 +63,7 @@ grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm ;do
 done
 umount "$root_br"
 
-rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br/var/cache/urpmi" "$mod_br/etc/urpmi" "$mod_br"/var/lib/{rpm,menu,urpmi} "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
+rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br"/var/cache/{urpmi,ldconfig} "$mod_br"/etc/{urpmi,ld.so.cache} "$mod_br"/var/lib/{rpm,menu,urpmi} "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
 find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f 
 rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
 

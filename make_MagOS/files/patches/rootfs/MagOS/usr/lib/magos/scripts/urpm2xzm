@@ -4,92 +4,75 @@
 #
 # Description: create LZM/XZM from RPM (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
-#
-# $1=RPM file or name program
-
+# Edited by Mikhail Zaripov <http://magos-linux.ru>
 
 if [ "$1" == "" -o "$1" == "--help" -o $(id -un) != "root" ] ;then
-  echo urpm2xzm creates xzm module for rpm package and dependencies by using urpmi. This scripts needs root account.
-  echo Usage: $0 <rpm package>
+  echo "urpm2xzm creates xzm module for rpm package and dependencies by using urpmi. This scripts needs root account."
+  echo "Usage: $0 <rpm_package_name> [urpmi parameters]"
+  echo "Module <rpm_package_name.xzm> will be created in current folder."
   exit 0
 fi
 
-MODULEFORMAT=xzm
-
 export PATH=/usr/lib/magos/scripts:$PATH
+MODULEFORMAT=xzm
+URPMITMP=/tmp/urpm2xzm
+mod_path=/mnt/live/memory/images
 . /usr/lib/magos/functions
 
-# 
-###########################################
-#urpme $@ > /dev/null 2>&1                 #
-#rpmdbreset --copy                         #
-#urpmi --test $@ || exit 2                 #
-###########################################
+root_br="$URPMITMP/root"
+mod_br="$URPMITMP/changes"
+mod_file="$URPMITMP/urpm2xzm.img"
+err=0
+mount_mode="rr"
+[ $(cmdline_parameter unionfs) ] && mount_mode="ro"
 
+rm -rf "$mod_br" "$root_br" 2>/dev/null
+mkdir -p "$mod_br" "$root_br"
+SPACE=$(LC_ALL=C df -BM "$URPMITMP" --output=avail | tail -1 | tr -d M) # free space in folder
+[ ! -z "$SPACE" ] && SPACE=$(echo "$SPACE""*80/100" | bc)        # 80% of free space in folder
+[ ! -z "$SPACE" -a -z "$URPMISPACE" ] && URPMISPACE="$SPACE"M
+[ -z "$URPMISPACE" ] && URPMISPACE=1024M
+dd if=/dev/zero of="$mod_file" bs=1 count=0 seek="$URPMISPACE" && mkfs.ext2 "$mod_file"
+mount -o loop "$mod_file" "$mod_br" || exit 1
 
-#############################
-uird=yes                    #
-. /etc/initvars || uird=no  #
-#############################
-
-###########################################################
-mod_br=/mnt/live/memory/tmp/wiz_fly_mods                  #
-[ "$uird" != "no" ] &&  mod_br=$SYSMNT/tmp/wiz_fly_mods   #
-root_br=/mnt/live/memory/tmp/wiz_fly_rootfs               #
-[ "$uird" != "no" ] && root_br=$SYSMNT/tmp/wiz_fly_rootfs #
-mod_path=/mnt/live/memory/images                          #
-[ "$uird" != "no" ] && mod_path=$SYSMNT/bundles           #
-###########################################################
-
-mount_br=$mod_br
-
-rm -rf $mount_br $root_br
-mkdir -p $mount_br $root_br
-
+mount_br="$mod_br=rw"
 for a in `ls -d $mod_path/??-*`; do
-    if [ $(cmdline_parameter unionfs) ];then
-      mount_br="$mount_br:$a=ro"
-    else
-      mount_br="$mount_br:$a=rr"
-    fi
+    mount_br="$mount_br:$(readlink -f $a)=$mount_mode"
 done
 
 if [ $(cmdline_parameter unionfs) ];then
-    mount -t unionfs -o dirs=$mount_br wiz_fly $root_br
+    mount -t unionfs -o dirs="$mount_br" unionfs "$root_br"
 else
-    mount -t aufs -o br:$mount_br wiz_fly $root_br
+    mount -t aufs -o br:"$mount_br" aufs "$root_br"
 fi
 
-mkdir -p $root_br/{dev,proc,sys}
-
-for tm in {dev,proc,sys,var/lib/rpm}; do
-    mount -o bind /$tm $root_br/$tm
+mkdir -p "$root_br"/{dev,proc,sys,tmp}
+for tm in {dev,proc,sys}; do
+    mount -o bind /$tm "$root_br"/$tm
 done
 
-mkdir -p $root_br/tmp
-/usr/sbin/urpmi --root=$root_br $@
+/usr/sbin/urpmi.update -a --urpmi-root=$root_br
+/usr/sbin/urpmi --root="$root_br" $@
+[ $? != 0 ] && err=1 && echo "urpmi error !"
+[ ! -f "$mod_br/var/lib/rpm/Packages" ] && err=1 # nothing was installed
 
-for tm in {var/lib/rpm,sys,proc,dev}; do
-    while (grep -q $root_br/$tm /proc/mounts ) ; do
-        umount $root_br/$tm
-    done
+echo "Unmounting filesystems..."
+grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm ;do
+      umount "$tm"
 done
+umount "$root_br"
 
-while (grep -q wiz_fly /proc/mounts ) ; do
-    umount wiz_fly
-done
+rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br"/var/cache/{urpmi,ldconfig} "$mod_br"/etc/{urpmi,ld.so.cache} "$mod_br"/var/lib/{rpm,menu,urpmi} "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
+find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f 
+rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
 
-rm -rf $mod_br/var/lib/rpm
-rm -rf $mod_br/tmp
-rm -rf $mod_br/{dev,proc,sys}
+if [ "x$err" != "x1" ]; then
+   echo Creating module "$(basename $1).$MODULEFORMAT"
+   dir2xzm "$mod_br" "$(basename $1).$MODULEFORMAT"
+fi
 
-###########################################################################################
-ls -a $mod_br |grep  -q ^[[:alnum:]]*$  && dir2xzm $mod_br "$(basename $1).$MODULEFORMAT" #
-###########################################################################################
+umount "$mod_br"
+rm -f "$mod_file"
+rmdir "$mod_br" "$root_br" 
+[ -h "$URPMITMP" ] || rmdir "$URPMITMP"
 
-rm -rf $mod_br
-rm -rf $root_br
-
-###########
-urpme $@  #
-###########
