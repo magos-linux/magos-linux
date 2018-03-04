@@ -1,7 +1,7 @@
 #!/bin/bash
 path=/mnt/livemedia/MagOS/modules
 [ -w /mnt/livedata/MagOS-Data/modules ] && path=/mnt/livedata/MagOS-Data/modules
-zcat /proc/config.gz | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+MODULEFORMAT=xzm
 
 ENABLE()
 {

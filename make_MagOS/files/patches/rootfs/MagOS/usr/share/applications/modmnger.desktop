@@ -8,5 +8,5 @@ Icon=modmnger
 Terminal=false
 Type=Application
 StartupNotify=true
-MimeType=application/x-lzm;
+MimeType=application/x-xzm;
 Categories=Settings;Systm;X-MandrivaLinux-CrossDesktop;

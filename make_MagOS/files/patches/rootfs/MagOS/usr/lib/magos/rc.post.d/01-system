@@ -27,3 +27,6 @@ ln -sf /proc/mounts /etc/mtab
 
 [ -z "$KDEVARTMP" ] || mkdir -p "$KDEVARTMP"
 [ -d "$KDEVARTMP" ] && chmod 777 "$KDEVARTMP"
+
+cp -fr /memory/run/* /run/
+rm rf /memory/run

@@ -36,7 +36,7 @@ IPREV=empty
 if [ "$MODULE" = "" -o ! -e "$IMAGES/$MODULE" ]; then
    echo
    echo "Deactivate module from the root filesystem while running Linux Live"
-   echo "Usage: $0 module.[lzm|xzm|rwm|rom|enc]"
+   echo "Usage: $0 module.[xzm|rwm|rom|enc]"
    exit 1
 fi
 

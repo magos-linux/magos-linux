@@ -9,13 +9,12 @@ export PATH=/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 
-cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+MODULEFORMAT=xzm
 
 case $1 in
    --nocompress )
       shift
-      [ "$MODULEFORMAT" = "lzm"  ] && addparam=-nolzma
-      create_module "$1" "$1.noxz.$MODULEFORMAT" -noI -noD -noF $addparam 
+      create_module "$1" "$1.noxz.$MODULEFORMAT" -noI -noD -noF
       ;;
    --oldpc )
       shift

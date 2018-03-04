@@ -9,7 +9,7 @@
 
 ##########################
 # мысль такая 
-# gurpm2lzm "прога1 прога2 прога3" прога4 "прога5 прога6"
+# gurpm2xzm "прога1 прога2 прога3" прога4 "прога5 прога6"
 # создаст три модуля   проги1-3 прога4 проги5-6
 # имхо удобно, работоспособность не проверял, т.к. С телефона
 # еще help надо сделать
@@ -25,7 +25,7 @@ export PATH=/usr/lib/magos/scripts:$PATH
 string=--progressbar
     for arg in "$@" ; do
      progs=$(echo $arg | sed -e 's/^ \+//' -e 's/ \+$//' -e 's/ \+/:/g')
-     string="$string urpm2lzm:$progs"
+     string="$string urpm2xzm:$progs"
     done
 mdialog $string
 mdialog --passivepopup "Преобразование завершено :)."

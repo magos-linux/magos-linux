@@ -47,4 +47,7 @@ else
    ln -sf /lib/systemd/system/slim.service /etc/systemd/system/display-manager.service
 fi
 
+PFP=/lib/systemd/system/systemd-udevd.service
+sed -i s/^MountFlags=.*/MountFlags=shared/ $PFP
+
 exit 0

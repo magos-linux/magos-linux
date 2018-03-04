@@ -7,7 +7,7 @@
 #
 # $1=file or name program
 
-cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+MODULEFORMAT=xzm
 
 [ "$1" = "" ] && exit -1
 

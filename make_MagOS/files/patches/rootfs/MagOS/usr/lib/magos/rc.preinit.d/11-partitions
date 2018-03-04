@@ -18,10 +18,10 @@ debug_mode "$0" "$@"
 
 get_name()
 {
-  for b in "" $(seq 1 64) ;do
-    grep -q " /media/disk$b " etc/fstab || break
+  for b in "" $(seq 2 64) ;do
+    grep -q " /media/$1$b " etc/fstab || break
   done
-  echo disk$b
+  echo $1$b
 }
 
 [ -z "$PARTITIONSMOUNTUID" ] && PARTITIONSMOUNTUID=500
@@ -79,7 +79,8 @@ if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
          DEVTYPE=$(blkid $a | awk -FTYPE=\" '{print $2}'| sed s/\".*// )
          if [ "$DEVTYPE" != "" -a "$DEVTYPE" != "swap" -a "$DEVTYPE" != "udf" -a "$DEVTYPE" != "iso9660" ] ;then
             DEVLABEL=$( blkid $a | awk -FLABEL=\" '{print $2}'| sed s/\".*//  | tr -d [:cntrl:][:space:])
-            [ -z "$DEVLABEL" ] && DEVLABEL=$(get_name)
+            [ -z "$DEVLABEL" ] && DEVLABEL=$(get_name disk)
+            [ -d media/"$DEVLABEL" ] && DEVLABEL=$(get_name $DEVLABEL)
             echo " $PARTITIONSNOMOUNT " | tr ',;' ' ' | grep -q " $DEVLABEL " && continue
             DEVOPTS=$(fs_options $a fstab)
             [ "$DEVTYPE" = "vfat" -o "$DEVTYPE" = "ntfs" ] && DEVOPTS="$DEVOPTS,uid=$PARTITIONSMOUNTUID"

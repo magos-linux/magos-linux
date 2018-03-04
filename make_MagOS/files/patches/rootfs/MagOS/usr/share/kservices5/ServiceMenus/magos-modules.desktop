@@ -1,12 +1,12 @@
 [Desktop Entry]
 Encoding=UTF-8
 ServiceTypes=KonqPopupMenu/Plugin
-MimeType=application/x-lzm;
+MimeType=application/x-xzm;
 Type=Service
-Actions=lzm2dir;
+Actions=xzm2dir;
 
-[Desktop Action lzm2dir]
-Name=lzm2dir
+[Desktop Action xzm2dir]
+Name=xzm2dir
 Name[ru]=Распаковать модуль
-Icon=application-x-lzma-compressed-tar
-Exec=mkdir $(echo %f | awk -F. '{print $1}') && kdesu lzm2dir %f $(echo %f | awk -F. '{print $1}')
+Icon=application-x-xzm-compressed-tar
+Exec=mkdir $(echo %f | awk -F. '{print $1}') && kdesu xzm2dir %f $(echo %f | awk -F. '{print $1}')

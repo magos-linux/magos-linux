@@ -27,13 +27,13 @@ fi
 if [ "$MODULE" = "" -o ! -e "$MODULE" -o -d "$MODULE" ]; then
    echo
    echo "Activate a module on the fly while running Linux Live"
-   echo "Usage: $0 module.[xzm|lzm|rwm|rom|enc]"
+   echo "Usage: $0 module.[xzm|rwm|rom|enc]"
    exit 1
 fi
 
-if ! echo "$MODULE" | egrep -qi 'lzm|xzm|rom|enc' ;then
+if ! echo "$MODULE" | egrep -qi 'xzm|rwm|rom|enc' ;then
    echo 
-   echo "$(basename "$MODULE"): Module must end with .xzm .lzm .rwm .rom .enc"
+   echo "$(basename "$MODULE"): Module must end with .xzm .rwm .rom .enc"
    exit 2
 fi
 

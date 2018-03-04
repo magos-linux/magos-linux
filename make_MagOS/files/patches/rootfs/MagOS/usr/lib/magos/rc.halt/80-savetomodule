@@ -11,7 +11,7 @@ SAVETOMODULEOPTIONS="$MKSQFS_FASTALG"
 PATH=/usr/lib/magos/scripts:$PATH
 
 # save2module mode parser
-cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ && MODULEFORMAT=xzm || MODULEFORMAT=lzm
+MODULEFORMAT=xzm
 CHSRC=$(readlink -f /mnt/live/memory/changes)
 IMSRC=$(readlink -f /mnt/live/memory/images)
 [ -z "$SAVETOMODULENAME" -a -w /mnt/livedata/$LIVECDNAME-Data/modules ] && SAVETOMODULENAME=/mnt/livedata/$LIVECDNAME-Data/modules/zz-save.$MODULEFORMAT
@@ -59,8 +59,7 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    # backuping old module
    [ -f "$SAVETOMODULENAME" ] && mv -f "$SAVETOMODULENAME" "${SAVETOMODULENAME}.bak"
    # making module
-   [ "$SAVETONOLZMA" = "yes" -o "$SAVETONOXZM" = "yes" ] && SAVETOMODULEOPTIONS="-noI -noD -noF"
-   [ "$SAVETONOLZMA" = "yes" ] && SAVETOMODULEOPTIONS="$SAVETOMODULEOPTIONS -nolzma"
+   [ "$SAVETONOXZM" = "yes" ] && SAVETOMODULEOPTIONS="-noI -noD -noF"
    create_module $SRC "$SAVETOMODULENAME" -ef /tmp/excludedfiles $SAVETOMODULEOPTIONS
    echo
    [ "$SRC" = "$CHSRC" ] || umount "$SRC"

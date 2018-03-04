@@ -7,4 +7,5 @@ grep -q '^KerberosTicketCleanup yes'  $PFP || sed -i s/.*KerberosTicketCleanup.*
 grep -q '^UsePAM yes' $PFP || sed -i s/.*UsePAM.*/'UsePAM yes'/ $PFP
 sed -i s/^AuthorizedKeysFile/'#AuthorizedKeysFile'/ $PFP
 grep -q '^PubkeyAcceptedKeyTypes=' $PFP || echo "PubkeyAcceptedKeyTypes=+ssh-dss" >> $PFP
+chmod 600 /etc/ssh/*_key
 exit 0

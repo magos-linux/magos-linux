@@ -298,14 +298,14 @@ chmod ago-x usr.$MODULEFORMAT || exit 1
 rm -Rf usr/*
 
 echo "compressing net in initrd"
-mkdir -p tmp_lzm/fs tmp_lzm/drivers
-mv lib/modules/$KERNEL/kernel/drivers/[ac-z]* tmp_lzm/drivers || exit 1
-mv lib/modules/$KERNEL/kernel/net tmp_lzm || exit 1
-mv lib/modules/$KERNEL/kernel/fs/[b-rt-z]* tmp_lzm/fs || exit 1
-cp -pr lib/modules/$KERNEL/kernel/* tmp_lzm || exit 1
-create_module tmp_lzm drivers.$MODULEFORMAT || exit 1
+mkdir -p tmp_xzm/fs tmp_xzm/drivers
+mv lib/modules/$KERNEL/kernel/drivers/[ac-z]* tmp_xzm/drivers || exit 1
+mv lib/modules/$KERNEL/kernel/net tmp_xzm || exit 1
+mv lib/modules/$KERNEL/kernel/fs/[b-rt-z]* tmp_xzm/fs || exit 1
+cp -pr lib/modules/$KERNEL/kernel/* tmp_xzm || exit 1
+create_module tmp_xzm drivers.$MODULEFORMAT || exit 1
 chmod ago-x drivers.$MODULEFORMAT
-rm -Rf tmp_lzm
+rm -Rf tmp_xzm
 
 echo "creating empty image file for initrd"
 dd if=/dev/zero of=$INITRDIMG bs=1024 count=$RAM0SIZE >/dev/null 2>&1
