@@ -1,0 +1,15 @@
+#!/bin/bash
+# License: GPL last version . Лицензия : GPL последней версии
+# Written: Mikhail Zaripov . Написано: Михаил Зарипов
+# Last modified: ___  . Исправлено _____
+
+WIKIPLACE="../../magos-linux.wiki"
+
+[ -x $WIKIPLACE/md2html.sh ] || exit 0
+
+bash $WIKIPLACE/md2html.sh
+
+[ -f $WIKIPLACE/index.html ] || exit 1
+
+cp -f $WIKIPLACE/index.html files/patches/flash/readme.html
+mv -f $WIKIPLACE/index.html files/patches/rootfs/MagOS/usr/share/magos/doc/magos-wiki.html

@@ -57,6 +57,7 @@ ifdef DEFAULT_LANG
 endif
 	@sh -c 'cd bootlogo.dir; chmod +t * ; chmod -t init languages'
 	@sh -c 'cd bootlogo.dir; echo * | sed -e "s/ /\n/g" | cpio --quiet -o >../bootlogo'
+	@mv bootlogo gfxmenu
 
 message: src/main.bin src/gfxboot.cfg help-boot/.ready po/.ready fonts/.ready
 	@rm -rf message.dir
@@ -75,7 +76,7 @@ endif
 
 clean:
 	@for i in $(SUBDIRS) ; do [ ! -f $$i/Makefile ] ||  make -C $$i clean || break ; done
-	rm -rf bootlogo bootlogo.dir message message.dir *~
+	rm -rf bootlogo bootlogo.dir message message.dir gfxmenu *~
 
 distclean: clean
 ifneq ($(BASED_ON),)

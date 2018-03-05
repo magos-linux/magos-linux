@@ -340,3 +340,4 @@ pam_pkcs11-
 pam_pkcs11-tools-
 lib64opensc4-
 perl-pcsc-perl-
+python-markdown-

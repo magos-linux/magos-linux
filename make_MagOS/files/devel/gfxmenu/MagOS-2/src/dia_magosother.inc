@@ -12,7 +12,7 @@
 
 /magosother.options [
   ""
-  "copy2ram"
+  "copy2ram uird.copy2ram freemedia uird.freemedia"
   "no3ddesktop xdriver=fbdev"
   "noload=/modules/ uird.noload=/modules/"
   "rfkill.default_state=0 flightmode"
