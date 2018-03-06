@@ -10,7 +10,7 @@
 % ( ) => ( )
 %
 /panel.help {
-   help.context "help" eq {
+   help.context "opt" eq {
      findbootoption
      help.mapcontext
      dup help.findpage
@@ -18,7 +18,6 @@
    } if
    show_help
 
-   config.talk { txt_help speak } if
 } def
 
 

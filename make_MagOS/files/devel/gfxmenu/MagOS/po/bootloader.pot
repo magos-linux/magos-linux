@@ -423,54 +423,34 @@ msgstr ""
 msgid "openSUSE Live (GNOME)"
 msgstr ""
 
-#. menu item for 3d desktop (cf. txt_3d)
-#. txt_3d
-msgid "3D effects"
+#. menu item for magosvideo (cf. txt_mvideo_mode)
+#. txt_mvideo_mode
+msgid "Video mode"
 msgstr ""
 
-#. menu item for 3d desktop (cf. txt_3d_default)
-#. txt_3d_default
+#. menu item for magosvideo (cf. txt_mvideo_default)
+#. txt_mvideo_default
 msgid "Default"
 msgstr ""
 
-#. menu item for 3d desktop (cf. txt_3d_on)
-#. txt_3d_on
-msgid "On"
+#. menu item for magosvideo (cf. txt_mvideo_none)
+#. txt_mvideo_none
+msgid "Text mode"
 msgstr ""
 
-#. menu item for 3d desktop (cf. txt_3d_off)
-#. txt_3d_off
-msgid "Off"
+#. menu item for magosvideo (cf. txt_mvideo_ask)
+#. txt_mvideo_ask
+msgid "Show"
 msgstr ""
 
-#. menu item for copy2ram mode (cf. txt_copy2ram)
+#. menu item for magosother (cf. txt_bootp_def)
+#. txt_bootp_def
+msgid "Default"
+msgstr ""
+
+#. menu item for magosother (cf. txt_copy2ram)
 #. txt_copy2ram
 msgid "Copy to RAM"
-msgstr ""
-
-#. menu item for copy2ram mode (cf. txt_copy2ram)
-#. txt_copy2ram_default
-msgid "Default"
-msgstr ""
-
-#. menu item for copy2ram mode (cf. txt_copy2ram)
-#. txt_copy2ram_on
-msgid "On"
-msgstr ""
-
-#. menu item for desktop (cf. txt_desktop)
-#. txt_desktop
-msgid "Desktop"
-msgstr ""
-
-#. menu item for desktop (cf. txt_desktop_console)
-#. txt_desktop_console
-msgid "Console"
-msgstr ""
-
-#. menu item for desktop (cf. txt_desktop_default)
-#. txt_desktop_default
-msgid "Default"
 msgstr ""
 
 #. menu item for magosother (cf. txt_magos_sp)
@@ -493,3 +473,37 @@ msgstr ""
 msgid "Flight mode"
 msgstr ""
 
+#. menu item for desktop (cf. txt_desktop)
+#. txt_desktop
+msgid "Desktop"
+msgstr ""
+
+#. menu item for desktop (cf. txt_desktop_console)
+#. txt_desktop_console
+msgid "Console"
+msgstr ""
+
+#. menu item for desktop (cf. txt_desktop_default)
+#. txt_desktop_default
+msgid "Default"
+msgstr ""
+
+#. menu item for 3d desktop (cf. txt_3d)
+#. txt_3d
+msgid "3D effects"
+msgstr ""
+
+#. menu item for 3d desktop (cf. txt_3d_default)
+#. txt_3d_default
+msgid "Default"
+msgstr ""
+
+#. menu item for 3d desktop (cf. txt_3d_on)
+#. txt_3d_on
+msgid "On"
+msgstr ""
+
+#. menu item for 3d desktop (cf. txt_3d_off)
+#. txt_3d_off
+msgid "Off"
+msgstr ""

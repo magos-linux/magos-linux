@@ -280,7 +280,6 @@
   } ifelse
   setcolor
   menu.texts menu.idx get menuitemmap
-  menu.status { config.talk { dup speak } if } if
   currentfont exch font.large setfont show.rtl setfont
 
   menu.status {
@@ -486,7 +485,7 @@
   } if
 
   dup 0 ne {
-    "main" help.setcontext
+    "opt" help.setcontext
   } if
 
 } def

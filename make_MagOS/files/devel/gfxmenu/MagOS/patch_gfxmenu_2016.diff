@@ -1,0 +1,63 @@
+diff -auprN MagOS/help-boot/en/main::magosdesktop.html MagOS.2016/help-boot/en/main::magosdesktop.html
+--- MagOS/help-boot/en/main::magosdesktop.html	2018-03-06 10:48:55.288268216 +0300
++++ MagOS.2016/help-boot/en/main::magosdesktop.html	2018-03-06 10:44:58.866245824 +0300
+@@ -8,12 +8,12 @@ included by MagOS-Linux. There are three
+ </p>
+ 
+ <p>
+-1. KDE is the most user freindly DE. This is default DE.
++1. Plasma is the most user freindly DE. This is a default DE.
+ System requirements are: Processor 1GHz (x86), Memory 1 GB
+ </p>
+ 
+ <p>
+-2. LXDE is lightweight and fast DE.
++2. LXQT is lightweight and fast DE.
+ System requirements are: Processor 600MHz (x86), Memory 512 MB
+ </p>
+ 
+diff -auprN MagOS/help-boot/ru/main::magosdesktop.html MagOS.2016/help-boot/ru/main::magosdesktop.html
+--- MagOS/help-boot/ru/main::magosdesktop.html	2018-03-06 10:40:56.648222883 +0300
++++ MagOS.2016/help-boot/ru/main::magosdesktop.html	2018-03-06 10:46:17.246253247 +0300
+@@ -8,14 +8,14 @@ в MagOS-Linux. Графическая �
+ </p>
+ 
+ <p>
+-1. KDE - наиболее подходящая среда для новичков. Обладает мощным и красивым интерфейсом,
++1. Plasma - наиболее подходящая среда для новичков. Обладает мощным и красивым интерфейсом,
+ включает в себя набор приложений для работы с файлами и оборудованием.
+ Для работы среды требуется процессор от 1 ГГц, память от 1 ГБ.
+ Эта графическая среда используется по умолчанию.
+ </p>
+ 
+ <p>
+-2. LXDE - легкая и быстрая среда с минимальным интерфейсом. Рекомендуется для слабых машин.
++2. LXQT - легкая и быстрая среда с минимальным интерфейсом. Рекомендуется для слабых машин.
+ Системные требования: процессор от 600 МГц, память от 512 МБ.
+ </p>
+ 
+diff -auprN MagOS/src/dia_magosdesktop.inc MagOS.2016/src/dia_magosdesktop.inc
+--- MagOS/src/dia_magosdesktop.inc	2018-03-06 10:39:33.773215034 +0300
++++ MagOS.2016/src/dia_magosdesktop.inc	2017-12-13 20:52:41.232703498 +0300
+@@ -12,8 +12,8 @@
+ 
+ /magosdesktop.options [
+   ""
+-  "desktop=kde"
+-  "desktop=lxde"
++  "desktop=plasma"
++  "desktop=lxqt"
+   "desktop=steam"
+   "desktop=none"
+ ] def
+@@ -32,8 +32,8 @@
+   xmenu .xm_current magosdesktop.default put
+   xmenu .xm_list [
+     /txt_desktop_default
+-    "KDE"
+-    "LXDE"
++    "Plasma"
++    "LXQT"
+     "Steam"
+     /txt_desktop_console
+   ] put

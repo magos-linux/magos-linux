@@ -144,8 +144,6 @@
   dup 0xff00 and 16 shl over 0xff and dup 0xe0 eq { pop 0 } if add /key exch def
   16 shr 0xffff and /keystat exch def
 
-  key 24 shr 0xff and dup 0xf0 ge exch 0xf4 le and { key serial.input return } if
-
   key
 
   config.keymap { mapkey } if
@@ -157,24 +155,6 @@
     -1 settransparentcolor
     white setcolor
     500 20 moveto dup print "  " print
-  } if
-
-  ptheme {
-    % reverse direction
-    /p.xmas.dx p.xmas.dx neg def
-
-    key keyF9 eq
-    key keyF7 eq or {
-      % call super penguin
-      p.call.super
-    } {
-      key keyF1 ge
-      key keyF10 le and {
-        % read something
-        /p.read.timer rand 0x31 and neg -30 add def
-      } if
-    } ifelse
-
   } if
 
   % some special keys
@@ -200,7 +180,7 @@
     % cd change dialog
     info.type 5 eq info.type 6 eq or {
       % 'mount' re-reads fs metadata
-      % mount pop
+      mount pop
     } if
 
     "" -1 3 return
@@ -278,16 +258,6 @@
     panel.show
   } if
 
-  window.action actInstallOK eq {
-    /window.action actNothing def
-    install.ok
-  } if
-
-  window.action actInstallCancel eq {
-    /window.action actNothing def
-    install.cancel
-  } if
-
   "" -1 0
 } def
 
@@ -362,29 +332,6 @@
     menu.texts menu.entry get "%s " bc.cmd sprintf
   } ifelse
 
-  config.spl {
-    xmenu.video {
-      /splash_file 32 string def
-
-      video.modes.list xmenu.video .xm_current get get
-      dup .vm_mode get 0 ge {
-        dup .vm_height get exch .vm_width get
-        ",%04d%04d.spl" splash_file sprintf
-      } { pop } ifelse
-
-      % check whether splash file exists
-      splash_file 1 add filesize .undef eq {
-        splash_file 0 0 put	% empty string
-      } if
-    } if
-  } if
-
-  xmenu.magosvideo {
-    magosvideo.options xmenu.magosvideo .xm_current get get dup "" ne {
-      "%s " bc.cmd dup length add sprintf
-    } { pop } ifelse
-  } if
-
   xmenu.magosdesktop {
     magosdesktop.options xmenu.magosdesktop .xm_current get get dup "" ne {
       "%s " bc.cmd dup length add sprintf
@@ -397,161 +344,23 @@
     } { pop } ifelse
   } if
 
-  xmenu.magoscopy2ram {
-    magoscopy2ram.options xmenu.magoscopy2ram .xm_current get get dup "" ne {
-      "%s " bc.cmd dup length add sprintf
-    } { pop } ifelse
-  } if
-
   xmenu.magosother {
     magosother.options xmenu.magosother .xm_current get get dup "" ne {
       "%s " bc.cmd dup length add sprintf
     } { pop } ifelse
   } if
 
-  xmenu.kernelopts {
-    kernelopts.options xmenu.kernelopts .xm_current get get dup "" ne {
-      "%s " bc.cmd dup length add sprintf
-    } { pop } ifelse
-  } if
-
-  xmenu.otheropts {
-    otheropts.options xmenu.otheropts .xm_current get get dup "" ne {
-      "%s " bc.cmd dup length add sprintf
-    } { pop } ifelse
-  } if
-
-  /cmdline.hidden over dup length .inp_hidden ge { .inp_hidden get } { pop .undef } ifelse def
-
-  cmdline.hidden {
-    cmdline.hidden "" ne { 
-      splash_file {
-        /bc.tmp cmdline.hidden length splash_file length add string def
-        cmdline.hidden "initrd=" bootopt.find dup .undef ne {
-          skipnonspaces
-          dup
-          dup 0 get over 0 0 put
-          splash_file cmdline.hidden "%s%s" bc.tmp sprintf
-          0 exch put
-          "%s" bc.tmp dup length add sprintf
-        } {
-          pop
-          bc.tmp cmdline.hidden strcpy pop
-        } ifelse
-
-        bc.tmp "%s " bc.cmd dup length add sprintf
-
-        bc.tmp free /bc.tmp .undef def
-      } {
-        cmdline.hidden "%s " bc.cmd dup length add sprintf
-      } ifelse
-    } if
-  } if
-
   /splash_file xfree
-
-  syslinux {
-    video.modes.list xmenu.video .xm_current get get .vm_mode get
-
-    dup 0 ge {
-      0x200 add "vga=0x%x " bc.cmd dup length add sprintf
-    } {
-      -1 eq {
-        "textmode=1 " bc.cmd dup length add sprintf
-      } if
-    } ifelse
-
-    v_impaired 1 ge {
-      "braille=1 " bc.cmd dup length add sprintf
-    } if
-
-    v_impaired 2 ge {
-      "linemode=1 " bc.cmd dup length add sprintf
-    } if
-  } if
-
-  config.addopt.lang {
-    config.lang {
-      config.lang.changed {
-        config.lang "lang=%s " bc.cmd dup length add sprintf
-      } if
-    } if
-  } if
-
-  config.addopt.keytable {
-    config.keymap.id {
-      config.lang getkeymapfromlocale config.keymap.id ne {
-        config.keymap.id "keytable=%s " bc.cmd dup length add sprintf
-      } if
-    } if
-  } if
-
-  xmenu.dud {
-    xmenu.dud .xm_current get .dud_url eq {
-      input.edit.dud_url 0 get dup "" ne {
-        "dud=%s " bc.cmd dup length add sprintf
-      } { pop } ifelse
-    } {
-      xmenu.dud .xm_current get .dud_file eq {
-        input.edit.dud_file 0 get dup "" ne {
-          "driverupdate=%s " bc.cmd dup length add sprintf
-        } { pop } ifelse
-      } {
-        dud.options xmenu.dud .xm_current get get dup "" ne {
-          "%s " bc.cmd dup length add sprintf
-        } { pop } ifelse
-      } ifelse
-    } ifelse
-  } if
-
-  xmenu.profile {
-    profile.options xmenu.profile .xm_current get get dup "" ne {
-      "%s " bc.cmd dup length add sprintf
-    } { pop } ifelse
-  } if
-
-  xmenu.install {
-    config.noinstallopt menu.texts menu.entry get iselement not {
-      install.option "" ne {
-        install.option "%s " bc.cmd dup length add sprintf
-      } if
-      proxy.option "" ne {
-        proxy.option "%s " bc.cmd dup length add sprintf
-      } if
-    } if
-  } if
-
-  xmenu.net {
-    xmenu.install {
-      net.config_type .undef ne {
-        xmenu.install .xm_current get dup .inst_cdrom eq exch .inst_hd eq or {
-          % TODO: add netsetup=XXX
-        } {
-          net.config_type .net_static eq {
-            input.net.static 0 get dup "" ne {
-              "hostip=%s " bc.cmd dup length add sprintf
-            } { pop } ifelse
-            input.net.static 1 get dup "" ne {
-              "netmask=%s " bc.cmd dup length add sprintf
-            } { pop } ifelse
-            input.net.static 2 get dup "" ne {
-              "gateway=%s " bc.cmd dup length add sprintf
-            } { pop } ifelse
-            input.net.static 3 get dup "" ne {
-              "nameserver=%s " bc.cmd dup length add sprintf
-            } { pop } ifelse
-            input.net.static 4 get dup "" ne {
-              "domain=%s " bc.cmd dup length add sprintf
-            } { pop } ifelse
-          } if
-        } ifelse
-      } if
-    } if
-  } if
 
   % add user-supplied options
 
   bc.cmd exch .inp_buf get strcat " " strcat pop
+
+  xmenu.magosvideo {
+    magosvideo.options xmenu.magosvideo .xm_current get get dup "" ne {
+      "%s " bc.cmd dup length add sprintf
+    } { pop } ifelse
+  } if
 
   % remove all but last 'vga' & 'initrd' options
   [ "vga" "initrd" ] dup {
@@ -560,60 +369,6 @@
       bc.cmd over bootopt.remove free
     } loop
   } forall free
-
-  bc.cmd "driverupdate" bootopt.find dup .undef ne {
-    % exclude 'driverupdate=0 and driverupdate=1'
-    "driverupdate=" length get
-    dup '0' ne exch '1' ne and {
-
-      /bc.tmp bc.cmd "driverupdate" bootopt.remove def
-      bc.tmp .undef ne {
-        /bc.tmp bc.tmp "driverupdate=" length add ',' split bc.tmp free def
-        /bc.tmp2 cmdlinelength string def
-
-        bc.tmp2 "initrd=" strcpy pop
-
-        bc.tmp length 0 gt {
-          % add '+' to first arg unless it starts with '+' or '-'
-          bc.tmp 0 get 0 get
-          dup '-' eq {	% remove '-'
-            bc.tmp 0 get dup 1 add strdup exch free
-            bc.tmp exch 0 exch put
-            pop '+'
-          } if
-          '+' ne {		% add '+'
-            bc.tmp 0 get length 1 add string "+" strcat bc.tmp 0 get strcat
-            bc.tmp 0 get free bc.tmp exch 0 exch put
-          } if
-
-          bc.tmp length 1 sub -1 0 {
-            bc.tmp exch get
-            bc.tmp2 exch strcat "," strcat pop
-          } for
-        } if
-
-        bc.tmp dup { free } forall free
-
-        % last 'initrd' option
-        /bc.tmp .undef def
-        {
-          bc.cmd "initrd" bootopt.remove dup .undef ne {
-            bc.tmp free /bc.tmp exch def
-          } {
-            pop exit
-          } ifelse
-        } loop
-
-        % re-add new 'initrd' option
-        bc.tmp {
-          bc.tmp2 bc.tmp "initrd=" length add strcat pop
-          bc.tmp free
-          bc.cmd bc.tmp2 strcat " " strcat pop
-        } if
-      } if
-
-    } if
-  } { pop } ifelse
 
   syslinux {
     % find out initrd sizes for kernel loading progress bar
@@ -831,19 +586,6 @@
 
   dup .text info.msg put
 
-  serial.line.status {
-    serial.infobox .undef eq {
-      /serial.infobox .xm_size array def
-      serial.infobox .xm_current 0 put
-    } if
-
-    serial.infobox .xm_title 2 index .title get put
-    serial.infobox .xm_text info.msg put
-    serial.infobox .xm_list [ info.type 1 eq { "reboot" } { "ok" } ifelse ] put
-
-    serial.infobox.setup
-  } if
-
   dup window.init
       window.show
 
@@ -871,11 +613,6 @@
 
   dup strsize pop neg progress.text.x add progress.text.y moveto
   window.current .color.fg get setcolor
-
-  serial.line.status {
-    "\x08\x08\x08\x08" serial.show
-    dup serial.show
-  } if
 
   dup show
   free
@@ -951,11 +688,6 @@
 
   progress_nosize not { 0 progress.percent } if
 
-  serial.line.status {
-    "\n" serial.show
-    dia .text get serial.show
-    "  0%" serial.show
-  } if
 } def
 
 
@@ -968,8 +700,6 @@
     /load_error false def
     boot.ed.list boot.window .ed.focus get get edit.showcursor
   } if
-
-  serial.line.status { "\n\n" serial.show } if
 
 } def
 
@@ -1209,8 +939,6 @@
 /init {
   0 0 moveto currentpoint clip.size image
 
-  ptheme { ptheme.init } if
-
   % set default language
   "lang" findfile dup {
     /tmp over length 1 add 2 max string def
@@ -1281,12 +1009,6 @@
     } {
       sound.getsamplerate { sound.getsamplerate sound.setsamplerate } if
     } ifelse
-
-    xmenu.video .xm_current config.livecd { 1 } { 0 } ifelse put	% 0 = text mode, 1 = VESA
-    % redraw unless another menu is still open
-    window.current {
-      window.current .xmenu get .undef eq { video.update } if
-    } if
 
     .undef 0 idle
     kroete.file free /kroete.file .undef def
@@ -1741,15 +1463,6 @@ config.livecd {
 /config.product        "product"             "openSUSE" gfxconfig.set.str
 
 /config.init           "init"                        "" gfxconfig.set.str
-
-/serial.line0          "serial.line0"               [ ] gfxconfig.set.array_str
-/serial.line1          "serial.line1"               [ ] gfxconfig.set.array_str
-/serial.line2          "serial.line2"               [ ] gfxconfig.set.array_str
-/serial.line3          "serial.line3"               [ ] gfxconfig.set.array_str
-
-/serial.lines [
-  serial.line0 serial.line1 serial.line2 serial.line3
-] def
 
 % Array of menu entries with no boot option input field.
 /config.nobootoptions "nobootoptions"       [ ] gfxconfig.set.array_str

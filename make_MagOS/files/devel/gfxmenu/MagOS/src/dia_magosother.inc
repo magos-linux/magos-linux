@@ -12,7 +12,7 @@
 
 /magosother.options [
   ""
-  "copy2ram"
+  "copy2ram uird.copy2ram freemedia uird.freemedia"
   "no3ddesktop xdriver=fbdev"
   "noload=/modules/ uird.noload=/modules/"
   "rfkill.default_state=0 flightmode"
@@ -31,7 +31,7 @@
 
   xmenu .xm_current magosother.default put
   xmenu .xm_list [
-    /txt_kernel_default
+    /txt_bootp_def
     /txt_copy2ram
     /txt_video_safe
     /txt_no_modules

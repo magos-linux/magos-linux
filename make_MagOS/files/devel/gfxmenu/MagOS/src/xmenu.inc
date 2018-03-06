@@ -242,11 +242,6 @@
 /xmenu.show {
   window.push
 
-  config.talk {
-    xmenu .xm_title get dup .undef ne { exec speak } { pop } ifelse
-    xmenu .xm_list get xmenu .xm_current get get exec speak
-  } if
-
 } def
 
 
@@ -360,9 +355,6 @@
   xmenu.viewentry
   xmenu.viewentry
 
-  config.talk {
-    xmenu .xm_list get xmenu .xm_current get get exec speak
-  } if
 } def
 
 

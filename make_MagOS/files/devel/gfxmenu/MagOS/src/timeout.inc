@@ -15,8 +15,6 @@
   % first time
   timeout.current .undef eq { over timeout.init } if
 
-  ptheme { over over p.timeout.animate } if
-
   % no counter
   timeout.steps .undef eq { return } if
 

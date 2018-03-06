@@ -699,16 +699,6 @@
     reboot
   } if
 
-  dup actInstallOK eq {
-    install.ok
-    exch not exch
-  } if
-
-%  dup actInstallCancel eq {
-%    install.cancel
-%    exch not exch
-%  } if
-
   pop
 } def
 

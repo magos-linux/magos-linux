@@ -25,7 +25,7 @@
 
   /panel.back 0 panel.y moveto panel.size savescreen def
 
-  /config.key.F1 about.msg { "main" } { "help" } ifelse def
+  /config.key.F1 about.msg { "about" } { "help" } ifelse def
 
   % define panel layout
   /panel [
@@ -160,16 +160,15 @@
 /panel.entry {
   % [ show_func width_func update_func init_func ]
 
-  dup "help"       eq { pop [ /panel.help /panel.help.width /panel.help.update .undef ] return } if
+  dup "help"         eq { pop [ /panel.help /panel.help.width /panel.help.update .undef ] return } if
   dup "about"      eq { pop [ /panel.about /panel.about.width /panel.about.update .undef ] return } if
 
-  dup "lang"       eq { pop [ /panel.lang /panel.lang.width /panel.lang.update /lang.init ] return } if
-  dup "video"      eq { pop [ /panel.video /panel.video.width /panel.video.update /video.init ] return } if
-  dup "magosvideo"  eq { pop [ /panel.magosvideo /panel.magosvideo.width /panel.magosvideo.update /magosvideo.init ] return } if
-  dup "magosdesktop"  eq { pop [ /panel.magosdesktop /panel.magosdesktop.width /panel.magosdesktop.update /magosdesktop.init ] return } if
-  dup "magos3d"  eq { pop [ /panel.magos3d /panel.magos3d.width /panel.magos3d.update /magos3d.init ] return } if
-  dup "magoscopy2ram" eq { pop [ /panel.magoscopy2ram /panel.magoscopy2ram.width /panel.magoscopy2ram.update /magoscopy2ram.init ] return } if
-  dup "magosother"  eq { pop [ /panel.magosother /panel.magosother.width /panel.magosother.update /magosother.init ] return } if
+  dup "lang"         eq { pop [ /panel.lang /panel.lang.width /panel.lang.update /lang.init ] return } if
+  dup "video"        eq { pop [ /panel.video /panel.video.width /panel.video.update /video.init ] return } if
+  dup "magosvideo"   eq { pop [ /panel.magosvideo /panel.magosvideo.width /panel.magosvideo.update /magosvideo.init ] return } if
+  dup "magosdesktop" eq { pop [ /panel.magosdesktop /panel.magosdesktop.width /panel.magosdesktop.update /magosdesktop.init ] return } if
+  dup "magos3d"      eq { pop [ /panel.magos3d /panel.magos3d.width /panel.magos3d.update /magos3d.init ] return } if
+  dup "magosother"   eq { pop [ /panel.magosother /panel.magosother.width /panel.magosother.update /magosother.init ] return } if
   dup "install"    eq { pop [ /panel.install /panel.install.width /panel.install.update /install.init ] return } if
   dup "kernelopts" eq { pop [ /panel.kernelopts /panel.kernelopts.width /panel.kernelopts.update /kernelopts.init ] return } if
   dup "otheropts"  eq { pop [ /panel.otheropts /panel.otheropts.width /panel.otheropts.update /otheropts.init ] return } if

@@ -3,7 +3,6 @@
 
 %% include timeout.inc
 %% include common.inc
-%% include serial.inc
 
 %% include ../po/text.inc
 %% include window.inc
@@ -11,28 +10,17 @@
 %% include help.inc
 %% include menu.inc
 %% include xmenu.inc
-%% include dia_video.inc
 %% include dia_lang.inc
-%% include dia_dud.inc
-%% include dia_help.inc
-%% include dia_profile.inc
-%% include dia_install.inc
-%% include dia_bits.inc
-%% include dia_about.inc
-%% include dia_kernelopts.inc
-%% include dia_keymap.inc
-%% include dia_restore.inc
-%% include dia_net.inc
-%% include dia_otheropts.inc
 %% include dia_magosvideo.inc
 %% include dia_magosdesktop.inc
 %% include dia_magos3d.inc
-%% include dia_magoscopy2ram.inc
 %% include dia_magosother.inc
+%% include dia_help.inc
+%% include dia_bits.inc
+%% include dia_about.inc
+%% include dia_keymap.inc
 %% include panel.inc
 %% include keytables.inc
 %% include locale.inc
 %% include speech.inc
-
-%% include penguin.inc
 

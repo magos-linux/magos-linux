@@ -18,7 +18,7 @@ fonts: 16x16.fnt
 	`$(KEYMAPCHARS) ../keymaps/keymap.*.inc` \
 	-t tmp.txt \
 	-t ../src/main.log \
-	-t ../data-install/languages \
+	-t ../data-boot/languages \
 	-f NachlieliCLM-Bold:size=14:c=0x590-0x5ff \
 	-f KacstBook:size=12:c=0x600-0x6ff,0xfe70-0xfefc:dy=2 \
 	-f MuktiNarrow:size=18:c=0x0981-0x09fa:bold=1 \

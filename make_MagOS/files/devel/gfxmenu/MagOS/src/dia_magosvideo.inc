@@ -15,7 +15,8 @@
   "vga=0"
   "vga=788"
   "vga=791"
-  "vga=794"
+  "vga=894"
+  "vga=ask"
 ] def
 
 
@@ -31,13 +32,14 @@
 
   xmenu .xm_current magosvideo.default put
   xmenu .xm_list [
-    /txt_desktop_default
-    /txt_text_mode
+    /txt_mvideo_default
+    /txt_mvideo_none
     "800x600"
     "1024x768"
-    "1280x800"
+    "1366x768"
+    /txt_mvideo_ask
   ] put
-  xmenu .xm_title /txt_video_mode put
+  xmenu .xm_title /txt_mvideo_mode put
 
 } def
 
@@ -60,7 +62,7 @@
 % ( ) => ( )
 %
 /panel.magosvideo {
-  "videomode" help.setcontext
+  "magosvideo" help.setcontext
 
   window.xmenu
   dup .xmenu xmenu.magosvideo put

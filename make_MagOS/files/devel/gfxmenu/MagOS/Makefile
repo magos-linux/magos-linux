@@ -23,7 +23,7 @@ DEFAULT_LANG =
 
 ifeq ($(PREPARED), 1)
 
-  all: bootlogo
+  all: en_bootlogo ru_bootlogo
 
 else
 
@@ -43,10 +43,38 @@ themes: all
 src/main.bin: src
 	make -C src
 
-bootlogo: src/main.bin src/gfxboot.cfg help-boot/.ready po/.ready fonts/.ready
+ru_bootlogo: src/main.bin src/gfxboot.cfg po/.ready fonts/.ready help-boot/.ready
 	@rm -rf bootlogo.dir
 	@mkdir bootlogo.dir
-	cp -p src/gfxboot.cfg bootlogo.dir/gfxboot.cfg
+	perl -p -e 's/^(layout=.*)/$$1,install/' src/gfxboot.cfg >bootlogo.dir/gfxboot.cfg
+	perl -pi -e 's/^(theme=).*/$$1$(THEME)/' bootlogo.dir/gfxboot.cfg
+	perl -pi -e 's/^(product=).*/$$1$(PRODUCT)/' bootlogo.dir/gfxboot.cfg
+	cp -rL data-boot/* fonts/*.fnt po/*.tr bootlogo.dir
+	cp -rL help-boot/*.hlp bootlogo.dir
+	cp src/main.bin bootlogo.dir/init
+	@echo ru_RU >bootlogo.dir/lang
+	@sh -c 'cd bootlogo.dir; chmod +t * ; chmod -t init languages'
+	@sh -c 'cd bootlogo.dir; echo * | sed -e "s/ /\n/g" | cpio --quiet -o >../bootlogo'
+	@mv bootlogo gfxmenu_ru
+
+en_bootlogo: src/main.bin src/gfxboot.cfg po/.ready fonts/.ready help-boot/.ready
+	@rm -rf bootlogo.dir
+	@mkdir bootlogo.dir
+	perl -p -e 's/^(layout=.*)/$$1,install/' src/gfxboot.cfg >bootlogo.dir/gfxboot.cfg
+	perl -pi -e 's/^(theme=).*/$$1$(THEME)/' bootlogo.dir/gfxboot.cfg
+	perl -pi -e 's/^(product=).*/$$1$(PRODUCT)/' bootlogo.dir/gfxboot.cfg
+	cp -rL data-boot/* fonts/*.fnt po/*.tr bootlogo.dir
+	cp -rL help-boot/*.hlp bootlogo.dir
+	cp src/main.bin bootlogo.dir/init
+	@echo en_US >bootlogo.dir/lang
+	@sh -c 'cd bootlogo.dir; chmod +t * ; chmod -t init languages'
+	@sh -c 'cd bootlogo.dir; echo * | sed -e "s/ /\n/g" | cpio --quiet -o >../bootlogo'
+	@mv bootlogo gfxmenu
+
+bootlogo: src/main.bin src/gfxboot.cfg po/.ready fonts/.ready help-boot/.ready
+	@rm -rf bootlogo.dir
+	@mkdir bootlogo.dir
+	perl -p -e 's/^(layout=.*)/$$1,install/' src/gfxboot.cfg >bootlogo.dir/gfxboot.cfg
 	perl -pi -e 's/^(theme=).*/$$1$(THEME)/' bootlogo.dir/gfxboot.cfg
 	perl -pi -e 's/^(product=).*/$$1$(PRODUCT)/' bootlogo.dir/gfxboot.cfg
 	cp -rL data-boot/* fonts/*.fnt po/*.tr bootlogo.dir
@@ -56,11 +84,27 @@ ifdef DEFAULT_LANG
 	@echo $(DEFAULT_LANG) >bootlogo.dir/lang
 endif
 	@sh -c 'cd bootlogo.dir; chmod +t * ; chmod -t init languages'
-	@sh -c 'cd bootlogo.dir; echo * | sed -e "s/ /\n/g" | cpio --quiet -o >../gfxmenu'
+	@sh -c 'cd bootlogo.dir; echo * | sed -e "s/ /\n/g" | cpio --quiet -o >../bootlogo'
+	@mv bootlogo gfxmenu
+
+message: src/main.bin src/gfxboot.cfg help-boot/.ready po/.ready fonts/.ready
+	@rm -rf message.dir
+	@mkdir message.dir
+	perl -p -e 's/^(layout=.*)/$$1,boot/' src/gfxboot.cfg >message.dir/gfxboot.cfg
+	perl -pi -e 's/^(theme=).*/$$1$(THEME)/' message.dir/gfxboot.cfg
+	cp -rL data-boot/* fonts/*.fnt message.dir
+	cp -rL po/en.tr help-boot/en.hlp message.dir
+	cp src/main.bin message.dir/init
+ifdef DEFAULT_LANG
+	cp -rL po/$(DEFAULT_LANG).tr help-boot/$(DEFAULT_LANG).hlp message.dir
+	@echo $(DEFAULT_LANG) >message.dir/lang
+	@echo $(DEFAULT_LANG) >>message.dir/languages
+endif
+	@sh -c 'cd message.dir; echo * | sed -e "s/ /\n/g" | cpio --quiet -o >../message'
 
 clean:
 	@for i in $(SUBDIRS) ; do [ ! -f $$i/Makefile ] ||  make -C $$i clean || break ; done
-	rm -rf gfxmenu bootlogo.dir *~
+	rm -rf bootlogo bootlogo.dir message message.dir gfxmenu* *~
 
 distclean: clean
 ifneq ($(BASED_ON),)
