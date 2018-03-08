@@ -82,7 +82,9 @@ if [ "x$err" != "x1" ]; then
     cd "$mod_br"
     xterm -e "echo 'Creating $MODULEFORMAT module, please waiting... ' && dir2xzm ./ '$mod_name'"
     chmod 664 "$mod_name"
-    cXdialog --yesno "Создание модуля завершено :)\\n Подключить модуль для текущего сеанса?"
+    MSG="Module are created succesful:)\\n Do you want to activate it for this session?"
+    echo $LANG | grep -qi ^ru_ && MSG="Создание модуля завершено :)\\n Подключить модуль для текущего сеанса?"
+    cXdialog --yesno "$MSG"
     [ $? = 0 ] && gactivate "$mod_name"
     cd /tmp
 fi

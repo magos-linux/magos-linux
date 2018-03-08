@@ -9,4 +9,4 @@ Actions=xzm2dir;
 Name=xzm2dir
 Name[ru]=Распаковать модуль
 Icon=application-x-xzm-compressed-tar
-Exec=mkdir $(echo %f | awk -F. '{print $1}') && kdesu xzm2dir %f $(echo %f | awk -F. '{print $1}')
+Exec=kdesu -c "mkdir $(echo %f | awk -F. '{print $1}') && xzm2dir %f $(echo %f | awk -F. '{print $1}')"

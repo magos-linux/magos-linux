@@ -2,7 +2,7 @@
 PATH=.:$(dirname $0):/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/functions || exit 1
 . /etc/initvars 2>/dev/null
-
+. /usr/lib/magos/os-config
 
 MODULEFORMAT=xzm
 
@@ -53,14 +53,16 @@ $0 - compress dir to MagOS $MODULEFORMAT module
 Usage: $0 [args] [dirname] [file.$MODULEFORMAT]
 
 Args:
+  -b               No compression, big files and fast decomression for stupid  processors
   -d <doc>         Add base english documentation (text or file name)
-  -l <localDoc>    Add documentation in current locale \$LANG (text or file name)
-  -u <user>        module's author nickname
-  -n <NN>          First number in module name
-  -s <simulate>    Do not create module, but execute all other tasks. Use it if you need to create/update doc files.
-  -o <output>      Destination directory
+  -f               With using a fast decomression algorithm for slow pc
   -h <help>        This help
-  -i <interactive> Interactive	
+  -i <interactive> Interactive
+  -l <localDoc>    Add documentation in current locale \$LANG (text or file name)
+  -n <NN>          First number in module name
+  -o <output>      Destination directory
+  -s <simulate>    Do not create module, but execute all other tasks. Use it if you need to create/update doc files.
+  -u <user>        module's author nickname
 Examples:
 $0 ./newmodule
 	Compress ./newmodule dir to $MODULEFORMAT module, update date in doc files (only if exists), generate modulename automatically
@@ -122,9 +124,10 @@ if [ -z "$localdoc" ] ; then
 fi
 }
 
-while getopts shu:d:l:n:o:i option ;do
+ALG=
+while getopts shu:d:l:n:o:ifb option ;do
     case $option in
-      "h" )
+      "h")
 	  help && exit
           ;;
       "u")
@@ -145,8 +148,14 @@ while getopts shu:d:l:n:o:i option ;do
       "o")
 	  DESTDIR=$OPTARG
           ;;
-      "i" )
+      "i")
 	  interactive
+     	  ;;
+      "f")
+	  ALG="$MKSQFS_FASTALG"
+     	  ;;
+      "b")
+	  ALG="-noI -noD -noF"
      	  ;;
     esac
 done
@@ -178,9 +187,9 @@ ls "$dirname"/var/lib/rpm/modules/* >/dev/null 2>&1 && updateRPMDate
 [ -z "$localdoc" ] || makelocaldoc
 
 if [ "_$s" == "_simulate" ] ; then
-   echo "exec: create_module "$1" "$modname""
+   echo "exec: create_module $1 $modname $ALG"
 else
-   create_module "$1" "$modname"
+   create_module "$1" "$modname" $ALG
 fi
 if [ $? != 0 ]; then 
    echo "error building compressed image"

@@ -6,9 +6,14 @@
 # Author : Anton Goroshkin <http://magos-linux.ru>
 
 export PATH=/usr/lib/magos/scripts:$PATH
-
-cXdialog --msgbox "Утилита управления конфигурационными файлами находится в разработке. \n Вы можете использовать текстовый редактор для настройки MagOS.ini."
+MSG="You can use a text editor to change settings in MagOS.ini."
+echo $LANG | grep -qi ^ru_ && MSG="Вы можете использовать текстовый редактор для настройки MagOS.ini."
+cXdialog --msgbox "$MSG"
 CFGFILE=/mnt/livedata/MagOS-Data/MagOS.ini
 [ -f $CFGFILE ] || CFGFILE=/mnt/livemedia/MagOS-Data/MagOS.ini
 [ -f $CFGFILE ] || CFGFILE=/mnt/livemedia/MagOS/MagOS.ini
-editor_root $CFGFILE
+if [ -w $CFGFILE -a -w $(dirname $CFGFILE) ] ;then
+  editor $CFGFILE
+else
+  editor_root $CFGFILE
+fi

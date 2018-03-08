@@ -5,29 +5,40 @@
 # Description: Convert DIRs to Modules 
 # Author : Anton Goroshkin <http://magos-linux.ru>
 
-#convert DIRs to LZMs
-# $1 = directory images
-# $2 = directory of LZMs
-# $3 = mask of dirname (ex. - "??-" )
-
 MODULEFORMAT=xzm
 
+#convert DIRs to XZMs
+# $1 = directory images
+# $2 = directory of XZMs
+# $3 = mask of dirname (ex. - "??-" )
 convert_dir2xzm()
 {
   echo "Converting DIRs to module:"
   for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
-    echo -ne \\n"	converting $mn --> $mn.$MODULEFORMAT "\\n
+    fd="$2/$MODULEFORMAT/$mn"
+    echo "$fd" | grep -q [.]$MODULEFORMAT$ || fd="$fd".$MODULEFORMAT
+    echo -ne \\n"   converting $mn --> $fd "\\n
     mkdir -p "$2/$MODULEFORMAT"
-    fd="$2/$MODULEFORMAT/$mn.$MODULEFORMAT"
-
     dir2xzm "$a" "$fd"
   done
 }
 
-convert_dir2xzm()
+#convert DIRs to XZMs with usian a fast algorithm for slow pc
+# $1 = directory images
+# $2 = directory of XZMs
+# $3 = mask of dirname (ex. - "??-" )
+convert_dir2fastxzm()
 {
-  convert_dir2xzm "$@"
+  echo "Converting DIRs to module (fast algotithm):"
+  for a in `ls -d $1/$3*`; do
+    mn=$(basename $a)
+    fd="$2/fast_$MODULEFORMAT/$mn"
+    echo "$fd" | grep -q [.]$MODULEFORMAT$ || fd="$fd".$MODULEFORMAT
+    echo -ne \\n"   converting $mn --> $fd (fast algorithm)"\\n
+    mkdir -p "$2/fast_$MODULEFORMAT"
+    dir2xzm -f "$a" "$fd"
+  done
 }
 
 #convert DIRs to XZMs noxzm
@@ -39,16 +50,12 @@ convert_dir2noxzm()
   echo "Converting DIRs to module (no compression):"
   for a in `ls -d $1/$3*`; do
     mn=$(basename $a)
-    echo -ne \\n"	converting $mn --> $mn.$MODULEFORMAT (no compression)"\\n
+    fd="$2/nocomp_$MODULEFORMAT/$mn"
+    echo "$fd" | grep -q [.]$MODULEFORMAT$ || fd="$fd".$MODULEFORMAT
+    echo -ne \\n"   converting $mn --> $fd (no compression)"\\n
     mkdir -p "$2/nocomp_$MODULEFORMAT"
-    fd="$2/nocomp_$MODULEFORMAT/$mn.$MODULEFORMAT"
-    dir2noxzm "$a" "$fd"
+    dir2xzm -b "$a" "$fd"
   done
-}
-
-convert_dir2noxzm()
-{
-  convert_dir2noxzm "$@"
 }
 
 #convert DIRs to ROMs 
@@ -82,7 +89,7 @@ HELP()
    echo "#####################################"
    echo "Convert directory tree into modules" 
    echo
-   echo -ne "Usage:\\n	$0 xzm|noxzm|rom source_directory destination_directory mask \\n"
+   echo -ne "Usage:\\n	$0 xzm|noxzm|fastxzm|rom source_directory destination_directory mask \\n"
    echo -ne "Example:\\n	./dir2mod noxzm /mnt/live/memory/images /mnt/livemedia/MagOS/modules/ ??- \\n"
    echo
    echo "#####################################"   
@@ -100,7 +107,7 @@ case $1 in
 
   * )
   cmd=$1
-  [ "$cmd" != "xzm" -a "$cmd" != "noxzm" -a "$cmd" != "rom"  ] && cmd=
+  [ "$cmd" != "xzm" -a "$cmd" != "noxzm" -a "$cmd" != "rom" -a "$cmd" != "fastxzm" ] && cmd=
   shift
 
   if [ ! -d "$1" -o "$2" = "" -o "$cmd" = "" ]; then

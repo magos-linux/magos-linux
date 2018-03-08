@@ -2,7 +2,7 @@
 #
 # /usr/lib/magos/scripts/epm2xzm
 #
-# Description: create LZM/XZM from packages (& dependences)
+# Description: create XZM from packages (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
 #
 # $1=file or name program

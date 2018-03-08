@@ -1,32 +1,23 @@
 #!/bin/sh
-PKDE=/usr/bin/kwrite
-PGNOME=/usr/bin/gedit
-PLXDE=/usr/bin/leafpad
-PDEF=/usr/bin/leafpad
-[ -x $PLXDE ] || PLXDE=$PDEF
-[ -x $PKDE ] || PKDE=$PDEF
-[ -x $PGNOME ] || PGNOME=$PDEF
+EDITORS="/usr/bin/kwrite /usr/bin/gedit /usr/bin/leafpad"
+PREF=/usr/bin/leafpad
 
 . /usr/lib/magos/functions
 
 DE=$(detectDE)
 
 case "$DE" in
-    kde)
-    $PKDE "$1"
+    kde|plasma)
+    PREF=/usr/bin/kwrite
     ;;
 
-    gnome)
-    $PGNOME "$1"
+    gnome|gnome-shell)
+    PREF=/usr/bin/gedit
     ;;
-
-    gnome-shell)
-    $PGNOME "$1"
-    ;;
-
-    lxde)
-    $PLXDE "$1"
-    ;;
-
 esac
 
+for a in $PREF $EDITORS ;do
+    [ -x $a ] || continue
+    [ -z "$1" ] && $a || $a "$1"
+    break
+done

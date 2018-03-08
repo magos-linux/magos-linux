@@ -38,6 +38,8 @@ sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP
 PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kickoff/contents/config/main.xml
 sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP
 
+[ -f /usr/bin/kdesu5 -a ! -f /usr/bin/kdesu ] && ln -s kdesu5 /usr/bin/kdesu
+
 patch -p1 <<EOF
 --- /usr/share/plasma/layout-templates/org.kde.plasma.desktop.defaultPanel/contents/layout.js.orig	2018-01-18 06:25:07.000000000 +0300
 +++ /usr/share/plasma/layout-templates/org.kde.plasma.desktop.defaultPanel/contents/layout.js	2017-12-31 22:12:30.950196149 +0300

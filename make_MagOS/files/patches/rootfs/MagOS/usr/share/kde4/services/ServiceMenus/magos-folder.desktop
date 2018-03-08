@@ -3,19 +3,31 @@ Encoding=UTF-8
 ServiceTypes=KonqPopupMenu/Plugin
 MimeType=inode/directory;
 Type=Service
-Actions=dir2xzm;dir2oldpc;open-as-root;nfs;smb;ftp;
+Actions=dir2xzm;dir2noxzm;dir2xzm-root;dir2noxzm-root;open-as-root;nfs;smb;ftp;
 
 [Desktop Action dir2xzm]
-Name=dir2xzm
+Name=Compress into the xzm module
 Name[ru]=Свернуть каталог в xzm модуль
 Icon=application-x-xzm-compressed-tar
-Exec=dir2module %f
+Exec=dir2xzm %f %f.xzm
 
-[Desktop Action dir2oldpc]
-Name=dir2oldpc
+[Desktop Action dir2noxzm]
+Name=Pack into the noxzm module
 Name[ru]=Свернуть каталог в xzm без сжатия
 Icon=application-x-xzm-compressed-tar
-Exec=dir2module --nocompress %f
+Exec=dir2xzm -b %f %f.noxz.xzm
+
+[Desktop Action dir2xzm-root]
+Name=Compress into the xzm module (root)
+Name[ru]=Свернуть каталог в xzm модуль (root)
+Icon=application-x-xzm-compressed-tar
+Exec=kdesu dir2xzm %f %f.xzm
+
+[Desktop Action dir2noxzm-root]
+Name=Pack into the noxzm module (root)
+Name[ru]=Свернуть каталог в xzm без сжатия (root)
+Icon=application-x-xzm-compressed-tar
+Exec=kdesu -с "dir2xzm -b %f %f.noxz.xzm"
 
 [Desktop Action open-as-root]
 Name=Open folder as root

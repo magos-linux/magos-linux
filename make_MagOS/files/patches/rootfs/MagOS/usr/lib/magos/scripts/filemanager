@@ -1,32 +1,27 @@
 #!/bin/sh
-PKDE=/usr/bin/dolphin
-PGNOME=/usr/bin/nautilus
-PLXDE=/usr/bin/pcmanfm
-PDEF=/usr/bin/pcmanfm
-[ -x $PLXDE ] || PLXDE=$PDEF
-[ -x $PKDE ] || PKDE=$PDEF
-[ -x $PGNOME ] || PGNOME=$PDEF
+FMANAGERS="/usr/bin/dolphin /usr/bin/nautilus /usr/bin/pcmanfm /usr/bin/pcmanfm-qt"
+PREF=/usr/bin/dolphin
 
 . /usr/lib/magos/functions
 
 DE=$(detectDE)
 
 case "$DE" in
-    kde)
-    $PKDE "$1"
-    ;;
-
-    gnome)
-    $PGNOME "$1"
-    ;;
-
-    gnome-shell)
-    $PGNOME "$1"
+    gnome|gnome-shell)
+    PREF=/usr/bin/nautilus
     ;;
 
     lxde)
-    $PLXDE "$1"
+    PREF=/usr/bin/pcmanfm
     ;;
 
+    lxqt)
+    PREF=/usr/bin/pcmanfm-qt
+    ;;
 esac
 
+for a in $PREF $FMANAGERS ;do
+    [ -x $a ] || continue
+    [ -z "$1" ] && $a || $a "$1"
+    break
+done

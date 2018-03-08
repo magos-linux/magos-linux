@@ -142,7 +142,7 @@ fi
 [ "$XDRIVER" = "intel" ] && lspci -nmm | sed s/"Class "// | grep -q '"0302" "10de"' && BUMBLEBEE=yes
 if [ "$BUMBLEBEE" = "yes" ] ;then
    rm -f etc/systemd/system/bumblebeed.service
-
+   ln -sf /lib/systemd/system/bumblebeed.service etc/systemd/system/graphical.target.wants/bumblebeed.service
    echo "$OPTIRUN" | tr ',;' \\n | while read a ;do
      FILE=usr/share/applications/$a.desktop
      [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop

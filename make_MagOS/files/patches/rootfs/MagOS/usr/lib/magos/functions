@@ -91,10 +91,11 @@ detectDE()
     elif [ x"$XDG_CURRENT_DESKTOP" = x"LXQt" ]; then SESSION=lxqt
     fi
     if [ -z "$SESSION" ] ;then 
-         ps -U $(id -u) -u $(id -u) | grep -q "kdeinit4" && SESSION=kde
-         ps -U $(id -u) -u $(id -u) | grep -q "gnome-panel" && SESSION=gnome
-         ps -U $(id -u) -u $(id -u) | grep -q "gnome-shell" && SESSION=gnome-shell
+         ps -A | grep -q "kdeinit" && SESSION=kde
+         ps -A | grep -q "gnome-panel" && SESSION=gnome
+         ps -A | grep -q "gnome-shell" && SESSION=gnome-shell
     fi
+    [ "$SESSION" = "kde" -a -f /etc/X11/wmsession.d/01Plasma ] && SESSION=plasma
     [ -z "$SESSION" -a -x /usr/bin/startlxde ] && SESSION=lxde
     [ -z "$SESSION" -a -x /usr/bin/startlxqt ] && SESSION=lxqt
     echo $SESSION

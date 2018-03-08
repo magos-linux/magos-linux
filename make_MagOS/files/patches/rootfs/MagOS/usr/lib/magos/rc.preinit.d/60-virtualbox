@@ -1,0 +1,23 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+DEBUGMODE=no
+
+. usr/lib/magos/functions
+. usr/lib/magos/os-config
+debug_mode "$0" "$@"
+
+if grep -qi virtualbox /sys/devices/virtual/dmi/id/*name ;then
+  echo -e vboxguest\\nvboxsf\\nvboxvideo > usr/lib/modules-load.d/vbox-guest-additions.conf
+  [ -f lib/systemd/system/vboxadd.service ] && ln -sf /lib/systemd/system/vboxadd.service etc/systemd/system/multi-user.target.wants/vboxadd.service
+else
+  rm -f usr/lib/modules-load.d/vbox-guest-additions.conf etc/systemd/system/multi-user.target.wants/vboxadd.service
+fi

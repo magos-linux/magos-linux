@@ -1,31 +1,23 @@
 #!/bin/sh
-PKDE=/usr/bin/gwenview
-PGNOME=/usr/bin/gqview
-PLXDE=/usr/bin/gpicview
-PDEF=/usr/bin/gpicview
-[ -x $PLXDE ] || PLXDE=$PDEF
-[ -x $PKDE ] || PKDE=$PDEF
-[ -x $PGNOME ] || PGNOME=$PDEF
+PVIEWERS="/usr/bin/gwenview /usr/bin/gqview /usr/bin/gpicview"
+PREF=/usr/bin/gpicview
 
 . /usr/lib/magos/functions
 
 DE=$(detectDE)
 
 case "$DE" in
-    kde)
-    $PKDE "$1"
+    kde|plasma)
+    PREF=/usr/bin/gwenview
     ;;
 
-    gnome)
-    $PGNOME "$1"
+    gnome|gnome-shell)
+    PREF=/usr/bin/gqview
     ;;
-
-    gnome-shell)
-    $PGNOME "$1"
-    ;;
-
-    lxde)
-    $PLXDE "$1"
-    ;;
-
 esac
+
+for a in $PREF $PVIEWERS ;do
+    [ -x $a ] || continue
+    [ -z "$1" ] && $a || $a "$1"
+    break
+done

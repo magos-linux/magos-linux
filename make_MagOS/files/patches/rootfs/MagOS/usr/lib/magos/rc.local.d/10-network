@@ -10,6 +10,8 @@ DEBUGMODE=no
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
+[ "$(cmdline_parameter flightmode)" ] && rfkill block all
+
 if [ "$AUTOSTARTIFNNM" = "yes" ];then
    for a in /etc/sysconfig/network-scripts/ifcfg-* ;do
      NM_CONTROLLED=

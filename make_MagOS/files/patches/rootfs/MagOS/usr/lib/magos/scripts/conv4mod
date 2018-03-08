@@ -15,11 +15,20 @@ export PATH=/usr/lib/magos/scripts:$PATH
 
 mod_dir=/mnt/live/memory/images
 
-mdialog --msgbox  "Утилита для ковертирования модулей MagOS.\nВыберите директорию для сохранения модулей." || exit 1
+MSG1="Script will convert mounted modules into another format. Select destination directory."
+MSG2="Module_format"
+MSG3="Regular expression to filter modules"
+if echo $LANG | grep -qi ^ru_ ;then
+  MSG1="Утилита для ковертирования модулей MagOS.\nВыберите папку для сохранения модулей."
+  MSG2="Формат_модулей"
+  MSG3="Ограничить список модулей по маске"
+fi
+
+mdialog --msgbox "$MSG1" || exit 1
 dir_name=$(mdialog --getexistingdirectory /mnt/livemedia/) || exit 1
 [ -z $dir_name ] && exit 1
-format=$(mdialog --menu Формат_модулей xzm XZM noxzm XZM_nocompression) || exit 2
+format=$(mdialog --menu $MSG2 xzm XZM noxzm XZM_nocompression fastxzm XZM_fast_algorithm) || exit 2
 [ -z $format ] && exit 2
-mask=$(mdialog --inputbox "Ограничить список модулей по маске" "??-") || exit 3
+mask=$(mdialog --inputbox "$MSG3" "??-") || exit 3
 xterm -e dir2mod $format $mod_dir $dir_name $mask
 

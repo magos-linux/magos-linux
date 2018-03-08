@@ -107,6 +107,7 @@ ROOTFS=rootfs
 mount | grep -q " on $PWD/aufs type aufs " || mount -t aufs -o br:$CHANGES=rw:$ROOTFS=ro aufs aufs || exit 1
 for a in $TMPDIR/modules/files/??-* ;do
   MOD=$(basename $a)
+  [ -f "$MYPATH/.test" ] && echo $MOD | grep ^..-int- && continue
   echo $MOD
   rm -fr $TMPDIR/tmp/module 2>/dev/null
   mkdir -p $TMPDIR/tmp/module/var/lib/rpm/modules
@@ -138,7 +139,7 @@ mv "$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH"/flash/additions/${FLASHNAME
 
 echo "Добавление графического материала"
 cd "$MYPATH/../graphics" || exit 1
-./make_default_themes.sh
+[ -f $MYPATH/.test ] || ./make_default_themes.sh
 cp -p wallpapers/Default/*  "$DESTDIR/$FLASHNAME-Data/backgrounds/wallpapers/Default"
 cp -p screensaver/Default/* "$DESTDIR/$FLASHNAME-Data/backgrounds/screensaver/Default"
 

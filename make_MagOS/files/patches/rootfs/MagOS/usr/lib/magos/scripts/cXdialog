@@ -20,7 +20,7 @@ echo  "Скрипт $0, автоматически используется дл
 
 echo  "--yesno <text>			 	Вопросительный диалог с кнопками да/нет"
 echo  "--fselect <filepath> 			Диалог выбора файла"
-echo  "--dselect <directory> 			Диалог выбора директории"
+echo  "--dselect <directory> 			Диалог выбора папки"
 echo  "--textbox <filename> 			Вывод содержимого файла"
 echo  "--infobox <text> 			Вывод информационного сообщения"
 echo  "--msgbox <text> 				Вывод сообщения"
