@@ -2,3 +2,10 @@
 backend = ini
 profile = 
 
+[general]
+profile = 
+integration = true
+
+[kde_session]
+profile = 
+

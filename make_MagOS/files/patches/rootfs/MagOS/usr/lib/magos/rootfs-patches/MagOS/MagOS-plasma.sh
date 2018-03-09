@@ -31,6 +31,20 @@ EOF
 PFP=/etc/xdg/kwinrc
 sed -i /^Rows.*/d $PFP
 sed -i s/^Number=.*/Number=4\\nRows=2/ $PFP
+cat >>$PFP <<EOF
+
+[Plugins]
+blurEnabled=false
+contrastEnabled=false
+kwin4_effect_fadeEnabled=false
+kwin4_effect_loginEnabled=false
+kwin4_effect_logoutEnabled=false
+kwin4_effect_morphingpopupsEnabled=false
+kwin4_effect_translucencyEnabled=false
+presentwindowsEnabled=false
+screenedgeEnabled=false
+slidingpopupsEnabled=false
+EOF
 
 PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kicker/contents/config/main.xml
 sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP

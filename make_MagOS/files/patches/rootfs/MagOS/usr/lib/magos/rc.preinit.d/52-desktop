@@ -27,7 +27,8 @@ switch3don()
          else
             echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
          fi
-         sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+         [ -f usr/lib/libDrakX/harddrake/autoconf.pm ] && sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+         [ -f etc/xdg/kwinrc ] && sed -i s/^Enabled=.*/Enabled=false/ etc/xdg/kwinrc
 }
 
 switch3doff()
@@ -35,7 +36,8 @@ switch3doff()
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
          sed -i /COMPOSITING_WM_START/d etc/sysconfig/MagOS
-         sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+         [ -f usr/lib/libDrakX/harddrake/autoconf.pm ] && sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
+         [ -f etc/xdg/kwinrc ] && sed -i s/^Enabled=.*/Enabled=true/ etc/xdg/kwinrc
 }
 
 
