@@ -50,7 +50,7 @@ else
 fi
 
 PFP=lib/systemd/system/laptop-mode.service
-grep -q ConditionPathExists=/sys/class/power_supply/BAT0 || sed -i /Description/s%$%\\nConditionPathExists=/sys/class/power_supply/BAT0% $PFP
+grep -q ConditionPathExists=/sys/class/power_supply/BAT0 $PFP || sed -i /Description/s%$%\\nConditionPathExists=/sys/class/power_supply/BAT0% $PFP
 
 PFP=/lib/systemd/system/systemd-udevd.service
 sed -i s/^MountFlags=.*/MountFlags=shared/ $PFP

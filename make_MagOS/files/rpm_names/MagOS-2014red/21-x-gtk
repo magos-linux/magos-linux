@@ -142,3 +142,5 @@ webkit2gtk4.0-
 webkit4.0-
 libnm-gtk-gir1.0-
 adwaita-gtk2-theme-
+gtk-engines2-
+libgtk-engines2-

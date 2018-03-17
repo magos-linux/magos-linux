@@ -1,4 +1,4 @@
 ^lib/modules/
-var/lib/dkms-binary
-boot/initrd
-boot/vmlinuz
+^boot/initrd
+^boot/vmlinuz
+^var/lib/dkms-binary/v

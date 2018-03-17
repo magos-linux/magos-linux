@@ -8,13 +8,19 @@ ColorScheme=MagOS
 Theme=rosa
 
 [plasmarc][Theme]
-name=rosa-fresh
+name=magos
 
 [kcminputrc][Mouse]
 cursorTheme=wonderland
 
 [Desktop][org.kde.plasma.desktop]
 Containment=org.kde.plasma.folder
+
+[kwinrc][DesktopSwitcher]
+LayoutName=org.magos.desktop
+
+[kwinrc][WindowDecoration]
+library=org.magos.desktop
 
 [kwinrc][org.kde.kdecoration2]
 library=org.kde.rosa

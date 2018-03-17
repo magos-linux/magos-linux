@@ -1,10 +1,16 @@
 #!/bin/bash
 
 rm -fr 2>/dev/null \
-   etc/skel/tmp var/tmp proc sys tmp etc/fstab etc/mtab etc/localtime \
+   etc/skel/tmp var/tmp proc sys tmp etc/fstab etc/mtab \
+   boot/initrd* boot/initramfs* \
    etc/locale usr/share/locale/locale-archive usr/lib/locale/locale-archive \
-   etc/X11/xorg.conf etc/adjtime \
+   etc/machine-id var/lib/dbus/machine-id \
+   etc/modprobe.d/nvidia[0-9]* \
+   etc/X11/xorg.conf etc/adjtime etc/localtime \
    etc/xdg/autostart/parcellite-startup.desktop \
+   etc/xdg/autostart/org.kde.kgpg.desktop \
+   etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop \
+   etc/xdg/plasma-workspace/env/gtk*.sh \
    usr/share/GeoIP/GeoLiteCity.dat \
    usr/share/apps/kio_desktop/DesktopLinks/* \
    usr/share/doc/rosa-media-player/*.jpg usr/share/vpnpptp/wiki/*_uk.doc \
@@ -14,14 +20,10 @@ rm -fr 2>/dev/null \
    usr/share/doc/HTML/ru/marble usr/share/doc/HTML/ru/kalzium usr/share/doc/HTML/ru/kigo \
    usr/share/doc/HTML/ru/kstars usr/share/doc/HTML/ru/kbruch usr/share/doc/HTML/ru/akregator \
    usr/share/help/C/cheese/figures/effects.png \
-   boot/initrd* usr/share/doc/perl-Libconf/html/Libconf/Libconf \
+   usr/share/doc/perl-Libconf/html/Libconf/Libconf \
    usr/share/backgrounds/gnome \
-   etc/xdg/autostart/org.kde.kgpg.desktop \
-   etc/modprobe.d/nvidia[0-9]* \
-   etc/machine-id var/lib/dbus/machine-id \
    usr/share/xsessions/openbox*.desktop usr/share/kio_desktop/DesktopLinks/* \
-   usr/share/sddm/themes/elarun/images/background.png \
-   etc/xdg/plasma-workspace/env/gtk*.sh
+   usr/share/sddm/themes/elarun/images/background.png
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \
 #   usr/share/GeoIP/GeoLiteCity.dat 2>/dev/null
 

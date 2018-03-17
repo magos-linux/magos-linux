@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH=.:$(dirname $0):/usr/lib/magos/scripts:$PATH
-. /usr/lib/magos/functions || exit 1
+. /usr/lib/magos/functions
 . /etc/initvars 2>/dev/null
 . /usr/lib/magos/os-config
 

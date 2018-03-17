@@ -35,8 +35,8 @@ Row {
 
     PW.BatteryIcon {
         id: battery
-        hasBattery: true
-        percent: pmSource.data["Battery"]["Percent"]
+        hasBattery: pmSource.data["Battery"]["Has Battery"] || false
+        percent: pmSource.data["Battery"]["Percent"] || 0
         pluggedIn: pmSource.data["AC Adapter"] ? pmSource.data["AC Adapter"]["Plugged in"] : false
 
         height: batteryLabel.height
@@ -46,6 +46,7 @@ Row {
     PlasmaComponents.Label {
         id: batteryLabel
         height: undefined
-        text: i18nd("plasma_lookandfeel_rosa.fresh.lookandfeel","%1%", battery.percent)
+        text: i18nd("plasma_lookandfeel_org.kde.lookandfeel","%1%", battery.percent)
+        Accessible.name: i18nd("plasma_lookandfeel_org.kde.lookandfeel","Battery at %1%", battery.percent)
     }
 }

@@ -53,26 +53,31 @@ ListView {
             }
 
             if (!model.session) {
-                return i18ndc("plasma_lookandfeel_rosa.fresh.lookandfeel", "Nobody logged in on that session", "Unused")
+                return i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "Nobody logged in on that session", "Unused")
             }
 
 
             var location = ""
             if (model.isTty) {
-                location = i18ndc("plasma_lookandfeel_rosa.fresh.lookandfeel", "User logged in on console number", "TTY %1", model.vtNumber)
+                location = i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "User logged in on console number", "TTY %1", model.vtNumber)
             } else if (model.displayNumber) {
-                location = i18ndc("plasma_lookandfeel_rosa.fresh.lookandfeel", "User logged in on console (X display number)", "on TTY %1 (Display %2)", model.vtNumber, model.displayNumber)
+                location = i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "User logged in on console (X display number)", "on TTY %1 (Display %2)", model.vtNumber, model.displayNumber)
             }
 
             if (location) {
-                return i18ndc("plasma_lookandfeel_rosa.fresh.lookandfeel", "Username (location)", "%1 (%2)", displayName, location)
+                return i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "Username (location)", "%1 (%2)", displayName, location)
             }
+
+            return displayName
         }
 
         userName: model.name
 
         width: userItemWidth
         height: userItemHeight
+
+        //if we only have one delegate, we don't need to clip the text as it won't be overlapping with anything
+        constrainText: ListView.view.count > 1
 
         isCurrent: ListView.isCurrentItem
 

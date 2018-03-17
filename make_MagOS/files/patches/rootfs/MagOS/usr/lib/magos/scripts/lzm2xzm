@@ -19,7 +19,7 @@ if ! cat /proc/config.gz | gunzip | grep -q SQUASHFS_XZ ;then
 fi
 
 PATH=.:$(dirname $0):/usr/lib:$PATH
-. /usr/lib/magos/functions || exit 1
+. /usr/lib/magos/functions
 
 if echo $2 | grep -q [.]lzm$ ;then
    DESTP= ;   INS="$@"

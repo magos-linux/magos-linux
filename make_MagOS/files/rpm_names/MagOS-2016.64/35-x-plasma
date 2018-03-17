@@ -194,7 +194,6 @@ plasma5-color-scheme-honeycomb-
 plasma5-color-scheme-norway-
 plasma5-color-scheme-obsidiancoast-
 plasma5-color-scheme-oxygen-
-plasma5-color-scheme-oxygen-
 plasma5-color-scheme-steel-
 plasma5-color-scheme-wontonsoup-
 plasma5-color-scheme-zion-
@@ -499,7 +498,6 @@ lib64streams0-
 lib64threadweaver4-
 mandriva-kde4-config-common-
 mandriva-kde-icons-
-oxygen-icon-theme-
 phonon-gstreamer-
 phonon-gstreamer-common-
 plasma5-aurorae-theme-rosa-
@@ -641,3 +639,8 @@ okular-ooo-
 klook-
 spectacle-
 plasma5-ark-
+kbookmarks-
+kcrash-
+kjobwidgets-
+lib64phabricatorhelpers5-
+oxygen-icon-theme-

@@ -1,0 +1,16 @@
+# XScreenSaver Preferences File for MagOS-Linux
+# please use xscreensaver-demo to change settings
+
+timeout:	0:20:00
+lock:		False
+verbose:	False
+fade:           False
+dpmsEnabled:	False
+imageDirectory:	/usr/share/magos/screensaver/Default
+
+mode:		one
+selected:	0
+
+programs:								      \
+             "simpleslideshow"  /usr/lib/magos/functions xss_slideshow      \n\
+

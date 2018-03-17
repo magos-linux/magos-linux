@@ -23,24 +23,13 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.private.sessions 2.0
 import "../components"
 
-Image {
+Item {
     id: root
     property bool viewVisible: false
     property bool debug: false
     property string notification
-    property UserSelect userSelect: null
     property int interfaceVersion: org_kde_plasma_screenlocker_greeter_interfaceVersion ? org_kde_plasma_screenlocker_greeter_interfaceVersion : 0
     signal clearPassword()
-
-    source: "/usr/share/magos/wallpapers/default.jpg"
-    fillMode: Image.PreserveAspectCrop
-    asynchronous: false
-
-    onStatusChanged: {
-        if (status == Image.Error) {
-            source = "/usr/share/magos/wallpapers/default.jpg";
-        }
-    }
 
     LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
@@ -50,6 +39,8 @@ Image {
         anchors.fill: parent
         opacity: 0
         onItemChanged: opacity = 1
+
+        focus: true
 
         Behavior on opacity {
             OpacityAnimator {

@@ -1,6 +1,3 @@
 ^lib/firmware/
-/video/nvidia.ko
-/video/nvidia-
-/dkms-binary/nvidia-current/
-/nvidia304.ko
-/dkms-binary/nvidia304/
+^lib/modules/
+^var/lib/dkms-binary

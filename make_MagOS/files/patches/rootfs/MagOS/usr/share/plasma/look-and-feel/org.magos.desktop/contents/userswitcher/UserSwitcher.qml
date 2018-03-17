@@ -28,11 +28,21 @@ import org.kde.plasma.private.sessions 2.0
 
 import "../components"
 
-Item {
+PlasmaCore.ColorScope {
     id: root
+    colorGroup: PlasmaCore.Theme.ComplementaryColorGroup
 
     signal dismissed
     signal ungrab
+
+    height:screenGeometry.height
+    width: screenGeometry.width
+
+    Rectangle {
+        anchors.fill: parent
+        color: PlasmaCore.ColorScope.backgroundColor
+        opacity: 0.5
+    }
 
     SessionsModel {
         id: sessionsModel
@@ -52,55 +62,43 @@ Item {
         shortcut: "Escape"
     }
 
-    BreezeBlock {
-        id: brblock
-        height: units.largeSpacing * 14
-        width: screenGeometry.width
-        anchors {
-            verticalCenter: parent.verticalCenter
-            left: parent.left
-            right: parent.right
-        }
+    Clock {
+        anchors.bottom: parent.verticalCenter
+        anchors.bottomMargin: units.gridUnit * 13
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
 
-        main: SessionManagementScreen {
-            id: block
-            anchors {
-                top: parent.verticalCenter
+    MouseArea {
+        anchors.fill: parent
+        onClicked: root.dismissed()
+    }
+
+    SessionManagementScreen {
+        id: block
+        anchors.fill: parent
+
+        userListModel: sessionsModel
+
+        RowLayout {
+            PlasmaComponents.Button {
+                text: i18nd("plasma_lookandfeel_org.kde.lookandfeel","Cancel")
+                onClicked: root.dismissed()
             }
+            PlasmaComponents.Button {
+                id: commitButton
+                text: i18nd("plasma_lookandfeel_org.kde.lookandfeel","Switch")
+                visible: sessionsModel.count > 0
+                onClicked: {
+                    sessionsModel.switchUser(block.userListCurrentModelData.vtNumber, sessionsModel.shouldLock)
+                }
 
-            userListModel: sessionsModel
-
-            Item {
-                Layout.fillWidth: true
-                height: buttons.height
-
-                RowLayout {
-                    id: buttons
-                    anchors.centerIn: parent
-
-                    PlasmaComponents.Button {
-                        id: cancelButton
-                        text: i18nd("plasma_lookandfeel_rosa.fresh.lookandfeel","Cancel")
-                        Layout.preferredWidth: Math.max(commitButton.implicitWidth, cancelButton.implicitWidth)
-                        onClicked: root.dismissed()
-                    }
-                    PlasmaComponents.Button {
-                        id: commitButton
-                        text: i18nd("plasma_lookandfeel_rosa.fresh.lookandfeel","Switch")
-                        visible: sessionsModel.count > 0
-                        Layout.preferredWidth: Math.max(commitButton.implicitWidth, cancelButton.implicitWidth)
-                        onClicked: {
-                            sessionsModel.switchUser(block.userListCurrentModelData.vtNumber, sessionsModel.shouldLock)
-                        }
-                            Controls.Action {
-                            onTriggered: commitButton.clicked()
-                            shortcut: "Return"
-                        }
-                        Controls.Action {
-                            onTriggered: commitButton.clicked()
-                            shortcut: "Enter" // on numpad
-                        }
-                    }
+                Controls.Action {
+                    onTriggered: commitButton.clicked()
+                    shortcut: "Return"
+                }
+                Controls.Action {
+                    onTriggered: commitButton.clicked()
+                    shortcut: "Enter" // on numpad
                 }
             }
         }

@@ -37,7 +37,7 @@ if [ "$DOMAIN" != "" ] ;then
    sed -i s/"option nis-domain .*"/"option nis-domain \"$DOMAIN\";"/g etc/dhcpd.conf
 fi
 
-if  ! [ -z "$HTTP_PROXY$FTP_PROXY" ] ;then 
+if  ! [ -z "$HTTP_PROXY$FTP_PROXY" ] ;then
     echo "setenv http_proxy $HTTP_PROXY" > etc/profile.d/proxy.csh
     echo "setenv https_proxy $HTTPS_PROXY" >> etc/profile.d/proxy.csh
     echo "setenv ftp_proxy $FTP_PROXY" >> etc/profile.d/proxy.csh
@@ -54,4 +54,6 @@ if [ "$(cmdline_parameter flightmode)" ] ;then
    for a in etc/sysconfig/network-scripts/ifcfg-w* ;do
        sed -i s/ONBOOT=yes/ONBOOT=no/ $a 2>/dev/null
    done
+   chroot . /sbin/rfkill block all
+   [ "$BLOCKWPASS" = "yes" -a -f lib/systemd/system/wpa_supplicant.service ] && ln -sf /dev/null etc/systemd/system/wpa_supplicant.service
 fi

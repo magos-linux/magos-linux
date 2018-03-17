@@ -6,7 +6,7 @@
 #
 # Author: Anton Goroshkin <http://magos-linux.ru>
 
-. /usr/lib/magos/functions || exit 1
+. /usr/lib/magos/functions
 
 echo "This script is obsolete and possibly will be removed in future. Please use dir2xzm -b "
 

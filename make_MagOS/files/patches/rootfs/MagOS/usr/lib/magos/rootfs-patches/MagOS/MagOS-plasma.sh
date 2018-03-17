@@ -12,7 +12,7 @@ cat >$PFP <<EOF
 [Daemon]
 Autolock=false
 LockGrace=300
-Timeout=60
+Timeout=20
 
 [Greeter]
 WallpaperPlugin=org.kde.slideshow

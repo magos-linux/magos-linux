@@ -1,4 +1,7 @@
 /nvidia-
 /nvidia.ko
 /nvidia304.ko
-/dkms-binary/nvidia
+/bbswitch.ko
+/broadcom-wl
+/rtl8812au
+/rtlwifi_new

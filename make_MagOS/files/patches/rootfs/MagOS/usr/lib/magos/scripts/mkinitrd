@@ -5,7 +5,7 @@
 
 export PATH=/usr/lib/magos/scripts:$PATH 
 
-. /usr/lib/magos/functions || exit 1
+. /usr/lib/magos/functions
 
 ARCH=32
 [ -d /lib64 ] && ARCH=64
