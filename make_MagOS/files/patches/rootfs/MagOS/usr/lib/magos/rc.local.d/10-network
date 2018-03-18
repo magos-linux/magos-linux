@@ -39,3 +39,11 @@ if [ "$AUTOMOUNTSERVER" = "yes" ] ;then
         grep -q " $MOUNTDEST " /proc/mounts ||  mount $MOUNTDEST 2>/dev/null
     done
 fi
+
+# Time syncing
+if ! ps -A | grep -q ntpd$ ;then
+  [ -z "$NTPSERVERS" ] && NTPSERVERS=$(grep ^server /etc/ntp.conf | awk '{print $2}' | tr  [[:cntrl:]] " ")
+  for a in $(echo $NTPSERVERS | tr ',;' ' ') ;do
+    ntpdate $a >/dev/null 2>/dev/null && break
+  done
+fi

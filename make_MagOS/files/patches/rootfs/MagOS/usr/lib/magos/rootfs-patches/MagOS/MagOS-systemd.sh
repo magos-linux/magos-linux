@@ -5,9 +5,9 @@ fedora-loadmodules fedora-storage-init-late fedora-storage-init  blk-availabilit
 canberra-system-bootup canberra-system-shutdown-reboot canberra-system-shutdown \
 lvm2-lvmetad lvm2-monitor network dracut-shutdown fedora-readonly lm_sensors \
 ldconfig xinetd lvm2-activation-early lvm2-activation-net lvm2-activation smb nmb remount-rootfs \
-NetworkManager-wait-online arp-ethers.service dbus-org.freedesktop.Avahi dhcpd wine"
+NetworkManager-wait-online arp-ethers.service dbus-org.freedesktop.Avahi dhcpd wine systemd-resolved"
 SOCKETSDISABLE="avahi-daemon rpcbind lvm2-lvmetad"
-SERVICESSTART="virtualbox systemd-resolved"
+SERVICESSTART="virtualbox"
 
 for a in $SERVICESDISABLE ;do
    find /etc/systemd/system | grep /$a.service | xargs rm -f

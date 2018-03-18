@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #services to start
-INITDNEED="gpm xinetd virtualbox"
+INITDNEED="gpm xinetd virtualbox pdnsd"
 
 #disable all xinetd.services
 find /etc/xinetd.d -type f | sed s%/etc/xinetd.d/%% | while read a ;do

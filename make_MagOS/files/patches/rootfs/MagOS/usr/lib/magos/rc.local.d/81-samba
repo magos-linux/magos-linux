@@ -3,23 +3,40 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
+# Machine only
+SMBRANDOMSTR=$(lspci -nmm | cat - /etc/machine-id /proc/cmdline  | md5sum | awk '{print $1}')
+SMBUSERS=$(grep ^users: /etc/group | awk -F: '{print $4}' | tr ';,' ' ')
+SMBGUEST="yes"
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
+. /etc/sysconfig/MagOS
 debug_mode "$0" "$@"
 
+[ "$SMBGUEST" != "yes" ] && GUESTOPT=e || GUESTOPT=d
+
+addusers()
+{
+ for a in $SMBUSERS ;do
+     PASS=$(echo "$a $SMBRANDOMSTR" | md5sum | cut -c 1-6)
+     echo -e $PASS\\n$PASS\\n | smbpasswd -Lsa $a >/dev/null 2>&1
+ done
+ smbpasswd -Lan nobody >/dev/null 2>&1
+ smbpasswd -L$GUESTOPT nobody >/dev/null 2>&1
+}
+
+show()
+{
+ echo "Default samba passwords:"
+ for a in $SMBUSERS ;do
+     PASS=$(echo "$a $SMBRANDOMSTR" | md5sum | cut -c 1-6)
+     echo $a $PASS
+ done
+ [ "$SMBGUEST" = "yes" ] && echo "guest account is enabled on default" || echo "guest account is disabled on default"
+}
+
+
 if [ "$MKSMBPWD" = "yes" ] ;then
-  if ! grep -q nobody /etc/samba/passdb.tdb ;then
-    echo -e \\n\\n | smbpasswd -Lsa nobody >/dev/null 2>&1
-    for a in `grep users /etc/group | awk -F: '{print $4}' | tr ';,' ' '` ;do
-       PASS=`echo $a | cat - /mnt/live/VERSION /proc/cmdline | md5sum | cut -c 1-5`
-       echo -e $PASS\\n$PASS\\n | smbpasswd -Lsa $a >/dev/null 2>&1
-    done
-  fi
-  if [ "$SHDSMBPWD" = "yes" ] ;then
-    echo "Default samba passwords:"
-    for a in `grep users /etc/group | awk -F: '{print $4}' | tr ';,' ' '` ;do
-           PASS=`echo $a | cat - /mnt/live/VERSION /proc/cmdline | md5sum | cut -c 1-5`
-           echo $a $PASS
-    done
-  fi
+  smbpasswd -L$GUESTOPT nobody >/dev/null 2>&1 || addusers
 fi
+
+[ "$UID" = "0" -a "$1" = "show" ] && $1
