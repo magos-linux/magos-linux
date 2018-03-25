@@ -7,6 +7,8 @@ PFP=/var/cache/pdnsd/pdnsd.cache
 chown pdnsd.pdnsd $PFP
 
 PFP=/etc/resolv.conf
+[ -h "$PFP" ] && rm -f "$PFP"
+[ -f "$PFP" ] || touch "$PFP"
 sed -i /nameserver/d $PFP
 echo "nameserver 127.0.0.1" > $PFP
 

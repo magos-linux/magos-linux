@@ -1,0 +1,27 @@
+#!/bin/bash
+# Initial script for MagOS-Linux Live operating system
+# This script are launching before starting init from linux-live script.
+# Current dir allways must be set to root (/)
+# All system path must be relative, except initrd dirs
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+DEBUGMODE=no
+. usr/lib/magos/functions
+debug_mode "$0" "$@"
+
+[ "$DNS_RENEW" = "yes" -a -f /mnt/live/etc/resolv.conf ] && cat /mnt/live/etc/resolv.conf >> /etc/resolvconf/resolv.conf.d/head
+
+NETDEV=$(grep "^e.*:[[:space:]]*[1-9]" /proc/net/dev | awk -F: '{print $1}' | head -1)
+[ -z "$NETDEV" ] && NETDEV=$(ls /sys/class/net/e*/address | awk -F/ '{print $5}' | head -1)
+[ -z "$NETDEV" ] || sed -i s/DEVICE=.*/DEVICE=$NETDEV/ /etc/sysconfig/network-scripts/ifcfg-eth0
+
+if egrep -q " nfs |httpfs|ftpfs|sshfs| cifs " /proc/mounts ;then
+   sed -i s/ONBOOT=.*/ONBOOT=no/ /etc/sysconfig/network-scripts/ifcfg-eth0
+   sed -i s/NM_CONTROLLED=.*/NM_CONTROLLED=no/ /etc/sysconfig/network-scripts/ifcfg-eth0
+fi
+
+[ "$(cmdline_parameter flightmode)" ] && rfkill block all

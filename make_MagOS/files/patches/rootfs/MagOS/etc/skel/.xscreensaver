@@ -1,7 +1,7 @@
 # XScreenSaver Preferences File for MagOS-Linux
 # please use xscreensaver-demo to change settings
 
-timeout:	0:20:00
+timeout:	0:05:00
 lock:		False
 verbose:	False
 fade:           False

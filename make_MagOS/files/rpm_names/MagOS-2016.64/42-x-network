@@ -83,7 +83,6 @@ vpnc-
 vpnpptp-allde-
 whois-
 wvdial-
-x11-server-xephyr-
 xl2tpd-
 zcip-
 lib64ixml2-
@@ -195,3 +194,4 @@ qutim2-urlpreview-
 qutim2-vkontakte-
 qutim2-yandexnarod-
 lib64idn2_0-
+x11-server-xephyr-

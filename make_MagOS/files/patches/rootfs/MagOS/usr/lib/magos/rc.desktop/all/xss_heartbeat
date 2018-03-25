@@ -3,7 +3,7 @@
 ENABLED=yes
 XSSHBTM=20s
 # don't start xss in DE
-#XSSDEIGNORE=kde
+XSSDEIGNORE=kde
 # stop xss if process started
 XSSBLRUNED="kscreenlocker"
 # stop xss if process eats resources

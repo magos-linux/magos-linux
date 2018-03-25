@@ -23,8 +23,6 @@ ps -A | egrep 'ntfsmount|rpciod|nfsiod|httpfs|curlftpfs' | awk '{ print $1 }' >>
 rm -f  /etc/mtab
 ln -sf /proc/mounts /etc/mtab
 
-[ "$(cmdline_parameter flightmode)" ] && rfkill block all
-
 [ -z "$KDEVARTMP" ] || mkdir -p "$KDEVARTMP"
 [ -d "$KDEVARTMP" ] && chmod 777 "$KDEVARTMP"
 

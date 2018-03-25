@@ -55,4 +55,10 @@ grep -q ConditionPathExists=/sys/class/power_supply/BAT0 $PFP || sed -i /Descrip
 PFP=/lib/systemd/system/systemd-udevd.service
 sed -i s/^MountFlags=.*/MountFlags=shared/ $PFP
 
+for a in dhcpd ntpd ;do
+   PFP=/lib/systemd/system/$a.service
+   [ -f $PFP ] || continue
+   grep -q network-online.target $PFP || sed -i s/After=/"After=network-online.target "/ $PFP
+done
+
 exit 0

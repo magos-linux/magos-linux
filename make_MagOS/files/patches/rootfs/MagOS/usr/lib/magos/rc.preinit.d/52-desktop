@@ -110,7 +110,7 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
        ;;
        lan)
-         sed -i s/ONBOOT=no/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null
+         sed -i s/ONBOOT=.*/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null
        ;;
    esac
 done
