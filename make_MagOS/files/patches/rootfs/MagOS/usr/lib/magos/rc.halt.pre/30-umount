@@ -1,0 +1,24 @@
+#!/bin/bash
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+PATH=/usr/lib/magos/scripts:$PATH
+
+swapoff -a >/dev/null 2>/dev/null
+
+#umount network fs
+egrep "[ ]nfs[ ]|[ ]cifs[ ]" /proc/mounts | awk '{print $2}' | egrep -v '^/mnt/live|^/memory/' | xargs umount -lf
+
+# umount any enc files from /media /mnt
+find /dev/mapper/* | sed s=.*/== | grep -v ^control$ | while read a ;do
+    cryptsetup status $a 2>/dev/null | grep "[[:space:]]loop:[[:space:]]" | grep -v /mnt/live/ | egrep -q "[[:space:]]/media/|[[:space:]]/mnt/" && umount /dev/mapper/$a && cryptsetup close $a
+done
+
+# umount any loops from /media /mnt
+losetup -a | tr -d :\)\( | egrep " /media/| /mnt/" | grep -v " /mnt/live" | awk '{print $1}' | xargs umount -d >/dev/null 2>&1
+
+# then free any /media
+egrep " /media/| /mnt/" /proc/mounts | awk '{print $2}' | grep -v ^/mnt/live | sort -r | xargs umount >/dev/null 2>&1
+
+exit 0

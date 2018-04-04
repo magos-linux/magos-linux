@@ -2,14 +2,14 @@
 Description=/usr/sbin/halt.pre Compatibility
 ConditionFileIsExecutable=/usr/sbin/halt.pre
 DefaultDependencies=no
-Before=shutdown.target
+Before=shutdown.target umount.target
 
 [Service]
 Type=oneshot
 ExecStart=/usr/sbin/halt.pre
 TimeoutSec=15
 StandardOutput=tty
-RemainAfterExit=no
+RemainAfterExit=yes
 
 [Install]
-WantedBy=halt.target poweroff.target
+WantedBy=shutdown.target

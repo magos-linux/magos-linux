@@ -9,3 +9,4 @@ ENABLED=yes
 HWCLOCKOPIONS="--utc"
 [ "$UTC" = "false" ] && HWCLOCKOPIONS="--localtime"
 hwclock -w $HWCLOCKOPIONS
+exit 0

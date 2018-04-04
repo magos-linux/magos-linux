@@ -988,3 +988,5 @@ x11-server-xorg-
 x11-server-xnest-
 x11-server-xwayland-
 x11-driver-video-fbdev-
+qca2-qt5-
+qca2-qt5-plugin-gnupg-

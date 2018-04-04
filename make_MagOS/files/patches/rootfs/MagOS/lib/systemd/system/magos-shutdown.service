@@ -6,10 +6,10 @@
 #  (at your option) any later version.
 
 [Unit]
-Description=/usr/sbin/halt.local Compatibility
+Description=MagOS autorun scripts for shutdown
 ConditionFileIsExecutable=/usr/sbin/halt.local
 DefaultDependencies=no
-After=shutdown.target
+After=umount.target
 Before=final.target
 
 [Service]
@@ -18,3 +18,6 @@ ExecStart=/usr/sbin/halt.local
 TimeoutSec=180
 StandardOutput=tty
 RemainAfterExit=no
+
+[Install]
+WantedBy=shutdown.target

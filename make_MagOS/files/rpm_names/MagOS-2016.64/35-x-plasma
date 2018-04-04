@@ -645,6 +645,9 @@ kjobwidgets-
 lib64phabricatorhelpers5-
 oxygen-icon-theme-
 lib64fakekey0-
-kdeconnect-
-lib64kdeconnectcore1-
-lib64kdeconnectinterfaces1-
+lib64kkdeconnectcore5-
+lib64kkdeconnectinterfaces5-
+lib64kkdeconnectpluginkcm5-
+plasma5-applet-kdeconnect-
+plasma5-kdeconnect-
+plasma5-kio-kdeconnect-

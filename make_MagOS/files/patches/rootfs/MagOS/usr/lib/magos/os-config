@@ -51,7 +51,7 @@ DOMUSGR=audio,video,usb,vboxusers,bumblebee,cdrom,cdwriter,lp,floppy
 #rc.halt/16-rpmdb
 #rc.post.d/05-rpmdb
 RPMDB2TMPFS=yes
-RPMDBCONVERT=yes
+RPMDBCONVERT=auto
 
 #rc.halt/20-timesave
 HALTSAVETIME=yes
@@ -153,8 +153,8 @@ FORCE_LOCARCHIVE=no
 
 #rc.halt.pre/05-shutdown
 #rc.halt/05-shutdown
-HALTSERVICESSTOP="display-manager"
-HALTPROCESSESKILL="slim kdm X"
+HALTSERVICESSTOP=""
+HALTPROCESSESKILL="slim kdm X sddm cupsd pdnsd mc"
 
 #rc.preinit/02-skel-adds
 STEAMAPP=/mnt/livedata/MagOS-Data/steam

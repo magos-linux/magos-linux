@@ -10,6 +10,6 @@ for a in $HALTSERVICESSTOP ;do
     [ -z "$a" ] || systemctl stop $a.service
 done
 
-for a in $HALTPROCESSESKILL ;do
-    [ -z "$a" ] || killall $a
-done
+[ -z "$HALTPROCESSESKILL" ] || killall -9 $HALTPROCESSESKILL
+
+exit 0

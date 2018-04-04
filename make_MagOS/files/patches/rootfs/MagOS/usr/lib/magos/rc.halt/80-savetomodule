@@ -64,6 +64,4 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo
    [ "$SRC" = "$CHSRC" ] || umount "$SRC"
 fi
-
-echo -n "Syncing block devices..."
-sync && echo " done."
+exit 0

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ ! -z "$1" ] ;then
+  echo Script shows locks which blocks modules
+  exit 0
+fi
+
+TMPF=/tmp/$(basename $0)-$UID-
+rm -f ${TMPF}*
+
+lsof -M -T | awk '{print $1 " " $NF }' | sed 1d | grep " /." | egrep -v ' /dev/| /proc/| /sys/| /home/| /memfd:| /run/| /SYSV| /media' | sort >${TMPF}lsof
+echo processing, please wait...
+awk '{print $NF }' ${TMPF}lsof | sort -u | grep ^/ | while read a ;do
+  RPMF=$(LC_ALL=C rpm -qf $a 2>/dev/null | grep -v ^file)
+  [ -z "$RPMF" ] && continue
+  MODF=$(grep -m1 $RPMF /var/lib/rpm/modules/* | sed s/:.*// | sed s=.*/==)
+  [ -z "$MODF" ] && continue
+  PRS=$(grep " $a$" ${TMPF}lsof | sed s/' .*'/' '/ | tr \\n " ")
+#  echo -e "$MODF\t$a\t$PRS"
+  echo -e "$MODF\t$a\t$PRS">>${TMPF}out
+done
+cat ${TMPF}out | sort
+#rm -f ${TMPF}*
