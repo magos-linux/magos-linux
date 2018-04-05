@@ -7,14 +7,13 @@
 
 [Unit]
 Description=MagOS autorun scripts for shutdown
-ConditionFileIsExecutable=/usr/sbin/halt.local
 DefaultDependencies=no
 After=umount.target
 Before=final.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/sbin/halt.local
+ExecStart=/etc/rc.d/rc.halt.MagOS
 TimeoutSec=180
 StandardOutput=tty
 RemainAfterExit=no

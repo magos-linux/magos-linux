@@ -1,12 +1,11 @@
 [Unit]
 Description=/usr/sbin/halt.pre Compatibility
-ConditionFileIsExecutable=/usr/sbin/halt.pre
 DefaultDependencies=no
 Before=shutdown.target umount.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/sbin/halt.pre
+ExecStart=/etc/rc.d/rc.halt.pre.MagOS
 TimeoutSec=15
 StandardOutput=tty
 RemainAfterExit=yes
