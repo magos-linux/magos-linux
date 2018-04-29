@@ -31,6 +31,7 @@ EOF
 PFP=/etc/xdg/kwinrc
 sed -i /^Rows.*/d $PFP
 sed -i s/^Number=.*/Number=4\\nRows=2/ $PFP
+sed -i s/^Enabled=.*/Enabled=false/    $PFP
 cat >>$PFP <<EOF
 
 [Plugins]

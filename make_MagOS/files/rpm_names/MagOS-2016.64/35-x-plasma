@@ -631,7 +631,7 @@ okular-postscript-
 okular-tiff-
 sweeper-
 yakuake-
-lib64okular5core7-
+lib64okular5core8-
 lib64okular-qml-
 okular-fb-
 okular-kde4-support-
@@ -651,3 +651,5 @@ lib64kkdeconnectpluginkcm5-
 plasma5-applet-kdeconnect-
 plasma5-kdeconnect-
 plasma5-kio-kdeconnect-
+lib64kf5prison5-
+prison-
