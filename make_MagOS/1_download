@@ -5,6 +5,7 @@
 
 ONLINE=yes
 TMPDIR=/tmp/$(basename $0)-$UID
+CURLOPTS="--progress-bar --retry-delay 2 --retry 5"
 
 if [ -f .config ] ;then 
   . .config
@@ -25,7 +26,7 @@ for a in `gawk '{print $2}' files/media/media_list-$STATUS-$VERREL-$ARCH` ;do
         MEDIAADD=`grep " $a " files/media/media_list-$STATUS-$VERREL-$ARCH | awk '{print $5}'`
 
         if [ "$ONLINE" == "yes" ] ;then
-           curl -# --retry-delay 2 --retry 5 -o $TMPDIR/tmp/.listing -l "$MEDIAURL/" || exit 1
+           curl $CURLOPTS -o $TMPDIR/tmp/.listing -l "$MEDIAURL/" || exit 1
            if grep -q -i "a href=" $TMPDIR/tmp/.listing ;then
                sed -i 's|<'[Aa]' |\n<a |g' $TMPDIR/tmp/.listing
                sed -i s/\'/\"/g $TMPDIR/tmp/.listing
@@ -42,13 +43,13 @@ for a in `gawk '{print $2}' files/media/media_list-$STATUS-$VERREL-$ARCH` ;do
            fi
            rm -f $TMPDIR/tmp/.listing $TMPDIR/media/"$a"_full 2>/dev/null
            if [ "$MEDIAKEY" != "" -a "$MEDIAKEY" != "0" ] ;then
-               curl -# --retry-delay 2 --retry 5 -o $TMPDIR/pubkeys/$a.pubkey "$MEDIAURL/media_info/pubkey" || exit 1
+               curl $CURLOPTS -o $TMPDIR/pubkeys/$a.pubkey "$MEDIAURL/media_info/pubkey" || exit 1
            fi
 
            if [ "$MEDIAUPD" != "skip" -a "$MEDIAUPD" != "nomediainfo" ] ;then
                mkdir $TMPDIR/urpmi/var/lib/urpmi/$a
-               curl -# --retry-delay 2 --retry 5 -o $TMPDIR/urpmi/var/lib/urpmi/$a/MD5SUM "$MEDIAURL/media_info/MD5SUM" || exit 1
-               curl -# --retry-delay 2 --retry 5 -o $TMPDIR/urpmi/var/lib/urpmi/$a/synthesis.hdlist.cz "$MEDIAURL/media_info/synthesis.hdlist.cz" || exit 1
+               curl $CURLOPTS -o $TMPDIR/urpmi/var/lib/urpmi/$a/MD5SUM "$MEDIAURL/media_info/MD5SUM" || exit 1
+               curl $CURLOPTS -o $TMPDIR/urpmi/var/lib/urpmi/$a/synthesis.hdlist.cz "$MEDIAURL/media_info/synthesis.hdlist.cz" || exit 1
            fi
            echo
         else

@@ -123,6 +123,7 @@ update_app kde5/org.kde.kfind.desktop "Qt;KDE;Utility;FileTools;"
 update_app kde5/org.kde.kgpg.desktop "Qt;KDE;Utility;Security;"
 update_app kde5/systemsettings.desktop "Qt;KDE;X-Plasma-Settings;"
 update_app kde5/org.kde.spectacle.desktop "Qt;KDE;Graphics;Scanning;"
+update_app kde5/org.kde.kdeconnect.app.desktop "Qt;KDE;X-KDE-settings-peripherals;"
 
 PFP=/usr/share/applications/fusion-icon.desktop
 [ -f $PFP ] && sed -i s/^Exec=.*/'Exec=fusion-icon -n'/ $PFP
