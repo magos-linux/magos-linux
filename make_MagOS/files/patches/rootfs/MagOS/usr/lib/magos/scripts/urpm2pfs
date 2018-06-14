@@ -156,23 +156,24 @@ umount_all
 rm -rf $mod_br/{tmp,dev,proc,sys}
 
 if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
-  if mkpfs $mod_br -o ${NAME} && MODULE="$(readlink -e ${NAME})" ; then
-    [ "$load" = "yes" ] && pfsload $MODULE >/dev/null && echo "Mounted successfully"
-    echo "$MODULE"
-  else 
-    echo "Error create module"
-  fi
+  mkpfs $mod_br -o ${NAME} && MODULE="$(readlink -e ${NAME})" && create=OK 
 elif [ "$result"  -eq 0 ] ; then
-  if mkpfs -l $mod_br -o ${erase_NAME} && MODULE="$(readlink -e ${erase_NAME})" ; then
-    [ "$load" = "yes" ] && pfsload $MODULE >/dev/null && echo "Mounted successfully"
-    echo "$MODULE"
-  else
-    echo "Error create module"
-  fi
+  mkpfs -l $mod_br -o ${erase_NAME} && MODULE="$(readlink -e ${erase_NAME})" && create=OK 
 else
     echo "Error $action packages: $packages"
-    echo "$urpm exitcode: $result, must be zero"
-    echo "RTFM man $urpm" 
+    [ $urpm == urpmi ] &&  echo "urpmi exitcode: \" $(man urpmi |grep -e "[[:space:]]${result}\.") \" "
+    [ $urpm == urpme ] && echo "urpme exitcode: $result"
+    echo "size of module source dir: $(du -ch  $mod_br |tail -n1 |cut -f 1)"
+    echo "do you want to create the module, despite this? [Y/N]"
+    read aaa ; [ $aaa ] || aaa=no
+    if [ $aaa == "Y" -o $aaa == "y" ] ; then 
+      mkpfs $mod_br -o ${NAME} && MODULE="$(readlink -e ${NAME})"  &&  create=OK
+    fi
 fi
 
 rm -rf $mod_br $root_br
+
+if  [  $create  ] ; then
+	[ "$load" = "yes" ] && pfsload $MODULE >/dev/null && echo "Mounted successfully"
+	echo "$MODULE"
+fi
