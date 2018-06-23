@@ -653,3 +653,6 @@ plasma5-kdeconnect-
 plasma5-kio-kdeconnect-
 lib64kf5prison5-
 prison-
+lib64qt5sensors5-
+lib64colorcorrect5-
+lib64colorcorrect-qml-

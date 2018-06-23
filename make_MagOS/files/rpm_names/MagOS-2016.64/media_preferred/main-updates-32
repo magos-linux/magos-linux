@@ -42,3 +42,4 @@ libglvnd-egl-
 libglvnd-gles-
 libglvnd-glx-
 libopengl0-
+libllvm6.0-

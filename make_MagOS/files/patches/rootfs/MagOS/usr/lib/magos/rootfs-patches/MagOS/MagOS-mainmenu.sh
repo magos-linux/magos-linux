@@ -26,6 +26,7 @@ update_app mandriva-z42tool.desktop "System;Printing;"
 update_app net_applet.desktop "GTK;Network;Monitor;X-MandrivaLinux-CrossDesktop;"
 update_app obconf.desktop "Settings;DesktopSettings;GTK;X-LXDE-Settings;"
 update_app remmina.desktop "GTK;GNOME;X-GNOME-NetworkSettings;Network;RemoteAccess;"
+update_app org.remmina.Remmina.desktop "GTK;GNOME;X-GNOME-NetworkSettings;Network;RemoteAccess;"
 update_app djvulibre-djview3.desktop "Qt;Office;Viewer;"
 update_app djvulibre-djview4.desktop "Qt;Office;Viewer;"
 update_app startcenter.desktop "Office;Editor;"
@@ -124,6 +125,8 @@ update_app kde5/org.kde.kgpg.desktop "Qt;KDE;Utility;Security;"
 update_app kde5/systemsettings.desktop "Qt;KDE;X-Plasma-Settings;"
 update_app kde5/org.kde.spectacle.desktop "Qt;KDE;Graphics;Scanning;"
 update_app kde5/org.kde.kdeconnect.app.desktop "Qt;KDE;X-KDE-settings-peripherals;"
+update_app kde5/org.kde.krename.desktop "Qt;KDE;Utility;FileManager;"
+update_app kde5/org.kde.sweeper.desktop "Qt;KDE;Utility;Security;"
 
 PFP=/usr/share/applications/fusion-icon.desktop
 [ -f $PFP ] && sed -i s/^Exec=.*/'Exec=fusion-icon -n'/ $PFP
