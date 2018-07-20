@@ -47,6 +47,12 @@ screenedgeEnabled=false
 slidingpopupsEnabled=false
 EOF
 
+PFP=/etc/xdg/klipperrc
+cat >>$PFP <<EOF
+[General]
+SyncClipboards=true
+EOF
+
 PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kicker/contents/config/main.xml
 sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP
 

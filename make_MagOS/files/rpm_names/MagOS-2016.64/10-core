@@ -119,6 +119,7 @@ lib64efivar0-
 lib64elf1-
 lib64estr0-
 lib64event5-
+lib64event6-
 lib64expat1-
 lib64ext2fs2-
 lib64ffi6-
@@ -183,6 +184,7 @@ lib64mm-glib0-
 lib64mount1-
 lib64mowgli2-
 lib64mozjs185_1-
+lib64mozjs52-
 lib64mpfr4-
 lib64mysqlclient18-
 lib64natspec0-
