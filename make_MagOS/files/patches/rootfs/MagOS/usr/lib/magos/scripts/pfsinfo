@@ -1,6 +1,6 @@
 #!/bin/sh
 #Read list PFS packages
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 
 HLP(){
@@ -70,7 +70,7 @@ if [ "${pack}" ]; then
 	umount /tmp/squashfs/"${bpack}"
 	rmdir  /tmp/squashfs/"${bpack}"
   else
-	unsquashfs -l "${pack}" | grep squashfs-root${PFSDIR}/mount/.*/pfs.files |sed -e 's:squashfs-root.*/mount/::' -e 's:/pfs.files::'
+    unsquashfs -l -d ""  "${pack}"  | grep ${PFSDIR}/.*/pfs.files |sed -e "s:${PFSDIR}/mount/::" -e 's:/submod/mount::g' -e 's:/pfs.files$::' -e 's#/#:#g'
   fi
 else
   [ "${readdir}" != "install" ] && [ -d "${PFSDIR}/mount" ] && echo "$(find "${PFSDIR}/mount/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -f)"

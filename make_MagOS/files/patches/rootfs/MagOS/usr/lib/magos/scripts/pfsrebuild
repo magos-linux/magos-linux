@@ -1,6 +1,6 @@
 #!/bin/sh
 #rebuild loaded or installed pfs
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 
 #help

@@ -1,6 +1,6 @@
 #!/bin/sh
 #Find dynamic libraries from all packages (for PuppyRus)
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 
 for arg in "$@"

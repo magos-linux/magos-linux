@@ -1,6 +1,6 @@
 #!/bin/sh
 # Unmount file for PuppyRus ("Ext2", "Ext3", "Ext4", "SquashFS", "ISO")
-#VERSION 3.6
+#VERSION 4.0
 #help
 HLP(){
 echo "Usage: $0 <file>"

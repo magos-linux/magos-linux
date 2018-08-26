@@ -1,11 +1,12 @@
 #!/bin/sh
 #Unmount filesystem from AUFS
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 HLP () {
   echo "Usage: $(basename "$0") FYLESYSTEM (squashfs module, dir, iso, img, etc) "
   echo "-n  --no-update  - do not update icon caches, fonts, etc"
   echo "-s  --saveram    - do not remoove module from RAM after unmounting" 
+  echo "-v               - verbose output" 
   echo "-h  --help       - this help"
   exit 2
 }
@@ -15,6 +16,7 @@ do
   case "${arg}" in
     "-n" | "--no-update") fupdate="no";;
     "-s" | "--saveram") saveram="yes";;
+    "-v") verb="yes";;
     "-h" | "--help") infile=""; break;;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) infile="${arg}";;
@@ -65,8 +67,9 @@ fi
 
 
 if [ "$status" -ne 0 -a "$status" -ne 22 ] ;then
-  for a in $( lsof / |awk '{print $9}' |grep "\/..*" | egrep -v "/proc|/sys|/run|/tmp|/dev|/home" | sort -u) ; do
+  [ "$verb" ] && for a in $( lsof / |awk '{print $9}' |grep "\/..*" | egrep -v "/proc|/sys|/run|/tmp|/dev|/home" | sort -u) ; do
     [ -f "$a" ] || continue
+    [ -d "$a" ] && continue
     [ -f  "$mountpoint/$a"	] && FILES="$FILES $a"
   done
 fi

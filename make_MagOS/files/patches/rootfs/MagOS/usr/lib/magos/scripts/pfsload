@@ -1,39 +1,23 @@
 #!/bin/sh
 #Mount filesystem to AUFS
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 mntmode="upper"
 
-for arg in "$@"
-do
-  case "${arg}" in
-    "-u"   | "--upper") mntmode="upper";;
-    "-l"   | "--lower") mntmode="lower";;
-    "-n"   | "--no-update") fupdate="no";;
-    "-r"   | "--toram" ) toram="yes" ;;
-    "--ro" | "--read-only" ) romode="yes";;
-    "-h"   | "--help") infile=""; break;;
-    "-"*[A-Za-z]*) exitmsg "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" 1 ;;
-    *) infile="${arg}";;
-  esac
-done
-
-if [ "${infile}" = "" ]; then
-  echo "Usage: $(basename "$0") [OPTIONS] FILESYSTEM${IFS}${IFS}Options:"
+HLP() {
+  echo "Usage: $(basename "$0") [OPTIONS] [MODULES and DIRS LIST] "
+  echo "Options:"
   echo " -u,   --upper    (default) Mount filesystem to upper layer (AUFS)."
   echo " -l,   --lower    Mount filesystem to lower layer (AUFS)."
   echo " -n,   --no-update Do not check for update caches"
   echo " --ro, --read-only Mount read-only"
   echo " -r,   --toram copy module to RAM disk (tmpfs) before loading"
-  exit 1
-fi
+}
 
-allow_only_root
- 
 toram () {
 mkdir -p ${copyramdir}
 freeram=$(checkramfreeb)
-filesize="`expr $(du -k "${fsfile}" | cut -f 1)`"
+filesize="$(du -k "${fsfile}" | cut -f 1)"
 minram="$(expr ${filesize} + ${TMPFSLIMIT})"
 [ "${minram}" -gt "${freeram}" ] && exitmsg "Not enouth free RAM space" 3
 [ "$(stat  --format=%T -f $copyramdir )" != "tmpfs" ] && mountb -t tmpfs tmpfs "${copyramdir}"
@@ -41,11 +25,32 @@ if [ -f "${copyramdir}/${fsname}" ] ;then
 	pfsunload -r ${fsname} 
 	exitmsg "File already in ram and mounted" $?
 fi
-#echo "\"${fsname}\" copying to RAM..."
+#echo "\"${fsname}\" copy to RAM..."
 cp -afL "${fsfile}" "${copyramdir}" || return 2
 echo  "${copyramdir}/$(basename ${fsfile})" | sed 's://:/:g'
 }
 
+#get opts
+sourcelist=""
+for arg in $@
+do
+  case "${arg}" in
+    "-u"   | "--upper") mntmode="upper";;
+    "-l"   | "--lower") mntmode="lower";;
+    "-n"   | "--no-update") fupdate="no";;
+    "-r"   | "--toram" ) toram="yes" ;;
+    "--ro" | "--read-only" ) romode="yes";;
+    "-h"   | "--help") HLP; break;;
+    "-"*[A-Za-z]*) exitmsg "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" 1 ;;
+    *) sourcelist="${sourcelist} ${arg}";;
+   esac
+done
+
+[ "$sourcelist" ] || HLP 
+
+allow_only_root
+ 
+for  infile in $sourcelist ; do
 if [ -f "${infile}" ]; then
   fsfile="$(realpath "${infile}")"
   [ $toram ] && fsfile=$(toram)
@@ -115,7 +120,7 @@ if [ ${status} -eq 0 ]; then
   
   if [ ${status} -eq 0 ]; then
     sync
-    [ "$devtype" == "file" ] && requires=$(checkdeps "${mountpoint}" 2>/dev/null)
+    [ "$devtype" == "file" ] && requires="$requires $(checkdeps "${mountpoint}" 2>/dev/null)"
     if [ "${mntmode}" = "upper" ]; then
 		nlayer=1
 		[ -w $(aufs-n 1) ] && nlayer=2
@@ -129,10 +134,7 @@ if [ ${status} -eq 0 ]; then
     if [ ${status} -eq 0 ]; then
       if [ "${fupdate}" != "no" ] ; then 
 		pfs_update_caches "${mountpoint}" 
-		for script in $(find $(dirname $0) -maxdepth 1 -name "runpfsload*" -user root) ; do 
-			$script "${mountpoint}" &
-		done
-      fi 
+	  fi 
     else
       umountb -d "${mountpoint}" >/dev/null
 	  rmdir "${mountpoint}" >/dev/null
@@ -148,6 +150,11 @@ else
   exitmsg "Mount error!" ${status}
 fi
 sync
+done
+
+for script in $(find $(dirname $0) -maxdepth 1 -name "runpfsload*" -user root) ; do 
+	$script "${mountpoint}" &
+done
 
 for dep in $requires ; do
 	echo "need: $dep"

@@ -3,7 +3,7 @@
 #Authors: puppyrus.org : Zay, DdShurick, sfs
 #Author: magos-linux.ru: Betcher
 #License: GPL v3
-#VERSION 3.6
+#VERSION 4.0
 
 #help
 HELP(){
@@ -87,18 +87,21 @@ allow_only_root() {
 }
 
 mklist () {
-#mklist source_dir [dest_dir] [pack_name]
-source_dir="$(realpath "$1")"
-[ "$2" ] && dest_dir="$(realpath "$2")" || dest_dir="$source_dir"
+source_root="$(realpath "$1")"
+[ "$2" ] && dest_root="$(realpath "$2")" || dest_root="$source_root"
 pack_name="$(basename "${1%.$EXT}")"
 [ "$3" ] && pack_name="$3"
-#[ "$(pwd)" != "/" ] && find "${source_dir}${PFSDIR}/mount/" -mindepth 1 -maxdepth 1  -exec rm -rf "{}" \; 2>/dev/null
-mkdir -p "${dest_dir}${PFSDIR}/mount/${pack_name}" &&
-echo 'name="'$pack_name'"' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.specs" &&
-find "${source_dir}" ! -type d        | sed "s:$source_dir::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.files" &&
-find "${source_dir}"   -type d -empty | sed "s:$source_dir::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" #&&
-#[ -s "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty" ] || rm "${dest_dir}${PFSDIR}/mount/${pack_name}/pfs.dirs.empty"
-#exitmsg "mklist error" $?
+dest_dir="${dest_root}${PFSDIR}/mount/${pack_name}/"
+mkdir -p $dest_dir
+if [ -d "${source_root}${PFSDIR}/mount" ] ; then
+mkdir -p "${dest_dir}submod"
+cp  -fr "${source_root}${PFSDIR}/mount"   /tmp/ 
+mv  -f /tmp/mount "${dest_dir}submod/"
+rm -rf /tmp/mount
+fi
+echo 'name="'$pack_name'"' > "${dest_dir}/pfs.specs" &&
+find "${source_root}" ! -type d        | sed "s:$source_root::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}/pfs.files" &&
+find "${source_root}"   -type d -empty | sed "s:$source_root::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}/pfs.dirs.empty"
 }
 
 checkramfreeb () {
@@ -204,7 +207,7 @@ else
 	rm -rf $SYSMNT/changes$1
 fi 2>/dev/null
 if [ -d $SYSMNT/bundles$1 ]; then
-	ls -1 $SYSMNT/bundles$1 | while read D
+	ls -1A $SYSMNT/bundles$1 | while read D
 	do
 		umount -d $SYSMNT/bundles$1/$D && 	rmdir $SYSMNT/bundles$1/$D
 	done
