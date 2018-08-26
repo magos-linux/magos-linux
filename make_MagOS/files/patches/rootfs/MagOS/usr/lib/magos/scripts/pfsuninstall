@@ -1,6 +1,6 @@
 #!/bin/sh
 #Uninstall packages
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 
 #help

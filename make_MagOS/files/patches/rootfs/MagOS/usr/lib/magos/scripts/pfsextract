@@ -1,6 +1,6 @@
 #!/bin/sh
 #PFS module extractor
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 
 HLP(){
@@ -46,28 +46,22 @@ extract_simple () {
 		rm -R ${dir}${PFSDIR} 2>/dev/null 
 		return 0 # need zero exit code
 	fi
-    
  }
 
 extract_contaner () {
 #extract packages from contaner
-pfsinfo "$pfs" |while read m ;do
-    if  [ "`echo $sourcelist| sed 's/^ //'`" ]  ;then
-		echo $sourcelist |grep -q "$m" || continue
-    fi
+for m in $sourcelist ; do
     eval echo  "package: $m    -- processing..." $devnull
+    m=$(echo $m |sed 's#:#/submod/mount/#g')
     n="$(mkaufs || exitmsg "mkaufs error" 2)"
 	nn="$(echo "$n" | sed -n 's/^.*\([0-9]\)$/\1/p')"
 	[ -d "$n" ] || exitmsg "error mounting aufs" 3
     bundle=$(addlayer "$nn" "$pfs" || exitmsg "can't insert layer to aufs $n" 5)
-    cat "$SYSMNT/aufs${nn}${PFSDIR}/mount/${m}/pfs.files" | while read F; do 
-	if [ ! -h "$bundle/$F" ];then
-	    touch "$SYSMNT/aufs$nn$F" 2>/dev/null ; cp -a "$bundle/$F" "$SYSMNT/aufs${nn}$F"
-	else  
-	    cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
-	fi
+     
+    cat "${n}${PFSDIR}/mount/${m}/pfs.files" | while read F; do 
+	touch "$n$F" || cp -a "$bundle/$F" "${n}$(dirname "$F")"
     done
-
+       
     emp="$SYSMNT/aufs$nn/${PFSDIR}/mount/$m/pfs.dirs.empty"
     [ -f "$emp" ] && cat "$emp" | while read F; do 
 	F=$(echo $F |sed s':\$::')
@@ -75,22 +69,31 @@ pfsinfo "$pfs" |while read m ;do
 	    touch "$SYSMNT/aufs$nn$F"
 	else
 	    PWD=$(pwd)
-	    cp -a "$bundle/$F" "$SYSMNT/aufs${nn}`dirname "$F"`"
+	    cp -a "$bundle/$F" "${n}$(dirname "$F")"
 	    cd $PWD
 	fi
     done
-
-    mklist "$SYSMNT/changes$nn" "$SYSMNT/aufs$nn" "$m" 
+	cp -a $SYSMNT/aufs$nn${PFSDIR}/mount/${m}/unique/*  "${n}/" 2>/dev/null 
+          
     [ $dir ] || dir=$(basename $pfs |sed "s/\.${EXT}$//")
-	if [ "$d" ] ; then	
-		mkdir -p "$dir/$m" && cp -a "$SYSMNT/changes$nn"/* "$dir/$m" &&
-		rm -R $dir/$m$PFSDIR
-	elif [ "$i" ] ; then
+	if [ "$nopfs" ] ; then
+		moddirname=$(basename $m)
+		#submod names may be equal
+		[ -d  "$dir/$moddirname" ] && moddirname=${moddirname}_$RANDOM 
+		mkdir -p "$dir/${moddirname}" 
+		cp -a "$SYSMNT/changes$nn"/* "$dir/${moddirname}/" &&
+		rm -rf $dir/${moddirname}/$PFSDIR
+	elif [ "$install" ] ; then
+	    mklist "$SYSMNT/changes$nn" "$SYSMNT/aufs$nn" "$(basename $m)" 
 		cp -a "$SYSMNT/changes$nn"/* /
 		mv -f ${PFSDIR}/mount/$m ${PFSDIR}/install/
 		eval echo  "package: $m  install complete" $devnull 
     else
-		mkdir -p "$dir" && mksqmod "$SYSMNT/changes$nn" "$dir/$m.$EXT"
+		touch "$SYSMNT/aufs$nn/${PFSDIR}"
+		cp -fr "$SYSMNT/aufs$nn/${PFSDIR}/mount/$m/submod/mount"  "$SYSMNT/changes$nn/${PFSDIR}/"  2>/dev/null || rm -rf $SYSMNT/changes$nn/${PFSDIR} 
+		modname="$dir/"$(basename $m)".$EXT"
+		[ -f $modname ] && modname="$dir/"$(basename $m)_$RANDOM".$EXT"
+		mkdir -p "$dir" && mksqmod "$SYSMNT/changes$nn" $modname
     fi
     delaufs $nn ; echo ''
 done 
@@ -121,14 +124,14 @@ for arg in $argslist
 do
   case "${arg}" in
     "-o" | "--out-dir") onuserout="on";;
-    "-d" | "--nopfs") d=yes ;;
-    "-i" | "--install") i=yes ;;
+    "-d" | "--nopfs") nopfs=yes ;;
+    "-i" | "--install") install=yes ;;
     "-h" | "--help")  HLP ;;
     "-q" | "--quiet" ) devnull='>/dev/null' ;;
     "-no-progress" | "--no-progress") noprogress="-no-progress";;
     "-processors"  | "--processors" ) numproc="on";;
     "-f" | "--fast"  ) [ "$compression_fast" ] && compression="$compression_fast" || compression="gzip";;
-    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; HLP; exit 1;;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option: '$(echo ${arg})'" >&2; HLP; exit 1;;
     *) if [ "${onuserout}" = "on" ]; then dir="${arg}"
         elif [ "${numproc}" = "on" ]; then useproc="-processors ${arg}"
         else sourcelist="${sourcelist} ${arg}"; fi
@@ -143,7 +146,7 @@ checksfsxzb >/dev/null 2>&1
 exitmsg "Kernel is not support squashfs/aufs" $?
 wh="-regex -e ".wh..wh.""
 
-
+# find module in arg list
 for item in $sourcelist ; do
 	if [ "$(fs_type $item)" == "squashfs" ] ; then
 	pfs=$item
@@ -152,13 +155,34 @@ for item in $sourcelist ; do
 	fi 
 done
 
+
 [ ! $pfs ] &&  [ $i ]  && [ -d $sourcelist ] && installDir
 [ $pfs ] || exitmsg "There is no source pfs module" 2 
-#echo $sourcelist  |grep -q [[:alnum:]] || unset sourcelist
-sourcelist="`echo $sourcelist |tr -d " "`"
-if [ "$(unsquashfs -l ${pfs} |grep ${PFSDIR}/mount |egrep '.files$' |wc -l)" -lt 2 ];then
-	extract_simple
+
+#удаляем $sourcelist если  он существует, но  состоит из одних  пробелов, такое может получиться  после разбора параметров.
+echo $sourcelist  |grep -q [[:alnum:]] || unset sourcelist 
+
+pfsInfo=$(pfsinfo $pfs)
+if ! [ "$sourcelist" ] ; then
+	if  [ $nopfs ] ; then
+		for a in $pfsInfo ; do 
+			[ $(echo $pfsInfo |sed 's/ /\n/g' | grep ^${a}  | wc -l) -eq 1 ]  && sourcelist="$sourcelist $a"
+		done
+    else
+		for a in $pfsInfo ; do
+			echo $a |grep -qv ":"  && sourcelist="$sourcelist $a"
+		done 
+	fi
 else
-	extract_contaner
+	checked=""
+	for m in $pfsInfo ;do
+		echo " $sourcelist " |grep -q   "[[:space:]]$m[[:space:]]" && checked="$checked $m"
+	done
+	sourcelist="$checked"
 fi
 
+if [ "$(unsquashfs -l ${pfs} |grep ${PFSDIR}/mount |egrep '.files$' |wc -l)" -lt 2 ];then
+	extract_simple
+else	
+	extract_contaner
+fi

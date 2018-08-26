@@ -1,8 +1,9 @@
 #!/bin/sh
 #Find file in root aufs
-#VERSION 3.6
+#VERSION 4.0
 . $(which pfs)
 
+TMPFS=tmpfs
 usage () {
 	echo -e "$(basename $0) util, find file (\$1) in modules mounted to root aufs  and in $changesDir\n" 
 	echo "Usage:" 
@@ -28,7 +29,7 @@ listing (){
 [ -d $p ] || exit 0
 f="$(basename "$1")"
 list1=$(aufs-n --raw '$bundle' |sed 1d |while read bdl ; do   find "$bdl"  \( -type f -o -type l \) -name "$f" |sed 's#^'$(dirname $bdl)/'## ; s/'$f'$//' ; done)
-list2=$(find "$changesDir" \( -type f -o -type l \) -name "$f" |sed 's#^'$changesDir'#tmpfs/# ; s/'$f'$//')
+list2=$(find "$changesDir" \( -type f -o -type l \) -name "$f" |sed 's#^'$changesDir'#$TMPFS/# ; s/'$f'$//')
 list="$list1 $list2"
 aufs-n --raw '$n $bundle $dname_source $bname_source' | while read a; do
 	for b in $list ; do
@@ -39,13 +40,16 @@ aufs-n --raw '$n $bundle $dname_source $bname_source' | while read a; do
 			path="$(echo $b | sed "s:"$(echo $a |awk '{print $NF}')"::")"
 			modPFSDIR=$bundle${PFSDIR}
 			if [ -d $modPFSDIR ] ; then
-				submodule=$(find  ${modPFSDIR}  -mindepth 3 -maxdepth 3 -type f -name 'pfs.files' | while read listfiles; do  
-				cat "${listfiles}" | sed "s:^:"$(basename $(dirname $listfiles))" :"  
-				done | grep ${path}${findname}$ | cut -f1 -d' ' |sort |uniq |tr '\n' ';' |sed 's/;$//' )
+				submodule=$(find $modPFSDIR   -mindepth 3  -type f -name 'pfs.files' | while read listfiles; do   
+				cat "${listfiles}" | sed "s:^:$( dirname $(echo $listfiles |sed -e "s:${SYSMNT}.*${PFSDIR}/mount/::" -e 's:/submod/mount::g')) :"
+				done | grep ${path}${findname}$ | cut -f1 -d' ' |sort |uniq |tr '\n' ' ' )
+				for a in $submodule ; do  
+						[ $(echo $submodule |sed 's/ /\n/g' | grep ^${a}  | wc -l) -eq 1 ]  && listing="$a $listing"
+				done 
+				submodule=$(echo $listing |sed 's/ /;/g')
 			else
-				submodule="is_not_pfs"
+				submodule="is_not_contaner"
 			fi
-			
 			if [ $human ] ; then 			
 				printf %3s "$n "
 				printf %-50s "$module" 

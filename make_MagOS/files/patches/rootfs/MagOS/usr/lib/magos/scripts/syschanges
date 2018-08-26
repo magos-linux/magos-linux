@@ -9,11 +9,12 @@ start=no
 finish=no
 filter="/var/log /var/spool /run /root /boot /proc /memory"
 md5=enable
+changes=$(aufs-n --raw '$bundle' |head -n1)
 
 
 dir=$(date +$(basename $0)_%H%M%S)
 mkdir -p ./$dir/ctlpoint # копия changes до изменений, только "простые" (regular) файлы  
-if [ -d /memory/changes/$(pwd)/$dir/ctlpoint ] ; then
+if [ -d $changes/$(pwd)/$dir/ctlpoint ] ; then
   echo "###########################################################################################################"
   echo "Выберите каталог изменения в котором не пишутся в /memory/changes"
   echo "Для чистого режима это может быть /tmp, или любой смонтированный носитель"
@@ -34,7 +35,7 @@ mkdir -p ./$dir/changed # только измененные "простые" ф�
 
 ctl_point () {
 	[ $start != "yes" ] && echo "		Создается контрольная точка, ожидайте."
-	for file in $(find /memory/changes/) ; do 
+	for file in $(find $changes/) ; do 
 		if [ -f $file -o -d $file -o -L $file ]; then 
 		echo $file >> ./$dir/ctlpoint.list
 		else
@@ -43,20 +44,20 @@ ctl_point () {
 	done
 	[ $start != "yes" ] && echo "		Списки готовы. Копируем файлы..."
 	for file in $(cat  ./$dir/ctlpoint.list) ; do
-		mkdir -p ./$dir/ctlpoint/$(dirname $file |sed 's:/memory/changes/::')
-		cp -fr $file ./$dir/ctlpoint/$(dirname $file |sed 's:/memory/changes/::')/
+		mkdir -p ./$dir/ctlpoint/$(dirname $file |sed "s:$changes::")
+		cp -fr $file ./$dir/ctlpoint/$(dirname $file |sed "s:$changes::")/
 	done
 	
 }
 
 get_new () {
 	[ $finish != "yes" ] && echo "		Обработка каталога \"new\"."
-	for file in $(find /memory/changes/) ; do 
+	for file in $(find $changes/) ; do 
 		if [ -f $file -o -d $file -o -L $file ]; then 
-			if ! cat ./$dir/ctlpoint.list | grep -q $(echo $file |sed 's:^/memory/changes/:/:') ; then
+			if ! cat ./$dir/ctlpoint.list | grep -q $(echo $file |sed "s:^${changes}/:/:") ; then
 				test="ok"
 				for int in $filter ;do
-				if echo $file |sed 's:^/memory/changes::' |grep -q ^"$int" ; then
+				if echo $file |sed "s:^${changes}/:/:" |grep -q ^"$int" ; then
 				  test=file_in_filter
 				  echo $file >> ./$dir/filtered.list
 				  break
@@ -65,35 +66,35 @@ get_new () {
 				[ $test == "ok" ] && echo $file >> ./$dir/new.list
 			fi
 		else
-			if ! cat ./$dir/ctlpoint.noreg | grep -q $(echo $file |sed 's:/memory/changes/:/:') ; then
+			if ! cat ./$dir/ctlpoint.noreg | grep -q $(echo $file |sed "s:^${changes}/:/:") ; then
 				echo $file >> ./$dir/new.noreg
 			fi
 		fi
 	done
 	[ $finish != "yes" ] && echo "		Списки готовы. Копируем файлы..."
 	for file in $(cat  ./$dir/new.list) ; do
-		mkdir -p ./$dir/new/$(dirname $file |sed 's:/memory/changes/::')
-		cp -fr $file ./$dir/new/$(dirname $file |sed 's:/memory/changes/::')/
+		mkdir -p ./$dir/new/$(dirname $file |sed "s:^${changes}::")
+		cp -fr $file ./$dir/new/$(dirname $file |sed "s:^${changes}::")/
 	done
 }
 
 get_changed () {
 	[ $finish != "yes" ] && echo "		Обработка каталога \"changed\"."
-	for file in $(find /memory/changes/ -cnewer ./$dir/ctlpoint.list ) ; do 
+	for file in $(find $changes -cnewer ./$dir/ctlpoint.list ) ; do 
 		if [ -f $file ]; then 
 			new_md5=new_md5
 			old_md5=old_md5
-			if cat ./$dir/ctlpoint.list | grep -q $(echo $file |sed 's:/memory/changes/::') ; then
+			if cat ./$dir/ctlpoint.list | grep -q $(echo $file |sed "s:^${changes}/::") ; then
 				[ $md5 == "enable" ] && new_md5=$(md5sum $file |awk '{print $1}')
-				[ $md5 == "enable" ] && old_md5=$(md5sum ./$dir/ctlpoint/$(echo $file |sed 's:/memory/changes/:/:') |awk '{print $1}')
+				[ $md5 == "enable" ] && old_md5=$(md5sum ./$dir/ctlpoint/$(echo $file |sed "s:^${changes}/:/:") |awk '{print $1}')
 				[ "$new_md5" != "$old_md5" ] && echo $file >> ./$dir/changed.list
 			fi
 		fi
 	done
 	[ $finish != "yes" ] && echo "		Списки готовы. Копируем файлы..."
 	for file in $(cat  ./$dir/changed.list) ; do
-		mkdir -p ./$dir/changed/$(dirname $file |sed 's:/memory/changes/::')
-		cp -fr $file ./$dir/changed/$(dirname $file |sed 's:/memory/changes/::')/
+		mkdir -p ./$dir/changed/$(dirname $file |sed "s:^${changes}::")
+		cp -fr $file ./$dir/changed/$(dirname $file |sed "s:^${changes}::")/
 	done
 }
 
