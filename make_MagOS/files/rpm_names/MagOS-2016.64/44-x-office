@@ -27,7 +27,7 @@ lib64mspub0.1_1-
 lib64mwaw0.3_3-
 lib64mythes1.2_0-
 lib64odfgen0.1_1-
-lib64orcus-parser0.12_0-
+lib64orcus-parser0.13_0-
 lib64textcat0-
 lib64xneur20-
 lib64xnconfig20-
@@ -60,7 +60,7 @@ libserializer-
 xml-commons-apis-
 lib64exttextcat2.0_0-
 lib64wps0.4_4-
-lib64orcus0.12_0-
+lib64orcus0.13_0-
 lib64staroffice0.0_0-
 lib64gltf0.1_1-
 lib64zmf0.0_0-
@@ -186,3 +186,6 @@ hplip-compat-libs-
 lib64hpipp0-
 python3-reportlab-
 lib64hpdiscovery0-
+lib64boost_locale1.61.0-
+lib64qxp0.0_0-
+lib64epubgen0.1_1-

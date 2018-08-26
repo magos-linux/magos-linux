@@ -75,6 +75,7 @@ lib64boost_chrono1.61.0-
 lib64boost_filesystem1.61.0-
 lib64boost_serialization1.61.0-
 lib64boost_system1.61.0-
+lib64boost_thread1.61.0-
 lib64bsd0-
 lib64cairo2-
 lib64cairomm1.0_1-
@@ -239,7 +240,7 @@ lib64poppler66-
 lib64portaudio2-
 lib64pulseaudio0-
 lib64pulsecommon10.0-
-lib64pulsecommon11.1-
+lib64pulsecommon12.2-
 lib64pulseglib20-
 lib64pyglib2.0_0-
 lib64quadmath0-
@@ -509,6 +510,7 @@ gstreamer0.10-tools-
 gstreamer0.10-python-
 rosa-icons-
 gnome-icon-theme-
+gnome-icon-theme-symbolic-
 tkinter-
 cabextract-
 python3-sip-
