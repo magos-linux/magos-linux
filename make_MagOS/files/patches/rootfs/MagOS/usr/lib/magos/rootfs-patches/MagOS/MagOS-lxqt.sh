@@ -6,6 +6,7 @@ ln -sf /usr/share/magos/wallpapers/default.jpg /usr/share/wallpapers/default.jpg
 #LXDE wallpaper
 PFP=/etc/xdg/pcmanfm-qt/lxqt/settings.conf
 [ -f $PFP ] && sed -i s%wallpaper=.*%wallpaper=/usr/share/magos/wallpapers/default.jpg% $PFP
+
 PFP=/usr/share/xsessions/lxqt.desktop
 [ -f $PFP ] && sed -i s%Name=.*%Name=LXQT% $PFP
 PFP=/usr/share/kdm/sessions/lxqt.desktop
@@ -38,6 +39,8 @@ if [ -f $PFP ] ;then
 fi
 
 PFP=/etc/xdg/openbox/rc.xml
+[ -f $PFP ] && sed -i 's|<number>.</number>|<number>4</number>|' $PFP
+PFP=/etc/xdg/openbox/lxqt-rc.xml
 [ -f $PFP ] && sed -i 's|<number>.</number>|<number>4</number>|' $PFP
 
 PFP=/etc/X11/wmsession.d/04LXQT

@@ -3,13 +3,24 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
-WIKIPLACE="../../magos-linux.wiki"
+MTMP=/tmp/makemagos.tmp
+mkdir -p $MTMP
 
-[ -x $WIKIPLACE/md2html.sh ] || exit 0
+git clone https://github.com/magos-linux/magos-linux.wiki.git $MTMP/wiki
 
-bash $WIKIPLACE/md2html.sh
+if [ -x $MTMP/wiki/md2html.sh ] ;then
+  bash $MTMP/wiki/md2html.sh
+  if [ -f $MTMP/wiki/index.html ] ;then
+    cp -f $MTMP/wiki/index.html files/patches/flash/readme.html
+    mv -f $MTMP/wiki/index.html files/patches/rootfs/MagOS/usr/share/magos/doc/magos-wiki.html
+  fi
+fi
 
-[ -f $WIKIPLACE/index.html ] || exit 1
+[ -x files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks ] && wget -O $MTMP/protontricks https://raw.githubusercontent.com/Sirmentio/protontricks/master/protontricks
+[ -x files/patches/rootfs/MagOS/usr/lib/magos/scripts/winetricks   ] && wget -O $MTMP/winetricks   https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+chmod +x $MTMP/*tricks 2>/dev/null
+[ -x $MTMP/protontricks ] && sed -i s%/usr/bin/winetricks%/usr/lib/magos/scripts/winetricks%g $MTMP/protontricks
+[ -x $MTMP/protontricks ] && mv -f $MTMP/protontricks files/patches/rootfs/MagOS/usr/lib/magos/scripts
+[ -x $MTMP/winetricks   ] && mv -f $MTMP/winetricks   files/patches/rootfs/MagOS/usr/lib/magos/scripts
 
-cp -f $WIKIPLACE/index.html files/patches/flash/readme.html
-mv -f $WIKIPLACE/index.html files/patches/rootfs/MagOS/usr/share/magos/doc/magos-wiki.html
+rm -fr $MTMP

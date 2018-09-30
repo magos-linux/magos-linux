@@ -65,12 +65,9 @@ if [ "$(uname -i)" = "x86_64" -a ! -f "$GL32LIB" ] ;then
   fi
 fi
 
-# Checking for bumblebeed.service
-if ps -A | grep -q bumblebeed ;then
-   [ -x /usr/bin/primusrun ] && PRRUN=primusrun
-else
-   PRRUN=
-fi
+PRRUN=
+# Checking for bumblebeed.service is exists and works
+[ -x /usr/bin/primusrun ] && primusrun glxinfo -h >/dev/null 2>&1 && PRRUN=primusrun
 
 # Start steam
 exec $PRRUN /usr/bin/steam $@

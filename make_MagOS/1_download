@@ -68,6 +68,12 @@ for a in `gawk '{print $2}' files/media/media_list-$STATUS-$VERREL-$ARCH` ;do
 done
 echo
 
+if [ -d upload ] ;then
+  ls -1 upload >> $TMPDIR/media/magos
+  sort -u $TMPDIR/media/magos > $TMPDIR/media/magos.sorted
+  mv -f $TMPDIR/media/magos.sorted $TMPDIR/media/magos
+fi
+
 # создаём список уже загруженных пакетов
 ls -1 cache/$FLASHNAME-$VERREL/rpmstore | grep [.]rpm$ > $TMPDIR/re/local_rpms.txt
 

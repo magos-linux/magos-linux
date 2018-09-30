@@ -14,8 +14,6 @@
     <Menuname inline="false">Sciences</Menuname>
     <Menuname inline="false">Documentation</Menuname>
     <Menuname inline="false">SystemSettings</Menuname>
-    <Menuname show_empty="false">X-Leave</Menuname>
-    <Menuname show_empty="false" inline="true">Screensaver</Menuname>
     <Merge type="menus"/>
     <Merge type="files"/>
     <Separator/>
@@ -691,27 +689,5 @@
     </Include>
   </Menu>
 
-  <Menu>
-    <Name>X-Leave</Name>
-    <Directory>lxqt-leave.directory</Directory>
-    <Include>
-       <And>
-          <Category>X-Leave</Category>
-       </And>
-    </Include>
-  </Menu>
-  <Menu>
-    <Name>Screensaver</Name>
-    <Include>
-        <Filename>lxqt-lockscreen.desktop</Filename>
-    </Include>
-  </Menu>
-  <Menu>
-    <Name>.hidden</Name>
-    <Directory>magos-hidden.directory</Directory>
-    <Include>
-      <Category>X-MandrivaLinux-.hidden</Category>
-    </Include>
-  </Menu>
   <MergeFile>applications-kmenuedit.menu</MergeFile>
 </Menu>
