@@ -35,21 +35,22 @@ if  echo $argslist |grep -q "\-*urpmi .*" ; then
     argslist="$(echo $@ |sed 's/\-*urpmi.*$//')"
 fi
 
-if $(file $1 |grep -q quashfs  2>/dev/null); then
+if $(file $1 2>/dev/null |grep -q quashfs    ); then
 	echo "rebuilding ${1}..."
 	filter="??*"
+	buildDir=./$$-tmp
 	[ $2 ] && filter="$2"
-	unsquashfs -d ./tmp  $1 -e /var/lib/urpm2pfs/*
-	mv ./tmp/var/lib/urpm2pfs/* ./tmp
-	rm -fr ./tmp/var
-	cd ./tmp
+	unsquashfs -d $buildDir  $1 -e /var/lib/urpm2pfs/*
+	mv $buildDir/var/lib/urpm2pfs/* $buildDir
+	rm -fr $buildDir/var
+	cd $buildDir
 	for mod in $(find ./  -type d -name "$filter") ; do 
-		module=$(urpm2pfs $(echo $(cat ${mod}/cmdline)) | tail -n1 )
+		module=$($0 $(echo $(cat ${mod}/cmdline)) | tail -n1 )
 		[ -f ../$(basename $module) ] && mv ../$(basename $module) ../$(basename $module).old
 		mv $module ../
 	done
 	cd ..
-	rm -rf ./tmp
+	rm -rf $buildDir
 	exit 
 fi
 
