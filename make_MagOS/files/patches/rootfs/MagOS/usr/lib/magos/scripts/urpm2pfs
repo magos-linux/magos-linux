@@ -28,10 +28,29 @@ urpmidb="no"
 erase="no"
 argslist="$@"
 result="-1"
+rebuidable="no"
 
 if  echo $argslist |grep -q "\-*urpmi .*" ; then
     urpmipars="$(echo $@ |sed 's/^.*\-*urpmi//')"
     argslist="$(echo $@ |sed 's/\-*urpmi.*$//')"
+fi
+
+if $(file $1 |grep -q quashfs  2>/dev/null); then
+	echo "rebuilding ${1}..."
+	filter="??*"
+	[ $2 ] && filter="$2"
+	unsquashfs -d ./tmp  $1 -e /var/lib/urpm2pfs/*
+	mv ./tmp/var/lib/urpm2pfs/* ./tmp
+	rm -fr ./tmp/var
+	cd ./tmp
+	for mod in $(find ./  -type d -name "$filter") ; do 
+		module=$(urpm2pfs $(echo $(cat ${mod}/cmdline)) | tail -n1 )
+		[ -f ../$(basename $module) ] && mv ../$(basename $module) ../$(basename $module).old
+		mv $module ../
+	done
+	cd ..
+	rm -rf ./tmp
+	exit 
 fi
 
 for arg in $argslist
@@ -44,6 +63,7 @@ do
     "-r" | "--rpmdb") rpmdb="yes" ;;
     "-u" | "--urpmidb") urpmidb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
+    "--rebuildable" ) rebuidable="yes" ;;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" = "yes" ]; then NAME="${arg}"
         elif [ "${mask}" = "yes" ]; then MASK="${arg}"
@@ -51,8 +71,6 @@ do
         name="no";  mask="no";;
   esac
 done
-
-
 
 if [ "$MASK" == "clean" ] ; then
 	for a in $(ls  /var/lib/rpm/modules |grep  -v "^81-int-");do 
@@ -91,6 +109,7 @@ export PATH=/usr/lib/magos/scripts:$PATH
 
 uird=yes                    
 . /etc/initvars || uird=no  
+. `which pfs`
 
 mod_br=/mnt/live/memory/tmp/wiz_fly_mods                  #
 [ "$uird" != "no" ] &&  mod_br=$SYSMNT/tmp/wiz_fly_mods   #
@@ -154,6 +173,18 @@ fi
 umount_all
 [ "$rpmdb" == "no" ] &&  rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/{tmp,dev,proc,sys}
+
+mkdir -p $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")
+
+#rebuildable
+if [ "$rebuidable" == "yes" ] ; then
+	for a in $@ ; do [ -f $a ] && basename $a || echo $a ; done 	> $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/cmdline
+		for a in $@ ; do
+			[ -f $a ] && cp $a  $mod_br/var/lib/urpm2pfs/
+		done
+	else
+	echo $@ > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/cmdline
+fi
 
 if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
   mkpfs $mod_br -o ${NAME} && MODULE="$(readlink -e ${NAME})" && create=OK 
