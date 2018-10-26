@@ -53,17 +53,20 @@ fi
 
 if $(file $1 2>/dev/null |grep -q quashfs    ); then
 	echo "rebuilding ${1}..."
+	u2pfs_current=$(realpath $0)
 	[ $2 ] && filter="$2"
 	unsquashfs -d $buildDir  $1 -e /var/lib/urpm2pfs/*
 	mv $buildDir/var/lib/urpm2pfs/* $buildDir
 	rm -fr $buildDir/var
 	CPWD=$(pwd)
 	cd $buildDir
-	for mod in $(find ./  -type d -name "$filter") ; do 
-		$0 $(echo $(cat ${mod}/cmdline)) | tee ./urpm2pfs.out
+	for mod in $(find ./  -type d -name "$filter") ; do
+		cd $mod
+		$u2pfs_current  $(echo $(cat ./cmdline)) | tee ./urpm2pfs.out
 		module=$(cat ./urpm2pfs.out | tail -n1)
 		[ -f $CPWD/$(basename $module) ] && mv $CPWD/$(basename $module) $CPWD/$(basename $module).old
 		mv $module $CPWD
+		cd ..
 	done
 	cd $CPWD
 	rm -rf $buildDir
@@ -81,7 +84,7 @@ do
     "-u" | "--urpmidb") urpmidb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
     "-f" | "--fast") fast_alg="-f" ;;
-    "--rebuildable" ) rebuidable="yes" ;;
+    "-b"  | "--rebuildable" ) rebuildable="yes" ;;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" = "yes" ]; then NAME="${arg}"
         elif [ "${mask}" = "yes" ]; then MASK="${arg}"
@@ -183,10 +186,10 @@ date > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/date
 cat $SYSMNT/layer-base/0/VERSION > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/MagOS
 
 #rebuildable
-if [ "$rebuidable" == "yes" ] ; then
+if [ "$rebuildable" == "yes" ] ; then
 	for a in $@ ; do [ -f $a ] && basename $a || echo $a ; done 	> $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/cmdline
 		for a in $@ ; do
-			[ -f $a ] && cp $a  $mod_br/var/lib/urpm2pfs/
+			[ -f $a ] && cp $a  $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/
 		done
 	else
 	echo $@ > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/cmdline
