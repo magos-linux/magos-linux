@@ -7,8 +7,8 @@
 # Author : Alexandr Betkher <http://magos-linux.ru>
 
 HLP () {
-echo "Usage: $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --urpmi <keys for urpmi>"
-echo "      $(basename $0) module.xzm - rebuil module"
+echo "Usage:  $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --urpmi <keys for urpmi>"
+echo "             $(basename $0) module.xzm - rebuild module"
 echo "$(basename $0) keys:"
 echo "-h | --help - this help"
 echo "-l | --load - mount the module after creation"
@@ -147,15 +147,14 @@ mkdir -p $mount_br $root_br
 for a in $(aufs-n --raw '$bname_source' | sed 1d | egrep $MASK); do
       mount_br="$mount_br:${mod_path}/${a}=rr"
 done
-
 mount -t aufs -o br:$mount_br wiz_fly $root_br || exit 2
 mkdir -p $root_br/{dev,proc,sys,/etc/urpmi}
-
 for tm in {dev,proc,sys,/etc/urpmi}; do
     mount -o bind /$tm $root_br/$tm
 done
-
 mkdir -p $root_br/tmp
+
+rpm -qa -r $root_br > $SYSMNT/tmp/rpm_qa_before
 
 if [ "$erase" == "no" ] ; then
   for pack in $packages ; do
@@ -177,13 +176,18 @@ else
   action=erase
 fi
 
+rpm -qa -r $root_br > $SYSMNT/tmp/rpm_qa_end
+
 umount_all
 [ "$rpmdb" == "no" ] &&  rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/{tmp,dev,proc,sys}
 
 mkdir -p $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")
+mkdir -p $mod_br/var/lib/rpm/modules/
 date > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/date
 cat $SYSMNT/layer-base/0/VERSION > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/MagOS
+cat $SYSMNT/tmp/rpm_qa_* |sort |uniq -u > $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+rm $SYSMNT/tmp/rpm_qa_*
 
 #rebuildable
 if [ "$rebuildable" == "yes" ] ; then
