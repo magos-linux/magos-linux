@@ -20,15 +20,15 @@ M(){
 save_duplicates() {
 	echo "save_duplicates enabled"
 	for i in $bundles ; do
-    uniqfiles=$(diff -rq $i $n |grep -v "[[:alnum:]]: [[:alnum:]]" | sed "s#^.*$i##" |cut -d" " -f1)
+    #uniqfiles=$(diff -rq $i $n |grep -v "[[:alnum:]]: [[:alnum:]]" | sed "s#^.*$i##" |cut -d" " -f1)
+    uniqfiles=$(LC_MESSAGES=en diff --no-dereference -rq  $i $n |grep "Files.*differ" | sed "s#^.*$i##" |cut -d" " -f1)
 	if [[ -n "$uniqfiles" ]] ; then
 		dpath=$(pwd)
 		dest_dir="$(realpath "$n")${PFSDIR}/mount/$(basename "${i%.$EXT}")/"
 		mkdir -p ${dest_dir}/unique
 		for file in $uniqfiles ; do 
-			echo "$file -- saved as unique for $(basename $i) submodule"
 			cd ${i}
-			cp -fr  --parents ".$file" ${dest_dir}/unique/ 
+			cp -fr  --parents ".$file" ${dest_dir}/unique/ && echo "$file -- saved as unique for $(basename $i) submodule" 
 		done
 		cd $dpath
 	fi

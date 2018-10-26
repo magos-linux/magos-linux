@@ -125,7 +125,7 @@ do
   case "${arg}" in
     "-o" | "--out-dir") onuserout="on";;
     "-d" | "--nopfs") nopfs=yes ;;
-    "-i" | "--install") install=yes ;;
+    "-i" | "--install") i=yes ;;
     "-h" | "--help")  HLP ;;
     "-q" | "--quiet" ) devnull='>/dev/null' ;;
     "-no-progress" | "--no-progress") noprogress="-no-progress";;
