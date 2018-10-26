@@ -7,7 +7,8 @@
 # Author : Alexandr Betkher <http://magos-linux.ru>
 
 HLP () {
-echo "Usage: $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --urpmi <keys for urpmi>"   
+echo "Usage: $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --urpmi <keys for urpmi>"
+echo "      $(basename $0) module.xzm - rebuil module"
 echo "$(basename $0) keys:"
 echo "-h | --help - this help"
 echo "-l | --load - mount the module after creation"
@@ -17,9 +18,17 @@ echo "--mask clean - special mask value "clean" to choose base magos modules onl
 echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
 echo "-u | --urpmidb - save /var/lib/urpmi/* in module "
 echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme packages"
+echo "--rebuildable - save in module local rpms, it need to rebuild module"
+echo "-f | --fast - fast compression alg"
 exit 
 }
 
+export PATH=/usr/lib/magos/scripts:$PATH
+. /usr/lib/magos/functions             
+. /etc/initvars
+. `which pfs`
+
+fast_alg=""
 MASK="."
 urpmipars=""
 packages=""
@@ -30,6 +39,13 @@ argslist="$@"
 result="-1"
 rebuidable="no"
 
+mod_br=$SYSMNT/tmp/wiz_fly_mods   
+root_br=$SYSMNT/tmp/wiz_fly_rootfs 
+mod_path=$SYSMNT/bundles           
+
+filter="??*"
+buildDir=$SYSMNT/tmp/$$-tmp
+
 if  echo $argslist |grep -q "\-*urpmi .*" ; then
     urpmipars="$(echo $@ |sed 's/^.*\-*urpmi//')"
     argslist="$(echo $@ |sed 's/\-*urpmi.*$//')"
@@ -37,19 +53,19 @@ fi
 
 if $(file $1 2>/dev/null |grep -q quashfs    ); then
 	echo "rebuilding ${1}..."
-	filter="??*"
-	buildDir=./$$-tmp
 	[ $2 ] && filter="$2"
 	unsquashfs -d $buildDir  $1 -e /var/lib/urpm2pfs/*
 	mv $buildDir/var/lib/urpm2pfs/* $buildDir
 	rm -fr $buildDir/var
+	CPWD=$(pwd)
 	cd $buildDir
 	for mod in $(find ./  -type d -name "$filter") ; do 
-		module=$($0 $(echo $(cat ${mod}/cmdline)) | tail -n1 )
-		[ -f ../$(basename $module) ] && mv ../$(basename $module) ../$(basename $module).old
-		mv $module ../
+		$0 $(echo $(cat ${mod}/cmdline)) | tee ./urpm2pfs.out
+		module=$(cat ./urpm2pfs.out | tail -n1)
+		[ -f $CPWD/$(basename $module) ] && mv $CPWD/$(basename $module) $CPWD/$(basename $module).old
+		mv $module $CPWD
 	done
-	cd ..
+	cd $CPWD
 	rm -rf $buildDir
 	exit 
 fi
@@ -64,6 +80,7 @@ do
     "-r" | "--rpmdb") rpmdb="yes" ;;
     "-u" | "--urpmidb") urpmidb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
+    "-f" | "--fast") fast_alg="-f" ;;
     "--rebuildable" ) rebuidable="yes" ;;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" = "yes" ]; then NAME="${arg}"
@@ -104,20 +121,6 @@ else
   NAME=$(echo $packages |awk '{print $1}').xzm
   erase_NAME=erase_${NAME}
 fi
-
-export PATH=/usr/lib/magos/scripts:$PATH
-. /usr/lib/magos/functions
-
-uird=yes                    
-. /etc/initvars || uird=no  
-. `which pfs`
-
-mod_br=/mnt/live/memory/tmp/wiz_fly_mods                  #
-[ "$uird" != "no" ] &&  mod_br=$SYSMNT/tmp/wiz_fly_mods   #
-root_br=/mnt/live/memory/tmp/wiz_fly_rootfs               #
-[ "$uird" != "no" ] && root_br=$SYSMNT/tmp/wiz_fly_rootfs #
-mod_path=/mnt/live/memory/images                          #
-[ "$uird" != "no" ] && mod_path=$SYSMNT/bundles           #
 
 function umount_all () {
 for tm in {etc/urpmi,sys,proc,dev}; do
@@ -176,6 +179,8 @@ umount_all
 rm -rf $mod_br/{tmp,dev,proc,sys}
 
 mkdir -p $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")
+date > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/date
+cat $SYSMNT/layer-base/0/VERSION > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/MagOS
 
 #rebuildable
 if [ "$rebuidable" == "yes" ] ; then
@@ -188,7 +193,7 @@ if [ "$rebuidable" == "yes" ] ; then
 fi
 
 if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
-  mkpfs $mod_br -o ${NAME} && MODULE="$(readlink -e ${NAME})" && create=OK 
+  mkpfs $mod_br $fast_alg -o ${NAME} && MODULE="$(readlink -e ${NAME})" && create=OK 
 elif [ "$result"  -eq 0 ] ; then
   mkpfs -l $mod_br -o ${erase_NAME} && MODULE="$(readlink -e ${erase_NAME})" && create=OK 
 else
@@ -199,7 +204,7 @@ else
     echo "do you want to create the module, despite this? [Y/N]"
     read aaa ; [ $aaa ] || aaa=no
     if [ $aaa == "Y" -o $aaa == "y" ] ; then 
-      mkpfs $mod_br -o ${NAME} && MODULE="$(readlink -e ${NAME})"  &&  create=OK
+      mkpfs $mod_br  $fast_alg  -o ${NAME} && MODULE="$(readlink -e ${NAME})"  &&  create=OK
     fi
 fi
 
