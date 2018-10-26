@@ -7,16 +7,97 @@
 # Proton prefixes
 # Script by Sirmentio, Copyright 2018, Licensed under the GPLv3!
 
+import binascii
+import glob
 import os
-import sys
-import subprocess
 import re
-
+import string
+import struct
+import subprocess
+import sys
 
 COMMON_STEAM_DIRS = [
     os.path.join(os.environ.get("HOME"), ".steam", "steam"),
     os.path.join(os.environ.get("HOME"), ".local", "share", "Steam")
 ]
+
+
+class SteamApp(object):
+    """
+    SteamApp represents an installed Steam app
+    """
+    __slots__ = ("appid", "name", "prefix_path", "install_path")
+
+    def __init__(self, appid, name, prefix_path, install_path):
+        """
+        :appid: App's appid
+        :name: The app's human-readable name
+        :prefix_path: Absolute path to where the app's Wine prefix *might*
+                      exist.
+        :app_path: Absolute path to app's installation directory
+        """
+        self.appid = int(appid)
+        self.name = name
+        self.prefix_path = prefix_path
+        self.install_path = install_path
+
+    @property
+    def prefix_path_exists(self):
+        """
+        Returns True if the app has a Wine prefix directory
+        """
+        return os.path.exists(self.prefix_path)
+
+    def name_contains(self, s):
+        """
+        Returns True if the name contains the given substring.
+        Both strings are normalized for easier searching before comparison.
+        """
+        def normalize_str(s):
+            """
+            Normalize the string to make it easier for human to
+            perform a search by removing all symbols
+            except ASCII digits and letters and turning it into lowercase
+            """
+            printable = set(string.printable) - set(string.punctuation)
+            s = "".join([c for c in s if c in printable])
+            s = s.lower()
+            s = s.replace(" ", "")
+            return s
+
+        return normalize_str(s) in normalize_str(self.name)
+
+    @property
+    def is_proton(self):
+        """
+        Return True if this app is a Proton installation
+        """
+        # If the installation directory contains a file named "proton",
+        # it's a Proton installation
+        return os.path.exists(os.path.join(self.install_path, "proton"))
+
+    @classmethod
+    def from_appmanifest(cls, path):
+        """
+        Parse appmanifest_X.acf file containing Steam app installation metadata
+        and return a SteamApp object
+        """
+        with open(path, "r") as f:
+            content = f.read()
+
+        appid = int(re.search(r'(\t"appid"\s+")([0-9]+)', content).group(2))
+        name = re.search(r'(\t"name"\s+")([\w\W]+?)"\n', content).group(2)
+        prefix_path = os.path.join(
+            os.path.split(path)[0], "compatdata", str(appid), "pfx")
+
+        install_name = re.search(
+            r'(\t"name"\s+")([\w\W]+?)"\n', content).group(2)
+        install_path = os.path.join(
+            os.path.split(path)[0], "common", install_name)
+
+        return cls(
+            appid=appid, name=name, prefix_path=prefix_path,
+            install_path=install_path)
 
 
 def find_steam_dir():
@@ -38,21 +119,55 @@ def find_steam_dir():
     return None
 
 
-def get_proton_version(steam_dir):
-    dirs = os.listdir(steam_dir + "/common")
-
-    for dir in dirs:
-        if "Proton" in dir:
-            match = re.match("Proton (\d*\.?\d+)", dir)
-            if match:
-                return match.group(1)
-    return None
-
-
-def get_game_prefix_dir(steam_dir, game_id):
+def find_current_proton_app(steam_dir, steam_apps):
     """
-    Try to find the game's Wine prefix directory in one of the Steam library
-    folders
+    Get the current Proton installation used by Steam
+    and return a SteamApp object
+    """
+    config_vdf_path = os.path.join(steam_dir, "config", "config.vdf")
+
+    with open(config_vdf_path, "r") as f:
+        content = f.read()
+
+    # Search config.vdf for a line containing the current Proton installation:
+    # "name"     "proton_37_beta"
+    # There's also a package on PyPi to parse the actual VDF, but this should
+    # work good enough and keep the script self-contained
+    pattern = re.compile(r'(\t\t\t\t\t\t"name"\s+")(proton\w+)')
+
+    match = pattern.search(content)
+
+    if not match:
+        return None
+
+    match = match.group(2)
+
+    # Find the corresponding App ID from <steam_dir>/appcache/appinfo.vdf
+    appinfo_path = os.path.join(steam_dir, "appcache", "appinfo.vdf")
+
+    with open(appinfo_path, "rb") as f:
+        appinfo = str(binascii.hexlify(f.read()), "utf-8")
+
+    # In ASCII, the substring we're looking for looks like this
+    # proton_316_beta..appid.
+    appid_regex = "({name_ascii}0002617070696400)([a-z0-9]{{8}})".format(
+        name_ascii=str(binascii.hexlify(bytes(match, "utf-8")), "utf-8")
+    )
+    # The second group contains the App ID as a 32-bit integer in little-endian
+    proton_appid = re.search(appid_regex, appinfo).group(2)
+    proton_appid = struct.unpack("<I", binascii.unhexlify(proton_appid))[0]
+
+    # We've now got the appid. Return the corresponding SteamApp
+    try:
+        return next(app for app in steam_apps if app.appid == proton_appid)
+    except StopIteration:
+        return None
+
+
+def get_steam_lib_dirs(steam_dir):
+    """
+    Return a list of any Steam directories including any user-added
+    Steam library folders
     """
     def parse_library_folders(data):
         """
@@ -101,23 +216,37 @@ def get_game_prefix_dir(steam_dir, game_id):
         # are set?
         library_folders = []
 
-    paths = [steam_dir] + library_folders
+    return [steam_dir] + library_folders
 
-    for path in paths:
-        prefix_dir = os.path.join(
-            path, "steamapps", "compatdata", game_id, "pfx")
 
-        if os.path.isdir(prefix_dir):
-            # Found the game's prefix dir
-            return prefix_dir
+def get_steam_apps(steam_lib_dirs):
+    """
+    Find all the installed Steam apps and return them as a list of SteamApp
+    objects
+    """
+    steam_apps = []
 
-    return None
+    for path in steam_lib_dirs:
+        appmanifest_paths = glob.glob(
+            os.path.join(path, "steamapps", "appmanifest_*.acf")
+        )
+
+        steam_apps += [
+            SteamApp.from_appmanifest(path) for path in appmanifest_paths
+        ]
+
+    return steam_apps
 
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         print("Usage:\n"
-              "protontricks APPID COMMAND")
+              "\n"
+              "Run winetricks for game with APPID\n"
+              "$ protontricks APPID COMMAND\n"
+              "\n"
+              "Search installed games to find the APPID\n"
+              "$ protontricks -s GAME_NAME")
         sys.exit(0)
 
     # Prerequisite check
@@ -146,31 +275,55 @@ if __name__ == "__main__":
         print("[INFO] WINETRICKS environment variable is not available. "
               "Falling back to /usr/lib/magos/scripts/winetricks")
         os.environ["WINETRICKS"] = "/usr/lib/magos/scripts/winetricks"
-        if os.path.exists("/usr/lib/magos/scripts/winetricks") is False:
-            print("[ERROR!] Winetricks isn't installed, please install winetricks "
-                  "in order to use this script!")
+        if not os.path.exists("/usr/lib/magos/scripts/winetricks"):
+            print("[ERROR!] Winetricks isn't installed, please install "
+                  "winetricks in order to use this script!")
             prereq_fail = True
     else:
-        print("[INFO] Winetricks path is set to {}".format(os.environ.get('WINETRICKS')))
-        if os.path.exists(os.environ.get('WINETRICKS')) is False:
+        print(
+            "[INFO] Winetricks path is set to {}".format(
+                os.environ.get('WINETRICKS')
+            )
+        )
+        if not os.path.exists(os.environ.get('WINETRICKS')):
             print("[ERROR!] The WINETRICKS path is invalid, please make sure "
                   "Winetricks is installed in that path!")
             prereq_fail = True
 
-    if os.environ.get('PROTON_VERSION') is None:
-        proton_version = get_proton_version(steam_dir + "/steamapps")
-        if proton_version:
+    steam_lib_dirs = get_steam_lib_dirs(steam_dir)
+    steam_apps = get_steam_apps(steam_lib_dirs)
+
+    if not os.environ.get("PROTON_VERSION"):
+        # If $PROTON_VERSION isn't set, find the currently used Proton
+        # installation automatically
+        proton_app = find_current_proton_app(
+            steam_dir=steam_dir, steam_apps=steam_apps)
+        if proton_app:
             print(
-                "[INFO] Found proton version {}. You can also define "
-                "the proton version manually using $PROTON_VERSION".format(proton_version))
+                "[INFO] Found active Proton installation: {}".format(
+                    proton_app.name
+                )
+            )
         else:
-            print(
-                "[ERROR!] Proton version could not be found automatically and "
-                "environment variable $PROTON_VERSION isn't set!")
-            prereq_fail = True
+            print("[ERROR!] Current Proton installation couldn't be found "
+                  "automatically and $PROTON_VERSION wasn't set")
+            sys.exit(-1)
     else:
-        proton_version = os.environ.get('PROTON_VERSION')
-        print("[INFO] Proton version set to {}".format(proton_version))
+        proton_version = os.environ.get("PROTON_VERSION")
+        try:
+            proton_app = next(
+                app for app in steam_apps
+                if app.name == proton_version)
+        except StopIteration:
+            proton_app = None
+
+    if proton_app:
+        print("[INFO] Using Proton installation at {}".format(
+            proton_app.install_path)
+        )
+    else:
+        print("[ERROR!] Proton installation could not be found!")
+        prereq_fail = True
 
     # If one or more checks fail, don't do anything in the script.
     if prereq_fail is True:
@@ -179,31 +332,66 @@ if __name__ == "__main__":
         sys.exit(-1)
 
     if os.environ.get('WINE') is None:
-        print("[INFO] WINE environment variable is not available "
-              "Setting WINE environment variable to proton bundled version")
-        os.environ["WINE"] = steam_dir + "/steamapps/common/Proton " + proton_version + "/dist/bin/wine"
+        print("[INFO] WINE environment variable is not available. "
+              "Setting WINE environment variable to Proton bundled version")
+        os.environ["WINE"] = os.path.join(
+            proton_app.install_path, "dist", "bin", "wine")
 
     if os.environ.get('WINESERVER') is None:
-        print("[INFO] WINESERVER environment variable is not available "
-              "Setting WINESERVER environment variable to proton bundled version")
-        os.environ["WINESERVER"] = steam_dir + "/steamapps/common/Proton " + proton_version + "/dist/bin/wineserver"
+        print("[INFO] WINESERVER environment variable is not available. "
+              "Setting WINESERVER environment variable to Proton bundled "
+              "version")
+        os.environ["WINESERVER"] = os.path.join(
+            proton_app.install_path, "dist", "bin", "wineserver")
 
-    # If nothing has failed, move on.
-    # Argument 1 is the steam game ID, so add it as a variable here.
-    game_id = sys.argv[1]
+    if sys.argv[1] == "-s":
+        # Search for games
+        search_query = " ".join(sys.argv[2:])
+        matching_apps = [
+            app for app in steam_apps
+            if app.name_contains(search_query)
+        ]
 
-    # Try to find the game's Wine prefix folder
-    prefix_dir = get_game_prefix_dir(steam_dir=steam_dir, game_id=game_id)
-    if not prefix_dir:
-        print("[FATAL] You don't seem to have a game with that ID, is it "
+        if matching_apps:
+            matching_games = "\n".join([
+                "{} ({})".format(app.name, app.appid)
+                for app in matching_apps
+            ])
+            print(
+                "Found the following games:"
+                "\n{}\n".format(matching_games)
+            )
+            print(
+                "To run protontricks for the chosen game, run:\n"
+                "$ protontricks APPID COMMAND"
+            )
+        else:
+            print("Found no games.")
+        sys.exit(0)
+    else:
+        # Find game by appid
+        game_appid = int(sys.argv[1])
+        try:
+            game_app = next(
+                app for app in steam_apps
+                if app.appid == game_appid and app.prefix_path_exists)
+        except StopIteration:
+            game_app = None
+
+    if game_app:
+        os.environ["WINEPREFIX"] = game_app.prefix_path
+    else:
+        print("[FATAL] You don't seem to have a game with that ID. Is it "
               "installed, Proton compatible and have you launched it at least "
-              "once? You can usually get the game ID via the store page URL.")
+              "once? You can usually get the App ID via the store page URL.")
         sys.exit(-1)
 
-    # Finally, let's run winetricks with the specified prefix folder.
-    os.environ["WINEPREFIX"] = prefix_dir
+    # Unset WINEARCH, which might be set for another Wine installation
+    os.environ.pop("WINEARCH", "")
 
     print(
-        "[INFO] Found the prefix directory at {}".format(os.environ.get('WINEPREFIX'))
+        "[INFO] Found the prefix directory at {}".format(
+            os.environ.get('WINEPREFIX')
+        )
     )
     subprocess.call([os.environ.get('WINETRICKS')] + sys.argv[2:])
