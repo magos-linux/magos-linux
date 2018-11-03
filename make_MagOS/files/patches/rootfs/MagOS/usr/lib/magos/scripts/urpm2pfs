@@ -204,7 +204,7 @@ if [ "$rebuildable" == "yes" ] ; then
 	echo $@ > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/cmdline
 fi
 
-[ $debug == "yes" ] && read -p "Urpmi exitcode is: \"$result\", module root dir is: \"$mod_br\". Push ENTER to continue, or enter \"exit\" to abort script :  " ecode
+[ $debug == "yes" ] && read -p "Urpmi exitcode is: \"$result\", module root dir is: \"$mod_br\". Press ENTER to continue, or enter \"exit\" to abort script :  " ecode
 [ "_$ecode" != "_" ] && result="$ecode"
 [ $result == "exit" ] && exit
 if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
