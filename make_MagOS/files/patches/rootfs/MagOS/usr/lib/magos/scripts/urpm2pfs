@@ -18,8 +18,9 @@ echo "--mask clean - special mask value "clean" to choose base magos modules onl
 echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
 echo "-u | --urpmidb - save /var/lib/urpmi/* in module "
 echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme packages"
-echo "--rebuildable - save in module local rpms, it need to rebuild module"
+echo "-b | --rebuildable - save in module local rpms, it need to rebuild module"
 echo "-f | --fast - fast compression alg"
+echo "-d | --debug - ask before mkpfs"
 exit 
 }
 
@@ -56,6 +57,7 @@ if $(file $1 2>/dev/null |grep -q quashfs    ); then
 	u2pfs_current=$(realpath $0)
 	[ $2 ] && filter="$2"
 	unsquashfs -d $buildDir  $1 -e /var/lib/urpm2pfs/*
+	exitmsg "module is not rebuildable" $?
 	mv $buildDir/var/lib/urpm2pfs/* $buildDir
 	rm -fr $buildDir/var
 	CPWD=$(pwd)
@@ -84,7 +86,8 @@ do
     "-u" | "--urpmidb") urpmidb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
     "-f" | "--fast") fast_alg="-f" ;;
-    "-b"  | "--rebuildable" ) rebuildable="yes" ;;
+    "-b" | "--rebuildable" ) rebuildable="yes" ;;
+    "-d" | "--debug" ) debug="yes" ;;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" = "yes" ]; then NAME="${arg}"
         elif [ "${mask}" = "yes" ]; then MASK="${arg}"
@@ -179,6 +182,7 @@ fi
 rpm -qa -r $root_br > $SYSMNT/tmp/rpm_qa_end
 
 umount_all
+
 [ "$rpmdb" == "no" ] &&  rm -rf $mod_br/var/lib/rpm
 rm -rf $mod_br/{tmp,dev,proc,sys}
 
@@ -187,6 +191,7 @@ mkdir -p $mod_br/var/lib/rpm/modules/
 date > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/date
 cat $SYSMNT/layer-base/0/VERSION > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/MagOS
 cat $SYSMNT/tmp/rpm_qa_* |sort |uniq -u > $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+sed -i 's/\(.*\)/\1.rpm/g' $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
 rm $SYSMNT/tmp/rpm_qa_*
 
 #rebuildable
@@ -199,6 +204,9 @@ if [ "$rebuildable" == "yes" ] ; then
 	echo $@ > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/cmdline
 fi
 
+[ $debug == "yes" ] && read -p "Urpmi exitcode is: \"$result\", module root dir is: \"$mod_br\". Please enter new exitcode or \"exit\":  " result
+[ "_$result" == "_" ] && result="0"
+[ $result == "exit" ] && exit
 if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
   mkpfs $mod_br $fast_alg -o ${NAME} && MODULE="$(readlink -e ${NAME})" && create=OK 
 elif [ "$result"  -eq 0 ] ; then
