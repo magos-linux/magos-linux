@@ -204,8 +204,8 @@ if [ "$rebuildable" == "yes" ] ; then
 	echo $@ > $mod_br/var/lib/urpm2pfs/$(basename "${NAME%.$EXT}")/cmdline
 fi
 
-[ $debug == "yes" ] && read -p "Urpmi exitcode is: \"$result\", module root dir is: \"$mod_br\". Please enter new exitcode or \"exit\":  " result
-[ "_$result" == "_" ] && result="0"
+[ $debug == "yes" ] && read -p "Urpmi exitcode is: \"$result\", module root dir is: \"$mod_br\". Please enter new exitcode or \"exit\":  " ecode
+[ "_$ecode" != "_" ] && result="$ecode"
 [ $result == "exit" ] && exit
 if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
   mkpfs $mod_br $fast_alg -o ${NAME} && MODULE="$(readlink -e ${NAME})" && create=OK 
