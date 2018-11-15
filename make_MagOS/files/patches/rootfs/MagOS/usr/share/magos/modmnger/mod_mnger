@@ -4,7 +4,7 @@
 . /usr/lib/magos/functions
 
 DE=$(detectDE)
-if [ "$DE" == "kde" ] ; then
+if [ "$DE" == "plasma" -o "$DE" == "lxqt" ] ; then
 	bwsr=./bwsr_qt.py
 else 
 	bwsr=./bwsr_gtk.py

@@ -18,7 +18,7 @@ def getPlugins(dir):
 	return items
 
 def getModArr():
-	command = ('aufs-n --raw \'${n}////${bname_source}////$dname_source \' ')
+	command = ('aufs-n --hidetop --raw \'${n}////${bname_source}////$dname_source \' ')
 	ret = os.popen( command ).read()
 	arr = {}
 	for key_val in ret.split('\n'):

@@ -16,7 +16,6 @@ M(){
     [ "${userout}_" = "_" ] && [ ! "`echo "$arglist" |grep "\-o "`" ] && userout="./$(basename "$1").$EXT"
 }
 
-######################### testing
 save_duplicates() {
 	echo "save_duplicates enabled"
 	for i in $bundles ; do
@@ -34,7 +33,7 @@ save_duplicates() {
 	fi
 	done
 }
-######################### testing
+
 
 #help
 HLP(){
@@ -165,11 +164,13 @@ if echo ${userout} | grep -q "^.*\.$EXT$" ; then
 else
 	echo "Please wait..."
 	rmdir ${userout} 2>/dev/null
-	[ -d "${userout}" ] && exitmsg "Output diectory already exist" 6
+	if [ -d "${userout}" ] ; then 
+		delaufs "$nn" 
+		exitmsg "Output diectory already exist" 6
+	fi
 	mkdir -p "$(dirname ${userout})"
 	cp -fr "${n}" "${userout}"
 fi
-
 exitmsg "mksqmod error" $?  noexit
-delaufs "$nn" 
+delaufs "$nn"
 exitmsg "delaufs error" $?

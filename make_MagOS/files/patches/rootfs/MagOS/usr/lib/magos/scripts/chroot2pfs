@@ -1,0 +1,146 @@
+#!/bin/bash
+# Description: create pfs module from changes in chroot
+# Author : Alexandr Betkher (betcher) <http://magos-linux.ru>
+. `which pfs` 
+ 
+buildDir=$SYSMNT/tmp/$$-tmp
+filter="??*" # нужен для пересборки сабмодуля из кoнтейнера, чтоб не собирать все что в контейнере,  нужно приделать ключ. Пока не важно.
+fast_alg=""
+
+HLP () {
+echo "Usage: 	$(basename $0) <$(basename $0) keys> <--command>  - command which will be execute in  chroot"
+echo "				$(basename $0) <$(basename $0) keys> <--script> - script which will be copied to chroot and run" 
+echo "				$(basename $0) module.$EXT  - rebuild module" 
+echo "$(basename $0) keys:"
+echo "-h | --help - this help"
+echo "--command  - команда для выполнения в чруте, параметр должен быть последним в строке"
+echo "--script - скрипт, который будет перенесен в чрут и запущен в нем"
+echo "-m | --mask - маска для системных бандлов из которых будет создана aufs для chroot"
+echo "--mlist - список модулей и папок для создания aufs, расзделеитель в списке - \" ; \" или \" , \" "
+echo "--flist   - список модулей и папок из файла"
+echo "-f | --fast - fast compression alg"
+echo "-n | -o | --name - name for the module (если без расширения $EXT, то в папку соберет)"
+exit 
+}
+
+function umount_all () {
+for tm in {sys,proc,dev}; do
+    while (grep -q $root_br/$tm /proc/mounts ) ; do
+        umount $root_br/$tm
+    done
+done
+}
+
+get_layers () {
+layers=""
+local layers
+[ "$MASK" ] && layers=$(aufs-n --hidetop  --reverse --raw '$bname_source $bundle' |grep "$MASK" | awk '{print $2}')
+[ "$MLIST" ] && layers="$layers $(echo "$MLIST" |sed 's/[\,,;]/ /g')"
+[ "$FLIST" ] && layers="$layers $(cat $FLIST)"
+[[ -z  $layers ]] && layers=$(aufs-n --hidetop --reverse --raw '$bname_source $bundle'  | awk '{print $2}')
+for item in $layers ; do 
+[ -e $item ] && echo $item || exitmsg "	layer:   $item is not exists" 4
+done
+}
+
+argslist="$@"
+if  echo $argslist |grep -q "\-*command.*" ; then
+    command="$(echo $@ |sed 's/^.*\-*command//')"
+    argslist="$(echo $@ |sed 's/\-*command.*$//')"
+fi
+
+# функция для пересборки модулей по сохраненным "$@"
+if $(file $1 2>/dev/null |grep -q quashfs    ); then
+	mkdir $SYSMNT/tmp 
+	echo "rebuilding ${1}..."
+	chroot2pfs=$(realpath $0)
+	[ $2 ] && filter="$2"
+	unsquashfs -d $buildDir  $1 -e /var/lib/chroot2pfs/*
+	mv $buildDir/var/lib/chroot2pfs/* $buildDir
+	rm -fr $buildDir/var
+	CPWD=$(pwd)
+	cd $buildDir
+	for mod in $(find ./  -type d -name "$filter") ; do
+		cd $mod
+		$chroot2pfs  $(echo $(cat ./cmdline)) | tee ./chroot2pfs.out
+		module=$(cat ./chroot2pfs.out | tail -n1)
+		[ -f $CPWD/$(basename $module) ] && mv $CPWD/$(basename $module) $CPWD/$(basename $module).old
+		mv $module $CPWD
+		cd ..
+	done
+	cd $CPWD
+	rm -rf $buildDir
+	exit 
+fi
+
+for arg in $argslist
+do
+  case "${arg}" in
+    "-h" | "--help" ) HLP;;
+    "-n" | "-o" | "--name") name="yes";;
+    "-f" | "--fast") fast_alg="-f" ;;
+    "-s" | "--script" ) script="yes" ;;
+    "-m" | "--mask") mask="yes" ;;
+    "--mlist" ) mlist="yes" ;;
+    "--flist" ) flist="yes" ;;
+    "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
+    *) if [ "${name}" == "yes" ]; then NAME="${arg}"
+		elif [ "${mlist}" == "yes" ]; then MLIST="${arg}"
+		elif [ "${flist}" == "yes" ]; then FLIST="${arg}" 
+        elif [ "${mask}" == "yes" ]; then MASK="${arg}" ; fi
+        mlist=no; flist=no; name="no";  mask="no"; script="no";;
+  esac
+done
+
+allow_only_root
+
+#Имя обязательно, так как зацепиться не за что
+[ $NAME ] || read -p "Please enter name for module:      " NAME  
+
+#make root aufs
+root_br="$(mkaufs || exitmsg "mkaufs error" 2)"
+nn="$(echo "$root_br" | sed -n 's/^.*\([0-9]\)$/\1/p')"
+[ -d "$root_br" ] || exitmsg "error mounting aufs" 3
+echo "aufs number: $nn"
+
+#add sources as aufs layers
+for  i in $(get_layers) ;do
+    eval addlayer "$nn" "$i" "$devnull" || exitmsg "can't insert layer to aufs $nn" 5
+done 
+
+mkdir -p $root_br/{dev,proc,sys}
+
+for tm in {dev,proc,sys}; do
+    [ /$tm ] && mount -o bind /$tm $root_br/$tm
+done
+
+mkdir -p $root_br/tmp
+
+#сохраняем в модуль $@ для последующих пересборок
+#надо подумать что еще полезно сохранить
+
+#cp /etc/resolv.conf $root_br/etc/resolv.conf # у Антона было, у меня без этого работает
+mkdir -p $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")
+date > $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/date
+echo $@ > $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/cmdline
+if [ "$SCRIPT" ] ; then
+	[ -f  "$root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)" ]  || cp  $SCRIPT  $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/
+	chmod +x $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
+	chroot $root_br /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
+else 
+	chroot $root_br $command
+fi
+
+umount_all
+
+mod_br=$SYSMNT/changes$nn
+rm -rf $mod_br/tmp >/dev/null
+rm -rf $root_br/{dev,proc,sys} >/dev/null
+
+mkpfs $mod_br  $fast_alg  -o $NAME && MODULE="$(readlink -e ${NAME})" 
+echo "delaufs $nn"
+
+delaufs $nn
+# по этой строке имя модуля получается при пересборке.
+echo $MODULE 
+

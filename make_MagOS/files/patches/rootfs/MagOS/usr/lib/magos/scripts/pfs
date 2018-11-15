@@ -32,7 +32,7 @@ EXT=pfs
 copyramdir="/tmp/.mountRAM"
 prefixmp="/mnt/."
 changesDir="/mnt/live/memory/changes/"
-aufsroot="$(`which busybox` mount |egrep ' on / type aufs ')" 
+aufsroot="$(`which busybox 2>/dev/null` mount |egrep ' on / type aufs ')" 
 [ "$aufsroot" ] && SYSMNT=/$(cut -f2 -d/ /sys/fs/aufs/si_$(grep ' / aufs' /proc/mounts | cut -f2 -d= | tr ',' ' ' | cut -f1 -d' ')/br0)
 if [ -f /etc/initvars ] ; then
         . /etc/initvars

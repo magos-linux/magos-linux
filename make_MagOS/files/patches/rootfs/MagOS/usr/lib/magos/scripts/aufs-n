@@ -28,15 +28,31 @@ usage () {
     echo '  $bundle_perm - bundle mounting permissions (ro,rw)'
      
 }
-
 listing () {
-N=0
+if [ $reverse ] ;then 
+	N=0
+	MAX=$(ls /sys/fs/aufs/si_${prefix}/br[0-9]* |sed "s#/sys/fs/aufs/si_${prefix}/br##" |sort -g |tail -n1)
+else
+	N=0
+	[ $hidetop ] && N=1
+fi
+
 while true ;  do 
-    a="$( cat /sys/fs/aufs/si_${prefix}/br$N 2>/dev/null)"
-	[ $a ] || break
-	N=$(expr $N + 1)
-	n=$(seq -w 0 99 |sed -n "${N}p") # needed 01 02 03, not 1 2 3
-    layer_perm=$(echo $a |awk -F=  '{print $2}')
+	if [ $reverse ] ; then
+		a="$( cat /sys/fs/aufs/si_${prefix}/br$MAX 2>/dev/null)"
+		[ "$MAX" -lt "$N" ] && break
+		[ $hidetop ] && [ "$MAX" -eq  "$N"  ] && break
+		n=$(seq -w 0 99 |sed -n "$(( $MAX + 1 ))p") # needed 01 02 03, not 1 2 3
+		MAX=$(( $MAX - 1 ))
+		
+ 	else
+		a="$( cat /sys/fs/aufs/si_${prefix}/br$N 2>/dev/null)"
+		[ $a ] || break
+		N=$(expr $N + 1)
+		n=$(seq -w 0 99 |sed -n "${N}p") # needed 01 02 03, not 1 2 3
+	fi
+		
+	layer_perm=$(echo $a |awk -F=  '{print $2}')
     bundle=$(echo $a |awk -F= '{print $1}')
     bundle_perm=$( [ -w $bundle ] && echo rw || echo ro )
     loop=$(findmnt  $bundle -o SOURCE | tail -n1  | tr -d '],['  ) ; [ $loop ] || loop=$(df $bundle |tail -n1 | awk '{print $1}')
@@ -60,7 +76,6 @@ while true ;  do
       dname_bundle=$(dirname $bundle) ; bname_bundle=$(basename $bundle)
       eval echo "$returnMe"
     fi
-    
 done
 }
 
@@ -72,12 +87,16 @@ if  echo $@ |grep -q "\-\-raw" ; then
 	[ "$returnMe" ] || returnMe='$n $bundle $layer_perm  $source $bundle_perm'
 fi
 
-if [ ! $1 ] ;then 
+echo $@ |grep -q "\-\-reverse" && reverse=yes 
+echo $@ |grep -q "\-\-hidetop" && hidetop=yes 
+
+
+if ! [ $1 ]  ;then 
 	human=yes
 	header
 	listing
 	exit
-elif [ "$1" == "--raw" ] ; then
+elif echo $@ |grep -q "\-\-raw" ; then
 	listing
 	exit
 elif echo $1 |grep -q '^[[:digit:]]*$' ; then
