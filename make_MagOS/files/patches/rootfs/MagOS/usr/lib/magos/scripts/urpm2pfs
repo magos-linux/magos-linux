@@ -39,6 +39,7 @@ erase="no"
 argslist="$@"
 result="-1"
 rebuidable="no"
+debug=no
 
 mod_br=$SYSMNT/tmp/wiz_fly_mods   
 root_br=$SYSMNT/tmp/wiz_fly_rootfs 
