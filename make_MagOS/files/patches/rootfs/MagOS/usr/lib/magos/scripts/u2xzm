@@ -1,5 +1,5 @@
 #!/bin/bash
-# /usr/lib/magos/scripts/urpm2xm 
+# /usr/lib/magos/scripts/urpm2xzm 
 # Version : 2.0
 # Description: create XZM (pfs) module from RPM (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
@@ -13,15 +13,15 @@ echo "$(basename $0) keys:"
 echo "-h | --help - this help"
 echo "-l | --load - mount the module after creation"
 echo "-o | --name - name for the module"
-echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db, default \".\" "
-echo "--mask clean - specal mask value "clean" to choose base magos modules only"
+echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db, default \".\""
+echo "--mask clean - special mask value "clean" to choose base magos modules only"
 echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
-echo "-u | --urpmidb - save /var/lib/urpmi/* in module "
+echo "-u | --urpmidb - save /var/lib/urpmi/* in module"
 echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme packages"
 echo "-b | --rebuildable - save in module local rpms, it need to rebuild module"
-echo "-d | --bulddir  - working directory, default dir is in tmpfs. This parameter works with rebuild module too (must be after module name) "
+echo "-d | --bulddir  - working directory, default dir is in tmpfs. This parameter works with rebuild module too (must be after module name)"
 echo "-f | --fast - fast compression alg"
-echo "--steps  - run script in "step by step" mode"
+echo "--steps  - run script in \"step by step\" mode"
 exit 
 }
 
@@ -30,12 +30,12 @@ exit
 
 MASK="." #default mask (grep format) for modules in $mod_path to be mounted in new aufs
 urpmipars="" #default pars for urpmi
-packages="" #list of packages, all parametrs from urpm2xzm cmdline without "-" or "--" are packages 
+packages="" #list of packages, all parameters from urpm2xzm cmdline without "-" or "--" are packages 
 rpmdb="no" #save or not rpm database in module
-urpmidb="no" #update and save 1or not urpmi db before install packages
+urpmidb="no" #update and save or not urpmi db before install packages
 erase="no" # make module with installed packages or deleted packages (wh aufs shadows) 
 result="-1" # result must be changed to zero by script 
-rebuidable="no" # save or not local rpm packages in module
+rebuildable="no" # save or not local rpm packages in module
 argslist="$@"
 EXT="xzm"
 del_prefix="del_"
@@ -79,13 +79,13 @@ rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" 
 [ "$urpmidb" == "no" ] &&  rm -rf "$mod_br"/var/lib/urpmi
 }
 
-#get urpmi parametrs
+#get urpmi parameters
 if  echo $@ |grep -q "\-*urpmi .*" ; then
     urpmipars="$(echo $@ |sed 's/^.*\-*urpmi//')"
     argslist="$(echo $@ |sed 's/\-*urpmi.*$//')"
 fi
 
-#get packages list and urpm2xzm parametrs
+#get packages list and urpm2xzm parameters
 for arg in $argslist
 do
   case "${arg}" in
@@ -145,7 +145,7 @@ fi
 [ $PNAME ] || PNAME=$(dirname $NAME)
 [ -d $PNAME ] || crash_exit "Directory \"$PNAME\" is not exists" 2 
 
-#select 2 modules: 10-core, 43-x-utilites. Without 10-core do not work correct/
+#select 2 modules: 10-core, 43-x-utilites. Without 10-core do not work correct
 #may be need ^[0-8][0-8] to select all base modules, but it works :)
 [ "$MASK" == "clean" ]  && MASK="^[1,4][0-1]-"
 
