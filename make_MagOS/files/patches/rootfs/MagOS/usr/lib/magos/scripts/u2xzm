@@ -38,6 +38,7 @@ result="-1" # result must be changed to zero by script
 rebuidable="no" # save or not local rpm packages in module
 argslist="$@"
 EXT="xzm"
+del_prefix="del_"
 MKSQOPTS=""
 
 #Work dirs
@@ -131,7 +132,8 @@ if $(file $1 2>/dev/null |grep -q quashfs    ); then
 fi
 
 #get path and name for out module  
-if [ $NAME ] ; then 
+if [ $NAME ] ; then
+	del_prefix=""
 	if [ $(echo $NAME |awk -F. '{print $NF}') == "xzm" ] ; then 
 		PNAME=$(dirname $NAME)
 		NAME=$(basename $NAME)
@@ -203,7 +205,7 @@ if [ "$erase" == "no" ] ; then
   urpm=urpmi
   action=install
 else
-	#delete packages, it need to make module width wh* aufs shadows
+  #delete packages, it need to make module width wh* aufs shadows
   /usr/sbin/urpme --root="$root_br" $packages 2>/dev/null 
   result=$?
   urpm=urpme
@@ -225,7 +227,7 @@ cat $URPMITMP/rpm_qa_* |sort |uniq -u > $mod_br/var/lib/rpm/modules/$(basename "
 sed -i 's/\(.*\)/\1.rpm/g' $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
 rm $URPMITMP/rpm_qa_*
 
-# change all path in module to local, need to rebuild
+# change all path in $@  to local, need to rebuild
 last="_" 
 for a in $@ ; do
 	if [ -f "$a" -o "$(echo $a |awk -F. '{print $NF}')_" == "xzm_" ] ; then 
@@ -251,7 +253,7 @@ if [ "$ecode" == "exit" ] ; then umount_aufs ; umount $mod_br ; exit ; fi
 if [ "$result" -eq 0 -a "$erase" == "no" ] ; then
 	mksquashfs    $mod_br ${PNAME}/${NAME}  $MKSQOPTS -noappend  -regex -e ".wh..wh." && MODULE="$(readlink -e ${PNAME}/${NAME})" && create=OK
 elif [ "$result"  -eq 0 ] ; then
-	mksquashfs    $mod_br ${PNAME}/del_${NAME}  $MKSQOPTS -noappend  && MODULE="$(readlink -e ${PNAME}/del_${NAME})" && create=OK
+	mksquashfs    $mod_br ${PNAME}/${del_prefix}${NAME}  $MKSQOPTS -noappend  && MODULE="$(readlink -e ${PNAME}/${del_prefix}${NAME})" && create=OK
 else
     echo "Error $action packages: $packages"
     [ $urpm == urpmi ] &&  echo "urpmi exitcode: \" $(man urpmi |grep -e "[[:space:]]${result}\.") \" "
