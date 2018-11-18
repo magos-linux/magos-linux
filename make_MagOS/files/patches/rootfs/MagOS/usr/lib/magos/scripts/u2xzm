@@ -37,7 +37,7 @@ result="-1"      # result must be changed to zero by script
 rebuildable="no" # save or not local rpm packages in module
 argslist="$@"
 EXT="xzm"
-del_prefix="del_"
+del_prefix="hidden_"
 MKSQOPTS=""
 
 #Work dirs
@@ -97,7 +97,7 @@ for arg in $argslist; do
     "-r" | "--rpmdb") rpmdb="yes" ;;
     "-u" | "--urpmidb") urpmidb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
-    "-f" | "--fast") MKSQOPTS=$MKSQFS_FASTALG ;;
+    "-f" | "--fast") MKSQOPTS="$MKSQFS_FASTALG" ;;
     "-b" | "--rebuildable") rebuildable="yes" ;;
     "--steps") steps="yes" ;;
     "-"*[A-Za-z]*)
@@ -267,8 +267,7 @@ fi
 
 [ "$steps" ] && read -p "next step - mksquashfs" ecode
 if [ "$ecode" == "exit" ]; then
-    umount_aufs
-    umount $mod_br
+    umount_aufs && umount $mod_br
     exit
 fi
 
