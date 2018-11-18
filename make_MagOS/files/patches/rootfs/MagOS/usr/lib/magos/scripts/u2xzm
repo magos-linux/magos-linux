@@ -12,7 +12,7 @@ HLP() {
     echo "$(basename $0) keys:"
     echo "-h | --help - this help"
     echo "-l | --load - mount the module after creation"
-    echo "-o | --name - name for the module"
+    echo "-o - name, fuulname or dir for the module"
     echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db, default \".\""
     echo "--mask clean - special mask value "clean" to choose base magos modules only"
     echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
@@ -91,9 +91,9 @@ for arg in $argslist; do
     case "${arg}" in
     "-h" | "--help") HLP ;;
     "-l" | "--load") load="yes" ;;
-    "-n" | "-o" | "--name") name="yes" ;;
+    "-o" ) name="yes" ;; #do not add long parameter
     "-m" | "--mask") mask="yes" ;;
-    "-d" | "--builddir") bdir="yes" ;;
+    "-d" | "--builddir" ) bdir="yes" ;;  
     "-r" | "--rpmdb") rpmdb="yes" ;;
     "-u" | "--urpmidb") urpmidb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
@@ -111,7 +111,7 @@ for arg in $argslist; do
             MASK="${arg}"
         elif [ "${bdir}" = "yes" ]; then
             buildDir="$(readlink -e ${arg})/$$-tmp"
-        else packages="${packages} ${arg}"; fi
+        else packages="${arg} ${packages}"; fi
         name="no"
         mask="no"
         bdir="no"
@@ -120,24 +120,32 @@ for arg in $argslist; do
 done
 
 # rebuild modules
-if $(file $1 2>/dev/null | grep -q quashfs); then
+if  $(file $(echo $packages |awk '{print $1}') 2>/dev/null | grep -q quashfs); then
+    for rmod in $packages ; do
     mkdir -p $(dirname $buildDir)
-    echo "rebuilding ${1} in $buildDir"
+    echo "rebuilding $rmod in $buildDir"
     u2xzm_current=$(realpath $0)
-    unsquashfs -d $buildDir $1 -e /var/lib/urpm2xzm/* -n >/dev/null
+    unsquashfs -d $buildDir "$rmod" -e /var/lib/urpm2xzm -n >/dev/null
     mv $buildDir/var/lib/urpm2xzm/* $buildDir
     rm -fr $buildDir/var
     CPWD=$(pwd)
     cd $buildDir
     for mod in $(find ./ -type d -name "??*"); do
-        $u2xzm_current $(echo $(cat $mod/cmdline)) | tee ./urpm2xzm.out
+        $u2xzm_current $(echo $(cat $mod/cmdline)) -d $(basename $buildDir) | tee ./urpm2xzm.out
         module=$(cat ./urpm2xzm.out | tail -n1)
         mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
         mv $module ${CPWD}/
     done
     cd $CPWD
     rm -rf $buildDir
-    echo $CPWD/$(basename $module)
+    newmods="$(echo $CPWD/$(basename $module)) $newmods"
+    done
+    if [ "$load" = "yes" ] ; then 
+        for nm in $newmods ; do 
+            activate $nm  
+        done >/dev/null && echo "Mounted successfully"
+     fi
+    echo "$newmods"
     exit
 fi
 
@@ -245,15 +253,17 @@ cat $URPMITMP/rpm_qa_* | sort | uniq -u >$mod_br/var/lib/rpm/modules/$(basename 
 sed -i 's/\(.*\)/\1.rpm/g' $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
 rm $URPMITMP/rpm_qa_*
 
-# change all path in $@  to local, need to rebuild
+# change all path in $@  to local paths, need to rebuild
 last="_"
 for a in $@; do
     if [ -f "$a" -o "$(echo $a | awk -F. '{print $NF}')_" == "xzm_" ]; then
         basename $a
     elif [ -d "$a" -a $last == "-o" ]; then
         echo "./"
+    elif [ "$last" == "-d" -o "$last" == "--builddir" ] ; then
+        true # drop builddir value
     else
-        echo "$a"
+        [ "$a" != "-l" -a "$a" != "--load" -a "$a" != "-d" -a "$a" != "--builddir"  ] && echo "$a" # drop --load, --builddir parameters
     fi
     last="$a"
 done >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/cmdline
@@ -267,7 +277,8 @@ fi
 
 [ "$steps" ] && read -p "next step - mksquashfs" ecode
 if [ "$ecode" == "exit" ]; then
-    umount_aufs && umount $mod_br
+    umount_aufs
+    umount $mod_br
     exit
 fi
 
