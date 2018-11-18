@@ -27,7 +27,7 @@ HLP() {
 
 [ "$1" == "" -o "$1" == "--help" -o $(id -un) != "root" ] && HLP
 
-MASK="."         #default mask (grep format) for modules in $mod_path to be mounted in new aufs
+MASK="base"         #default mask (grep format) for modules in $mod_path to be mounted in new aufs
 urpmipars=""     #default pars for urpmi
 packages=""      #list of packages, all parameters from urpm2xzm cmdline without "-" or "--" are packages
 rpmdb="no"       #save or not rpm database in module
@@ -156,9 +156,8 @@ fi
 [ $PNAME ] || PNAME=$(dirname $NAME)
 [ -d $PNAME ] || crash_exit "Directory \"$PNAME\" is not exists" 2
 
-#select 2 modules: 10-core, 43-x-utilites. Without 10-core do not work correct
-#may be need ^[0-8][0-8] to select all base modules, but it works :)
-[ "$MASK" == "clean" ] && MASK="^[1,4][0-1]-"
+[ "$MASK" == "clean" -o "$MASK" == "base" ] && MASK="^[0-8][0-8]-"
+[ "$MASK" == "all" ] && MASK="."
 
 #show masked modules and exit
 if [[ -z "${packages}" ]]; then
