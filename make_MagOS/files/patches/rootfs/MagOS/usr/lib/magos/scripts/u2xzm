@@ -28,13 +28,13 @@ HLP() {
 
 [ "$1" == "" -o "$1" == "--help" -o $(id -un) != "root" ] && HLP
 
-MASK="base"         #default mask (grep format) for modules in $mod_path to be mounted in new aufs
-urpmipars=""     #default pars for urpmi
-packages=""      #list of packages, all parameters from urpm2xzm cmdline without "-" or "--" are packages
-rpmdb="no"       #save or not rpm database in module
+MASK="base"     #default mask (grep format) for modules in $mod_path to be mounted in new aufs
+urpmipars=""      #default pars for urpmi
+packages=""       #list of packages, all parameters from urpm2xzm cmdline without "-" or "--" are packages
+rpmdb="no"        #save or not rpm database in module
 urpmidb="no"     #update and save or not urpmi db before install packages
-erase="no"       # make module with installed packages or deleted packages (wh aufs shadows)
-result="-1"      # result must be changed to zero by script
+erase="no"         # make module with installed packages or deleted packages (wh aufs shadows)
+result="-1"          # result must be changed to zero by script
 rebuildable="no" # save or not local rpm packages in module
 argslist="$@"
 EXT="xzm"
@@ -53,6 +53,7 @@ fi
 # to change default values via magos configs
 . /usr/lib/magos/os-config
 . /etc/sysconfig/MagOS
+[ $MKSQFS_OPTS ] && MKSQOPTS="$MKSQFS_OPTS"
 
 umount_aufs() {
     echo "Unmounting filesystems..."
