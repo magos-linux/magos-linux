@@ -8,20 +8,21 @@
 
 HLP() {
     echo "Usage:  $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --urpmi <keys for urpmi>"
-    echo "             $(basename $0) module.xzm - rebuild module"
+    echo "             $(basename $0) module1.xzm module2.xzm module3.xzm  < -l -d /path>-  rebuild modules"
     echo "$(basename $0) keys:"
     echo "-h | --help - this help"
-    echo "-l | --load - mount the module after creation"
-    echo "-o - name, fuulname or dir for the module"
+    echo "-o - name, fullname or dir for the module"
     echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db, default \".\""
     echo "--mask clean - special mask value "clean" to choose base magos modules only"
     echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
     echo "-u | --urpmidb - save /var/lib/urpmi/* in module"
     echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme packages"
     echo "-b | --rebuildable - save in module local rpms, it need to rebuild module"
-    echo "-d | --bulddir  - working directory, default dir is in tmpfs. This parameter works with rebuild module too (must be after module name)"
     echo "-f | --fast - fast compression alg"
     echo "--steps  - run script in \"step by step\" mode"
+    echo " Next parameter works with rebuild module too:"
+    echo "-d | --bulddir  - working directory, default dir is in tmpfs." 
+    echo "-l | --load - mount the module after creation"
     exit
 }
 
