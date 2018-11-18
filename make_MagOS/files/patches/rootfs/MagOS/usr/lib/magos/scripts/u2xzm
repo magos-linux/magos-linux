@@ -197,10 +197,14 @@ if [ "$ecode" == "exit" ] ; then umount_aufs ; umount $mod_br ; exit ; fi
 if [ "$erase" == "no" ] ; then
   for pack in $packages ; do
 	#try to delete package before installing, it need to install package again 
-    /usr/sbin/urpme  --root=$root_br  $pack 2>/dev/null
+    /usr/sbin/urpme  --root="$root_br"  $pack 2>/dev/null
   done
-  [ "$urpmidb" == "yes" ]  &&    /usr/sbin/urpmi.update -a --urpmi-root="$root_br"
-  /usr/sbin/urpmi  --root="$root_br"   $packages $urpmipars
+  if [ "$urpmidb" == "yes" ]  ; then
+		/usr/sbin/urpmi.update -a --urpmi-root="$root_br"
+		/usr/sbin/urpmi  --root="$root_br"  --urpmi-root="$root_br"  $packages $urpmipars
+  else
+		/usr/sbin/urpmi  --root="$root_br"   $packages $urpmipars
+  fi
   result=$?
   urpm=urpmi
   action=install
