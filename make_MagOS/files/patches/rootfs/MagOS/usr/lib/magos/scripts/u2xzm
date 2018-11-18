@@ -54,7 +54,7 @@ fi
 # to change default values via magos configs
 . /usr/lib/magos/os-config
 . /etc/sysconfig/MagOS
-[ $MKSQFS_OPTS ] && MKSQOPTS="$MKSQFS_OPTS"
+[ "$MKSQFS_OPTS" ] && MKSQOPTS="$MKSQFS_OPTS"
 
 umount_aufs() {
     echo "Unmounting filesystems..."
