@@ -143,12 +143,12 @@ fi
 
 #get path and name for out module
 if [ $NAME ]; then
-    del_prefix=""
     if [ $(echo $NAME | awk -F. '{print $NF}') == "xzm" ]; then
         PNAME=$(dirname $NAME)
         NAME=$(basename $NAME)
+        del_prefix=""
     else
-        PNAME="$NAME"
+		PNAME="$NAME"
         unset NAME
     fi
 fi
