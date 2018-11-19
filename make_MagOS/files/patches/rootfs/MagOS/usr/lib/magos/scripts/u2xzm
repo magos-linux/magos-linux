@@ -252,7 +252,8 @@ mkdir -p $mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")
 mkdir -p $mod_br/var/lib/rpm/modules/
 date >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/date
 cat $SYSMNT/layer-base/0/VERSION >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/MagOS
-cat $URPMITMP/rpm_qa_* | sort | uniq -u >$mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+echo -e "$(cat $URPMITMP/rpm_qa_* | sort | uniq -d)\n$(cat $URPMITMP/rpm_qa_end)" | sort | uniq -u >$mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+#cat $URPMITMP/rpm_qa_* | sort | uniq -u >$mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
 sed -i 's/\(.*\)/\1.rpm/g' $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
 rm $URPMITMP/rpm_qa_*
 
