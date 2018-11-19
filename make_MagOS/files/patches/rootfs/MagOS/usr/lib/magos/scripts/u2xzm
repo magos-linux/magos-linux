@@ -134,7 +134,7 @@ if  $(file $(echo $packages |awk '{print $1}') 2>/dev/null | grep -q quashfs); t
     CPWD=$(pwd)
     cd $buildDir
     for mod in $(find ./ -type d -name "??*"); do
-        $u2xzm_current $(echo $(cat $mod/cmdline)) -d $(basename $buildDir) | tee ./urpm2xzm.out
+        $u2xzm_current -d $(basename $buildDir) $(echo $(cat $mod/cmdline))  | tee ./urpm2xzm.out
         module=$(cat ./urpm2xzm.out | tail -n1)
         mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
         mv $module ${CPWD}/
