@@ -60,7 +60,7 @@ for comp in $@ ; do
     mount -t squashfs -o loop $mod ./tmp/mpoint/$(basename $mod)
     aufsbr="${aufsbr}:./tmp/mpoint/$(basename $mod)=ro"
   done
-  mount -t aufs none ./tmp/aufs -o $aufsbr,create=mfs,sum
+  mount -t aufs none ./tmp/aufs -o $aufsbr,create=mfs,sum,noxino
   sync
   time=$(\time -f "%e" rsync -a  ./tmp/aufs/{u,v,b}* /tmp/squashtest/  2>&1 |tail -n1)
   sync
