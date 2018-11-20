@@ -3,7 +3,8 @@
 # Author : Alexandr Betkher (betcher) <http://magos-linux.ru>
 . `which pfs` 
  
-buildDir=$SYSMNT/tmp/$$-tmp
+CHROOT="chroot"
+buildDir=$SYSMNT/$$-tmp
 filter="??*" # нужен для пересборки сабмодуля из кoнтейнера, чтоб не собирать все что в контейнере,  нужно приделать ключ. Пока не важно.
 fast_alg=""
 
@@ -20,15 +21,33 @@ echo "--mlist - список модулей и папок для создани�
 echo "--flist   - список модулей и папок из файла"
 echo "-f | --fast - fast compression alg"
 echo "-n | -o | --name - name for the module (если без расширения $EXT, то в папку соберет)"
+echo "-c | --contaner  Тип виртуализации, доступные варианты  \"chroot\", \"nspawn\" (systemd-nspawn)" 
+echo "--mkscript - создать скрипт-шаблон"
 exit 
 }
 
-function umount_all () {
+umount_all () {
 for tm in {sys,proc,dev}; do
     while (grep -q $root_br/$tm /proc/mounts ) ; do
         umount $root_br/$tm
     done
 done
+}
+
+mk_template () {
+ cat <<EOF >  ./script-examle.sh
+#!/bin/bash
+# apt-get install package
+# urpmi package
+# pacman -S package
+# /bin/bash
+rm -rf  /var/tmp  /var/cache/{urpmi,ldconfig}  /etc/{urpmi,ld.so.cache,localtime,machine-id,resolv.conf} \ 
+/var/lib/{rpm,urpmi,menu} /usr/share/applications/mimeinfo.cache  /.wh* 2>/dev/null
+find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f
+EOF
+echo "WARNING. Do not run ./script-examle.sh in system, use for $(basename $0) only"
+echo "Do not make ./script-examle.sh executable, $(basename $0) will do it automaticly"
+exit
 }
 
 get_layers () {
@@ -43,34 +62,12 @@ for item in $layers ; do
 done
 }
 
+[ "$1" == "--mkscript" ] && mk_template
+
 argslist="$@"
 if  echo $argslist |grep -q "\-*command.*" ; then
     command="$(echo $@ |sed 's/^.*\-*command//')"
     argslist="$(echo $@ |sed 's/\-*command.*$//')"
-fi
-
-# функция для пересборки модулей по сохраненным "$@"
-if $(file $1 2>/dev/null |grep -q quashfs    ); then
-	mkdir $SYSMNT/tmp 
-	echo "rebuilding ${1}..."
-	chroot2pfs=$(realpath $0)
-	[ $2 ] && filter="$2"
-	unsquashfs -d $buildDir  $1 -e /var/lib/chroot2pfs/*
-	mv $buildDir/var/lib/chroot2pfs/* $buildDir
-	rm -fr $buildDir/var
-	CPWD=$(pwd)
-	cd $buildDir
-	for mod in $(find ./  -type d -name "$filter") ; do
-		cd $mod
-		$chroot2pfs  $(echo $(cat ./cmdline)) | tee ./chroot2pfs.out
-		module=$(cat ./chroot2pfs.out | tail -n1)
-		[ -f $CPWD/$(basename $module) ] && mv $CPWD/$(basename $module) $CPWD/$(basename $module).old
-		mv $module $CPWD
-		cd ..
-	done
-	cd $CPWD
-	rm -rf $buildDir
-	exit 
 fi
 
 for arg in $argslist
@@ -81,19 +78,56 @@ do
     "-f" | "--fast") fast_alg="-f" ;;
     "-s" | "--script" ) script="yes" ;;
     "-m" | "--mask") mask="yes" ;;
+    "-b" | --builddir ) bdir="yes" ;; # for rebuild only
     "--mlist" ) mlist="yes" ;;
     "--flist" ) flist="yes" ;;
+    "-c" | "--contaner" ) contaner=yes;;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" == "yes" ]; then NAME="${arg}"
 		elif [ "${mlist}" == "yes" ]; then MLIST="${arg}"
-		elif [ "${flist}" == "yes" ]; then FLIST="${arg}" 
-        elif [ "${mask}" == "yes" ]; then MASK="${arg}" ; fi
-        mlist=no; flist=no; name="no";  mask="no"; script="no";;
+		elif [ "${flist}" == "yes" ]; then FLIST="${arg}"
+		elif [ "${script}" == "yes" ]; then SCRIPT="${arg}"
+		elif [ "${bdir}" = "yes" ]; then   buildDir="$(readlink -e ${arg})/$$-tmp"
+		elif [ "${contaner}" == "yes" ]; then CONTANER="${arg}" 
+        elif [ "${mask}" == "yes" ]; then MASK="${arg}"
+        else modules="${arg} ${modules}" ; fi
+        mlist="no"; flist="no"; name="no";  mask="no"; bdir="no"; script="no"; contaner="no";;
   esac
 done
 
+# rebuild modules
+if  $(file $(echo $modules |awk '{print $1}') 2>/dev/null | grep -q quashfs); then
+    for rmod in $modules ; do
+    mkdir -p $(dirname $buildDir)
+    echo "rebuilding $rmod in $buildDir"
+    u2pfs_current=$(realpath $0)
+    unsquashfs -d $buildDir "$rmod" -e /var/lib/chroot2pfs -n >/dev/null
+    mv $buildDir/var/lib/chroot2pfs/* $buildDir  || exitmsg "Module $rmod was made by another program" 7
+    rm -fr $buildDir/var
+    CPWD=$(pwd)
+    cd $buildDir
+    for mod in $(find ./ -type d -name "??*"); do
+		SCRIPT=$(readlink -e $(ls -1 ./$mod/*.sh 2>/dev/null ) 2>/dev/null ) ; [ $SCRIPT ] && SCRIPT="--script $SCRIPT"
+        $u2pfs_current $(echo $(cat $mod/cmdline) $SCRIPT )  | tee ./urpm2pfs.out
+        module=$(cat ./urpm2pfs.out | tail -n1)
+        mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
+        mv $module ${CPWD}/
+    done
+    cd $CPWD
+    rm -rf $buildDir
+    newmods="$(echo $CPWD/$(basename $module)) $newmods"
+    done
+    echo "$newmods"
+    exit
+fi
+
 allow_only_root
 
+ps -C systemd >/dev/null ; S=$? 
+which systemd-nspawn >/dev/null ; N=$? 
+[ "$N" == 0 -a "$S" == 0 ] && CHROOT="nspawn"
+[ $CONTANER ] &&  CHROOT="$CONTANER"
+echo "Using:  $CHROOT"
 #Имя обязательно, так как зацепиться не за что
 [ $NAME ] || read -p "Please enter name for module:      " NAME  
 
@@ -108,36 +142,44 @@ for  i in $(get_layers) ;do
     eval addlayer "$nn" "$i" "$devnull" || exitmsg "can't insert layer to aufs $nn" 5
 done 
 
-mkdir -p $root_br/{dev,proc,sys}
-
+if [ $CHROOT == "chroot" ] ; then
+mkdir -p $root_br/{dev,proc,sys,tmp}
 for tm in {dev,proc,sys}; do
     [ /$tm ] && mount -o bind /$tm $root_br/$tm
 done
-
-mkdir -p $root_br/tmp
+fi
 
 #сохраняем в модуль $@ для последующих пересборок
 #надо подумать что еще полезно сохранить
-
 #cp /etc/resolv.conf $root_br/etc/resolv.conf # у Антона было, у меня без этого работает
 mkdir -p $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")
 date > $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/date
 echo $@ > $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/cmdline
 if [ "$SCRIPT" ] ; then
 	[ -f  "$root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)" ]  || cp  $SCRIPT  $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/
-	chmod +x $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
-	chroot $root_br /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
+	chmod +x $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT) 
+fi
+
+if [ $CHROOT == "nspawn" ] ; then
+md5sum /bin/bash | awk '{print $1}' > $root_br/etc/machine-id #  nspawn do not works without machine-id
+[ "$SCRIPT" ] || systemd-nspawn -D $root_br   -M ${NAME%.$EXT} $command 
+[ "$SCRIPT" ] &&  systemd-nspawn -D $root_br   -M ${NAME%.$EXT}  /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
+elif [ $CHROOT == "chroot" ] ; then
+[ "$SCRIPT" ] || chroot $root_br $command
+[ "$SCRIPT" ] && chroot $root_br /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
 else 
-	chroot $root_br $command
+BADCONTANER=yes 
+echo "Wrong contaner type, must be \"chroot\" or \"nspawn\""
 fi
 
 umount_all
 
 mod_br=$SYSMNT/changes$nn
 rm -rf $mod_br/tmp >/dev/null
-rm -rf $root_br/{dev,proc,sys} >/dev/null
+rm -rf $root_br/{dev,proc,sys,tmp} >/dev/null
+rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
 
-mkpfs $mod_br  $fast_alg  -o $NAME && MODULE="$(readlink -e ${NAME})" 
+[ $BADCONTANER ] || mkpfs $mod_br  $fast_alg  -o $NAME && MODULE="$(readlink -e ${NAME})" 
 echo "delaufs $nn"
 
 delaufs $nn
