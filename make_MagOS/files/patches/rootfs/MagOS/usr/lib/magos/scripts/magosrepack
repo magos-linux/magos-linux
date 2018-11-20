@@ -19,19 +19,19 @@ help ()
   if [[ "$LANG" == ru_RU* ]] ;then
     echo ""
     echo "$0 <Каталог/с/модулями> <параметры сжатия для mksquashfs>"
-    echo "Без параметров перепакует системный каталог /base в $MKSQFS_FASTALG"
+    echo "Без параметров перепакует системный каталог /base в $MKSQFS_OPTS"
     echo "Примеры:"
-    echo "$0 - перепаковать $BASE_DIR в $MKSQFS_FASTALG"
-    echo "$0 /path/mydir - перепаковать /path/mydir в $MKSQFS_FASTALG"
+    echo "$0 - перепаковать $BASE_DIR в $MKSQFS_OPTS"
+    echo "$0 /path/mydir - перепаковать /path/mydir в $MKSQFS_OPTS"
     echo "$0 -comp lz4  - перепаковать $BASE_DIR в lz4"
     echo "$0 /path/mydir -comp gzip - перепаковать /path/mydir в gzip"
   else
     echo ""
     echo "$0 <folder/with/modules> <compression options for  mksquashfs>"
-    echo "Without any parameters $0 will repack system folder /base with options $MKSQFS_FASTALG"
+    echo "Without any parameters $0 will repack system folder /base with options $MKSQFS_OPTS"
     echo "Examples:"
-    echo "$0 - repack $BASE_DIR with options $MKSQFS_FASTALG"
-    echo "$0 /path/mydir - repack /path/mydir with options $MKSQFS_FASTALG"
+    echo "$0 - repack $BASE_DIR with options $MKSQFS_OPTS"
+    echo "$0 /path/mydir - repack /path/mydir with options $MKSQFS_OPTS"
     echo "$0 -comp lz4  - repack $BASE_DIR with lz4 algorythm"
     echo "$0 /path/mydir -comp gzip - repack /path/mydir with gzip algorythm"
   fi
@@ -41,7 +41,7 @@ help ()
 [ "$1_" == "-h_" -o "$1_" == "--help_" ] && help
 
 if ! [ $1 ] ; then
-  echo "$0 перепакует модули в каталоге $BASE_DIR с алгоритмом $MKSQFS_FASTALG"
+  echo "$0 перепакует модули в каталоге $BASE_DIR с алгоритмом $MKSQFS_OPTS"
   echo -n "Продолжить Y/y, помощь H/h, для выхода Enter :"
   read item
   case "$item" in
@@ -54,10 +54,10 @@ elif [ -d "$1" ] ;then
   shift
 fi
 
-[ $1 ] && MKSQFS_FASTALG="$@"
+[ $1 ] && MKSQFS_OPTS="$@"
 
 echo "Каталог с модулями для перепаковки: $BASE_DIR"
-echo -e "Алгоритм сжатия: $MKSQFS_FASTALG\n"
+echo -e "Алгоритм сжатия: $MKSQFS_OPTS\n"
 
 #exit # test exit
 
@@ -76,9 +76,9 @@ for a in $LIST; do
   module=$(realpath $a)
   file $module |grep -q Squashfs || continue
   mount $module $MNT_DIR
-  mksquashfs $MNT_DIR /tmp/$(basename $module) $MKSQFS_FASTALG -noappend
+  mksquashfs $MNT_DIR /tmp/$(basename $module) $MKSQFS_OPTS -noappend
   if [ $? -ne 0 ] ;then
-    echo "Ошибка! mksquashfs $MNT_DIR /tmp/$(basename $module) $MKSQFS_FASTALG"
+    echo "Ошибка! mksquashfs $MNT_DIR /tmp/$(basename $module) $MKSQFS_OPTS"
     umount $MNT_DIR
     exit 2
   fi
