@@ -5,3 +5,5 @@
 
 #echo "$1 complete"
 ps -A | grep -q gam_server || killall -1 lxpanel gnome-panel 2>/dev/null
+. /usr/lib/magos/functions
+find_n_run_scripts "$1" start activate
