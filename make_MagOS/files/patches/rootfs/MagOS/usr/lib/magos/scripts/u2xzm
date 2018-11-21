@@ -208,6 +208,20 @@ mkdir -p $root_br/{dev,proc,sys,tmp}
 for tm in {dev,proc,sys}; do
     mount -o bind /$tm $root_br/$tm
 done
+##########################
+mount -o bind /home/betcher/rpmdb /$root_br/var/lib/rpm
+     mount -t tmpfs tmpfs /$root_br/var/lib/rpm/
+     echo "copy  rpm DB --> tmpfs"
+     for a in $(ls $mod_path | egrep $MASK) ; do
+	    if [ -d  ${mod_path}/$a/var/lib/rpm ] ; then
+		  echo  "${mod_path}/$a/var/lib/rpm/* -> $root_br/var/lib/rpm/"
+		  cp  -rf ${mod_path}/$a/var/lib/rpm/* $root_br/var/lib/rpm/
+        fi
+     done
+     chown 0.0 -R /$root_br/var/lib/rpm
+     chmod o-w -R /$root_br/var/lib/rpm
+     echo Done.
+##############################
 
 #get rpms list before installing, need to generate rpm list in /var/lib/rpm/modules/mod_name
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_before
@@ -225,17 +239,17 @@ if [ "$erase" == "no" ]; then
         /usr/sbin/urpme --root="$root_br" $pack 2>/dev/null
     done
     if [ "$urpmidb" == "yes" ]; then
-        /usr/sbin/urpmi.update -a --urpmi-root="$root_br"
-        /usr/sbin/urpmi --root="$root_br" --urpmi-root="$root_br" $packages $urpmipars
+        /usr/sbin/urpmi.update -a --urpmi-root "$root_br"
+        /usr/sbin/urpmi --root "$root_br" --urpmi-root "$root_br" $packages $urpmipars
     else
-        /usr/sbin/urpmi --root="$root_br" $packages $urpmipars
+        /usr/sbin/urpmi --root "$root_br" $packages $urpmipars
     fi
     result=$?
     urpm=urpmi
     action=install
 else
     #delete packages, it need to make module width wh* aufs shadows
-    /usr/sbin/urpme --root="$root_br" $packages 2>/dev/null
+    /usr/sbin/urpme --root "$root_br" $packages 2>/dev/null
     result=$?
     urpm=urpme
     action=erase
@@ -244,6 +258,7 @@ fi
 #get rpms list after installing
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_end
 
+umount /$root_br/var/lib/rpm
 umount_aufs
 clear_mod_br
 
