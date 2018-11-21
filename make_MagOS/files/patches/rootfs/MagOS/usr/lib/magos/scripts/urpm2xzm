@@ -230,7 +230,7 @@ done
 #sync
 #mount -o remount $mod_br && mount -o remount $root_br
 ###########################
-
+mount -o bind  /$root_br/var/lib/rpm  /var/lib/rpm 
 #get rpms list before installing, need to generate rpm list in /var/lib/rpm/modules/mod_name
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_before
 
@@ -265,6 +265,9 @@ fi
 
 #get rpms list after installing
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_end
+
+umount /var/lib/rpm
+rmdir $fakedb
 
 #umount $root_br/var/lib/rpm
 umount_aufs
