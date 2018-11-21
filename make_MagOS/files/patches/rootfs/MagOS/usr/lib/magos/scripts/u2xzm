@@ -208,8 +208,9 @@ mkdir -p $root_br/{dev,proc,sys,tmp}
 for tm in {dev,proc,sys}; do
     mount -o bind /$tm $root_br/$tm
 done
+
 ##########################
-mount -o bind /home/betcher/rpmdb /$root_br/var/lib/rpm
+# move rpmDB to tmpfs
      mount -t tmpfs tmpfs /$root_br/var/lib/rpm/
      echo "copy  rpm DB --> tmpfs"
      for a in $(ls $mod_path | egrep $MASK) ; do
