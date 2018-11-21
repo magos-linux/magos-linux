@@ -197,7 +197,7 @@ dd if=/dev/zero of="$mod_file" bs=1 count=0 seek="$URPMISPACE" >/dev/null && mkf
 mount -o loop "$mod_file" "$mod_br" || crash_exit "Can't mount temporary image file" 3
 
 mount_br="$mod_br=rw"
-for a in $(ls $mod_path | egrep $MASK); do
+for a in $(ls $mod_path | egrep $MASK |sort -r ); do
     echo $a
     mount_br="$mount_br:$(readlink -f ${mod_path}/$a)=rr"
 done
@@ -211,18 +211,25 @@ done
 
 ##########################
 # move rpmDB to tmpfs
-     mount -t tmpfs tmpfs /$root_br/var/lib/rpm/
-     echo "copy  rpm DB --> tmpfs"
-     for a in $(ls $mod_path | egrep $MASK) ; do
-	    if [ -d  ${mod_path}/$a/var/lib/rpm ] ; then
-		  echo  "${mod_path}/$a/var/lib/rpm/* -> $root_br/var/lib/rpm/"
-		  cp  -rf ${mod_path}/$a/var/lib/rpm/* $root_br/var/lib/rpm/
-        fi
-     done
-     chown 0.0 -R /$root_br/var/lib/rpm
-     chmod o-w -R /$root_br/var/lib/rpm
-     echo Done.
-##############################
+#    mount -t tmpfs tmpfs /$root_br/var/lib/rpm/
+#     echo "copy  rpm DB --> tmpfs"
+#    for a in $(ls $mod_path | egrep $MASK) ; do
+#	    if [ -d  ${mod_path}/$a/var/lib/rpm ] ; then
+#		  echo  "${mod_path}/$a/var/lib/rpm/* -> $root_br/var/lib/rpm/"
+#		  cp  -rf ${mod_path}/$a/var/lib/rpm/* $root_br/var/lib/rpm/
+#       fi
+#    done
+#     chown 0.0 -R /$root_br/var/lib/rpm
+#    chmod o-w -R /$root_br/var/lib/rpm
+#    echo Done.
+###########################
+
+###########################
+#to get all /var/lib/rpm to module
+#find /$root_br/var/lib/rpm -type f | while read a ; do touch $a ; done
+#sync
+#mount -o remount $mod_br && mount -o remount $root_br
+###########################
 
 #get rpms list before installing, need to generate rpm list in /var/lib/rpm/modules/mod_name
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_before
@@ -259,7 +266,7 @@ fi
 #get rpms list after installing
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_end
 
-umount /$root_br/var/lib/rpm
+#umount $root_br/var/lib/rpm
 umount_aufs
 clear_mod_br
 
@@ -269,7 +276,6 @@ mkdir -p $mod_br/var/lib/rpm/modules/
 date >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/date
 cat $SYSMNT/layer-base/0/VERSION >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/MagOS
 echo -e "$(cat $URPMITMP/rpm_qa_* | sort | uniq -d)\n$(cat $URPMITMP/rpm_qa_end)" | sort | uniq -u >$mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
-#cat $URPMITMP/rpm_qa_* | sort | uniq -u >$mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
 sed -i 's/\(.*\)/\1.rpm/g' $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
 rm $URPMITMP/rpm_qa_*
 
