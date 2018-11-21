@@ -3,7 +3,7 @@
 #VERSION 4.0
 . $(which pfs)
 HLP () {
-  echo "Usage: $(basename "$0") FYLESYSTEM (squashfs module, dir, iso, img, etc) "
+  echo "Usage: $(basename "$0") FYLESYSTEM (squashfs module, dir, iso, img, etc) or layer number (see aufs-n)"
   echo "-n  --no-update  - do not update icon caches, fonts, etc"
   echo "-s  --saveram    - do not remoove module from RAM after unmounting" 
   echo "-v               - verbose output" 
@@ -28,14 +28,17 @@ done
 allow_only_root
 
 if [ -f "${infile}" ] ; then 
-	fsname="$(basename $(realpath "${infile}"))" 
+	findit="[[:punct:]]$(basename $(readlink -e "${infile}"))$" 
 	checksfsxzb >/dev/null || exitmsg "Kernel not support PFS!" 3
+elif [ "$(echo $infile | sed 's/^[[:digit:]].$/digit/')" == "digit" ] ; then 
+	findit="^$infile[[:space:]]"
 else
-	fsname="$(basename "${infile}")"
+	findit="[[:punct:]]$(basename "${infile%.$EXT}").${EXT}$"
 fi
-
+#echo $findit
 #mountpoint="${prefixmp}${fsname}"
-mountpoint="$(awk '/'${fsname}'/ {print $2}' /proc/mounts)"
+#mountpoint="$(awk  '{print $2}' /proc/mounts | grep  "${fsname}" )"
+mountpoint=$(aufs-n --hidetop --raw '$n $bundle' |grep "$findit" |awk '{print $2}' )
 if [ -d "${mountpoint}" ]; then
   sync
   mountb -t aufs -o remount,del:"${mountpoint}"/ aufs /  2>/dev/null

@@ -109,7 +109,7 @@ checkramfreeb () {
 if [[ -x $(which checkramfree) ]] ; then
 	echo $(checkramfree) 
 else
-   free=$(df $copyramdir -B 1024 |grep tmpfs |awk '{print $4}')
+   free=$(df $copyramdir -B 1024 |tail -n1 |awk '{print $4}')
    freeram="$(free | grep 'Mem:' | tr -s ' ' | cut -f 4 -d ' ')"
    echo $free
 fi 2>/dev/null

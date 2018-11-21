@@ -16,11 +16,11 @@ HLP() {
 
 toram () {
 mkdir -p ${copyramdir}
+df   ${copyramdir} |grep -Eq '^tmpfs|^/dev/zram'  || mountb -t tmpfs tmpfs "${copyramdir}"
 freeram=$(checkramfreeb)
 filesize="$(du -k "${fsfile}" | cut -f 1)"
-minram="$(expr ${filesize} + ${TMPFSLIMIT})"
+minram="$(( ${filesize} + ${TMPFSLIMIT} ))"
 [ "${minram}" -gt "${freeram}" ] && exitmsg "Not enouth free RAM space" 3
-[ "$(stat  --format=%T -f $copyramdir )" != "tmpfs" ] && mountb -t tmpfs tmpfs "${copyramdir}"
 if [ -f "${copyramdir}/${fsname}" ] ;then 
 	pfsunload -r ${fsname} 
 	exitmsg "File already in ram and mounted" $?
