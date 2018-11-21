@@ -1,78 +1,333 @@
 #!/bin/bash
-#
 # /usr/lib/magos/scripts/urpm2xzm
-#
-# Description: create LZM/XZM from RPM (& dependences)
+# Version : 2.0
+# Description: create XZM (pfs) module from RPM (& dependences)
 # Author : Anton Goroshkin <http://magos-linux.ru>
-# Edited by Mikhail Zaripov <http://magos-linux.ru>
+# Author : Alexandr Betkher <http://magos-linux.ru>
+# Author : Mikhail Zaripov <http://magos-linux.ru>
 
-if [ "$1" == "" -o "$1" == "--help" -o $(id -un) != "root" ] ;then
-  echo "urpm2xzm creates xzm module for rpm package and dependencies by using urpmi. This scripts needs root account."
-  echo "Usage: $0 <rpm_package_name> [urpmi parameters]"
-  echo "Module <rpm_package_name.xzm> will be created in current folder."
-  exit 0
+HLP() {
+    echo "Usage:  $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --urpmi <keys for urpmi>"
+    echo "             $(basename $0) module1.xzm module2.xzm module3.xzm  < -l -d /path>-  rebuild modules"
+    echo "$(basename $0) keys:"
+    echo "-h | --help - this help"
+    echo "-o - name, fullname or dir for the module"
+    echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db"
+    echo "--mask clean - special mask value \"clean\" to choose base magos modules only (default)"
+    echo "--mask all  - special mask value \"all\" to choose all activated modules"
+    echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
+    echo "-u | --urpmidb - save /var/lib/urpmi/* in module"
+    echo "-e | --erase - create a module whis +wh files (aufs shadows) after urpme packages"
+    echo "-b | --rebuildable - save in module local rpms, it need to rebuild module"
+    echo "-f | --fast - fast compression alg"
+    echo "--steps  - run script in \"step by step\" mode"
+    echo " Next parameter works with rebuild module too:"
+    echo "-d | --bulddir  - working directory, default dir is in tmpfs." 
+    echo "-l | --load - mount the module after creation"
+    exit
+}
+
+[ "$1" == "" -o "$1" == "--help" -o $(id -un) != "root" ] && HLP
+
+MASK="base"     #default mask (grep format) for modules in $mod_path to be mounted in new aufs
+urpmipars=""      #default pars for urpmi
+packages=""       #list of packages, all parameters from urpm2xzm cmdline without "-" or "--" are packages
+rpmdb="no"        #save or not rpm database in module
+urpmidb="no"     #update and save or not urpmi db before install packages
+erase="no"         # make module with installed packages or deleted packages (wh aufs shadows)
+result="-1"          # result must be changed to zero by script
+rebuildable="no" # save or not local rpm packages in module
+argslist="$@"
+EXT="xzm"
+del_prefix="hidden_"
+MKSQOPTS=""
+
+#Work dirs
+export PATH=/usr/lib/magos/scripts:$PATH
+buildDir=/tmp/$$-tmp
+mod_path=/mnt/live/memory/images
+if . /etc/initvars; then
+    buildDir=${SYSMNT}/$$-tmp
+    mod_path=${SYSMNT}/bundles
 fi
 
-export PATH=/usr/lib/magos/scripts:$PATH
-MODULEFORMAT=xzm
-URPMITMP=/tmp/urpm2xzm
-mod_path=/mnt/live/memory/images
-. /usr/lib/magos/functions
+# to change default values via magos configs
+. /usr/lib/magos/os-config
+. /etc/sysconfig/MagOS
+[ "$MKSQFS_OPTS" ] && MKSQOPTS="$MKSQFS_OPTS"
 
+umount_aufs() {
+    echo "Unmounting filesystems..."
+    grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm; do
+        umount "$tm" 2>/dev/null
+    done
+    umount "$root_br" 2>/dev/null
+}
+
+crash_exit() {
+    umount_aufs
+    if [ "$2" -ne 0 ]; then
+        echo -ne '\033[0;31m'
+        echo "$1"
+        echo -ne '\033[0m\n'
+        [ "$3" ] || exit $2
+    fi
+}
+
+clear_mod_br() {
+    rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br"/var/cache/{urpmi,ldconfig} "$mod_br"/etc/{urpmi,ld.so.cache} "$mod_br"/var/lib/{menu} "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
+    find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f
+    rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
+    # save or not databases
+    [ "$rpmdb" == "no" ] && rm -rf "$mod_br"/var/lib/rpm
+    [ "$urpmidb" == "no" ] && rm -rf "$mod_br"/var/lib/urpmi
+}
+
+#get urpmi parameters
+if echo $@ | grep -q "\-*urpmi .*"; then
+    urpmipars="$(echo $@ | sed 's/^.*\-*urpmi//')"
+    argslist="$(echo $@ | sed 's/\-*urpmi.*$//')"
+fi
+
+#get packages list and urpm2xzm parameters
+for arg in $argslist; do
+    case "${arg}" in
+    "-h" | "--help") HLP ;;
+    "-l" | "--load") load="yes" ;;
+    "-o" ) name="yes" ;; #do not add long parameter
+    "-m" | "--mask") mask="yes" ;;
+    "-d" | "--builddir" ) bdir="yes" ;;  
+    "-r" | "--rpmdb") rpmdb="yes" ;;
+    "-u" | "--urpmidb") urpmidb="yes" ;;
+    "-e" | "--erase") erase="yes" ;;
+    "-f" | "--fast") MKSQOPTS="$MKSQFS_FASTALG" ;;
+    "-b" | "--rebuildable") rebuildable="yes" ;;
+    "--steps") steps="yes" ;;
+    "-"*[A-Za-z]*)
+        echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2
+        exit 1
+        ;;
+    *)
+        if [ "${name}" = "yes" ]; then
+            NAME="${arg}"
+        elif [ "${mask}" = "yes" ]; then
+            MASK="${arg}"
+        elif [ "${bdir}" = "yes" ]; then
+            buildDir="$(readlink -e ${arg})/$$-tmp"
+        else packages="${arg} ${packages}"; fi
+        name="no"
+        mask="no"
+        bdir="no"
+        ;;
+    esac
+done
+
+# rebuild modules
+if  $(file $(echo $packages |awk '{print $1}') 2>/dev/null | grep -q quashfs); then
+    for rmod in $packages ; do
+    mkdir -p $(dirname $buildDir)
+    echo "rebuilding $rmod in $buildDir"
+    u2xzm_current=$(realpath $0)
+    unsquashfs -d $buildDir "$rmod" -e /var/lib/urpm2xzm -n >/dev/null
+    mv $buildDir/var/lib/urpm2xzm/* $buildDir 2>/dev/null || crash_exit "Module $rmod was made by another program" 7
+    rm -fr $buildDir/var
+    CPWD=$(pwd)
+    cd $buildDir
+    for mod in $(find ./ -type d -name "??*"); do
+        $u2xzm_current -d $(basename $buildDir) $(echo $(cat $mod/cmdline))  | tee ./urpm2xzm.out
+        module=$(cat ./urpm2xzm.out | tail -n1)
+        mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
+        mv $module ${CPWD}/
+    done
+    cd $CPWD
+    rm -rf $buildDir
+    newmods="$(echo $CPWD/$(basename $module)) $newmods"
+    done
+    if [ "$load" = "yes" ] ; then 
+        for nm in $newmods ; do 
+            activate $nm  
+        done >/dev/null && echo "Mounted successfully"
+     fi
+    echo "$newmods"
+    exit
+fi
+
+#get path and name for out module
+if [ $NAME ]; then
+    if [ $(echo $NAME | awk -F. '{print $NF}') == "xzm" ]; then
+        PNAME=$(dirname $NAME)
+        NAME=$(basename $NAME)
+        del_prefix=""
+    else
+		PNAME="$NAME"
+        unset NAME
+    fi
+fi
+[ $NAME ] || NAME=$(echo $packages | awk '{print $1}').xzm
+[ $PNAME ] || PNAME=$(dirname $NAME)
+[ -d $PNAME ] || crash_exit "Directory \"$PNAME\" is not exists" 2
+
+[ "$MASK" == "clean" -o "$MASK" == "base" ] && MASK="^[0-8][0-8]-"
+[ "$MASK" == "all" ] && MASK="."
+
+#show masked modules and exit
+if [[ -z "${packages}${urpmipars}" ]]; then
+    echo "Masked Modules:"
+    ls $mod_path | egrep $MASK
+    echo ''
+    HLP
+    exit
+fi
+
+URPMITMP=${buildDir}/urpm2xzm
 root_br="$URPMITMP/root"
 mod_br="$URPMITMP/changes"
 mod_file="$URPMITMP/urpm2xzm.img"
-err=0
-mount_mode="rr"
-[ $(cmdline_parameter unionfs) ] && mount_mode="ro"
+
+umount_aufs
+umount $mod_br 2>/dev/null && rm -f $mod_file
 
 rm -rf "$mod_br" "$root_br" 2>/dev/null
 mkdir -p "$mod_br" "$root_br"
 SPACE=$(LC_ALL=C df -BM "$URPMITMP" --output=avail | tail -1 | tr -d M) # free space in folder
-[ ! -z "$SPACE" ] && SPACE=$(echo "$SPACE""*80/100" | bc)        # 80% of free space in folder
+[ ! -z "$SPACE" ] && SPACE=$(echo "$SPACE""*80/100" | bc)               # 80% of free space in folder
 [ ! -z "$SPACE" -a -z "$URPMISPACE" ] && URPMISPACE="$SPACE"M
 [ -z "$URPMISPACE" ] && URPMISPACE=1024M
-dd if=/dev/zero of="$mod_file" bs=1 count=0 seek="$URPMISPACE" && mkfs.ext2 "$mod_file"
-mount -o loop "$mod_file" "$mod_br" || exit 1
+dd if=/dev/zero of="$mod_file" bs=1 count=0 seek="$URPMISPACE" >/dev/null && mkfs.ext2 "$mod_file" >/dev/null
+mount -o loop "$mod_file" "$mod_br" || crash_exit "Can't mount temporary image file" 3
 
 mount_br="$mod_br=rw"
-for a in `ls -d $mod_path/??-*`; do
-    mount_br="$mount_br:$(readlink -f $a)=$mount_mode"
+for a in $(ls $mod_path | egrep $MASK |sort -r ); do
+    echo $a
+    mount_br="$mount_br:$(readlink -f ${mod_path}/$a)=rr"
 done
 
-if [ $(cmdline_parameter unionfs) ];then
-    mount -t unionfs -o dirs="$mount_br" unionfs "$root_br"
-else
-    mount -t aufs -o br:"$mount_br" aufs "$root_br"
-fi
+mount -t aufs -o br:"$mount_br" aufs "$root_br" || crash_exit "Can't mount aufs" 4
 
-mkdir -p "$root_br"/{dev,proc,sys,tmp}
+mkdir -p $root_br/{dev,proc,sys,tmp}
 for tm in {dev,proc,sys}; do
-    mount -o bind /$tm "$root_br"/$tm
+    mount -o bind /$tm $root_br/$tm
 done
 
-/usr/sbin/urpmi.update -a --urpmi-root=$root_br
-/usr/sbin/urpmi --root="$root_br" $@
-[ $? != 0 ] && err=1 && echo "urpmi error !"
-[ ! -f "$mod_br/var/lib/rpm/Packages" ] && err=1 # nothing was installed
+##########################
+# move rpmDB to tmpfs
+#    mount -t tmpfs tmpfs /$root_br/var/lib/rpm/
+#     echo "copy  rpm DB --> tmpfs"
+#    for a in $(ls $mod_path | egrep $MASK) ; do
+#	    if [ -d  ${mod_path}/$a/var/lib/rpm ] ; then
+#		  echo  "${mod_path}/$a/var/lib/rpm/* -> $root_br/var/lib/rpm/"
+#		  cp  -rf ${mod_path}/$a/var/lib/rpm/* $root_br/var/lib/rpm/
+#       fi
+#    done
+#     chown 0.0 -R /$root_br/var/lib/rpm
+#    chmod o-w -R /$root_br/var/lib/rpm
+#    echo Done.
+###########################
 
-echo "Unmounting filesystems..."
-grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm ;do
-      umount "$tm"
-done
-umount "$root_br"
+###########################
+#to get all /var/lib/rpm to module
+#find /$root_br/var/lib/rpm -type f | while read a ; do touch $a ; done
+#sync
+#mount -o remount $mod_br && mount -o remount $root_br
+###########################
 
-rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br"/var/cache/{urpmi,ldconfig} "$mod_br"/etc/{urpmi,ld.so.cache} "$mod_br"/var/lib/{rpm,menu,urpmi} "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
-find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f 
-rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
+#get rpms list before installing, need to generate rpm list in /var/lib/rpm/modules/mod_name
+rpm -qa -r $root_br >$URPMITMP/rpm_qa_before
 
-if [ "x$err" != "x1" ]; then
-   echo Creating module "$(basename $1).$MODULEFORMAT"
-   dir2xzm "$mod_br" "$(basename $1).$MODULEFORMAT"
+[ "$steps" ] && read -p "next step - urpmi" ecode
+if [ "$ecode" == "exit" ]; then
+    umount_aufs
+    umount $mod_br
+    exit
 fi
 
-umount "$mod_br"
-rm -f "$mod_file"
-rmdir "$mod_br" "$root_br" 
-[ -h "$URPMITMP" ] || rmdir "$URPMITMP"
+if [ "$erase" == "no" ]; then
+    for pack in $packages; do
+        #try to delete package before installing, it need to install package again
+        /usr/sbin/urpme --root="$root_br" $pack 2>/dev/null
+    done
+    if [ "$urpmidb" == "yes" ]; then
+        /usr/sbin/urpmi.update -a --urpmi-root "$root_br"
+        /usr/sbin/urpmi --root "$root_br" --urpmi-root "$root_br" $packages $urpmipars
+    else
+        /usr/sbin/urpmi --root "$root_br" $packages $urpmipars
+    fi
+    result=$?
+    urpm=urpmi
+    action=install
+else
+    #delete packages, it need to make module width wh* aufs shadows
+    /usr/sbin/urpme --root "$root_br" $packages 2>/dev/null
+    result=$?
+    urpm=urpme
+    action=erase
+fi
 
+#get rpms list after installing
+rpm -qa -r $root_br >$URPMITMP/rpm_qa_end
+
+#umount $root_br/var/lib/rpm
+umount_aufs
+clear_mod_br
+
+#save info into the module
+mkdir -p $mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")
+mkdir -p $mod_br/var/lib/rpm/modules/
+date >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/date
+cat $SYSMNT/layer-base/0/VERSION >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/MagOS
+echo -e "$(cat $URPMITMP/rpm_qa_* | sort | uniq -d)\n$(cat $URPMITMP/rpm_qa_end)" | sort | uniq -u >$mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+sed -i 's/\(.*\)/\1.rpm/g' $mod_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+rm $URPMITMP/rpm_qa_*
+
+# change all path in $@  to local paths, need to rebuild
+last="_"
+for a in $@; do
+    if [ -f "$a" -o "$(echo $a | awk -F. '{print $NF}')_" == "xzm_" ]; then
+        basename $a
+    elif [ -d "$a" -a $last == "-o" ]; then
+        echo "./"
+    elif [ "$last" == "-d" -o "$last" == "--builddir" ] ; then
+        true # drop builddir value
+    else
+        [ "$a" != "-l" -a "$a" != "--load" -a "$a" != "-d" -a "$a" != "--builddir"  ] && echo "$a" # drop --load, --builddir parameters
+    fi
+    last="$a"
+done >$mod_br/var/lib/urpm2xzm/$(basename "${NAME%.$EXT}")/cmdline
+
+#save local rpms in module
+if [ "$rebuildable" == "yes" ]; then
+    for b in $@; do
+        [ -f "$b" -a "$(echo $b | awk -F. '{print $NF}')_" == "rpm_" ] && cp $b $mod_br/var/lib/urpm2xzm/
+    done
+fi
+
+[ "$steps" ] && read -p "next step - mksquashfs" ecode
+if [ "$ecode" == "exit" ]; then
+    umount_aufs
+    umount $mod_br
+    exit
+fi
+
+if [ "$result" -eq 0 -a "$erase" == "no" ]; then
+    mksquashfs $mod_br ${PNAME}/${NAME} $MKSQOPTS -noappend -regex -e ".wh..wh." && MODULE="$(readlink -e ${PNAME}/${NAME})" && create=OK
+elif [ "$result" -eq 0 ]; then
+    mksquashfs $mod_br ${PNAME}/${del_prefix}${NAME} $MKSQOPTS -noappend && MODULE="$(readlink -e ${PNAME}/${del_prefix}${NAME})" && create=OK
+else
+    echo "Error $action packages: $packages"
+    [ $urpm == urpmi ] && echo "urpmi exitcode: \" $(man urpmi | grep -e "[[:space:]]${result}\.") \" "
+    [ $urpm == urpme ] && echo "urpme exitcode: $result"
+    echo "Size of module source dir: $(du -ch $mod_br | tail -n1 | cut -f 1)"
+    echo "Do you want to create the module, despite errors? [Y/N]"
+    read aaa
+    [ $aaa ] || aaa=no
+    if [ $aaa == "Y" -o $aaa == "y" ]; then
+        mksquashfs $mod_br ${PNAME}/${NAME} -noappend $MKSQOPTS && MODULE="$(readlink -e ${PNAME}/${NAME})" && create=OK
+    fi
+fi
+
+umount $mod_br && rm -rf "$buildDir"
+
+if [ $create ]; then
+    [ "$load" = "yes" ] && activate $MODULE >/dev/null && echo "Mounted successfully"
+    echo "$MODULE"
+fi
