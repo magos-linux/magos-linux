@@ -24,6 +24,7 @@ HLP() {
     echo " Next parameter works with rebuild module too:"
     echo "-d | --bulddir  - working directory, default dir is in tmpfs." 
     echo "-l | --load - mount the module after creation"
+    echo "-i | --info  - show module info"
     exit
 }
 
@@ -75,7 +76,7 @@ crash_exit() {
 }
 
 clear_mod_br() {
-    rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br"/var/cache/{urpmi,ldconfig} "$mod_br"/etc/{urpmi,ld.so.cache} "$mod_br"/var/lib/{menu} "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
+    rm -rf "$mod_br/tmp" "$mod_br/var/tmp" "$mod_br"/var/cache/{urpmi,ldconfig} "$mod_br"/etc/{urpmi,ld.so.cache} "$mod_br"/var/lib/menu "$mod_br/usr/share/applications/mimeinfo.cache" "$mod_br"/.wh* 2>/dev/null
     find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f
     rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
     # save or not databases
@@ -100,6 +101,7 @@ for arg in $argslist; do
     "-r" | "--rpmdb") rpmdb="yes" ;;
     "-u" | "--urpmidb") urpmidb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
+    "-i" | "--info") info="yes" ;;
     "-f" | "--fast") MKSQOPTS="$MKSQFS_FASTALG" ;;
     "-b" | "--rebuildable") rebuildable="yes" ;;
     "--steps") steps="yes" ;;
@@ -126,7 +128,7 @@ done
 if  $(file $(echo $packages |awk '{print $1}') 2>/dev/null | grep -q quashfs); then
     for rmod in $packages ; do
     mkdir -p $(dirname $buildDir)
-    echo "rebuilding $rmod in $buildDir"
+    echo "$rmod processing..."
     u2xzm_current=$(realpath $0)
     unsquashfs -d $buildDir "$rmod" -e /var/lib/urpm2xzm -n >/dev/null
     mv $buildDir/var/lib/urpm2xzm/* $buildDir 2>/dev/null || crash_exit "Module $rmod was made by another program" 7
@@ -134,14 +136,19 @@ if  $(file $(echo $packages |awk '{print $1}') 2>/dev/null | grep -q quashfs); t
     CPWD=$(pwd)
     cd $buildDir
     for mod in $(find ./ -type d -name "??*"); do
-        $u2xzm_current -d $(basename $buildDir) $(echo $(cat $mod/cmdline))  | tee ./urpm2xzm.out
-        module=$(cat ./urpm2xzm.out | tail -n1)
-        mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
-        mv $module ${CPWD}/
+        if [ $info ] ; then
+			for a in $(ls $mod -1 ) ; do echo -e "\n${a}:" ; echo $(cat $mod/$a) ; done
+			unset module
+        else
+			$u2xzm_current -d $(basename $buildDir) $(echo $(cat $mod/cmdline))  | tee ./urpm2xzm.out
+			module=$(cat ./urpm2xzm.out | tail -n1)
+			mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
+			mv $module ${CPWD}/
+        fi
     done
     cd $CPWD
     rm -rf $buildDir
-    newmods="$(echo $CPWD/$(basename $module)) $newmods"
+    [ $module ] && newmods="$(echo $CPWD/$(basename $module)) $newmods"
     done
     if [ "$load" = "yes" ] ; then 
         for nm in $newmods ; do 
@@ -173,7 +180,7 @@ fi
 #show masked modules and exit
 if [[ -z "${packages}${urpmipars}" ]]; then
     echo "Masked Modules:"
-    ls $mod_path | egrep $MASK
+    ls $mod_path | egrep $MASK |sort -r
     echo ''
     HLP
     exit
@@ -209,37 +216,14 @@ for tm in {dev,proc,sys}; do
     mount -o bind /$tm $root_br/$tm
 done
 
-##########################
-# move rpmDB to tmpfs
-#    mount -t tmpfs tmpfs /$root_br/var/lib/rpm/
-#     echo "copy  rpm DB --> tmpfs"
-#    for a in $(ls $mod_path | egrep $MASK) ; do
-#	    if [ -d  ${mod_path}/$a/var/lib/rpm ] ; then
-#		  echo  "${mod_path}/$a/var/lib/rpm/* -> $root_br/var/lib/rpm/"
-#		  cp  -rf ${mod_path}/$a/var/lib/rpm/* $root_br/var/lib/rpm/
-#       fi
-#    done
-#     chown 0.0 -R /$root_br/var/lib/rpm
-#    chmod o-w -R /$root_br/var/lib/rpm
-#    echo Done.
-###########################
+#hook to fix rpmdb bug
+mount -o bind  $root_br/var/lib/rpm  /var/lib/rpm 
 
-###########################
-#to get all /var/lib/rpm to module
-#find /$root_br/var/lib/rpm -type f | while read a ; do touch $a ; done
-#sync
-#mount -o remount $mod_br && mount -o remount $root_br
-###########################
-mount -o bind  /$root_br/var/lib/rpm  /var/lib/rpm 
 #get rpms list before installing, need to generate rpm list in /var/lib/rpm/modules/mod_name
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_before
 
 [ "$steps" ] && read -p "next step - urpmi" ecode
-if [ "$ecode" == "exit" ]; then
-    umount_aufs
-    umount $mod_br
-    exit
-fi
+if [ "$ecode" == "exit" ]; then   umount_aufs ;   umount $mod_br ;   exit ; fi
 
 if [ "$erase" == "no" ]; then
     for pack in $packages; do
@@ -267,9 +251,6 @@ fi
 rpm -qa -r $root_br >$URPMITMP/rpm_qa_end
 
 umount /var/lib/rpm
-rmdir $fakedb
-
-#umount $root_br/var/lib/rpm
 umount_aufs
 clear_mod_br
 
@@ -305,11 +286,7 @@ if [ "$rebuildable" == "yes" ]; then
 fi
 
 [ "$steps" ] && read -p "next step - mksquashfs" ecode
-if [ "$ecode" == "exit" ]; then
-    umount_aufs
-    umount $mod_br
-    exit
-fi
+if [ "$ecode" == "exit" ]; then   umount_aufs ;  umount $mod_br ;  exit ; fi
 
 if [ "$result" -eq 0 -a "$erase" == "no" ]; then
     mksquashfs $mod_br ${PNAME}/${NAME} $MKSQOPTS -noappend -regex -e ".wh..wh." && MODULE="$(readlink -e ${PNAME}/${NAME})" && create=OK
