@@ -20,7 +20,7 @@ grep -q " /var/lib/rpm " /proc/mounts && exit 0
 grep -q " /mnt/live/memory tmpfs " /proc/mounts && RPMDB2TMPFS=no
 
 # in case of UIRD without profile
-if grep -q "tmpfs /memory tmpfs " /proc/mounts ;then
+if egrep -q "tmpfs /memory |/dev/zram. /memory " /proc/mounts ;then
    grep -q " /memory/changes "  /proc/mounts || RPMDB2TMPFS=no
 fi
 

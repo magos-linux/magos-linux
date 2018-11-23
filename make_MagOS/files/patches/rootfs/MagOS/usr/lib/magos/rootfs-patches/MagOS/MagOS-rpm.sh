@@ -3,6 +3,8 @@
 [ -x /bin/rpm ] || exit 0
 
 chmod 444 /var/lib/rpm/modules/*
+sed -i /^\\//d /etc/urpmi/skip.list
+echo -e "/kernel/"\\n"/nvidia/" >> /etc/urpmi/skip.list
 
 # tmpfs tweak will increase rpm speed in several times
 mkdir /var/lib/rpmbase
