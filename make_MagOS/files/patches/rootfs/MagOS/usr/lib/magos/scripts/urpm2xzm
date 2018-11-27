@@ -28,7 +28,11 @@ HLP() {
     exit
 }
 
-[ "$1" == "" -o "$1" == "--help" -o $(id -un) != "root" ] && HLP
+[ "$1" == "" -o "$1" == "--help" ] && HLP
+if [ $(id -un) != "root" ] ; then
+	echo  "You must be root !!!"
+	exit 1 
+fi
 
 MASK="base"     #default mask (grep format) for modules in $mod_path to be mounted in new aufs
 urpmipars=""      #default pars for urpmi
