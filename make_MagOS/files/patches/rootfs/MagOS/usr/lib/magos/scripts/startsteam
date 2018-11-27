@@ -69,5 +69,8 @@ PRRUN=
 # Checking for bumblebeed.service is exists and works
 [ -x /usr/bin/primusrun ] && primusrun glxinfo -h >/dev/null 2>&1 && PRRUN=primusrun
 
+# Fix for language bug
+[ -f ~/.steam/registry.vdf -a "$(locale | grep -m1 ru_RU)" ] && sed -i s/\"language\".*$/\"language\"\\t\\t\"russian\"/ ~/.steam/registry.vdf
+
 # Start steam
 exec $PRRUN /usr/bin/steam $@

@@ -1,7 +1,16 @@
-diff -auprN a/kernel.spec b/kernel.spec
---- a/kernel.spec	2017-02-23 12:30:21.000000000 +0300
-+++ b/kernel.spec	2017-02-23 12:31:11.801914984 +0300
-@@ -71,6 +71,18 @@
+diff -aupr a/kernel.spec b/kernel.spec
+--- a/kernel.spec	2018-11-16 20:50:12.423008197 +0300
++++ b/kernel.spec	2018-11-16 20:52:16.879014148 +0300
+@@ -1,7 +1,7 @@
+ %define kernelversion	4
+ %define patchlevel	9
+ # sublevel is now used for -stable patches
+-%define sublevel	124
++%define sublevel	137
+ 
+ # Release number. Increase this before a rebuild.
+ %define rpmrel		1
+@@ -74,6 +74,19 @@
  %define build_modxz		1
  # End of user definitions
  
@@ -16,11 +25,12 @@ diff -auprN a/kernel.spec b/kernel.spec
 +%define build_perf              0
 +%define build_cpupower          0
 +%define build_modxz             0
++%define build_headers           1
 +
  # buildtime flags
  %{?_without_nrj_desktop: %global build_nrj_desktop 0}
  %{?_without_nrj_laptop: %global build_nrj_laptop 0}
-@@ -233,6 +245,11 @@ Patch120:	tunnels-Don-t-apply-GRO-to-mul
+@@ -237,6 +250,11 @@ Patch303:	random-make-getrandom-ready-ea
  # then, it seems, even if we place "Patch: <..>" under a conditional.
  Source701:	sanitize-memory.patch
  ####################################################################
@@ -32,7 +42,7 @@ diff -auprN a/kernel.spec b/kernel.spec
  
  # Defines for the things that are needed for all the kernels
  #
-@@ -636,6 +653,11 @@ cp %{SOURCE112} .
+@@ -639,6 +657,11 @@ cp %{SOURCE112} .
  FLAVOURS="${FLAVOURS} nrj-laptop"
  %endif
  
@@ -44,7 +54,7 @@ diff -auprN a/kernel.spec b/kernel.spec
  CONFIG_DIR=arch/x86/configs
  mkdir -p "${CONFIG_DIR}"
  
-@@ -1129,7 +1151,8 @@ find %{target_source}/include -name .ins
+@@ -1148,7 +1171,8 @@ find %{target_source}/include -name .ins
  # compressing modules
  %if %{build_modxz}
  find %{target_modules} -name "*.ko" | %kxargs xz -6e

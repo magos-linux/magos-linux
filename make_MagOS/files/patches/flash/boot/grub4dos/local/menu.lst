@@ -11,17 +11,17 @@ font /boot/grub4dos/unifont.hex.gz
 color white/black yellow/blue
 splashimage /boot/grub4dos/boot_xpm.gz
 
-iftitle [if exist /isomode] MagOS Linux-Загрузка с ISO/DVD
+iftitle [if not exist /isomode] MagOS Linux-Загрузка с ISO/DVD
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.force scantimeout=3
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux-С сохранением данных
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux-Чистый режим
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0
 initrd /MagOS/uird.magos.cpio.xz
 
@@ -34,17 +34,17 @@ kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.from=MagO
 initrd /MagOS.bak/uird.magos.cpio.xz
 
 #title MagOS Linux-С сохранением данных (initrd)
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+#if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 root=/dev/ram0 rw home=home.img changes=xzm
 #initrd /MagOS/initrd.gz
 
 #title MagOS Linux-Чистый режим (initrd)
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+#if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 root=/dev/ram0 rw
 #initrd /MagOS/initrd.gz
 
 #title MagOS Linux-System profile
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+#if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent quiet changes=MagOS_save1.img
 #initrd /MagOS/initrd.gz
 

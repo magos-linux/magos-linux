@@ -85,6 +85,11 @@ class SteamApp(object):
         with open(path, "r") as f:
             content = f.read()
 
+        # App manifest may be completely empty or a pre-allocated zero'd block.
+        # In that case, skip it
+        if content.strip() == "" or content[0] == '\0':
+            return None
+
         appid = int(re.search(r'(\t"appid"\s+")([0-9]+)', content).group(2))
         name = re.search(r'(\t"name"\s+")([\w\W]+?)"\n', content).group(2)
         prefix_path = os.path.join(
@@ -110,6 +115,7 @@ def find_steam_dir():
         # correct directory
         if os.path.isdir(os.path.join(steam_dir, "steamapps")):
             return steam_dir
+            
         # Some users may have imported their imported their install from
         # Windows, this checks for the "capitalized" version of the
         # Steam library directory.
@@ -206,8 +212,12 @@ def get_steam_lib_dirs(steam_dir):
         return library_folders
 
     # Try finding Steam library folders using libraryfolders.vdf in Steam root
-    folders_vdf_path = os.path.join(
-        steam_dir, "steamapps", "libraryfolders.vdf")
+    if os.path.isdir(os.path.join(steam_dir, "steamapps")):
+        folders_vdf_path = os.path.join(
+            steam_dir, "steamapps", "libraryfolders.vdf")
+    elif os.path.isdir(os.path.join(steam_dir, "SteamApps")):
+         folders_vdf_path = os.path.join(
+            steam_dir, "SteamApps", "libraryfolders.vdf")
     try:
         with open(folders_vdf_path, "r") as f:
             library_folders = parse_library_folders(f.read())
@@ -227,13 +237,19 @@ def get_steam_apps(steam_lib_dirs):
     steam_apps = []
 
     for path in steam_lib_dirs:
-        appmanifest_paths = glob.glob(
-            os.path.join(path, "steamapps", "appmanifest_*.acf")
-        )
+        if os.path.isdir(os.path.join(steam_dir, "steamapps")):
+            appmanifest_paths = glob.glob(
+                os.path.join(path, "steamapps", "appmanifest_*.acf")
+            )
+        elif os.path.isdir(os.path.join(steam_dir, "SteamApps")):
+            appmanifest_paths = glob.glob(
+                os.path.join(path, "SteamApps", "appmanifest_*.acf")
+            )
 
-        steam_apps += [
-            SteamApp.from_appmanifest(path) for path in appmanifest_paths
-        ]
+        for path in appmanifest_paths:
+            steam_app = SteamApp.from_appmanifest(path)
+            if steam_app:
+                steam_apps.append(steam_app)
 
     return steam_apps
 

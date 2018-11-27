@@ -88,6 +88,7 @@ update_app modem-manager-gui.desktop "TelephonyTools;HardwareSettings;"
 update_app obconf-qt.desktop "Qt;DesktopSettings;X-LXQT-Settings;"
 update_app pcmanfm-qt-desktop-pref.desktop "Qt;DesktopSettings;X-LXQT-Settings;"
 update_app compton-conf.desktop "Qt;DesktopSettings;X-LXQT-Settings;"
+update_app lftp.desktop "Network;FileTransfer;"
 
 update_app kde4/akonaditray.desktop "Qt;KDE;X-KDE-Utilities-PIM;"
 update_app kde4/dolphin.desktop "Qt;KDE;System;Utility;Core;FileManager;"

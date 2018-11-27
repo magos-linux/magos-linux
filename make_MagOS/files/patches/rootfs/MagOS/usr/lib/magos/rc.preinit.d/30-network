@@ -58,3 +58,16 @@ if [ "$(cmdline_parameter flightmode)" ] ;then
    [ "$BLOCKWPASS" = "yes" -a -f lib/systemd/system/wpa_supplicant.service ] && ln -sf /dev/null etc/systemd/system/wpa_supplicant.service
 fi
 
+if [ "$IPV6" = "yes" ] ;then
+   sed -i /ipv4/d lib/systemd/network/90-enable.network
+   sed -i /ipv4/d lib/systemd/network/90-wireless.network
+   sed -i /ipv6/d etc/modprobe.d/magos.conf
+elif [ "$IPV6" = "no" ] ;then
+   sed -i /ipv4/d lib/systemd/network/90-enable.network
+   sed -i /ipv4/d lib/systemd/network/90-wireless.network
+   sed -i /ipv6/d etc/modprobe.d/magos.conf
+   echo "options ipv6 disable=1" >> etc/modprobe.d/magos.conf
+   echo "DHCP=ipv4" >>lib/systemd/network/90-enable.network
+   echo "DHCP=ipv4" >>lib/systemd/network/90-wireless.network
+fi
+

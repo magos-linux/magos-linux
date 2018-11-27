@@ -1,8 +1,10 @@
 #!/bin/bash
-mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS ~/rpmbuild/BUILD ~/rpmbuild/BUILDROOT rpms srpms
+[ -d ~/builddeps ] && rm -fr ~/builddeps
+mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS ~/rpmbuild/BUILD ~/rpmbuild/BUILDROOT ~/rpmbuild/RPMS rpms srpms
 mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILD
 mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILDROOT
-#[ -d ~/rpmbuild ] || ln -s "$PWD/rpmbuild" ~/rpmbuild
+ln -sf $PWD/rpms ~/rpmbuild/RPMS/i586
+ln -sf $PWD/srpms ~/rpmbuild/SRPMS
 cp -pf SOURCES/* ~/rpmbuild/SOURCES
 if cp -uv SPECS/* ~/rpmbuild/SPECS | grep -q . ;then
    cd ~/rpmbuild/SPECS
@@ -12,9 +14,6 @@ if cp -uv SPECS/* ~/rpmbuild/SPECS | grep -q . ;then
    done
    cd ../../
 fi
-rpmbuild -bs ~/rpmbuild/SPECS/*.spec || exit 1
-rpmbuild -bb ~/rpmbuild/SPECS/*.spec || exit 1
-#rpmbuild -bb ~/rpmbuild/SPECS/*.spec > build.log 2>&1 || exit 1
-find ~/rpmbuild | grep .rpm$ | while read a ;do mv $a rpms ;done
-mv rpms/*.src.rpm srpms
+rpmbuild -bs ~/rpmbuild/SPECS/kernel.spec || exit 1
+rpmbuild -bb ~/rpmbuild/SPECS/kernel.spec || exit 1
 umount ~/rpmbuild/BUILD ~/rpmbuild/BUILDROOT

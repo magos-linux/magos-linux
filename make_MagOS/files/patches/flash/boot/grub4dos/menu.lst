@@ -16,12 +16,12 @@ kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.force
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux with saving data
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.home=home.img uird.mode=machines
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux Clean mode
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en
 initrd /MagOS/uird.magos.cpio.xz
 
@@ -39,12 +39,12 @@ initrd /MagOS.bak/uird.magos.cpio.xz
 #initrd /MagOS/initrd.gz
 
 #title MagOS Linux Clean mode (initrd)
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+#if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en root=/dev/ram0 rw
 #initrd /MagOS/initrd.gz
 
 #title MagOS Linux System profile
-#find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
+#if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 #kernel /MagOS/vmlinuz  root=/dev/ram0 rw vga=791 splash=silent plymouth.enable=0 lang=en changes=MagOS_save1.img
 #initrd /MagOS/initrd.gz
 

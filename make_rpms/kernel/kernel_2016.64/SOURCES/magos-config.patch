@@ -1,7 +1,7 @@
-diff -auprN a/kernel-x86_64.config b/kernel-x86_64.config
---- a/kernel-x86_64.config	2016-09-21 06:46:31.000000000 +0300
-+++ b/kernel-x86_64.config	2016-09-21 19:52:40.152068381 +0300
-@@ -5293,7 +5293,11 @@ CONFIG_DUMMY_CONSOLE_ROWS=25
+diff -aupr a/kernel-x86_64.config b/kernel-x86_64.config
+--- a/kernel-x86_64.config	2018-11-16 09:20:06.107397430 +0300
++++ b/kernel-x86_64.config	2018-11-16 09:25:31.475412989 +0300
+@@ -5360,7 +5360,11 @@ CONFIG_DUMMY_CONSOLE_ROWS=25
  CONFIG_FRAMEBUFFER_CONSOLE=y
  CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
  # CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
@@ -14,7 +14,7 @@ diff -auprN a/kernel-x86_64.config b/kernel-x86_64.config
  CONFIG_SOUND=m
  CONFIG_SOUND_OSS_CORE=y
  # CONFIG_SOUND_OSS_CORE_PRECLAIM is not set
-@@ -7398,8 +7402,8 @@ CONFIG_UDF_NLS=y
+@@ -7547,8 +7551,8 @@ CONFIG_UDF_NLS=y
  CONFIG_FAT_FS=m
  CONFIG_MSDOS_FS=m
  CONFIG_VFAT_FS=m
@@ -25,3 +25,11 @@ diff -auprN a/kernel-x86_64.config b/kernel-x86_64.config
  # CONFIG_FAT_DEFAULT_UTF8 is not set
  CONFIG_NTFS_FS=m
  # CONFIG_NTFS_DEBUG is not set
+@@ -7658,6 +7662,7 @@ CONFIG_AUFS_SBILIST=y
+ CONFIG_AUFS_XATTR=y
+ CONFIG_AUFS_FHSM=y
+ # CONFIG_AUFS_RDU is not set
++# CONFIG_AUFS_DIRREN is not set
+ CONFIG_AUFS_SHWH=y
+ # CONFIG_AUFS_BR_RAMFS is not set
+ CONFIG_AUFS_BR_FUSE=y
