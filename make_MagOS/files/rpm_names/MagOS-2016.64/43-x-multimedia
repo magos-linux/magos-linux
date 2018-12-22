@@ -83,7 +83,7 @@ lib64id3_3.8_3-
 lib64iec61883_0-
 lib64iguanair0-
 lib64irman0-
-lib64iso9660_8-
+lib64iso9660_11-
 lib64lirc_client0-
 lib64lo10k1_0-
 lib64mikmod3-
@@ -147,7 +147,6 @@ qmmp-plugins-
 qmmp-wavpack-
 qt-recordmydesktop-
 recordmydesktop-
-rosa-media-player-
 rtkit-
 sbc-
 soundwrapper-
@@ -161,7 +160,6 @@ vorbis-tools-
 wavpack-
 wildmidi-
 youmagic-
-lib64rosampcore1-
 lib64gstbadvideo1.0_0-
 lib64gstbadbase1.0_0-
 lib64chromaprint1-
@@ -338,3 +336,8 @@ lensfun-
 libllvm6.0-
 lib64mypaint1.3_0-
 lib64fdk-aac1-
+lib64qmplay2_1-
+lib64sidplayfp4-
+qmplay2-
+youtube-dl-
+tetzle-

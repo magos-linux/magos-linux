@@ -81,6 +81,7 @@ lib64cairo2-
 lib64cairomm1.0_1-
 lib64canberra0-
 lib64cdio14-
+lib64cdio18-
 lib64cdio_cdda1-
 lib64cdio_paranoia1-
 lib64cdt5-
@@ -267,8 +268,6 @@ lib64sepol1-
 lib64sgutils2-
 lib64shairport1-
 lib64sigc++2.0_0-
-lib64slang2-
-lib64slang-modules-
 lib64sm6-
 lib64smapidev2-
 lib64sndfile1-
@@ -513,7 +512,6 @@ gnome-icon-theme-
 gnome-icon-theme-symbolic-
 tkinter-
 cabextract-
-python3-sip-
 python3-gi-
 python3-pillow-
 xinput-
@@ -813,7 +811,6 @@ qt4-qtdbus-
 qt4-xmlpatterns-
 scim-qt-
 python3-qt4-gui-
-python3-qt4-core-
 python3-qt4-dbus-
 lib64qt5core5-
 lib64qt5gui5-
@@ -831,7 +828,6 @@ lib64qt5sql5-
 lib64qt5xml5-
 lib64poppler-qt5-1-
 lib64qt5multimedia5-
-lib64qgsttools_p1-
 lib64qt5multimediawidgets5-
 qt5-qtmultimedia-i18n-
 lib64qt5opengl5-
@@ -840,7 +836,6 @@ lib64qt5declarative5-
 lib64qt5script5-
 lib64qt5qml5-
 lib64qt5quick5-
-lib64qt5multimediaquick_p5-
 qt5-qtscript-i18n-
 lib64qt5xmlpatterns5-
 qt5-qtdeclarative-i18n-
@@ -857,7 +852,6 @@ lib64qt5webkitwidgets5-
 lib64qt5webchannel5-
 lib64qt53dquickrender5-
 lib64qt53drender5-
-python3-qt5-core-
 python3-qt5-dbus-
 python3-qt5-gui-
 python3-qt5-widgets-
@@ -870,8 +864,6 @@ lib64phonon4qt5_4-
 lib64qt5imageformats-plugins-
 lib64polkit-qt5-core-1_1-
 qt5-qtwebengine-common-
-lib64Qt5Xdg2-
-lib64Qt5XdgIconLoader2-
 lib64kf5idletime5-
 lib64kf5screen7-
 lib64qt5sql5-sqlite-
@@ -942,7 +934,6 @@ qterminal-
 trojita-
 compton-
 libfm-qt-
-lib64fm-qt_3-
 lib64lxqt0-
 lib64obrender32-
 lib64qtermwidget5_0-
@@ -994,3 +985,15 @@ qca2-qt5-
 qca2-qt5-plugin-gnupg-
 lib64dmtx0-
 lib64fm-qt_5-
+xgamma-
+python-sip-PyQt4-
+python3-qt4-core-
+python3-qt5-core-
+python3-sip-PyQt4-
+python3-sip-PyQt5-
+python3-sip-
+lib64mspack0-
+lib64qt5positioning5-
+lib64qt5multimediagsttools5-
+lib64qt5multimediaquick5-
+lib64qt5positioningquick5-

@@ -48,7 +48,7 @@ echo -n "Preparing new directory ${MAGOSPATH}_${NVER}"
 mkdir -p "${MAGOSPATH}_${NVER}"
 cd "${MAGOSPATH}_${NVER}"
 mv -f /tmp/magosupdate_VERSION VERSION
-cp -pfr -t ./ "$MAGOSPATH/"*.sgn "$MAGOSPATH/"*.ini "$MAGOSPATH/machines" "$MAGOSPATH/rootcopy" "$MAGOSPATH/modules" "$MAGOSPATH/optional"
+cp -pfr -t ./ "$MAGOSPATH/"*.sgn "$MAGOSPATH/"*.ini "$MAGOSPATH/machines" "$MAGOSPATH/modules" "$MAGOSPATH/optional"
 [ -d base ] || cp -pfr -t ./ "$MAGOSPATH/base"
 echo " ok."
 
@@ -77,10 +77,20 @@ if ! md5sum -c MD5SUM ;then
     exit 1
 fi
 
-echo "Moving optional modules"
-cd base 
+echo "Moving disabled base modules to optional"
+cd base
 for a in *.xzm ;do
-  [ -f "$MAGOSPATH/optional/$a" ] && mv -f $a ../optional
+  [ -f "$MAGOSPATH/optional/$a" ] && mv -fv $a ../optional
+done
+
+echo "Updating modules"
+cd ../modules
+RSYNCURL=$(echo $RSYNCURL | sed s=/netlive/.*=/modules/$ARCH=)
+for a in *.xzm ;do
+  if  [ -f "$a" ] ;then
+     echo -n "$a "
+     rsync $MUPDRSYNCOPT --inplace -qtuc "$RSYNCURL/$a" ./ 2>/dev/null || rsync $MUPDRSYNCOPT --inplace -qtuc "$RSYNCURL/international/$a" ./ 2>/dev/null && echo updated || echo not updated
+  fi
 done
 
 echo "Renaming livemedia folders"

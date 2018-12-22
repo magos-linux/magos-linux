@@ -555,3 +555,6 @@ lib64basicobjects0-
 lib64collection4-
 lib64path_utils1-
 perl-HTTP-Tiny-
+lib64zstd1-
+lib64slang2-
+lib64slang-modules-
