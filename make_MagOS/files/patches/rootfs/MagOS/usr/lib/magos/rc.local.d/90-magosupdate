@@ -7,13 +7,9 @@ DEBUGMODE=no
 . /usr/lib/magos/functions
 debug_mode "$0" "$@"
 
-MAGOSPATH=/mnt/livemedia/MagOS
-[ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
-[ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
-
 echo $MAGOSUPDATE | grep -qi ^auto$ || exit 0
 
-/usr/lib/magos/scripts/magosupdate --auto >>$MAGOSPATH/update.log 2>&1
+/usr/lib/magos/scripts/magosupdate --auto >/dev/null  2>&1
 
 exit 0

@@ -90,3 +90,50 @@ msgstr "Запись остановлена, ожидайте пережатия
 msgid "Video are encoded and placed to your home dir"
 msgstr "Видео пережато и записано в домашнюю папку"
 
+msgid "Please select"
+msgstr "Пожалуйста, выберите"
+
+msgid "Do you want to update it now?"
+msgstr "Желаете обновить систему сейчас?"
+
+msgid "New version of MagOS Linux is detected on server."
+msgstr "На сервере обновлений обнаружена новая сборка MagOS Linux."
+
+msgid "New updates for MagOS Linux are detected on server."
+msgstr "Обнаружены обновления для текущей версии MagOS Linux."
+
+msgid "Yes, right now"
+msgstr "Да, немедленно"
+
+msgid "No, later"
+msgstr "Нет, позже"
+
+msgid "Never, don't ask me again"
+msgstr "Нет, и больше не спрашивать"
+
+msgid "MagOS update is over"
+msgstr "Обновление MagOS завершено"
+
+msgid "MagOS updated. Please reboot computer."
+msgstr "Система обновлена. Необходимо перезагрузить компьютер "
+
+msgid "Reboot now"
+msgstr "Перезагрузить немедленно"
+
+msgid "No, i will reboot later"
+msgstr "Нет, я перезагружу позже"
+
+msgid "Update was unsuccessful."
+msgstr "Обновление не удалось."
+
+msgid "MagOS update error"
+msgstr "Обновление MagOS не удалось."
+
+msgid "MagOS update started. Please wait."
+msgstr "Обновление MagOS. Пожалуйста, подождите."
+
+msgid "MagOS update finished. Please reboot."
+msgstr "Обновление MagOS завершено. Необходима перезагрузка."
+
+msgid "MagOS update finished."
+msgstr "Обновление MagOS завершено успешно."

@@ -1,0 +1,185 @@
+diff -auprN a/preset_menu.lst b/preset_menu.lst
+--- a/preset_menu.lst	2018-12-23 07:44:45.000000000 +0300
++++ b/preset_menu.lst	2019-01-01 22:57:02.147272091 +0300
+@@ -3,16 +3,11 @@ configfile
+ default 0
+ timeout 1
+ 
+-title find /menu.lst, /boot/grub/menu.lst, /grub/menu.lst
++title find /boot/grub4dos/menu.lst
+ 	errorcheck off
+-	configfile /boot/grub/menu.lst
+-	configfile /grub/menu.lst
+-	if "%@root%"=="(ud)" && calc *0x82A0=*0x82b9&0xff
+-	if "%@root:~1,1%"=="f" && find --set-root --devices=f /menu.lst && configfile /menu.lst
+-	find --set-root --ignore-floppies --ignore-cd /menu.lst && configfile /menu.lst
+-	find --set-root --ignore-floppies --ignore-cd /boot/grub/menu.lst && configfile /boot/grub/menu.lst
+-	find --set-root --ignore-floppies --ignore-cd /grub/menu.lst && configfile /grub/menu.lst
+-	configfile http://b.chenall.net/menu.lst
++	find --set-root --ignore-floppies /boot/grub4dos/local/menu.lst && configfile /boot/grub4dos/local/menu.lst
++	find --set-root --ignore-floppies /boot/grub4dos/menu.lst && configfile /boot/grub4dos/menu.lst
++	configfile /boot/grub4dos/local/menu.lst || configfile /boot/grub4dos/menu.lst
+ 	errorcheck on
+ 	commandline
+ 
+diff -auprN a/stage2/grldrstart.S b/stage2/grldrstart.S
+--- a/stage2/grldrstart.S	2018-12-23 07:44:45.000000000 +0300
++++ b/stage2/grldrstart.S	2019-01-01 22:48:56.128248850 +0300
+@@ -1309,7 +1309,7 @@ msg_BootError_32:
+ 	.ascii	"No "
+ 	
+ filename_32:
+-	.ascii	"GRLDR      \0"
++	.ascii	"MAGOS   LDR\0"
+ 
+ msg_DiskReadError_32:
+ 	.ascii	"Disk error\0" 
+@@ -1790,7 +1790,7 @@ msg_BootError_12_16:
+ 	.ascii	"No "
+ 
+ filename_12_16:
+-	.ascii	"GRLDR      \0"
++	.ascii	"MAGOS   LDR\0"
+ 	
+ msg_DiskReadError_12_16:
+ 	.ascii	"Disk error\0"
+@@ -2141,7 +2141,7 @@ msg_No_grldr_ext2:
+ 	.ascii	"No "
+ 
+ filename_ext2:
+-	.ascii	"GRLDR\0\0\0\0\0\0\0\0"
++	.ascii	"magos.ldr\0\0\0\0"
+ 	
+ msg_DiskReadError_ext2:
+ 	.ascii	"Disk error\0"
+@@ -2892,7 +2892,7 @@ msg_BootError_64:
+ 	.ascii	"No "
+ 	
+ grldr_un:
+-        .ascii  "GRLDR\0\0\0\0\0\0\0\0"	
++        .ascii  "magos.ldr\0\0\0\0"	
+ 
+ msg_DiskReadError_64:
+ 	.ascii	"Disk error\0"  
+@@ -3641,7 +3641,7 @@ msg_NTFS_Not_Found_Error:
+ 	.ascii "No "
+ 
+ nt_boot_image:
+-	.ascii "GRLDR\0\0\0\0\0\0\0\0"
++	.ascii "magos.ldr\0\0\0\0"
+ 
+ msg_DiskReadError_nt:
+ 	.ascii	"0\0" 
+@@ -9021,7 +9021,7 @@ msg_BootError_cdrom:
+ 	.ascii	"No "        
+ 
+ cdrom_name:
+-	.ascii	"GRLDR\0\0\0\0\0\0\0\0"
++	.ascii	"MAGOS.LDR\0\0\0\0"
+ 
+ udf_tag:
+ 	.ascii  "BEA01"  
+@@ -9280,7 +9280,7 @@ msg_BootError_hd_udf:
+ 	.ascii	"No "        
+ 
+ hd_udf_name:
+-	.ascii	"GRLDR\0\0\0\0\0\0"
++	.ascii	"MAGOS.LDR\0\0"
+        
+ 	. = Entry_hd_udf + 0x1fe
+ 	.byte   0x55, 0xaa
+diff -auprN a/stage2/stage2.c b/stage2/stage2.c
+--- a/stage2/stage2.c	2018-12-23 07:44:45.000000000 +0300
++++ b/stage2/stage2.c	2019-01-01 22:40:37.745225017 +0300
+@@ -230,6 +230,17 @@ if (menu_tab & 0x20)
+ 	default_help_message_destoyed = 0;
+ }
+ 
++static void sleep(int delay)
++{
++  int tick, last_tick = currticks();
++
++  delay *= 18;
++
++  while(delay--) {
++    while((tick = currticks()) == last_tick) { }
++    last_tick = tick;
++  }
++}
+ 
+ // ADDED By STEVE6375
+ static unsigned int num_entries;
+@@ -1869,7 +1880,7 @@ run_graphics_menu (char *menu_entries, c
+ {
+   unsigned char *buf, *buf_ext;
+   unsigned buf_size, buf_ext_size, code_start = 0, file_start;
+-  char *cfg;
++  char *s, *t, *t2, *cfg, *new_config, *p;
+   int i, j, max_len, gfx_file_size, verbose;
+   int selected_entry;
+   gfx_data_v1_t *gfx1;
+@@ -1944,6 +1955,7 @@ run_graphics_menu (char *menu_entries, c
+   gfx1->cmdline = gfx2->cmdline = heap;
+   heap += gfx1->cmdline_len;
+   memset(gfx1->cmdline, 0, gfx1->cmdline_len);
++  memset(gfx2->cmdline, 0, gfx2->cmdline_len);
+ 
+   //cmd_buf = heap;
+   heap += GFX_CMD_BUF_SIZE;
+@@ -2228,7 +2240,55 @@ run_graphics_menu (char *menu_entries, c
+   while (*(cfg++))
+     ;
+ 
+-  run_script(cfg, heap);
++  /*run_script(cfg, heap);*/
++  /* create new config with modified kernel option */
++
++  new_config = heap;
++
++  for(p = gfx2->cmdline, i = 0; ; i++) {
++    s = get_entry(cfg, i);
++    if(!*s) {
++      if(!i) *heap++ = 0;
++      *heap++ = 0;
++      break;
++    }
++
++    /* note: must match get_kernel_args() */
++    if(
++      (!memcmp(s, "kernel", 6) || !memcmp(s, "module", 6)) &&
++      (s[6] == ' ' || s[6] == '\t')
++    ) {
++      t = skip_to(0, s);
++      t2 = s[0] == 'm' ? strstr(t, "initrd") : NULL;
++      if(*t) t = skip_to(0, t);
++      if(t2 && t2 < t) {       /* module is likely a normal initrd -> skip */
++        strcpy(heap, s);
++        heap += strlen(s) + 1;
++        continue;
++      }
++      memmove(heap, s, t - s);
++      heap += t - s;
++      *heap++ = ' ';
++      while(*p && *p != GFX_CMD_SEP) *heap++ = *p++;
++      *heap++ = ' ';
++      memmove(heap, t, strlen(t));
++      heap += strlen(t);
++      *heap++ = 0;
++      if(*p == GFX_CMD_SEP) p++;
++    }
++    else {
++      strcpy(heap, s);
++      heap += strlen(s) + 1;
++    }
++  }
++
++  *heap++ = 0;
++
++  // hexdump(new_config, heap - new_config);
++  //  printf("\ncmdline: >%s<, heap = %s\n", new_config,heap);
++  // getkey();
++
++  run_script(new_config, heap);
+ }
+ 
+ #endif /* SUPPORT_GFX */

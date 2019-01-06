@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVICESDISABLE="atd abrtd irqbalance smartd bumblebeed crond hddtemp lircd lircmd \
+SERVICESDISABLE="adb atd abrtd irqbalance smartd bumblebeed crond hddtemp lircd lircmd \
 dhcpd6 ip6tables ebtables sshd tor rpcbind hostapd avahi-daemon avahi-dnsconfd ntpd openl2tp snmpd xl2tpd mdmonitor\
 fedora-loadmodules fedora-storage-init-late fedora-storage-init  blk-availability shorewall rtkit-daemon \
 canberra-system-bootup canberra-system-shutdown-reboot canberra-system-shutdown \
@@ -20,6 +20,10 @@ done
 for a in $SERVICESSTART ;do
     [ -f /lib/systemd/system/$a.service ] &&  systemctl enable $a.service
 done
+
+PFP=/etc/systemd/system.conf
+sed -i /^DefaultTimeoutStopSec/d $PFP
+echo DefaultTimeoutStopSec=10s >> $PFP
 
 PFP=/etc/systemd/coredump.conf
 sed -i /Storage=/d $PFP

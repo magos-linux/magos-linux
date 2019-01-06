@@ -1,105 +1,491 @@
 #!/bin/bash
 
-MAGOSPATH=/mnt/livemedia/MagOS
-MUPDRSYNCOPT="--progress"
-[ "$1" = "--auto" ] && MUPDRSYNCOPT=
-[ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
-[ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
-ARCH=$(gawk '{print $1}' $MAGOSPATH/VERSION)
-VER=$(gawk '{print $2}' $MAGOSPATH/VERSION)
-HTTPURL=http://mirror.yandex.ru/mirrors/magos/netlive/$ARCH/MagOS/
-RSYNCURL=rsync://mirror.yandex.ru:/mirrors/magos/netlive/$ARCH/MagOS/
-. /etc/sysconfig/MagOS
+function echolog()
+{
+ echo magosupdate: $(date +"%Y-%m-%d %H:%M:%S") $@ >>$LOGFILE
+ echo magosupdate: $(date +"%Y-%m-%d %H:%M:%S") $@ >>/dev/stdout
+}
 
-echo $(date +"%Y-%m-%d %H:%M:%S") magosupdate started by user $UID
+function echoerror()
+{
+ echolog $@
+ exit 1
+}
 
-echo -n "Checking MagOS directory ..."
-if [ -f "$MAGOSPATH/vmlinuz" -a -d "$MAGOSPATH/base" ] ;then
-   echo " ok."
-else
-   echo " not found, exiting."
-   exit 1
-fi 
+function echowall()
+{
+ wall $([ "$UID" = "0" ] && echo " -n ") $(gettext -s "$1")
+}
 
-echo -n "Checking for new version ..."
-wget -o /tmp/magosupdate_wget_log -O /tmp/magosupdate_VERSION "$HTTPURL/VERSION"
-NVER=$(gawk '{print $2}' /tmp/magosupdate_VERSION)
-if [ "0$NVER" -gt "0$VER" ] ;then
-   echo "found new version $NVER"
-else
-   if grep -q . /tmp/magosupdate_VERSION ;then
-      echo "not found."
-   else
-      echo "downloading error."
-   fi
-   exit 1
-fi
+function findmagosdir()
+{
+ MAGOSPATH=/mnt/livemedia/MagOS
+ [ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
+ [ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
+ [ -f "$MAGOSPATH/vmlinuz" -a -d "$MAGOSPATH/base" ] || exit 1
+ ARCH=$(gawk '{print $1}' "$MAGOSPATH/VERSION")
+ [ -z "$ARCH" ] && exit 1
+}
 
-echo -n "Checking directory $MAGOSPATH for write permissions ..."
-if [ ! -w "$MAGOSPATH/base" -a "$UID" != "0" ] ;then
-   echo -e " error.\nRestarting script as root.\n"
-   beesu -l /bin/bash $(readlink -f $0)
-   exit 1
-fi
-echo " ok."
+function initparameters()
+{
+ export TEXTDOMAINDIR=/usr/share/locale
+ export TEXTDOMAIN=magos_functions
+ TMPDIR="/tmp/magosupdate-$UID"
+ LOGFILE=/tmp/magosupdate.log
+ rm -fr "$TMPDIR" 2>/dev/null
+ mkdir -p "$TMPDIR"
+ touch $LOGFILE
+ chmod 666 $LOGFILE
+ MUPDRSYNCOPT="--inplace -rtc"
+ MAGOSUPDATEPROT=rsync
+ MAGOSUPDATESERVER=mirror.yandex.ru
+ MAGOSUPDATESHARE=:/mirrors/magos/netlive
+ MAGOSUPDATEMODSSHARE=:/mirrors/magos/modules
+ . /etc/sysconfig/MagOS
+ findmagosdir
+ MAGOSUPDATEURL=$MAGOSUPDATEPROT://$MAGOSUPDATESERVER$MAGOSUPDATESHARE/$ARCH/MagOS/
+ MAGOSUPDATEMODSURL=$MAGOSUPDATEPROT://$MAGOSUPDATESERVER$MAGOSUPDATEMODSSHARE/$ARCH/
+ MAGOSUPDATEINTURL=$MAGOSUPDATEPROT://$MAGOSUPDATESERVER$MAGOSUPDATEMODSSHARE/$ARCH/international/
+}
 
-wall -n "MagOS update started. Please wait."
-echo -n "Preparing new directory ${MAGOSPATH}_${NVER}"
-mkdir -p "${MAGOSPATH}_${NVER}"
-cd "${MAGOSPATH}_${NVER}"
-mv -f /tmp/magosupdate_VERSION VERSION
-cp -pfr -t ./ "$MAGOSPATH/"*.sgn "$MAGOSPATH/"*.ini "$MAGOSPATH/machines" "$MAGOSPATH/modules" "$MAGOSPATH/optional"
-[ -d base ] || cp -pfr -t ./ "$MAGOSPATH/base"
-echo " ok."
+# $1 filename
+# $2 directory to save
+function download()
+{
+ case $MAGOSUPDATEPROT in
+    rsync)
+        echolog "Downloading $MAGOSUPDATEURL$1 to $(readlink -f $2)"
+        rsync $MUPDRSYNCOPT "$MAGOSUPDATEURL$1" "$2" >/dev/null 2>&1 && return 0
+        ;;
+    *)
+        echoerror "Protocol $MAGOSUPDATEPROT is not supported currently, sorry"
+ esac
+ echoerror "Download failed"
+}
 
-echo  "Downloading MagOS files"
-wget -o /tmp/magosupdate_wget_log -O MD5SUM  "$HTTPURL/MD5SUM"
-wget -o /tmp/magosupdate_wget_log -O LICENSE "$HTTPURL/LICENSE"
-rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/vmlinuz" ./
-KRNLS=$(md5sum vmlinuz | awk '{ print $1}')
-if ! grep -q "$KRNLS"[[:space:]]*"vmlinuz" MD5SUM ;then
-    echo "downloading error."
-    wall -n "MagOS update error"
-    exit 1
-fi
-grep -q initrd.gz          MD5SUM && rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/initrd.gz"          ./
-grep -q uird.magos.cpio.xz MD5SUM && rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/uird.magos.cpio.xz" ./
-rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/boot.tar.bz2"       ./
-rsync $MUPDRSYNCOPT --inplace -rtuc "$RSYNCURL/MagOS-Data.tar.bz2" ./
+# $1 filename
+# $2 directory to save
+function cdownload()
+{
+ [ -f "$2/$1" ] && return 0
+ download "$1" "$2" || return 1
+}
 
-echo  "Downloading base modules"
-rsync $MUPDRSYNCOPT -rtc --delete --force "$RSYNCURL/base" ./
+# $1 filelist (MD5SUM)
+# $2 directory to save
+function downloadfromlist()
+{
+ for a in $(gawk '{print $2}' $1) ;do
+    download $a "$2"/$(dirname "$a")
+ done
+}
 
-echo  "Checking downloaded files"
-if ! md5sum -c MD5SUM ;then
-    echo "md5sum checking error."
-    wall -n "MagOS update error"
-    exit 1
-fi
+# $1 modulename
+# $2 directory to save
+function downloadmod()
+{
+ case $MAGOSUPDATEPROT in
+    rsync)
+        echolog "Trying to download $MAGOSUPDATEMODSURL$1 to $(readlink -f $2)"
+        if ! rsync $MUPDRSYNCOPT "$MAGOSUPDATEMODSURL$1" "$2" 2>/dev/null ;then
+	    echolog "Trying to download $MAGOSUPDATEINTURL$1 to $(readlink -f $2)"
+    	    rsync $MUPDRSYNCOPT "$MAGOSUPDATEINTURL$1" "$2" 2>/dev/null || return 1
+        fi
+        ;;
+    *)
+        echoerror "Protocol $MAGOSUPDATEPROT is not supported currently, sorry"
+ esac
+}
 
-echo "Moving disabled base modules to optional"
-cd base
-for a in *.xzm ;do
-  [ -f "$MAGOSPATH/optional/$a" ] && mv -fv $a ../optional
-done
+# $1 path to module dir
+function downloadmodules()
+{
+ pushd "$1" >/dev/null
+ for a in *.xzm ;do
+    [ -f "$a" ] || continue
+    downloadmod "$a" . || echolog "Warning: Can't find module "$a" on server, file was not updated"
+ done
+ popd >/dev/null
+}
 
-echo "Updating modules"
-cd ../modules
-RSYNCURL=$(echo $RSYNCURL | sed s=/netlive/.*=/modules/$ARCH=)
-for a in *.xzm ;do
-  if  [ -f "$a" ] ;then
-     echo -n "$a "
-     rsync $MUPDRSYNCOPT --inplace -qtuc "$RSYNCURL/$a" ./ 2>/dev/null || rsync $MUPDRSYNCOPT --inplace -qtuc "$RSYNCURL/international/$a" ./ 2>/dev/null && echo updated || echo not updated
-  fi
-done
+function checkserver()
+{
+ echolog "Checking connection to server ..."
+ download VERSION    "$TMPDIR"
+ download MD5SUM     "$TMPDIR"
+ download MD5SUM.sig "$TMPDIR"
+ echolog "Connection to server is ok"
+}
 
-echo "Renaming livemedia folders"
-cd ../../
-rm -fr "${MAGOSPATH}.bak"
-mv "${MAGOSPATH}" "${MAGOSPATH}.bak" || exit 1
-mv "${MAGOSPATH}_${NVER}" "${MAGOSPATH}"
+# $1 original MD5SUM
+# $2 new MD5SUM
+# $3 MD5SUM with updates
+function comparemdsum()
+{
+ rm -f "$3" 2>/dev/null
+ cat "$2" | grep . | while read a ;do
+    grep -q "$a" "$1" || echo "$a" >> "$3"
+ done
+ [ -f "$3" ] || return 1
+}
 
-echo "Update finished"
-wall -n "MagOS update finished. Please reboot."
+# $1 original MD5SUM
+# $2 new MD5SUM
+function updatemdsum()
+{
+ rm -f "$1.new"
+ cat "$1" | grep . | while read a ;do
+    grep "$a" "$2" >> "$1.new"
+ done
+ mv -f "$1.new" "$1"
+}
+
+# $1 MD5SUM file
+# $2 directory with files
+function checkfilesums()
+{
+ [ -f "$1" ] || echoerror "$1 not exists"
+ echolog "Checking MD5 sums for files..."
+ pushd "$2" >/dev/null
+ for a in $(awk '{print $2}' "$1") ;do
+    MDS=$(md5sum "$a")
+    if ! grep -q "$MDS" "$1" ;then
+	echowall "MagOS update error"
+        echoerror "md5sum for $a incorrect."
+    fi
+ done
+ popd >/dev/null
+ echolog "Checking complete."
+}
+
+# $1 signature
+# $2 file to check
+function checksign()
+{
+ for a in /usr/share/magos/pubkeys/*.gpg ;do
+    if gpg --verify --keyring $a "$1" "$2" >/dev/null 2>&1 ;then
+	echolog "File $(basename $2) signed by $(basename $a)"
+	return 0
+    fi
+ done
+ echoerror "Incorrect signature in $(basename $1)"
+}
+
+function checknewversion()
+{
+ echolog "Checking for new version ..."
+ cdownload VERSION    "$TMPDIR"
+ cdownload MD5SUM     "$TMPDIR"
+ cdownload MD5SUM.sig "$TMPDIR"
+ checksign "$TMPDIR/MD5SUM.sig" "$TMPDIR/MD5SUM" || exit 1
+ MAGOSVER=$(gawk '{print $2}' "$MAGOSPATH/VERSION")
+ NEWVER=$(gawk '{print $2}' "$TMPDIR/VERSION")
+ if ! [ "0$NEWVER" -gt "0$MAGOSVER" ] ;then
+    echolog "New version not found."
+    return 1
+ fi
+ echolog "Found new version $NEWVER"
+}
+
+function checkupdates()
+{
+ echolog "Checking for updates ..."
+ cdownload MD5SUM     "$TMPDIR"
+ cdownload MD5SUM.sig "$TMPDIR"
+ checksign "$TMPDIR/MD5SUM.sig" "$TMPDIR/MD5SUM" || exit 1
+ if ! comparemdsum "$MAGOSPATH/MD5SUM" "$TMPDIR/MD5SUM" "$TMPDIR/MD5SUM.updates" ;then
+    echolog "Updates are not founded."
+    return 1
+ fi
+ awk '{print $2}' "$TMPDIR/MD5SUM.updates" | while read a ;do
+    echolog "Found updated file: $a"
+ done
+}
+
+function checkrootfs()
+{
+ if  grep $(df --output=target "$MAGOSPATH" | tail -1) /proc/mounts | awk '{print "," $4 ","}' | grep -q ,ro, ;then
+    echoerror "Error: root filesystem mount as readonly."
+ fi
+}
+
+function checkneedroot()
+{
+ if [ -w "$MAGOSPATH" ] ;then
+    echolog "Checking user acceess: ok."
+ else
+    echolog "Checking user acceess: failed."
+    return 1
+ fi
+}
+
+# $1 optional parameter
+function restartasroot()
+{
+ if [ "$UID" != "0" ] ;then
+    echolog "Restarting script as root."
+    beesu -l /bin/bash $(readlink -f $0) $@ || echolog "Failed."
+    exit $?
+ fi
+}
+
+function startwall()
+{
+ echolog "--------------- Magosupdate started by user $UID -------------------"
+ echowall "MagOS update started. Please wait."
+}
+
+function endwall()
+{
+ if grep -qi "please reboot" "$LOGFILE" ;then
+    echowall "MagOS update finished. Please reboot."
+ else
+    echowall "MagOS update finished."
+ fi
+}
+
+# $1 modulename
+function ismodactive()
+{
+ grep -q /$(basename "$1")[[:space:]] /proc/mounts || return 1
+}
+
+# $1 modulename
+function deletemodule()
+{
+ if ismodactive "$1" ;then
+    if ! deactivate $(basename "$1") ;then
+	echolog "Can't deactivate module $(basename $1), please reboot."
+	mv -f "$1" "$TMPDIR"
+	return 1
+    fi
+ fi
+ rm -f "$1"
+}
+
+# $1 full path to MD5SUM
+# $2 path to base directory
+function deleteobsolete()
+{
+ pushd "$2" >/dev/null
+ echolog "Removing obsolete modules..."
+ for a in * ;do
+    grep -q "/$a$" "$1" 2>/dev/null && continue
+    echo $a | egrep -qi "local|[*]" && continue
+    if [ "$DEACTIVATE" = "yes" ] ;then
+        deletemodule "$a"
+    else
+        rm -f "$a"
+    fi
+    echolog "removed obsolete file $a"
+ done
+ popd >/dev/null
+}
+
+function movedisabled()
+{
+ echolog "Moving disabled base modules to optional..."
+ cd base
+ for a in *.xzm ;do
+    [ -f "$MAGOSPATH/optional/$a" -a ! -f "$MAGOSPATH/base/$a" ] || continue
+    [ -f "$a" ] && mv -f "$a" ../optional && echolog "Moved module $a to optional"
+ done
+ cd ..
+}
+
+function moveupdates()
+{
+ echolog "Moving updates to system directory..."
+ find ./ -type f | grep -v MD5SUM | sed s=^./== | while read a ;do
+    echolog "Moving file $a"
+    ismodactive "$a" && deletemodule $MAGOSPATH/$a
+    if [ ! -f "$MAGOSPATH/$a" ] ;then
+	mv -f "$a" "$MAGOSPATH/$a"
+	activate "$MAGOSPATH/$a" >/dev/null 2>/dev/null
+    else
+	mv -f "$a" "$MAGOSPATH/$a"
+    fi
+    sed -i /"$(basename $a)$"/d "$MAGOSPATH/MD5SUM"
+    grep $(basename "$a") "MD5SUM" 2>/dev/null >> "$MAGOSPATH/MD5SUM"
+ done
+ echolog "Moving complete."
+}
+
+function updateversion()
+{
+ startwall
+
+ echolog "Preparing new directory ${MAGOSPATH}_${NEWVER}..."
+ [ -d "${MAGOSPATH}.bak" ] &&  rm -fr "${MAGOSPATH}.bak"
+ mkdir -p "${MAGOSPATH}_${NEWVER}"
+ cd "${MAGOSPATH}_${NEWVER}" || echoerror "Can't create directory ${MAGOSPATH}_${NEWVER}"
+ mv -f $TMPDIR/VERSION VERSION
+ cp -pfr -t ./ "$MAGOSPATH/"*.sgn "$MAGOSPATH/"*.ini "$MAGOSPATH/machines" "$MAGOSPATH/modules" "$MAGOSPATH/optional"
+ [ -d base ] || cp -pfr -t ./ "$MAGOSPATH/base"
+ echolog "Destination directory is ready now."
+
+ echolog "Downloading MagOS files..."
+ download LICENSE		.
+ download boot.tar.bz2		.
+ download MagOS-Data.tar.bz2 	.
+ download MD5SUM		.
+ download MD5SUM.sig		.
+ downloadfromlist MD5SUM	.
+ downloadmodules "modules"
+ echolog "Downloading finished."
+
+ checksign MD5SUM.sig MD5SUM
+ checkfilesums "MD5SUM" "./"
+
+ movedisabled
+
+ DEACTIVATE=no deleteobsolete "$PWD/MD5SUM" base
+
+ echolog "Renaming livemedia folders..."
+ sync
+ mv "${MAGOSPATH}" "${MAGOSPATH}.bak" || exit 1
+ mv "${MAGOSPATH}_${NEWVER}" "${MAGOSPATH}"
+
+ echolog "Update finished. Please reboot."
+ cat $LOGFILE >> "${MAGOSPATH}.bak/magosupdate.log"
+
+ endwall
+}
+
+function updatebase()
+{
+ startwall
+
+ echolog "Preparing new directory ${MAGOSPATH}.upd"
+ mkdir -p "${MAGOSPATH}.upd"/{base,optional,modules}
+ cd "${MAGOSPATH}.upd" || echoerror "Can't create directory ${MAGOSPATH}.upd"
+ cp -pfr -t ./ "$MAGOSPATH/modules"
+ md5sum modules/* >"$TMPDIR/MD5SUM.modules.1" 2>/dev/null
+ comparemdsum "$MAGOSPATH/MD5SUM" "$TMPDIR/MD5SUM" "MD5SUM"
+ echolog "Destination directory is ready now."
+
+ echolog "Downloading updates..."
+ downloadfromlist MD5SUM . || exit 1
+ downloadmodules  modules
+ echolog "Downloading finished."
+
+ checkfilesums "MD5SUM" "./"
+
+ movedisabled
+
+ # if modules wasn't updated delete them
+ md5sum modules/* >"$TMPDIR/MD5SUM.modules.2" 2>/dev/null
+ comparemdsum "$TMPDIR/MD5SUM.modules.1" "$TMPDIR/MD5SUM.modules.2" "$TMPDIR/MD5SUM.modules.updated"
+ DEACTIVATE=no deleteobsolete "$TMPDIR/MD5SUM.modules.updated" "modules"
+
+ moveupdates
+
+ updatemdsum "$MAGOSPATH/MD5SUM" "$TMPDIR/MD5SUM"
+ DEACTIVATE=yes deleteobsolete "$MAGOSPATH/MD5SUM" "$MAGOSPATH/base"
+ cp -pfr -t "$MAGOSPATH" "$TMPDIR/MD5SUM" "$TMPDIR/MD5SUM.sig"
+ rm -fr "${MAGOSPATH}.upd"
+
+ echolog "Update finished."
+
+ endwall
+}
+
+function updatemodules()
+{
+ startwall
+
+ echolog "Preparing new directory ${MAGOSPATH}.upd"
+ mkdir -p "${MAGOSPATH}.upd"/modules
+ cd "${MAGOSPATH}.upd" || echoerror "Can't create directory ${MAGOSPATH}.upd"
+ cp -pfr -t ./ "$MAGOSPATH/modules"
+ md5sum modules/* >"$TMPDIR/MD5SUM.modules.1" 2>/dev/null
+ echolog "Destination directory is ready now."
+
+ echolog "Downloading updates..."
+ downloadmodules  modules
+ echolog "Downloading finished."
+
+ # if modules wasn't updated delete them
+ md5sum modules/* >"$TMPDIR/MD5SUM.modules.2" 2>/dev/null
+ comparemdsum "$TMPDIR/MD5SUM.modules.1" "$TMPDIR/MD5SUM.modules.2" "$TMPDIR/MD5SUM.modules.updated"
+ DEACTIVATE=no deleteobsolete "$TMPDIR/MD5SUM.modules.updated" "modules"
+
+ moveupdates
+
+ rm -fr "${MAGOSPATH}.upd"
+
+ echolog "Update finished."
+
+ endwall
+}
+
+function help()
+{
+ echo "This script updates system from server"
+ echo "Usage: $(basename $0) [parameter]"
+ echo "Parameters:"
+ echo " -h|--help		this help"
+ echo " -cd|--checkdir		shows system directory and check FS for readonly"
+ echo " -cr|--checkroot	checks if root access is required"
+ echo " -cv|--checknewversion	checks for new version is available"
+ echo " -cu|--checkupdates	checks for new updated modules are available"
+ echo " -cs|--checkserver	checks connection to server"
+ echo " -uv|--updateversion	updates system release if it's available"
+ echo " -ub|--updatebase	updates system modules if they are was updated on server"
+ echo " -um|--updatemodules	updates optional modules if they will be founded on server"
+ echo "Script without parameters does all checks and tryes to update system if it's necessary."
+}
+
+initparameters
+case $1 in
+    -cd|--checkdir)
+	echolog "MagOS $ARCH directory found at $MAGOSPATH"
+	checkrootfs && exit 0 || exit 1
+    ;;
+    -cr|--checkroot)
+	checkneedroot && exit 0 || exit 1
+    ;;
+    -cv|--checknewversion)
+	checknewversion && exit 0 || exit 1
+    ;;
+    -cu|--checkupdates)
+	checkupdates && exit 0 || exit 1
+    ;;
+    -cs|--checkserver)
+	checkserver && exit 0 || exit 1
+    ;;
+    -uv|--updateversion)
+	if checknewversion ;then
+	    checkneedroot || restartasroot -uv
+	    updateversion && exit 0 || exit 1
+	fi
+    ;;
+    -ub|--updatebase)
+	if checkupdates ;then
+	    restartasroot -ub
+	    updatebase && exit 0 || exit 1
+	fi
+    ;;
+    -um|--updatemodules)
+	restartasroot -um
+	updatemodules && exit 0 || exit 1
+    ;;
+    ""|--auto)
+	checkrootfs || exit 1
+	checkserver || exit 1
+	if checknewversion ;then
+	    checkneedroot || restartasroot
+	    updateversion
+	elif checkupdates ;then
+	    restartasroot
+	    updatebase
+	fi
+	exit 0
+    ;;
+    *)
+        help
+    ;;
+esac
 
 exit 0
