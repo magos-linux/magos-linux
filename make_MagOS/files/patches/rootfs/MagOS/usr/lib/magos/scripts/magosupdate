@@ -191,9 +191,16 @@ function checknewversion()
 function checkupdates()
 {
  echolog "Checking for updates ..."
+ cdownload VERSION    "$TMPDIR"
  cdownload MD5SUM     "$TMPDIR"
  cdownload MD5SUM.sig "$TMPDIR"
  checksign "$TMPDIR/MD5SUM.sig" "$TMPDIR/MD5SUM" || exit 1
+ MAGOSVER=$(gawk '{print $2}' "$MAGOSPATH/VERSION")
+ NEWVER=$(gawk '{print $2}' "$TMPDIR/VERSION")
+ if [ "0$NEWVER" != "0$MAGOSVER" ] ;then
+    echolog "MagOS version doesn't match server version"
+    return 1
+ fi
  if ! comparemdsum "$MAGOSPATH/MD5SUM" "$TMPDIR/MD5SUM" "$TMPDIR/MD5SUM.updates" ;then
     echolog "Updates are not founded."
     return 1
@@ -205,8 +212,8 @@ function checkupdates()
 
 function checkrootfs()
 {
- if  grep $(df --output=target "$MAGOSPATH" | tail -1) /proc/mounts | awk '{print "," $4 ","}' | grep -q ,ro, ;then
-    echoerror "Error: root filesystem mount as readonly."
+ if grep $(df "$MAGOSPATH" | tail -1 | awk '{print $NF}') /proc/mounts | awk '{print "," $4 ","}' | grep -q ,ro, ;then
+    echoerror "Error: root filesystem is mounted as readonly."
  fi
 }
 

@@ -65,4 +65,6 @@ for a in dhcpd ntpd ;do
    grep -q network-online.target $PFP || sed -i s/After=/"After=network-online.target "/ $PFP
 done
 
+rm -f /lib/udev/rules.d/51-android.rules 2>/dev/null
+
 exit 0
