@@ -16,5 +16,5 @@ echo "$AUTOEXEC$DELIM$EXEC" | tr ',;' \\n | while read a ;do
      NEEDDE=$(echo $a | grep : | awk -F: '{print $1}' | tr A-Z a-z)
      PROGRAM=${a/*:/}
      [ "$NEEDDE" -a "$NEEDDE" != "$DE" ] && continue
-     [ -z "$PROGRAM" ] || "$PROGRAM" &
+     [ -z "$PROGRAM" ] || bash -c "$PROGRAM" &
 done

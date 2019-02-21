@@ -137,4 +137,6 @@ PFP=/usr/share/applications/gparted.desktop
 [ -f $PFP ] && sed -i s/'Name.ru.=.*'/'Name[ru]=GParted - управление разделами'/ $PFP
 [ -f $PFP ] && sed -i s/'Comment.ru.=.*'/'Comment[ru]=GParted - управление разделами'/ $PFP
 
+[ -f /usr/share/applications/pavucontrol.desktop -a -f /usr/share/applications/pavucontrol-qt.desktop ] && mv -f /usr/share/applications/pavucontrol-qt.desktop /usr/share/applications/pavucontrol.desktop
+
 exit 0

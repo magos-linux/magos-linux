@@ -30,6 +30,13 @@ done
 for a in $(echo $SERVICESNOSTART | tr , " ") ;do
     if [ -x bin/systemd ] ;then
        chroot . systemctl disable $a.service || chroot . chkconfig --del $a
+    else
+       chroot . chkconfig --del $a
+    fi
+done
+for a in $(echo $SERVICESMASK | tr , " ") ;do
+    if [ -x bin/systemd ] ;then
+       chroot . systemctl disable $a.service || chroot . chkconfig --del $a
        chroot . systemctl mask $a.service
     else
        chroot . chkconfig --del $a

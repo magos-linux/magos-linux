@@ -475,7 +475,7 @@ lib64kjs4-
 lib64kjsapi4-
 lib64kjsembed4-
 lib64kntlm4-
-lib64konsoleprivate17-
+lib64konsoleprivate18-
 lib64kparts4-
 lib64kprintutils4-
 lib64kpty4-
@@ -543,7 +543,7 @@ lib64kdesu5-
 lib64kactivities6-
 lib64qt5webenginecore5-
 lib64qt5webenginewidgets5-
-lib64molletnetwork5_17-
+lib64molletnetwork5_18-
 soprano-plugin-redland-
 soprano-plugin-common-
 lib64kf5contacteditor5-
@@ -573,7 +573,7 @@ plasma5-decoration-rosa-
 lib64kf5dnssd5-
 plasma5-style-breeze-
 lib64kdecorations2_5-
-lib64kdecorations2private5-
+lib64kdecorations2private6-
 kdnssd-kf5-i18n-
 kcmutils-
 kcmutils-i18n-
@@ -600,7 +600,7 @@ lib64reviewboardhelpers5-
 kitemmodels-
 kcodecs-i18n-
 kcodecs-
-lib64kerfuffle17-
+lib64kerfuffle18-
 filelight-
 k3b-
 kamera-
@@ -631,7 +631,7 @@ okular-postscript-
 okular-tiff-
 sweeper-
 yakuake-
-lib64okular5core8-
+lib64okular5core9-
 lib64okular-qml-
 okular-fb-
 okular-kde4-support-
@@ -658,3 +658,13 @@ lib64colorcorrect5-
 lib64colorcorrect-qml-
 kxmlrpcclient-
 lib64kf5purposewidgets5-
+plasma5-color-scheme-breeze-light-
+lib64breezecommon4_5-
+lib64breezecommon5_5-
+kdecoration-i18n-
+modemmanager-qt-
+networkmanager-qt-
+solid-
+plasma5-dataengine-konsoleprofiles-
+plasma5-applet-kscreen-
+plasma5-runner-konsoleprofiles-

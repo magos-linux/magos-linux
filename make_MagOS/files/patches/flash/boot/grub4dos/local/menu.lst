@@ -11,11 +11,11 @@ font /boot/grub4dos/unifont.hex.gz
 color white/black yellow/blue
 splashimage /boot/grub4dos/boot_xpm.gz
 
-iftitle [if not exist /isomode] MagOS Linux-Загрузка с ISO/DVD
+iftitle [if exist /isomode] MagOS Linux-Загрузка с ISO/DVD
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.force scantimeout=3
 initrd /MagOS/uird.magos.cpio.xz
 
-title MagOS Linux-С сохранением данных
+iftitle [if not exist /isomode] MagOS Linux-С сохранением данных
 if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
 kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines
 initrd /MagOS/uird.magos.cpio.xz

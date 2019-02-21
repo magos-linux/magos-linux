@@ -22,15 +22,12 @@ pause > nul
 
 cls
 
-call :t_echo Copying grub4dos files to boot drive ...
-copy /y %RUND%\boot\grub4dos\magos.ldr %RUND%\magos.ldr
-
 call :t_echo Setting bootloader ...
 %BCDEDIT% /create /d "MagOS Linux" /application bootsector >%TEMP%\grub4dos.id
 for /F "delims={} tokens=2" %%i in (%TEMP%\grub4dos.id) do set guid=%%i
 echo GUID = {%guid%}
 %BCDEDIT% /set {%guid%} device partition=%RUND%
-%BCDEDIT% /set {%guid%} path \boot\grub4dos\magos.mbr
+%BCDEDIT% /set {%guid%} path \boot\grub4dos\magos.ldr
 %BCDEDIT% /displayorder {%guid%} /addlast
 
 call :t_echo Done. Check files and reboot. Press enter.

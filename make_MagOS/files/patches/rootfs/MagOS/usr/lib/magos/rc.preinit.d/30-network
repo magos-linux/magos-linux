@@ -19,6 +19,10 @@ HOSTNAME=MagOS
 
 echo $HOSTNAME > etc/hostname
 grep -q " $HOSTNAME$" etc/hosts || echo "127.0.0.1             $HOSTNAME" >> etc/hosts
+if [ -f etc/sysconfig/network ] ;then
+   sed -i /^HOSTNAME=/d etc/sysconfig/network
+   echo HOSTNAME=$HOSTNAME >> etc/sysconfig/network
+fi
 if [ "$MAGOSSERVER" != "" ] ;then
    sed -i s/.*MagOS-Server.*/"$MAGOSSERVER             MagOS-Server"/ etc/hosts
    sed -i s/192.168.1.31/$MAGOSSERVER/g etc/dhcpd.conf
