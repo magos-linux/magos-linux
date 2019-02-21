@@ -2,6 +2,7 @@
 TESTDIRS=/mnt/live/memory/images
 . /etc/initvars && TESTDIRS=$SYSMNT/bundles
 DEEP=1
+TIMEFORMAT=%2R 
 
 if [ ! "$1" -o "$1" == "--help" ]; then
   echo -e "Usage: $(basename "$0") <deep> <list of compression alorithms> \n"
@@ -41,7 +42,7 @@ for dir in $testlist ; do
   for comp_ in $@ ; do
     comp=$(echo $comp_ |tr -s "_" " ")
     ext=$(echo $comp |sed 's/ //g')
-    time=$(\time -f "%e " mksquashfs /tmp/squashtest/$dir ./tmp/modules/${dir}.${ext} -comp $comp 2>&1 |tail -n1 && sync ||exit 1 )
+	time=$( { time  (mksquashfs /tmp/squashtest/$dir ./tmp/modules/${dir}.${ext} -comp $comp  ; sync); } 2>&1  |tail -n1 | sed 's/\,/\./') 
     size=$(du -h ./tmp/modules/${dir}.$ext |awk '{print $1}')
     sizeb=$(du -b ./tmp/modules/${dir}.$ext |awk '{print $1}')
     printf %3s "write" ;printf %40s	"$dir" ;printf %25s	"$comp" ;	printf %15s	"$size"; printf %20b "$time sec\n"
@@ -62,7 +63,7 @@ for comp in $@ ; do
   done
   mount -t aufs none ./tmp/aufs -o $aufsbr,create=mfs,sum,noxino
   sync
-  time=$(\time -f "%e" rsync -a  ./tmp/aufs/{u,v,b}* /tmp/squashtest/  2>&1 |tail -n1)
+  time=$( { time  (rsync -a  ./tmp/aufs/{u,v,b}* /tmp/squashtest/); } 2>&1  |tail -n1 | sed 's/\,/\./') 
   sync
   rm -rf /tmp/squashtest/*
   umount ./tmp/aufs
