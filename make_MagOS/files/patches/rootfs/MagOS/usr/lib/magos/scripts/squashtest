@@ -27,7 +27,7 @@ for arg_par in $(echo $@ |tr -s "_" " " |tr -s "-" " ") ;do
 done
 
 if [ -d ./tmp ] ; then
-  echo "./tmp already exists, remove this dir and run $(basename $0) againe"
+  echo "./tmp already exists, remove this dir and run $(basename $0) again"
   exit 2
 fi
 
@@ -42,7 +42,7 @@ for dir in $testlist ; do
   for comp_ in $@ ; do
     comp=$(echo $comp_ |tr -s "_" " ")
     ext=$(echo $comp |sed 's/ //g')
-	time=$( { time  (mksquashfs /tmp/squashtest/$dir ./tmp/modules/${dir}.${ext} -comp $comp  ; sync); } 2>&1  |tail -n1 | sed 's/\,/\./') 
+	time=$( { time  (mksquashfs /tmp/squashtest/$dir ./tmp/modules/${dir}.${ext} -comp $comp  -b 512K && sync); } 2>&1  |tail -n1 | sed 's/\,/\./') 
     size=$(du -h ./tmp/modules/${dir}.$ext |awk '{print $1}')
     sizeb=$(du -b ./tmp/modules/${dir}.$ext |awk '{print $1}')
     printf %3s "write" ;printf %40s	"$dir" ;printf %25s	"$comp" ;	printf %15s	"$size"; printf %20b "$time sec\n"
