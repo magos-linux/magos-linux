@@ -1,26 +1,32 @@
 #!/bin/bash
-TESTDIRS=/mnt/live/memory/images
-. /etc/initvars && TESTDIRS=$SYSMNT/bundles
-DEEP=1
+. /etc/initvars 
 TIMEFORMAT=%2R 
+DEFAULT_DIRS="${SYSMNT}/bundles/0*"
 
-if [ ! "$1" -o "$1" == "--help" ]; then
-  echo -e "Usage: $(basename "$0") <deep> <list of compression alorithms> \n"
-  echo "<deep> is number of tests, default value -- 1"
+if [ ! "$1" -o "$1" == "--help" -o "$1" == "-h" ]; then
+  echo -e "Usage: $(basename "$0")  <compression alorithm 1>,  <compression alorithm 2>, <etc> --dirs <list dirs> \n"
   echo "use mksquashfs --help, to see compressors available"
-  echo -e "(sepatator between compressor type and options is \"_\", not space)\n"
-  echo "example 1:	$(basename "$0") xz			-- one test, xz only"
-  echo "example 2:	$(basename "$0") 4 xz lz4_-Xhc	-- 4 tests, xz and lz4 -Xhc"
+  echo "default dirs in list is ${SYSMNT}/bundles/0*"
+  echo ""
+  echo "example 1:	$(basename "$0") xz lzo                                          -- simple test xz vs lzo"
+  echo "example 2:	$(basename "$0") lz4 -Xhc, lz4 -b 512K, lz4 --dirs /usr /var     -- test lz4 using files from /usr and /var"  
+  echo "example 2:	$(basename "$0") lz4, lzo --dirs $SYSMNT/bundles{0,1}*           -- lz4 vs lzo using files from 0,1.. bundles"  
+  
   exit 0
 fi
 
-if [ $1 -gt 0 ] ; then
-  DEEP=$1
-  shift
-fi 2>/dev/null
+#parsing for "--mksqfs" arg
+argslist="$@"
+if  echo $argslist |grep -q "\-*dirs .*" ; then
+	DIRS="$(echo $@ |sed 's/^.*\-*dirs//')"
+	COMP="$(echo $@ |sed 's/\-*dirs.*$//')"
+else
+	COMP=$@
+fi
 
-for arg_par in $(echo $@ |tr -s "_" " " |tr -s "-" " ") ;do
+for arg_par in $(echo $COMP |tr -s ",:" " " |tr -s "-" " ") ;do
   if ! mksquashfs 2>&1 |grep -q "$arg_par" ;then
+  echo $arg_par | grep -Eq "^?[[:digit:]]+" && continue
     echo "uknown mksquashfs arg -- $arg_par"
     exit 2
   fi
@@ -34,17 +40,20 @@ fi
 sync
 time=""
 mkdir -p  ./tmp/modules ./tmp/mpoint ./tmp/aufs /tmp/squashtest
-testlist=$(ls -1 $TESTDIRS  |head -n $DEEP )
-echo $testlist > ./squashtest.log
-
+[ "$DIRS" ] || DIRS="$DEFAULT_DIRS"
+testlist=$(ls -d $DIRS)
+echo "$testlist" > ./squashtest.log
+COMP_=$(echo "$COMP" |tr -s ";," "," |sed -e 's/, */,/g' -e  's/ /#/g' -e s'/^#*//' -e 's/,/ /g')
 for dir in $testlist ; do
-  cp -fr ${TESTDIRS}/$dir /tmp/squashtest
-  for comp_ in $@ ; do
-    comp=$(echo $comp_ |tr -s "_" " ")
-    ext=$(echo $comp |sed 's/ //g')
-	time=$( { time  (mksquashfs /tmp/squashtest/$dir ./tmp/modules/${dir}.${ext} -comp $comp  -b 512K && sync); } 2>&1  |tail -n1 | sed 's/\,/\./') 
-    size=$(du -h ./tmp/modules/${dir}.$ext |awk '{print $1}')
-    sizeb=$(du -b ./tmp/modules/${dir}.$ext |awk '{print $1}')
+  modname=$(basename $dir)
+  cp -fr "$dir"   /tmp/squashtest/
+  for comp_ in $COMP_  ; do
+	echo 3 > /proc/sys/vm/drop_caches
+    comp=$(echo $comp_ |tr -s "#" " ")
+    ext=$(echo $comp_ |tr -s "#" "_")
+	time=$( { time  (mksquashfs /tmp/squashtest/$modname ./tmp/modules/${modname}.${ext} -comp $comp   && sync); } 2>&1  |tail -n1 | sed 's/\,/\./') 
+    size=$(du -h ./tmp/modules/${modname}.$ext |awk '{print $1}')
+    sizeb=$(du -b ./tmp/modules/${modname}.$ext |awk '{print $1}')
     printf %3s "write" ;printf %40s	"$dir" ;printf %25s	"$comp" ;	printf %15s	"$size"; printf %20b "$time sec\n"
     echo "wr_t $dir $comp_  $sizeb $(echo $time |sed 's/\.//g')" >>  ./squashtest.log 
   done
@@ -53,27 +62,27 @@ for dir in $testlist ; do
 done
 echo "=========================================================="
 
-for comp in $@ ; do
+for comp_ in  $COMP_ ; do
   aufsbr="br"
-  ext=$(echo $comp |sed 's/_//g')
+  ext=$(echo $comp_ | tr -s "#" "_")
   for mod in $(ls ./tmp/modules/*.${ext}) ; do
     mkdir ./tmp/mpoint/$(basename $mod)
     mount -t squashfs -o loop $mod ./tmp/mpoint/$(basename $mod)
     aufsbr="${aufsbr}:./tmp/mpoint/$(basename $mod)=ro"
   done
   mount -t aufs none ./tmp/aufs -o $aufsbr,create=mfs,sum,noxino
-  sync
-  time=$( { time  (rsync -a  ./tmp/aufs/{u,v,b}* /tmp/squashtest/); } 2>&1  |tail -n1 | sed 's/\,/\./') 
+  sync ; echo 3 > /proc/sys/vm/drop_caches
+  time=$( { time  (rsync -a  ./tmp/aufs/* /tmp/squashtest/); } 2>&1  |tail -n1 | sed 's/\,/\./') 
   sync
   rm -rf /tmp/squashtest/*
   umount ./tmp/aufs
   umount ./tmp/mpoint/*.$ext
-  printf %3s "read  all" ; printf %30s	"$(echo $comp |tr -s "_" " ")" ;printf %20b "$time sec\n"
-  echo "rd_all $comp  $(echo $time |sed 's/\.//g')" >> ./squashtest.log
+  printf %3s "read  all" ; printf %30s	"$(echo $comp_ |tr -s "#" " ")" ;printf %20b "$time sec\n"
+  echo "rd_all $comp_  $(echo $time |sed 's/\.//g')" >> ./squashtest.log
 done
 rm -fr ./tmp ; echo ""
-for comp_ in $@ ; do
-  comp=$(echo $comp_ |tr -s "_" " ")
+for comp_ in $COMP_ ; do
+  comp=$(echo $comp_ |tr -s "#" " ")
   wrtime=$(cat ./squashtest.log |grep "wr_t.* $comp_ " |awk '{print $NF}' | awk '{s+=$1} END {print s}') 
   printf %3s "write all" ; printf %30s "$comp" ; printf %20b "$(echo "scale=2;${wrtime} / 100" |bc ) sec\n"
   echo "wr_all	$comp_ ${wrtime}" >> ./squashtest.log
@@ -81,7 +90,7 @@ done
 
 echo "=========================================================="
 
-for comp_ in $@ ; do
+for comp_ in $COMP_ ; do
   fullsize=$(cat ./squashtest.log |grep "wr_.* $comp_ " |awk '{print $4}' | awk '{s+=$1} END {print s}')
   echo "fullsize $comp_ $fullsize" >> ./squashtest.log
 done
@@ -89,7 +98,7 @@ done
 bestrd=$(cat ./squashtest.log |grep rd_all  |sort -nk 3 |head -n1)
 bestwr=$(cat ./squashtest.log |grep wr_all  |sort -nk 3 |head -n1)
 bestcomp=$(cat ./squashtest.log |grep fullsize  |sort -nk 3 |head -n1)
-echo "Best read  speed  -- $(echo $bestrd |awk '{print $2}' |tr -s "_" " ")"
-echo "Best write speed  -- $(echo $bestwr |awk '{print $2}' |tr -s "_" " ")"
-echo "Best compression  -- $(echo $bestcomp |awk '{print $2}' |tr -s "_" " ")"
+echo "Best read  speed  -- $(echo $bestrd |awk '{print $2}' |tr -s "#" " ")"
+echo "Best write speed  -- $(echo $bestwr |awk '{print $2}' |tr -s "#" " ")"
+echo "Best compression  -- $(echo $bestcomp |awk '{print $2}' |tr -s "#" " ")"
 echo "=========================================================="
