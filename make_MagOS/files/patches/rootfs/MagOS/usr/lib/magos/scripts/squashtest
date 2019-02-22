@@ -43,7 +43,7 @@ mkdir -p  ./tmp/modules ./tmp/mpoint ./tmp/aufs /tmp/squashtest
 [ "$DIRS" ] || DIRS="$DEFAULT_DIRS"
 testlist=$(ls -d $DIRS)
 echo "$testlist" > ./squashtest.log
-COMP_=$(echo "$COMP" |tr -s ";," "," |sed -e 's/, */,/g' -e  's/ /#/g' -e s'/^#*//' -e 's/,/ /g')
+COMP_=$(echo "$COMP" |tr -s ";," "," |sed -e 's/, */,/g' -e  's/ /#/g' -e s'/^#*//' -e 's/#*$//' -e 's/,/ /g')
 for dir in $testlist ; do
   modname=$(basename $dir)
   cp -fr "$dir"   /tmp/squashtest/
