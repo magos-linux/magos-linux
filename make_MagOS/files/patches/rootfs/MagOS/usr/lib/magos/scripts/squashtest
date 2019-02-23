@@ -42,9 +42,10 @@ time=""
 mkdir -p  ./tmp/modules ./tmp/mpoint ./tmp/aufs /tmp/squashtest
 [ "$DIRS" ] || DIRS="$DEFAULT_DIRS"
 testlist=$(ls -d $DIRS)
-echo "$testlist" > ./squashtest.log
+: > ./squashtest.log
 COMP_=$(echo "$COMP" |tr -s ";," "," |sed -e 's/, */,/g' -e  's/ /#/g' -e s'/^#*//' -e 's/#*$//' -e 's/,/ /g')
 for dir in $testlist ; do
+  echo "SOURCE: $dir $(du -sb $dir | cut -f1)" >> ./squashtest.log
   modname=$(basename $dir)
   cp -fr "$dir"   /tmp/squashtest/
   for comp_ in $COMP_  ; do
@@ -94,6 +95,19 @@ for comp_ in $COMP_ ; do
   fullsize=$(cat ./squashtest.log |grep "wr_.* $comp_ " |awk '{print $4}' | awk '{s+=$1} END {print s}')
   echo "fullsize $comp_ $fullsize" >> ./squashtest.log
 done
+fullsize_dir=$(cat ./squashtest.log |grep SOURCE |awk '{print $3}'| sed -e 's/$/ + /g' ) 
+echo "size_dirs "$(echo $fullsize_dir  0 |bc) >> ./squashtest.log 
+
+printf %3s "size all" ; printf %30s "cource" ; printf %20b "$( echo "scale=1; $(cat ./squashtest.log |grep size_dirs |awk '{print $2}') / 1024 / 1024" |bc)M\n"
+
+for comp_ in $COMP_ ; do
+  comp=$(echo $comp_ |tr -s "#" " ")
+  size=$(cat ./squashtest.log |grep "fullsize.* $comp_ " |awk '{print $NF}') 
+  printf %3s "size all" ; printf %30s "$comp" ; printf %20b "$(echo "scale=1; ${size} / 1024 / 1024" |bc)M\n"
+done
+
+echo "=========================================================="
+
 
 bestrd=$(cat ./squashtest.log |grep rd_all  |sort -nk 3 |head -n1)
 bestwr=$(cat ./squashtest.log |grep wr_all  |sort -nk 3 |head -n1)
