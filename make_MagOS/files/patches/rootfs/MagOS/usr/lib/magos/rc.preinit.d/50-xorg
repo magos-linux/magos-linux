@@ -58,6 +58,7 @@ if [ "$PCIID" != "$VGAID" -a "$VGAID" ] ;then
    [ -f $XFILE ] && mv $XFILE $XFILE.$VGAVEN:$VGAID.bak
    unset VGAID VGAVEN DELETE_XORG_CONF VGABUSID
    CREATE_XORG_CONF=yes && GLLDCONFIG=yes
+   XDRIVER=$CLXD
 fi
 
 # deleting xorg.conf when xdriver=xorg specified
@@ -112,7 +113,6 @@ fi
 # first run ldconfig tweak
 if [ "$GLLDCONFIG" = "yes" ] ;then
   LINK=$LINKFBDEV
-  [ "$XDRIVER" = "" -o "$XDRIVER" = "vesa" ] && LDCACHE=fbdev
   [ "$XDRIVER" = "ati" ] && LINK=$LINKATI
   [ "$XDRIVER" = "nvidia" -o "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
   [ "$XDRIVER" = "nvidia96" ] && LINK=$LINKNVIDIA96
@@ -121,10 +121,9 @@ if [ "$GLLDCONFIG" = "yes" ] ;then
   [ "$XDRIVER" = "nvidia340" ] && LINK=$LINKNVIDIA340
   [ "$XDRIVER" = "nvidia360" ] && LINK=$LINKNVIDIA360
   chroot . /usr/sbin/alternatives --quiet --set gl_conf $LINK 2>/dev/null 2>&1
-  [ -z "$LDCACHE" ] && LDCACHE=$XDRIVER
-  if [ "$LDCACHE" != "fbdev" -a -d usr/share/magos/ld.so.cache/$LDCACHE ] ;then
-      cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
-  fi
+  LDCACHE=$XDRIVER
+  [ -z "$LDCACHE" -o ! -d usr/share/magos/ld.so.cache/$LDCACHE ] && LDCACHE=fbdev
+  cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
 fi
 
 # create or delete xorg.conf
