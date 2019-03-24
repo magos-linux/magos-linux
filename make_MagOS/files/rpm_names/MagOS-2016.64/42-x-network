@@ -138,7 +138,6 @@ lib64samba-policy0-
 lib64samba-util0-
 lib64samdb0-
 lib64smbconf0-
-lib64smbldap0-
 lib64tevent-util0-
 lib64winbind2-
 perl-Convert-ASN1-
@@ -195,3 +194,6 @@ qutim2-yandexnarod-
 lib64idn2_0-
 x11-server-xephyr-
 lib64jemalloc1-
+lib64samba-libs0-
+lib64samba-libs-config0-
+lib64smbldap2-

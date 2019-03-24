@@ -159,7 +159,7 @@ lib64iw29-
 lib64json0-
 lib64json-c2-
 lib64k5crypto3-
-lib64kdb5_8-
+lib64kdb5_9-
 lib64keyutils1-
 lib64kmod2-
 lib64krad0-
@@ -491,8 +491,8 @@ lib64fastjson4-
 lib64fdisk1-
 lib64Half12-
 lib64history7-
-lib64kadm5clnt_mit10-
-lib64kadm5srv_mit10-
+lib64kadm5clnt_mit11-
+lib64kadm5srv_mit11-
 lib64lua5.1-
 lib64lua5.2-
 lib64lua5.3-

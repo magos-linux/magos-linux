@@ -187,7 +187,7 @@ dvgrab-
 mlt-
 lib64mlt6-
 lib64mlt++3-
-lib64movit4-
+lib64movit8-
 movit-
 gwenview-
 lib64gwenviewlib5-
@@ -248,7 +248,6 @@ libffi6-
 libnettle6-
 libpciaccess0-
 libbzip2_1-
-libdri-drivers-
 libdrm2-
 libdrm_amdgpu1-
 libdrm_intel1-

@@ -5,6 +5,7 @@ acpid-
 at-
 autofs-
 basesystem-
+basesystem-mandatory-
 basesystem-minimal-
 bash-
 bash-completion-
