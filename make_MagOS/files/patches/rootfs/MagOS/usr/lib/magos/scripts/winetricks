@@ -223,7 +223,7 @@ w_askpermission()
 w_info()
 {
     # If $WINETRICKS_SUPER_QUIET is set, w_info is a no-op:
-    if [ ! "$WINETRICKS_SUPER_QUIET" ] ; then
+    if [ -z "$WINETRICKS_SUPER_QUIET" ] ; then
         echo "------------------------------------------------------"
         echo "$@"
         echo "------------------------------------------------------"
@@ -244,7 +244,7 @@ w_info()
 w_warn()
 {
     # If $WINETRICKS_SUPER_QUIET is set, w_info is a no-op:
-    if [ ! "$WINETRICKS_SUPER_QUIET" ] ; then
+    if [ -z "$WINETRICKS_SUPER_QUIET" ] ; then
         echo "------------------------------------------------------"
         echo "$@"
         echo "------------------------------------------------------"
@@ -1061,6 +1061,8 @@ w_download_to()
     # Try download twice
     checksum_ok=""
     tries=0
+    # Set olddir before entering the loop, otherwise second try will overwrite
+    _W_dl_olddir=$(pwd)
     while test $tries -lt 2 ; do
         # Warn on a second try
         test "$tries" -eq 1 && winetricks_dl_warning
@@ -1115,7 +1117,6 @@ w_download_to()
             rm "$_W_cache/$_W_file"
         fi
 
-        _W_dl_olddir=$(pwd)
         w_try_cd "$_W_cache"
         # Mac folks tend to have curl rather than wget
         # On Mac, 'which' doesn't return good exit status
@@ -1876,9 +1877,8 @@ _EOF_
 w_ahk_do()
 {
     if ! test -f "$W_CACHE/ahk/AutoHotkey.exe"; then
-        W_BROWSERAGENT=1 \
-        w_download_to ahk https://www.autohotkey.com/download/AutoHotkey104805.zip c8bf1c3dc4622559963b6626316ba1d083bb8a8af605f78382e371e5294d435a
-        w_try_unzip "$W_CACHE/ahk" "$W_CACHE/ahk/AutoHotkey104805.zip" AutoHotkey.exe AU3_Spy.exe
+        w_download_to ahk https://github.com/AutoHotkey/AutoHotkey/releases/download/v1.0.48.05/AutoHotkey104805_Install.exe 4311c3e7c29ed2d67f415138360210bc2f55ff78758b20b003b91d775ee207b9
+        w_try_7z "$W_CACHE/ahk" "$W_CACHE/ahk/AutoHotkey104805_Install.exe" AutoHotkey.exe AU3_Spy.exe
         chmod +x "$W_CACHE/ahk/AutoHotkey.exe"
     fi
 
@@ -3293,7 +3293,7 @@ winetricks_detect_gui()
     fi
 
     # Print zenity/dialog version info for debugging:
-    if [ ! "$WINETRICKS_SUPER_QUIET" ] ; then
+    if [ -z "$WINETRICKS_SUPER_QUIET" ] ; then
        echo "winetricks GUI enabled, using $WINETRICKS_GUI $WINETRICKS_GUI_VERSION"
     fi
 }
@@ -5327,13 +5327,13 @@ winetricks_init()
     # wine-2.8
     _wine_version_stripped="$(echo "$WINETRICKS_WINE_VERSION" | cut -d ' ' -f1 | sed -e 's/wine-//' -e 's/-rc.*//')"
 
-    # If WINE is < 3.0, warn user:
-    # 3.0 doesn't do what I thought it would
-    if w_wine_version_in 2.99, ; then
-        w_warn "Your version of wine $_wine_version_stripped is no longer supported upstream. You should upgrade to 3.x"
+    # If WINE is < 4.0, warn user:
+    # 4.0 doesn't do what I thought it would
+    if w_wine_version_in 3.99, ; then
+        w_warn "Your version of wine $_wine_version_stripped is no longer supported upstream. You should upgrade to 4.x"
     fi
 
-    if [ ! "$WINETRICKS_SUPER_QUIET" ] ; then
+    if [ -z "$WINETRICKS_SUPER_QUIET" ] ; then
         echo "Using winetricks $(winetricks_print_version) with ${WINETRICKS_ORIG_WINE_VERSION} and WINEARCH=${W_ARCH}"
     fi
 
@@ -7237,6 +7237,44 @@ load_dxvk101()
     helper_dxvk "$file1" "d3d10_enabled" "3.19" "1.1.88"
 }
 
+w_metadata dxvk102 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.0.2)" \
+    publisher="Philip Rebohle" \
+    year="2018" \
+    media="download" \
+    file1="dxvk-1.0.2.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk102()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.0.2/dxvk-1.0.2.tar.gz" f9504b188488d1102cba7e82c28681708f39e151af1c1ef7ebeac82d729c01ac
+    helper_dxvk "$file1" "d3d10_enabled" "3.19" "1.1.88"
+}
+
+w_metadata dxvk103 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.0.3)" \
+    publisher="Philip Rebohle" \
+    year="2018" \
+    media="download" \
+    file1="dxvk-1.0.3.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk103()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.0.3/dxvk-1.0.3.tar.gz" 984d28ab3a112be207d6339da19113d1117e56731ed413d0e202e6fd1391a6ae
+    helper_dxvk "$file1" "d3d10_enabled" "3.19" "1.1.88"
+}
+
 
 #----------------------------------------------------------------
 
@@ -7255,7 +7293,7 @@ load_dxvk()
 {
     # https://github.com/doitsujin/dxvk
     # There's no stable exe URL, but they do provide a RELEASE file that lets us build one:
-    w_download_to "${W_TMP_EARLY}" "https://raw.githubusercontent.com/doitsujin/dxvk/master/RELEASE"
+    w_download_to "${W_TMP_EARLY}" "https://raw.githubusercontent.com/doitsujin/dxvk/latest-release/RELEASE"
     dxvk_version="$(cat "${W_TMP_EARLY}/RELEASE")"
     w_linkcheck_ignore=1 w_download "https://github.com/doitsujin/dxvk/releases/download/v${dxvk_version}/dxvk-${dxvk_version}.tar.gz"
     helper_dxvk "dxvk-${dxvk_version}.tar.gz" "d3d10_enabled" "3.19" "1.1.88"
@@ -8107,7 +8145,7 @@ w_metadata dotnet45 dlls \
     publisher="Microsoft" \
     year="2012" \
     media="download" \
-    conflicts="dotnet20 dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 dotnet40 vjrun20" \
+    conflicts="dotnet20 dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 vjrun20" \
     file1="dotnetfx45_full_x86_x64.exe" \
     installed_file1="c:/windows/Microsoft.NET/Framework/v4.0.30319/Microsoft.Windows.ApplicationServer.Applications.45.man"
 
@@ -8212,7 +8250,7 @@ w_metadata dotnet46 dlls \
     year="2015" \
     media="download" \
     file1="NDP46-KB3045557-x86-x64-AllOS-ENU.exe" \
-    conflicts="dotnet20 dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 dotnet40 vjrun20" \
+    conflicts="dotnet20 dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 vjrun20" \
     installed_file1="c:/windows/Migration/WTR/netfx45_upgradecleanup.inf"
 
 load_dotnet46()
@@ -8266,7 +8304,7 @@ w_metadata dotnet461 dlls \
     year="2015" \
     media="download" \
     file1="NDP461-KB3102436-x86-x64-AllOS-ENU.exe" \
-    conflicts="dotnet20 dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 dotnet40 dotnet46 vjrun20" \
+    conflicts="dotnet20 dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 dotnet46 vjrun20" \
     installed_file1="c:/windows/dotnet461.installed.workaround"
 
 load_dotnet461()
@@ -8313,7 +8351,7 @@ w_metadata dotnet462 dlls \
     publisher="Microsoft" \
     year="2016" \
     media="download" \
-    conflicts="dotnet20 dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 dotnet40 dotnet46 dotnet461 vjrun20" \
+    conflicts="dotnet20sdk dotnet20sp1 dotnet20sp2 dotnet35sp1 dotnet46 dotnet461 vjrun20" \
     installed_file1="c:/windows/dotnet462.installed.workaround"
 
 load_dotnet462()
@@ -8554,27 +8592,14 @@ load_esent()
 
 #----------------------------------------------------------------
 
-w_metadata faudio dlls \
-    title="FAudio (xaudio reimplemntation, with xna support) builds for win32" \
-    publisher="Kron4ek" \
-    year="2019" \
-    media="download" \
-    file1="faudio-git-a756af4.tar.xz" \
-    installed_file1="$W_SYSTEM32_DLLS_WIN/FAudio.dll"
-
-load_faudio()
+# $1 - faudio archive name (required)
+helper_faudio()
 {
-    # FIXME: they have a LATEST file that may be useful in the future
-    # Not sure if we want to have multiple versions like dxvk
-    # Especially when some are prefixed with 'git-'!
-    # https://raw.githubusercontent.com/Kron4ek/FAudio-Builds/master/LATEST
-    faudio_version="$(basename "${file1}" .tar.xz)"
-
-    # 2018/01/26: b491e9a1eb2052f62d6639be86639203ec1c7e803101db86ef8817a07baaf0a8
-    w_download https://github.com/Kron4ek/FAudio-Builds/releases/download/git-a756af4/faudio-git-a756af4.tar.xz b491e9a1eb2052f62d6639be86639203ec1c7e803101db86ef8817a07baaf0a8
+    faudio_archive="$1"
+    faudio_version="$(basename "${faudio_archive}" .tar.xz)"
 
     w_try_cd "$W_TMP"
-    w_try tar -Jxf "${W_CACHE}/${W_PACKAGE}/${file1}"
+    w_try tar -Jxf "${W_CACHE}/${W_PACKAGE}/${faudio_archive}"
 
     # They ship an installation script, but it's bash (and we have all needed functionality already)
     # Unless they add something more complex, this should suffice:
@@ -8592,6 +8617,88 @@ load_faudio()
             w_override_dlls native "$shortdll"
         done
     fi
+}
+
+#----------------------------------------------------------------
+
+w_metadata faudio1901 dlls \
+    title="FAudio (xaudio reimplementation, with xna support) builds for win32 (19.01)" \
+    publisher="Kron4ek" \
+    year="2019" \
+    media="download" \
+    file1="faudio-19.01.tar.xz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/FAudio.dll"
+
+load_faudio1901()
+{
+    w_download https://github.com/Kron4ek/FAudio-Builds/releases/download/19.01/faudio-19.01.tar.xz f3439090ba36061ee47ebda93e409ae4b2d8886c780c86a197c66ff08b9b573f
+    helper_faudio "$file1"
+}
+
+#----------------------------------------------------------------
+
+w_metadata faudio1902 dlls \
+    title="FAudio (xaudio reimplementation, with xna support) builds for win32 (19.02)" \
+    publisher="Kron4ek" \
+    year="2019" \
+    media="download" \
+    file1="faudio-19.02.tar.xz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/FAudio.dll"
+
+load_faudio1902()
+{
+    w_download https://github.com/Kron4ek/FAudio-Builds/releases/download/19.02/faudio-19.02.tar.xz 849fec35482748a2b441d8dd7e9a171c7c5c2207d1037c7ffd0265e65f2a4b2b
+    helper_faudio "$file1"
+}
+
+#----------------------------------------------------------------
+
+w_metadata faudio1903 dlls \
+    title="FAudio (xaudio reimplementation, with xna support) builds for win32 (19.03)" \
+    publisher="Kron4ek" \
+    year="2019" \
+    media="download" \
+    file1="faudio-19.03.tar.xz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/FAudio.dll"
+
+load_faudio1903()
+{
+    w_download https://github.com/Kron4ek/FAudio-Builds/releases/download/19.03/faudio-19.03.tar.xz d5c62437fd5b185e82f464f6a82334af5d666cb506aba218358ea7a3697fdf63
+    helper_faudio "$file1"
+}
+
+#----------------------------------------------------------------
+
+w_metadata faudio1904 dlls \
+    title="FAudio (xaudio reimplementation, with xna support) builds for win32 (19.04)" \
+    publisher="Kron4ek" \
+    year="2019" \
+    media="download" \
+    file1="faudio-19.04.tar.xz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/FAudio.dll"
+
+load_faudio1904()
+{
+    w_download https://github.com/Kron4ek/FAudio-Builds/releases/download/19.04/faudio-19.04.tar.xz c364db1a18bfb6f6c0f375c641672ca40140b8e5db69dc2c8c9b41d79d0fc56f
+    helper_faudio "$file1"
+}
+
+#----------------------------------------------------------------
+
+w_metadata faudio dlls \
+    title="FAudio (xaudio reimplementation, with xna support) builds for win32 (latest)" \
+    publisher="Kron4ek" \
+    year="2019" \
+    media="download" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/FAudio.dll"
+
+load_faudio()
+{
+    set -x
+    w_download_to "${W_TMP_EARLY}" "https://raw.githubusercontent.com/Kron4ek/FAudio-Builds/master/LATEST"
+    faudio_version="$(cat "${W_TMP_EARLY}/LATEST")"
+    w_linkcheck_ignore=1 w_download "https://github.com/Kron4ek/FAudio-Builds/releases/download/${faudio_version}/faudio-${faudio_version}.tar.xz"
+    helper_faudio "faudio-${faudio_version}.tar.xz"
 }
 
 #----------------------------------------------------------------
@@ -9224,7 +9331,7 @@ load_ie8_kb2936068()
 
     w_download https://download.microsoft.com/download/3/8/C/38CE0ABB-01FD-4C0A-A569-BC5E82C34A17/IE8-WindowsXP-KB2936068-x86-ENU.exe 8bda23c78cdcd9d01c364a01c6d639dfb2d11550a5521b8a81c808c1a2b1824e
 
-    if [ $W_UNATTENDED_SLASH_Q ]; then
+    if [ -n "$W_UNATTENDED_SLASH_Q" ]; then
         quiet="$W_UNATTENDED_SLASH_QUIET /forcerestart"
     else
         quiet=""
@@ -9819,6 +9926,28 @@ load_pdh()
 
 #----------------------------------------------------------------
 
+w_metadata peverify dlls \
+    title="MS peverify (from .NET 2.0 SDK)" \
+    publisher="Microsoft" \
+    year="2006" \
+    media="download" \
+    file1="../dotnet20sdk/setup.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/peverify.exe"
+
+load_peverify()
+{
+    w_download_to dotnet20sdk https://download.microsoft.com/download/c/4/b/c4b15d7d-6f37-4d5a-b9c6-8f07e7d46635/setup.exe 1d7337bfbb2c65f43c82d188688ce152af403bcb67a2cc2a3cc68a580ecd8200
+
+    # Seems to require dotnet20; at least doesn't work if dotnet40 is installed instead
+    w_call dotnet20
+
+    w_try_cabextract --directory="${W_TMP}" "${W_CACHE}/dotnet20sdk/setup.exe" -F netfxsd1.cab
+    w_try_cabextract --directory="${W_TMP}" "${W_TMP}/netfxsd1.cab" -F FL_PEVerify_exe_____X86.3643236F_FC70_11D3_A536_0090278A1BB8
+    w_try mv "${W_TMP}/FL_PEVerify_exe_____X86.3643236F_FC70_11D3_A536_0090278A1BB8" "${W_SYSTEM32_DLLS}/peverify.exe"
+}
+
+#----------------------------------------------------------------
+
 w_metadata physx dlls \
     title="PhysX" \
     publisher="Nvidia" \
@@ -10213,7 +10342,8 @@ load_shockwave() {
     # 2018/03/16: 4d7b408cf5b65a522b071d7d9ddbc5f6964911a7d55c418e31f393e6055cf796
     # 2018/05/24: 2b03fa11ff6f31b3fef9313264f0ef356ee11d5bc3642c30a2482b4ac5dd0084
     # 2018/06/14: a37f6c47b74fa3c96906e01b9b41d63c08d212fa3e357e354db1b5a93eb92c2f
-    w_download https://fpdownload.macromedia.com/get/shockwave/default/english/win95nt/latest/sw_lic_full_installer.msi a37f6c47b74fa3c96906e01b9b41d63c08d212fa3e357e354db1b5a93eb92c2f
+    # 2019/04/02: 8e414c1a218157d2b83877fb0b6a5002c2e9bff4dc2a3095bae774a13e3e9dbf
+    w_download https://fpdownload.macromedia.com/get/shockwave/default/english/win95nt/latest/sw_lic_full_installer.msi 8e414c1a218157d2b83877fb0b6a5002c2e9bff4dc2a3095bae774a13e3e9dbf
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" msiexec /i sw_lic_full_installer.msi $W_UNATTENDED_SLASH_Q
@@ -10784,9 +10914,10 @@ w_metadata vcrun2013 dlls \
 
 load_vcrun2013()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=40784
+    # https://support.microsoft.com/en-gb/help/3179560/update-for-visual-c-2013-and-visual-c-redistributable-package
     # 2015/01/14: a22895e55b26202eae166838edbe2ea6aad00d7ea600c11f8a31ede5cbce2048
-    w_download https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe a22895e55b26202eae166838edbe2ea6aad00d7ea600c11f8a31ede5cbce2048
+    # 2019/03/24: 89f4e593ea5541d1c53f983923124f9fd061a1c0c967339109e375c661573c17
+    w_download https://download.microsoft.com/download/0/5/6/056dcda9-d667-4e27-8001-8a0c6971d6b1/vcredist_x86.exe 89f4e593ea5541d1c53f983923124f9fd061a1c0c967339109e375c661573c17
 
     w_override_dlls native,builtin atl120 msvcp120 msvcr120 vcomp120
     w_try_cd "$W_CACHE"/"$W_PACKAGE"
@@ -10796,7 +10927,8 @@ load_vcrun2013()
         win64)
             # Also install the 64-bit version
             # 2015/10/19: e554425243e3e8ca1cd5fe550db41e6fa58a007c74fad400274b128452f38fb8
-            w_download https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe e554425243e3e8ca1cd5fe550db41e6fa58a007c74fad400274b128452f38fb8
+            # 2019/03/24: 20e2645b7cd5873b1fa3462b99a665ac8d6e14aae83ded9d875fea35ffdd7d7e
+            w_download https://download.microsoft.com/download/0/5/6/056dcda9-d667-4e27-8001-8a0c6971d6b1/vcredist_x64.exe 20e2645b7cd5873b1fa3462b99a665ac8d6e14aae83ded9d875fea35ffdd7d7e
             if w_workaround_wine_bug 30713 "Manually extracting the 64-bit dlls"; then
                 rm -f "$W_TMP"/*  # Avoid permission error
                 w_try_cabextract --directory="$W_TMP" vcredist_x64.exe
@@ -10973,7 +11105,7 @@ w_metadata vulkanrt dlls \
     year="2018" \
     media="download" \
     file1="VulkanRT-1.1.73.0-Installer.exe" \
-    installed_file1="$W_SYSTEM32_DLLS_WIN/vulkan-1.dll"
+    installed_exe1="$W_SYSTEM32_DLLS_WIN/vulkaninfo.exe"
 
 load_vulkanrt()
 {
@@ -11192,6 +11324,8 @@ load_wmi()
     # Note: there is a crash in the background towards the end, doesn't seem to hurt; see https://bugs.winehq.org/show_bug.cgi?id=7920
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" wmi9x.exe $W_UNATTENDED_SLASH_S
+    w_killall "WinMgmt.exe"
+
     w_unset_winver
 }
 
@@ -12445,7 +12579,7 @@ w_metadata 7zip apps \
 
 load_7zip()
 {
-    w_download https://downloads.sourceforge.net/sevenzip/7z1602.exe 629ce3c424bd884e74aed6b7d87d8f0d75274fb87143b8d6360c5eec41d5f865
+    w_download https://sourceforge.net/projects/sevenzip/files/7-Zip/16.02/7z1602.exe 629ce3c424bd884e74aed6b7d87d8f0d75274fb87143b8d6360c5eec41d5f865
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" "${file1}" $W_UNATTENDED_SLASH_S
 }
@@ -12537,8 +12671,7 @@ w_metadata autohotkey apps \
 
 load_autohotkey()
 {
-    W_BROWSERAGENT=1 \
-    w_download https://www.autohotkey.com/download/AutoHotkey104805_Install.exe 4311c3e7c29ed2d67f415138360210bc2f55ff78758b20b003b91d775ee207b9
+    w_download https://github.com/AutoHotkey/AutoHotkey/releases/download/v1.0.48.05/AutoHotkey104805_Install.exe 4311c3e7c29ed2d67f415138360210bc2f55ff78758b20b003b91d775ee207b9
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" AutoHotkey104805_Install.exe $W_UNATTENDED_SLASH_S
 }
@@ -12634,18 +12767,21 @@ load_controlpad()
 #----------------------------------------------------------------
 
 w_metadata controlspy apps \
-    title="Control Spy 2.0 " \
+    title="Control Spy 6 " \
     publisher="Microsoft" \
     year="2005" \
     media="download" \
-    file1="ControlSpy.msi" \
+    file1="ControlSpyV6.exe" \
     installed_exe1="$W_PROGRAMS_X86_WIN/Microsoft/ControlSpy/ControlSpyV6.exe"
 
 load_controlspy()
 {
-    w_download https://download.microsoft.com/download/a/3/1/a315b133-03a8-4845-b428-ec585369b285/ControlSpy.msi d9127634dd47580be93c768263ddf37a3a75fd65a545e87ddb9602906a035845
-    w_try_cd "$W_CACHE/$W_PACKAGE"
-    w_try "$WINE" msiexec /i ControlSpy.msi ${W_UNATTENDED_SLASH_QB}
+    # Originally at https://download.microsoft.com/download/a/3/1/a315b133-03a8-4845-b428-ec585369b285/ControlSpy.msi
+    # 2019/04/11: changed to https://github.com/pywinauto/pywinauto/blob/master/apps/ControlSpy_20/ControlSpyV6.exe
+    # Unfortunately that means no V5 of ControlSpy :/
+    w_download https://github.com/pywinauto/pywinauto/blob/master/apps/ControlSpy_20/ControlSpyV6.exe
+    w_try mkdir -p "${W_PROGRAMS_X86_UNIX}/Microsoft/ControlSpy"
+    w_try cp "${W_CACHE}/${W_PACKAGE}/${file1}" "${W_PROGRAMS_X86_UNIX}/Microsoft/ControlSpy"
 }
 
 #----------------------------------------------------------------
@@ -12727,7 +12863,7 @@ load_ev3()
 
     w_download http://esd.lego.com.edgesuite.net/digitaldelivery/mindstorms/6ecda7c2-1189-4816-b2dd-440e22d65814/public/LMS-EV3-WIN32-ENUS-01-02-01-full-setup.exe c47341f08242f0f6f01996530e7c93bda2d666747ada60ab93fa773a55d40a19
 
-    if [ $W_UNATTENDED_SLASH_Q ]; then
+    if [ -n "$W_UNATTENDED_SLASH_Q" ]; then
         quiet="$W_UNATTENDED_SLASH_QB /AcceptLicenses yes"
     else
         quiet=""
@@ -12775,6 +12911,7 @@ load_fontxplorer()
 
     w_try_cd "$W_CACHE/fontxplorer"
     w_try "$WINE" Font_Xplorer_122_Free.exe $W_UNATTENDED_SLASH_S
+    w_killall "explorer.exe"
 }
 
 #----------------------------------------------------------------
@@ -12975,7 +13112,7 @@ load_ie6()
     w_override_dlls native inseng
 
     w_try_cd "$W_TMP/IE 6.0 Full"
-    if [ $W_UNATTENDED_SLASH_Q ]; then
+    if [ -n "$W_UNATTENDED_SLASH_Q" ]; then
         "$WINE" IE6SETUP.EXE /q:a /r:n /c:"ie6wzd /S:""#e"" /q:a /r:n"
     else
         "$WINE" IE6SETUP.EXE
@@ -13174,7 +13311,7 @@ load_ie8()
     w_try cp -f "$W_CACHE"/ie8/winetest.cat "$W_SYSTEM32_DLLS"/catroot/\{f750e6c3-38ee-11d1-85e5-00c04fc295ee\}/oem0.cat
 
     w_download https://download.microsoft.com/download/C/C/0/CC0BD555-33DD-411E-936B-73AC6F95AE11/IE8-WindowsXP-x86-ENU.exe 5a2c6c82774bfe99b175f50a05b05bcd1fac7e9d0e54db2534049209f50cd6ef
-    if [ $W_UNATTENDED_SLASH_QUIET ]; then
+    if [ -n "$W_UNATTENDED_SLASH_QUIET" ]; then
         quiet="$W_UNATTENDED_SLASH_QUIET /forcerestart"
     else
         quiet=""
@@ -13420,7 +13557,7 @@ load_mspaint()
 
     # Originally at: https://download.microsoft.com/download/0/A/4/0A40DF5C-2BAE-4C63-802A-84C33B34AC98/WindowsXP-KB978706-x86-ENU.exe
     # Mirror list: http://www.filewatcher.com/_/?q=WindowsXP-KB978706-x86-ENU.exe
-    w_download https://cbvk.cz/programy_pro_knihovny/update-pack/Windows%20XP%20x86%20ENU/Security%20Updates/WindowsXP-KB978706-x86-ENU.exe 93ed34ab6c0d01a323ce10992d1c1ca27d1996fef82f0864d83e7f5ac6f9b24b
+    w_download http://download.windowsupdate.com/msdownload/update/software/secu/2010/01/windowsxp-kb978706-x86-enu_f4e076b3867c2f08b6d258316aa0e11d6822b8d7.exe 93ed34ab6c0d01a323ce10992d1c1ca27d1996fef82f0864d83e7f5ac6f9b24b
     w_try $WINE "$W_CACHE"/mspaint/WindowsXP-KB978706-x86-ENU.exe /q /x:"$W_TMP"/WindowsXP-KB978706-x86-ENU
     w_try cp -f "$W_TMP"/WindowsXP-KB978706-x86-ENU/SP3GDR/mspaint.exe "$W_WINDIR_UNIX"/mspaint.exe
 }
@@ -13841,9 +13978,9 @@ w_metadata openwatcom apps \
 load_openwatcom()
 {
     # 2016/03/11: upstream http://www.openwatcom.org appears to be dead (404)
-    w_download "http://openwatcom.mirror.fr/open-watcom-c-win32-1.9.exe" 040c910aba304fdb5f39b8fe508cd3c772b1da1f91a58179fa0895e0b2bf190b
+    w_download ftp://ftp.openwatcom.org/install/open-watcom-c-win32-1.9.exe 040c910aba304fdb5f39b8fe508cd3c772b1da1f91a58179fa0895e0b2bf190b
 
-    if [ $W_UNATTENDED_SLASH_Q ]; then
+    if [ -n "$W_UNATTENDED_SLASH_Q" ]; then
         # Options documented at http://bugzilla.openwatcom.org/show_bug.cgi?id=898
         # But they don't seem to work on Wine, so jam them into setup.inf
         # Pick smallest installation that supports 16-bit C and C++
@@ -14328,7 +14465,7 @@ load_vc2005express()
     w_try_7z "$W_TMP" "$W_CACHE"/vc2005express/VC.iso
 
     w_try_cd "$W_TMP"
-    if [ $W_UNATTENDED_SLASH_Q ]; then
+    if [ -n "$W_UNATTENDED_SLASH_Q" ]; then
         chmod +x Ixpvc.exe
         # Add /qn after ReallySuppress for a really silent install (but then you won't see any errors)
 
@@ -14624,7 +14761,8 @@ load_wmp9()
     # Not really expected to work well yet; see
     # https://appdb.winehq.org/appview.php?versionId=1449
 
-    #w_package_unsupported_win64
+    # This version of Windows Media Player can be installed only on Windows 98 Second Edition, Windows Millennium Edition, Windows 2000, Windows XP(32-bit), and Windows .NET Server(32-bit).
+    w_package_unsupported_win64
 
     w_call wsh57
 
@@ -15060,14 +15198,14 @@ w_metadata wglgears benchmarks \
     year="2005" \
     media="download" \
     file1="wglgears.exe" \
-    installed_exe1="$W_PROGRAMS_X86_WIN/misc/wglgears.exe"
+    installed_exe1="$W_SYSTEM32_DLLS_WIN/wglgears.exe"
 
 load_wglgears()
 {
-    w_download http://www2.cs.uidaho.edu/~jeffery/win32/wglgears.exe 858ba95ea3c9af4ded1f4100e59b6e8e57024f3efef56304dbd48106e8f2f6f7
-    mkdir -p "$W_PROGRAMS_X86_UNIX/misc"
-    cp "$W_CACHE"/wglgears/wglgears.exe "$W_PROGRAMS_X86_UNIX/misc"
-    chmod +x "$W_PROGRAMS_X86_UNIX/misc/wglgears.exe"
+    # Original site http://www2.cs.uidaho.edu/~jeffery/win32/wglgears.exe is 403 as of 2019/04/07
+    w_download https://web.archive.org/web/20091001002702/http://www2.cs.uidaho.edu/~jeffery/win32/wglgears.exe 858ba95ea3c9af4ded1f4100e59b6e8e57024f3efef56304dbd48106e8f2f6f7
+    cp "$W_CACHE"/wglgears/wglgears.exe "$W_SYSTEM32_DLLS"
+    chmod +x "$W_SYSTEM32_DLLS/wglgears.exe"
 }
 
 #----------------------------------------------------------------

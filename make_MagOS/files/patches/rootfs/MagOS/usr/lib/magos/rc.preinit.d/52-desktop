@@ -113,7 +113,7 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          sed -i s/ONBOOT=.*/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null
        ;;
        *)
-         echo -e "DISPLAYMANAGER=sddm\nDESKTOP=a$" >etc/sysconfig/desktop
+         echo -e "DISPLAYMANAGER=sddm\nDESKTOP=$a" >etc/sysconfig/desktop
          ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
        ;;
    esac

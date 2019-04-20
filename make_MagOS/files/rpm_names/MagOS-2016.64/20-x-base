@@ -519,7 +519,7 @@ lib64xcb-util-renderutil0-
 lib64xcb-xkb1-
 lib64xkbcommon-x11_0-
 lib64fftw3_3-
-lib64llvm6.0-
+lib64llvm7.0-
 lib64epoxy0-
 lib64drm_amdgpu1-
 python-ptyprocess-
@@ -1004,3 +1004,5 @@ liblxqt-
 libdri-drivers-
 libomxil-bellagio0-
 liblm_sensors4-
+lib64psl5-
+publicsuffix-list-dafsa-
