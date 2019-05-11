@@ -178,8 +178,15 @@ vobcopy-
 vorbis-tools-
 wavpack-
 wildmidi-
-youmagic-
 lib64rosampcore1-
 lib64gstbadvideo1.0_0-
 lib64gstbadbase1.0_0-
 lib64avresample3-
+lib64filteraudio0-
+lib64sodium17-
+lib64sqlcipher0-
+lib64toxav0-
+lib64toxcore0-
+lib64toxencryptsave0-
+qtox-
+youmagic-

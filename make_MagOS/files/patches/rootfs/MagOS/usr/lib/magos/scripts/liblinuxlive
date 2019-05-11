@@ -1057,6 +1057,11 @@ modprobe_essential_modules()
    echolog "starting nls_cp866 support"
    modprobe_module nls_cp866
    modprobe_module nls_utf8
+   echolog "starting mmc support"
+   modprobe_module mmc_core
+   modprobe_module mmc_block
+   modprobe_module mmc_test
+   modprobe_module mmc_sdio_uart
 }
 
 # Modprobe kernel modules needed for USB masstorage devices

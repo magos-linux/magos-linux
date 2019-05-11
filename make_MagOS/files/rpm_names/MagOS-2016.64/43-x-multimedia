@@ -159,7 +159,6 @@ vobcopy-
 vorbis-tools-
 wavpack-
 wildmidi-
-youmagic-
 lib64gstbadvideo1.0_0-
 lib64gstbadbase1.0_0-
 lib64chromaprint1-
@@ -339,3 +338,11 @@ lib64sidplayfp4-
 qmplay2-
 youtube-dl-
 tetzle-
+lib64filteraudio0-
+lib64sodium23-
+lib64sqlcipher0-
+lib64toxav1-
+lib64toxcore1-
+lib64toxencryptsave1-
+qtox-
+youmagic-

@@ -51,7 +51,8 @@ INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kern
   kernel/drivers/ide dkms-binary/fs/squashfs dkms-binary/lib/lzma kernel/fs/unionfs/unionfs.
   kernel/lib/zlib_inflate kernel/lib/zlib_deflate kernel/drivers/pcmcia/rsrc_nonstatic.
   kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage/uas.
-  kernel/fs/ext3 kernel/fs/jbd kernel/crypto/cbc. '
+  kernel/fs/ext3 kernel/fs/jbd kernel/crypto/cbc.
+  kernel/drivers/mmc/core kernel/drivers/mmc/card '
 
 INITRDNETWORKDRIVERS='3c59x e100 eepro100 e1000 hp100 ne2k-pci r8169 8139too 8139cp via-rhine forcedeth e2100 eepro eexpress pcnet32
    3c501 3c503 3c505 3c507 3c509 3c515 tg3 jme virtio_net atl1 atl1c atl2 igb alx'

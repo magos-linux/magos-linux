@@ -172,7 +172,6 @@ vobcopy-
 vorbis-tools-
 wavpack-
 wildmidi-
-youmagic-
 librosampcore1-
 libgstadaptivedemux1.0_0-
 libgstbadbase1.0_0-
@@ -184,3 +183,11 @@ libavfilter6-
 libavutil55-
 libavresample3-
 libpostproc54-
+libfilteraudio0-
+libsodium17-
+libsqlcipher0-
+libtoxav0-
+libtoxcore0-
+libtoxencryptsave0-
+qtox-
+youmagic-

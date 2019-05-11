@@ -1,0 +1,18 @@
+#!/bin/sh
+
+[ -f ~/.config/tox/qtox.ini ] && exit 0
+
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+. /usr/lib/magos/functions
+. /usr/lib/magos/os-config
+. /etc/sysconfig/MagOS
+
+TOXLANG=$(cmdline_value lang)
+[ -z "$TOXLANG" ] && TOXLANG=ru
+mkdir -p ~/.config/tox
+cat >~/.config/tox/qtox.ini <<EOF
+[%General]
+translation=$TOXLANG
+EOF

@@ -6,6 +6,7 @@
 MTMP=/tmp/makemagos.tmp
 mkdir -p $MTMP
 
+git clone https://github.com/neobht/uird.git  $MTMP/uird
 git clone https://github.com/magos-linux/magos-linux.wiki.git $MTMP/wiki
 
 if [ -x $MTMP/wiki/md2html.sh ] ;then
@@ -24,3 +25,15 @@ chmod +x $MTMP/*tricks 2>/dev/null
 [ -x $MTMP/winetricks   ] && mv -f $MTMP/winetricks   files/patches/rootfs/MagOS/usr/lib/magos/scripts
 
 rm -fr $MTMP
+
+#tests for protontricks and winetricks
+if [ -x /usr/lib/magos/scripts/protontricks ] ;then
+  diff -aup /usr/lib/magos/scripts/protontricks files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks > protontricks.diff
+  cp -pf files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks /usr/lib/magos/scripts/protontricks
+  su -lc protontricks $(id -un 500)
+fi
+if [ -x /usr/lib/magos/scripts/winetricks   ] ;then
+  diff -aup /usr/lib/magos/scripts/winetricks   files/patches/rootfs/MagOS/usr/lib/magos/scripts/winetricks   > winetricks.diff
+  cp -pf files/patches/rootfs/MagOS/usr/lib/magos/scripts/winetricks /usr/lib/magos/scripts/winetricks
+  su -lc winetricks $(id -un 500)
+fi
