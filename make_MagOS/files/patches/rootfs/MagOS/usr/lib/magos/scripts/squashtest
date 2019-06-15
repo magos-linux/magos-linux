@@ -11,7 +11,6 @@ if [ ! "$1" -o "$1" == "--help" -o "$1" == "-h" ]; then
   echo "example 1:	$(basename "$0") xz lzo                                          -- simple test xz vs lzo"
   echo "example 2:	$(basename "$0") lz4 -Xhc, lz4 -b 512K, lz4 --dirs /usr /var     -- test lz4 using files from /usr and /var"  
   echo "example 2:	$(basename "$0") lz4, lzo --dirs $SYSMNT/bundles{0,1}*           -- lz4 vs lzo using files from 0,1.. bundles"  
-  
   exit 0
 fi
 
@@ -26,7 +25,7 @@ fi
 
 for arg_par in $(echo $COMP |tr -s ",:" " " |tr -s "-" " ") ;do
   if ! mksquashfs 2>&1 |grep -q "$arg_par" ;then
-  echo $arg_par | grep -Eq "^?[[:digit:]]+" && continue
+	echo $arg_par | grep -Eq "^?[[:digit:]]+" && continue
     echo "uknown mksquashfs arg -- $arg_par"
     exit 2
   fi
@@ -99,18 +98,17 @@ fullsize_dir=$(cat ./squashtest.log |grep SOURCE |awk '{print $3}'| sed -e 's/$/
 size_dirs=$(echo $fullsize_dir  0 |bc)
 echo "size_dirs  $size_dirs" >> ./squashtest.log 
 
-printf %3s "size all" ; printf %30s "source" ; printf %20b "$( echo "scale=1; $(cat ./squashtest.log |grep size_dirs |awk '{print $2}') / 1024 / 1024" |bc)M (100%)\n"
+printf %3s "size  all" ; printf %30s "source" ; printf %20b "$( echo "scale=1; $(cat ./squashtest.log |grep size_dirs |awk '{print $2}') / 1024 / 1024" |bc)M (100%)\n"
 
 for comp_ in $COMP_ ; do
   comp=$(echo $comp_ |tr -s "#" " ")
   size=$(cat ./squashtest.log |grep "fullsize.* $comp_ " |awk '{print $NF}') 
   human_size=$(echo "scale=1; ${size} / 1024 / 1024" |bc)
   percent=$(echo "scale=1; $size / ($size_dirs / 100)" |bc) 
-  printf %3s "size all" ; printf %30s "$comp" ; printf %20b "${human_size}M (${percent}%)\n"
+  printf %3s "size  all" ; printf %30s "$comp" ; printf %20b "${human_size}M (${percent}%)\n"
 done
 
 echo "=========================================================="
-
 
 bestrd=$(cat ./squashtest.log |grep rd_all  |sort -nk 3 |head -n1)
 bestwr=$(cat ./squashtest.log |grep wr_all  |sort -nk 3 |head -n1)

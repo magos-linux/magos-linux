@@ -4,6 +4,8 @@
 . `which pfs` 
  
 CHROOT="chroot"
+TRIM="--trim"
+WH=""
 buildDir=$SYSMNT/$$-tmp
 filter="??*" # нужен для пересборки сабмодуля из кoнтейнера, чтоб не собирать все что в контейнере,  нужно приделать ключ. Пока не важно.
 fast_alg=""
@@ -17,12 +19,14 @@ echo "-h | --help - this help"
 echo "--command  - команда для выполнения в чруте, параметр должен быть последним в строке"
 echo "--script - скрипт, который будет перенесен в чрут и запущен в нем"
 echo "-m | --mask - маска для системных бандлов из которых будет создана aufs для chroot"
-echo "--mlist - список модулей и папок для создания aufs, расзделеитель в списке - \" ; \" или \" , \" "
+echo "--mlist - список модулей и папок для создания aufs, разделитель в списке - \" , \" "
 echo "--flist   - список модулей и папок из файла"
 echo "-f | --fast - fast compression alg"
 echo "-n | -o | --name - name for the module (если без расширения $EXT, то в папку соберет)"
 echo "-c | --contaner  Тип виртуализации, доступные варианты  \"chroot\", \"nspawn\" (systemd-nspawn)" 
-echo "--mkscript - создать скрипт-шаблон"
+echo "--notrim  - не удалять заведомо не нужные в модуле файлы (мусор)"
+echo "--wh - не удалять специальные файлы aufs (тени)"
+echo "--bind - список каталогов для монтирования в чрут в формате /SOURCE/DIR1::/TARGET/DIR1,/SOURCE/DIR2::/TARGET/DIR2"
 exit 
 }
 
@@ -34,35 +38,17 @@ for tm in {sys,proc,dev}; do
 done
 }
 
-mk_template () {
- cat <<EOF >  ./script-examle.sh
-#!/bin/bash
-# apt-get install package
-# urpmi package
-# pacman -S package
-# /bin/bash
-rm -rf  /var/tmp  /var/cache/{urpmi,ldconfig}  /etc/{urpmi,ld.so.cache,localtime,machine-id,resolv.conf} \ 
-/var/lib/{rpm,urpmi,menu} /usr/share/applications/mimeinfo.cache  /.wh* 2>/dev/null
-find "$mod_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f
-EOF
-echo "WARNING. Do not run ./script-examle.sh in system, use for $(basename $0) only"
-echo "Do not make ./script-examle.sh executable, $(basename $0) will do it automaticly"
-exit
-}
-
 get_layers () {
 layers=""
 local layers
 [ "$MASK" ] && layers=$(aufs-n --hidetop  --reverse --raw '$bname_source $bundle' |grep "$MASK" | awk '{print $2}')
-[ "$MLIST" ] && layers="$layers $(echo "$MLIST" |sed 's/[\,,;]/ /g')"
+[ "$MLIST" ] && layers="$layers $(echo "$MLIST" |sed 's/[\,]/ /g')"
 [ "$FLIST" ] && layers="$layers $(cat $FLIST)"
 [[ -z  $layers ]] && layers=$(aufs-n --hidetop --reverse --raw '$bname_source $bundle'  | awk '{print $2}')
 for item in $layers ; do 
 [ -e $item ] && echo $item || exitmsg "	layer:   $item is not exists" 4
 done
 }
-
-[ "$1" == "--mkscript" ] && mk_template
 
 argslist="$@"
 if  echo $argslist |grep -q "\-*command.*" ; then
@@ -78,10 +64,13 @@ do
     "-f" | "--fast") fast_alg="-f" ;;
     "-s" | "--script" ) script="yes" ;;
     "-m" | "--mask") mask="yes" ;;
-    "-b" | --builddir ) bdir="yes" ;; # for rebuild only
+    "--builddir") bdir="yes" ;; # for rebuild only
+    "-b" | "--bind") bind="yes" ;;
     "--mlist" ) mlist="yes" ;;
     "--flist" ) flist="yes" ;;
     "-c" | "--contaner" ) contaner=yes;;
+    "--notrim" ) TRIM="";;
+    "-w" | "--wh" ) WH="--wh";;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" == "yes" ]; then NAME="${arg}"
 		elif [ "${mlist}" == "yes" ]; then MLIST="${arg}"
@@ -90,8 +79,9 @@ do
 		elif [ "${bdir}" = "yes" ]; then   buildDir="$(readlink -e ${arg})/$$-tmp"
 		elif [ "${contaner}" == "yes" ]; then CONTANER="${arg}" 
         elif [ "${mask}" == "yes" ]; then MASK="${arg}"
+        elif [ "${bind}" == "yes" ]; then BIND="${arg}"
         else modules="${arg} ${modules}" ; fi
-        mlist="no"; flist="no"; name="no";  mask="no"; bdir="no"; script="no"; contaner="no";;
+        mlist="no"; flist="no"; name="no";  mask="no"; bdir="no"; bind="no"; script="no"; contaner="no";;
   esac
 done
 
@@ -123,13 +113,12 @@ fi
 
 allow_only_root
 
-ps -C systemd >/dev/null ; S=$? 
-which systemd-nspawn >/dev/null ; N=$? 
-[ "$N" == 0 -a "$S" == 0 ] && CHROOT="nspawn"
 [ $CONTANER ] &&  CHROOT="$CONTANER"
 echo "Using:  $CHROOT"
 #Имя обязательно, так как зацепиться не за что
 [ $NAME ] || read -p "Please enter name for module:      " NAME  
+[ -f "${NAME}" ] && exitmsg "Output file '$NAME' already exist" 6
+[ -d "${NAME}" ] && exitmsg "Output diectory '$NAME' already exist" 6
 
 #make root aufs
 root_br="$(mkaufs || exitmsg "mkaufs error" 2)"
@@ -160,6 +149,16 @@ if [ "$SCRIPT" ] ; then
 	chmod +x $root_br/var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT) 
 fi
 
+if [ "$BIND" ] ; then
+binds="$(echo "$BIND" |sed 's/[\,]/ /g')"
+for bnd in $binds ; do
+	extdir=$(echo $bnd |sed 's/::/#/' |cut -d "#" -f1)
+	indir="$root_br/$(echo $bnd |sed 's/::/#/' |cut -d "#" -f2)"
+	mkdir -p "$indir"
+	mount -o bind "$extdir" "$indir"
+done
+ fi
+
 if [ $CHROOT == "nspawn" ] ; then
 md5sum /bin/bash | awk '{print $1}' > $root_br/etc/machine-id #  nspawn do not works without machine-id
 [ "$SCRIPT" ] || systemd-nspawn -D $root_br   -M ${NAME%.$EXT} $command 
@@ -176,13 +175,14 @@ umount_all
 
 mod_br=$SYSMNT/changes$nn
 rm -rf $mod_br/tmp >/dev/null
-rm -rf $root_br/{dev,proc,sys,tmp} >/dev/null
+rm -rf $mod_br/{dev,proc,sys,tmp} >/dev/null
 rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
 
-[ $BADCONTANER ] || mkpfs $mod_br  $fast_alg  -o $NAME && MODULE="$(readlink -e ${NAME})" 
+[ $BADCONTANER ] || mkpfs $mod_br -l $fast_alg  $WH  $TRIM   -o $NAME && MODULE="$(readlink -e ${NAME})" 
+umount "$indir"
 echo "delaufs $nn"
-
 delaufs $nn
+
 # по этой строке имя модуля получается при пересборке.
 echo $MODULE 
 

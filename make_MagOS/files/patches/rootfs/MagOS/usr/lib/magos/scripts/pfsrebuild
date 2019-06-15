@@ -16,6 +16,7 @@ esac
 
 allow_only_root
 package_name=$(basename ${1%.$EXT})
+bundle=$(aufs-n --hidetop --raw '$bundle' |grep "$package_name" |tail -n1)
 shift
 
 fileslist="${PFSDIR}/install/${package_name}/pfs.files"
@@ -23,8 +24,8 @@ fileslist="${PFSDIR}/install/${package_name}/pfs.files"
 dirsempty=$(echo $fileslist | sed 's/pfs.files/pfs.dirs.empty/')
 
 # find pfs files in pfs contaners
-if [  -d ${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/   -a ! -f $fileslist ] ; then
-	package_list=$(ls ${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/)
+if [  -n "$bundle" -a -d ${bundle}${PFSDIR}/mount/   ] ; then
+	package_list=$(ls ${bundle}${PFSDIR}/mount/)
 	echo "$package_list"
 	if [[ -n $package_list ]] ; then
 		pfs_in_contaner=''
@@ -42,18 +43,18 @@ if [  -d ${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/   -a ! -f $fileslist 
 exit
 fi
 
-if [ -f ${fileslist} -o ! -d "${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/ " ] ; then 
+if [ -n "${bundle}" -o -f ${fileslist} ] ; then 
   buildir="./build_${package_name}/${package_name}"
   mkdir -p "$buildir"
-  [ -f ${fileslist} ]  ||  mklist ${prefixmp}${package_name}.${EXT} / ${package_name}
+  [ -f ${fileslist} ]  ||  mklist ${bundle} / ${package_name}
   tar -c -p --ignore-failed-read --no-recursion -T $fileslist  2>/dev/null | tar -x -p -C ${buildir}
   if [[ -f  ${dirsempty} ]] ; then
 	cat $dirsempty | sed -e 's:^[^/]*::' -e 's:[\]:\\\\:g' | while read emptydir ; do
 	#it is a hack to save owner and permissions for empty dirs
-	cp -a --parents $emptydir/not_existing_filename ${buildir}/ 2>/dev/null
+	cp -apx --parents $emptydir/not_existing_filename ${buildir}/ 2>/dev/null
 	done
   fi
-  # --nopfs parametr - make build dir and exit 
+  # --nopfs parameter - make build dir and exit 
   if echo "$@" | grep -q "\-nopfs" ; then 
 	rm -rf ./${package_name} && mv -f ${buildir} ./
   else
@@ -61,8 +62,7 @@ if [ -f ${fileslist} -o ! -d "${prefixmp}${package_name}.${EXT}${PFSDIR}/mount/ 
 	exitmsg "can't create module" $?
   fi
   rm -rf ./build_${package_name}
-  else
+else
   echo "Package \"$package_name\" is not installed!" >&2; #exit 1
 fi
-
 exit 0

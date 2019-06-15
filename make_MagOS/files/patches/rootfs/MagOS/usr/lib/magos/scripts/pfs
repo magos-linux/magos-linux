@@ -86,6 +86,32 @@ allow_only_root() {
     fi
 }
 
+###############################################
+trim () {
+[ "$1" ] && r="$1" || return 1
+[ -d "$r" ] || return 2
+cat <<EOF | while read a ; do rm -f "$a" ; done
+$r/var/log
+$r/run
+$r/etc/udev/hwdb.bin
+$r/etc/ld.so.cache
+$r/var/cache/ldconfig/aux-cache
+$r/var/cache/fontconfig
+$r/var/cache/ldconfig
+$r/usr/local/share/applications/mimeinfo.cache
+$r/usr/share/applications/mimeinfo.cache
+EOF
+find "$r/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f
+#$r/var/lib/chroot2pfs
+#$r/var/cache/pacman/pkg
+#$r/var/lib/pacman/sync
+}
+###############################################
+
+
+
+
+
 mklist () {
 source_root="$(realpath "$1")"
 [ "$2" ] && dest_root="$(realpath "$2")" || dest_root="$source_root"
@@ -197,29 +223,34 @@ mount -t aufs -o dirs=/$SYSMNT/changes$N/=rw aufs /$SYSMNT/aufs$N && echo "$SYSM
 }
 
 delaufs () {
-#remove aufs 
-[ $1 ] || return 1
-umount $SYSMNT/aufs$1 2>/dev/null
-rmdir $SYSMNT/aufs$1 2>/dev/null
-if [ "$(grep changes$1 /proc/mounts)" ]; then
-	umount -d $SYSMNT/changes$1 &&	rmdir $SYSMNT/changes$1
+#remove aufs from $1 to $2
+[ $1 ] || return 2
+End="$1" ; [ $2 ] && End="$2"
+for N in $( seq $1 $End ) ; do
+umount $SYSMNT/aufs$N 2>/dev/null
+rmdir $SYSMNT/aufs$N 2>/dev/null
+if [ "$(grep changes$N /proc/mounts)" ]; then
+	umount -d $SYSMNT/changes$N &&	rmdir $SYSMNT/changes$N
 else
-	rm -rf $SYSMNT/changes$1
+	rm -rf $SYSMNT/changes$N
 fi 2>/dev/null
-if [ -d $SYSMNT/bundles$1 ]; then
-	ls -1A $SYSMNT/bundles$1 | while read D
+if [ -d $SYSMNT/bundles$N ]; then
+	ls -1A $SYSMNT/bundles$N | while read D
 	do
-		umount -d $SYSMNT/bundles$1/$D && 	rmdir $SYSMNT/bundles$1/$D
+		umount -d $SYSMNT/bundles$N/$D && 	rmdir $SYSMNT/bundles$N/$D
 	done
-	 rmdir $SYSMNT/bundles$1
+	 rmdir $SYSMNT/bundles$N
 fi 2>/dev/null
-if [ "$(grep tmpfs$1 /proc/mounts)" ]; then
-	umount $SYSMNT/tmpfs$1 && 	rmdir $SYSMNT/tmpfs$1
+if [ "$(grep tmpfs$N /proc/mounts)" ]; then
+	umount $SYSMNT/tmpfs$N && 	rmdir $SYSMNT/tmpfs$N
 else
-	rm -rf  $SYSMNT/tmpfs$1
+	rm -rf  $SYSMNT/tmpfs$N
 fi 2>/dev/null
-ls -1 $SYSMNT | egrep  "aufs${1}$|changes${1}$|bundles${1}$" && return 3
-rm -f $SYSMNT/aufs${1}.lock
+ls -1 $SYSMNT | egrep  "aufs${N}$|changes${N}$|bundles${N}$" && delaufs_error=yes
+rm -f $SYSMNT/aufs${N}.lock
+done
+[ $delaufs_error ] && return 3
+return 0
 }
 
 addlayer () {
