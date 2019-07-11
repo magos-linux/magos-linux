@@ -88,11 +88,15 @@ done
 # rebuild modules
 if  $(file $(echo $modules |awk '{print $1}') 2>/dev/null | grep -q quashfs); then
     for rmod in $modules ; do
+    if ! unsquashfs -l $rmod | grep -q .*/var/lib/chroot2pfs/.  ; then
+			exitmsg "Module $rmod was made by another program" 1 noexit
+			continue
+	fi
     mkdir -p $(dirname $buildDir)
     echo "rebuilding $rmod in $buildDir"
     u2pfs_current=$(realpath $0)
     unsquashfs -d $buildDir "$rmod" -e /var/lib/chroot2pfs -n >/dev/null
-    mv $buildDir/var/lib/chroot2pfs/* $buildDir  || exitmsg "Module $rmod was made by another program" 7
+    mv $buildDir/var/lib/chroot2pfs/* $buildDir  # || exitmsg "Module $rmod was made by another program" 7
     rm -fr $buildDir/var
     CPWD=$(pwd)
     cd $buildDir

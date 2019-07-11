@@ -131,11 +131,15 @@ done
 # rebuild modules
 if  $(file $(echo $packages |awk '{print $1}') 2>/dev/null | grep -q quashfs); then
     for rmod in $packages ; do
+		if ! unsquashfs -l $rmod | grep -q .*/var/lib/urpm2xzm/.  ; then
+			echo "Warning! Module $rmod was made by another program"
+			continue
+		fi
     mkdir -p $(dirname $buildDir)
     echo "$rmod processing..."
     u2xzm_current=$(realpath $0)
     unsquashfs -d $buildDir "$rmod" -e /var/lib/urpm2xzm -n >/dev/null
-    mv $buildDir/var/lib/urpm2xzm/* $buildDir 2>/dev/null || crash_exit "Module $rmod was made by another program" 7
+    mv $buildDir/var/lib/urpm2xzm/* $buildDir 2>/dev/null # || crash_exit "Module $rmod was made by another program" 7
     rm -fr $buildDir/var
     CPWD=$(pwd)
     cd $buildDir
