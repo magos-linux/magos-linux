@@ -433,8 +433,6 @@ aufs-tools-
 libpwquality-common-
 pam_pwquality-
 perl-Class-Singleton-
-perl-DateTime-
-perl-DateTime-Locale-
 perl-Params-Validate-
 perl-Module-Runtime-
 perl-Module-Implementation-

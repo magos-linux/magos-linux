@@ -1850,7 +1850,7 @@ w_override_no_dlls()
 {
     w_skip_windows override && return
 
-    "$WINE" regedit /d 'HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides'
+    w_try_regedit /d "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides"
 }
 
 w_override_all_dlls()
@@ -3026,12 +3026,15 @@ winetricks_get_sha256sum_prog() {
 winetricks_get_platform()
 {
     if [ "${OS}" = "Windows_NT" ]; then
-        if [ ! -v "${WINELOADERNOEXEC}" ]; then
+        if [ -n "${WINELOADERNOEXEC}" ]; then
+            # Windows/Cygwin
             export W_PLATFORM="windows_cmd"
         else
+            # wineconsole/cmd under wine
             export W_PLATFORM="wine_cmd"
         fi
     else
+        # Normal Unix shell
         export W_PLATFORM="wine"
     fi
 }
@@ -6817,6 +6820,46 @@ load_d9vk012()
     helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
 }
 
+w_metadata d9vk013 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (0.13)" \
+    publisher="Joshua Ashton" \
+    year="2019" \
+    media="download" \
+    file1="d9vk-0.13.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_d9vk013()
+{
+    # https://github.com/Joshua-Ashton/d9vk
+    w_download "https://github.com/Joshua-Ashton/d9vk/releases/download/0.13/d9vk-0.13.tar.gz" 53eeca60e94d3bbe5dbf57eaaf3d15746d4bca48a15968cf841ffdf68d999e59
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
+}
+
+w_metadata d9vk013f dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (0.13f)" \
+    publisher="Joshua Ashton" \
+    year="2019" \
+    media="download" \
+    file1="d9vk-0.13f.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_d9vk013f()
+{
+    # https://github.com/Joshua-Ashton/d9vk
+    w_download "https://github.com/Joshua-Ashton/d9vk/releases/download/0.13f/d9vk-0.13f.tar.gz" 7408ba54c4104b2a18ab4a4a575665f66e1517b46282724111d129bf127bfb8a
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
+}
+
 
 #----------------------------------------------------------------
 
@@ -6836,6 +6879,10 @@ w_metadata d9vk_master dlls \
 load_d9vk_master()
 {
     # https://git.froggi.es/joshua/d9vk
+    # FIXME: Delete cached file, when verb is forced. Gitlab artifacts do not supply any version/commit hash information.
+    if test "$WINETRICKS_FORCE" == 1 && test -f "${W_CACHE}/${W_PACKAGE}/${file1}"; then
+        w_try rm -f "${W_CACHE}/${W_PACKAGE}/${file1}"
+    fi
     w_linkcheck_ignore=1 w_download_to "${W_CACHE}/${W_PACKAGE}" "https://git.froggi.es/joshua/d9vk/-/jobs/artifacts/master/download?job=d9vk" "" "d9vk_master.zip"
     helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
 }
@@ -7357,6 +7404,66 @@ load_dxvk123()
     helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d10,d3d11"
 }
 
+w_metadata dxvk130 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.3)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.3.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk130()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3/dxvk-1.3.tar.gz" d15fac6503ea614986237052d554d7cbd2dbf5f3486feb6217e64bae83cfc2cf
+    # FIXME: The current Wine release (4.12.1) does not include the latest Vulkan 1.1.113 headers.
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+}
+
+w_metadata dxvk131 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.3.1)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.3.1.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk131()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3.1/dxvk-1.3.1.tar.gz" 2f6636dbd591ea9de20b30a33c9c8c0985a4939f6503f90ca5c7edafd01524a3
+    # FIXME: The current Wine release (4.12.1) does not include the latest Vulkan 1.1.113 headers.
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+}
+
+w_metadata dxvk132 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.3.2)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.3.2.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk132()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3.2/dxvk-1.3.2.tar.gz" aa70890a17b48be27648d15cb837b5167c99f75ee32ae0c94a85ec1f1fdc4675
+    # FIXME: The current Wine release (4.12.1) does not include the latest Vulkan 1.1.113 headers.
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+}
+
 
 #----------------------------------------------------------------
 
@@ -7374,12 +7481,12 @@ w_metadata dxvk dlls \
 load_dxvk()
 {
     # https://github.com/doitsujin/dxvk
-    # There's no stable exe URL, but they do provide a RELEASE file that lets us build one:
-    w_download_to "${W_TMP_EARLY}" "https://raw.githubusercontent.com/doitsujin/dxvk/latest-release/RELEASE"
-    dxvk_version="$(cat "${W_TMP_EARLY}/RELEASE")"
-    w_linkcheck_ignore=1 w_download "https://github.com/doitsujin/dxvk/releases/download/v${dxvk_version}/dxvk-${dxvk_version}.tar.gz"
-    helper_dxvk_d9vk "dxvk-${dxvk_version}.tar.gz" "4.5" "1.1.104" "dxgi,d3d10,d3d11"
-    unset dxvk_version
+    _W_dxvk_version="$(w_get_github_latest_release doitsujin dxvk)"
+    _W_dxvk_version="${_W_dxvk_version#v}"
+    w_linkcheck_ignore=1 w_download "https://github.com/doitsujin/dxvk/releases/download/v${_W_dxvk_version}/dxvk-${_W_dxvk_version}.tar.gz"
+    # FIXME: The current Wine release (4.12.1) does not include the latest Vulkan 1.1.113 headers.
+    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    unset _W_dxvk_version
 }
 
 #----------------------------------------------------------------
@@ -8009,10 +8116,12 @@ load_dotnet30()
     w_package_unsupported_win64
 
     # Originally at https://msdn.microsoft.com/en-us/netframework/bb264589.aspx
-    # No longer on microsoft.com, and archive.org is unreliablel. Choose amongst the oldest/most reliable looking from
+    # No longer on microsoft.com, and archive.org is unreliable. Choose amongst the oldest/most reliable looking from
     # http://www.filewatcher.com/m/dotnetfx3.exe.52770576-0.html
     # (and verify sha256sum, of course ;))
-    w_download http://descargas.udenar.edu.co/Framework.net/dotnetfx3.exe 6cf8921e00f52bbd888aa7a520a7bac47e818e2a850bcc44494c64d6cbfafdac
+    # 2017/04/20: http://descargas.udenar.edu.co/Framework.net/dotnetfx3.exe
+    # 2019/08/18: ftp://support.danbit.dk/I/IPP15-C2D/Net%20Framework%203.0/dotnetfx3.exe
+    w_download ftp://support.danbit.dk/I/IPP15-C2D/Net%20Framework%203.0/dotnetfx3.exe 6cf8921e00f52bbd888aa7a520a7bac47e818e2a850bcc44494c64d6cbfafdac
 
     w_call remove_mono
 
@@ -9038,7 +9147,7 @@ load_flash()
     # https://helpx.adobe.com/flash-player/kb/archived-flash-player-versions.html
 
     # 2018/06/24: d4b6f9a5e42cc9f2c7cbd1fd72059d4c1bead91b076afa2ca042d28f0fd7bedb
-    w_download "https://fpdownload.macromedia.com/pub/flashplayer/installers/archive/$_W_archive" d4b6f9a5e42cc9f2c7cbd1fd72059d4c1bead91b076afa2ca042d28f0fd7bedb
+    w_linkcheck_ignore=1 w_download "https://fpdownload.macromedia.com/pub/flashplayer/installers/archive/$_W_archive" d4b6f9a5e42cc9f2c7cbd1fd72059d4c1bead91b076afa2ca042d28f0fd7bedb
 
     # If OS version is Vista or newer:
     #   1. NPAPI plugin doesn't work
@@ -11249,9 +11358,6 @@ load_vcrun2008()
     # https://bugs.winehq.org/show_bug.cgi?id=28225
     # https://bugs.winehq.org/show_bug.cgi?id=33604
     # https://bugs.winehq.org/show_bug.cgi?id=42859
-    # https://bugs.winehq.org/show_bug.cgi?id=28225
-    # https://bugs.winehq.org/show_bug.cgi?id=33604
-    # https://bugs.winehq.org/show_bug.cgi?id=42859
     w_override_dlls native,builtin atl90 msvcm90 msvcp90 msvcr90 vcomp90
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
@@ -11485,7 +11591,8 @@ load_vcrun2017()
     # https://support.microsoft.com/en-gb/help/2977003/the-latest-supported-visual-c-downloads
     # 2017/10/02: 2da11e22a276be85970eaed255daf3d92af84e94142ec04252326a882e57303e
     # 2019/03/17: 7355962b95d6a5441c304cd2b86baf37bc206f63349f4a02289bcfb69ef142d3
-    w_download https://aka.ms/vs/15/release/vc_redist.x86.exe 7355962b95d6a5441c304cd2b86baf37bc206f63349f4a02289bcfb69ef142d3
+    # 2019/08/14: 54ad46ae80984aa48cae6361213692c96b3639e322730d28c7fb93b183c761da
+    w_download https://aka.ms/vs/15/release/vc_redist.x86.exe 54ad46ae80984aa48cae6361213692c96b3639e322730d28c7fb93b183c761da
 
     if w_workaround_wine_bug 37781; then
         w_warn "This may fail in non-XP mode, see https://bugs.winehq.org/show_bug.cgi?id=37781"
@@ -11504,7 +11611,8 @@ load_vcrun2017()
             # https://support.microsoft.com/en-gb/help/2977003/the-latest-supported-visual-c-downloads
             # 2017/10/02: 7434bf559290cccc3dd3624f10c9e6422cce9927d2231d294114b2f929f0e465
             # 2019/03/17: b192e143d55257a0a2f76be42e44ff8ee14014f3b1b196c6e59829b6b3ec453c
-            w_download https://aka.ms/vs/15/release/vc_redist.x64.exe b192e143d55257a0a2f76be42e44ff8ee14014f3b1b196c6e59829b6b3ec453c
+            # 2019/08/14: 5b0cbb977f2f5253b1ebe5c9d30edbda35dbd68fb70de7af5faac6423db575b5
+            w_download https://aka.ms/vs/15/release/vc_redist.x64.exe 5b0cbb977f2f5253b1ebe5c9d30edbda35dbd68fb70de7af5faac6423db575b5
             if w_workaround_wine_bug 30713 "Manually extracting the 64-bit dlls"; then
                 rm -f "$W_TMP"/*  # Avoid permission error
                 w_try_cabextract --directory="$W_TMP" vc_redist.x64.exe
@@ -11687,6 +11795,8 @@ load_windowscodecs()
     else
         w_try "$WINE" "$EXE" /passive
     fi
+
+    w_unset_winver
 }
 
 #----------------------------------------------------------------
@@ -12806,7 +12916,7 @@ w_metadata opensymbol fonts \
     publisher="OpenOffice.org" \
     year="2017" \
     media="download" \
-    file1="fonts-opensymbol_102.7+LibO5.2.7-1+deb9u5_all.deb" \
+    file1="fonts-opensymbol_102.10+LibO6.1.5-3+deb10u2_all.deb" \
     installed_file1="$W_FONTSDIR_WIN/opens___.ttf"
 
 load_opensymbol()
@@ -12814,7 +12924,7 @@ load_opensymbol()
     # The OpenSymbol fonts are a replacement for the Windows Wingdings font from OpenOffice.org.
     # Need to w_download Debian since I can't find a standalone download from OpenOffice
     # Note: The source download package on debian is for _all_ of OpenOffice, which is 266 MB.
-    w_download "https://deb.debian.org/debian-security/pool/updates/main/libr/libreoffice/fonts-opensymbol_102.7+LibO5.2.7-1+deb9u5_all.deb" 5fdff09b29db39de5ab300d21b7fdc5b09bdd3c1ef12c54cc439fa3f26c78af6
+    w_download "https://deb.debian.org/debian-security/pool/updates/main/libr/libreoffice/fonts-opensymbol_102.10+LibO6.1.5-3+deb10u2_all.deb" ba29052c85392e373478d5cf59199383a622257392888cef47b62b2df8868670
 
     w_try_cd "$W_TMP"
     w_try_ar "$W_CACHE/$W_PACKAGE/$file1" data.tar.xz
@@ -15238,7 +15348,7 @@ load_wmp9()
     w_set_winver win2k
 
     # See also https://support.microsoft.com/en-us/help/18612/windows-media-player
-    w_download https://download.microsoft.com/download/1/b/c/1bc0b1a3-c839-4b36-8f3c-19847ba09299/MPSetup.exe 678c102847c18a92abf13c3fae404c3473a0770c871a046b45efe623c9938fc0
+    w_download https://web.archive.org/web/20180404022333if_/http://download.microsoft.com/download/1/b/c/1bc0b1a3-c839-4b36-8f3c-19847ba09299/MPSetup.exe 678c102847c18a92abf13c3fae404c3473a0770c871a046b45efe623c9938fc0
 
     # remove builtin placeholders to allow update
     rm -f "$W_SYSTEM32_DLLS"/wmvcore.dll "$W_SYSTEM32_DLLS"/wmp.dll
@@ -21027,7 +21137,7 @@ load_sandbox()
     # Disable unixfs
     # Unfortunately, when you run with a different version of Wine, Wine will recreate this key.
     # See https://bugs.winehq.org/show_bug.cgi?id=22450
-    "$WINE" regedit /d 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\Windows\CurrentVersion\Explorer\Desktop\Namespace\{9D20AAE8-0625-44B0-9CA7-71889C2254D9}'
+    w_try_regedit /D "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\Namespace\\{9D20AAE8-0625-44B0-9CA7-71889C2254D9}"
 
     w_call isolate_home
 }
