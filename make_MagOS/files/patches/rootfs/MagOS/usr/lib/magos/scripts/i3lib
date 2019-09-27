@@ -1,0 +1,44 @@
+#!/bin/sh
+#helper library for i3 config actions
+
+HELP(){
+	echo "$0 is a helper library for i3 config actions" ; echo ""
+	echo "Usage:" 
+	echo "$0 <function> <pars>"
+	echo OR
+	echo "source $(realpath $0) ; <function> <pars>" ; echo ""
+	echo "Avaliable functions:"
+	cat $0 |grep \(\).*{$ |sed 's/()[[:space:]]*{[[:space:]]*$//'
+	exit 1
+}
+
+for arg in $@
+do
+	case "${arg}" in
+		"-h" | "--help") [ "`basename $0`" = "pfs" ] && { HELP ;exit 1 ; } ;;
+	esac
+done
+
+QuickTerm() {
+    ps -x |grep 'urxvt.*dropdown' |grep -vq grep  && return
+    urxvt -name dropdown &
+    sleep 1
+    QuickTermResize
+}
+
+QuickTermResize() {
+	screen_size=$(xrandr |grep \* |awk '{print $1}')
+	width=$(echo $screen_size |cut -d x -f1)
+	height=$(echo $screen_size |cut -d x -f2)
+	WIDTH=$(($width - 10))
+	HEIGHT=$(($height - 40))
+	i3-msg [instance="dropdown"] resize set $WIDTH $HEIGHT
+}
+
+if [ "$(basename $0)" == "i3lib" ] ;then
+	[ $1 ] || HELP
+	command="$1" 
+	shift
+	$command $@
+	[ $? -ne 0 ] && echo "$command ERROR!"
+fi 

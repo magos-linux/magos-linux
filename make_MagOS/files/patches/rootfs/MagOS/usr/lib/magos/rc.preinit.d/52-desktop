@@ -73,6 +73,10 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          echo -e "DISPLAYMANAGER=sddm\nDESKTOP=LXQT" >etc/sysconfig/desktop
          ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
        ;;
+       i3)
+         echo -e "DISPLAYMANAGER=sddm\nDESKTOP=i3" >etc/sysconfig/desktop
+         ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
+       ;;
        steam)
          echo -e "DISPLAYMANAGER=slim\nDESKTOP=Steam" >etc/sysconfig/desktop
          ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service

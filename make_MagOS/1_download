@@ -3,7 +3,7 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
-ONLINE=yes
+ONLINE=no
 TMPDIR=/tmp/$(basename $0)-$UID
 CURLOPTS="--progress-bar --retry-delay 2 --retry 5"
 

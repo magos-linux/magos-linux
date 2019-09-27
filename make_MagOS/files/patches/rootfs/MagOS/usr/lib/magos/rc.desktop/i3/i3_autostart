@@ -1,0 +1,10 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+I3_NOTIFYD=yes
+
+. /usr/lib/magos/os-config
+. /etc/sysconfig/MagOS
+
+[ "$I3_NOTIFYD" != "no" ] &&  dex /usr/share/applications/notification-daemon.desktop &

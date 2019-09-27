@@ -1,0 +1,20 @@
+#!/bin/bash
+#starting script for i3 wm
+
+if [ -f "$HOME/.config/i3/config" ] ; then
+	/usr/bin/i3 &
+	exit 0
+fi
+
+. /usr/lib/magos/os-config
+. /etc/sysconfig/MagOS
+
+MARK_MODKEY="Mod1"
+[ "$I3_MODKEY" ] && MARK_MODKEY="$I3_MODKEY"
+
+#patcher
+cat /usr/share/magos/i3/i3.cfg | sed \
+	-e "s/MARK_MODKEY/$MARK_MODKEY/" \
+	> /tmp/i3.cfg
+	
+/usr/bin/i3 -c /tmp/i3.cfg

@@ -1,0 +1,64 @@
+diff -auprN MagOS.orig/help-boot/en/main::magosdesktop.html MagOS/help-boot/en/main::magosdesktop.html
+--- MagOS.orig/help-boot/en/main::magosdesktop.html	2019-09-24 22:01:17.530757331 +0300
++++ MagOS/help-boot/en/main::magosdesktop.html	2019-09-24 21:53:49.733735918 +0300
+@@ -3,8 +3,8 @@
+ </h3>
+ 
+ <p>
+-Press <em>@@@fkey_de@@@</em> to get the list of desktop environment 
+-included by MagOS-Linux. There are three DE:
++Press <em>@@@fkey_de@@@</em> to get the list of desktop environment
++included by MagOS-Linux. There are several DE:
+ </p>
+ 
+ <p>
+@@ -18,7 +18,12 @@ System requirements are: Processor 600MH
+ </p>
+ 
+ <p>
+-3. You can launch Steam client in big picture mode as a DE.
++3. i3 is a tiling window manager which primarily targeted
++at advanced users and developers.
++</p>
++
++<p>
++4. You can launch Steam client in big picture mode as a DE.
+ This allows you to use your hardware as a gaming console.
+ </p>
+ 
+diff -auprN MagOS.orig/help-boot/ru/main::magosdesktop.html MagOS/help-boot/ru/main::magosdesktop.html
+--- MagOS.orig/help-boot/ru/main::magosdesktop.html	2019-09-24 22:01:17.530757331 +0300
++++ MagOS/help-boot/ru/main::magosdesktop.html	2019-09-24 21:59:18.781751652 +0300
+@@ -20,7 +20,12 @@ Системные требования:
+ </p>
+ 
+ <p>
+-3. Steam - запуск клиента steam в режиме big picture в качестве графической среды.
++3. i3 - мозаичная рабочая среда, рекомендуемая в первую очередь для продвинутых пользователей
++и разработчиков.
++</p>
++
++<p>
++4. Steam - запуск клиента steam в режиме big picture в качестве графической среды.
+ Это позволяет превратить ваш компьютер в аналог игровой приставки.
+ </p>
+ 
+diff -auprN MagOS.orig/src/dia_magosdesktop.inc MagOS/src/dia_magosdesktop.inc
+--- MagOS.orig/src/dia_magosdesktop.inc	2019-09-24 22:01:17.531757331 +0300
++++ MagOS/src/dia_magosdesktop.inc	2019-09-24 22:00:35.858755338 +0300
+@@ -14,6 +14,7 @@
+   ""
+   "desktop=plasma"
+   "desktop=lxqt"
++  "desktop=i3"
+   "desktop=steam"
+   "desktop=none"
+ ] def
+@@ -34,6 +35,7 @@
+     /txt_desktop_default
+     "Plasma"
+     "LXQT"
++    "i3"
+     "Steam"
+     /txt_desktop_console
+   ] put
