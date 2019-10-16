@@ -90,17 +90,17 @@ function concatenate_ini()
 
 detectDE()
 {
-  if   [ x"$KDE_FULL_SESSION" = x"true" ];    then SESSION=kde
-  elif [ x"$DESKTOP_SESSION" = x"LXDE" ];     then SESSION=lxde
-  elif [ x"$XDG_CURRENT_DESKTOP" = x"LXQt" ]; then SESSION=lxqt
-  elif [ x"$DESKTOP_SESSION" = x"i3" ];       then SESSION=i3
-  elif [ x"$XDG_CURRENT_DESKTOP" = x"i3" ];   then SESSION=i3
+  if [ x"$KDE_FULL_SESSION" = x"true" ]; then SESSION=kde
+    elif [ x"$DESKTOP_SESSION" = x"LXDE" ]; then SESSION=lxde
+    elif [ x"$XDG_CURRENT_DESKTOP" = x"LXQt" ]; then SESSION=lxqt
+    elif [ x"$DESKTOP_SESSION" = x"i3" ]; then SESSION=i3
+    elif [ x"$XDG_CURRENT_DESKTOP" = x"i3" ]; then SESSION=i3  
   fi
-  if [ -z "$SESSION" ] ;then
-     ps -A | grep -q "kdeinit"     && SESSION=kde
-     ps -A | grep -q " i3$"        && SESSION=i3
-     ps -A | grep -q "gnome-panel" && SESSION=gnome
-     ps -A | grep -q "gnome-shell" && SESSION=gnome-shell
+  if [ -z "$SESSION" ] ;then 
+         ps -A | grep -q "kdeinit" && SESSION=kde
+         ps -A | grep -q " i3$" && SESSION=i3
+         ps -A | grep -q "gnome-panel" && SESSION=gnome
+         ps -A | grep -q "gnome-shell" && SESSION=gnome-shell
   fi
   [ "$SESSION" = "kde" -a -f /etc/X11/wmsession.d/01Plasma ] && SESSION=plasma
   [ -z "$SESSION" -a -x /usr/bin/startlxde ] && SESSION=lxde
@@ -240,10 +240,8 @@ show_run()
     gnome-panel-control --run-dialog
   elif [  "$DE" = "lxqt" ] ; then
     lxqt-runner
-  elif [  "$DE" = "lxde" ] ; then
-    lxpanelctl run
-  elif [  "$DE" = "i3" ] ; then
-    rofi -config /usr/share/magos/i3/rofi.cfg -show
+  else
+    rofi -config /usr/share/magos/i3/rofi.cfg -show 
   fi
 }
 

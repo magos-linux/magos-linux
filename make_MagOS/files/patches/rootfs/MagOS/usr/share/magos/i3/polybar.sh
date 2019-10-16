@@ -2,9 +2,9 @@
 #pre starting patcher for polybar config
 
 #bar height
-screen_size=$(xrandr |grep \* |awk '{print $1}')
-height=$(echo $screen_size |cut -d x -f2)
-MARK_HEIGHT=$(($height / 40 ))
+height=$(xrandr --listactivemonitors |grep -vi monitor |head -n1 |cut -d ' ' -f4 |sed -e 's/+.*//' -e 's/^.*x//' )
+MARK_HEIGHT=$( expr  $(echo $height |cut -d '/' -f1)  \* 6 \/ $(echo $height |cut -d '/' -f2) )
+expr $MARK_HEIGHT + 1  >/dev/null || MARK_HEIGHT=22 
 
 
 #battery
@@ -15,7 +15,7 @@ MARK_ADAPTER=$(ls /sys/class/power_supply |grep -v BAT |tail -n1)
 
 #home
 MARK_HOME=''
-cat /proc/mounts |grep -q ' /home ' && MARK_HOME="mount-1 = /home"
+cat /proc/mounts |grep -q ' /home ' && MARK_HOME="mount-1 \= \/home"
 
 #patcher
 cat $(dirname $0)/polybar.cfg | sed \
@@ -25,4 +25,5 @@ cat $(dirname $0)/polybar.cfg | sed \
 	-e "s/MARK_HOME/$MARK_HOME/" \
 	> /tmp/polybar.cfg
 
-polybar example -c /tmp/polybar.cfg 
+polybar panel -r -c /tmp/polybar.cfg & 
+polybar tray -r -c /tmp/polybar.cfg &

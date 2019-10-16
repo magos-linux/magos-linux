@@ -19,21 +19,46 @@ do
 	esac
 done
 
+GetBinds() {
+i3-msg -t get_config | sed -ne 's/\$mod/MOD/' -e 's/\$alt/ALT/' -e '/^### /{x;d} ; /^bindsym /{H;d} ;/^[[:space:]]*$/{p;x;p}' 
+}
+
+ShowKeys() {
+	GetBinds | sed  -e '/./,/^$/!d' -e 's/bindsym //' > /tmp/i3keys
+	mdialog --textbox /tmp/i3keys 800 600
+	rm -f /tmp/i3keys
+}
+
 QuickTerm() {
-    ps -x |grep 'urxvt.*dropdown' |grep -vq grep  && return
+    xdotool search --onlyvisible --classname dropdown windowunmap && return
+    if ! xdotool search --classname dropdown windowmap ; then 
     urxvt -name dropdown &
-    sleep 1
-    QuickTermResize
+	until xdotool search --classname dropdown windowmap ; do
+	sleep 0.1
+    done
+    fi
+    i3-msg [instance="dropdown"] focus, move position center, move container to workspace current
 }
 
 QuickTermResize() {
 	screen_size=$(xrandr |grep \* |awk '{print $1}')
 	width=$(echo $screen_size |cut -d x -f1)
 	height=$(echo $screen_size |cut -d x -f2)
-	WIDTH=$(($width - 10))
-	HEIGHT=$(($height - 40))
+	WIDTH=$(($width - 100))
+	HEIGHT=$(($height - 100))
 	i3-msg [instance="dropdown"] resize set $WIDTH $HEIGHT
 }
+
+PowerMenu() {
+case $(mdialog --menu "Power_menu" "poweroff poweroff reboot reboot sleep sleep") in
+    poweroff ) systemctl poweroff ;;
+    reboot ) systemctl reboot ;;
+    sleep ) systemctl suspend ;;
+ esac
+}
+
+
+
 
 if [ "$(basename $0)" == "i3lib" ] ;then
 	[ $1 ] || HELP
