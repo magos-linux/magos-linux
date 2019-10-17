@@ -132,6 +132,39 @@
 " /usr/lib/magos/functions userkeys 9 "
   Mod4 + F9
 
+
+# mouse 10px up
+"xdotool mousemove_relative -- 0 -10"
+  Mod4 + Alt + Up
+
+# mouse 9px down
+"xdotool mousemove_relative -- 0 9"
+  Mod4 + Alt + Down
+
+# mouse 10px right
+"xdotool mousemove_relative -- 10 0"
+  Mod4 + Alt + Right
+
+# mouse 9px left
+"xdotool mousemove_relative -- -9 0"
+  Mod4 + Alt + Left
+
+# mouse left button click
+"xdotool click --repeat 1 1"
+Mod4 + Alt + space
+
+# mouse right button click
+"xdotool click --repeat 1 3"
+Mod4 + Alt + Control + space
+
+# mouse wheel scroll up
+"xdotool click --repeat 1 4"
+Mod4 + Alt + KP_Prior
+
+# mouse whell scroll down
+"xdotool click --repeat 1 5"
+Mod4 + Alt + KP_Next
+
 ##################################
 # End of xbindkeys configuration #
 ##################################
