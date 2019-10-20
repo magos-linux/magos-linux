@@ -227,6 +227,12 @@ delaufs () {
 [ $1 ] || return 2
 End="$1" ; [ $2 ] && End="$2"
 for N in $( seq $1 $End ) ; do
+	for tm in {sys,proc,dev}; do
+		while grep $SYSMNT/aufs$N/$tm /proc/mounts; do
+			echo $SYSMNT/aufs$N/$tm
+			umount $SYSMNT/aufs$N/$tm
+		done
+	done
 umount $SYSMNT/aufs$N 2>/dev/null
 rmdir $SYSMNT/aufs$N 2>/dev/null
 if [ "$(grep changes$N /proc/mounts)" ]; then

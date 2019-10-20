@@ -1,10 +1,12 @@
 #!/bin/bash
 # Description: create pfs module from changes in chroot
 # Author : Alexandr Betkher (betcher) <http://magos-linux.ru>
+#190807 sfs 
+
 . `which pfs` 
  
 CHROOT="chroot"
-TRIM="--trim"
+TRIM="--trim" ##sfs
 WH=""
 buildDir=$SYSMNT/$$-tmp
 filter="??*" # нужен для пересборки сабмодуля из кoнтейнера, чтоб не собирать все что в контейнере,  нужно приделать ключ. Пока не важно.
@@ -16,17 +18,34 @@ echo "				$(basename $0) <$(basename $0) keys> <--script> - script which will be
 echo "				$(basename $0) module.$EXT  - rebuild module" 
 echo "$(basename $0) keys:"
 echo "-h | --help - this help"
-echo "--command  - команда для выполнения в чруте, параметр должен быть последним в строке"
-echo "--script - скрипт, который будет перенесен в чрут и запущен в нем"
-echo "-m | --mask - маска для системных бандлов из которых будет создана aufs для chroot"
-echo "--mlist - список модулей и папок для создания aufs, разделитель в списке - \" , \" "
-echo "--flist   - список модулей и папок из файла"
-echo "-f | --fast - fast compression alg"
-echo "-n | -o | --name - name for the module (если без расширения $EXT, то в папку соберет)"
-echo "-c | --contaner  Тип виртуализации, доступные варианты  \"chroot\", \"nspawn\" (systemd-nspawn)" 
-echo "--notrim  - не удалять заведомо не нужные в модуле файлы (мусор)"
-echo "--wh - не удалять специальные файлы aufs (тени)"
-echo "--bind - список каталогов для монтирования в чрут в формате /SOURCE/DIR1::/TARGET/DIR1,/SOURCE/DIR2::/TARGET/DIR2"
+echo "--command  	- команда для выполнения в chroot, параметр должен быть последним в строке"
+echo "Запуск программы с другой локалью : --command LANG=ru_RU.UTF-8 program. Работает только с \"-c chroot\" "
+echo "--script 	- скрипт, который будет перенесен в chroot и запущен в нем"
+echo "-m | --mask 	- маска для системных бандлов из которых будет создана aufs для chroot"
+echo "--mlist 	- список модулей и папок для создания aufs, разделитель в списке - \",\" "
+echo "В списке можно применять \"#\" для блокирования. Пример : --mlist 1.pfs,#2.pfs,3.pfs "
+echo "--flist 	- список модулей и папок из файла. В файле можно применять \"#\" для блокирования"
+echo "Создать список из модулей в каталоге dir: find  /pth/dir -name *.$EXT |sort |awk '{print \"#\"$0}' > flist.lst"
+echo "-f | --fast 	- создать модуль c быстрым типом компрессии"
+echo "-n | -o | --name 	- имя создаваемого модуля или каталога (если без расширения $EXT)"
+echo "-c | --contaner 	- тип контейнера:  \"chroot\" или \"nspawn\" (systemd-nspawn нужен и на хост-системе и на гостевой)" 
+echo "--boot - только для -c nspawn. См. systemd-nspawn -b" 
+echo "--notrim 	- не удалять заведомо не нужные в модуле файлы (кэш и т.п.)"
+echo "--wh 	- не удалять специальные файлы aufs (тени)"
+echo "--bind 	- список каталогов для монтирования в chroot в формате /SOURCE/DIR1::/TARGET/DIR1,/SOURCE/DIR2::/TARGET/DIR2"
+echo "--nomod 	- не создавать модуль с изменениями"
+echo "-X 	- рарешить подключение к текущей X сессии. Для запуска в chroot приложений с GUI. Рекомендуется использовать с \"-c nspawn\""
+echo "Ядро хост-системы должно быть одинаковой архитектуры (i686 или x86_64) c гостевой. Самв хост-система может быть любой"
+echo
+echo "ПРИМЕРЫ"
+echo "======="
+echo "Сборка модуля mc в каталог ModuleDIR:"
+echo "	chroot2pfs -o ModuleDIR  --flist /tmp/module.list --command apt install mc"
+echo "Запуск программы pcmanfm из гостевой системы, собранной из модулей 1 и 3 (1 в верхнем слое AUFS, т.е. перекрывает 2):"
+echo "	chroot2pfs --nomod -X -c chroot --mlist /pth/1.$EXT,\\
+#2.\\
+3.$EXT --command pcmanfm"
+echo
 exit 
 }
 
@@ -42,8 +61,10 @@ get_layers () {
 layers=""
 local layers
 [ "$MASK" ] && layers=$(aufs-n --hidetop  --reverse --raw '$bname_source $bundle' |grep "$MASK" | awk '{print $2}')
-[ "$MLIST" ] && layers="$layers $(echo "$MLIST" |sed 's/[\,]/ /g')"
-[ "$FLIST" ] && layers="$layers $(cat $FLIST)"
+#[ "$MLIST" ] && layers="$layers $(echo "$MLIST" |sed 's/[\,]/ /g')"
+[ "$MLIST" ] && layers="$layers $(echo "$MLIST" | sed 's/#[^,]\+,\?//g; s/,$//' |sed 's/[\,]/ /g')"
+#[ "$FLIST" ] && layers="$layers $(cat $FLIST)"
+[ "$FLIST" ] && layers="$layers $(grep -v '^#' $FLIST)"
 [[ -z  $layers ]] && layers=$(aufs-n --hidetop --reverse --raw '$bname_source $bundle'  | awk '{print $2}')
 for item in $layers ; do 
 [ -e $item ] && echo $item || exitmsg "	layer:   $item is not exists" 4
@@ -71,6 +92,9 @@ do
     "-c" | "--contaner" ) contaner=yes;;
     "--notrim" ) TRIM="";;
     "-w" | "--wh" ) WH="--wh";;
+    "-X" ) X="yes";;
+    "--nomod" ) NOMOD="yes";;
+    "--boot" ) BOOT="-b";;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
     *) if [ "${name}" == "yes" ]; then NAME="${arg}"
 		elif [ "${mlist}" == "yes" ]; then MLIST="${arg}"
@@ -118,8 +142,10 @@ fi
 allow_only_root
 
 [ $CONTANER ] &&  CHROOT="$CONTANER"
+
 echo "Using:  $CHROOT"
 #Имя обязательно, так как зацепиться не за что
+[ $NOMOD ] && NAME=nomod
 [ $NAME ] || read -p "Please enter name for module:      " NAME  
 [ -f "${NAME}" ] && exitmsg "Output file '$NAME' already exist" 6
 [ -d "${NAME}" ] && exitmsg "Output diectory '$NAME' already exist" 6
@@ -163,18 +189,28 @@ for bnd in $binds ; do
 done
  fi
 
+if [ "$X" == "yes" ] ; then
+	if ! xhost |grep -q "LOCAL:" ; then
+		xhost +local:
+		remove_X_perm=yes
+	fi
+fi
+
 if [ $CHROOT == "nspawn" ] ; then
 md5sum /bin/bash | awk '{print $1}' > $root_br/etc/machine-id #  nspawn do not works without machine-id
-[ "$SCRIPT" ] || systemd-nspawn -D $root_br   -M ${NAME%.$EXT} $command 
-[ "$SCRIPT" ] &&  systemd-nspawn -D $root_br   -M ${NAME%.$EXT}  /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
+#[ "$SCRIPT" ] || systemd-nspawn -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix $command 
+#[ "$SCRIPT" ] && systemd-nspawn -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
+[ "$SCRIPT" ] || systemd-nspawn $BOOT -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix:/tmp/.X11-unix $command 
+[ "$SCRIPT" ] && systemd-nspawn $BOOT -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
 elif [ $CHROOT == "chroot" ] ; then
-[ "$SCRIPT" ] || chroot $root_br $command
-[ "$SCRIPT" ] && chroot $root_br /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
+[ "$SCRIPT" ] || chroot $root_br env -i DISPLAY="$DISPLAY" $command
+[ "$SCRIPT" ] && chroot $root_br env -i DISPLAY="$DISPLAY" /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
 else 
-BADCONTANER=yes 
+NOMOD=yes 
 echo "Wrong contaner type, must be \"chroot\" or \"nspawn\""
 fi
 
+[ $remove_X_perm ] && xhost -local: 
 umount_all
 
 mod_br=$SYSMNT/changes$nn
@@ -182,11 +218,10 @@ rm -rf $mod_br/tmp >/dev/null
 rm -rf $mod_br/{dev,proc,sys,tmp} >/dev/null
 rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
 
-[ $BADCONTANER ] || mkpfs $mod_br -l $fast_alg  $WH  $TRIM   -o $NAME && MODULE="$(readlink -e ${NAME})" 
+[ $NOMOD ] || mkpfs $mod_br -l $fast_alg  $WH  $TRIM   -o $NAME && MODULE="$(readlink -e ${NAME})" 
 umount "$indir"
 echo "delaufs $nn"
 delaufs $nn
 
 # по этой строке имя модуля получается при пересборке.
 echo $MODULE 
-
