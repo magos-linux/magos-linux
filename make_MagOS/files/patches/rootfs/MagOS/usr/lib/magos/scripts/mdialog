@@ -9,9 +9,13 @@
 
 export PATH=/usr/lib/magos/scripts:/usr/lib/qt4/bin:$PATH
 
+. /usr/lib/magos/functions
 PREFIX=none
+DE=$(detectDE)
+
 [ -f /usr/bin/zenity ] && PREFIX=NONKDE
-if [ -n "$KDE_SESSION_UID" -o -n "$(ps -A |grep startkde)" ] ; then
+
+if [ "$DE" == "plasma" -o "$DE" == "kde" ] ; then
     [ -f /usr/bin/kdialog ] && PREFIX=KDE
 else
     # if session is not KDE, but zenity is not exist - use kdialog
@@ -19,20 +23,7 @@ else
 fi
 
 [ $PREFIX == none ] && echo "no zenity and kdialog in system" && exit -1
-#===============================================================
-#if mdialog starts by root restart it by user in display :0.0
-#XUSER=$(who | awk  '{ print $1 }'|sort -u)
-#if [ "$(id -un)" = "root" ] ;then
-#    ps -A | grep -q startkde  && export KDE_SESSION_UID=500
-#    export XAUTHORITY=/home/$XUSER/.Xauthority 
-#    sudo -u $XUSER  $0 "$@" ; exit 
-#fi
-#if [ -z $XAUTHORITY ] ; then
-	#ps -A | grep -q startkde  && PREFIX=KDE 
-#	export XAUTHORITY=/home/$XUSER/.Xauthority 
-#fi
-#[ -z $DISPLAY ] && export DISPLAY=:0.0
-#===============================================================
+
 
 # start mdialog with xuserrun  
 if [ "$(id -un)" = "root" ] ;then
@@ -255,20 +246,20 @@ HELP ()
 TEST () 
 {
     echo "команда mdialog --msgbox \"error и sorry использовать аналогично\""
-    mdialog --msgbox "error и sorry использовать аналогично"
+    $0  --msgbox "error и sorry использовать аналогично"
     echo "команда mdialog --yesno \"возвращает 0 либо 1 зависимо от нажатой кнопки\""
-    mdialog --yesno "возвращает 0 либо 1 зависимо от нажатой кнопки"
+    $0 --yesno "возвращает 0 либо 1 зависимо от нажатой кнопки"
     echo $?
     echo "команда mdialog --inputbox \"заголовок\" \"строка\""
-    mdialog --inputbox "заголовок" "строка"
+    $0 --inputbox "заголовок" "строка"
     echo "команда mdialog --textbox mdialog" 
-    mdialog --textbox /mnt/livemedia/MagOS/VERSION
+    $0 --textbox /mnt/livemedia/MagOS/VERSION
     echo "команда mdialog --textinputbox mdialog"
-    mdialog --textinputbox /mnt/livemedia/MagOS/MagOS.sgn
+    $0 --textinputbox /mnt/livemedia/MagOS/MagOS.sgn
     echo "команда mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc" 
-    mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc
+    $0 --progressbar sleep:1 sleep:1 ls:-R ls:/etc
     echo "команда mdialog --passivepopup \"тест окончен\"" 
-    mdialog --passivepopup "тест завершен"
+    $0 --passivepopup "тест завершен"
     exit
 }
 
