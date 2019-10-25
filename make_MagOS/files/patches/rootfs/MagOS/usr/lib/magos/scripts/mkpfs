@@ -45,8 +45,8 @@ echo "$0 * -o ./big.$EXT		-collect all dirs and squashfs modules from current di
 echo
 echo "Параметры (ключи):"
 echo "	-o / --out-file - указывает название выходного файла (если указать без расширения .$EXT на выходе будет каталог)."
-echo "  -w - не включать AUFS тени."
 echo "  -l / --local - сборка на месте, без использования aufs."
+echo "  -w - включать в модуль AUFS тени. Будет работать но только с ключем -l"
 echo "  -f / --fast - быстрая компрессия (размер .$EXT больше, но создается быстрее)."
 echo "  --mkilst  add files list to simple (non contaner) module"
 echo "  --save-duplicates  при сборке контейнеров сохранять одноименные файлы из разных источников если они отличаются, "
