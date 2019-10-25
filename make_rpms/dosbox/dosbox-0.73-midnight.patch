@@ -1,0 +1,36 @@
+diff -auprN dosbox-0.74/src/dos/dos.cpp dosbox-0.74_patched/src/dos/dos.cpp
+--- dosbox-0.74/src/dos/dos.cpp	2010-05-10 21:43:54.000000000 +0400
++++ dosbox-0.74_patched/src/dos/dos.cpp	2010-07-26 18:29:25.000000000 +0400
+@@ -362,13 +362,21 @@ static Bitu DOS_21Handler(void) {
+ 		break;
+ 	case 0x2a:		/* Get System Date */
+ 		{
+-			int a = (14 - dos.date.month)/12;
++/*			int a = (14 - dos.date.month)/12;
+ 			int y = dos.date.year - a;
+ 			int m = dos.date.month + 12*a - 2;
+ 			reg_al=(dos.date.day+y+(y/4)-(y/100)+(y/400)+(31*m)/12) % 7;
+ 			reg_cx=dos.date.year;
+ 			reg_dh=dos.date.month;
+-			reg_dl=dos.date.day;
++  			reg_dl=dos.date.day;                       */
++                        time_t curtime;
++                        struct tm *loctime;
++                        curtime = time (NULL); loctime = localtime (&curtime);
++                        reg_al = (loctime->tm_wday + 1);
++                        reg_dl = (loctime->tm_mday);
++                        reg_dh = (loctime->tm_mon + 1);
++                        reg_cx = (loctime->tm_year + 1900);
++
+ 		}
+ 		break;
+ 	case 0x2b:		/* Set System Date */
+@@ -387,7 +395,7 @@ static Bitu DOS_21Handler(void) {
+ 			Bitu ticks=5*mem_readd(BIOS_TIMER);
+ 			ticks = ((ticks / 59659u) << 16) + ((ticks % 59659u) << 16) / 59659u;
+ 			Bitu seconds=(ticks/100);
+-			reg_ch=(Bit8u)(seconds/3600);
++			reg_ch=(Bit8u)((seconds/3600) % 24);
+ 			reg_cl=(Bit8u)((seconds % 3600)/60);
+ 			reg_dh=(Bit8u)(seconds % 60);
+ 			reg_dl=(Bit8u)(ticks % 100);

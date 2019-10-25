@@ -596,3 +596,5 @@ libavformat57-
 x11-font-type1-
 x11-font-bitstream-type1-
 x11-font-xfree86-type1-
+xdotool-
+libxdotool2-

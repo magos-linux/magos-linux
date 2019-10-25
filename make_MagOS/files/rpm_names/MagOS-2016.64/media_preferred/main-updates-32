@@ -42,5 +42,5 @@ libglvnd-egl-
 libglvnd-gles-
 libglvnd-glx-
 libopengl0-
-libllvm7.0-
+libllvm8.0-
 libomxil-bellagio0-

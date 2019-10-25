@@ -721,11 +721,11 @@ w_expand_env()
 # Get the latest tagged release from github.com API
 w_get_github_latest_release()
 {
-    # $1 - github organization
-    # $2 - github repository
     # FIXME: can we get releases that aren't on master branch?
+    org="$1"
+    repo="$2"
 
-    WINETRICKS_SUPER_QUIET=1 w_download_to "${W_TMP_EARLY}" "https://api.github.com/repos/$1/$2/releases/latest" "" "release.json" >/dev/null 2>&1
+    WINETRICKS_SUPER_QUIET=1 w_download_to "${W_TMP_EARLY}" "https://api.github.com/repos/${org}/${repo}/releases/latest" "" "release.json" >/dev/null 2>&1
 
     # aria2c condenses the json (https://github.com/aria2/aria2/issues/1389)
     # but curl/wget don't, so handle both cases:
@@ -733,6 +733,26 @@ w_get_github_latest_release()
     case "$json_length" in
         0*) latest_version="$(sed -e "s/\",\"/|/g" "${W_TMP_EARLY}/release.json" | tr '|' '\n' | grep tag_name | sed 's@.*"@@')";;
         *) latest_version="$(grep -w tag_name "${W_TMP_EARLY}/release.json" | cut -d '"' -f 4)";;
+    esac
+
+    echo "$latest_version"
+}
+
+# Get the latest tagged prerelease from github.com API
+w_get_github_latest_prerelease()
+{
+    # FIXME: can we get releases that aren't on master branch?
+    org="$1"
+    repo="$2"
+
+    WINETRICKS_SUPER_QUIET=1 w_download_to "${W_TMP_EARLY}" "https://api.github.com/repos/${org}/${repo}/releases" "" "release.json" >/dev/null 2>&1
+
+    # aria2c condenses the json (https://github.com/aria2/aria2/issues/1389)
+    # but curl/wget don't, so handle both cases:
+    json_length="$(wc -l "${W_TMP_EARLY}/release.json")"
+    case "$json_length" in
+        0*) latest_version="$(sed -e "s/\",\"/|/g" "${W_TMP_EARLY}/release.json" | tr '|' '\n' | grep tag_name -m 1 | sed 's@.*"@@')";;
+        *) latest_version="$(grep -m 1 -w tag_name "${W_TMP_EARLY}/release.json" | cut -d '"' -f 4)";;
     esac
 
     echo "$latest_version"
@@ -4968,7 +4988,7 @@ winetricks_annihilate_wineprefix()
     rm -rf "$WINEPREFIX"
 
     # Also remove menu items.
-    find "$XDG_DATA_HOME/applications/wine" -type f -name '*.desktop' -exec grep -q -l "$WINEPREFIX" '{}' ';' -exec rm '{}' ';'
+    find "$XDG_DATA_HOME/applications" -type f -name '*.desktop' -exec grep -q -l "$WINEPREFIX" '{}' ';' -exec rm '{}' ';'
 
     # Also remove desktop items.
     # Desktop might be synonym for home directory, so only go one level
@@ -5032,8 +5052,6 @@ winetricks_init()
 
     # whether to use shared wineprefix (1) or unique wineprefix for each app (0)
     WINETRICKS_OPT_SHAREDPREFIX=${WINETRICKS_OPT_SHAREDPREFIX:-0}
-
-    WINETRICKS_SOURCEFORGE=https://downloads.sourceforge.net
 
     winetricks_get_sha256sum_prog
 
@@ -5261,7 +5279,7 @@ Executes given verbs.  Each verb installs an application or changes a setting.
 
 Options:
     --country=CC      Set country code to CC and don't detect your IP address
-    --force           Don't check whether packages were already installed
+-f,  --force           Don't check whether packages were already installed
     --gui             Show gui diagnostics even when driven by commandline
     --isolate         Install each app or game in its own bottle (WINEPREFIX)
     --self-update     Update this application to the last version
@@ -5302,7 +5320,7 @@ winetricks_handle_option()
 {
     case "$1" in
         --country=*) W_COUNTRY="${1##--country=}" ;;
-        --force) WINETRICKS_FORCE=1;;
+        --force|-f) WINETRICKS_FORCE=1;;
         --gui) winetricks_detect_gui;;
         -h|--help) winetricks_usage ; exit 0 ;;
         --isolate) WINETRICKS_OPT_SHAREDPREFIX=0 ;;
@@ -5709,9 +5727,9 @@ load_comctl32()
     # 2011/01/17: https://www.microsoft.com/en-us/download/details.aspx?id=14672
     # 2012/08/11: w_download https://download.microsoft.com/download/platformsdk/redist/5.80.2614.3600/w9xnt4/en-us/cc32inst.exe d68c0cca721870aed39f5f2efd80dfb74f3db66d5f9a49e7578b18279edfa4a7
     # 2016/01/07: w_download ftp://ftp.ie.debian.org/disk1/download.sourceforge.net/pub/sourceforge/p/po/pocmin/Win%2095_98%20Controls/Win%2095_98%20Controls/CC32inst.exe
-    # 2017/03/12: w_download $WINETRICKS_SOURCEFORGE/project/pocmin/Win%2095_98%20Controls/Win%2095_98%20Controls/CC32inst.exe
+    # 2017/03/12: w_download https://downloads.sourceforge.net/project/pocmin/Win%2095_98%20Controls/Win%2095_98%20Controls/CC32inst.exe
 
-    w_download $WINETRICKS_SOURCEFORGE/project/pocmin/Win%2095_98%20Controls/Win%2095_98%20Controls/CC32inst.exe d68c0cca721870aed39f5f2efd80dfb74f3db66d5f9a49e7578b18279edfa4a7
+    w_download https://downloads.sourceforge.net/project/pocmin/Win%2095_98%20Controls/Win%2095_98%20Controls/CC32inst.exe d68c0cca721870aed39f5f2efd80dfb74f3db66d5f9a49e7578b18279edfa4a7
 
     w_try "$WINE" "$W_CACHE"/comctl32/cc32inst.exe "/T:$W_TMP_WIN" /c $W_UNATTENDED_SLASH_Q
     w_try_unzip "$W_TMP" "$W_TMP"/comctl32.exe
@@ -6881,6 +6899,71 @@ load_d9vk020()
     helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
 }
 
+w_metadata d9vk021 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (0.21)" \
+    publisher="Joshua Ashton" \
+    year="2019" \
+    media="download" \
+    file1="d9vk-0.21.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_d9vk021()
+{
+    # https://github.com/Joshua-Ashton/d9vk
+    w_download "https://github.com/Joshua-Ashton/d9vk/releases/download/0.21/d9vk-0.21.tar.gz" e58d11733b6471718b4652e5be66bfd1a4d908d0ddf96be0ecb9efb2fb748055
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
+}
+
+w_metadata d9vk022 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (0.22)" \
+    publisher="Joshua Ashton" \
+    year="2019" \
+    media="download" \
+    file1="d9vk-0.22.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_d9vk022()
+{
+    # https://github.com/Joshua-Ashton/d9vk
+    w_download "https://github.com/Joshua-Ashton/d9vk/releases/download/0.22/d9vk-0.22.tar.gz" 45d2b5d20cd6d96a43673b999814d3d9d3e64360a514757df3ef49b9a28ae65a
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
+}
+
+
+#----------------------------------------------------------------
+
+w_metadata d9vk dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (latest)" \
+    publisher="Joshua Ashton" \
+    year="2019" \
+    media="download" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_d9vk()
+{
+    # https://github.com/Joshua-Ashton/d9vk
+    _W_d9vk_version="$(w_get_github_latest_prerelease Joshua-Ashton d9vk)"
+    _W_d9vk_version="${_W_d9vk_version#v}"
+    w_linkcheck_ignore=1 w_download "https://github.com/Joshua-Ashton/d9vk/releases/download/${_W_d9vk_version}/d9vk-${_W_d9vk_version}.tar.gz"
+    helper_dxvk_d9vk "d9vk-${_W_d9vk_version}.tar.gz" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
+    unset _W_d9vk_version
+}
+
 
 #----------------------------------------------------------------
 
@@ -7541,6 +7624,66 @@ load_dxvk140()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4/dxvk-1.4.tar.gz" bf22785de1ce728bbdcfb4615035924112b4718049ca2cade5861b03735181de
+    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+}
+
+w_metadata dxvk141 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.4.1)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.4.1.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk141()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4.1/dxvk-1.4.1.tar.gz" 574ec4dc5201e45d70472228f0c6695426f0392503ec7a47d6092600aac53a07
+    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+}
+
+w_metadata dxvk142 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.4.2)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.4.2.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk142()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4.2/dxvk-1.4.2.tar.gz" 5adfd71ee0299798af4402f09f113f88929af429b6889af334cff5b84b84dbe6
+    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+}
+
+w_metadata dxvk143 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.4.3)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.4.3.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk143()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4.3/dxvk-1.4.3.tar.gz" e4b9e7fc8faf2dd1ddf5206e14939a822034a85778d54a6950767d68909726f7
     # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
     helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
 }
@@ -9337,6 +9480,38 @@ load_galliumnine03()
     helper_galliumnine "$file1"
 }
 
+w_metadata galliumnine04 dlls \
+    title="Gallium Nine Standalone (v0.4)" \
+    publisher="Gallium Nine Team" \
+    year="2019" \
+    media="download" \
+    file1="gallium-nine-standalone-v0.4.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9-nine.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/ninewinecfg.exe" \
+    homepage="https://github.com/iXit/wine-nine-standalone"
+
+load_galliumnine04()
+{
+    w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.4/gallium-nine-standalone-v0.4.tar.gz" 4423c32d46419830c8e68fea86d28e740f17f182c365250c379b5493176e19ab
+    helper_galliumnine "$file1"
+}
+
+w_metadata galliumnine05 dlls \
+    title="Gallium Nine Standalone (v0.5)" \
+    publisher="Gallium Nine Team" \
+    year="2019" \
+    media="download" \
+    file1="gallium-nine-standalone-v0.5.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9-nine.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/ninewinecfg.exe" \
+    homepage="https://github.com/iXit/wine-nine-standalone"
+
+load_galliumnine05()
+{
+    w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.5/gallium-nine-standalone-v0.5.tar.gz" c46e06b13a3ba0adee75b27a8b54e9d772f83ed29dee5e203364460771fb1bcd
+    helper_galliumnine "$file1"
+}
+
 w_metadata galliumnine dlls \
     title="Gallium Nine Standalone (latest)" \
     publisher="Gallium Nine Team" \
@@ -9535,7 +9710,7 @@ w_metadata dirac dlls \
 
 load_dirac()
 {
-    w_download $WINETRICKS_SOURCEFORGE/dirac/DiracDirectShowFilter-1.0.2.exe 7257de4be940405637bb5d11c1179f7db86f165f21fc0ba24f42a9ecbc55fe20
+    w_download https://downloads.sourceforge.net/dirac/DiracDirectShowFilter-1.0.2.exe 7257de4be940405637bb5d11c1179f7db86f165f21fc0ba24f42a9ecbc55fe20
 
     # Avoid mfc90 not found error.  (DiracSplitter-libschroedinger.ax needs mfc90 to register itself, I think.)
     w_call vcrun2008
@@ -9580,7 +9755,7 @@ w_metadata ffdshow dlls \
 
 load_ffdshow()
 {
-    w_download $WINETRICKS_SOURCEFORGE/ffdshow-tryout/ffdshow_beta7_rev3154_20091209.exe 86fb22e9a79a1c83340a99fd5722974a4d03948109d404a383c4334fab8f8860
+    w_download https://downloads.sourceforge.net/ffdshow-tryout/ffdshow_beta7_rev3154_20091209.exe 86fb22e9a79a1c83340a99fd5722974a4d03948109d404a383c4334fab8f8860
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" ffdshow_beta7_rev3154_20091209.exe $W_UNATTENDED_SLASH_SILENT
 }
@@ -10072,13 +10247,13 @@ w_metadata mfc40 dlls \
 
 load_mfc40()
 {
-    w_warn "mfc40 no longer installs msvcrt40.dll, only mfc40.dll/mfc40u.dll. Please file a bug if you have an application that needs native msvcrt40.dll."
-
     helper_win7sp1 x86_microsoft-windows-mfc40_31bf3856ad364e35_6.1.7601.17514_none_5c06580240091047/mfc40.dll
     w_try cp "$W_TMP/x86_microsoft-windows-mfc40_31bf3856ad364e35_6.1.7601.17514_none_5c06580240091047/mfc40.dll" "$W_SYSTEM32_DLLS/mfc40.dll"
 
     helper_win7sp1 x86_microsoft-windows-mfc40u_31bf3856ad364e35_6.1.7601.17514_none_f51a7bf0b3d25294/mfc40u.dll
     w_try cp "$W_TMP/x86_microsoft-windows-mfc40u_31bf3856ad364e35_6.1.7601.17514_none_f51a7bf0b3d25294/mfc40u.dll" "$W_SYSTEM32_DLLS/mfc40u.dll"
+
+    w_call msvcrt40
 }
 
 #----------------------------------------------------------------
@@ -10312,6 +10487,24 @@ load_msftedit()
     fi
 
     w_override_dlls native,builtin msftedit
+}
+
+#----------------------------------------------------------------
+
+w_metadata msvcrt40 dlls \
+    title="fixme" \
+    publisher="Microsoft" \
+    year="2011" \
+    media="download" \
+    file1="../winxpsp3/WindowsXP-KB936929-SP3-x86-ENU.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/msvcrt40.dll"
+
+load_msvcrt40()
+{
+    helper_winxpsp3 i386/msvcrt40.dl_
+    w_try_cabextract --directory="$W_SYSTEM32_DLLS" "$W_TMP"/i386/msvcrt40.dl_
+
+    w_override_dlls native,builtin msvcrt40
 }
 
 #----------------------------------------------------------------
@@ -10601,7 +10794,7 @@ w_metadata python26 dlls \
 load_python26()
 {
     w_download https://www.python.org/ftp/python/2.6.2/python-2.6.2.msi c2276b398864b822c25a7c240cb12ddb178962afd2e12d602f1a961e31ad52ff
-    w_download $WINETRICKS_SOURCEFORGE/project/pywin32/pywin32/Build%20214/pywin32-214.win32-py2.6.exe dc311bbdc5868e3dd139dfc46136221b7f55c5613a98a5a48fa725a6c681cd40
+    w_download https://downloads.sourceforge.net/project/pywin32/pywin32/Build%20214/pywin32-214.win32-py2.6.exe dc311bbdc5868e3dd139dfc46136221b7f55c5613a98a5a48fa725a6c681cd40
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" msiexec /i python-2.6.2.msi ALLUSERS=1 $W_UNATTENDED_SLASH_Q
@@ -11652,7 +11845,7 @@ load_vcrun2015()
         w_warn "This may fail in non-XP mode, see https://bugs.winehq.org/show_bug.cgi?id=37781"
     fi
 
-    w_override_dlls native,builtin api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcr140 ucrtbase vcomp140 vcruntime140
+    w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcr140 ucrtbase vcomp140 vcruntime140
 
     w_set_winver winxp
 
@@ -11716,7 +11909,7 @@ load_vcrun2017()
         w_warn "This may fail in non-XP mode, see https://bugs.winehq.org/show_bug.cgi?id=37781"
     fi
 
-    w_override_dlls native,builtin api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcr140 ucrtbase vcomp140 vcruntime140
+    w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcr140 ucrtbase vcomp140 vcruntime140
 
     w_set_winver winxp
 
@@ -13034,7 +13227,7 @@ w_metadata opensymbol fonts \
     publisher="OpenOffice.org" \
     year="2017" \
     media="download" \
-    file1="fonts-opensymbol_102.10+LibO6.1.5-3+deb10u3_all.deb" \
+    file1="fonts-opensymbol_102.10+LibO6.1.5-3+deb10u4_all.deb" \
     installed_file1="$W_FONTSDIR_WIN/opens___.ttf"
 
 load_opensymbol()
@@ -13042,8 +13235,7 @@ load_opensymbol()
     # The OpenSymbol fonts are a replacement for the Windows Wingdings font from OpenOffice.org.
     # Need to w_download Debian since I can't find a standalone download from OpenOffice
     # Note: The source download package on debian is for _all_ of OpenOffice, which is 266 MB.
-    w_download "https://deb.debian.org/debian-security/pool/updates/main/libr/libreoffice/fonts-opensymbol_102.10+LibO6.1.5-3+deb10u3_all.deb" fb302a58166bf3fa29efee234d6659361213e5f36a7abfd948fa7288c5f7fb30
-
+    w_download "https://cdn-aws.deb.debian.org/debian-security/pool/updates/main/libr/libreoffice/fonts-opensymbol_102.10+LibO6.1.5-3+deb10u4_all.deb" 1b2ab1e8eeb9a3a4a07e4a1c9bf539bb721734bf8b9881f4d0b8e71e822cecde
     w_try_cd "$W_TMP"
     w_try_ar "$W_CACHE/$W_PACKAGE/$file1" data.tar.xz
     w_try tar -Jxf "$W_TMP/data.tar.xz" ./usr/share/fonts/truetype/openoffice/opens___.ttf
@@ -13758,7 +13950,7 @@ load_ie6()
 {
     w_package_unsupported_win64
 
-    w_download http://cdn.browserarchive.org/ie/win32/6.0/ie60.exe e34e0557d939e7e83185f5354403df99c92a3f3ff80f5ee0c75f6843eaa6efb2
+    w_download https://web.archive.org/web/20150411022055if_/http://download.oldapps.com/Internet_Explorer/ie60.exe e34e0557d939e7e83185f5354403df99c92a3f3ff80f5ee0c75f6843eaa6efb2
 
     w_try_cd "$W_TMP"
     "$WINE" "$W_CACHE/$W_PACKAGE/$file1"
@@ -14135,7 +14327,7 @@ w_metadata mingw apps \
 
 load_mingw()
 {
-    w_download "$WINETRICKS_SOURCEFORGE/mingw/files/mingw-get-setup.exe" aab27bd5547d35dc159288f3b5b8760f21b0cfec86e8f0032b49dd0410f232bc
+    w_download "https://downloads.sourceforge.net/mingw/files/mingw-get-setup.exe" aab27bd5547d35dc159288f3b5b8760f21b0cfec86e8f0032b49dd0410f232bc
 
     if test "$W_OPT_UNATTENDED"; then
         w_info "FYI: Quiet mode will install these mingw packages: 'gcc msys-base'"
@@ -14204,7 +14396,7 @@ w_metadata mpc apps \
 
 load_mpc()
 {
-    w_download $WINETRICKS_SOURCEFORGE/project/mpc-hc/MPC%20HomeCinema%20-%20Win32/MPC-HC_v1.7.5_x86/MPC-HC.1.7.5.x86.exe 1d690da5b330f723aea4a294d478828395d321b59fc680f2b971e8b16b8bd33d
+    w_download https://downloads.sourceforge.net/project/mpc-hc/MPC%20HomeCinema%20-%20Win32/MPC-HC_v1.7.5_x86/MPC-HC.1.7.5.x86.exe 1d690da5b330f723aea4a294d478828395d321b59fc680f2b971e8b16b8bd33d
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" MPC-HC.1.7.5.x86.exe ${W_OPT_UNATTENDED:+ /VERYSILENT}
 }

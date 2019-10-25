@@ -90,6 +90,7 @@ update_app pcmanfm-qt-desktop-pref.desktop "Qt;DesktopSettings;X-LXQT-Settings;"
 update_app compton-conf.desktop "Qt;DesktopSettings;X-LXQT-Settings;"
 update_app lftp.desktop "Network;FileTransfer;"
 update_app io.github.qtox.qTox.desktop "Network;Chat;Telephony;"
+update_app kde-qt5-fsarchiver.desktop "Qt;System;Filesystem;Settings;HardwareSettings;X-MandrivaLinux-System-Configuration;"
 
 update_app kde4/akonaditray.desktop "Qt;KDE;X-KDE-Utilities-PIM;"
 update_app kde4/dolphin.desktop "Qt;KDE;System;Utility;Core;FileManager;"

@@ -1,0 +1,89 @@
+diff -aupr a/nvidia-current.spec b/nvidia-current.spec
+--- a/nvidia-current.spec	2016-12-25 23:04:59.000000000 +0300
++++ b/nvidia-current.spec	2018-12-02 11:10:16.714032025 +0300
+@@ -156,7 +156,7 @@ Requires(pre):	grub2 >= 2.00-34
+ 
+ # Just in case some long-lived nvidia package is based on the same version
+ # of the drivers
+-Requires:	dkms-%{drivername} = %{version}-%{release}
++#Requires:	dkms-%{drivername} = %{version}-%{release}
+ 
+ Conflicts:	nvidia-current-cuda-opencl <= 295.59-1
+ Suggests:	nvidia-additional-settings
+@@ -259,7 +259,7 @@ MAKE="'make' NV_EXCLUDE_BUILD_MODULES='n
+ %endif
+ CLEAN="'make' clean"
+ AUTOINSTALL="yes"
+-REMAKE_INITRD="yes"
++REMAKE_INITRD="no"
+ EOF
+ popd
+ 
+@@ -714,10 +714,10 @@ done
+ 
+ # Create the convenience symlinks. As the packages with nvidia are mutually
+ # exclusive now, there is no need to use alternatives for this.
+-ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
+-%ifarch %{biarches}
+-	ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
+-%endif
++#ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
++#%ifarch %{biarches}
++#	ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
++#%endif
+ 
+ # confirm SONAME; if something else than libvdpau_nvidia.so or libvdpau_nvidia.so.1, adapt .spec as needed:
+ [ "$(objdump -p %{buildroot}%{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} | grep SONAME | gawk '{ print $2 }')" = "libvdpau_nvidia.so.1" ]
+@@ -827,12 +827,12 @@ if [ $1 -eq 1 ]; then
+ 	DEV_LINE=$(lspci -vnn | grep -E -i '(VGA compatible controller|3D controller|Display controller).*NVIDIA' | head -n 1)
+ 	echo $DEV_LINE | grep -E '^[0-9]+:[0-9]+\.[0-9]+\s+' > /dev/null 2>&1
+ 	if test $? -ne 0; then
+-		echo "Error: no suitable devices found."
+-		exit 1
++	   BUSLINE=
++	else
++	   BUSID_GPU=$(echo $DEV_LINE | awk '{ split($1, ids, "[.:]"); printf("%d:%d:%d", ids[1], ids[2], ids[3]); }')
++	   BUSLINE="BusID \"PCI:$BUSID_GPU\""
+ 	fi
+ 
+-	BUSID_GPU=$(echo $DEV_LINE | awk '{ split($1, ids, "[.:]"); printf("%d:%d:%d", ids[1], ids[2], ids[3]); }')
+-
+ 	cat > %{_sysconfdir}/X11/xorg.conf <<EOF
+ Section "ServerFlags"
+ Option "DontZap" "False"
+@@ -844,7 +844,7 @@ Identifier "device1"
+ VendorName "NVIDIA Corporation"
+ BoardName "Proprietary (nvidia-current)"
+ Driver "nvidia"
+-BusID "PCI:$BUSID_GPU"
++$BUSLINE
+ Option "DPMS"
+ Option "DynamicTwinView" "false"
+ Option "AddARGBGLXVisuals"
+@@ -880,6 +880,8 @@ mkdir -p %{_libdir}/vdpau
+ 	--slave %{_bindir}/nvidia-modprobe nvidia-modprobe %{nvidia_bindir}/nvidia-modprobe \
+ 	--slave %{_bindir}/nvidia-persistenced nvidia-persistenced %{nvidia_bindir}/nvidia-persistenced \
+ 	--slave %{_sysconfdir}/X11/xinit.d/nvidia-settings.xinit nvidia-settings.xinit %{_sysconfdir}/%{drivername}/nvidia-settings.xinit \
++	--slave %{_libdir}/nvidia nvidia-lib64 %{nvidia_libdir} \
++	--slave %{_prefix}/lib/nvidia nvidia-lib %{nvidia_libdir32} \
+ 	--slave %{_libdir}/vdpau/libvdpau_nvidia.so.1 %{_lib}vdpau_nvidia.so.1 %{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} \
+ 	--slave %{_sysconfdir}/OpenCL/vendors/nvidia.icd nvidia.icd %{_sysconfdir}/%{drivername}/nvidia.icd \
+ %ifarch %{biarches}
+@@ -1044,7 +1046,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %dir %{nvidia_libdir}
+ %dir %{nvidia_libdir}/tls
+ %dir %{nvidia_libdir}/vdpau
+-%{_libdir}/nvidia
++#%{_libdir}/nvidia
+ %{nvidia_libdir}/libGL.so.1.0.0
+ %{nvidia_libdir}/libGL.so.1
+ %{nvidia_libdir}/libGLX.so.0
+@@ -1086,7 +1088,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %dir %{nvidia_libdir32}
+ %dir %{nvidia_libdir32}/tls
+ %dir %{nvidia_libdir32}/vdpau
+-%{_prefix}/lib/nvidia
++#%{_prefix}/lib/nvidia
+ %{nvidia_libdir32}/libGL.so.1.0.0
+ %{nvidia_libdir32}/libGL.so.1
+ %{nvidia_libdir32}/libGLX.so.0

@@ -13,6 +13,7 @@ rm -fr 2>/dev/null \
    etc/xdg/plasma-workspace/env/gtk*.sh \
    usr/share/GeoIP/GeoLiteCity.dat \
    usr/share/apps/kio_desktop/DesktopLinks/* \
+   usr/share/applications/gscriptor.desktop \
    usr/share/doc/rosa-media-player/*.jpg usr/share/vpnpptp/wiki/*_uk.doc \
    usr/share/doc/proftpd/Configuration.pdf usr/share/doc/easytag/users_* usr/share/doc/easytag/*_Documentation_* \
    usr/share/doc/djvulibre/doc usr/share/doc/initscripts/ChangeLog* usr/share/doc/libglib2.0-devel/ChangeLog \

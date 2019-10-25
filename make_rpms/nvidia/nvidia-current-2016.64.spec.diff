@@ -1,0 +1,219 @@
+diff -aupr a/nvidia-current.spec b/nvidia-current.spec
+--- a/nvidia-current.spec	2018-12-19 17:47:50.000000000 +0300
++++ b/nvidia-current.spec	2019-05-10 08:24:44.000000000 +0300
+@@ -10,7 +10,7 @@
+ %define debug_package		%{nil}
+ 
+ %define name		nvidia-current
+-%define version		415.25
++%define version		418.74
+ 
+ %define priority	9700
+ 
+@@ -72,7 +72,7 @@
+ Summary:	NVIDIA proprietary X.org driver and libraries, current driver series
+ Name:		%{name}
+ Version:	%{version}
+-Release:	1
++Release:	1magos
+ 
+ Source0:	http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/%{pkgname64}.run
+ # GPLv2 source code; see also http://cgit.freedesktop.org/~aplattner/
+@@ -84,10 +84,20 @@ Source5:	http://download.nvidia.com/XFre
+ Source100:	%{name}.rpmlintrc
+ Source101:	README.urpmi
+ 
++# Starting from v. 352.x, the build system checks if the kernel provides
++# phys_to_dma() function and if so, tries to use that function. However,
++# phys_to_dma() is nether exported nor inline on x86-32 with
++# CONFIG_X86_DMA_REMAP=y (selected by CONFIG_STA2X11), so a non-functional
++# driver is built then.
++# However, phys_to_dma() does nothing special except for some exotic
++# hardware. If the function is missing, the driver seems to do the necessary
++# conversions right, so let us assume it is missing.
++Patch1:		%{name}-no-phys_to_dma.patch
++
+ # Allow building the drivers with a different GCC version than the kernel.
+ # Might be risky but it is still better than failed builds of the drivers
+ # resulting in broken graphics at the users' machines after a GCC update.
+-Patch1:		no-cc-version-check.patch
++Patch2:		no-cc-version-check.patch
+ 
+ License:	Freeware
+ URL:		http://www.nvidia.com/object/unix.html
+@@ -109,7 +119,7 @@ BuildRequires:	pkgconfig(libtirpc)
+ BuildRequires:	pkgconfig(dbus-1)
+ 
+ %description
+-The proprietary driver for NVidia GPUs, "current" ("short-lived") branch.
++The proprietary driver for NVidia GPUs, "current" branch.
+ Note that hybrid graphics ("Optimus") is not supported officially with
+ nvidia-current.
+ 
+@@ -130,7 +140,7 @@ Requires(pre):	grub2 >= 2.00-34
+ 
+ # Just in case some long-lived nvidia package is based on the same version
+ # of the drivers
+-Requires:	dkms-%{drivername} = %{version}-%{release}
++#Requires:	dkms-%{drivername} = %{version}-%{release}
+ 
+ %if %{with external_glvnd}
+ Requires:	%{_lib}gldispatch0
+@@ -225,6 +235,7 @@ sh %{SOURCE0} --extract-only
+ pushd %{pkgname}/
+ rm -rf usr/src/nv/precompiled
+ %patch1 -p1
++%patch2 -p1
+ popd
+ 
+ # We need a different dkms.conf because the one supplied in the upstream
+@@ -719,8 +730,8 @@ done
+ 
+ # Create the convenience symlinks. As the packages with nvidia are mutually
+ # exclusive now, there is no need to use alternatives for this.
+-ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
+-ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
++#ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
++#ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
+ 
+ # confirm SONAME; if something else than libvdpau_nvidia.so or libvdpau_nvidia.so.1, adapt .spec as needed:
+ [ "$(objdump -p %{buildroot}%{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} | grep SONAME | gawk '{ print $2 }')" = "libvdpau_nvidia.so.1" ]
+@@ -842,12 +853,12 @@ if [ $1 -eq 1 ]; then
+ 	DEV_LINE=$(lspci -vnn | grep -E -i '(VGA compatible controller|3D controller|Display controller).*NVIDIA' | head -n 1)
+ 	echo $DEV_LINE | grep -E '^[0-9]+:[0-9]+\.[0-9]+\s+' > /dev/null 2>&1
+ 	if test $? -ne 0; then
+-		echo "Error: no suitable devices found."
+-		exit 1
++	   BUSLINE=
++	else
++	   BUSID_GPU=$(echo $DEV_LINE | awk '{ split($1, ids, "[.:]"); printf("%d:%d:%d", ids[1], ids[2], ids[3]); }')
++	   BUSLINE="BusID \"PCI:$BUSID_GPU\""
+ 	fi
+ 
+-	BUSID_GPU=$(echo $DEV_LINE | awk '{ split($1, ids, "[.:]"); printf("%d:%d:%d", ids[1], ids[2], ids[3]); }')
+-
+ 	cat > %{_sysconfdir}/X11/xorg.conf <<EOF
+ Section "ServerFlags"
+ Option "DontZap" "False"
+@@ -859,7 +870,7 @@ Identifier "device1"
+ VendorName "NVIDIA Corporation"
+ BoardName "Proprietary (nvidia-current)"
+ Driver "nvidia"
+-BusID "PCI:$BUSID_GPU"
++$BUSLINE
+ Option "DPMS"
+ Option "DynamicTwinView" "false"
+ Option "AddARGBGLXVisuals"
+@@ -895,6 +906,12 @@ mkdir -p %{_libdir}/vdpau
+ 	--slave %{_bindir}/nvidia-modprobe nvidia-modprobe %{nvidia_bindir}/nvidia-modprobe \
+ 	--slave %{_bindir}/nvidia-persistenced nvidia-persistenced %{nvidia_bindir}/nvidia-persistenced \
+ 	--slave %{_sysconfdir}/X11/xinit.d/nvidia-settings.xinit nvidia-settings.xinit %{_sysconfdir}/%{drivername}/nvidia-settings.xinit \
++%ifarch x86_64
++        --slave %{_libdir}/nvidia nvidia-lib64 %{nvidia_libdir} \
++        --slave %{_prefix}/lib/nvidia nvidia-lib %{nvidia_libdir32} \
++%else
++        --slave %{_prefix}/lib/nvidia nvidia-lib %{nvidia_libdir}   \
++%endif
+ 	--slave %{_libdir}/vdpau/libvdpau_nvidia.so.1 %{_lib}vdpau_nvidia.so.1 %{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} \
+ 	--slave %{_sysconfdir}/OpenCL/vendors/nvidia.icd nvidia.icd %{_sysconfdir}/%{drivername}/nvidia.icd \
+ 	--slave %{_prefix}/lib/vdpau/libvdpau_nvidia.so.1 libvdpau_nvidia.so.1 %{nvidia_libdir32}/vdpau/libvdpau_nvidia.so.%{version} \
+@@ -1057,8 +1074,9 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{_iconsdir}/hicolor/48x48/apps/%{drivername}-settings.png
+ 
+ %dir %{nvidia_libdir}
++#%dir %{nvidia_libdir}/tls
+ %dir %{nvidia_libdir}/vdpau
+-%{_libdir}/nvidia
++#%{_libdir}/nvidia
+ %if ! %{with external_glvnd}
+ %{nvidia_libdir}/libGL.so.1.0.0
+ %{nvidia_libdir}/libGL.so.1
+@@ -1095,16 +1113,24 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{nvidia_libdir}/libnvidia-ml.so.1
+ %{nvidia_libdir}/libnvidia-ml.so.%{version}
+ %{nvidia_libdir}/libvdpau_nvidia.so
++#%{nvidia_libdir}/tls/libnvidia-tls.so.%{version}
+ %{nvidia_libdir}/libnvidia-gtk2.so.%{version}
+ %{nvidia_libdir}/libnvidia-gtk3.so.%{version}
+ %{nvidia_libdir}/libnvidia-egl-wayland.so.1*
+ %{nvidia_libdir}/libnvidia-cbl.so.%{version}
+ %{nvidia_libdir}/libnvidia-rtcore.so.%{version}
+-%{nvidia_libdir}/libnvoptix.so.%{version}
+ %{nvidia_libdir}/libnvoptix.so.1
++%{nvidia_libdir}/libnvoptix.so.%{version}
++%{nvidia_libdir}/xorg/libglxserver_nvidia.so
++%{nvidia_libdir}/xorg/libglxserver_nvidia.so.%{version}
++%{nvidia_libdir}/libnvidia-opticalflow.so
++%{nvidia_libdir}/libnvidia-opticalflow.so.1
++%{nvidia_libdir}/libnvidia-opticalflow.so.%{version}
++
+ %dir %{nvidia_libdir32}
++#%dir %{nvidia_libdir32}/tls
+ %dir %{nvidia_libdir32}/vdpau
+-%{_prefix}/lib/nvidia
++#%{_prefix}/lib/nvidia
+ %if ! %{with external_glvnd}
+ %{nvidia_libdir32}/libGL.so.1.0.0
+ %{nvidia_libdir32}/libGL.so.1
+@@ -1129,6 +1155,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{nvidia_libdir32}/libnvidia-glvkspirv.so.%{version}
+ %{nvidia_libdir32}/libvdpau_nvidia.so
+ %{nvidia_libdir32}/vdpau/libvdpau_nvidia.so.%{version}
++#%{nvidia_libdir32}/tls/libnvidia-tls.so.%{version}
+ %{nvidia_libdir32}/libnvidia-fbc.so.1
+ %{nvidia_libdir32}/libnvidia-fbc.so.%{version}
+ %{nvidia_libdir32}/libEGL_nvidia.so.0
+@@ -1139,6 +1166,9 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{nvidia_libdir32}/libGLESv2_nvidia.so.%{version}
+ %{nvidia_libdir32}/libnvidia-eglcore.so.%{version}
+ %{nvidia_libdir32}/libnvidia-glsi.so.%{version}
++%{nvidia_libdir32}/libnvidia-opticalflow.so
++%{nvidia_libdir32}/libnvidia-opticalflow.so.1
++%{nvidia_libdir32}/libnvidia-opticalflow.so.%{version}
+ 
+ %ghost %{_libdir}/vdpau/libvdpau_nvidia.so.1
+ # avoid unowned directory
+@@ -1146,13 +1176,14 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %ghost %{_prefix}/lib/vdpau/libvdpau_nvidia.so.1
+ 
+ %dir %{nvidia_modulesdir}
+-%{nvidia_modulesdir}/libnvidia-wfb.so.1
+-%{nvidia_modulesdir}/libnvidia-wfb.so.%{version}
+-%{nvidia_extensionsdir}/libglxserver_nvidia.so.%{version}
+-%{nvidia_extensionsdir}/libglxserver_nvidia.so
++#%{nvidia_modulesdir}/libnvidia-wfb.so.1
++#%{nvidia_modulesdir}/libnvidia-wfb.so.%{version}
++#%{nvidia_extensionsdir}/libglx.so.%{version}
++#%{nvidia_extensionsdir}/libglx.so
+ %{nvidia_driversdir}/nvidia_drv.so
+ 
+ %files -n %{drivername}-devel -f %{pkgname}/nvidia-devel.files
++#%{_includedir}/%{drivername}
+ %if ! %{with external_glvnd}
+ %{nvidia_libdir}/libGL.so
+ %{nvidia_libdir}/libOpenGL.so
+@@ -1219,16 +1250,6 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ 
+ %changelog
+ 
+-* Wed Dec 19 2018 Evgenii Shatokhin <eshatokhin@virtuozzo.com> 415.25-1
+-- (579595f) Updated to v.415.25
+-- (579595f) Changes w.r.t. v.410:
+-- (579595f) https://devtalk.nvidia.com/default/topic/1043869/b/t/post/5295690/#5295690
+-- (579595f) https://devtalk.nvidia.com/default/topic/1044374/b/t/post/5298485/#5298485
+-- (579595f) https://devtalk.nvidia.com/default/topic/1045036/b/t/post/5302326/#5302326
+-- (579595f) https://devtalk.nvidia.com/default/topic/1045206/b/t/post/5303364/#5303364
+-- (579595f) https://devtalk.nvidia.com/default/topic/1045442/b/t/post/5304588/#5304588
+-- (579595f) Signed-off-by: Evgenii Shatokhin <eshatokhin@virtuozzo.com>
+-
+ * Wed Aug 22 2018 Evgenii Shatokhin <eugene.shatokhin@rosalab.ru> 396.54-1
+ - (25cd37e) Updated to v396.54
+ - (25cd37e) Changes w.r.t. v396.45:
+@@ -1625,4 +1646,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ - (846f9bd) The .manifest file has duplicate lines this time. Perhaps, that is not
+ - (846f9bd) intentional. We take care of that anyway.
+ 
++* Fri Sep 09 2016 Evgenii Shatokhin <eugene.shatokhin@rosalab.ru> 370.28-1
++- (7cda827) Updated to versio 370.28
++
+ 

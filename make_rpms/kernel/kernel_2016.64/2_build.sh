@@ -1,7 +1,5 @@
 #!/bin/bash
-export CFLAGS="-mindirect-branch=thunk-extern -mindirect-branch-loop -mfunction-return -mno-indirect-branch-register"
 mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS rpms srpms
-#[ -d ~/rpmbuild ] || ln -s "$PWD/rpmbuild" ~/rpmbuild
 cp -pf SOURCES/* ~/rpmbuild/SOURCES
 if cp -uv SPECS/* ~/rpmbuild/SPECS | grep -q . ;then
    MYPATH="$PWD"
@@ -12,8 +10,8 @@ if cp -uv SPECS/* ~/rpmbuild/SPECS | grep -q . ;then
    done
    cd "$MYPATH"
 fi
-rpmbuild -bs ~/rpmbuild/SPECS/*.spec || exit 1
-rpmbuild -bb ~/rpmbuild/SPECS/*.spec || exit 1
+rpmbuild -bs ~/rpmbuild/SPECS/kernel.spec || exit 1
+rpmbuild -bb ~/rpmbuild/SPECS/kernel.spec || exit 1
 #rpmbuild -bb ~/rpmbuild/SPECS/*.spec > build.log 2>&1 || exit 1
 find ~/rpmbuild | grep .rpm$ | while read a ;do mv $a rpms ;done
 mv rpms/*.src.rpm srpms

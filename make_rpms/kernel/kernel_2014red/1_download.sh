@@ -1,5 +1,5 @@
 #!/bin/bash
-URL=http://mirror.rosalinux.com/rosa/rosa2016.1/repository/SRPMS/main/updates/kernel-4.9.124-1.src.rpm
+URL=http://mirror.rosalinux.com/rosa/rosa2016.1/repository/SRPMS/main/updates/kernel-4.9.155-1.src.rpm
 if ! [ -d ~/builddeps ] ; then
    urpmi.update -a
    rm -f /var/cache/urpmi/rpms/*
