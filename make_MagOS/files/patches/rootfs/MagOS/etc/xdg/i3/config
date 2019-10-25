@@ -37,6 +37,7 @@ bindsym $mod+F1 exec --no-startup-id i3lib ShowKeys
 exec --no-startup-id feh --bg-center /usr/share/magos/wallpapers/default.jpg
 exec --no-startup-id compton -bcf --config /usr/share/magos/i3/compton.cfg
 exec --no-startup-id /usr/share/magos/i3/polybar.sh
+exec --no-startup-id xset r rate 333 33
 # Execute DesktopEntry files from XDG Autostart directories
 exec --no-startup-id dex -ae i3
 ################################################################
