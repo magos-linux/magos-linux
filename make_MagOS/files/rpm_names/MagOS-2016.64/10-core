@@ -40,7 +40,6 @@ dracut-
 dracut-aufs-
 dynamic-
 e2fsprogs-
-ebtables-
 efivar-
 etcskel-
 ethtool-
@@ -153,8 +152,8 @@ lib64history6-
 lib64hogweed4-
 lib64idn11-
 lib64intl8-
-lib64ip4tc0-
-lib64ip6tc0-
+lib64ip4tc2-
+lib64ip6tc2-
 lib64iw29-
 lib64json0-
 lib64json-c2-
@@ -268,7 +267,7 @@ lib64uuid1-
 lib64verto1-
 lib64wrap0-
 lib64xml2_2-
-lib64xtables10-
+lib64xtables12-
 lib64z1-
 lib64zip4-
 libc6-
@@ -559,3 +558,10 @@ lib64slang-modules-
 reptyr-
 ncurses-extraterms-
 sshpass-
+perl-Cpanel-JSON-XS-
+perl-XML-Dumper-
+inxi-
+lib64systemd-shared_243-
+lib64seccomp2-
+lib64nftnl11-
+dbview-

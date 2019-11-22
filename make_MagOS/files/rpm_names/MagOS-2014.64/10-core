@@ -515,3 +515,7 @@ lib64collection4-
 lib64path_utils1-
 perl-HTTP-Tiny-
 sshpass-
+inxi-
+perl-Cpanel-JSON-XS-
+perl-XML-Dumper-
+dbview-

@@ -513,3 +513,7 @@ libcollection4-
 libpath_utils1-
 perl-HTTP-Tiny-
 sshpass-
+inxi-
+perl-Cpanel-JSON-XS-
+perl-XML-Dumper-
+dbview-

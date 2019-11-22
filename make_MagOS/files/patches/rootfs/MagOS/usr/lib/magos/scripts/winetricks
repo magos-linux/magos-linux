@@ -675,7 +675,7 @@ w_verify_cabextract_available()
     # If verb_a requires verb_b, then verba will fail when the dependency for verb_b is installed
     # This should be called by verb_a, to give a proper warning
 
-    w_try_cabextract -q -v
+    w_try_cabextract -q -v >/dev/null 2>&1
 }
 
 # Convert a Windows path to a Unix path quickly.
@@ -908,44 +908,45 @@ w_dotnet_verify()
         dotnet48) version="4.8" ;;
         *) echo error ; exit 1 ;;
     esac
-            w_call dotnet_verifier
 
-            # FIXME: The logfile may be useful somewhere (or at least print the location)
+    w_call dotnet_verifier
 
-            # for 'run, netfx_setupverifier.exe /q:a /c:"setupverifier2.exe"' line
-            # shellcheck disable=SC2140
-            w_ahk_do "
-                SetTitleMatchMode, 2
-                ; FIXME; this only works the first time? Check if it's already verified somehow..
+    # FIXME: The logfile may be useful somewhere (or at least print the location)
 
-                run, netfx_setupverifier.exe /q:a /c:"setupverifier2.exe"
-                winwait, Verification Utility
-                ControlClick, Button1
-                Control, ChooseString, NET Framework $version, ComboBox1
-                ControlClick, Button1 ; Verify
-                loop, 60
-                {
-                    sleep 1000
-                    process, exist, setupverifier2.exe
-                    dn_pid=%ErrorLevel%
-                    if dn_pid = 0
-                    {
-                        break
-                    }
-                    ifWinExist, Verification Utility, Product verification failed
-                    {
-                        process, close, setupverifier2.exe
-                        exit 1
-                    }
-                    ifWinExist, Verification Utility, Product verification succeeded
-                    {
-                        process, close, setupverifier2.exe
-                        break
-                    }
-                }
-            "
-            dn_status="$?"
-            w_info ".Net Verifier returned $dn_status"
+    # for 'run, netfx_setupverifier.exe /q:a /c:"setupverifier2.exe"' line
+    # shellcheck disable=SC2140
+    w_ahk_do "
+        SetTitleMatchMode, 2
+        ; FIXME; this only works the first time? Check if it's already verified somehow..
+
+        run, netfx_setupverifier.exe /q:a /c:"setupverifier2.exe"
+        winwait, Verification Utility
+        ControlClick, Button1
+        Control, ChooseString, NET Framework $version, ComboBox1
+        ControlClick, Button1 ; Verify
+        loop, 60
+        {
+            sleep 1000
+            process, exist, setupverifier2.exe
+            dn_pid=%ErrorLevel%
+            if dn_pid = 0
+            {
+                break
+            }
+            ifWinExist, Verification Utility, Product verification failed
+            {
+                process, close, setupverifier2.exe
+                exit 1
+            }
+            ifWinExist, Verification Utility, Product verification succeeded
+            {
+                process, close, setupverifier2.exe
+                break
+            }
+        }
+    "
+    dn_status="$?"
+    w_info ".Net Verifier returned $dn_status"
 }
 
 # Checks if the user can run the self-update/rollback commands
@@ -2753,14 +2754,13 @@ w_do_call()
             *)
                 # shellcheck disable=SC2154
                 case "${category}-${WINETRICKS_OPT_SHAREDPREFIX}" in
-                    apps-0|benchmarks-0|games-0)
-                        winetricks_set_wineprefix "$cmd"
-                        # If it's a new wineprefix, give it metadata
-                        if test ! -f "$WINEPREFIX"/wrapper.cfg; then
-                            echo ww_name=\""$title"\" > "$WINEPREFIX"/wrapper.cfg
-                        fi
-                        ;;
+                    apps-0|benchmarks-0|games-0) winetricks_set_wineprefix "$cmd";;
+                    *) winetricks_set_wineprefix;;
                 esac
+                # If it's a new wineprefix, give it metadata
+                if test ! -f "$WINEPREFIX"/wrapper.cfg; then
+                    echo ww_name=\""$title"\" > "$WINEPREFIX"/wrapper.cfg
+                fi
             ;;
         esac
 
@@ -6939,6 +6939,26 @@ load_d9vk022()
     helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
 }
 
+w_metadata d9vk030 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (0.30)" \
+    publisher="Joshua Ashton" \
+    year="2019" \
+    media="download" \
+    file1="d9vk-0.30.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_d9vk030()
+{
+    # https://github.com/Joshua-Ashton/d9vk
+    w_download "https://github.com/Joshua-Ashton/d9vk/releases/download/0.30/d9vk-0.30.tar.gz" 9654b888665184bf795aa33a0c7287d04666ebe21e56e53df0f6c331fde24927
+    helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
+}
+
 
 #----------------------------------------------------------------
 
@@ -7524,8 +7544,7 @@ load_dxvk130()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3/dxvk-1.3.tar.gz" d15fac6503ea614986237052d554d7cbd2dbf5f3486feb6217e64bae83cfc2cf
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk131 dlls \
@@ -7544,8 +7563,7 @@ load_dxvk131()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3.1/dxvk-1.3.1.tar.gz" 2f6636dbd591ea9de20b30a33c9c8c0985a4939f6503f90ca5c7edafd01524a3
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk132 dlls \
@@ -7564,8 +7582,7 @@ load_dxvk132()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3.2/dxvk-1.3.2.tar.gz" aa70890a17b48be27648d15cb837b5167c99f75ee32ae0c94a85ec1f1fdc4675
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk133 dlls \
@@ -7584,8 +7601,7 @@ load_dxvk133()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3.3/dxvk-1.3.3.tar.gz" 828171ad1dbb6b51f367fa46cf33f8db4a0b1b990cd2e95654d6a65500d230b7
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk134 dlls \
@@ -7604,8 +7620,7 @@ load_dxvk134()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.3.4/dxvk-1.3.4.tar.gz" 4683e2ad4221b16572b0d939da5a05ab9a16b2b62c2f4e0c8bf3b2cdb27918ff
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk140 dlls \
@@ -7624,8 +7639,7 @@ load_dxvk140()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4/dxvk-1.4.tar.gz" bf22785de1ce728bbdcfb4615035924112b4718049ca2cade5861b03735181de
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk141 dlls \
@@ -7644,8 +7658,7 @@ load_dxvk141()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4.1/dxvk-1.4.1.tar.gz" 574ec4dc5201e45d70472228f0c6695426f0392503ec7a47d6092600aac53a07
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk142 dlls \
@@ -7664,8 +7677,7 @@ load_dxvk142()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4.2/dxvk-1.4.2.tar.gz" 5adfd71ee0299798af4402f09f113f88929af429b6889af334cff5b84b84dbe6
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 w_metadata dxvk143 dlls \
@@ -7684,8 +7696,26 @@ load_dxvk143()
 {
     # https://github.com/doitsujin/dxvk
     w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4.3/dxvk-1.4.3.tar.gz" e4b9e7fc8faf2dd1ddf5206e14939a822034a85778d54a6950767d68909726f7
-    # FIXME: The current Wine release (4.15) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
+}
+
+w_metadata dxvk144 dlls \
+    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (1.4.4)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.4.4.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk144()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.4.4/dxvk-1.4.4.tar.gz" a845285c8dfc63c7d00c14520b58fc6048796fef69fea49617edb46662a0ba31
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
 
@@ -7708,8 +7738,7 @@ load_dxvk()
     _W_dxvk_version="$(w_get_github_latest_release doitsujin dxvk)"
     _W_dxvk_version="${_W_dxvk_version#v}"
     w_linkcheck_ignore=1 w_download "https://github.com/doitsujin/dxvk/releases/download/v${_W_dxvk_version}/dxvk-${_W_dxvk_version}.tar.gz"
-    # FIXME: The current Wine release (4.12.1) does not include the latest Vulkan 1.1.113 headers.
-    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "4.5" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
     unset _W_dxvk_version
 }
 
@@ -7945,7 +7974,7 @@ load_dotnet11()
     w_call corefonts
     w_call fontfix
 
-    w_try w_try_cd "$W_CACHE/$W_PACKAGE"
+    w_try_cd "$W_CACHE/$W_PACKAGE"
     # Use builtin regsvcs.exe to work around https://bugs.winehq.org/show_bug.cgi?id=25120
     if test $W_OPT_UNATTENDED; then
         WINEDLLOVERRIDES="regsvcs.exe=b" w_ahk_do "
@@ -7960,7 +7989,7 @@ load_dotnet11()
                     WinClose, Fatal error, Failed to delay load library
                     continue
                 }
-                Process, exist, dotnetfx.exe
+                Process, exist, NDP1.1sp1-KB867460-X86.exe
                 dotnet_pid = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if dotnet_pid = 0
                 {
@@ -8000,7 +8029,7 @@ load_dotnet11sp1()
     w_call remove_mono
     w_call dotnet11
 
-    w_try w_try_cd "$W_CACHE/$W_PACKAGE"
+    w_try_cd "$W_CACHE/$W_PACKAGE"
     # Use builtin regsvcs.exe to work around https://bugs.winehq.org/show_bug.cgi?id=25120
     if test $W_OPT_UNATTENDED; then
         WINEDLLOVERRIDES="regsvcs.exe=b" w_ahk_do "
@@ -21148,16 +21177,17 @@ load_vsm()
 
 #----------------------------------------------------------------
 
-w_metadata autostart_winedbg=enable settings \
+w_metadata autostart_winedbg=enabled settings \
     title="Automatically launch winedbg when an unhandled exception occurs (default)"
-w_metadata autostart_winedbg=disable settings \
+w_metadata autostart_winedbg=disabled settings \
     title="Prevent winedbg from launching when an unhandled exception occurs"
 
 load_autostart_winedbg()
 {
     case "$arg" in
-        enable) _W_debugger_value="winedbg --auto %ld %ld";;
-        disable) _W_debugger_value="false";;
+	# accidentally commited as enable/disable, so accept that, but prefer enabled/disabled
+        enable|enabled) _W_debugger_value="winedbg --auto %ld %ld";;
+        disable|disabled) _W_debugger_value="false";;
         *) w_die "Unexpected argument '$arg'. Should be enable/disable";;
     esac
 
@@ -21390,7 +21420,7 @@ load_remove_mono()
     mono_uuid="$("${WINE_ARCH}" uninstaller --list | grep 'Wine Mono' | cut -f1 -d\|)"
     if test "$mono_uuid"; then
         for uuid in $mono_uuid;
-	    do "${WINE_ARCH}" uninstaller --remove "$uuid"
+            do "${WINE_ARCH}" uninstaller --remove "$uuid"
         done
     else
         # Bail out if mono isn't installed, so we don't break .Net setups
