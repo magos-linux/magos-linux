@@ -13,8 +13,8 @@ Before=final.target
 
 [Service]
 Type=oneshot
-ExecStart=/etc/rc.d/rc.halt.MagOS
-TimeoutSec=180
+ExecStart=/usr/lib/magos/rc.d/rc.halt
+TimeoutSec=0
 StandardOutput=tty
 RemainAfterExit=no
 

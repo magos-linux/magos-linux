@@ -1,11 +1,11 @@
 [Unit]
-Description=/usr/sbin/halt.pre Compatibility
+Description=MagOS autorun scripts before shutdown event
 DefaultDependencies=no
 Before=shutdown.target umount.target
 
 [Service]
 Type=oneshot
-ExecStart=/etc/rc.d/rc.halt.pre.MagOS
+ExecStart=/usr/lib/magos/rc.d/rc.halt.pre
 TimeoutSec=15
 StandardOutput=tty
 RemainAfterExit=yes

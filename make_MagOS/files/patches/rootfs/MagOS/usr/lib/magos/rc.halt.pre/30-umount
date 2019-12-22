@@ -21,4 +21,3 @@ losetup -a | tr -d :\)\( | egrep " /media/| /mnt/" | grep -v " /mnt/live" | awk 
 # then free any /media
 egrep " /media/| /mnt/" /proc/mounts | awk '{print $2}' | grep -v ^/mnt/live | sort -r | xargs umount >/dev/null 2>&1
 
-exit 0

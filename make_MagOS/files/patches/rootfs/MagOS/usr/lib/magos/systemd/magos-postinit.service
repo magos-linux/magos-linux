@@ -1,12 +1,12 @@
 [Unit]
-Description=MagOS autorun scripts for everyboot
+Description=MagOS autorun scripts - postinit stage
 DefaultDependencies=no
 Conflicts=shutdown.target
 Before=basic.target shutdown.target
 After=local-fs.target mandriva-everytime.service
 
 [Service]
-ExecStart=-/etc/rc.d/rc.post.MagOS
+ExecStart=-/usr/lib/magos/rc.d/rc.post
 Type=oneshot
 TimeoutSec=0
 StandardInput=tty

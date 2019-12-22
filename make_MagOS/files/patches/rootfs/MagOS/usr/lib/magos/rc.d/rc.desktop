@@ -14,9 +14,12 @@ cd $HOME
 
 # We have to launch some rc scripts
 for a in /usr/lib/magos/rc.desktop/$DE/* ;do
-   [ -x $a ] && $a 2>/dev/null
+   [ -x $a ] && $a & 2>/dev/null
 done
 for a in /usr/lib/magos/rc.desktop/all/* ;do
-   [ -x $a ] && $a 2>/dev/null
+   [ -x $a ] && $a & 2>/dev/null
 done
 
+echo 1 > /run/magos_started
+
+true

@@ -28,3 +28,5 @@ for a in /usr/lib/magos/rc.runonce/* ;do
 done
 
 [ -x /bin/systemd ] && wait
+
+true

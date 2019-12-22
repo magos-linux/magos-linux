@@ -2,6 +2,7 @@
 
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
+grep -q 1 /run/magos_started || exit 0
 
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
@@ -64,4 +65,3 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    echo
    [ "$SRC" = "$CHSRC" ] || umount "$SRC"
 fi
-exit 0

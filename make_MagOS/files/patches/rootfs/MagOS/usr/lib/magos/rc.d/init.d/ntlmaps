@@ -17,10 +17,15 @@
 ### END INIT INFO
 
 # Source function library.
-. /etc/rc.d/init.d/functions
+. /lib/lsb/init-functions
 
-# Source networking configuration.
-. /etc/sysconfig/network
+# Source networking configuration
+[ -f /etc/sysconfig/network ] && . /etc/sysconfig/network
+
+STATUS=status
+[ -f /etc/init.d/functions ] || STATUS=status_of_proc
+GPRINTF=gprintf
+[ -f /etc/init.d/functions ] || GPRINTF=log_daemon_msg
 
 ntlmaps=${NTLMAPS-/usr/share/ntlmaps/ntlmaps}
 prog=ntlmaps
@@ -45,8 +50,8 @@ start() {
 	[ -d $logdir ] || mkdir $logdir
 	chmod 700 $logdir
         cd $logdir
-        gprintf "Starting %s: " "$prog"
-        daemon $ntlmaps -c $config </dev/null >/dev/null 2>/dev/null &
+        $GPRINTF "Starting ntlmaps: " "$prog"
+        start_daemon $ntlmaps -c $config </dev/null >/dev/null 2>/dev/null &
         while [ "$TIMEOUT" != "0" ] ;do
             PRPID=$(/usr/sbin/lsof 2>/dev/null| grep ":$port .LISTEN." | awk '{print $2}')
             [ -z "$PRPID" ] || break
@@ -55,10 +60,10 @@ start() {
         done
         if [ "$PRPID" = "" ] ;then
             RETVAL=1
-            failure
+            log_failure_msg
         else
             RETVAL=0
-            success
+            log_success_msg
             touch ${lockfile}
             echo -ne $PRPID > ${pidfile}
         fi
@@ -67,12 +72,12 @@ start() {
         return $RETVAL
 }
 stop() {
-	gprintf "Stopping %s: " "$prog"
+	$GPRINTF "Stopping ntlmaps: " "$prog"
 	PRPID=$(cat $pidfile 2>/dev/null)
 	if [ "$PRPID" = "" ] ;then
-	    failure
+	    log_failure_msg
 	else
-	    kill $PRPID >/dev/null 2>&1 && success || failure
+	    kill $PRPID >/dev/null 2>&1 && log_success_msg || log_failure_msg
 	fi
 	echo
 	rm -f ${lockfile} ${pidfile} 2>/dev/null
@@ -87,7 +92,7 @@ case "$1" in
 	stop
 	;;
   status)
-        status -p ${pidfile} $prog
+        $STATUS -p ${pidfile} $prog
 	RETVAL=$?
 	;;
   restart)
@@ -95,13 +100,13 @@ case "$1" in
 	start
 	;;
   condrestart|try-restart)
-	if status -p ${pidfile} $ntlmaps >&/dev/null; then
+	if $STATUS -p ${pidfile} $ntlmaps >&/dev/null; then
 		stop
 		start
 	fi
 	;;
   *)
-	gprintf "Usage: %s {start|stop|restart|condrestart|status}\n" "$prog"
+	echo "Usage: $prog {start|stop|restart|condrestart|status}"
 	RETVAL=3
 esac
 

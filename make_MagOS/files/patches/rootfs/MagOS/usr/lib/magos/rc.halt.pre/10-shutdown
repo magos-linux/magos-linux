@@ -12,4 +12,3 @@ done
 
 [ -z "$HALTPROCESSESKILL" ] || killall -9 $HALTPROCESSESKILL
 
-exit 0

@@ -10,4 +10,3 @@ rm -f /mnt/live/memory/changes/usr/share/magos/wallpapers/default.jpg 2>/dev/nul
 # cleanup empty dirs
 for a in /media/* /mnt/* ;do rmdir $a >/dev/null 2>&1 ;done
 
-exit 0

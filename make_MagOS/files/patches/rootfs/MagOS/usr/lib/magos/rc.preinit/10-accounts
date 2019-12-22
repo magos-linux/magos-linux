@@ -16,7 +16,7 @@ debug_mode "$0" "$@"
 
 . etc/sysconfig/MagOS
 [ -f /tmp/.credential ] && . /tmp/.credential && rm -f /tmp/.credential
-[ -z "$NEEDEDUSERS" ] && NEEDEDUSERS="$DEFAULTUSER:500:$DEFAULTPASSWD"
+[ -z "$NEEDEDUSERS" ] && NEEDEDUSERS="$DEFAULTUSER:$ADMUID:$DEFAULTPASSWD"
 [ -z "$(cmdline_value users)" ] || NEEDEDUSERS=$(cmdline_value users)
 [ "$NOSECUREROOTPASSWD" = "$DEFAULTROOTPASSWD" ] && ADDADM=yes
 
@@ -43,7 +43,7 @@ for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
   [ "$NEEDEDUID" = "$ADMUID" -a "$ADDADM" = "yes"  ] && ADDGROUPS=$USERGROUPS,$ADMGROUPS
   # create user
   if ! grep -q ^$NEEDEDUSER: etc/passwd ;then
-    chroot . usr/sbin/adduser -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1 || chroot . usr/sbin/useradd -M -G users -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1
+    chroot . usr/sbin/adduser -M -G $DEFAULTGROUP -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1 || chroot . usr/sbin/useradd -M -G $DEFAULTGROUP -u $NEEDEDUID $NEEDEDUSER >/dev/null  2>&1
   fi
   # add to groups
   for b in $(echo $ADDGROUPS | tr ",;" " " ) ;do

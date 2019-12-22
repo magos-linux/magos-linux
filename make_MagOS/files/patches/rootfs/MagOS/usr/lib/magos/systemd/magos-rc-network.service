@@ -6,12 +6,12 @@
 #  (at your option) any later version.
 
 [Unit]
-Description=/etc/rc.d/rc.local Compatibility for MagOS
-ConditionPathExists=/etc/rc.d/rc.local.MagOS
+Description=MagOS autorun scripts - network stage
+After=network-online.target
 
 [Service]
 Type=forking
-ExecStart=/etc/rc.d/rc.local.MagOS start
+ExecStart=/usr/lib/magos/rc.d/rc.network
 TimeoutSec=0
 StandardOutput=tty
 RemainAfterExit=yes

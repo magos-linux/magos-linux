@@ -4,8 +4,8 @@
 # Authors:	Mikhail Zaripov <m3for@mail.ru>
 #
 
-for a in /usr/lib/magos/rc.halt/* ;do
+for a in /usr/lib/magos/rc.halt.pre/* ;do
    [ -x $a ] && $a 2>/dev/null
 done
 
-exit 0
+true

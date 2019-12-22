@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# magosctl      Helper script for MagOS Linux Live.
+#
+# Authors:	Mikhail Zaripov <m3for@mail.ru>
+#
+# chkconfig: 345 25 75
+# description:  Do some actions for MagOS Linux live run properly. It must be enabled.
+#
+### BEGIN INIT INFO
+# Provides: magosctl
+# Required-Start: haldaemon
+# Should-Start: 
+# Required-Stop: haldaemon
+# Should-Stop: 
+# Default-Start: 3 4 5 7
+# Short-Description: Do some actions for MagOS Linux live run properly.
+# Description: Do some actions for MagOS Linux live run properly. It must be enabled.
+### END INIT INFO
+
+# source function library
+
+DEBUGMODE=no
+. /liblinuxlive 2>/dev/null || . /mnt/live/liblinuxlive
+debug_mode "$0" "$@"
+
+[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+
+# We have to launch some rc scripts
+for a in /usr/lib/magos/rc.local.d/* ;do
+   [ -x $a ] && $a 2>/dev/null &
+done
+
+echo -ne > /run/magos_started
+chgrp users /run/magos_started
+chmod 664 /run/magos_started
+
+true

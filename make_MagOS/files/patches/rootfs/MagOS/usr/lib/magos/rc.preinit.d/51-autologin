@@ -10,6 +10,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
+. usr/lib/magos/os-config
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
 
@@ -17,11 +18,12 @@ debug_mode "$0" "$@"
 
 [ -z "$(cmdline_value autologin)" ] || AUTOLOGINUSER=$(cmdline_value autologin)
 [ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(echo "$NEEDEDUSERS" | awk -F: '{print $1}')
-[ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(grep :500:500: etc/passwd | awk -F: '{print $1}')
+[ -z "$AUTOLOGINUSER" ] && AUTOLOGINUSER=$(grep :$ADMUID:$ADMUID: etc/passwd | awk -F: '{print $1}')
 [ "$AUTOLOGINUSER" = "none" ] && AUTOLOGINUSER=
-sed -i s/^AutomaticLogin=.*/AutomaticLogin=$AUTOLOGINUSER/ etc/X11/gdm/custom.conf 2>/dev/null
-sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ usr/share/magos/kde4/share/config/kdm/kdmrc 2>/dev/null
-sed -i s/^User=.*/User=$AUTOLOGINUSER/ etc/sddm.conf 2>/dev/null
-PFP=etc/X11/slim/slim.conf
-[ -f "$PFP" ] || PFP=etc/slim.conf
-sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ $PFP 2>/dev/null
+
+[ -f etc/X11/gdm/custom.conf ] && sed -i s/^AutomaticLogin=.*/AutomaticLogin=$AUTOLOGINUSER/ etc/X11/gdm/custom.conf
+[ -f usr/share/magos/kde4/share/config/kdm/kdmrc ] && sed -i s/^AutoLoginUser=.*/AutoLoginUser=$AUTOLOGINUSER/ usr/share/magos/kde4/share/config/kdm/kdmrc
+[ -f etc/sddm.conf ] && sed -i s/^User=.*/User=$AUTOLOGINUSER/ etc/sddm.conf
+[ -f etc/slim.conf ] && sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/slim.conf
+[ -f etc/X11/slim/slim.conf ] && sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/X11/slim/slim.conf
+[ -f etc/lxdm/lxdm.conf ] && sed -i s/^autologin=.*/autologin=$AUTOLOGINUSER/ etc/lxdm/lxdm.conf

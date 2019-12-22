@@ -11,8 +11,11 @@ DEBUGMODE=no
 . /liblinuxlive  2>/dev/null || . /mnt/live/liblinuxlive
 debug_mode "$0" "$@"
 
-debug_log "starting /etc/rc.d/rc.preinit"
+debug_log "starting rc.preinit"
 debug_shell
+
+# install systemd services
+[ ! -h lib/systemd/system/magos-postinit.service -a ! -h usr/lib/systemd/system/magos-postinit.service ] && bash usr/lib/magos/rootfs-patches/MagOS/MagOS-00-install.sh
 
 # We have to launch some rc scripts
 for a in usr/lib/magos/rc.preinit/* ;do
@@ -23,3 +26,5 @@ for a in usr/lib/magos/rc.preinit.d/* ;do
 done
 
 wait
+
+true

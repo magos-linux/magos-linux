@@ -8,13 +8,6 @@ DEBUGMODE=no
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
-
-WALLPAPERSRES=1920x1080
-WPDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/wallpapers/Default
-SSDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/screensaver/Default
-WPSYSDIR=/usr/share/magos/wallpapers/Default
-SSSYSDIR=/usr/share/magos/screensaver/Default
-WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
 [ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
 

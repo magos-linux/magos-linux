@@ -15,31 +15,28 @@ debug_mode "$0" "$@"
 
 . etc/sysconfig/MagOS
 
-[ -z "$SERVICESSTART" -a -z "$SERVICESNOSTART" ] && exit 0
-
-mkdir -p proc
-mount -o rbind /proc proc
-for a in $(echo $SERVICESSTART | tr , " ") ;do
-    if [ -x bin/systemd ] ;then
-       chroot . systemctl unmask $a.service
-       chroot . systemctl enable $a.service || chroot . chkconfig --add $a
-    else
-       chroot . chkconfig --add $a
-    fi
-done
-for a in $(echo $SERVICESNOSTART | tr , " ") ;do
-    if [ -x bin/systemd ] ;then
-       chroot . systemctl disable $a.service || chroot . chkconfig --del $a
-    else
-       chroot . chkconfig --del $a
-    fi
-done
-for a in $(echo $SERVICESMASK | tr , " ") ;do
-    if [ -x bin/systemd ] ;then
-       chroot . systemctl disable $a.service || chroot . chkconfig --del $a
-       chroot . systemctl mask $a.service
-    else
-       chroot . chkconfig --del $a
-    fi
-done
-umount proc
+if [ ! -z "$SERVICESSTART$SERVICESNOSTART$SERVICESMASK$SERVICESUNMASK" ] ;then
+  mkdir -p proc
+  mount -o rbind /proc proc
+  for a in $(echo $SERVICESUNMASK,$SERVICESSTART | tr , " ") ;do
+      [ -x bin/systemd ] && chroot . systemctl unmask $a.service
+  done
+  for a in $(echo $SERVICESSTART | tr , " ") ;do
+      if [ -x bin/systemd ] ;then
+         chroot . systemctl enable $a.service || chroot . chkconfig --add $a
+      else
+         chroot . chkconfig --add $a
+      fi
+  done
+  for a in $(echo $SERVICESNOSTART | tr , " ") ;do
+      if [ -x bin/systemd ] ;then
+         chroot . systemctl disable $a.service || chroot . chkconfig --del $a
+      else
+         chroot . chkconfig --del $a
+      fi
+  done
+  for a in $(echo $SERVICESMASK | tr , " ") ;do
+      [ -x bin/systemd ] && chroot . systemctl mask $a.service
+  done
+  umount proc
+fi

@@ -59,10 +59,10 @@ HALTSAVETIME=yes
 #rc.local.d/01-background
 WALLPAPERSRES=1920x1080
 WPDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/wallpapers/Default
-WPSYSDIR=/usr/share/magos/wallpapers/Default
-WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
 SSDEFDIR=/mnt/livedata/MagOS-Data/backgrounds/screensaver/Default
+WPSYSDIR=/usr/share/magos/wallpapers/Default
 SSSYSDIR=/usr/share/magos/screensaver/Default
+WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
 
 #rc.local.d/10-network
 # start interface if its not networkmanager
@@ -116,6 +116,7 @@ STEAMNODPMS=yes
 DEFAULTPASSWD='$6$kCP2oNGB$LD4VUJfTMxTmzbZNZg16AYDjSQ6CB1hEaqzb49I91KntXDTVxux6KueiYj59HiHddL9zJwlQ4Y8hzvXRTwpFQ0'
 DEFAULTROOTPASSWD='$6$FMGNGYZ3$rFfdkmZQmz3ecxZd0Ia2qy6ZM9SEfN6mGHZZsffDrJ73mx9Fd6nuuoFFatLWQJyM5QDwO8nvLQR64ZEbMH7Bw1'
 DEFAULTUSER=user
+DEFAULTGROUP=users
 USERGROUPS=audio,video,usb,vboxusers,bumblebee,cdrom,lp
 NOSECUREROOTPASSWD=$DEFAULTROOTPASSWD
 ADMGROUPS=wheel
@@ -136,7 +137,6 @@ LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
 NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia"
 FAILSAFENVIDIA=nouveau
 FAILSAFEATI=ati
-HARDCONF=etc/sysconfig/harddrake2/service.conf
 DELETE_XORG_CONF=no
 CREATE_XORG_CONF=yes
 GLLDCONFIG=yes
@@ -154,7 +154,7 @@ FORCE_LOCARCHIVE=no
 #rc.halt.pre/05-shutdown
 #rc.halt/05-shutdown
 HALTSERVICESSTOP=""
-HALTPROCESSESKILL="slim kdm X sddm cupsd pdnsd mc"
+HALTPROCESSESKILL="slim kdm X lxdm xdm sddm cupsd pdnsd mc mandb"
 
 #rc.preinit/02-skel-adds
 STEAMAPP=/mnt/livedata/MagOS-Data/steam

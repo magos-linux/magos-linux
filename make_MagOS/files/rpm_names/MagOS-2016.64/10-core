@@ -565,3 +565,5 @@ lib64systemd-shared_243-
 lib64seccomp2-
 lib64nftnl11-
 dbview-
+lib64idn2_0-
+pigz-

@@ -2,7 +2,7 @@
 Categories=
 Comment=Run applications at system start
 Comment[ru]=Автозапуск приложений при старте
-Exec=autoexec
+Exec=/usr/lib/magos/rc.d/rc.desktop
 GenericName[ru]=
 GenericName=
 Icon=

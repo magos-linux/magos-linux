@@ -203,8 +203,10 @@ find_n_run_scripts()
    shift
 
    RCPATH=/etc/rc.d/init.d
+   [ -d $RCPATH ] || RCPATH=/etc/init.d
    RUNLEVEL=$(runlevel | awk '{print $2}')
-   [ -z "$RUNLEVEL" ] || RCPATH=/etc/rc.d/rc$RUNLEVEL.d
+   [ -d "/etc/rc$RUNLEVEL.d" ] && RCPATH=/etc/rc$RUNLEVEL.d
+   [ -d "/etc/rc.d/rc$RUNLEVEL.d" ] && RCPATH=/etc/rc.d/rc$RUNLEVEL.d
    RUNSCRIPTS="$MOD$RCPATH|$MOD/usr/lib/magos/rc.local|$MOD/usr/lib/magos/rc.post"
    echo $@ | grep -q start || RUNSCRIPTS="$MOD$RCPATH"
 

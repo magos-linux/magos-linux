@@ -18,4 +18,3 @@ rsync -a --del /var/lib/rpm/* $CHPATH/var/lib/rpm
 losetup -d $(losetup -a | grep -m1 /var/lib/rpm/.umount_lock | gawk -F: '{ print $1}')
 rm -f /var/lib/rpm/.umount_lock
 umount /var/lib/rpm
-exit 0

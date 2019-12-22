@@ -14,5 +14,3 @@ egrep " /mnt/.* aufs | /media/.* aufs " /proc/mounts | awk '{print $2}' | xargs 
 egrep "$IMAGES" /proc/mounts | awk '{print $2}' | egrep -v "$COREMODS" | while read a ; do
    mount -t aufs -o remount,del:"$a" aufs / 2>/dev/null
 done
-
-exit 0
