@@ -13,7 +13,7 @@ DEBUGMODE=no
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
 
-. etc/sysconfig/MagOS
+. etc/MagOS/config
 
 [ -z "$IPTABLESTRUSTEDIP" ] || sed -i s-192.168.1.0/24-$IPTABLESTRUSTEDIP- etc/exports
 [ -z "$IPTABLESTRUSTEDIP" ] && sed -i s_"^\[.*-A INPUT   -s .* -j ACCEPT.*"_'#[0:0] -A INPUT   -s $IPTABLESTRUSTEDIP -j ACCEPT'_ etc/sysconfig/iptables

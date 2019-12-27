@@ -1,7 +1,7 @@
 #!/bin/bash
 ZONE=Europe/Moscow
 
-touch /etc/sysconfig/MagOS
+touch /etc/MagOS/config
 
 cp -pf /etc/pam.d/system-auth /etc/pam.d/system-auth-default
 

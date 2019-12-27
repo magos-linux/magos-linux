@@ -21,7 +21,7 @@ if [ "$AUTOSTARTIFNNM" = "yes" ];then
    done
 fi
 
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 # mount MagOS-Server
 sed -i /AUTOMOUNTSERVER=yes/d /etc/fstab

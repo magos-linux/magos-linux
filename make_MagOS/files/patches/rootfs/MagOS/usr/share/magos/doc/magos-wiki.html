@@ -1,4 +1,4 @@
-<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2019-12-22</p>
+<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2019-12-24</p>
 <hr><a name="Home"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>Home</h1>
 <p>Welcome to the magos-linux wiki!</p>
 <p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">Документация на русском языке</a></p>
@@ -1427,6 +1427,7 @@ root $6$OPovNx99TQB28THt$YEWiGwVowag5W5ThpGyT6ZiEcTMdRirPW0jUyXyen/UqyoEYyi5GWTU
 <li>Используйте файловый менеджер <strong>mc</strong> (Наберите в коммандной строке <strong>mc</strong> и нажмите <em>Enter</em>). Эта программа может существенно облегчить жизнь новичкам. Для просмотра вывода команд используйте горячую кнопку <em>Ctrl-O</em> для включения/выключения панелей. </li>
 <li>При наборе длинных команд, путей и имен файлов в консоли используйте конпку <strong>TAB</strong> для дополнения до полного имени. </li>
 <li>У каждой команды в линуксе есть описание, см. <em>команда --help</em> или <em>man команда</em> (из последней выход по нажатию кнопки <strong>q</strong>). </li>
+<li>Для того чтобы скопировать текст в консоли, достаточно всего лишь выделить текст левой кнопкой мыши и нажатием средней кнопки вставить в текущую позицию курсора. В файловом менеджере <strong>mc</strong> операции копирования и вставки требуют удерживания кнопки Shift.</li>
 </ul>
 <p>Удачи!</p>
 <h3>Как увеличить размер профиля</h3>
@@ -1456,6 +1457,25 @@ mkfs.ext3 newhome.img
 <li>если VirtualBox и 32Бит MagOS - включите в настройках виртмашины PAE</li>
 </ul>
 <hr><a name="История"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>История</h1>
+<h3>сборка 20191226</h3>
+<ul>
+<li>обновления на 25.12.2019</li>
+<li>ядра 4.19.91 (2016.64) 4.9.207 (2014.*)</li>
+<li>исправлена ошибка cups при добавлении smb принтера</li>
+<li>добавлен пакет pigz</li>
+<li>добавлен скрипт beep )</li>
+<li>
+<p>изменения в скриптах для совместимости модуля magos с Ubuntu и Mageia по предложениям ingvaro (см. форум):</p>
+<ul>
+<li>скрипты /etc/rc.d /lib/systemd/ перенесены в /usr/lib/magos</li>
+<li>отключено сохранение в модуль, в случае если система не была загружена (перезагрузка во время включения)</li>
+<li>создан новый этап загрузки /usr/lib/magos/rc.network.d , запускаемый после цели network-online. часть сетевых скриптов перенесена из /usr/lib/magos/rc.local.d в /usr/lib/magos/rc.network.d</li>
+<li>добавлен новый параметр ini файла SERVICESUNMASK</li>
+<li>скрипт /usr/lib/magos/scripts/autoexec перенесён в /usr/lib/magos/rc.d/rc.desktop</li>
+<li>файл настройки /etc/sysconfig/MagOS перенесён в /etc/MagOS/config</li>
+</ul>
+</li>
+</ul>
 <h3>сборка 20191122</h3>
 <ul>
 <li>обновления на 21.11.2019</li>

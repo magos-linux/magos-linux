@@ -22,8 +22,8 @@ switch3don()
          #Gnome-shell does not supports compiz, so turn on it only in classic mode and only after desktop started
          if [ -x usr/bin/gnome-shell ] ;then
             echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
-            sed -i /COMPOSITING_WM_START/d etc/sysconfig/MagOS
-            echo COMPOSITING_WM_START=yes >> etc/sysconfig/MagOS
+            sed -i /COMPOSITING_WM_START/d etc/MagOS/config
+            echo COMPOSITING_WM_START=yes >> etc/MagOS/config
          else
             echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
          fi
@@ -35,7 +35,7 @@ switch3doff()
 {
          echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
          echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
-         sed -i /COMPOSITING_WM_START/d etc/sysconfig/MagOS
+         sed -i /COMPOSITING_WM_START/d etc/MagOS/config
          [ -f usr/lib/libDrakX/harddrake/autoconf.pm ] && sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
          [ -f etc/xdg/kwinrc ] && sed -i s/^Enabled=.*/Enabled=true/ etc/xdg/kwinrc
 }

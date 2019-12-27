@@ -9,7 +9,7 @@ SMBUSERS=$(grep ^users: /etc/group | awk -F: '{print $4}' | tr ';,' ' ')
 SMBGUEST="yes"
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 debug_mode "$0" "$@"
 
 [ "$SMBGUEST" != "yes" ] && GUESTOPT=e || GUESTOPT=d

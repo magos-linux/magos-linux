@@ -6,7 +6,7 @@ grep -q 1 /run/magos_started || exit 0
 
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 SAVETOMODULEOPTIONS="$MKSQFS_FASTALG"
 
 PATH=/usr/lib/magos/scripts:$PATH

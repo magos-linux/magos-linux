@@ -1,9 +1,0 @@
-# Set USE_LOCARCHIVE to yes/true/1 if you want locale scripts to create and
-# maintain /usr/share/locale/locale-archive. locale-archive can speed up
-# loading of applications, but they duplicate locale information already
-# present in /usr/share/locale/xx_XX/* directories, so if you need to save
-# disk space you can disable it with this switch. If you disable it, you can
-# delete /usr/share/locale/locale-archive file, otherwise it will be removed
-# automatically on next locale scripts run, on locales package update
-
-USE_LOCARCHIVE=no

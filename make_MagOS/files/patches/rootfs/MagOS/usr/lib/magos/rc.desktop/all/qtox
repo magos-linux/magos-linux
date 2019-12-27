@@ -7,7 +7,7 @@ ENABLED=yes
 
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 TOXLANG=$(cmdline_value lang)
 [ -z "$TOXLANG" ] && TOXLANG=ru

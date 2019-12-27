@@ -16,7 +16,7 @@ debug_mode "$0" "$@"
 
 [ -f $INIGZFILE ] || INIGZFILE=/tmp/MagOS.ini.gz
 # MagOS.ini processing
-FNAME=etc/sysconfig/MagOS
+FNAME=etc/MagOS/config
 FMOD=
 touch $FNAME
 gunzip -c $INIGZFILE | egrep '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential

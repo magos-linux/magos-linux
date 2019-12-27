@@ -44,7 +44,7 @@ export TEXTDOMAIN=magos_functions
 echo $PATH | grep -q /usr/lib/magos/scripts || PATH=/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 DEBUGMODE=no
 debug_mode "$0" "$@"
 LOGFILE=/tmp/magosupdate.log

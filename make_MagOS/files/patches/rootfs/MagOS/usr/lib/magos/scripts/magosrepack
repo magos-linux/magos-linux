@@ -2,7 +2,7 @@
 #Authors: ilfat, betcher <magos-linux.ru>
 
 . /usr/lib/magos/os-config
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 if . /etc/initvars ;then
   BASE_DIR=$SYSMNT/layer-base/0/base

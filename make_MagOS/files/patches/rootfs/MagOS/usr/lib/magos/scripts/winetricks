@@ -2518,7 +2518,12 @@ w_compare_wine_version()
         -bn) _expected_pos_current_wine="2";;
         -ge) _expected_pos_current_wine="2";;
         -le) _expected_pos_current_wine="1";;
-        *) w_die "Unsupported comparison. Only -ge and -le are supported" ;;
+        *) w_die "Unsupported comparison. Only -bn, -ge, and -le are supported" ;;
+    esac
+
+    # First, check if current wine is equal to either upper or lower wine version:
+    case "${_wine_version_stripped}" in
+        ${known_wine_val1}|${known_wine_val2}) return 1;;
     esac
 
     _pos_current_wine="$(printf "%s\\n%s\\n%s" "${known_wine_val1}" "${_wine_version_stripped}" "${known_wine_val2}" | sort -t. -k 1,1n -k 2,2n -k 3,3n | grep -n "^${_wine_version_stripped}\$" | cut -d : -f1)"
@@ -12272,7 +12277,8 @@ load_wmi()
     # Mirror list: https://filemare.com/en-us/search/wmi9x.exe/761569271
     # 2017/10/14: ftp://59.124.141.94 is dead, using ftp://82.162.138.211
     # 2018/06/03: ftp://82.162.138.211 is dead, moved to ftp://ftp.espe.edu.ec
-    w_download http://alesi.com.mx/soporte/Sharpdesk/Redist/Esp/WMI/wmi9x.exe 1d5d94050354b164c6a19531df151e0703d5eb39cebf4357ee2cfc340c2509d0
+    # 2019/12/22: all ftp mirrors I found are dead, so use wayback machine for original MS url
+    w_download https://web.archive.org/web/20051221074940/https://download.microsoft.com/download/platformsdk/wmi9x/1.5/W9X/EN-US/wmi9x.exe 1d5d94050354b164c6a19531df151e0703d5eb39cebf4357ee2cfc340c2509d0
 
     w_set_winver win98
     w_override_dlls native,builtin wbemprox wmiutils

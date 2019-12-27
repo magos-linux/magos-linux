@@ -4,7 +4,7 @@
 #                       Used for autodetecting Wifi network
 # Authors:	        Mikhail Zaripov <m3for@mail.ru>
 
-[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ -f /etc/MagOS/config ] && . /etc/MagOS/config
 
 # Wifi detection
 [ -f /etc/sysconfig/network-scripts/$1 ] || exit 0

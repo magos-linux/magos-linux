@@ -12,7 +12,7 @@ XSSBLLOADED="rosa-media-play,mplayer,tvtime,firefox,steam,chromium"
 [ "$ENABLED" != "yes" ] && exit 0
 
 . /usr/lib/magos/functions
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 DE=$(detectDE)
 [ "$XSSDEIGNORE" = "all" ] && exit 0
@@ -22,7 +22,7 @@ xscreensaver -no-splash &
 sleep 1s
 
 while true ;do
-   . /etc/sysconfig/MagOS
+   . /etc/MagOS/config
    XSSBLRUNED="$(echo "$XSSBLRUNED" | tr ',; ' '|' )"
    XSSBLLOADED="$(echo "$XSSBLLOADED" | tr ',; ' '|' )"
    ps -U $(id -un) -o comm | egrep -q "$XSSBLRUNED" && xscreensaver-command -deactivate >/dev/null 2>&1

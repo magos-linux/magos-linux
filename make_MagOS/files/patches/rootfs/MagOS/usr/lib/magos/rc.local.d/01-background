@@ -8,8 +8,8 @@ DEBUGMODE=no
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
-[ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
-[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ -f /etc/MagOS/theme ] && . /etc/MagOS/theme
+[ -f /etc/MagOS/config ] && . /etc/MagOS/config
 
 # setting screensaver theme
 [ -z "$SSAVERTHEME" ] && SSAVERTHEME="$SSDEFDIR"

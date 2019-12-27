@@ -24,7 +24,7 @@ DEBUGMODE=no
 . /liblinuxlive 2>/dev/null || . /mnt/live/liblinuxlive
 debug_mode "$0" "$@"
 
-[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ -f /etc/MagOS/config ] && . /etc/MagOS/config
 
 # We have to launch some rc scripts
 for a in /usr/lib/magos/rc.network.d/* ;do

@@ -18,12 +18,12 @@ debug_mode "$0" "$@"
 [ -f /memory/changes/etc/X11/xorg.conf ] && CREATE_XORG_CONF=no
 
 # forcing modes=auto for xorg.conf
-grep -q XORG_RES etc/sysconfig/MagOS || echo XORG_RES=auto >>etc/sysconfig/MagOS
+grep -q XORG_RES etc/MagOS/config || echo XORG_RES=auto >>etc/MagOS/config
 
 # reading last hw data VGAID CARDID XDRIVER
 . $HARDCONF
-# reading all values from etc/sysconfig/MagOS
-. etc/sysconfig/MagOS
+# reading all values from etc/MagOS/config
+. etc/MagOS/config
 
 # cmdline parameter has the highest priority
 CLXD=$(cmdline_value xdriver)

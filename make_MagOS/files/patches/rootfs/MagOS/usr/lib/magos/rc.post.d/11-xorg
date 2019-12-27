@@ -12,7 +12,7 @@ DEBUGMODE=no
 debug_mode "$0" "$@"
 . $HARDCONF
 [ "$XDRIVER" != "nvidia" ] && rmmod nvidia
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 . /etc/sysconfig/desktop
 
 [ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f /etc/X11/xorg.conf

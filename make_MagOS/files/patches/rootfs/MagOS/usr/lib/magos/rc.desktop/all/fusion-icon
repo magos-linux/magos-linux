@@ -5,7 +5,7 @@ ENABLED=yes
 . /etc/sysconfig/compositing-wm
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 DE=$(detectDE)
 

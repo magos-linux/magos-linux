@@ -13,7 +13,7 @@ DEBUGMODE=no
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
 
-. etc/sysconfig/MagOS
+. etc/MagOS/config
 
 if  ! [ -z "$ADSERVER" -o -z "$DOMAIN" ] ;then
     [ -z "$KERBEROS_REALM" ] && KERBEROS_REALM=$(echo $DOMAIN | tr [a-z] [A-Z])

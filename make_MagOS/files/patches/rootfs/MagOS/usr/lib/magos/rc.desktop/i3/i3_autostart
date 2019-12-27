@@ -5,6 +5,6 @@ ENABLED=yes
 I3_NOTIFYD=yes
 
 . /usr/lib/magos/os-config
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 [ "$I3_NOTIFYD" != "no" ] &&  dex /usr/share/applications/notification-daemon.desktop &

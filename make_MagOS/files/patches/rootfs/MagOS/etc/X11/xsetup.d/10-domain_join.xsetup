@@ -3,7 +3,7 @@
 # MagOS-linux.ru
 # Author M.Zaripov
 export PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/lib/qt4/bin
-[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ -f /etc/MagOS/config ] && . /etc/MagOS/config
 if [ ! -z "$ADSERVER" ] ;then
    # Time synchronization
    systemctl stop ntpd

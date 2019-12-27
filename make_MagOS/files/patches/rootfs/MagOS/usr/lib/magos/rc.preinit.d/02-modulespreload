@@ -15,7 +15,7 @@ debug_mode "$0" "$@"
 
 MODULESPRELOAD="nfsd"
 BLACKLISTMODULES="$(cmdline_value blacklist | tr ',;' ' ')"
-. etc/sysconfig/MagOS
+. etc/MagOS/config
 
 for a in $(echo $MODULESPRELOAD | tr , " ") ;do
     echo " $BLACKLISTMODULES " | grep -q " $a " || chroot . modprobe $a

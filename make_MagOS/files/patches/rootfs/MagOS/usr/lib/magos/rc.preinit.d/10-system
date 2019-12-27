@@ -13,12 +13,12 @@ DEBUGMODE=no
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
 
-. etc/sysconfig/MagOS
+. etc/MagOS/config
 
 ps | grep ntfsmount | awk '{ print $1 }' >> var/run/sendsigs.omit
 
 #Setting up local time zone
-. etc/sysconfig/clock
+[ -f etc/sysconfig/clock ] && . etc/sysconfig/clock
 [ "$UTC" = "false" -a -f usr/share/zoneinfo/$ZONE ] && ln -sf /usr/share/zoneinfo/$ZONE etc/localtime
 
 #devfs support

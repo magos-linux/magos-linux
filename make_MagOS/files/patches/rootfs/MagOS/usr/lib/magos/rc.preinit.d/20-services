@@ -13,7 +13,7 @@ DEBUGMODE=no
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
 
-. etc/sysconfig/MagOS
+. etc/MagOS/config
 
 if [ ! -z "$SERVICESSTART$SERVICESNOSTART$SERVICESMASK$SERVICESUNMASK" ] ;then
   mkdir -p proc

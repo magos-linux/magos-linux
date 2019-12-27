@@ -85,11 +85,5 @@ PFP=/etc/gconf/gconf.xml.defaults/%gconf-tree.xml
 [ -f $PFP ] && sed -i 's|<stringvalue>Ia Ora Steel</stringvalue>|<stringvalue>Default</stringvalue>|' $PFP
 PFP=/etc/gconf/schemas/desktop_gnome_interface.schemas
 [ -f $PFP ] && sed -i 's|<default>Ia Ora Steel</default>|<default>Default</default>|' $PFP
-#2012lts gnome theme patch
-PFP=/etc/gconf/schemas/metacity.schemas
-[ -f $PFP ] && sed -i 's|<default>Ia Ora Steel</default>|<default>Default</default>|' $PFP
-[ -f $PFP ] && sed -i 's|<default>elementary</default>|<default>Default</default>|' $PFP
-PFP=/etc/gconf/schemas/panel-default-setup.entries
-[ -f $PFP ] && sed -i 's|<string>/usr/share/gnome-panel/pixmaps/mandriva-panel.png</string>|<string></string>|' $PFP
 
 exit 0

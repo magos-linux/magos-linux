@@ -15,7 +15,7 @@
 
 . /lib/lsb/init-functions
 
-[ -f /etc/sysconfig/compcache ] && . /etc/sysconfig/compcache
+[ -f /etc/MagOS/services/compcache ] && . /etc/MagOS/services/compcache
 
 NUM_DEVICES=${NUM_DEVICES:-4}
 [ -z "$ZRAMSIZE" ] && ZRAMSIZE=$(($(free -b | grep -m1 -i ^mem: | awk '{print $2}') /4))

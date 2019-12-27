@@ -164,7 +164,7 @@ echodebug()
 create_module()
 {
    . /usr/lib/magos/os-config
-   . /etc/sysconfig/MagOS
+   . /etc/MagOS/config
    echo " $@ " | egrep -q ' -comp | -noD ' && MKSQFS_OPTS=
    mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null || return 1
    chmod 444 "$2"
@@ -175,7 +175,7 @@ create_module()
 #
 cmdline_parameter()
 {
-   . /etc/sysconfig/MagOS || . etc/sysconfig/MagOS
+   . /etc/MagOS/config || . etc/MagOS/config
    echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | head -1 | tr -d " "
 }
 
@@ -184,7 +184,7 @@ cmdline_parameter()
 #
 cmdline_value()
 {
-   . /etc/sysconfig/MagOS || . etc/sysconfig/MagOS
+   . /etc/MagOS/config || . etc/MagOS/config
    echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | head -1 | cut -d "=" -f 2-
 }
 
@@ -267,7 +267,7 @@ xss_slideshow()
 xss_heartbeat()
 {
   . /usr/lib/magos/os-config
-  . /etc/sysconfig/MagOS
+  . /etc/MagOS/config
   SSAVERBLOCKAPPS="$(echo "$SSAVERBLOCKAPPS"| tr ',; ' '|' )"
   bash -c "while true ;do top -bn1 -u $(id -un) | awk '{ print \$7 FS \$NF }' | grep ^[1-9] | egrep -q \"$SSAVERBLOCKAPPS\" && xscreensaver-command -deactivate >/dev/null ; sleep 20s ; done " &
 }
@@ -350,7 +350,7 @@ recordvideo()
   MSG1=$(gettext -s "Recording are stoped, please wait for encoding")
   MSG2=$(gettext -s "Video are encoded and placed to your home dir")
   RMDOPT=
-  . /etc/sysconfig/MagOS
+  . /etc/MagOS/config
   ps -U $UID | grep -q pulseaudio && RMDOPT="$RMDOPT --device pulse"
   PID=$(ps -U $UID -o pid,comm | grep recordmydesktop | awk '{print $1}')
   if [ -z "$PID" ] ;then

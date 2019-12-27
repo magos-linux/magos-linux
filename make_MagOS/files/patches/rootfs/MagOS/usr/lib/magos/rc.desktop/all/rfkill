@@ -3,7 +3,5 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 . /usr/lib/magos/functions
-. /usr/lib/magos/os-config
-. /etc/sysconfig/keyboard
 
 [ "$(cmdline_parameter flightmode)" ] && rfkill block all

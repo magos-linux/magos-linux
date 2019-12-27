@@ -16,5 +16,4 @@ sed -i s/" root root "/" sddm sddm "/ /usr/lib/tmpfiles.d/sddm.conf
 #PFP=/lib/systemd/system/sddm.service
 #grep -q EnvironmentFile $PFP || sed -i 's|^ExecStart=|EnvironmentFile=/etc/sysconfig/sddm\nExecStart=|' $PFP
 
-
 exit 0

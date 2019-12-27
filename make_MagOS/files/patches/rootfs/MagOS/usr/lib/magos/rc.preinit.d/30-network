@@ -15,7 +15,7 @@ debug_mode "$0" "$@"
 
 
 HOSTNAME=MagOS
-. etc/sysconfig/MagOS
+. etc/MagOS/config
 
 echo $HOSTNAME > etc/hostname
 grep -q " $HOSTNAME$" etc/hosts || echo "127.0.0.1             $HOSTNAME" >> etc/hosts

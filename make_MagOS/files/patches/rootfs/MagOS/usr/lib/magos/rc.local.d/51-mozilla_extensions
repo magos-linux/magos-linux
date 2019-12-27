@@ -11,7 +11,7 @@ DEBUGMODE=no
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 # Registering mozilla extentions (firefox and thunderbird)
 if [ "$REGISTERMOZEXT" = "yes" ] ;then

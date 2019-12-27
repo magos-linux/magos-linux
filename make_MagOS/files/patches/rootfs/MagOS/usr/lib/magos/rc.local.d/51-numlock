@@ -10,7 +10,7 @@ DEBUGMODE=no
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 [ "$NUMLOCK" = "yes" ] &&  for tty in /dev/tty[1-8]; do setleds -D +num < $tty ; done
 [ "$NUMLOCK" = "no" ] &&  for tty in /dev/tty[1-8]; do setleds -D -num < $tty ; done

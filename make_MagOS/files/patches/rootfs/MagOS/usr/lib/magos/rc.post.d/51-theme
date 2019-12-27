@@ -13,8 +13,8 @@ DIRGTK3=gtk-3.0
 DIRMETACITY=metacity-1
 DIROPENBOX=openbox-3
 
-[ -f /etc/sysconfig/theme ] && . /etc/sysconfig/theme
-[ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
+[ -f /etc/MagOS/theme ] && . /etc/MagOS/theme
+[ -f /etc/MagOS/config ] && . /etc/MagOS/config
 . /usr/lib/magos/functions
 
 CMDLINETHEME=$(cmdline_value theme)

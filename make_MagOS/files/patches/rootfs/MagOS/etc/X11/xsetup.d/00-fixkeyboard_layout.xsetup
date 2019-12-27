@@ -3,7 +3,7 @@
 . /etc/sysconfig/keyboard
 setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions
 
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 # Automatic detection PC/notebooks
 if [ -z "$NUMLOCK" ] ; then

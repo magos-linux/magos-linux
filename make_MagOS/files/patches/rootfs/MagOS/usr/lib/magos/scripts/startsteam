@@ -4,7 +4,7 @@ PRDNL="wget -O "
 USERMODSPATH=/mnt/livedata/MagOS-Data/modules
 . /usr/lib/magos/os-config
 . /etc/sound/profiles/current/profile.conf
-. /etc/sysconfig/MagOS
+. /etc/MagOS/config
 
 # checking for standalone steam mode
 if ! wmctrl -m | grep -qi name ;then
