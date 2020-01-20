@@ -1,7 +1,12 @@
 #!/bin/sh
 #PFS module creator 
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
 
 D(){
     sourcelist="$(find "$1" -maxdepth 1 -mindepth 1 -type d |sort)"
@@ -45,8 +50,8 @@ echo "$0 * -o ./big.$EXT		-collect all dirs and squashfs modules from current di
 echo
 echo "Параметры (ключи):"
 echo "	-o / --out-file - указывает название выходного файла (если указать без расширения .$EXT на выходе будет каталог)."
+echo "  -w - не удалять тени AUFS (только совместно с ключем -l)"
 echo "  -l / --local - сборка на месте, без использования aufs."
-echo "  -w - включать в модуль AUFS тени. Будет работать но только с ключем -l"
 echo "  -f / --fast - быстрая компрессия (размер .$EXT больше, но создается быстрее)."
 echo "  --mkilst  add files list to simple (non contaner) module"
 echo "  --save-duplicates  при сборке контейнеров сохранять одноименные файлы из разных источников если они отличаются, "
@@ -103,7 +108,7 @@ do
 done
 
 [ "$sourcelist" ] || HLP 
-[ "$inplace" == "yes" -a  "$WH"  != "yes" ] && wh='-wildcards -e "... /.wh.*"'
+[ "$inplace" = "yes" -a  "$WH"  != "yes" ] && wh='-wildcards -e "... /.wh.*"'
 
 allow_only_root
 
@@ -115,7 +120,7 @@ if [ "${userout}_" = "_" ] ; then
 fi
 
 #1 dir, in place mode
-if [ -d $sourcelist 2>/dev/null -a "$inplace" == "yes" ] ;then
+if [ -d $sourcelist 2>/dev/null -a "$inplace" = "yes" ] ;then
 	eval echo "==== In place mode ====" $devnull
     [ "$wh" ] ||  eval  echo "=== save aufs shadows \(.wh*\) ===" $devnull
     [ ! "$(ls -a $sourcelist)" ] && exitmsg "directory '$sourcelist' empty" 1
@@ -138,7 +143,7 @@ fi
 #test sources, source must be dir or squashfs module
 for source in $sourcelist ;do
 	[ -d $source ] && continue
-	[ "$(fs_type $source)" == "squashfs" ] && continue
+	[ "$(fs_type $source)" = "squashfs" ] && continue
 	exitmsg "Type of source \"$source\" is not correct" 2
 done	
 

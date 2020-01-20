@@ -1,7 +1,12 @@
 #!/bin/sh
 #aufs layers list
-#VERSION 4.0
-. `which pfs`
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
 
 header () {
 echo "AUFS layers (top layer \"0\" covers all lower )"
@@ -61,14 +66,14 @@ while true ;  do
       printf %3s "$n "; 
       
       printf %-65s "$bundle " ; printf %b "${color_default}"
-      [ "$layer_perm" == "rw" ] && printf %b "${color_green}" ; 
+      [ "$layer_perm" = "rw" ] && printf %b "${color_green}" ; 
       printf "$layer_perm\n" ; printf %b "${color_default}"
       
-      [ "$source" == "tmpfs" ] && printf %b "${color_blue}" ;
+      [ "$source" = "tmpfs" ] && printf %b "${color_blue}" ;
       echo "$source" |grep -q "^/dev/.*$"  && printf %b "${color_yellow}" ;
       
       printf %-68s "   $source " ;  printf %b "${color_default}"
-      [ "$bundle_perm" == "rw" ] && printf %b "${color_green}" ;
+      [ "$bundle_perm" = "rw" ] && printf %b "${color_green}" ;
       printf  "$bundle_perm\n" ; printf %b "${color_default}"
       echo ''
     else

@@ -1,7 +1,12 @@
 #!/bin/sh
 #PFS module extractor
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
 
 HLP(){
 echo "\
@@ -148,7 +153,7 @@ wh="-regex -e ".wh..wh.""
 
 # find module in arg list
 for item in $sourcelist ; do
-	if [ "$(fs_type $item)" == "squashfs" ] ; then
+	if [ "$(fs_type $item)" = "squashfs" ] ; then
 	pfs=$item
 	sourcelist=$(echo "$sourcelist" |sed "s:"$item"::")
 	break

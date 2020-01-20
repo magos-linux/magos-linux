@@ -1,8 +1,14 @@
 #!/bin/bash
-if [ $(id -un) != "root" ] ; then
-echo "Только с правами root"
-exit 1
-fi
+#Util to find new and changed files
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
+
+allow_only_root
 
 PWD=$(pwd)
 start=no
@@ -63,7 +69,7 @@ get_new () {
 				  break
 				fi
 				done
-				[ $test == "ok" ] && echo $file >> ./$dir/new.list
+				[ $test = "ok" ] && echo $file >> ./$dir/new.list
 			fi
 		else
 			if ! cat ./$dir/ctlpoint.noreg | grep -q $(echo $file |sed "s:^${changes}/:/:") ; then
@@ -85,8 +91,8 @@ get_changed () {
 			new_md5=new_md5
 			old_md5=old_md5
 			if cat ./$dir/ctlpoint.list | grep -q $(echo $file |sed "s:^${changes}/::") ; then
-				[ $md5 == "enable" ] && new_md5=$(md5sum $file |awk '{print $1}')
-				[ $md5 == "enable" ] && old_md5=$(md5sum ./$dir/ctlpoint/$(echo $file |sed "s:^${changes}/:/:") |awk '{print $1}')
+				[ $md5 = "enable" ] && new_md5=$(md5sum $file |awk '{print $1}')
+				[ $md5 = "enable" ] && old_md5=$(md5sum ./$dir/ctlpoint/$(echo $file |sed "s:^${changes}/:/:") |awk '{print $1}')
 				[ "$new_md5" != "$old_md5" ] && echo $file >> ./$dir/changed.list
 			fi
 		fi
@@ -157,7 +163,7 @@ done
 echo "" # да, это просто пустая строка :) 
 if [ $finish != "yes" ] ; then
     ctl_point
-    if [ $start == "yes" ] ; then
+    if [ $start = "yes" ] ; then
       echo "$(pwd)  $dir" > /tmp/syschanges.path
       exit
     fi
@@ -170,13 +176,13 @@ if [ $finish != "yes" ] ; then
 	echo "###########################################################################################################"
 	echo -n "		"
 	read a
-	if [ ${a}_ == "exit_" ] ; then
+	if [ ${a}_ = "exit_" ] ; then
 		rm -rf ./$dir 
 		exit 2
 	fi
 fi
 
-if [ $finish == "yes" ] ; then
+if [ $finish = "yes" ] ; then
   [ -f /tmp/syschanges.path ] || exit 4
   PWD=$(pwd)
   syschanges_path=$(cat /tmp/syschanges.path)

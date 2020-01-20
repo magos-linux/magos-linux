@@ -1,7 +1,12 @@
 #!/bin/sh
 #Find file in root aufs
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
 
 TMPFS=tmpfs
 usage () {
@@ -33,7 +38,7 @@ list2=$(find "$changesDir" \( -type f -o -type l \) -name "$f" |sed 's#^'$change
 list="$list1 $list2"
 aufs-n --raw '$n $bundle $dname_source $bname_source' | while read a; do
 	for b in $list ; do
-		if [ "$(echo $a |awk '{print $NF}')" == "$(echo $b |awk -F/ '{print $1}' )" ]  ; then
+		if [ "$(echo $a |awk '{print $NF}')" = "$(echo $b |awk -F/ '{print $1}' )" ]  ; then
 			n="$(echo $a |awk '{print $1}')"
 			module="$(echo $a |awk '{print $3 "/" $4}')" 
 			bundle=$(echo $a | awk '{print $2}')
@@ -79,7 +84,7 @@ if [ ! "$2" ] ;then
 	header
 	listing $1
 	exit
-elif [ "$2" == "--raw" ] ; then
+elif [ "$2" = "--raw" ] ; then
 	listing $1
 	exit
 else 

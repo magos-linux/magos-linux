@@ -1,7 +1,12 @@
 #!/bin/bash
 #Util to move files to second aufs layer
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
 
 FILELIST=/.savelist
 #changesDir=/memory/changes
@@ -83,7 +88,7 @@ function  sync2layer () {
 	cp -uPR --parents ${file} ${layermp}/ || ( sync ; mount -o remount $layermp ; mount -o remount / ; exitmsg "Copy $file error" 2 )
 		if [ -f $file ] ; then
 			if lsof $file >/dev/null 2>&1; then
-				[ $? == 0 ] && echo -ne "$file ${color_blue} -- is open now,  copied ${color_default}\n"
+				[ $? = 0 ] && echo -ne "$file ${color_blue} -- is open now,  copied ${color_default}\n"
 				continue
 			fi 
 		rm -f ${changesDir}${file}  &&	echo -ne "${file} -- ${color_green}moved ${color_default}\n"
@@ -97,7 +102,7 @@ function  sync2layer () {
 	mount -o remount $layermp && mount -o remount /
 }
 
-[ "$1" == "-h" -o "$1" == "--help" ] && help
+[ "$1" = "-h" -o "$1" = "--help" ] && help
 
 allow_only_root
 

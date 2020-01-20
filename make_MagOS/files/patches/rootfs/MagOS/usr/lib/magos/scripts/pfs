@@ -3,7 +3,7 @@
 #Authors: puppyrus.org : Zay, DdShurick, sfs
 #Author: magos-linux.ru: Betcher
 #License: GPL v3
-#VERSION 4.0
+#VERSION 4.1
 
 #help
 HELP(){
@@ -368,7 +368,7 @@ done
 }
 
 
-if [ "$(basename $0)" == "pfs" ] ;then
+if [ "$(basename $0)" = "pfs" ] ;then
 [ $1 ] || HELP
 command="$1" 
 shift

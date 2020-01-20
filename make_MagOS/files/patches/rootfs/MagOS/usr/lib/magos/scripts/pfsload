@@ -1,7 +1,13 @@
 #!/bin/sh
 #Mount filesystem to AUFS
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
+
 mntmode="upper"
 
 HLP() {
@@ -120,7 +126,7 @@ if [ ${status} -eq 0 ]; then
   
   if [ ${status} -eq 0 ]; then
     sync
-    [ "$devtype" == "file" ] && requires="$requires $(checkdeps "${mountpoint}" 2>/dev/null)"
+    [ "$devtype" = "file" ] && requires="$requires $(checkdeps "${mountpoint}" 2>/dev/null)"
     if [ "${mntmode}" = "upper" ]; then
 		nlayer=1
 		[ -w $(aufs-n 1) ] && nlayer=2

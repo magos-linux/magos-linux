@@ -1,7 +1,13 @@
 #!/bin/bash
 #addmemory
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
+
 
 HELP () {
 
@@ -39,7 +45,7 @@ fi
 
 ADDMEMORY () {
 df ./ |grep -q ^/dev/sd.* || exitmsg  "Current dir must be real disk" 2
-[ $(aufs-n --raw '$source' |head -n1) == tmpfs ]  ||    exitmsg  "Error: Only Clean mode supported" 3
+[ $(aufs-n --raw '$source' |head -n1) = tmpfs ]  ||    exitmsg  "Error: Only Clean mode supported" 3
 
 # создавать swap или использовать готовый
 

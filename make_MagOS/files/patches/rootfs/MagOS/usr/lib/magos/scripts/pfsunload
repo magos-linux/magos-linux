@@ -1,7 +1,13 @@
 #!/bin/sh
 #Unmount filesystem from AUFS
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
+
 HLP () {
   echo "Usage: $(basename "$0") FYLESYSTEM (squashfs module, dir, iso, img, etc) or layer number (see aufs-n)"
   echo "-n  --no-update  - do not update icon caches, fonts, etc"
@@ -30,7 +36,7 @@ allow_only_root
 if [ -f "${infile}" ] ; then 
 	findit="[[:punct:]]$(basename $(readlink -e "${infile}"))$" 
 	checksfsxzb >/dev/null || exitmsg "Kernel not support PFS!" 3
-elif [ "$(echo $infile | sed 's/^[[:digit:]].$/digit/')" == "digit" ] ; then 
+elif [ "$(echo $infile | sed 's/^[[:digit:]].$/digit/')" = "digit" ] ; then 
 	findit="^$infile[[:space:]]"
 else
 	findit="[[:punct:]]$(basename "${infile%.$EXT}").${EXT}$"

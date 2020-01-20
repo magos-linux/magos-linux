@@ -1,7 +1,12 @@
 #!/bin/sh
 #Uninstall packages
-#VERSION 4.0
-. $(which pfs)
+#VERSION 4.1
+
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
 
 #help
 HLP(){

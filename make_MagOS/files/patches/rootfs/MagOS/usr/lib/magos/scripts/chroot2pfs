@@ -3,7 +3,11 @@
 # Author : Alexandr Betkher (betcher) <http://magos-linux.ru>
 #190807 sfs 
 
-. `which pfs` 
+if [ -f $(dirname $0)/pfs ] ;  then
+    . $(dirname $0)/pfs
+else 
+    . $(which pfs) || exit 13 
+fi    
  
 CHROOT="chroot"
 TRIM="--trim" ##sfs
@@ -96,14 +100,14 @@ do
     "--nomod" ) NOMOD="yes";;
     "--boot" ) BOOT="-b";;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
-    *) if [ "${name}" == "yes" ]; then NAME="${arg}"
-		elif [ "${mlist}" == "yes" ]; then MLIST="${arg}"
-		elif [ "${flist}" == "yes" ]; then FLIST="${arg}"
-		elif [ "${script}" == "yes" ]; then SCRIPT="${arg}"
+    *) if [ "${name}" = "yes" ]; then NAME="${arg}"
+		elif [ "${mlist}" = "yes" ]; then MLIST="${arg}"
+		elif [ "${flist}" = "yes" ]; then FLIST="${arg}"
+		elif [ "${script}" = "yes" ]; then SCRIPT="${arg}"
 		elif [ "${bdir}" = "yes" ]; then   buildDir="$(readlink -e ${arg})/$$-tmp"
-		elif [ "${contaner}" == "yes" ]; then CONTANER="${arg}" 
-        elif [ "${mask}" == "yes" ]; then MASK="${arg}"
-        elif [ "${bind}" == "yes" ]; then BIND="${arg}"
+		elif [ "${contaner}" = "yes" ]; then CONTANER="${arg}" 
+        elif [ "${mask}" = "yes" ]; then MASK="${arg}"
+        elif [ "${bind}" = "yes" ]; then BIND="${arg}"
         else modules="${arg} ${modules}" ; fi
         mlist="no"; flist="no"; name="no";  mask="no"; bdir="no"; bind="no"; script="no"; contaner="no";;
   esac
@@ -161,7 +165,7 @@ for  i in $(get_layers) ;do
     eval addlayer "$nn" "$i" "$devnull" || exitmsg "can't insert layer to aufs $nn" 5
 done 
 
-if [ $CHROOT == "chroot" ] ; then
+if [ $CHROOT = "chroot" ] ; then
 mkdir -p $root_br/{dev,proc,sys,tmp}
 for tm in {dev,proc,sys}; do
     [ /$tm ] && mount -o bind /$tm $root_br/$tm
@@ -189,20 +193,20 @@ for bnd in $binds ; do
 done
  fi
 
-if [ "$X" == "yes" ] ; then
+if [ "$X" = "yes" ] ; then
 	if ! xhost |grep -q "LOCAL:" ; then
 		xhost +local:
 		remove_X_perm=yes
 	fi
 fi
 
-if [ $CHROOT == "nspawn" ] ; then
+if [ $CHROOT = "nspawn" ] ; then
 md5sum /bin/bash | awk '{print $1}' > $root_br/etc/machine-id #  nspawn do not works without machine-id
 #[ "$SCRIPT" ] || systemd-nspawn -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix $command 
 #[ "$SCRIPT" ] && systemd-nspawn -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
 [ "$SCRIPT" ] || systemd-nspawn $BOOT -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix:/tmp/.X11-unix $command 
 [ "$SCRIPT" ] && systemd-nspawn $BOOT -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
-elif [ $CHROOT == "chroot" ] ; then
+elif [ $CHROOT = "chroot" ] ; then
 [ "$SCRIPT" ] || chroot $root_br env -i DISPLAY="$DISPLAY" $command
 [ "$SCRIPT" ] && chroot $root_br env -i DISPLAY="$DISPLAY" /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
 else 
