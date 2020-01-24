@@ -6,7 +6,7 @@
 
 # Name of this version of winetricks (YYYYMMDD)
 # (This doesn't change often, use the sha256sum of the file when reporting problems)
-WINETRICKS_VERSION=20190912-next
+WINETRICKS_VERSION=20191224-next
 
 # This is a UTF-8 file
 # You should see an o with two dots over it here [ö]
@@ -300,7 +300,138 @@ w_killall()
     kill -s KILL $(pgrep $1)
 }
 
-# Warn user if package is broken. Optionally provide a link to the bug report.
+# Warn user if package is broken (on all arches) in the current wine version. Bug report required.
+w_package_broken()
+{
+    # FIXME: test cases for this
+
+    bug_link="$1"
+    bad_version="$2"
+    good_version="$3"
+
+    if [ -z "$bug_link" ] ; then
+        w_die "Bug report link required!"
+    fi
+
+    if [ -n "$good_version" ]; then
+        if ! w_wine_version_in "${bad_version},${good_version}"; then
+            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped}. Upgrade to >=${good_version}. See ${bug_link} for more info."
+            exit 99
+        fi
+    elif [ -n "$bad_version" ]; then
+        if ! w_wine_version_in "${bad_version}"; then
+            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped}. Broken since ${bad_version}. See ${bug_link} for more info."
+            exit 99
+        fi
+    else
+        w_warn "This package ($W_PACKAGE) is broken. See ${bug_link} for more info."
+        exit 99
+    fi
+}
+
+w_detect_mingw()
+{
+    # mingw builds have some (not yet all) .dll files in ${WINE}/../lib{,64}/wine
+    # non-mingw have exclusively .dll.so files
+    #
+    # Unfortunately, installed wine and wine run from source dir have different layouts:
+
+    # Source:
+    if test -f "$(dirname "${WINE}")/Makefile.in"; then
+        if ls "$(dirname "${WINE}")/dlls"/*/*.dll >/dev/null 2>&1; then
+            wine_mingw=1
+        else
+            wine_no_mingw=1
+        fi
+    # Installed (checked against the binaries of https://dl.winehq.org/):
+    elif ls "$(dirname "${WINE}")"/../lib/wine/*.dll >/dev/null 2>&1; then
+        wine_mingw=1
+    elif test ! -d "$(dirname "${WINE}")"/../lib/wine; then
+        w_warn "Unable to detect wine dlls, please file an issue on Github"
+    else
+        wine_no_mingw=1
+    fi
+}
+
+# Warn user if package is broken in the current wine version when compiled with mingw. Bug report required.
+w_package_broken_mingw()
+{
+    # FIXME: test cases for this
+
+    bug_link="$1"
+    bad_version="$2"
+    good_version="$3"
+
+    w_detect_mingw
+
+    if [ -z "$wine_mingw" ]; then
+        # We're not using a mingw build, nothing to do:
+        return
+    fi
+
+    if [ -z "$bug_link" ] ; then
+        w_die "Bug report link required!"
+    fi
+
+    if [ -n "$good_version" ]; then
+        if ! w_wine_version_in "${bad_version},${good_version}"; then
+            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} when wine is built with mingw. Upgrade to >=${good_version} or disable mingw. See ${bug_link} for more info."
+            exit 99
+        else
+            echo "package was broken, now fixed"
+        fi
+    elif [ -n "$bad_version" ]; then
+        if ! w_wine_version_in "${bad_version}"; then
+            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} (broken since ${bad_version} when wine is built with mingw. See ${bug_link} for more info."
+            exit 99
+        else
+            echo "Package is broken in future versions"
+        fi
+    else
+        w_warn "This package ($W_PACKAGE) is broken when wine is built with mingw. See ${bug_link} for more info."
+        exit 99
+    fi
+}
+
+# Warn user if package is broken in the current wine version when compiled without mingw. Bug report required.
+w_package_broken_no_mingw()
+{
+    # FIXME: test cases for this
+
+    bug_link="$1"
+    bad_version="$2"
+    good_version="$3"
+
+    if [ -z "$wine_no_mingw" ]; then
+        # We're using a mingw build, nothing to do:
+        return
+    fi
+
+    if [ -z "$bug_link" ] ; then
+        w_die "Bug report link required!"
+    fi
+
+    if [ -n "$good_version" ]; then
+        if ! w_wine_version_in "${bad_version},${good_version}"; then
+            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} when wine is built without mingw. Upgrade to >=${good_version}. See ${bug_link} for more info."
+            exit 99
+        else
+            echo "package was broken, now fixed"
+        fi
+    elif [ -n "$bad_version" ]; then
+        if ! w_wine_version_in "${bad_version}"; then
+            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} (broken since ${bad_version} when wine is built without mingw. See ${bug_link} for more info."
+            exit 99
+        else
+            echo "Package is broken in future versions"
+        fi
+    else
+        w_warn "This package ($W_PACKAGE) is broken when wine is built without mingw. See ${bug_link} for more info."
+        exit 99
+    fi
+}
+
+# Warn user if package is broken on win64. Optionally provide a link to the bug report.
 w_package_broken_win64()
 {
     # Optional:
@@ -4759,6 +4890,7 @@ winetricks_set_unattended()
             W_UNATTENDED_SLASH_QNT="/qnt"
             W_UNATTENDED_SLASH_QT="/qt"
             W_UNATTENDED_SLASH_QUIET="/quiet"
+            W_UNATTENDED_SLASH_CAP_QUIET="/Quiet"
             W_UNATTENDED_SLASH_S="/S"
             W_UNATTENDED_DASH_SILENT="-silent"
             W_UNATTENDED_SLASH_SILENT="/silent"
@@ -6698,10 +6830,28 @@ load_dxsdk_jun2010()
 
 #----------------------------------------------------------------
 
+w_metadata dxtrans dlls \
+    title="MS dxtrans.dll" \
+    publisher="Microsoft" \
+    year="2002" \
+    media="download" \
+    file1="../winxpsp3/WindowsXP-KB936929-SP3-x86-ENU.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/dxtrans.dll" \
+
+load_dxtrans()
+{
+    helper_winxpsp3 i386/dxtrans.dl_
+    w_try_cabextract --directory="$W_SYSTEM32_DLLS" "$W_TMP"/i386/dxtrans.dl_
+    w_override_dlls native,builtin dxtrans
+    w_try_regsvr dxtrans.dll
+}
+
+#----------------------------------------------------------------
+
 # $1 - dxvk archive name (required)
 # $2 - minimum Wine version (required)
 # $3 - minimum Vulkan API version (required)
-# $4 - [dxgi,][d3d9,][d3d10,]d3d11 [d3d9=dvk9 d3d10/d3d11=dxvk] (required)
+# $4 - [dxgi,][d3d9,][d3d10,]d3d11 (required)
 helper_dxvk_d9vk()
 {
     _W_package_archive="${1}"
@@ -6718,43 +6868,50 @@ helper_dxvk_d9vk()
     _W_dll_overrides="$(echo "${_W_dll_overrides}" | sed 's/d3d10/& d3d10_1 d3d10core/')"
 
     case "${_W_package_archive}" in
+        d9vk*)
+            # dvk9 repository, for d3d9/d3d10/d3d11 support
+            _W_repository="Joshua-Ashton/d9vk"
+            ;;
+        dxvk*)
+            # dxvk repository, for d3d9/d3d10/d3d11 support
+            _W_repository="doitsujin/dxvk"
+            ;;
+        *)
+            w_die "parameter (1): unsupported package archive repository: '${_W_package_archive}'; supported: d9vk dxvk"
+            ;;
+    esac
+
+    case "${_W_package_archive}" in
         *master*)
             _W_package_dir="build/dxvk-release"
             _W_package_version="master"
+            w_warn "Using master ${_W_repository} build"
             ;;
         *)
             _W_package_dir="${_W_package_archive%.tar.gz}"
             _W_package_version="${_W_package_dir#*-}"
+            w_warn "Please refer to ${_W_repository#*/} version ${_W_package_version} release notes... See: https://github.com/${_W_repository}/releases/tag/${_W_package_version}"
             ;;
     esac
+    w_warn "Please refer to current dxvk base graphics driver requirements... See: https://github.com/doitsujin/dxvk/wiki/Driver-support"
 
-    case "${_W_dll_overrides}" in
-        *d3d9*)
-            # dvk9 repository, for d3d9 support
-            _W_repository="Joshua-Ashton/d9vk"
-            if [ "${_W_package_version}" != "master" ]; then
-                w_warn "Please refer to ${_W_repository#*/} version ${_W_package_version} release notes... See: https://github.com/${_W_repository}/releases/tag/${_W_package_version}"
-            fi
-            ;;
-        *)
-            # dxvk repository, for d3d10/d3d11 support
-            _W_repository="doitsujin/dxvk"
-            w_warn "Please refer to ${_W_repository#*/} version ${_W_package_version} release notes... See: https://github.com/${_W_repository}/releases/tag/v${_W_package_version}"
-            w_warn "Please refer to current ${_W_repository#*/} base graphics driver requirements... See: https://github.com/${_W_repository}/wiki/Driver-support"
-            ;;
-    esac
     if ! w_wine_version_in ",${_W_min_wine_version}" ; then
-        w_warn "${_W_repository#*/} ${_W_package_version} does not support wine version ${_wine_version_stripped}. ${_W_repository#*/} ${_W_package_version} requires wine version ${_W_min_wine_version} (or newer). Vulkan ${_W_min_vulkan_version} API (or newer) support is recommended."
+        # shellcheck disable=SC2140
+        w_warn "${_W_repository#*/} ${_W_package_version} does not support wine version ${_wine_version_stripped} . "\
+            "${_W_repository#*/} ${_W_package_version} requires wine version ${_W_min_wine_version} (or newer). "\
+            "Vulkan ${_W_min_vulkan_version} API (or newer) support is recommended."
     fi
 
-    if [ "${_W_package_version}" = "master" ]; then
+    if [ "${_W_package_archive##*.}" = "zip" ]; then
         w_try_unzip "$W_TMP" "${W_CACHE}/${W_PACKAGE}/${_W_package_archive}"
     else
         w_try_cd "${W_TMP}"
         w_try tar -zxf "${W_CACHE}/${W_PACKAGE}/${_W_package_archive}"
     fi
+
     for _W_dll in ${_W_dll_overrides}; do
         w_try mv "${W_TMP}/${_W_package_dir}/x32/${_W_dll}.dll" "${W_SYSTEM32_DLLS}/"
+        [ "${_W_dll}" = "d3d9" ] && _W_d3d9_support="1"
     done
     if test "${W_ARCH}" = "win64"; then
         for _W_dll in ${_W_dll_overrides}; do
@@ -6763,13 +6920,12 @@ helper_dxvk_d9vk()
     fi
     # shellcheck disable=SC2086
     w_override_dlls native ${_W_dll_overrides}
-
-    if [ "${_W_repository#*/}" = "d9vk" ]; then
+    if [ -n "${_W_d3d9_support}" ]; then
         w_call d3dcompiler_43
         w_call d3dx9
     fi
 
-    unset _W_dll _W_dll_overrides _W_invalid_overrides _W_min_vulkan_version _W_min_wine_version \
+    unset _W_d3d9_support _W_dll _W_dll_overrides _W_invalid_overrides _W_min_vulkan_version _W_min_wine_version \
         _W_package_archive _W_package_dir _W_package_version \
         _W_repository _W_supported_overrides
 }
@@ -6999,33 +7155,6 @@ load_d9vk()
     w_linkcheck_ignore=1 w_download "https://github.com/Joshua-Ashton/d9vk/releases/download/${_W_d9vk_version}/d9vk-${_W_d9vk_version}.tar.gz"
     helper_dxvk_d9vk "d9vk-${_W_d9vk_version}.tar.gz" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
     unset _W_d9vk_version
-}
-
-
-#----------------------------------------------------------------
-
-w_metadata d9vk_master dlls \
-    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (master)" \
-    publisher="Joshua Ashton" \
-    year="2019" \
-    media="download" \
-    file1="d9vk_master.zip" \
-    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
-    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
-    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
-    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
-    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
-    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
-
-load_d9vk_master()
-{
-    # https://git.froggi.es/joshua/d9vk
-    # FIXME: Delete cached file, when verb is forced. Gitlab artifacts do not supply any version/commit hash information.
-    if test "$WINETRICKS_FORCE" == 1 && test -f "${W_CACHE}/${W_PACKAGE}/${file1}"; then
-        w_try rm -f "${W_CACHE}/${W_PACKAGE}/${file1}"
-    fi
-    w_linkcheck_ignore=1 w_download_to "${W_CACHE}/${W_PACKAGE}" "https://git.froggi.es/joshua/d9vk/-/jobs/artifacts/master/download?job=d9vk" "" "d9vk_master.zip"
-    helper_dxvk_d9vk "$file1" "4.5" "1.1.104" "dxgi,d3d9,d3d10,d3d11"
 }
 
 
@@ -7775,14 +7904,55 @@ load_dxvk146()
     helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
 }
 
+w_metadata dxvk150 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.5)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.5.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk150()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.5/dxvk-1.5.tar.gz" 90cfae0bb43fed1e46442d20e2ab3bf448ebdff1e9f4f59841dc922aa3a36d3b
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
+}
+
+w_metadata dxvk151 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.5.1)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.5.1.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk151()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.5.1/dxvk-1.5.1.tar.gz" 474ce9995edd47a3bd347a8f3263f35cf8df2676f5b16668bf38efa298d75c01
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
+}
+
 
 #----------------------------------------------------------------
 
 w_metadata dxvk dlls \
-    title="Vulkan-based D3D10/D3D11 implementation for Linux / Wine (latest)" \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (latest)" \
     publisher="Philip Rebohle" \
     year="2017" \
     media="download" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
     installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
     installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
     installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
@@ -7795,8 +7965,34 @@ load_dxvk()
     _W_dxvk_version="$(w_get_github_latest_release doitsujin dxvk)"
     _W_dxvk_version="${_W_dxvk_version#v}"
     w_linkcheck_ignore=1 w_download "https://github.com/doitsujin/dxvk/releases/download/v${_W_dxvk_version}/dxvk-${_W_dxvk_version}.tar.gz"
-    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "4.20" "1.1.113" "dxgi,d3d10,d3d11"
+    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
     unset _W_dxvk_version
+}
+
+#----------------------------------------------------------------
+
+w_metadata dxvk_master dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (master)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk_master.zip" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk_master()
+{
+    # https://git.froggi.es/joshua/d9vk
+    # FIXME: Delete cached file, when verb is forced. Gitlab artifacts do not supply any version/commit hash information.
+    if test "$WINETRICKS_FORCE" = 1 && test -f "${W_CACHE}/${W_PACKAGE}/${file1}"; then
+        w_try rm -f "${W_CACHE}/${W_PACKAGE}/${file1}"
+    fi
+    w_linkcheck_ignore=1 w_download_to "${W_CACHE}/${W_PACKAGE}" "https://git.froggi.es/joshua/d9vk/-/jobs/artifacts/master/download?job=dxvk" "" "dxvk_master.zip"
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
 }
 
 #----------------------------------------------------------------
@@ -8522,6 +8718,12 @@ load_dotnet30sp1()
 {
     # I can't find a 64-bit installer anywhere
     w_package_unsupported_win64
+
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=47436" 4.8 4.15
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=48277" 4.16 4.21
+
+    # And a third way, but only with mingw enabled in wine-4.12.1 through wine-4.14
+    w_package_broken_mingw  "https://bugs.winehq.org/show_bug.cgi?id=47484" 4.12.1 4.14
 
     # FIXME: URL?
     w_download https://download.microsoft.com/download/8/F/E/8FEEE89D-9E4F-4BA3-993E-0FFEA8E21E1B/NetFx30SP1_x86.exe 3100df4d4db3965ead9520c887a534115cf6fc7ba100abde45226958b865695b
@@ -11914,7 +12116,7 @@ w_metadata vcrun2015 dlls \
     publisher="Microsoft" \
     year="2015" \
     media="download" \
-    conflicts="vcrun2017" \
+    conflicts="vcrun2017 vcrun2019" \
     file1="vc_redist.x86.exe" \
     installed_file1="$W_SYSTEM32_DLLS_WIN/mfc140.dll"
 
@@ -11977,6 +12179,7 @@ w_metadata vcrun2017 dlls \
     publisher="Microsoft" \
     year="2017" \
     media="download" \
+    conflicts="vcrun2015 vcrun2019" \
     file1="vc_redist.x86.exe" \
     installed_file1="$W_SYSTEM32_DLLS_WIN/mfc140.dll"
 
@@ -12033,6 +12236,38 @@ load_vcrun2017()
             else
                 w_try "$WINE" vc_redist.x64.exe $W_UNATTENDED_SLASH_Q
             fi
+            ;;
+    esac
+}
+
+#----------------------------------------------------------------
+
+w_metadata vcrun2019 dlls \
+    title="Visual C++ 2015-2019 libraries (concrt140.dll,mfc140.dll,mfc140u.dll,mfcm140.dll,mfcm140u.dll,msvcp140.dll,vcamp140.dll,vccorlib140.dll,vcomp140.dll,vcruntime140.dll)" \
+    publisher="Microsoft" \
+    year="2019" \
+    media="download" \
+    conflicts="vcrun2015 vcrun2017" \
+    file1="vc_redist.x86.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc140.dll"
+
+load_vcrun2019()
+{
+    # https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+    # 2019/12/26: e59ae3e886bd4571a811fe31a47959ae5c40d87c583f786816c60440252cd7ec
+    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe e59ae3e886bd4571a811fe31a47959ae5c40d87c583f786816c60440252cd7ec
+
+    w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcr140 ucrtbase vcomp140 vcruntime140
+
+    w_try_cd "$W_CACHE"/"$W_PACKAGE"
+    w_try "$WINE" vc_redist.x86.exe $W_UNATTENDED_SLASH_Q
+
+    case "$W_ARCH" in
+        win64)
+            # Also install the 64-bit version
+            # 2019/12/26: 40ea2955391c9eae3e35619c4c24b5aaf3d17aeaa6d09424ee9672aa9372aeed
+            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe 40ea2955391c9eae3e35619c4c24b5aaf3d17aeaa6d09424ee9672aa9372aeed
+            w_try "$WINE" vc_redist.x64.exe $W_UNATTENDED_SLASH_Q
             ;;
     esac
 }
@@ -15764,7 +15999,9 @@ load_wmp10()
 
     # Crashes on exit, but otherwise ok; see https://bugs.winehq.org/show_bug.cgi?id=12633
     w_try_cd "$W_CACHE/$W_PACKAGE"
-    w_try "$WINE" MP10Setup.exe $W_UNATTENDED_SLASH_Q
+    w_try cabextract -d "$W_TMP" ./MP10Setup.exe
+    w_try_cd "$W_TMP"
+    "$WINE" setup_wm.exe $W_UNATTENDED_SLASH_CAP_QUIET
 
     # Disable WMP's services, since they depend on unimplemented stuff, they trigger the GUI debugger several times
     w_try_regedit /D "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Cdr4_2K"
@@ -21952,6 +22189,7 @@ execute_command()
         comdlg32.ocx) w_warn "Calling comdlg32.ocx is deprecated, please use comdlg32ocx instead" ; w_call comdlg32ocx ;;
         dotnet1) w_warn "Calling dotnet1 is deprecated, please use dotnet11 instead" ; w_call dotnet11 ;;
         dotnet2) w_warn "Calling dotnet2 is deprecated, please use dotnet20 instead" ; w_call dotnet20 ;;
+        d9vk_master) w_warn "Calling d9vk_master is deprecated, please use dxvk_master instead" ; w_call dxvk_master ;;
         dxvk54) w_warn "Calling dxvk54 is deprecated, please use dxvk054 instead" ; w_call dxvk054 ;;
         dxvk60) w_warn "Calling dxvk60 is deprecated, please use dxvk060 instead" ; w_call dxvk060 ;;
         dxvk61) w_warn "Calling dxvk61 is deprecated, please use dxvk061 instead" ; w_call dxvk061 ;;

@@ -168,7 +168,7 @@ lib64ksba8-
 lib64lazy1-
 lib64ldap2.4_2-
 lib64ldetect0.12-
-lib64lm_sensors4-
+lib64lm_sensors5-
 lib64lockdev1-
 lib64logging-stdlog0-
 lib64ltdl7-
@@ -567,3 +567,7 @@ lib64nftnl11-
 dbview-
 lib64idn2_0-
 pigz-
+lib64crypto_libressl46-
+lib64ssl_libressl48-
+terminus-font-
+lib64openssl-gost-engine1.0.0-
