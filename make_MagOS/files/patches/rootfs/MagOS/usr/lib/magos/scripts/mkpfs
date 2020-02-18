@@ -1,6 +1,6 @@
 #!/bin/sh
 #PFS module creator 
-#VERSION 4.1
+#VERSION 4.2
 
 if [ -f $(dirname $0)/pfs ] ;  then
     . $(dirname $0)/pfs
@@ -50,13 +50,14 @@ echo "$0 * -o ./big.$EXT		-collect all dirs and squashfs modules from current di
 echo
 echo "Параметры (ключи):"
 echo "	-o / --out-file - указывает название выходного файла (если указать без расширения .$EXT на выходе будет каталог)."
-echo "  -w - не удалять тени AUFS (только совместно с ключем -l)"
+echo "  -w - сохранить тени AUFS"
 echo "  -l / --local - сборка на месте, без использования aufs."
 echo "  -f / --fast - быстрая компрессия (размер .$EXT больше, но создается быстрее)."
 echo "  --mkilst  add files list to simple (non contaner) module"
 echo "  --save-duplicates  при сборке контейнеров сохранять одноименные файлы из разных источников если они отличаются, "
 echo "                     при распаковке файлы будут возвращены на место"
 echo "  --mksqfs / параметры для mksquashfs, компрессия размер блока и проч.(Внимание параметр должен быть последним)"
+
 echo "Алиасы (сокращения):"
 echo " -d | -D - Только каталоги"
 echo "	$(basename $0) -d dir ---> $(basename $0)" '$(find dir -maxdepth 1 -mindepth 1 -type d ) -o dir.$EXT'
@@ -122,9 +123,10 @@ fi
 #1 dir, in place mode
 if [ -d $sourcelist 2>/dev/null -a "$inplace" = "yes" ] ;then
 	eval echo "==== In place mode ====" $devnull
-    [ "$wh" ] ||  eval  echo "=== save aufs shadows \(.wh*\) ===" $devnull
+    [ "$wh" ] ||  eval  echo "=== save aufs whiteout \(.wh*\) ===" $devnull
     [ ! "$(ls -a $sourcelist)" ] && exitmsg "directory '$sourcelist' empty" 1
     [ $make_list ] && mklist $sourcelist $sourcelist ${userout%.$EXT} 
+    [ $TRIM ] && trim $sourcelist
     if echo ${userout} | grep -q "^.*\.$EXT$" ; then 
 		mksqmod $sourcelist "${userout}" && exit 0 
 		exitmsg "mkpfs error" 2
@@ -166,18 +168,25 @@ else
   bundles=$(find $(echo $n |sed 's:aufs:bundles:') -maxdepth 1 -mindepth 1 -type d )
   #mklist for modules, submodule name is basename source with no prefix
   for i in $bundles ;do
-	name="$(basename "${i%.$EXT}")" 
-	mklist "$i" "$n" "$name"
-	for submod in $(ls -1 ${i}${PFSDIR}/mount/ 2>/dev/null); do
-		rm -rf ${n}${PFSDIR}/mount/$submod
-	done
+	  name="$(basename "${i%.$EXT}")" 
+	  mklist "$i" "$n" "$name"
+	  for submod in $(ls -1 ${i}${PFSDIR}/mount/ 2>/dev/null); do
+		  rm -rf ${n}${PFSDIR}/mount/$submod
+	  done
   done
-######################
 [ $save_dups ] && save_duplicates
-######################
 fi
 
 [ $TRIM ] && trim $n
+if [ $WH ] ; then
+	echo ".wh..*" > /tmp/mkpfs_excludes
+	find $n |sed "s:$n/:/:" > /tmp/allfiles-wh
+	mount -t aufs -o remount,shwh $n
+	for line in $(find $n  |sed -re 's:/.wh.|/.wh..wh.:/:' -e "s:$n/:/:"  |sort |uniq -d) ; do
+		grep $line /tmp/allfiles-wh |sed -re 's:^(.*/)(.*$):\1.wh.\*\2:' -e 's:^/::' >> /tmp/mkpfs_excludes
+	done
+	rm /tmp/allfiles-wh
+fi
 
 if echo ${userout} | grep -q "^.*\.$EXT$" ; then 
 	mksqmod "${n}" "${userout}" noexit
@@ -191,6 +200,7 @@ else
 	mkdir -p "$(dirname ${userout})"
 	cp -fax "${n}" "${userout}"
 fi
+rm -rf $SYSMNT/lost_wh$N 2>/dev/null
 exitmsg "mksqmod error" $?  noexit
 delaufs "$nn"
 exitmsg "delaufs error" $?

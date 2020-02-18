@@ -1,7 +1,9 @@
 #!/bin/bash
-# Description: create pfs module from changes in chroot
-# Author : Alexandr Betkher (betcher) <http://magos-linux.ru>
+#Description: create pfs module from changes in chroot
+#Author : Alexandr Betkher (betcher) <http://magos-linux.ru>
+#VERSION 4.2
 #190807 sfs 
+
 
 if [ -f $(dirname $0)/pfs ] ;  then
     . $(dirname $0)/pfs
