@@ -2554,6 +2554,13 @@ _EOF_
             "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
             ;;
         win2k8)
+            csdversion="Service Pack 2"
+            currentbuildnumber="6002"
+            currentversion="6.0"
+            csdversion_hex=dword:00000200
+            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
+            ;;
+        win2k8r2)
             csdversion="Service Pack 1"
             currentbuildnumber="7601"
             currentversion="6.1"
@@ -7944,6 +7951,65 @@ load_dxvk151()
     helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
 }
 
+w_metadata dxvk152 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.5.2)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.5.2.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk152()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.5.2/dxvk-1.5.2.tar.gz" 684ba886b5ed922c2417753d8178f923c695258c69cc8f778bb59b99bbf62477
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
+}
+
+w_metadata dxvk153 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.5.3)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.5.3.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk153()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.5.3/dxvk-1.5.3.tar.gz" b845c9c492e32648dee44d058c189eff8534e5490a80a3b2a921248bc72e33bd
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
+}
+
+w_metadata dxvk154 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.5.4)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.5.4.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk154()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.5.4/dxvk-1.5.4.tar.gz" 8e4fd15525def9bcaa9cc1b4496f76a2664ba4806b02a5ac0eddd703d7bbdea7
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
+}
 
 #----------------------------------------------------------------
 
@@ -8254,6 +8320,8 @@ load_dotnet11()
         WINEDLLOVERRIDES="regsvcs.exe=b" w_try "$WINE" dotnetfx.exe
     fi
 
+    w_override_dlls native mscorwks
+
     W_NGEN_CMD="w_try $WINE $W_DRIVE_C/windows/Microsoft.NET/Framework/v1.1.4322/ngen.exe executequeueditems"
 }
 
@@ -8308,6 +8376,8 @@ load_dotnet11sp1()
     else
         WINEDLLOVERRIDES="regsvcs.exe=b" w_try "$WINE" "$W_CACHE"/dotnet11sp1/NDP1.1sp1-KB867460-X86.exe
     fi
+
+    w_override_dlls native mscorwks
 
     W_NGEN_CMD="w_try $WINE $W_DRIVE_C/windows/Microsoft.NET/Framework/v1.1.4322/ngen.exe executequeueditems"
 }
@@ -8394,6 +8464,8 @@ load_dotnet20()
         w_try_cd "$W_CACHE"/"$W_PACKAGE"
         w_try "$WINE" NetFx64.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
     fi
+
+    w_override_dlls native mscorwks
 
     W_NGEN_CMD="w_try $WINE $W_DRIVE_C/windows/Microsoft.NET/Framework/v2.0.50727/ngen.exe executequeueditems"
 }
@@ -8543,6 +8615,8 @@ load_dotnet20sp1()
 
     W_NGEN_CMD="w_try $WINE $W_DRIVE_C/windows/Microsoft.NET/Framework/v2.0.50727/ngen.exe executequeueditems"
 
+    w_override_dlls native mscorwks
+
     # Installs the same file(name)s as dotnet35sp1, let users install dotnet35sp1 after dotnet20sp1
     w_try touch "${W_WINDIR_UNIX}/dotnet20sp1.installed.workaround"
 }
@@ -8613,6 +8687,7 @@ load_dotnet20sp2()
     fi
 
     w_set_winver 'default'
+    w_override_dlls native mscorwks
 
     W_NGEN_CMD="w_try $WINE $W_DRIVE_C/windows/Microsoft.NET/Framework/v2.0.50727/ngen.exe executequeueditems"
 }
@@ -8694,6 +8769,8 @@ load_dotnet30()
     w_warn "Installing .NET 3.0 runtime silently, as otherwise it gets hidden behind taskbar. Installation usually takes about 3 minutes."
     w_try "$WINE" "$file1" /q /c:"install.exe /q"
 
+    w_override_dlls native mscorwks
+
     # Doesn't install any ngen.exe
     # W_NGEN_CMD=""
 }
@@ -8760,6 +8837,7 @@ load_dotnet30sp1()
         *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
     esac
 
+    w_override_dlls native mscorwks
     w_set_winver 'default'
 
     # Doesn't install any ngen.exe
@@ -8802,7 +8880,7 @@ load_dotnet35()
 
     w_set_winver winxp
 
-    w_override_dlls native mscoree
+    w_override_dlls native mscoree mscorwks
     w_wineserver -w
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
@@ -8922,6 +9000,40 @@ load_dotnet40()
 }
 
 verify_dotnet40()
+{
+    w_dotnet_verify dotnet40
+}
+
+#----------------------------------------------------------------
+
+w_metadata dotnet40_kb2468871 dlls \
+    title="MS .NET 4.0 KB2468871" \
+    publisher="Microsoft" \
+    year="2011" \
+    media="download" \
+    conflicts="dotnet20sdk" \
+    file1="NDP40-KB2468871-v2-x86.exe"
+
+load_dotnet40_kb2468871()
+{
+    w_call dotnet40
+
+    # Install KB2468871:
+    if [ "$W_ARCH" = "win32" ]; then
+        w_download https://download.microsoft.com/download/2/B/F/2BF4D7D1-E781-4EE0-9E4F-FDD44A2F8934/NDP40-KB2468871-v2-x86.exe 8822672fc864544e0766c80b635973bd9459d719b1af75f51483ff36cfb26f03
+        w_try_7z "$W_TMP" "${W_CACHE}/${W_PACKAGE}/NDP40-KB2468871-v2-x86.exe" NDP40-KB2468871.msp
+    elif [ "$W_ARCH" = "win64" ]; then
+        w_download https://download.microsoft.com/download/2/B/F/2BF4D7D1-E781-4EE0-9E4F-FDD44A2F8934/NDP40-KB2468871-v2-x64.exe b1b53c3953377b111fe394dd57592d342cfc8a3261a5575253b211c1c2e48ff8
+        w_try_7z "$W_TMP" "${W_CACHE}/${W_PACKAGE}/NDP40-KB2468871-v2-x64.exe" NDP40-KB2468871.msp
+    fi
+
+    w_try_cd "$W_TMP"
+    w_try "$WINE" msiexec /p NDP40-KB2468871.msp
+
+    w_set_winver 'default'
+}
+
+verify_dotnet40_kb2468871()
 {
     w_dotnet_verify dotnet40
 }
@@ -14259,6 +14371,7 @@ w_metadata ie6 dlls \
     publisher="Microsoft" \
     year="2002" \
     media="download" \
+    conflicts="ie7 ie8" \
     file1="ie60.exe" \
     installed_file1="c:/Program Files/Internet Explorer/iedetect.dll"
 
@@ -14349,6 +14462,7 @@ w_metadata ie7 dlls \
     publisher="Microsoft" \
     year="2008" \
     media="download" \
+    conflicts="ie6 ie8" \
     file1="IE7-WindowsXP-x86-enu.exe" \
     installed_file1="c:/windows/ie7.log"
 
@@ -14460,6 +14574,7 @@ w_metadata ie8 dlls \
     publisher="Microsoft" \
     year="2009" \
     media="download" \
+    conflicts="ie6 ie7" \
     file1="IE8-WindowsXP-x86-ENU.exe" \
     installed_file1="c:/windows/ie8_main.log"
 
@@ -16881,6 +16996,49 @@ load_bfbc2()
         # shellcheck disable=SC2016
         w_warn 'If the game says "No CD/DVD error", try "sudo mount -o remount,unhide,uid=$(uid -u)".  See https://bugs.winehq.org/show_bug.cgi?id=22961 for more info.'
     fi
+}
+
+#----------------------------------------------------------------
+
+w_metadata cnc3_demo games \
+    title="Command & Conquer 3 Demo" \
+    publisher="EA" \
+    year="2007" \
+    media="download" \
+    file1="CnC3Demo.exe" \
+    installed_exe1="$W_PROGRAMS_X86_WIN/Electronic Arts/Command & Conquer 3 Tiberium Wars Demo/CNC3Demo.exe"
+
+load_cnc3_demo()
+{
+    w_download "https://files.cncnz.com/cc3_tiberium_wars/demo/CnC3Demo.exe" 1e2499f441ef1fc3cbe447ac16361ad4247a02b9b8ec05f504161e7b5b1254e5
+
+    w_try_cd "$W_CACHE/$W_PACKAGE"
+    w_ahk_do "
+        SetTitleMatchMode, 2
+        run, CnC3Demo.exe
+        winwait, Conquer 3, free space to install
+        if ( w_opt_unattended > 0 ) {
+            controlclick, button1
+            winwait, WinZip, After installation
+            controlclick, button1
+            winwait, Conquer 3, InstallShield
+            controlclick, button1
+            winwait, Conquer 3, license
+            controlclick, button3
+            controlclick, button5
+            winwait, Conquer 3, setup type
+            controlclick, button5
+            winwait, Conquer 3, EA Link
+            controlclick, button1
+            winwait, Conquer 3, GameSpy
+            controlclick, button1
+        }
+        winwait, Conquer 3, Launch the program
+        if ( w_opt_unattended > 0 )
+            controlclick, button1
+
+        winwaitclose, Conquer 3, Launch the program
+    "
 }
 
 #----------------------------------------------------------------
@@ -20959,6 +21117,40 @@ _EOF_
 }
 
 #----------------------------------------------------------------
+
+w_metadata mackeyremap=both settings \
+    title="Enable mapping opt->alt and cmd->ctrl keys for the Mac native driver"
+w_metadata mackeyremap=left settings \
+    title="Enable mapping of left opt->alt and cmd->ctrl keys for the Mac native driver"
+w_metadata mackeyremap=none settings \
+    title="Do not remap keys for the Mac native driver (default)"
+
+load_mackeyremap()
+{
+    case "$1" in
+        both|y) arg=both; _W_arg_l=y; _W_arg_r=y ;;
+        left)   arg=left; _W_arg_l=y; _W_arg_r=n ;;
+        none|n) arg=none; _W_arg_l=n; _W_arg_r=n ;;
+        *) w_die "illegal value $1 for MacKeyRemap";;
+    esac
+
+    echo "Setting MacKeyRemap to $arg"
+    cat > "$W_TMP"/set-mackeyremap.reg <<_EOF_
+REGEDIT4
+
+[HKEY_CURRENT_USER\\Software\\Wine\\Mac Driver]
+"LeftCommandIsCtrl"="$_W_arg_l"
+"LeftOptionIsAlt"="$_W_arg_l"
+"RightCommandIsCtrl"="$_W_arg_r"
+"RightOptionIsAlt"="$_W_arg_r"
+
+_EOF_
+    w_try_regedit "$W_TMP"/set-mackeyremap.reg
+
+    unset _W_arg_l _W_arg_r
+}
+
+#----------------------------------------------------------------
 # X11 Driver settings
 
 w_metadata grabfullscreen=y settings \
@@ -21835,16 +22027,26 @@ load_win2k3()
     w_set_winver win2k3
 }
 
-
 #----------------------------------------------------------------
 
 w_metadata win2k8 settings \
-    title_uk="Встановити версію Windows 2008 R2" \
-    title="Set Windows version to Windows 2008 R2"
+    title_uk="Встановити версію Windows 2008" \
+    title="Set Windows version to Windows 2008"
 
 load_win2k8()
 {
     w_set_winver win2k8
+}
+
+#----------------------------------------------------------------
+
+w_metadata win2k8r2 settings \
+    title_uk="Встановити версію Windows 2008 R2" \
+    title="Set Windows version to Windows 2008 R2"
+
+load_win2k8r2()
+{
+    w_set_winver win2k8r2
 }
 
 #----------------------------------------------------------------
@@ -22037,38 +22239,39 @@ winetricks_stats_report()
         *) return;;
     esac
 
-    test -f "$WINETRICKS_WORKDIR"/breadcrumbs || return
+    BREADCRUMBS_FILE="$WINETRICKS_WORKDIR"/breadcrumbs
+    if test -f "$BREADCRUMBS_FILE"; then
+        WINETRICKS_STATS_BREADCRUMBS=$(tr '\012' ' ' < "$BREADCRUMBS_FILE")
+        echo "You opted in, so reporting '$WINETRICKS_STATS_BREADCRUMBS' to the winetricks maintainer so he knows which winetricks verbs get used and which don't.  Use --optout to disable future reports."
 
-    WINETRICKS_STATS_BREADCRUMBS=$(tr '\012' ' ' < "$WINETRICKS_WORKDIR"/breadcrumbs)
-    echo "You opted in, so reporting '$WINETRICKS_STATS_BREADCRUMBS' to the winetricks maintainer so he knows which winetricks verbs get used and which don't.  Use --optout to disable future reports."
+        report="os=$(winetricks_os_description)&winetricks=$WINETRICKS_VERSION&breadcrumbs=$WINETRICKS_STATS_BREADCRUMBS"
+        report="$(echo "$report" | sed 's/ /%20/g')"
 
-    report="os=$(winetricks_os_description)&winetricks=$WINETRICKS_VERSION&breadcrumbs=$WINETRICKS_STATS_BREADCRUMBS"
-    report="$(echo "$report" | sed 's/ /%20/g')"
+        # Just do a HEAD request with the raw command line.
+        # Yes, this can be fooled by caches.  That's ok.
 
-    # Just do a HEAD request with the raw command line.
-    # Yes, this can be fooled by caches.  That's ok.
-
-    # Note: these downloads are expected to fail (the resource won't exist), so don't use w_try and use '|| true' to ignore the expected errors
-    if [ "${WINETRICKS_DOWNLOADER}" = "wget" ] ; then
-        $torify wget --timeout "${WINETRICKS_DOWNLOADER_TIMEOUT}" \
-            --tries "$WINETRICKS_DOWNLOADER_RETRIES" \
-            --spider "http://kegel.com/data/winetricks-usage?$report" > /dev/null 2>&1 || true
-    elif [ "${WINETRICKS_DOWNLOADER}" = "curl" ] ; then
-        $torify curl --connect-timeout "${WINETRICKS_DOWNLOADER_TIMEOUT}" \
-           --retry "$WINETRICKS_DOWNLOADER_RETRIES" \
-           -I "http://kegel.com/data/winetricks-usage?$report" > /dev/null 2>&1 || true
-    elif [ "${WINETRICKS_DOWNLOADER}" = "aria2c" ] ; then
-        $torify aria2c $aria2c_torify_opts \
-                $aria2c_torify_opts \
-                --connect-timeout="${WINETRICKS_DOWNLOADER_TIMEOUT}" \
-                --daemon=false \
-                --enable-rpc=false \
-                --input-file='' \
-                --max-tries="$WINETRICKS_DOWNLOADER_RETRIES" \
-                --save-session='' \
-                "http://kegel.com/data/winetricks-usage?$report" > /dev/null 2>&1 || true
-    else
-        w_die "Here be dragons"
+        # Note: these downloads are expected to fail (the resource won't exist), so don't use w_try and use '|| true' to ignore the expected errors
+        if [ "${WINETRICKS_DOWNLOADER}" = "wget" ] ; then
+            $torify wget --timeout "${WINETRICKS_DOWNLOADER_TIMEOUT}" \
+                --tries "$WINETRICKS_DOWNLOADER_RETRIES" \
+                --spider "http://kegel.com/data/winetricks-usage?$report" > /dev/null 2>&1 || true
+        elif [ "${WINETRICKS_DOWNLOADER}" = "curl" ] ; then
+            $torify curl --connect-timeout "${WINETRICKS_DOWNLOADER_TIMEOUT}" \
+            --retry "$WINETRICKS_DOWNLOADER_RETRIES" \
+            -I "http://kegel.com/data/winetricks-usage?$report" > /dev/null 2>&1 || true
+        elif [ "${WINETRICKS_DOWNLOADER}" = "aria2c" ] ; then
+            $torify aria2c $aria2c_torify_opts \
+                    $aria2c_torify_opts \
+                    --connect-timeout="${WINETRICKS_DOWNLOADER_TIMEOUT}" \
+                    --daemon=false \
+                    --enable-rpc=false \
+                    --input-file='' \
+                    --max-tries="$WINETRICKS_DOWNLOADER_RETRIES" \
+                    --save-session='' \
+                    "http://kegel.com/data/winetricks-usage?$report" > /dev/null 2>&1 || true
+        else
+            w_die "Here be dragons"
+        fi
     fi
 }
 

@@ -218,12 +218,12 @@ fi
 
 echo -e \\n"Обновление кеша"
 if [ "$ONLINE" == "yes" ] ;then
-   rm -fr cache/$FLASHNAME-$VERREL/{media,pubkeys,urpmi}
+   rm -fr cache/$FLASHNAME-$VERREL/{media,urpmi}
    cp -r -t cache/$FLASHNAME-$VERREL  $TMPDIR/media $TMPDIR/pubkeys $TMPDIR/urpmi
 fi
 rm -fr cache/$FLASHNAME-$VERREL/{modules,urls,rpminfo,rpms} cache/$FLASHNAME-$VERREL/*.txt
 cp -r -t cache/$FLASHNAME-$VERREL $TMPDIR/modules $TMPDIR/urls $TMPDIR/rpminfo $TMPDIR/rpms $TMPDIR/*.txt
-#rm- fr $TMPDIR
+rm -fr $TMPDIR
 
 echo "Работа скрипта завершена."
 
