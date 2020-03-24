@@ -1,22 +1,14 @@
 #!/bin/bash
 # Это файл с параметрами для скриптов
-#FIXME надо переделать через basename
-MYPATH="`pwd`"
 
 FLASHNAME=MagOS
+VERREL=2014.64
+
+RE4NAME="-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*.rpm"
+HIDEBININSTALL="mkinitrd dracut dracut-install grub grub-install grub2-install grub2-mkimage grub2-reboot update-grub2 mkinitrd-mkinitrd mkinitrd-dracut"
 
 # Размер в Мб для данных и изменений системы для каждого профиля
 DATASIZE1=756
-
-#STATUS=devel
-STATUS=official
-VERREL=2014.64
-ARCH=x86_64
-
-# приоритет источников
-MEDIA_DEFAULT="\
-restricted-updates main-updates contrib-updates nonfree-updates \
-restricted-release main-release contrib-release nonfree-release"
 
 # ключи для команды mksquashfs при создании модулей
 MKSQOPT="-b 512K -comp xz -Xbcj x86"

@@ -3,11 +3,14 @@
 [ -x /bin/rpm ] || exit 0
 
 chmod 444 /var/lib/rpm/modules/*
-sed -i /^\\//d /etc/urpmi/skip.list
-echo -e "/kernel/"\\n"/nvidia/"\\n"/^timezone/" >> /etc/urpmi/skip.list
+
+if [ -d /etc/urpmi ] ;then
+  sed -i /^\\//d /etc/urpmi/skip.list
+  echo -e "/kernel/"\\n"/nvidia/"\\n"/^timezone/" >> /etc/urpmi/skip.list
+fi
 
 # tmpfs tweak will increase rpm speed in several times
-mkdir /var/lib/rpmbase
+mkdir -p /var/lib/rpmbase
 mv /var/lib/rpm/* /var/lib/rpmbase
 mount -n -t tmpfs tmpfs /var/lib/rpm
 mv /var/lib/rpmbase/* /var/lib/rpm
@@ -22,7 +25,9 @@ done
 
 rm -fr 2>/dev/null /var/lib/rpm/files-awaiting-filetriggers rpmsoutofbase /var/lib/rpm/__db* /var/lib/rpm/pubkeys
 
+mkdir -p /var/lib/rpmbase
 mv /var/lib/rpm/* /var/lib/rpmbase
 umount -n /var/lib/rpm
 mv /var/lib/rpmbase/* /var/lib/rpm && rmdir /var/lib/rpmbase
+
 exit 0

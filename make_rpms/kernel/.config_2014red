@@ -1,0 +1,4 @@
+KERNELURL=http://mirror.rosalinux.com/rosa/rosa2016.1/repository/SRPMS/main/updates/kernel-4.9.155-1.src.rpm
+BUILDDEPS="perl-devel numa-devel libunwind-devel kmod-devel kmod-compat gcc bc audit-devel elfutils-devel zlib-devel binutils-devel newt-devel python-devel pciutils-devel flex bison gettext docbook-style-xsl perl libgtk+2.0-devel libbzip2-devel libslang-devel xmlto asciidoc libopenssl-devel"
+MAGOSREP=ftp://magos.sibsau.ru/rpms/2014red/
+DKMS="bbswitch broadcom-wl rtl8812au rtlwifi_new vboxadditions virtualbox nvidia304 nvidia-current"

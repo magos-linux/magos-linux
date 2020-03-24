@@ -3,6 +3,30 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
+date
+
+TMPDIR=/tmp/$(basename $0)
+MYPATH=$(readlink -f $0)
+MYPATH=$(dirname $MYPATH)
+ROOTFS="/tmp/make_magos_rootfs"
+
+function stop()
+{
+ echo -e $@
+ beep 2>/dev/null
+ date
+ exit 1
+}
+
+function umountbranches()
+{
+  while grep -q "$1" /proc/mounts ;do
+    grep "$1" /proc/mounts | awk '{print $2}' | sort -r | while read a ;do
+          echo "  umount $a" ; umount "$a" 2>/dev/null
+    done
+  done
+}
+
 #delete all strings from $1 files founded in $2
 function deletefiles()
 {
@@ -15,8 +39,8 @@ function deletefiles()
 #move string from $1 to $2 with expression $3
 function movefiles()
 {
-   grep "$3" "$1" > "$2".tmp
-   [ -f "$4" ] && grep -v -f "$4" "$2".tmp > "$2".tmp2
+   grep -a "$3" "$1" > "$2".tmp
+   [ -f "$4" ] && grep -a -v -f "$4" "$2".tmp > "$2".tmp2
    [ -f "$2".tmp2 ] &&  mv -f "$2".tmp2 "$2".tmp
    deletefiles "$1" "$2".tmp
    cat "$2" "$2".tmp 2> /dev/null | sort > "$2".sorted
@@ -35,131 +59,118 @@ function moveallfiles()
   mv -f "$1".tmp "$1"
 }
 
-if [ "`id -u`" != "0" ] ;then
-   echo "Для доступа ко всем файлам каталога rootfs нужны права root" ; exit 1
-fi
+cd "$MYPATH"
+[ "`id -u`" != "0" ] && stop "Please run script as root"
+[ -f .config ] &&  . .config || stop "Can't find .config"
+[ -z "$CACHE" ] && CACHE="cache/$FLASHNAME-$VERREL"
 
-if [ -f .config ] ;then
-  . .config
-else
-  echo "Не вижу файла .config" ;  exit 1
-fi
+echo -e "\nПодготовка папки"
+rm -fr "$TMPDIR" "flash/current"
+mkdir -p "$TMPDIR/"{tmp/module,modules/xzm,rootfs} "flash/current/modules"
+cp -pfr "files/locales/$FLASHNAME-$VERREL" "$TMPDIR/locales"
+cp -rf -t "$TMPDIR" "$CACHE/modules" "$CACHE/"*.content "files/packages/$FLASHNAME-$VERREL/"modules*
+cp "$TMPDIR/system.content" "$TMPDIR/tmp/content"
+cp "$TMPDIR/magos.content"  "$TMPDIR/modules/xzm/88-magos"
 
-echo "Подготовка"
-TMPDIR=/tmp/make_$FLASHNAME-$VERREL
-rm -fr $TMPDIR cache/$FLASHNAME-$VERREL/modules/{files,xzm}
-mkdir -p $TMPDIR/tmp cache/$FLASHNAME-$VERREL/modules/{files,xzm}
-cd cache/$FLASHNAME-$VERREL
-cp -rf -t $TMPDIR modules *.content
-cp $TMPDIR/system.content $TMPDIR/tmp/content
-cp $TMPDIR/magos.content  $TMPDIR/modules/files/88-magos
-cp "$MYPATH/files/locales/$FLASHNAME-$VERREL/locales" $TMPDIR/locales
-
-echo "Обработка исключений"
-movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/10-core "^dev/"
-movefiles $TMPDIR/tmp/content $TMPDIR/tmp/deleted '^boot/vmlinuz'
-movefiles $TMPDIR/tmp/content $TMPDIR/tmp/deleted '^boot/initrd'
-deletefiles $TMPDIR/tmp/content $TMPDIR/modules/files/88-magos
-cat "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international.locales" | while read i ;do
-   echo $i | grep -q . && movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/international "$i" $TMPDIR/locales
+echo -e "\nОбработка исключений"
+deletefiles "$TMPDIR/tmp/content" "$TMPDIR/modules/xzm/88-magos"
+cat "$TMPDIR/modules.inc/international.locales" | while read i ;do
+  echo $i | grep -q . && movefiles "$TMPDIR/tmp/content" "$TMPDIR/modules/xzm/international" "$i" "$TMPDIR/locales/locales"
 done
-for a in "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/international" "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.inc/"??-* ;do
-   MOD=$(basename $a)
-   echo $MOD
-   cat "$a" | while read i ;do
-      echo $i | grep -q . && movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/$MOD "$i"
-   done
-   cat "$MYPATH/files/rpm_names/$FLASHNAME-$VERREL/modules.exc/$MOD" 2> /dev/null | while read i ;do
-      echo $i | grep -q . && movefiles $TMPDIR/modules/files/$MOD $TMPDIR/tmp/content "$i"
-   done
-done
-
-echo "Вынесение языковых файлов во внешние модули"
-for a in "$MYPATH/files/locales/$FLASHNAME-$VERREL/"*-int-* ;do
-  LOCALES=$(cat $a)
-  echo $(basename $a) $LOCALES
-  for l in $LOCALES ;do
-    movefiles $TMPDIR/modules/files/international $TMPDIR/modules/files/$(basename $a) "[-._/]$l[-._@/]"
+for a in "$TMPDIR/modules.inc/delete" "$TMPDIR/modules.inc/international" "$TMPDIR/modules.inc/"??-* ;do
+  MOD=$(basename $a)
+  echo "  $MOD"
+  cat "$a" | while read i ;do
+    echo $i | grep -q . && movefiles "$TMPDIR/tmp/content" "$TMPDIR/modules/xzm/$MOD" "$i"
+  done
+  cat "$TMPDIR/modules.exc/$MOD" 2>/dev/null | while read i ;do
+    echo $i | grep -q . && movefiles "$TMPDIR/modules/xzm/$MOD" "$TMPDIR/tmp/content" "$i"
   done
 done
-movefiles $TMPDIR/modules/files/international $TMPDIR/tmp/content '.'
-rm -f $TMPDIR/modules/files/international
+mv "$TMPDIR/modules/xzm/delete" "$TMPDIR/tmp/deleted"
 
-echo "Создание списков файлов для модулей"
-for a in $TMPDIR/modules/rpmfiles/??-* ;do
-  MOD=$(basename $a)
-  echo $MOD
-  moveallfiles $TMPDIR/tmp/content $TMPDIR/modules/files/$MOD $TMPDIR/modules/rpmfiles/$MOD
+echo -e "\nВынесение языковых файлов во внешние модули"
+for a in "$TMPDIR/locales/"*-int-* ;do
+  LOCALES=$(cat $a)
+  echo "  $(basename $a) $LOCALES"
+  for l in $LOCALES ;do
+    movefiles "$TMPDIR/modules/xzm/international" "$TMPDIR/modules/xzm/"$(basename $a) "[-._/]$l[-._@/]"
+  done
 done
-cp -p $TMPDIR/tmp/content $TMPDIR/nonmodules.content
-movefiles $TMPDIR/tmp/content $TMPDIR/modules/files/10-core '.'
-cp -pr -t modules $TMPDIR/modules/files
+movefiles "$TMPDIR/modules/xzm/international" "$TMPDIR/tmp/content" '.'
+rm -f "$TMPDIR/modules/xzm/international"
 
-echo "Проверка на неупакованные файлы"
-cat $TMPDIR/modules/files/* $TMPDIR/tmp/deleted | sort > $TMPDIR/tmp/splited.content
-diff -aup $TMPDIR/system.content $TMPDIR/tmp/splited.content || exit 1
-
-echo "Упаковка файлов в модули"
-CHANGES=changes
-ROOTFS=rootfs
-[ -f tmpchanges/.wh..wh.aufs ] && CHANGES=tmpchanges
-[ -f tmprootfs/sbin/init -o -h tmprootfs/sbin/init ] && ROOTFS=tmprootfs
-mount | grep -q " on $PWD/aufs type aufs " || mount -t aufs -o br:$CHANGES=rw:$ROOTFS=ro aufs aufs || exit 1
-for a in $TMPDIR/modules/files/??-* ;do
+echo -e "\nСоздание списков файлов для модулей"
+for a in "$TMPDIR/modules/files/"??-* ;do
   MOD=$(basename $a)
-  [ -f "$MYPATH/.test" ] && echo $MOD | grep ^..-int- && continue
-  echo $MOD
-  rm -fr $TMPDIR/tmp/module 2>/dev/null
-  mkdir -p $TMPDIR/tmp/module/var/lib/rpm/modules
-  tar -c --ignore-failed-read --no-recursion -C aufs -T $a 2>>$TMPDIR/split_errors.txt | tar -x -C $TMPDIR/tmp/module  || exit 1
-  [ -f aufs/var/lib/rpm/modules/$MOD ]        && cp -p    aufs/var/lib/rpm/modules/$MOD       $TMPDIR/tmp/module/var/lib/rpm/modules
-  [ -d "$MYPATH"/files/patches/modules/$MOD ] && cp -prf "$MYPATH"/files/patches/modules/$MOD/* $TMPDIR/tmp/module
-  mksquashfs $TMPDIR/tmp/module $TMPDIR/tmp/module.xzm $MKSQOPT >/dev/null 2>/dev/null || exit 1
-  mv $TMPDIR/tmp/module.xzm modules/xzm/$MOD.xzm
+  echo "  $MOD"
+  moveallfiles "$TMPDIR/tmp/content" "$TMPDIR/modules/xzm/$MOD" "$TMPDIR/modules/files/$MOD"
+done
+cp -p "$TMPDIR/tmp/content" "$TMPDIR/nonmodules.content"
+movefiles "$TMPDIR/tmp/content" "$TMPDIR/modules/xzm/10-core" '.'
+cat "$TMPDIR/modules/xzm/"* "$TMPDIR/tmp/deleted" | sort > "$TMPDIR/tmp/splited.content"
+diff -aup "$TMPDIR/system.content" "$TMPDIR/tmp/splited.content" > "$TMPDIR/nonsplited.content.diff" || stop "There is nonsplited content. Check $TMPDIR/nonsplited.content.diff"
+
+echo -e "\nУпаковка файлов в модули"
+[ -d "$ROOTFS/orig/usr/share/doc" ] || ROOTFS="$MYPATH/$CACHE/rootfs"
+[ -d "$ROOTFS/aufs/usr/share/doc" ] || mount -t aufs -o noatime,br:"$ROOTFS/changes"=rw:"$ROOTFS/orig"=ro aufs "$ROOTFS/aufs" || stop "Can't mount aufs"
+for a in "$TMPDIR/modules/xzm/"??-* ;do
+  MOD=$(basename $a)
+  echo "  $MOD"
+  rm -fr "$TMPDIR/tmp/module/"* 2>/dev/null
+  tar -c --ignore-failed-read --no-recursion -C "$ROOTFS/aufs" -T "$a" 2>>"$TMPDIR/split_errors.txt" | tar -x -C "$TMPDIR/tmp/module"  || stop "Can't split module $MOD"
+  [ -f "$ROOTFS/aufs/var/lib/rpm/modules/$MOD" ] && mkdir -p "$TMPDIR/tmp/module/var/lib/rpm/modules" && cp -p "$ROOTFS/aufs/var/lib/rpm/modules/$MOD" "$TMPDIR/tmp/module/var/lib/rpm/modules"
+  [ -d "$MYPATH"/files/patches/modules/$MOD ] && cp -prf "$MYPATH/files/patches/modules/$MOD/"* "$TMPDIR/tmp/module"
+  mksquashfs "$TMPDIR/tmp/module" "$TMPDIR/tmp/module.xzm" $MKSQOPT >/dev/null 2>/dev/null || stop "Can't create module $MOD"
+  mv "$TMPDIR/tmp/module.xzm" "$MYPATH/flash/current/modules/$MOD.xzm" || stop "Can't write module to $MYPATH/flash/current/modules/$MOD.xzm"
 done
 
-echo "Создание сборки"
-DISTRVERSION=$(cat VERSION | awk '{print $2}')
-DESTDIR="$MYPATH"/flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}
-[ -d "$DESTDIR" ] && rm -fr "$DESTDIR"
-mkdir -p "$DESTDIR"/$FLASHNAME/{base,modules,optional} \
-  "$DESTDIR"/$FLASHNAME-Data/{changes,homes,modules,optional,rootcopy,cache,steam,backgrounds/wallpapers/Default,backgrounds/screensaver/Default} \
-  "$DESTDIR"/$FLASHNAME-Data/machines/{static,dynamic} "$DESTDIR"/$FLASHNAME/machines/{static,dynamic} \
-  "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international || exit 1
-chmod 777 "$DESTDIR"/$FLASHNAME-Data/steam
-cp -pR "$MYPATH"/files/patches/flash/* "$DESTDIR" || exit 1
-[ -d "$MYPATH"/files/patches/flash.$VERREL ] && cp -pfR "$MYPATH"/files/patches/flash.$VERREL/* "$DESTDIR"
-cp -L aufs/boot/vmlinuz   "$DESTDIR"/$FLASHNAME || exit 1
-cp -L aufs/boot/initrd.gz "$DESTDIR"/$FLASHNAME || exit 1
-cp -L VERSION "$DESTDIR"/$FLASHNAME || exit 1
-mv -f modules/xzm/* "$DESTDIR/$FLASHNAME/base"
+echo -e "\nСоздание сборки"
+DISTRVERSION=$(cat "$CACHE/VERSION" | awk '{print $2}')
+DESTDIR="$MYPATH/flash/${FLASHNAME}_${VERREL}_${DISTRVERSION}"
+[ -d "$DESTDIR" ] && rm -fr "$DESTDIR" "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}"
+mkdir -p "$DESTDIR/$FLASHNAME/"{base,modules,optional} \
+  "$DESTDIR/$FLASHNAME-Data/"{changes,homes,modules,optional,rootcopy,cache,steam,backgrounds/wallpapers/Default,backgrounds/screensaver/Default} \
+  "$DESTDIR/$FLASHNAME-Data/machines/"{static,dynamic} "$DESTDIR/$FLASHNAME/machines/"{static,dynamic} \
+  "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international" || stop "Can't create folders in $MYPATH/flash"
+chmod 777 "$DESTDIR/$FLASHNAME-Data/steam"
+cp -pR "$MYPATH/files/patches/flash/"* "$DESTDIR" || stop "Can't write patches to $DESTDIR"
+[ -d "$MYPATH/files/patches/flash.$VERREL" ] && cp -pfR "$MYPATH/files/patches/flash.$VERREL/"* "$DESTDIR"
+cp -L "$ROOTFS/aufs/boot/vmlinuz"   "$DESTDIR/$FLASHNAME" || stop "Can't write kernel to $DESTDIR/$FLASHNAME"
+cp -L "$ROOTFS/aufs/boot/initrd.gz" "$DESTDIR/$FLASHNAME" || stop "Can't write initrd.gz to $DESTDIR/$FLASHNAME"
+cp -L "$MYPATH/$CACHE/VERSION"      "$DESTDIR/$FLASHNAME" || stop "Can't write VERSION to $DESTDIR/$FLASHNAME"
+mv -f "$MYPATH/flash/current/modules/"* "$DESTDIR/$FLASHNAME/base" || stop "Can't move modules to $DESTDIR/$FLASHNAME/base"
 chmod 444 "$DESTDIR/$FLASHNAME/base/"*
-mv "$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international
-mv "$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH"/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION} 2>/dev/null
+mv "$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international"
+mv "$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}" 2>/dev/null
 
-echo "Добавление графического материала"
-cd "$MYPATH/../graphics" || exit 1
-[ -f $MYPATH/.test ] || ./make_default_themes.sh
-cp -p wallpapers/Default/*  "$DESTDIR/$FLASHNAME-Data/backgrounds/wallpapers/Default"
-cp -p screensaver/Default/* "$DESTDIR/$FLASHNAME-Data/backgrounds/screensaver/Default"
+echo -e "\nДобавление графического материала"
+cd "$MYPATH/../graphics" || stop "Can't cd to ../graphics"
+./make_default_themes.sh
+mv "/tmp/magos_photos/wallpapers/Default/"*  "$DESTDIR/$FLASHNAME-Data/backgrounds/wallpapers/Default"
+mv "/tmp/magos_photos/screensaver/Default/"* "$DESTDIR/$FLASHNAME-Data/backgrounds/screensaver/Default"
 
-echo "Создание файлов для сохранения данных и архивов папок"
-cd $DESTDIR
-[ "$DATASIZE1" != "" ] && dd if=/dev/zero of=$FLASHNAME-Data/home.img bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j $FLASHNAME-Data/home.img >/dev/null 2>&1
-tar -jcf $FLASHNAME/$FLASHNAME-Data.tar.bz2 $FLASHNAME-Data
-tar -jcf $FLASHNAME/boot.tar.bz2 boot EFI
+echo -e "\nСоздание файлов для сохранения данных и архивов папок"
+cd "$DESTDIR"
+[ "$DATASIZE1" != "" ] && dd if=/dev/zero of="$FLASHNAME-Data/home.img" bs=1M count=$DATASIZE1 && mkfs.ext3 -F -j "$FLASHNAME-Data/home.img" >/dev/null 2>&1
+tar -jcf "$FLASHNAME/$FLASHNAME-Data.tar.bz2" "$FLASHNAME-Data"
+tar -jcf "$FLASHNAME/boot.tar.bz2" boot EFI
 
-echo "Вычисление контрольных сумм"
+echo -e "\nВычисление контрольных сумм"
 cd "$DESTDIR/$FLASHNAME"
 md5sum vmlinuz >MD5SUM
 [ -f initrd.gz ] && md5sum initrd.gz >>MD5SUM
 [ -f uird.magos.cpio.xz ] && md5sum uird.magos.cpio.xz >>MD5SUM
 md5sum base/*.xzm >>MD5SUM
 
-echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"
 cd "$MYPATH"
-if [ -f .auto ] ;then
-   wall "Сборка завершена"
-   [ -f .reboot ]   && reboot
-   [ -f .poweroff ] && poweroff
-fi
+echo "Работа скрипта завершена, в папке flash лежит готовая к установке система :-)"
+[ -f .auto ] &&  wall "Сборка завершена"
+[ -f .reboot ] && reboot
+[ -f .poweroff ] && poweroff
+
+#umountbranches "$ROOTFS"
+umountbranches "$TMPDIR"
+rm -fr "$MYPATH/flash/current" "$TMPDIR" 2>/dev/null
+beep
+date

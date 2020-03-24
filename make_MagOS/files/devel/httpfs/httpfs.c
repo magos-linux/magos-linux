@@ -21,7 +21,7 @@
 
 #define TIMEOUT 30
 #define BUFSIZE 1024*8
-#define BIGBUFSIZE 64*BUFSIZE
+#define BIGBUFSIZE 640*BUFSIZE
 #define RESP_STATUS_LEN 12 // sizeof "HTTP/1.1 200"
 #define VERSION "for MagOS Linux"
 
@@ -33,6 +33,7 @@
 static char *myself;
 static char *arg_url;
 static char *arg_mnt;
+static char arg_opt[BUFSIZE]="-ononempty,attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache,allow_other";
 FILE * fou;
 
 static char http_auth[BUFSIZE];
@@ -538,12 +539,10 @@ int main(int argc, char *argv[]) {
     int sr,ok;
     char* fusev[4];
 
-     
-
     myself = argv[0];
-    if (argc != 3) {
+    if (argc < 3 || argc > 4) {
 	fprintf(stderr, "HTTP Filesystem version %s\n", VERSION);
-	fprintf(stderr, "usage: %s url mount-point\n", myself);
+	fprintf(stderr, "usage: %s url mount-point [mount options]\n", myself);
 	return 1;
     }
     
@@ -572,11 +571,16 @@ int main(int argc, char *argv[]) {
 	return 1;
     }
 
+    if (argc == 4) {
+        strcpy(&arg_opt[strlen(arg_opt)],",");
+        strcpy(&arg_opt[strlen(arg_opt)],argv[3]);
+    }
+
     fusev[0] = myself;
     fusev[1] = "-s"; // disable multi threaded support (to make HTTP work)
-    fusev[2] = "-ononempty,attr_timeout=300,entry_timeout=300,negative_timeout=300,kernel_cache,allow_other";
+    fusev[2] = arg_opt;
     fusev[3] = arg_mnt;
-    return fuse_main(argc+1, fusev, &httpfs_oper);
+    return fuse_main(4, fusev, &httpfs_oper);
     /*    close(sockfd);	*/
 }
 

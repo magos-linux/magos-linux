@@ -1,0 +1,9 @@
+copy-jdk-configs
+java-1.8.0-openjdk
+java-1.8.0-openjdk-headless
+java-access-bridge
+jline
+jpackage-utils
+rhino
+rootcerts-java
+timezone-java

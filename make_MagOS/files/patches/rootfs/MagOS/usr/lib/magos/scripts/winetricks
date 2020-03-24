@@ -3027,13 +3027,16 @@ _EOF_
     unset W_file W_font
 }
 
+# Note: we use UTF-16 (little endian) in .reg file for native (non-English) font names.
 w_register_font_replacement()
 {
     _W_alias=$1
     shift
     _W_font=$1
+    # UTF-16 BOM (U+FEFF, "0xEF 0xBB 0xBF" in UTF-8)
+    printf "\357\273\277" | iconv -f UTF-8 -t UTF-16LE > "$W_TMP"/_register-font-replacements.reg
     # Kludge: use _r to avoid \r expansion in w_try
-    cat > "$W_TMP"/_register-font-replacements.reg <<_EOF_
+    iconv -f UTF-8 -t UTF-16LE >> "$W_TMP"/_register-font-replacements.reg <<_EOF_
 REGEDIT4
 
 [HKEY_CURRENT_USER\\Software\\Wine\\Fonts\\Replacements]
@@ -5486,6 +5489,7 @@ winetricks_handle_option()
         --verify) WINETRICKS_VERIFY=1 ;;
         -vv|--really-verbose) WINETRICKS_OPT_VERBOSE=2 ; set -x ;;
         -*) w_die "unknown option $1" ;;
+        prefix=*) export WINEPREFIX="${W_PREFIXES_ROOT}/${1##prefix=}" ;;
         *) return 1 ;;
     esac
     return 0
@@ -8011,6 +8015,26 @@ load_dxvk154()
     helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
 }
 
+w_metadata dxvk155 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.5.5)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.5.5.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d10.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10_1.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file5="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk155()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.5.5/dxvk-1.5.5.tar.gz" f4c57274ac85d71b192e2a0ac095f285e26cc054c87c6c34c081f919147539eb
+    helper_dxvk_d9vk "$file1" "4.20" "1.1.113" "dxgi,d3d9,d3d10,d3d11"
+}
+
 #----------------------------------------------------------------
 
 w_metadata dxvk dlls \
@@ -9984,18 +10008,18 @@ load_gdiplus()
 w_metadata gdiplus_winxp dlls \
     title="MS GDI+" \
     publisher="Microsoft" \
-    year="2004" \
+    year="2009" \
     media="manual_download" \
-    file1="NDP1.0sp2-KB830348-X86-Enu.exe" \
+    file1="WindowsXP-KB975337-x86-ENU.exe" \
     installed_file1="$W_SYSTEM32_DLLS_WIN/gdiplus.dll"
 
 load_gdiplus_winxp()
 {
     # https://www.microsoft.com/en-us/download/details.aspx?id=5339
-    w_download https://download.microsoft.com/download/1/4/6/1467c2ba-4d1f-43ad-8d9b-3e8bc1c6ac3d/NDP1.0sp2-KB830348-X86-Enu.exe 3c6c7eed4a0ccd2ea2ce0446359b8c752dd2a3b82332663f655e803ce0b05335
+    w_download https://web.archive.org/web/20140615000000/http://download.microsoft.com/download/a/b/c/abc45517-97a0-4cee-a362-1957be2f24e1/WindowsXP-KB975337-x86-ENU.exe 699e76e9f100db3d50da8762c484a369df4698d4b84f7821d4df0e37ce68bcbe
     w_try_cd "$W_CACHE/$W_PACKAGE"
-    w_try_cabextract -d "$W_TMP" -F FL_gdiplus_dll_____X86.3643236F_FC70_11D3_A536_0090278A1BB8 "$W_CACHE/${W_PACKAGE}/$file1"
-    w_try cp "$W_TMP/FL_gdiplus_dll_____X86.3643236F_FC70_11D3_A536_0090278A1BB8" "$W_SYSTEM32_DLLS/gdiplus.dll"
+    w_try_cabextract -d "$W_TMP" -F _sfx_0005._p "$W_CACHE/${W_PACKAGE}/$file1"
+    w_try cp "$W_TMP/_sfx_0005._p" "$W_SYSTEM32_DLLS/gdiplus.dll"
 
     # For some reason, native, builtin isn't good enough...?
     w_override_dlls native gdiplus
@@ -10983,30 +11007,32 @@ load_msxml4()
 #----------------------------------------------------------------
 
 w_metadata msxml6 dlls \
-    title="MS XML Core Services 6.0 sp1" \
+    title="MS XML Core Services 6.0 sp2" \
     publisher="Microsoft" \
-    year="2007" \
+    year="2009" \
     media="download" \
-    file1="msxml6_x86.msi" \
+    file1="msxml6-KB973686-enu-amd64.exe" \
     installed_file1="$W_SYSTEM32_DLLS_WIN/msxml6.dll"
 
 load_msxml6()
 {
-    # Service Pack 1
-    # https://www.microsoft.com/en-us/download/details.aspx?id=6276
-    if [ $W_ARCH = win64 ]; then
-        w_download https://download.microsoft.com/download/e/a/f/eafb8ee7-667d-4e30-bb39-4694b5b3006f/msxml6_x64.msi 945d8c535758d5178d4de9063cfcba7dfa96987eaa478e0c03ba646cc7ca772f
-    else
-        w_download https://download.microsoft.com/download/e/a/f/eafb8ee7-667d-4e30-bb39-4694b5b3006f/msxml6_x86.msi efa48f8cab5a89b8e667ed3e10dfb71bddc02923d0f3757bd93ffabe6fb6c598
+    # Service Pack 2
+    # https://www.microsoft.com/en-us/download/details.aspx?id=9774
+
+    # 64bit exe also includes 32bit dlls
+    w_download https://download.microsoft.com/download/1/5/8/158F681A-E595-472B-B15E-62B649B1B6FF/msxml6-KB973686-enu-amd64.exe 0e5c4af488e88e8defb59de80271671d8283d5744b2eebdb351bbd4950fb0883
+
+    w_try_cabextract --directory="${W_TMP}" "${W_CACHE}"/msxml6/msxml6-KB973686-enu-amd64.exe
+    w_try_cabextract --directory="${W_TMP}" "${W_TMP}"/msxml6.msi
+    w_try cp -f "${W_TMP}"/msxml6.dll.86F857F6_A743_463D_B2FE_98CB5F727E09 "$W_SYSTEM32_DLLS"/msxml6.dll
+    w_try cp -f "${W_TMP}"/msxml6r.dll.86F857F6_A743_463D_B2FE_98CB5F727E09 "$W_SYSTEM32_DLLS"/msxml6r.dll
+
+    if [ "$W_ARCH" = "win64" ]; then
+        w_try cp -f "${W_TMP}"/msxml6.dll.1ECC0691_D2EB_4A33_9CBF_5487E5CB17DB "$W_SYSTEM64_DLLS"/msxml6.dll
+        w_try cp -f "${W_TMP}"/msxml6r.dll.1ECC0691_D2EB_4A33_9CBF_5487E5CB17DB "$W_SYSTEM64_DLLS"/msxml6r.dll
     fi
+
     w_override_dlls native,builtin msxml6
-    rm -f "$W_SYSTEM32_DLLS/msxml6.dll"
-    if [ $W_ARCH = win64 ]; then
-        rm -f "$W_SYSTEM64_DLLS/msxml6.dll"
-        w_try_msiexec64 /i "$W_CACHE"/msxml6/msxml6_x64.msi
-    else
-        w_try "$WINE" msiexec /i "$W_CACHE"/msxml6/msxml6_x86.msi $W_UNATTENDED_SLASH_Q
-    fi
 }
 
 #----------------------------------------------------------------
@@ -12924,15 +12950,14 @@ load_baekmuk()
 
 w_metadata cjkfonts fonts \
     title="All Chinese, Japanese, Korean fonts and aliases" \
-    publisher="various" \
-    date="1999-2010" \
+    publisher="Various" \
+    date="1999-2019" \
     media="download"
 
 load_cjkfonts()
 {
     w_call fakechinese
     w_call fakejapanese
-    w_call fakejapanese_vlgothic
     w_call fakekorean
     w_call unifont
 }
@@ -13432,53 +13457,69 @@ load_eufonts()
 #----------------------------------------------------------------
 
 w_metadata fakechinese fonts \
-    title="Creates aliases for Chinese fonts using WenQuanYi fonts" \
-    publisher="wenq.org" \
-    year="2009"
+    title="Creates aliases for Chinese fonts using Source Han Sans fonts" \
+    publisher="Adobe" \
+    year="2019"
 
 load_fakechinese()
 {
-    w_call wenquanyi
-    # Loads Wenquanyi fonts and sets aliases for Microsoft Chinese fonts
+    # Loads Source Han Sans fonts and sets aliases for Microsoft Chinese fonts
     # Reference : https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_fonts
+    w_call sourcehansans
 
-    w_register_font_replacement "Microsoft JhengHei" "WenQuanYi Micro Hei"
-    w_register_font_replacement "Microsoft YaHei" "WenQuanYi Micro Hei"
-    w_register_font_replacement "SimHei" "WenQuanYi Micro Hei"
-    w_register_font_replacement "DFKai-SB" "WenQuanYi Micro Hei"
-    w_register_font_replacement "FangSong" "WenQuanYi Micro Hei"
-    w_register_font_replacement "KaiTi" "WenQuanYi Micro Hei"
-    w_register_font_replacement "PMingLiU" "WenQuanYi Micro Hei"
-    w_register_font_replacement "MingLiU" "WenQuanYi Micro Hei"
-    w_register_font_replacement "NSimSun" "WenQuanYi Micro Hei"
-    w_register_font_replacement "SimKai" "WenQuanYi Micro Hei"
-    w_register_font_replacement "SimSun" "WenQuanYi Micro Hei"
+    # Simplified Chinese
+    w_register_font_replacement "Dengxian" "Source Han Sans SC"
+    w_register_font_replacement "FangSong" "Source Han Sans SC"
+    w_register_font_replacement "KaiTi" "Source Han Sans SC"
+    w_register_font_replacement "Microsoft YaHei" "Source Han Sans SC"
+    w_register_font_replacement "Microsoft YaHei UI" "Source Han Sans SC"
+    w_register_font_replacement "NSimSun" "Source Han Sans SC"
+    w_register_font_replacement "SimHei" "Source Han Sans SC"
+    w_register_font_replacement "SimKai" "Source Han Sans SC"
+    w_register_font_replacement "SimSun" "Source Han Sans SC"
+    w_register_font_replacement "SimSun-ExtB" "Source Han Sans SC"
+
+    # Traditional Chinese
+    w_register_font_replacement "DFKai-SB" "Source Han Sans TC"
+    w_register_font_replacement "Microsoft JhengHei" "Source Han Sans TC"
+    w_register_font_replacement "Microsoft JhengHei UI" "Source Han Sans TC"
+    w_register_font_replacement "MingLiU" "Source Han Sans TC"
+    w_register_font_replacement "PMingLiU" "Source Han Sans TC"
+    w_register_font_replacement "MingLiU-ExtB" "Source Han Sans TC"
+    w_register_font_replacement "PMingLiU-ExtB" "Source Han Sans TC"
 }
 
 #----------------------------------------------------------------
 
 w_metadata fakejapanese fonts \
-    title="Creates aliases for Japanese fonts using Takao fonts" \
-    publisher="Jun Kobayashi" \
-    year="2010"
+    title="Creates aliases for Japanese fonts using Source Han Sans fonts" \
+    publisher="Adobe" \
+    year="2019"
 
 load_fakejapanese()
 {
-    w_call takao
-    # Loads Takao fonts and sets aliases for MS Gothic, MS UI Gothic, and MS PGothic, mainly for Japanese language support
-    # Aliases to set:
-    # MS Gothic --> TakaoGothic
-    # MS UI Gothic --> TakaoGothic
-    # MS PGothic --> TakaoPGothic
-    # MS Mincho --> TakaoMincho
-    # MS PMincho --> TakaoPMincho
-    # These aliases were taken from what was listed in Ubuntu's fontconfig definitions.
+    # Loads Source Han Sans fonts and sets aliases for Microsoft Japanese fonts
+    # Reference : https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_fonts
+    w_call sourcehansans
 
-    w_register_font_replacement "MS Gothic" "TakaoGothic"
-    w_register_font_replacement "MS UI Gothic" "TakaoGothic"
-    w_register_font_replacement "MS PGothic" "TakaoPGothic"
-    w_register_font_replacement "MS Mincho" "TakaoMincho"
-    w_register_font_replacement "MS PMincho" "TakaoPMincho"
+    w_register_font_replacement "Meiryo" "Source Han Sans"
+    w_register_font_replacement "Meiryo UI" "Source Han Sans"
+    w_register_font_replacement "MS Gothic" "Source Han Sans"
+    w_register_font_replacement "MS PGothic" "Source Han Sans"
+    w_register_font_replacement "MS Mincho" "Source Han Sans"
+    w_register_font_replacement "MS PMincho" "Source Han Sans"
+    w_register_font_replacement "MS UI Gothic" "Source Han Sans"
+    w_register_font_replacement "UD Digi KyoKasho N-R" "Source Han Sans"
+    w_register_font_replacement "UD Digi KyoKasho NK-R" "Source Han Sans"
+    w_register_font_replacement "UD Digi KyoKasho NP-R" "Source Han Sans"
+    w_register_font_replacement "Yu Gothic" "Source Han Sans"
+    w_register_font_replacement "Yu Gothic UI" "Source Han Sans"
+    w_register_font_replacement "Yu Mincho" "Source Han Sans"
+    w_register_font_replacement "メイリオ" "Source Han Sans"
+    w_register_font_replacement "ＭＳ ゴシック" "Source Han Sans"
+    w_register_font_replacement "ＭＳ Ｐゴシック" "Source Han Sans"
+    w_register_font_replacement "ＭＳ 明朝" "Source Han Sans"
+    w_register_font_replacement "ＭＳ Ｐ明朝" "Source Han Sans"
 }
 
 #----------------------------------------------------------------
@@ -13499,20 +13540,15 @@ load_fakejapanese_ipamona()
     # MS Mincho (ＭＳ 明朝) --> IPAMonaMincho
     # MS PMincho (ＭＳ Ｐ明朝) --> IPAMonaPMincho
 
-    jpname_msgothic="$(echo "ＭＳ ゴシック" | iconv -f utf8 -t cp932)"
-    jpname_mspgothic="$(echo "ＭＳ Ｐゴシック" | iconv -f utf8 -t cp932)"
-    jpname_msmincho="$(echo "ＭＳ 明朝" | iconv -f utf8 -t cp932)"
-    jpname_mspmincho="$(echo "ＭＳ Ｐ明朝" | iconv -f utf8 -t cp932)"
-
     w_register_font_replacement "MS UI Gothic" "IPAMonaUIGothic"
     w_register_font_replacement "MS Gothic" "IPAMonaGothic"
     w_register_font_replacement "MS PGothic" "IPAMonaPGothic"
     w_register_font_replacement "MS Mincho" "IPAMonaMincho"
     w_register_font_replacement "MS PMincho" "IPAMonaPMincho"
-    w_register_font_replacement "$jpname_msgothic" "IPAMonaGothic"
-    w_register_font_replacement "$jpname_mspgothic" "IPAMonaPGothic"
-    w_register_font_replacement "$jpname_msmincho" "IPAMonaMincho"
-    w_register_font_replacement "$jpname_mspmincho" "IPAMonaPMincho"
+    w_register_font_replacement "ＭＳ ゴシック" "IPAMonaGothic"
+    w_register_font_replacement "ＭＳ Ｐゴシック" "IPAMonaPGothic"
+    w_register_font_replacement "ＭＳ 明朝" "IPAMonaMincho"
+    w_register_font_replacement "ＭＳ Ｐ明朝" "IPAMonaPMincho"
 }
 
 #----------------------------------------------------------------
@@ -13531,38 +13567,40 @@ load_fakejapanese_vlgothic()
     # Meiryo UI --> VL Gothic
     # Meiryo (メイリオ) --> VL Gothic
 
-    jpname_meiryo="$(echo "メイリオ" | iconv -f utf8 -t cp932)"
-
     w_register_font_replacement "Meiryo UI" "VL Gothic"
     w_register_font_replacement "Meiryo" "VL Gothic"
-    w_register_font_replacement "$jpname_meiryo" "VL Gothic"
+    w_register_font_replacement "メイリオ" "VL Gothic"
 }
 
 #----------------------------------------------------------------
 
 w_metadata fakekorean fonts \
-    title="Creates aliases for Korean fonts using Baekmuk fonts" \
-    publisher="Wooderart Inc. / kldp.net" \
-    year="1999"
+    title="Creates aliases for Korean fonts using Source Han Sans fonts" \
+    publisher="Adobe" \
+    year="2019"
 
 load_fakekorean()
 {
-    w_call baekmuk
-    # Loads Baekmuk fonts and sets as an alias for Gulim, Dotum, and Batang for Korean language support
-    # Aliases to set:
-    # Gulim --> Baekmuk Gulim
-    # GulimChe --> Baekmuk Gulim
-    # Batang --> Baekmuk Batang
-    # BatangChe --> Baekmuk Batang
-    # Dotum --> Baekmuk Dotum
-    # DotumChe --> Baekmuk Dotum
+    # Loads Source Han Sans fonts and sets aliases for Microsoft Korean fonts
+    # Reference : https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_fonts
+    w_call sourcehansans
 
-    w_register_font_replacement "Gulim" "Baekmuk Gulim"
-    w_register_font_replacement "GulimChe" "Baekmuk Gulim"
-    w_register_font_replacement "Batang" "Baekmuk Batang"
-    w_register_font_replacement "BatangChe" "Baekmuk Batang"
-    w_register_font_replacement "Dotum" "Baekmuk Dotum"
-    w_register_font_replacement "DotumChe" "Baekmuk Dotum"
+    w_register_font_replacement "Batang" "Source Han Sans K"
+    w_register_font_replacement "BatangChe" "Source Han Sans K"
+    w_register_font_replacement "Dotum" "Source Han Sans K"
+    w_register_font_replacement "DotumChe" "Source Han Sans K"
+    w_register_font_replacement "Gulim" "Source Han Sans K"
+    w_register_font_replacement "GulimChe" "Source Han Sans K"
+    w_register_font_replacement "Gungsuh" "Source Han Sans K"
+    w_register_font_replacement "GungsuhChe" "Source Han Sans K"
+    w_register_font_replacement "Malgun Gothic" "Source Han Sans K"
+    w_register_font_replacement "바탕" "Source Han Sans K"
+    w_register_font_replacement "바탕체" "Source Han Sans K"
+    w_register_font_replacement "돋움" "Source Han Sans K"
+    w_register_font_replacement "돋움체" "Source Han Sans K"
+    w_register_font_replacement "굴림" "Source Han Sans K"
+    w_register_font_replacement "굴림체" "Source Han Sans K"
+    w_register_font_replacement "맑은 고딕" "Source Han Sans K"
 }
 
 #----------------------------------------------------------------
@@ -13670,6 +13708,59 @@ load_opensymbol()
     w_try tar -Jxf "$W_TMP/data.tar.xz" ./usr/share/fonts/truetype/openoffice/opens___.ttf
     w_try_cp_font_files "usr/share/fonts/truetype/openoffice" "$W_FONTSDIR_UNIX"
     w_register_font opens___.ttf "OpenSymbol"
+}
+
+#----------------------------------------------------------------
+
+w_metadata sourcehansans fonts \
+    title="Source Han Sans fonts" \
+    publisher="Adobe" \
+    year="2019" \
+    media="download" \
+    file1="SourceHanSans.ttc" \
+    installed_file1="$W_FONTSDIR_WIN/sourcehansans.ttc"
+
+load_sourcehansans()
+{
+    w_download "https://github.com/adobe-fonts/source-han-sans/releases/download/2.001R/SourceHanSans.ttc" 9e94fe493685a7c99ce61e4488169007e3b97badb9f1ef43d3c13da501463780
+    w_try cp "$W_CACHE/$W_PACKAGE/$file1" "$W_TMP/sourcehansans.ttc"
+    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "*.ttc"
+
+    # Simplified Chinese
+    w_register_font sourcehansans.ttc "Source Han Sans SC ExtraLight"
+    w_register_font sourcehansans.ttc "Source Han Sans SC Light"
+    w_register_font sourcehansans.ttc "Source Han Sans SC Normal"
+    w_register_font sourcehansans.ttc "Source Han Sans SC"
+    w_register_font sourcehansans.ttc "Source Han Sans SC Medium"
+    w_register_font sourcehansans.ttc "Source Han Sans SC Bold"
+    w_register_font sourcehansans.ttc "Source Han Sans SC Heavy"
+
+    # Traditional Chinese (Taiwan)
+    w_register_font sourcehansans.ttc "Source Han Sans TC ExtraLight"
+    w_register_font sourcehansans.ttc "Source Han Sans TC Light"
+    w_register_font sourcehansans.ttc "Source Han Sans TC Normal"
+    w_register_font sourcehansans.ttc "Source Han Sans TC"
+    w_register_font sourcehansans.ttc "Source Han Sans TC Medium"
+    w_register_font sourcehansans.ttc "Source Han Sans TC Bold"
+    w_register_font sourcehansans.ttc "Source Han Sans TC Heavy"
+
+    # Japanese
+    w_register_font sourcehansans.ttc "Source Han Sans ExtraLight"
+    w_register_font sourcehansans.ttc "Source Han Sans Light"
+    w_register_font sourcehansans.ttc "Source Han Sans Normal"
+    w_register_font sourcehansans.ttc "Source Han Sans"
+    w_register_font sourcehansans.ttc "Source Han Sans Medium"
+    w_register_font sourcehansans.ttc "Source Han Sans Bold"
+    w_register_font sourcehansans.ttc "Source Han Sans Heavy"
+
+    # Korean
+    w_register_font sourcehansans.ttc "Source Han Sans K ExtraLight"
+    w_register_font sourcehansans.ttc "Source Han Sans K Light"
+    w_register_font sourcehansans.ttc "Source Han Sans K Normal"
+    w_register_font sourcehansans.ttc "Source Han Sans K"
+    w_register_font sourcehansans.ttc "Source Han Sans K Medium"
+    w_register_font sourcehansans.ttc "Source Han Sans K Bold"
+    w_register_font sourcehansans.ttc "Source Han Sans K Heavy"
 }
 
 #----------------------------------------------------------------
@@ -16123,6 +16214,56 @@ load_wmp10()
     w_try_regedit /D "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Cdralw2k"
 
     load_wm9codecs
+
+    w_set_winver 'default'
+}
+
+w_metadata wmp11 dlls \
+    title="Windows Media Player 11" \
+    publisher="Microsoft" \
+    year="2007" \
+    media="download" \
+    file1="wmp11-windowsxp-x86-enu.exe" \
+    installed_file1="$W_PROGRAMS_X86_WIN/Windows Media Player/wmplayer.exe"
+
+load_wmp11()
+{
+    # See https://appdb.winehq.org/objectManager.php?sClass=version&iId=32057
+    w_call wsh57
+    w_call gdiplus
+
+    if [ "$W_ARCH" = "win32" ]; then
+      # https://appdb.winehq.org/objectManager.php?sClass=version&iId=8150
+      w_download https://web.archive.org/web/20170628063001/http://download.microsoft.com/download/0/9/5/0953e553-3bb6-44b1-8973-106f1b7e5049/wmp11-windowsxp-x86-enu.exe ffd321a441a67001a893f3bde4bb1afba07d4d2c9659bfdb0fbb057e7945d970
+      wmp11_exe=wmp11-windowsxp-x86-enu.exe
+    elif [ "$W_ARCH" = "win64" ]; then
+      # https://appdb.winehq.org/objectManager.php?sClass=version&iId=32057
+      w_download https://web.archive.org/web/20190512112704/https://download.microsoft.com/download/3/0/8/3080C52C-2517-43DE-BDB4-B7EAFD88F084/wmp11-windowsxp-x64-enu.exe 5af407cf336849aff435044ec28f066dd523bbdc22d1ce7aaddb5263084f5526
+      wmp11_exe=wmp11-windowsxp-x64-enu.exe
+    fi
+
+    w_set_winver winxp
+
+    # remove builtin placeholders to allow update
+    w_try rm -f "$W_PROGRAMS_UNIX/Windows Media Player/wmplayer.exe" "$W_SYSTEM64_DLLS"/wmp.dll "$W_SYSTEM64_DLLS"/wmvcore.dll
+    # need native overrides to allow update and later checks to succeed
+    w_override_dlls native l3codeca.acm wmp wmplayer.exe wmvcore wmpnssci
+
+    w_try_cd "$W_CACHE/$W_PACKAGE"
+
+    # https://docs.microsoft.com/en-us/windows/win32/wmp/redistributing-windows-media-player-11
+    "${WINE}" ${wmp11_exe} ${W_OPT_UNATTENDED:+ /q:A /c:"setup_wm.exe /Q /R:N"}
+
+    # installer tries to install WindowsServer2003.WindowsXP-MSCompPackV1-x64.exe at end and fails with 126 code
+    status=$?
+    case $status in
+        0|126) ;;
+        *) w_die "Note: WMP11 installer returned status '$status'.  Aborting." ;;
+    esac
+
+    # Disable WMP's services, since they depend on unimplemented stuff, they trigger the GUI debugger several times
+    w_try_regedit /D "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Cdr4_2K"
+    w_try_regedit /D "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Cdralw2k"
 
     w_set_winver 'default'
 }
