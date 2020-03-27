@@ -7,8 +7,8 @@ date
 
 ONLINE=yes
 TMPDIR=/tmp/$(basename $0)-$UID
-MYPATH=$(readlink -f $0)
-MYPATH=$(dirname $MYPATH)
+MYPATH=$(dirname $0)
+MYPATH=$(readlink -f $MYPATH)
 
 function stop()
 {
@@ -32,6 +32,7 @@ function loadmediainfo()
   if [ "$3" != "skip" ] ;then
     mkdir -p "$TMPDIR/urpmi/"{etc/urpmi,var/lib/urpmi/$1} "$TMPDIR/pubkeys"
     curl -s --retry-delay 2 --retry 5 -o "$TMPDIR"/pubkeys/$a.pubkey "$2/media_info/pubkey"
+    [ -f "$2/media_info/pubkey" ] && dos2unix "$2/media_info/pubkey" && echo "" >> "$2/media_info/pubkey"
     grep -qi "<html " "$TMPDIR"/pubkeys/$a.pubkey && rm -f "$TMPDIR"/pubkeys/$a.pubkey
     curl -s --retry-delay 2 --retry 5 -o "$TMPDIR"/urpmi/var/lib/urpmi/$1/MD5SUM "$2/media_info/MD5SUM" || stop "Can't download $2/media_info/MD5SUM"
     curl -s --retry-delay 2 --retry 5 -o "$TMPDIR"/urpmi/var/lib/urpmi/$1/synthesis.hdlist.cz "$2/media_info/synthesis.hdlist.cz" || stop "Can't download $2/media_info/synthesis.hdlist.cz"

@@ -8,8 +8,8 @@ date
 TMPDIR=/tmp/$(basename $0)
 TMPROOTFS=yes
 SIZETMPFS=12G
-MYPATH=$(readlink -f $0)
-MYPATH=$(dirname $MYPATH)
+MYPATH=$(dirname $0)
+MYPATH=$(readlink -f $MYPATH)
 NOTAERROR="^warning:|^Preparing packages|^Running in chroot, ignoring|^update-alternatives: using|^Created symlink"
 ROOTFS="/tmp/make_magos_rootfs"
 SAVEROOTFS=no

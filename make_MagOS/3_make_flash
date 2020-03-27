@@ -6,8 +6,8 @@
 date
 
 TMPDIR=/tmp/$(basename $0)
-MYPATH=$(readlink -f $0)
-MYPATH=$(dirname $MYPATH)
+MYPATH=$(dirname $0)
+MYPATH=$(readlink -f $MYPATH)
 ROOTFS="/tmp/make_magos_rootfs"
 
 function stop()

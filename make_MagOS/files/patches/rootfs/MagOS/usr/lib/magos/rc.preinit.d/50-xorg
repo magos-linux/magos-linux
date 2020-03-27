@@ -159,6 +159,9 @@ if [ "$BUMBLEBEE" = "yes" ] ;then
         grep -q primusrun $FILE || sed -i s-"Exec="-"Exec=primusrun "- $FILE
      fi
    done
+   [ -d usr/lib/nvidia-current   ] && [ ! -h usr/lib/nvidia   ] && ln -s nvidia-current usr/lib/nvidia
+   [ -d usr/lib64/nvidia-current ] && [ ! -h usr/lib64/nvidia ] && ln -s nvidia-current usr/lib64/nvidia
+   fi
 fi
 
 #setting BusID option for multicard hardware
