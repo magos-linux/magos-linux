@@ -1,4 +1,5 @@
 #!/bin/bash
+
 [ -x /usr/bin/startlxqt ] || exit 0
 # Default wallpaper
 ln -sf /usr/share/magos/wallpapers/default.jpg /usr/share/wallpapers/default.jpg
@@ -52,5 +53,10 @@ SCRIPT:
 exec /usr/bin/startlxqt
 EOF
 
+LXQTPROGS="gcalctool leafpad gpicview lximage-qt-screenshot lximage-qt qterminal qterminal_drop gucharmap rosa-peazip qpdfview pcmanfm-qt pcmanfm-qt-pref pcmanfm-qt-desktop-pref xscreensaver-properties trojita obconf-qt compton-conf chbg lxqt_rpmdrake xscreensaver-properties qasconfig qashctl qasmixer"
+for a in $LXQTPROGS ;do
+   [ -f "/usr/share/applications/$a.desktop" ] || continue
+   grep -q OnlyShowIn=LxQt "/usr/share/applications/$a.desktop" || sed -i s/"\[Desktop Entry\]"/"[Desktop Entry]\\nOnlyShowIn=LxQt"/ "/usr/share/applications/$a.desktop"
+done
 
 exit 0

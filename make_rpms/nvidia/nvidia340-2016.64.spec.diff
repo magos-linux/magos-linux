@@ -1,0 +1,77 @@
+diff -aupr a/nvidia340.spec b/nvidia340.spec
+--- a/nvidia340.spec	2020-03-09 19:33:49.000000000 +0300
++++ b/nvidia340.spec	2020-04-13 11:18:36.973391529 +0300
+@@ -19,7 +19,7 @@
+ 
+ %define drivername		%{name}
+ %define driverpkgname		x11-driver-video-%{drivername}
+-%define modulename		nvidia
++%define modulename		%{name}
+ # for description and documentation
+ %define xorg_extra_modules	%{_libdir}/xorg/extra-modules
+ %define nvidia_driversdir	%{_libdir}/%{drivername}/xorg
+@@ -80,7 +80,7 @@
+ Summary:	NVIDIA proprietary X.org driver and libraries
+ Name:		%{name}
+ Version:	%{version}
+-Release:	1
++Release:	1magos
+ 
+ Source0:	http://download.nvidia.com/XFree86/Linux-x86/%{version}/%{pkgname32}.run
+ Source1:	http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/%{pkgname64}.run
+@@ -214,7 +214,8 @@ mv dkms.conf dkms.conf.orig
+ cat > dkms.conf <<EOF
+ PACKAGE_NAME="nvidia"
+ PACKAGE_VERSION="%{version}"
+-BUILT_MODULE_NAME[0]="nvidia"
++BUILT_MODULE_NAME[0]="\$PACKAGE_NAME"
++DEST_MODULE_NAME[0]="%{modulename}"
+ DEST_MODULE_LOCATION[0]="/kernel/drivers/video"
+ MAKE="make module KERNEL_UNAME=\${kernelver} IGNORE_XEN_PRESENCE=1 IGNORE_CC_MISMATCH=1"
+ CLEAN="make clean"
+@@ -608,10 +609,10 @@ done
+ 
+ # Create the convenience symlinks. As the packages with nvidia are mutually
+ # exclusive now, there is no need to use alternatives for this.
+-ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
+-%ifarch %{biarches}
+-	ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
+-%endif
++#ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
++#%ifarch %{biarches}
++#	ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
++#%endif
+ 
+ # confirm SONAME; if something else than libvdpau_nvidia.so or libvdpau_nvidia.so.1, adapt .spec as needed:
+ [ "$(objdump -p %{buildroot}%{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} | grep SONAME | gawk '{ print $2 }')" = "libvdpau_nvidia.so.1" ]
+@@ -731,6 +732,12 @@ mkdir -p %{_libdir}/vdpau
+ 	--slave %{_bindir}/nvidia-modprobe nvidia-modprobe %{nvidia_bindir}/nvidia-modprobe \
+ 	--slave %{_bindir}/nvidia-persistenced nvidia-persistenced %{nvidia_bindir}/nvidia-persistenced \
+ 	--slave %{_sysconfdir}/X11/xinit.d/nvidia-settings.xinit nvidia-settings.xinit %{_sysconfdir}/%{drivername}/nvidia-settings.xinit \
++%ifarch x86_64
++        --slave %{_libdir}/nvidia nvidia-lib64 %{nvidia_libdir} \
++        --slave %{_prefix}/lib/nvidia nvidia-lib %{nvidia_libdir32} \
++%else
++        --slave %{_prefix}/lib/nvidia nvidia-lib %{nvidia_libdir}   \
++%endif
+ 	--slave %{_libdir}/vdpau/libvdpau_nvidia.so.1 %{_lib}vdpau_nvidia.so.1 %{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} \
+ 	--slave %{_sysconfdir}/OpenCL/vendors/nvidia.icd nvidia.icd %{_sysconfdir}/%{drivername}/nvidia.icd \
+ %ifarch %{biarches}
+@@ -871,7 +878,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %dir %{nvidia_libdir}
+ %dir %{nvidia_libdir}/tls
+ %dir %{nvidia_libdir}/vdpau
+-%{_libdir}/nvidia
++#%{_libdir}/nvidia
+ %{nvidia_libdir}/libGL.so.%{version}
+ %{nvidia_libdir}/libnvidia-glcore.so.%{version}
+ %{nvidia_libdir}/libnvidia-cfg.so.%{version}
+@@ -899,7 +906,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %dir %{nvidia_libdir32}
+ %dir %{nvidia_libdir32}/tls
+ %dir %{nvidia_libdir32}/vdpau
+-%{_prefix}/lib/nvidia
++#%{_prefix}/lib/nvidia
+ %{nvidia_libdir32}/libGL.so.%{version}
+ %{nvidia_libdir32}/libnvidia-glcore.so.%{version}
+ %{nvidia_libdir32}/libnvidia-ifr.so.1

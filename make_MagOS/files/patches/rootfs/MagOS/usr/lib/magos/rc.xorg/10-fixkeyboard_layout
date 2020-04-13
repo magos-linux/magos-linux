@@ -1,0 +1,18 @@
+#!/bin/bash
+# to be sourced
+. /etc/sysconfig/keyboard
+setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions
+
+. /etc/MagOS/config
+
+# Automatic detection PC/notebooks
+if [ -z "$NUMLOCK" ] ; then
+   if xinput list | grep -qi touchpad ; then
+      NUMLOCK=no
+   else
+      NUMLOCK=yes
+   fi
+fi
+
+[ "$NUMLOCK" = "yes" -o "$NUMLOCK" = "on" ] && numlockx on
+[ "$NUMLOCK" = "no" -o "$NUMLOCK" = "off" ] && numlockx off

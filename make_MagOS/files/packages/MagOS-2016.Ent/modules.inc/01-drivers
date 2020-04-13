@@ -1,0 +1,3 @@
+^lib/firmware/
+^lib/modules/
+^var/lib/dkms-binary

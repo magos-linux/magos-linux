@@ -11,4 +11,4 @@ DEBUGMODE=no
 debug_mode "$0" "$@"
 
 [ -f /etc/MagOS/config ] && . /etc/MagOS/config
-[ "$RUNLDCONFIG" = "yes" ] && /sbin/ldconfig
+[ "$RUNLDCONFIG" != "no" ] && /sbin/ldconfig &

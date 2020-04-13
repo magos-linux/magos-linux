@@ -118,7 +118,7 @@ EOF
 patch -p1 <<EOF
 --- /usr/share/plasma/wallpapers/org.kde.image/contents/config/main.xml.orig	2018-01-02 16:12:27.000000000 +0300
 +++ /usr/share/plasma/wallpapers/org.kde.image/contents/config/main.xml	2018-01-01 12:28:36.596399354 +0300
-@@ -12,7 +12,7 @@
+@@ -16,11 +16,11 @@
      </entry>
      <entry name="Image" type="String">
        <label>Wallpaper image path or wallpaper name</label>
@@ -127,4 +127,9 @@ patch -p1 <<EOF
      </entry>
      <entry name="FillMode" type="int">
        <label>Sizing, cropping and positioning of the wallpaper image</label>
+-      <default>0</default>
++      <default>1</default>
+     </entry>
+     <entry name="SlidePaths" type="StringList">
+       <label>Paths used for the slideshow</label>
 EOF

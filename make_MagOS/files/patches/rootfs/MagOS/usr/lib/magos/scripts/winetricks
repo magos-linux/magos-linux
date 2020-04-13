@@ -515,13 +515,46 @@ w_try()
             ;;
     esac
     status=$?
-    if test $status -ne 0; then
-        case $LANG in
-            pl*) w_die "Informacja: poelcenie $* zwróciło status $status. Przerywam." ;;
-            ru*) w_die "Важно: команда $* вернула статус $status. Прерывание." ;;
-            *) w_die "Note: command $* returned status $status. Aborting." ;;
+
+    en_ms_5="exit status ${status} - user selected 'Cancel'"
+    en_ms_105="exit status ${status} - normal, user selected 'restart now'"
+    en_ms_194="exit status ${status} - normal, user selected 'restart later'"
+
+    en_abort="Note: command $* returned status ${status}. Aborting."
+    pl_abort="Informacja: poelcenie $* zwróciło status ${status}. Przerywam."
+    ru_abort="Важно: команда $* вернула статус ${status}. Прерывание."
+
+    if [ -n "${_w_ms_installer}" ]; then
+        case ${status} in
+            # Nonfatal
+            0) ;;
+            105) echo "${en_ms_105}" ;;
+            194) echo "${en_ms_194}" ;;
+
+            # Fatal
+            5) w_die "${en_ms_5}" ;;
+            *) w_die "${en_abort}" ;;
+        esac
+    else
+        case ${status} in
+            0) ;;
+            *)
+                case ${LANG} in
+                    pl*) w_die "${pl_abort}" ;;
+                    ru*) w_die "${ru_abort}" ;;
+                    *) w_die "${en_abort}" ;;
+                esac
+                ;;
         esac
     fi
+}
+
+# For some MS installers that have special exit codes:
+w_try_ms_installer()
+{
+    _w_ms_installer=true
+    w_try "$@"
+    unset _w_ms_installer
 }
 
 w_try_7z()
@@ -538,8 +571,12 @@ w_try_7z()
     if [ -z "$WINETRICKS_FORCE_WIN_7Z" ] && [ -x "$(command -v 7z 2>/dev/null)" ] ; then
         w_try 7z x "$filename" -o"$destdir" "$@"
     else
-        w_warn "Cannot find 7z.  Using Windows 7-Zip instead. (You can avoid this by installing 7z, e.g. 'sudo apt-get install p7zip-full' or 'sudo yum install p7zip-plugins')."
+        w_warn "Cannot find 7z. Using Windows 7-Zip instead. (You can avoid this by installing 7z, e.g. 'sudo apt-get install p7zip-full' or 'sudo yum install p7zip-plugins')."
         WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
+
+        # w_call above will wipe $W_TMP; if that's the CWD, things will break. So forcefully reset the directory:
+        w_try_cd "$PWD"
+
         # errors out if there is a space between -o and path
         w_try "$WINE" "$W_PROGRAMS_X86_WIN\\7-Zip\\7z.exe" x "$(w_pathconv -w "$filename")" -o"$(w_pathconv -w "$destdir")" "$@"
     fi
@@ -554,8 +591,11 @@ w_try_ar()
     if [ -z "$WINETRICKS_FORCE_WIN_7Z" ] && [ -x "$(command -v ar 2>/dev/null)" ]; then
         w_try ar x "$@"
     else
-        w_warn "Cannot find ar.  Using Windows 7-zip instead. (You can avoid this by installing binutils, e.g. 'sudo apt-get install binutils' or 'sudo yum install binutils')."
+        w_warn "Cannot find ar. Using Windows 7-zip instead. (You can avoid this by installing binutils, e.g. 'sudo apt-get install binutils' or 'sudo yum install binutils')."
         WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
+
+        # w_call above will wipe $W_TMP; if that's the CWD, things will break. So forcefully reset the directory:
+        w_try_cd "$PWD"
 
         # -t* prevents 7-zip from decompressing .tar.xz to .tar, see
         # https://sourceforge.net/p/sevenzip/discussion/45798/thread/8cd16946/?limit=25
@@ -704,8 +744,12 @@ w_try_unrar()
     if [ -z "$WINETRICKS_FORCE_WIN_7Z" ] && [ -x "$(command -v unrar 2>/dev/null)" ]; then
         w_try unrar x "$@"
     else
-        w_warn "Cannot find unrar.  Using Windows 7-Zip instead. (You can avoid this by installing unrar, e.g. 'sudo apt-get install unrar' or 'sudo yum install unrar')."
+        w_warn "Cannot find unrar. Using Windows 7-Zip instead. (You can avoid this by installing unrar, e.g. 'sudo apt-get install unrar' or 'sudo yum install unrar')."
         WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
+
+        # w_call above will wipe $W_TMP; if that's the CWD, things will break. So forcefully reset the directory:
+        w_try_cd "$PWD"
+
         w_try "$WINE" "$W_PROGRAMS_X86_WIN\\7-Zip\\7z.exe" x "$(w_pathconv -w "$1")"
     fi
 }
@@ -731,10 +775,14 @@ w_try_unzip()
             1|*) w_warn "Unzip failed, trying Windows 7-Zip instead." ;;
         esac
     else
-        w_warn "Cannot find unzip.  Using Windows 7-Zip instead. (You can avoid this by installing unzip, e.g. 'sudo apt-get install unzip' or 'sudo yum install unzip')."
+        w_warn "Cannot find unzip. Using Windows 7-Zip instead. (You can avoid this by installing unzip, e.g. 'sudo apt-get install unzip' or 'sudo yum install unzip')."
     fi
 
     WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
+
+    # w_call above will wipe $W_TMP; if that's the CWD, things will break. So forcefully reset the directory:
+    w_try_cd "$PWD"
+
     # errors out if there is a space between -o and path
     w_try "$WINE" "$W_PROGRAMS_X86_WIN\\7-Zip\\7z.exe" x "$(w_pathconv -w "$zipfile")" -o"$(w_pathconv -w "$destdir")" "$@"
 }
@@ -847,7 +895,7 @@ w_pathconv()
 # Expand an environment variable and print it to stdout
 w_expand_env()
 {
-    winetricks_early_wine cmd.exe /c echo "%$1%"
+    winetricks_early_wine_arch cmd.exe /c echo "%$1%"
 }
 
 # Get the latest tagged release from github.com API
@@ -1891,11 +1939,11 @@ w_ahk_do()
     # Previously this used printf + sed, but that was broken with BSD sed (FreeBSD/OS X):
     # https://github.com/Winetricks/winetricks/issues/697
     # So now using trying awk instead (next, perl):
-    cat <<_EOF_ | awk 'sub("$", "\r")' > "$W_TMP"/tmp.ahk
+    cat <<_EOF_ | awk 'sub("$", "\r")' > "${W_TMP}/${W_PACKAGE}.ahk"
 w_opt_unattended = ${W_OPT_UNATTENDED:-0}
 $@
 _EOF_
-    w_try "$WINE" "$W_CACHE_WIN\\ahk\\AutoHotkey.exe" "$W_TMP_WIN"\\tmp.ahk
+    w_try "${WINE}" "${W_CACHE_WIN}\\ahk\\AutoHotkey.exe" "${W_TMP_WIN}\\${W_PACKAGE}.ahk"
 }
 
 # Function to protect Wine-specific sections of code.
@@ -2903,10 +2951,9 @@ w_do_call()
         case "$W_PLATFORM" in
             windows_cmd|wine_cmd) ;;
             *)
-                # shellcheck disable=SC2154
-                case "${category}-${WINETRICKS_OPT_SHAREDPREFIX}" in
+                case "${_W_category}-${WINETRICKS_OPT_SHAREDPREFIX}" in
                     apps-0|benchmarks-0|games-0) winetricks_set_wineprefix "$cmd";;
-                    *) winetricks_set_wineprefix;;
+                    *) winetricks_set_wineprefix "$_W_prefix_name";;
                 esac
                 # If it's a new wineprefix, give it metadata
                 if test ! -f "$WINEPREFIX"/wrapper.cfg; then
@@ -2924,6 +2971,13 @@ w_do_call()
             for x in $conflicts; do
                 w_conflicts "$1" "$x"
             done
+        fi
+
+        # Allow verifying a verb separately from installing it
+        if test "$WINETRICKS_VERIFY" = 1 && winetricks_is_installed "$1" && test -z "$WINETRICKS_FORCE"; then
+            echo "$1 is already installed. --force wasn't given, --verify was, so re-verifying."
+            winetricks_verify
+            return 0
         fi
 
         # Don't install if already installed
@@ -2955,14 +3009,7 @@ w_do_call()
 
         # If the user specified --verify, also run GUI tests:
         if test "$WINETRICKS_VERIFY" = 1; then
-            # command -v isn't POSIX :(
-            "verify_$cmd" 2>/dev/null
-            verify_status=$?
-            case $verify_status in
-                0) w_warn "verify_$cmd succeeded!" ;;
-                127) echo "verify_$cmd not found, not verifying $cmd" ;;
-                *) w_die "verify_$cmd failed!" ;;
-            esac
+            winetricks_verify
         fi
 
         # Clean up after this verb
@@ -3288,6 +3335,14 @@ winetricks_early_wine()
     # The tr removes carriage returns so expanded variables don't have crud on the end
     # The grep works around using new wineprefixes with old wine
     WINEDEBUG=-all "$WINE" "$@" 2> "$W_TMP_EARLY"/early_wine.err.txt | ( sed 's/.*1h.=//' | tr -d '\r' | grep -v -e "Module not found" -e "Could not load wine-gecko" || true)
+}
+
+# Wrapper around winetricks_early_wine()
+# Same idea, but use $WINE_ARCH, i.e., always use wine64 for 64-bit prefixes
+# Currently only used by w_expand_env()
+winetricks_early_wine_arch()
+{
+    WINE="$WINE_ARCH" winetricks_early_wine "$@"
 }
 
 winetricks_detect_gui()
@@ -4229,7 +4284,7 @@ winetricks_is_installed()
             ;;
         *)
             # Compute wineprefix for this app
-            case "${category}-${WINETRICKS_OPT_SHAREDPREFIX}" in
+            case "${_W_category}-${WINETRICKS_OPT_SHAREDPREFIX}" in
                 apps-0|benchmarks-0|games-0)
                     _W_prefix="$W_PREFIXES_ROOT/$1"
                     ;;
@@ -4949,8 +5004,12 @@ winetricks_set_winearch()
 # Usage: winetricks_set_wineprefix [bottlename]
 # Bottlename must not contain spaces, slashes, or other special characters
 # If bottlename is omitted, the default bottle (~/.wine) is used.
+#
+# shellcheck disable=SC2034
 winetricks_set_wineprefix()
 {
+    # Note: these are arch independent, but are needed by some arch dependent variables
+    # Defining here to avoid having two arch checks:
     if ! test "$1"; then
         WINEPREFIX="$WINETRICKS_ORIGINAL_WINEPREFIX"
     else
@@ -4958,23 +5017,112 @@ winetricks_set_wineprefix()
     fi
 
     export WINEPREFIX
-    #echo "WINEPREFIX is now $WINEPREFIX" >&2
-    mkdir -p "$(dirname "$WINEPREFIX")"
-
-    # Run wine here to force creation of the wineprefix so it's there when we want to make the cache symlink a bit later.
-    # The folder-name is localized!
-    W_PROGRAMS_WIN="$(w_expand_env ProgramFiles)"
-    case "$W_PROGRAMS_WIN" in
-        "") w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%ProgramFiles%' returned empty string, error message \"$(cat $W_TMP_EARLY/early_wine.err.txt)\" ";;
-        %*) w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%ProgramFiles%' returned unexpanded string '$W_PROGRAMS_WIN' ... this can be caused by a corrupt wineprefix (\`wineboot -u\` may help), by an old wine, or by not owning $WINEPREFIX" ;;
-        *unknown*) w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%ProgramFiles%' returned a string containing the word 'unknown', as if a voice had cried out in terror, and was suddenly silenced." ;;
-    esac
+    w_try mkdir -p "$(dirname "$WINEPREFIX")"
 
     case "$W_PLATFORM" in
         windows_cmd)
             W_DRIVE_C="/cygdrive/c" ;;
         *)
             W_DRIVE_C="$WINEPREFIX/dosdevices/c:" ;;
+    esac
+    W_WINDIR_UNIX="$W_DRIVE_C/windows"
+
+    # Make sure the prefix is initialized:
+    w_try winetricks_early_wine cmd /c "echo init" > /dev/null 2>&1
+
+    # Win(e) 32/64?
+    # Using the variable W_SYSTEM32_DLLS instead of SYSTEM32 because some stuff does go under system32 for both arch's
+    # e.g., spool/drivers/color
+    if test -d "$W_DRIVE_C/windows/syswow64"; then
+        # Probably need fancier handling/checking, but for a basic start:
+        # Note 'wine' may be named 'wine-stable'/'wine-staging'/etc.):
+        # WINE64 = wine64, available on 64-bit prefixes
+        # WINE_ARCH = the native wine for the prefix (wine for 32-bit, wine64 for 64-bit)
+        # WINE_MULTI = generic wine, new name
+        if [ "${WINE%??}64" = "$WINE" ]; then
+            WINE64="${WINE}"
+        elif command -v "${WINE}64" >/dev/null 2>&1; then
+            WINE64="${WINE}64"
+        else
+            # Handle case where wine binaries (or binary wrappers) have a suffix
+            WINE64="$(dirname "$WINE")/"
+            [ "$WINE64" = "./" ] && WINE64=""
+            WINE64="${WINE64}$(basename "$WINE" | sed 's/^wine/wine64/')"
+        fi
+        WINE_ARCH="${WINE64}"
+        WINE_MULTI="${WINE}"
+        W_ARCH=win64
+
+        W_PROGRAMS_WIN="$(w_expand_env ProgramFiles)"
+        W_PROGRAMS_UNIX="$(w_pathconv -u "$W_PROGRAMS_WIN")"
+
+        # Common variable for 32-bit dlls on win32/win64:
+        W_32BIT_DLLS="$W_WINDIR_UNIX/syswow64"
+        W_SYSTEM32_DLLS="$W_WINDIR_UNIX/syswow64"
+        W_SYSTEM32_DLLS_WIN="C:\\windows\\syswow64"
+
+        W_SYSTEM64_DLLS="$W_WINDIR_UNIX/system32"
+        W_SYSTEM64_DLLS_WIN32="C:\\windows\\sysnative" # path to access 64-bit dlls from 32-bit apps
+        W_SYSTEM64_DLLS_WIN64="C:\\windows\\system32"  # path to access 64-bit dlls from 64-bit apps
+
+        # There's also ProgramW6432, which =%ProgramFiles%(but only available when running under a 64 bit OS)
+        # See https://ss64.com/nt/syntax-variables.html
+        W_PROGRAMW6432_WIN="$(w_expand_env ProgramW6432)"
+        W_PROGRAMW6432_UNIX="$(w_pathconv -u "$W_PROGRAMW6432_WIN")"
+
+        # 64-bit Windows has a second directory for program files
+        W_PROGRAMS_X86_WIN="${W_PROGRAMS_WIN} (x86)"
+        W_PROGRAMS_X86_UNIX="${W_PROGRAMS_UNIX} (x86)"
+
+        W_COMMONFILES_X86_WIN="$(w_expand_env CommonProgramFiles\(x86\))"
+        W_COMMONFILES_X86="$(w_pathconv -u "$W_COMMONFILES_X86_WIN")"
+        W_COMMONFILES_WIN="$(w_expand_env CommonProgramW6432)"
+        W_COMMONFILES="$(w_pathconv -u "$W_COMMONFILES_WIN")"
+
+        # 64-bit prefixes still have plenty of issues:
+        case $LANG in
+            ru*) w_warn "Вы используете 64-битный WINEPREFIX. Важно: многие ветки устанавливают только 32-битные версии пакетов. Если у вас возникли проблемы, пожалуйста, проверьте еще раз на чистом 32-битном WINEPREFIX до отправки отчета об ошибке." ;;
+            *) w_warn "You are using a 64-bit WINEPREFIX. Note that many verbs only install 32-bit versions of packages. If you encounter problems, please retest in a clean 32-bit WINEPREFIX before reporting a bug." ;;
+        esac
+    else
+        WINE64="false"
+        WINE_ARCH="${WINE}"
+        WINE_MULTI="${WINE}"
+        W_ARCH=win32
+
+        W_PROGRAMS_WIN="$(w_expand_env ProgramFiles)"
+        W_PROGRAMS_UNIX="$(w_pathconv -u "$W_PROGRAMS_WIN")"
+
+        # Common variable for 32-bit dlls on win32/win64:
+        W_32BIT_DLLS="$W_WINDIR_UNIX/system32"
+        W_SYSTEM32_DLLS="$W_WINDIR_UNIX/system32"
+        W_SYSTEM32_DLLS_WIN="C:\\windows\\system32"
+
+        # These don't exist on win32, but are defined in case they are used on 32-bit.
+        # W_SYSTEM64_DLLS_WIN64 in particular is needed by w_metadata()
+        W_SYSTEM64_DLLS="/dev/null"
+        W_SYSTEM64_DLLS_WIN32="C:\\does-not-exist-on-win32" # path to access 64-bit dlls from 32-bit apps
+        W_SYSTEM64_DLLS_WIN64="C:\\does-not-exist-on-win32"  # path to access 64-bit dlls from 64-bit apps
+
+        W_PROGRAMS_X86_WIN="${W_PROGRAMS_WIN}"
+        W_PROGRAMS_X86_UNIX="${W_PROGRAMS_UNIX}"
+
+        W_COMMONFILES_X86_WIN="$(w_expand_env CommonProgramFiles)"
+        W_COMMONFILES_X86="$(w_pathconv -u "$W_COMMONFILES_X86_WIN")"
+        W_COMMONFILES_WIN="$(w_expand_env CommonProgramFiles)"
+        W_COMMONFILES="$(w_pathconv -u "$W_COMMONFILES_WIN")"
+    fi
+
+    ## Arch independent variables:
+
+    # Note: using AppData since it's arch indepedent
+    W_APPDATA_WIN="$(w_expand_env AppData)"
+    W_APPDATA_UNIX="$(w_pathconv -u "$W_APPDATA_WIN")"
+
+    case "$W_APPDATA_WIN" in
+        "") w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%AppData%' returned empty string, error message \"$(cat $W_TMP_EARLY/early_wine.err.txt)\" ";;
+        %*) w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%AppData%' returned unexpanded string '$W_PROGRAMS_WIN' ... this can be caused by a corrupt wineprefix (\`wineboot -u\` may help), by an old wine, or by not owning $WINEPREFIX" ;;
+        *unknown*) w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%AppData%' returned a string containing the word 'unknown', as if a voice had cried out in terror, and was suddenly silenced." ;;
     esac
 
     # Kludge: use Temp instead of temp to avoid \t expansion in w_try
@@ -5007,33 +5155,7 @@ winetricks_set_wineprefix()
             ;;
     esac
 
-    W_COMMONFILES_X86_WIN="$(w_expand_env CommonProgramFiles)"
-    W_COMMONFILES_WIN="$(w_expand_env CommonProgramW6432)"
-
-    # CommonProgramW6432 is only defined on win64, not win32 arches
-    # win32: %CommonProgramW6432%
-    # win64: 'C:\Program Files\Common Files'
-    if [ -z "$W_COMMONFILES_WIN" ] || [ "$W_COMMONFILES_WIN" = "%CommonProgramW6432%" ] ; then
-        W_COMMONFILES_WIN="$W_COMMONFILES_X86_WIN"
-    fi
-
-    W_COMMONFILES_X86="$(w_pathconv -u "$W_COMMONFILES_X86_WIN")"
-    #W_COMMONFILES="$(w_pathconv -u "$W_COMMONFILES_WIN")"
-
-    W_PROGRAMS_UNIX="$(w_pathconv -u "$W_PROGRAMS_WIN")"
     W_WINDIR_UNIX="$W_DRIVE_C/windows"
-
-    # 64-bit Windows has a second directory for program files
-    W_PROGRAMS_X86_WIN="${W_PROGRAMS_WIN} (x86)"
-    W_PROGRAMS_X86_UNIX="${W_PROGRAMS_UNIX} (x86)"
-    if ! test -d "$W_PROGRAMS_X86_UNIX"; then
-        W_PROGRAMS_X86_WIN="${W_PROGRAMS_WIN}"
-        W_PROGRAMS_X86_UNIX="${W_PROGRAMS_UNIX}"
-    fi
-
-    W_APPDATA_WIN="$(w_expand_env AppData)"
-    # shellcheck disable=SC2034
-    W_APPDATA_UNIX="$(w_pathconv -u "$W_APPDATA_WIN")"
 
     # FIXME: get fonts path from SHGetFolderPath
     # See also https://blogs.msdn.microsoft.com/oldnewthing/20031103-00/?p=41973/
@@ -5048,64 +5170,6 @@ winetricks_set_wineprefix()
     fi
     mkdir -p "${W_FONTSDIR_UNIX}"
 
-    # Win(e) 32/64?
-    # Using the variable W_SYSTEM32_DLLS instead of SYSTEM32 because some stuff does go under system32 for both arch's
-    # e.g., spool/drivers/color
-    if test -d "$W_DRIVE_C/windows/syswow64"; then
-        W_ARCH=win64
-
-        # Common variable for 32-bit dlls on win32/win64:
-        W_32BIT_DLLS="$W_WINDIR_UNIX/syswow64"
-        W_SYSTEM32_DLLS="$W_WINDIR_UNIX/syswow64"
-        W_SYSTEM32_DLLS_WIN="C:\\windows\\syswow64"
-
-        W_SYSTEM64_DLLS="$W_WINDIR_UNIX/system32"
-        # shellcheck disable=SC2034
-        W_SYSTEM64_DLLS_WIN32="C:\\windows\\sysnative" # path to access 64-bit dlls from 32-bit apps
-        # shellcheck disable=SC2034
-        W_SYSTEM64_DLLS_WIN64="C:\\windows\\system32"  # path to access 64-bit dlls from 64-bit apps
-
-        # Probably need fancier handling/checking, but for a basic start:
-        # Note 'wine' may be named 'wine-stable'/'wine-staging'/etc.):
-        # WINE64 = wine64, available on 64-bit prefixes
-        # WINE_ARCH = the native wine for the prefix (wine for 32-bit, wine64 for 64-bit)
-        # WINE_MULTI = generic wine, new name
-        if [ "${WINE%??}64" = "$WINE" ]; then
-            WINE64="${WINE}"
-        elif command -v "${WINE}64" >/dev/null 2>&1; then
-            WINE64="${WINE}64"
-        else
-            # Handle case where wine binaries (or binary wrappers) have a suffix
-            WINE64="$(dirname "$WINE")/"
-            [ "$WINE64" = "./" ] && WINE64=""
-            WINE64="${WINE64}$(basename "$WINE" | sed 's/^wine/wine64/')"
-        fi
-        WINE_ARCH="${WINE64}"
-        WINE_MULTI="${WINE}"
-
-        # 64-bit prefixes still have plenty of issues:
-        case $LANG in
-            ru*) w_warn "Вы используете 64-битный WINEPREFIX. Важно: многие ветки устанавливают только 32-битные версии пакетов. Если у вас возникли проблемы, пожалуйста, проверьте еще раз на чистом 32-битном WINEPREFIX до отправки отчета об ошибке." ;;
-            *) w_warn "You are using a 64-bit WINEPREFIX. Note that many verbs only install 32-bit versions of packages. If you encounter problems, please retest in a clean 32-bit WINEPREFIX before reporting a bug." ;;
-        esac
-    else
-        W_ARCH=win32
-
-        # Common variable for 32-bit dlls on win32/win64:
-        W_32BIT_DLLS="$W_WINDIR_UNIX/system32"
-        W_SYSTEM32_DLLS="$W_WINDIR_UNIX/system32"
-        W_SYSTEM32_DLLS_WIN="C:\\windows\\system32"
-
-        # These don't exist on win32, but are defined in case they are used on 32-bit.
-        # W_SYSTEM64_DLLS_WIN64 in particular is needed by w_metadata()
-        W_SYSTEM64_DLLS="/dev/null"
-        W_SYSTEM64_DLLS_WIN32="C:\\does-not-exist-on-win32" # path to access 64-bit dlls from 32-bit apps
-        W_SYSTEM64_DLLS_WIN64="C:\\does-not-exist-on-win32"  # path to access 64-bit dlls from 64-bit apps
-
-        WINE64="false"
-        WINE_ARCH="${WINE}"
-        WINE_MULTI="${WINE}"
-    fi
 
     # Unset WINEARCH which might be set from winetricks_set_winearch().
     # It is no longer necessary after the new wineprefix was created
@@ -5250,6 +5314,8 @@ winetricks_init()
     # Whether to automate installs (0=no, 1=yes)
     winetricks_set_unattended ${W_OPT_UNATTENDED:-0}
 
+    # We have to call this here, because it needs to be called before w_metadata
+    # Unfortunately, that means we run wine before the gui runs. Avoiding that would take quite the refactor..
     winetricks_wine_setup "$@"
 }
 
@@ -5547,6 +5613,17 @@ winetricks_install_app()
     if ! w_do_call "$1" "$2"; then
         w_die "$fail_msg"
     fi
+}
+
+winetricks_verify()
+{
+    "verify_$cmd" 2>/dev/null
+    verify_status=$?
+    case $verify_status in
+        0) w_warn "verify_$cmd succeeded!" ;;
+        127) echo "verify_$cmd not found, not verifying $cmd" ;;
+        *) w_die "verify_$cmd failed!" ;;
+    esac
 }
 
 #---- Builtin Verbs ----
@@ -6654,15 +6731,15 @@ w_metadata directmusic dlls \
     publisher="Microsoft" \
     year="2010" \
     media="download" \
-    file1="../directx9/directx_feb2010_redist.exe"
+    file1="../directx9/directx_feb2010_redist.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/dmusic.dll"
 
 load_directmusic()
 {
-# Untested. Based off https://bugs.winehq.org/show_bug.cgi?id=4805 and https://bugs.winehq.org/show_bug.cgi?id=24911
+    # Untested. Based off https://bugs.winehq.org/show_bug.cgi?id=4805 and https://bugs.winehq.org/show_bug.cgi?id=24911
 
     w_warn "You can specify individual DirectMusic verbs instead. e.g. 'winetricks dmsynth dmusic'"
 
-    w_call devenum
     w_call dmband
     w_call dmcompos
     w_call dmime
@@ -6674,7 +6751,6 @@ load_directmusic()
     w_call dmusic32
     w_call dsound
     w_call dswave
-    w_call quartz
 
     # FIXME: dxnt.cab doesn't contain this DLL. Is this really needed?
     w_override_dlls native streamci
@@ -6797,7 +6873,7 @@ load_dsdmo()
 
 #----------------------------------------------------------------
 
-w_metadata dxsdk_nov2006 dlls \
+w_metadata dxsdk_nov2006 apps \
     title="MS DirectX SDK, November 2006 (developers only)" \
     publisher="Microsoft" \
     year="2006" \
@@ -6820,7 +6896,7 @@ load_dxsdk_nov2006()
 
 #----------------------------------------------------------------
 
-w_metadata dxsdk_jun2010 dlls \
+w_metadata dxsdk_jun2010 apps \
     title="MS DirectX SDK, June 2010 (developers only)" \
     publisher="Microsoft" \
     year="2010" \
@@ -8475,16 +8551,8 @@ load_dotnet20()
                 }
             "
         else
-            "$WINE" dotnetfx.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
-            status=$?
+            w_try_ms_installer "$WINE" dotnetfx.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
         fi
-
-        case $status in
-            0) ;;
-            105) echo "exit status $status - normal, user selected 'restart now'" ;;
-            194) echo "exit status $status - normal, user selected 'restart later'" ;;
-            *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-        esac
 
         w_set_winver 'default'
 
@@ -8515,7 +8583,7 @@ verify_dotnet20()
 
 #----------------------------------------------------------------
 
-w_metadata dotnet20sdk dlls \
+w_metadata dotnet20sdk apps \
     title="MS .NET 2.0 SDK" \
     publisher="Microsoft" \
     year="2006" \
@@ -8628,15 +8696,7 @@ load_dotnet20sp1()
     fi
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
-    "$WINE" "$exe" ${W_OPT_UNATTENDED:+/q}
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    w_try_ms_installer "$WINE" "$exe" ${W_OPT_UNATTENDED:+/q}
 
     if [ "$W_ARCH" = "win32" ]; then
         # We can't stop installing dotnet20sp1 in win2k mode until Wine supports
@@ -8704,15 +8764,7 @@ load_dotnet20sp2()
     fi
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
-    "$WINE" "$exe" ${W_OPT_UNATTENDED:+ /q /c:"install.exe /q"}
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    w_try_ms_installer "$WINE" "$exe" ${W_OPT_UNATTENDED:+ /q /c:"install.exe /q"}
 
     if [ "$W_ARCH" = "win32" ]; then
         # We can't stop installing dotnet20sp1 in win2k mode until Wine supports
@@ -8865,15 +8917,7 @@ load_dotnet30sp1()
     w_try "$WINE" msiexec /i "XPSEP XP and Server 2003 32 bit.msi" ${W_UNATTENDED_SLASH_QB}
     "$WINE" sc delete FontCache3.0.0.0
 
-    "$WINE" "$file1" ${W_OPT_UNATTENDED:+/q}
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    w_try_ms_installer "$WINE" "$file1" ${W_OPT_UNATTENDED:+/q}
 
     w_override_dlls native mscorwks
     w_set_winver 'default'
@@ -8922,15 +8966,7 @@ load_dotnet35()
     w_wineserver -w
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
-    "$WINE" "${file1}" /lang:ENU $W_UNATTENDED_SLASH_Q
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    w_try_ms_installer "$WINE" "${file1}" /lang:ENU $W_UNATTENDED_SLASH_Q
 
     # Doesn't install any ngen.exe
     # W_NGEN_CMD=""
@@ -8973,15 +9009,7 @@ load_dotnet35sp1()
     w_set_winver winxp
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
-    "$WINE" dotnetfx35.exe /lang:ENU $W_UNATTENDED_SLASH_Q
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    w_try_ms_installer "$WINE" dotnetfx35.exe /lang:ENU $W_UNATTENDED_SLASH_Q
 
     # Doesn't install any ngen.exe
     # W_NGEN_CMD=""
@@ -9025,7 +9053,7 @@ load_dotnet40()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" dotNetFx40_Full_x86_x64.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"} || true
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" dotNetFx40_Full_x86_x64.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
 
     w_override_dlls native mscoree
 
@@ -9107,15 +9135,7 @@ load_dotnet45()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" dotnetfx45_full_x86_x64.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" dotnetfx45_full_x86_x64.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
 
     w_override_dlls native mscoree
 
@@ -9136,7 +9156,7 @@ w_metadata dotnet452 dlls \
     year="2012" \
     media="download" \
     conflicts="dotnet20sdk dotnet46 dotnet462" \
-    file1="dotnetfx45_full_x86_x64.exe" \
+    file1="NDP452-KB2901907-x86-x64-AllOS-ENU.exe" \
     installed_file1="c:/windows/Microsoft.NET/Framework/v4.0.30319/Microsoft.Windows.ApplicationServer.Applications.45.man"
 
 load_dotnet452()
@@ -9159,15 +9179,7 @@ load_dotnet452()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" NDP452-KB2901907-x86-x64-AllOS-ENU.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" NDP452-KB2901907-x86-x64-AllOS-ENU.exe ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
 
     w_override_dlls native mscoree
 
@@ -9210,19 +9222,10 @@ load_dotnet46()
     fi
 
     if w_workaround_wine_bug 38959 "This installer will fail unless run in quiet mode. See: https://bugs.winehq.org/show_bug.cgi?id=38959" ,3.6; then
-        WINEDLLOVERRIDES=fusion=b "$WINE" "$file1" /q /c:"install.exe /q"
+        WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" "$file1" /q /c:"install.exe /q"
     else
-        WINEDLLOVERRIDES=fusion=b "$WINE" "$file1" ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
+        WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" "$file1" ${W_OPT_UNATTENDED:+/q /c:"install.exe /q"}
     fi
-
-    status=$?
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
 
     w_override_dlls native mscoree
 }
@@ -9257,17 +9260,7 @@ load_dotnet461()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" "$file1" /sfxlang:1027 ${W_OPT_UNATTENDED:+/q /norestart}
-    status=$?
-
-    echo "exit status: $status"
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" "$file1" /sfxlang:1027 ${W_OPT_UNATTENDED:+/q /norestart}
 
     w_override_dlls native mscoree
 
@@ -9306,18 +9299,7 @@ load_dotnet462()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" "$file_package" ${W_OPT_UNATTENDED:+$unattended_args}
-    status=$?
-
-    echo "exit status: $status"
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        5) w_die "exit status $status - user selected 'Cancel'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" "$file_package" ${W_OPT_UNATTENDED:+$unattended_args}
 
     w_override_dlls native mscoree
 
@@ -9357,18 +9339,7 @@ load_dotnet471()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" "$file1" ${W_OPT_UNATTENDED:+$unattended_args}
-    status=$?
-
-    echo "exit status: $status"
-
-    case $status in
-        0) ;;
-        5) w_die "exit status $status - user selected 'Cancel'" ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" "$file1" ${W_OPT_UNATTENDED:+$unattended_args}
 
     w_override_dlls native mscoree
 
@@ -9414,18 +9385,7 @@ load_dotnet472()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" "$file_package" ${W_OPT_UNATTENDED:+$unattended_args}
-    status=$?
-
-    echo "exit status: $status"
-
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        5) w_die "exit status $status - user selected 'Cancel'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" "$file_package" ${W_OPT_UNATTENDED:+$unattended_args}
 
     w_override_dlls native mscoree
 
@@ -9464,18 +9424,7 @@ load_dotnet48()
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
 
-    WINEDLLOVERRIDES=fusion=b "$WINE" "$file1" ${W_OPT_UNATTENDED:+$unattended_args}
-    status=$?
-
-    echo "exit status: $status"
-
-    case $status in
-        0) ;;
-        5) w_die "exit status $status - user selected 'Cancel'" ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    WINEDLLOVERRIDES=fusion=b w_try_ms_installer "$WINE" "$file1" ${W_OPT_UNATTENDED:+$unattended_args}
 
     w_override_dlls native mscoree
 
@@ -10506,12 +10455,7 @@ load_ie8_kb2936068()
     w_set_winver winxp
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
-    "$WINE" IE8-WindowsXP-KB2936068-x86-ENU.exe $quiet
-    status=$?
-    case $status in
-        0|194) ;;
-        *) w_die "$W_PACKAGE installation failed"
-    esac
+    w_try_ms_installer "$WINE" IE8-WindowsXP-KB2936068-x86-ENU.exe $quiet
 
     w_set_winver 'default'
 }
@@ -11182,7 +11126,7 @@ w_metadata physx dlls \
     year="2014" \
     media="download" \
     file1="PhysX-9.14.0702-SystemSoftware.msi" \
-    installed_file1="$W_PROGRAMS_WIN/NVIDIA Corporation/PhysX/Engine/v2.8.3/PhysXCore.dll"
+    installed_file1="$W_PROGRAMS_X86_WIN/NVIDIA Corporation/PhysX/Engine/v2.8.3/PhysXCore.dll"
 
 load_physx()
 {
@@ -11370,13 +11314,14 @@ load_qdvd()
 {
     helper_win7sp1 x86_microsoft-windows-directshow-dvdsupport_31bf3856ad364e35_6.1.7601.17514_none_562994bd321aac67/qdvd.dll
     w_try cp "$W_TMP/x86_microsoft-windows-directshow-dvdsupport_31bf3856ad364e35_6.1.7601.17514_none_562994bd321aac67/qdvd.dll" "$W_SYSTEM32_DLLS/qdvd.dll"
+    w_override_dlls native,builtin qdvd
+    w_try_regsvr qdvd.dll
 
     if [ "$W_ARCH" = "win64" ]; then
         helper_win7sp1_x64 amd64_microsoft-windows-directshow-dvdsupport_31bf3856ad364e35_6.1.7601.17514_none_b2483040ea781d9d/qdvd.dll
         w_try cp "$W_TMP/amd64_microsoft-windows-directshow-dvdsupport_31bf3856ad364e35_6.1.7601.17514_none_b2483040ea781d9d/qdvd.dll" "$W_SYSTEM64_DLLS/qdvd.dll"
+        w_try_regsvr64 qdvd.dll
     fi
-
-    w_override_dlls native,builtin qdvd
 }
 
 #----------------------------------------------------------------
@@ -11663,6 +11608,8 @@ load_shockwave() {
 
 #----------------------------------------------------------------
 
+# While this is an sdk, some apps require it (those needing sapi.dll),
+# so keeping in the dll category
 w_metadata speechsdk dlls \
     title="MS Speech SDK 5.1" \
     publisher="Microsoft" \
@@ -12407,7 +12354,8 @@ load_vcrun2019()
 {
     # https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
     # 2019/12/26: e59ae3e886bd4571a811fe31a47959ae5c40d87c583f786816c60440252cd7ec
-    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe e59ae3e886bd4571a811fe31a47959ae5c40d87c583f786816c60440252cd7ec
+    # 2020/03/23: ac96016f1511ae3eb5ec9de04551146fe351b7f97858dcd67163912e2302f5d6
+    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe ac96016f1511ae3eb5ec9de04551146fe351b7f97858dcd67163912e2302f5d6
 
     w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcr140 ucrtbase vcomp140 vcruntime140
 
@@ -12418,7 +12366,8 @@ load_vcrun2019()
         win64)
             # Also install the 64-bit version
             # 2019/12/26: 40ea2955391c9eae3e35619c4c24b5aaf3d17aeaa6d09424ee9672aa9372aeed
-            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe 40ea2955391c9eae3e35619c4c24b5aaf3d17aeaa6d09424ee9672aa9372aeed
+            # 2020/03/23: b6c82087a2c443db859fdbeaae7f46244d06c3f2a7f71c35e50358066253de52
+            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe b6c82087a2c443db859fdbeaae7f46244d06c3f2a7f71c35e50358066253de52
             w_try "$WINE" vc_redist.x64.exe $W_UNATTENDED_SLASH_Q
             ;;
     esac
@@ -12466,7 +12415,7 @@ load_vulkanrt()
 
 #----------------------------------------------------------------
 
-w_metadata vulkansdk dlls \
+w_metadata vulkansdk apps \
     title="Vulkan SDK 1.1.73.0 (developers only)" \
     publisher="LunarG" \
     year="2018" \
@@ -14523,17 +14472,10 @@ load_ie6()
 
     w_try_cd "$W_TMP/IE 6.0 Full"
     if [ -n "$W_UNATTENDED_SLASH_Q" ]; then
-        "$WINE" IE6SETUP.EXE /q:a /r:n /c:"ie6wzd /S:""#e"" /q:a /r:n"
+        w_try_ms_installer "$WINE" IE6SETUP.EXE /q:a /r:n /c:"ie6wzd /S:""#e"" /q:a /r:n"
     else
-        "$WINE" IE6SETUP.EXE
+        w_try_ms_installer "$WINE" IE6SETUP.EXE
     fi
-
-    # IE6 exits with 194 to signal a reboot
-    status=$?
-    case $status in
-        0|194) ;;
-        *) w_die ie6 installation failed;;
-    esac
 
     # Work around DLL registration bug until ierunonce/RunOnce/wineboot is fixed
     # FIXME: whittle down this list
@@ -14622,20 +14564,11 @@ load_ie7()
     # IE7 requies winxp to install:
     w_set_winver winxp
 
-    "$WINE" IE7-WindowsXP-x86-enu.exe $W_UNATTENDED_SLASH_QUIET
-
-    # IE7 exits with 194 to signal a reboot
-    status=$?
-    case $status in
-        0) ;;
-        105) echo "exit status $status - normal, user selected 'restart now'" ;;
-        194) echo "exit status $status - normal, user selected 'restart later'" ;;
-        *) w_die "exit status $status - $W_PACKAGE installation failed" ;;
-    esac
+    w_try_ms_installer "$WINE" IE7-WindowsXP-x86-enu.exe $W_UNATTENDED_SLASH_QUIET
 
     if test -w /; then
         # END KLUDGE: restore Z:, assuming user didn't kill us
-        mv "$WINEPREFIX/dosdevices/z:.bak_wt" "$WINEPREFIX/dosdevices/z:"
+        w_try mv "$WINEPREFIX/dosdevices/z:.bak_wt" "$WINEPREFIX/dosdevices/z:"
     fi
 
     # Work around DLL registration bug until ierunonce/RunOnce/wineboot is fixed
@@ -14938,7 +14871,7 @@ w_metadata mspaint apps \
     publisher="Microsoft" \
     year="2010" \
     media="download" \
-    file1="WindowsXP-KB978706-x86-ENU.exe" \
+    file1="windowsxp-kb978706-x86-enu_f4e076b3867c2f08b6d258316aa0e11d6822b8d7.exe" \
     installed_file1="c:/windows/mspaint.exe"
 
 load_mspaint()
@@ -14950,8 +14883,8 @@ load_mspaint()
     # Originally at: https://download.microsoft.com/download/0/A/4/0A40DF5C-2BAE-4C63-802A-84C33B34AC98/WindowsXP-KB978706-x86-ENU.exe
     # Mirror list: http://www.filewatcher.com/_/?q=WindowsXP-KB978706-x86-ENU.exe
     w_download http://download.windowsupdate.com/msdownload/update/software/secu/2010/01/windowsxp-kb978706-x86-enu_f4e076b3867c2f08b6d258316aa0e11d6822b8d7.exe 93ed34ab6c0d01a323ce10992d1c1ca27d1996fef82f0864d83e7f5ac6f9b24b
-    w_try $WINE "$W_CACHE"/mspaint/WindowsXP-KB978706-x86-ENU.exe /q /x:"$W_TMP"/WindowsXP-KB978706-x86-ENU
-    w_try cp -f "$W_TMP"/WindowsXP-KB978706-x86-ENU/SP3GDR/mspaint.exe "$W_WINDIR_UNIX"/mspaint.exe
+    w_try "$WINE" "${W_CACHE}/${W_PACKAGE}/${file1}" /q /x:"${W_TMP}/${file1}"
+    w_try cp -f "${W_TMP}/${file1}/SP3GDR/mspaint.exe" "$W_WINDIR_UNIX"/mspaint.exe
 }
 
 #----------------------------------------------------------------
@@ -22685,6 +22618,7 @@ if ! test "$WINETRICKS_LIB"; then
                             # the GUI, this may have an "arch=* " prefix
                             _W_arch=$(echo "$verbs" | grep -o 'arch=.*' | cut -d' ' -f1)
                             _W_prefix=$(echo "$verbs" | grep -o 'prefix=.*')
+                            _W_prefix_name="${_W_prefix#*=}"
                             if [ -n "$_W_arch" ]; then
                                 execute_command "$_W_arch"
                             fi

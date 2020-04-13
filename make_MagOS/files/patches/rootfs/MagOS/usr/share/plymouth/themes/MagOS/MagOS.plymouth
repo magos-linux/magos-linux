@@ -1,6 +1,6 @@
 [Plymouth Theme]
 Name=MagOS
-Description=MagOS splash screen.
+Description=MagOS splash screen. Based on metal theme by Dietmar Zeidler.
 ModuleName=script
 
 

@@ -131,9 +131,10 @@ LINKNVIDIA173=/etc/nvidia173/ld.so.conf
 LINKNVIDIA304=/etc/nvidia304/ld.so.conf
 LINKNVIDIA340=/etc/nvidia340/ld.so.conf
 LINKNVIDIA360=/etc/nvidia360/ld.so.conf
+LINKNVIDIA390=/etc/nvidia390/ld.so.conf
 LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
 LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-#NVIDIATEST="nvidia360 nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current nouveau"
+#NVIDIATEST="nvidia390 nvidia360 nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current nouveau"
 NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia"
 FAILSAFENVIDIA=nouveau
 FAILSAFEATI=ati
@@ -177,3 +178,7 @@ MKSQFS_FASTALG="-b 512K -comp lz4 -Xhc"
 
 #/usr/lib/magos/rc.desktop/lxqt/qterminal
 QTERMINALSTART=yes
+
+#/usr/lib/magos/rc.preinit.d/52-desktop
+#/usr/lib/magos/rc.post.d/11-xorg
+SYSCONF=/etc/sysconfig

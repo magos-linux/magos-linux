@@ -6,9 +6,10 @@ TMPD=/tmp/make_magos_kernel
 grep "$HOME/rpmbuild" /proc/mounts | awk '{print $2}' | sort -r | while read a ;do  echo umount "$a" ; umount "$a" 2>/dev/null ; done
 rm -fr rpms/"$MARCH"/{rpms,srpms}
 mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,BUILDROOT} rpms/$MARCH/{rpms,srpms}
-# 32bit system tweaks
-mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILD
-mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILDROOT
+if [ "$(uname -i)" != "x86_64" ] ;then
+  mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILD
+  mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILDROOT
+fi
 
 rpm -Uhv --nodeps --nodigest cache/$MARCH/builddeps/*.rpm
 rpm -ihv --nodeps --noscripts --nodigest cache/$MARCH/kernel/*.rpm

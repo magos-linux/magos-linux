@@ -80,7 +80,7 @@ if [ -z "$XDRIVER" ] ; then
    [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia
 fi
 
-# testing nonfree nvidia modules (nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current)
+# testing nonfree nvidia modules (nvidia390 nvidia340 nvidia304 nvidia-current)
 if [ "$XDRIVER" = "nvidia" ] ;then
    XDRIVER=
    for a in $NVIDIATEST ;do

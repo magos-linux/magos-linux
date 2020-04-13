@@ -10,22 +10,28 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
+. usr/lib/magos/os-config
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
 
 [ -f etc/inittab ] && sed -i 's/id:.:initdefault:/id:5:initdefault:/' etc/inittab
 ln -sf /lib/systemd/system/graphical.target etc/systemd/system/default.target
 
+echo $SYSCONF | grep -q ^/ && SYSCONF=.$SYSCONF
+[ -d $SYSCONF ] || SYSCONF=./etc/MagOS
+. $SYSCONF/desktop 2>/dev/null
+LASTDM=$(echo $DISPLAYMANAGER | tr [A-Z] [a-z])
+
 switch3don()
 {
-         echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
+         echo "COMPOSITING_SERVER_START=no" >$SYSCONF/compositing-server
          #Gnome-shell does not supports compiz, so turn on it only in classic mode and only after desktop started
          if [ -x usr/bin/gnome-shell ] ;then
-            echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+            echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >$SYSCONF/compositing-wm
             sed -i /COMPOSITING_WM_START/d etc/MagOS/config
             echo COMPOSITING_WM_START=yes >> etc/MagOS/config
          else
-            echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+            echo -e "COMPOSITING_WM_START=yes\nCOMPOSITING_WM=compiz-fusion" >$SYSCONF/compositing-wm
          fi
          [ -f usr/lib/libDrakX/harddrake/autoconf.pm ] && sed -i 's/^ *Xconfig::glx::write({});$/#    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
          [ -f etc/xdg/kwinrc ] && sed -i s/^Enabled=.*/Enabled=false/ etc/xdg/kwinrc
@@ -33,13 +39,21 @@ switch3don()
 
 switch3doff()
 {
-         echo "COMPOSITING_SERVER_START=no" >etc/sysconfig/compositing-server
-         echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >etc/sysconfig/compositing-wm
+         echo "COMPOSITING_SERVER_START=no" >$SYSCONF/compositing-server
+         echo -e "COMPOSITING_WM_START=no\nCOMPOSITING_WM=compiz-fusion" >$SYSCONF/compositing-wm
          sed -i /COMPOSITING_WM_START/d etc/MagOS/config
          [ -f usr/lib/libDrakX/harddrake/autoconf.pm ] && sed -i 's/^#    Xconfig::glx::write({});$/    Xconfig::glx::write({});/' usr/lib/libDrakX/harddrake/autoconf.pm
          [ -f etc/xdg/kwinrc ] && sed -i s/^Enabled=.*/Enabled=true/ etc/xdg/kwinrc
 }
 
+setupdm()
+{
+ if [ -f lib/systemd/system/$2.service ] ;then
+   sed -i /DISPLAYMANAGER=/d $SYSCONF/desktop
+   echo "DISPLAYMANAGER=$1" >> $SYSCONF/desktop
+   ln -sf /lib/systemd/system/$2.service etc/systemd/system/display-manager.service
+ fi
+}
 
 for a in $(cmdline_value desktop | tr , " " ) ;do
    case $a in
@@ -54,79 +68,106 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          ln -sf /lib/systemd/system/multi-user.target etc/systemd/system/default.target
        ;;
        kde)
-         echo -e "DISPLAYMANAGER=KDM\nDESKTOP=KDE4" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/kdm.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=KDE4" >$SYSCONF/desktop
+         PREFERREDDM=kdm
        ;;
        gnome)
-         echo -e "DISPLAYMANAGER=GDM\nDESKTOP=GNOME" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/gdm.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=GNOME" >$SYSCONF/desktop
+         PREFERREDDM=gdm
        ;;
        gnome-shell|gnome3)
-         echo -e "DISPLAYMANAGER=GDM\nDESKTOP=GNOMESHELL" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/gdm.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=GNOMESHELL" >$SYSCONF/desktop
+         PREFERREDDM=gdm
        ;;
        lxde)
-         echo -e "DISPLAYMANAGER=slim\nDESKTOP=LXDE" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=LXDE" >$SYSCONF/desktop
+         PREFERREDDM=slim
        ;;
        lxqt)
-         echo -e "DISPLAYMANAGER=sddm\nDESKTOP=LXQT" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=LXQT" >$SYSCONF/desktop
+         PREFERREDDM=sddm
        ;;
        i3)
-         echo -e "DISPLAYMANAGER=sddm\nDESKTOP=i3" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=i3" >$SYSCONF/desktop
        ;;
        steam)
-         echo -e "DISPLAYMANAGER=slim\nDESKTOP=Steam" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=Steam" >$SYSCONF/desktop
        ;;
        plasma)
-         echo -e "DISPLAYMANAGER=sddm\nDESKTOP=Plasma" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=Plasma" >$SYSCONF/desktop
+         PREFERREDDM=sddm
        ;;
        kdm)
-         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=KDM/' etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/kdm.service etc/systemd/system/display-manager.service
+         setupdm KDM kdm
        ;;
        gdm)
-         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=GDM/' etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/gdm.service etc/systemd/system/display-manager.service
+         setupdm GDM gdm
        ;;
        slim)
-         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=slim/' etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/slim.service etc/systemd/system/display-manager.service
+         setupdm slim slim
        ;;
        xdm)
-         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=xdm/' etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/xdm.service etc/systemd/system/display-manager.service
+         setupdm xdm xdm
        ;;
        lightdm)
-         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=lightdm/' etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/lightdm.service etc/systemd/system/display-manager.service
+         setupdm lightdm lightdm
        ;;
        lxdm)
-         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=lxdm/' etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/lxdm.service etc/systemd/system/display-manager.service
+         setupdm lxdm lxdm
        ;;
        sddm)
-         sed -i 's/DISPLAYMANAGER=.*/DISPLAYMANAGER=sddm/' etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
+         setupdm sddm sddm
        ;;
        lan)
-         sed -i s/ONBOOT=.*/ONBOOT=yes/ etc/sysconfig/network-scripts/ifcfg-eth0 2>/dev/null
+         sed -i s/ONBOOT=.*/ONBOOT=yes/ $SYSCONF/network-scripts/ifcfg-eth0 2>/dev/null
+       ;;
+       nolan)
+         sed -i s/ONBOOT=.*/ONBOOT=no/ $SYSCONF/network-scripts/ifcfg-eth0 2>/dev/null
        ;;
        *)
-         echo -e "DISPLAYMANAGER=sddm\nDESKTOP=$a" >etc/sysconfig/desktop
-         ln -sf /lib/systemd/system/sddm.service etc/systemd/system/display-manager.service
+         echo -e "DESKTOP=$a" >$SYSCONF/desktop
        ;;
    esac
 done
 
+if ! grep -q DISPLAYMANAGER= $SYSCONF/desktop ;then
+   [ "$(cmdline_value plymouth.enable)" = "1" -a -f lib/systemd/system/lightdm.service ] && PREFERREDDM=lightdm
+   [ -z "$PREFERREDDM" ] && PREFERREDDM=$LASTDM
+   [ -z "$PREFERREDDM" ] && PREFERREDDM=sddm
+   [ -f lib/systemd/system/$PREFERREDDM.service ] || PREFERREDDM=kdm
+   [ -f lib/systemd/system/$PREFERREDDM.service ] || PREFERREDDM=gdm
+   [ -f lib/systemd/system/$PREFERREDDM.service ] || PREFERREDDM=slim
+   [ -f lib/systemd/system/$PREFERREDDM.service ] || PREFERREDDM=xdm
+   [ -f lib/systemd/system/$PREFERREDDM.service ] || PREFERREDDM=lxdm
+   case $PREFERREDDM in
+       kdm)
+         setupdm KDM kdm
+       ;;
+       gdm)
+         setupdm GDM gdm
+       ;;
+       slim)
+         setupdm slim slim
+       ;;
+       xdm)
+         setupdm xdm xdm
+       ;;
+       lightdm)
+         setupdm lightdm lightdm
+       ;;
+       lxdm)
+         setupdm lxdm lxdm
+       ;;
+       sddm)
+         setupdm sddm sddm
+       ;;
+   esac
+fi
+
 [ "$(cmdline_parameter 3ddesktop)" ] && switch3don
 [ "$(cmdline_parameter no3ddesktop)" ] && switch3doff
 
-. etc/sysconfig/desktop
+. $SYSCONF/desktop
 cat >etc/X11/wmsession.d/00DEFAULT <<EOF
 [Desktop Entry]
 Encoding=UTF-8

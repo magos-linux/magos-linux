@@ -141,4 +141,14 @@ PFP=/usr/share/applications/gparted.desktop
 
 [ -f /usr/share/applications/pavucontrol.desktop -a -f /usr/share/applications/pavucontrol-qt.desktop ] && mv -f /usr/share/applications/pavucontrol-qt.desktop /usr/share/applications/pavucontrol.desktop
 
+HIDEPROGS="ccsm fusion-icon emerald-theme-manager"
+for a in $HIDEPROGS  ;do
+   [ -f "/usr/share/applications/$a.desktop" ] || continue
+   grep -q Hidden=true "/usr/share/applications/$a.desktop" || sed -i s/"\[Desktop Entry\]"/"[Desktop Entry]\\nHidden=true"/ "/usr/share/applications/$a.desktop"
+done
+for a in /usr/share/applications/java*policytool.desktop  ;do
+   [ -f "$a" ] || continue
+   grep -q Hidden=true "$a" || sed -i s/"\[Desktop Entry\]"/"[Desktop Entry]\\nHidden=true"/ "$a"
+done
+
 exit 0

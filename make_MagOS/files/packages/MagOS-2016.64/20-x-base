@@ -155,6 +155,7 @@ lib64cdio_paranoia2
 lib64cdr0.1_1
 lib64cdt5
 lib64celt0_2
+lib64celt051_0
 lib64cgraph6
 lib64chromeXvMC1
 lib64chromeXvMCPro1
@@ -342,12 +343,15 @@ lib64lame0
 lib64lapack3
 lib64lcms1
 lib64lcms2_2
+lib64lightdm-gir1
+lib64lightdm-gobject1_0
 lib64llvm8.0
 lib64llvm-plugins
 lib64lqr1_0
 lib64lxqt0
 lib64lxqt-globalkeys0
 lib64lxqt-globalkeys-ui0
+lib64lxqt-wallet3.1.0
 lib64mad0
 lib64Magick++7.Q16HDRI_1
 lib64MagickCore7.Q16HDRI_2
@@ -581,6 +585,8 @@ lib64unixODBC2
 lib64unwind8
 lib64upower-glib3
 lib64usbmuxd4
+lib64usbredirhost1
+lib64usbredirparser1
 lib64v4l0
 lib64v4l-wrappers
 lib64va1
@@ -685,6 +691,7 @@ lib64xinerama1
 lib64xkbcommon-x11_0
 lib64xkbfile1
 lib64xkbui1
+lib64xklavier16
 lib64xml++2.6_2
 lib64xmu6
 lib64xmuu1
@@ -735,6 +742,8 @@ libwacom
 libwnck
 libx11-common
 libxml2-utils
+lightdm
+lightdm-gtk-greeter
 lm_sensors
 luit
 lximage-qt
@@ -742,6 +751,7 @@ lxqt-about
 lxqt-admin
 lxqt-config
 lxqt-globalkeys
+lxqt-kcm-integration
 lxqt-notificationd
 lxqt-openssh-askpass
 lxqt-panel
@@ -751,6 +761,7 @@ lxqt-runner
 lxqt-session
 lxqt-sudo
 lxqt-themes
+lxqt-wallet
 mcpp
 menu-cache
 menu-messages
@@ -862,6 +873,7 @@ python-qt4-test
 python-qt4-webkit
 python-qt4-xml
 python-qt4-xmlpatterns
+python-qtermwidget
 python-selinux
 python-setuptools
 python-simplejson
@@ -873,6 +885,7 @@ python-slip-dbus
 python-webkitgtk
 qca2-qt5
 qca2-qt5-plugin-gnupg
+qps
 qt3-common
 qt4-common
 qt4-database-plugin-sqlite

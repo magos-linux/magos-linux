@@ -1,7 +1,7 @@
 #!/bin/bash
 #speedboot tweak
 [ -f /etc/ld.so.conf.d/GL/standard.conf ] || exit 0
-for a in nvidia384 nvidia375 nvidia340 nvidia304 nvidia-current standard ;do
+for a in nvidia390 nvidia340 nvidia304 nvidia-current standard ;do
   LINK=$(alternatives --list gl_conf | grep -m1 $a)
   [ -z "$LINK" ] && continue
   alternatives --quiet --set gl_conf "$LINK"

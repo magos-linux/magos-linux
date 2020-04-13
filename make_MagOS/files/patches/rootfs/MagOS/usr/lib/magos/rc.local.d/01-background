@@ -63,6 +63,7 @@ fi
 
 # replacing default wallpaper
 [ -f /tmp/background.jpg  ] && mv -f /tmp/background.jpg "$WPDEFFILE"
+cp -p "$WPDEFFILE" "$WPDEFFILE".orig
 
 # making ksplash background
 if [ -d usr/share/apps/ksplash ] ;then

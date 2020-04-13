@@ -9,7 +9,7 @@ if [ -d /etc/urpmi ] ;then
   echo -e "/kernel/"\\n"/nvidia/"\\n"/^timezone/" >> /etc/urpmi/skip.list
 fi
 
-# tmpfs tweak will increase rpm speed in several times
+## tmpfs tweak will increase rpm speed in several times
 mkdir -p /var/lib/rpmbase
 mv /var/lib/rpm/* /var/lib/rpmbase
 mount -n -t tmpfs tmpfs /var/lib/rpm

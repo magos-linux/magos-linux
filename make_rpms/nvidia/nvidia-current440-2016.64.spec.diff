@@ -1,0 +1,115 @@
+diff -aupr a/nvidia-current.spec b/nvidia-current.spec
+--- a/nvidia-current.spec	2020-03-12 19:40:37.000000000 +0300
++++ b/nvidia-current.spec	2020-04-11 16:46:26.554945856 +0300
+@@ -10,7 +10,7 @@
+ %define debug_package		%{nil}
+ 
+ %define name		nvidia-current
+-%define version		440.64
++%define version		440.82
+ 
+ %define priority	9700
+ 
+@@ -67,7 +67,7 @@
+ Summary:	NVIDIA proprietary X.org driver and libraries, current driver series
+ Name:		%{name}
+ Version:	%{version}
+-Release:	1
++Release:	1magos
+ 
+ Source0:	http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/%{pkgname64}.run
+ # GPLv2 source code; see also http://cgit.freedesktop.org/~aplattner/
+@@ -104,7 +104,7 @@ BuildRequires:	pkgconfig(libtirpc)
+ BuildRequires:	pkgconfig(dbus-1)
+ 
+ %description
+-The proprietary driver for NVidia GPUs, "current" ("short-lived") branch.
++The proprietary driver for NVidia GPUs, "current" branch.
+ Note that hybrid graphics ("Optimus") is not supported officially with
+ nvidia-current.
+ 
+@@ -125,7 +125,7 @@ Requires(post,postun):	update-alternativ
+ 
+ # Just in case some long-lived nvidia package is based on the same version
+ # of the drivers
+-Requires:	dkms-%{drivername} = %{version}-%{release}
++#Requires:	dkms-%{drivername} = %{version}-%{release}
+ 
+ Requires:	%{_lib}gldispatch0
+ Requires:	%{_lib}opengl0
+@@ -698,8 +698,8 @@ done
+ 
+ # Create the convenience symlinks. As the packages with nvidia are mutually
+ # exclusive now, there is no need to use alternatives for this.
+-ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
+-ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
++#ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
++#ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
+ 
+ # confirm SONAME; if something else than libvdpau_nvidia.so or libvdpau_nvidia.so.1, adapt .spec as needed:
+ [ "$(objdump -p %{buildroot}%{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} | grep SONAME | gawk '{ print $2 }')" = "libvdpau_nvidia.so.1" ]
+@@ -815,12 +815,12 @@ if [ $1 -eq 1 ]; then
+ 	DEV_LINE=$(lspci -vnn | grep -E -i '(VGA compatible controller|3D controller|Display controller).*NVIDIA' | head -n 1)
+ 	echo $DEV_LINE | grep -E '^[0-9]+:[0-9]+\.[0-9]+\s+' > /dev/null 2>&1
+ 	if test $? -ne 0; then
+-		echo "Error: no suitable devices found."
+-		exit 1
++	   BUSLINE=
++	else
++	   BUSID_GPU=$(echo $DEV_LINE | awk '{ split($1, ids, "[.:]"); printf("%d:%d:%d", ids[1], ids[2], ids[3]); }')
++	   BUSLINE="BusID \"PCI:$BUSID_GPU\""
+ 	fi
+ 
+-	BUSID_GPU=$(echo $DEV_LINE | awk '{ split($1, ids, "[.:]"); printf("%d:%d:%d", ids[1], ids[2], ids[3]); }')
+-
+ 	cat > %{_sysconfdir}/X11/xorg.conf <<EOF
+ Section "ServerFlags"
+ Option "DontZap" "False"
+@@ -832,7 +832,7 @@ Identifier "device1"
+ VendorName "NVIDIA Corporation"
+ BoardName "Proprietary (nvidia-current)"
+ Driver "nvidia"
+-BusID "PCI:$BUSID_GPU"
++$BUSLINE
+ Option "DPMS"
+ Option "DynamicTwinView" "false"
+ Option "AddARGBGLXVisuals"
+@@ -868,6 +868,12 @@ mkdir -p %{_libdir}/vdpau
+ 	--slave %{_bindir}/nvidia-modprobe nvidia-modprobe %{nvidia_bindir}/nvidia-modprobe \
+ 	--slave %{_bindir}/nvidia-persistenced nvidia-persistenced %{nvidia_bindir}/nvidia-persistenced \
+ 	--slave %{_sysconfdir}/X11/xinit.d/nvidia-settings.xinit nvidia-settings.xinit %{_sysconfdir}/%{drivername}/nvidia-settings.xinit \
++%ifarch x86_64
++        --slave %{_libdir}/nvidia nvidia-lib64 %{nvidia_libdir} \
++        --slave %{_prefix}/lib/nvidia nvidia-lib %{nvidia_libdir32} \
++%else
++        --slave %{_prefix}/lib/nvidia nvidia-lib %{nvidia_libdir}   \
++%endif
+ 	--slave %{_libdir}/vdpau/libvdpau_nvidia.so.1 %{_lib}vdpau_nvidia.so.1 %{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} \
+ 	--slave %{_sysconfdir}/OpenCL/vendors/nvidia.icd nvidia.icd %{_sysconfdir}/%{drivername}/nvidia.icd \
+ 	--slave %{_prefix}/lib/vdpau/libvdpau_nvidia.so.1 libvdpau_nvidia.so.1 %{nvidia_libdir32}/vdpau/libvdpau_nvidia.so.%{version} \
+@@ -1033,7 +1039,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ 
+ %dir %{nvidia_libdir}
+ %dir %{nvidia_libdir}/vdpau
+-%{_libdir}/nvidia
++#%{_libdir}/nvidia
+ %{nvidia_libdir}/libGLX_nvidia.so.%{version}
+ %{nvidia_libdir}/libGLX_nvidia.so.0
+ %{nvidia_libdir}/libGLX_indirect.so.0
+@@ -1073,7 +1079,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{nvidia_libdir}/libnvidia-allocator.so.1
+ %dir %{nvidia_libdir32}
+ %dir %{nvidia_libdir32}/vdpau
+-%{_prefix}/lib/nvidia
++#%{_prefix}/lib/nvidia
+ %{nvidia_libdir32}/libGLX_nvidia.so.%{version}
+ %{nvidia_libdir32}/libGLX_nvidia.so.0
+ %{nvidia_libdir32}/libGLX_indirect.so.0
+@@ -1088,6 +1094,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{nvidia_libdir32}/libnvidia-glvkspirv.so.%{version}
+ %{nvidia_libdir32}/libvdpau_nvidia.so
+ %{nvidia_libdir32}/vdpau/libvdpau_nvidia.so.%{version}
++#%{nvidia_libdir32}/tls/libnvidia-tls.so.%{version}
+ %{nvidia_libdir32}/libnvidia-fbc.so.1
+ %{nvidia_libdir32}/libnvidia-fbc.so.%{version}
+ %{nvidia_libdir32}/libEGL_nvidia.so.0

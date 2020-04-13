@@ -1,0 +1,12 @@
+#!/bin/bash
+# to be sourced
+DEFWP=/usr/share/magos/wallpapers/default.jpg
+/usr/bin/feh -F $DEFWP.orig &
+bash -c "while ! ps -A | egrep -q 'splash|panel|desktop' ;do sleep 1 ;done && sleep 5 && killall feh" &
+XORG_RES=$(/usr/bin/xdpyinfo | grep -im1 dimensions | awk '{print $2}')
+if echo "$XORG_RES" | grep -q ^[0-9]*x[0-9]*$ ;then
+   convert -resize $XORG_RES -background black -gravity center -extent $XORG_RES $DEFWP.orig $DEFWP
+   [ -d /usr/share/apps/ksplash ] && mkdir -p "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
+   [ -d /usr/share/apps/ksplash ] && convert -resize $XORG_RES -background black -gravity center -extent $XORG_RES $DEFWP "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"
+fi
+/bin/true

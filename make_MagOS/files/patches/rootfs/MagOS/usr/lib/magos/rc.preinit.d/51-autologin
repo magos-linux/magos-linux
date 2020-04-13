@@ -27,3 +27,4 @@ debug_mode "$0" "$@"
 [ -f etc/slim.conf ] && sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/slim.conf
 [ -f etc/X11/slim/slim.conf ] && sed -i s/^default_user[[:space:]].*/"default_user        $AUTOLOGINUSER"/ etc/X11/slim/slim.conf
 [ -f etc/lxdm/lxdm.conf ] && sed -i s/^autologin=.*/autologin=$AUTOLOGINUSER/ etc/lxdm/lxdm.conf
+[ -f etc/lightdm/lightdm.conf ] && sed -i s/^autologin-user=.*/autologin-user=$AUTOLOGINUSER/ etc/lightdm/lightdm.conf

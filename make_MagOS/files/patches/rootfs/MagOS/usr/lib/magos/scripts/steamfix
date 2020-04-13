@@ -1,0 +1,18 @@
+#!/bin/sh
+# This scripts is a workarond for steam client issue. It allows to use steam overlay by adding command line parameter "steamoverlay %command%" in game's properties.
+STEAMLD_PRELOAD="$HOME/.local/share/Steam/ubuntu12_32/gameoverlayrenderer.so:$HOME/.local/share/Steam/ubuntu12_64/gameoverlayrenderer.so"
+USEPRIMUSRUN=yes
+. /etc/MagOS/config
+
+PRRUN=
+# Checking for bumblebeed.service is exists and works
+if [ "$USEPRIMUSRUN" = "yes" ] && systemctl is-active bumblebeed >/dev/null ;then
+   # check if allready using primusrun
+   if ! glxinfo | grep -qi vendor.*nvidia ;then
+      #check if primusrun works fine with bumblebeed
+      primusrun glxinfo | grep -qi vendor.*nvidia >/dev/null 2>&1 && PRRUN=primusrun
+   fi
+fi
+
+export LD_PRELOAD="$STEAMLD_PRELOAD"
+exec $PRRUN $@

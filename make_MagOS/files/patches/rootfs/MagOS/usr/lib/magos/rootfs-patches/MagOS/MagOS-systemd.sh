@@ -43,15 +43,10 @@ echo "FallbackDNS=77.88.8.8 77.88.8.1" >> $PFP
 sed -i /^LLMNR/d $PFP
 echo "LLMNR=no" >> $PFP
 
-if [ -x /usr/bin/sddm ] ;then
-   ln -sf /lib/systemd/system/sddm.service /etc/systemd/system/display-manager.service
-elif [ -x /usr/bin/kdm ] ;then
-   ln -sf /lib/systemd/system/kdm.service /etc/systemd/system/display-manager.service
-elif [ -x /usr/bin/gdm ] ;then
-   ln -sf /lib/systemd/system/gdm.service /etc/systemd/system/display-manager.service
-else
-   ln -sf /lib/systemd/system/slim.service /etc/systemd/system/display-manager.service
-fi
+for a in sddm kdm gdm lightdm slim ;do
+    [ -f /lib/systemd/system/$a.service ] || continue
+    ln -sf /lib/systemd/system/$a.service /etc/systemd/system/display-manager.service && break
+done
 
 PFP=lib/systemd/system/laptop-mode.service
 grep -q ConditionPathExists=/sys/class/power_supply/BAT0 $PFP || sed -i /Description/s%$%\\nConditionPathExists=/sys/class/power_supply/BAT0% $PFP

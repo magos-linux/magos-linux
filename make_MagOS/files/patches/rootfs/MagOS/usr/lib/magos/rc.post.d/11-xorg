@@ -12,8 +12,9 @@ DEBUGMODE=no
 debug_mode "$0" "$@"
 . $HARDCONF
 [ "$XDRIVER" != "nvidia" ] && rmmod nvidia
+[ -d "$SYSCONF" ] || SYSCONF=/etc/MagOS
 . /etc/MagOS/config
-. /etc/sysconfig/desktop
+. $SYSCONF/desktop
 
 [ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f /etc/X11/xorg.conf
 [ "$DELETE_XORG_CONF" = "yes" ] && rm -f /etc/X11/xorg.conf
@@ -47,7 +48,7 @@ fi
 
 if [ "$MKKBDFXORG" = "yes" ] ;then
   if ! grep -qi XkbOptions /etc/X11/xorg.conf ;then
-     . /etc/sysconfig/keyboard
+     . $SYSCONF/keyboard
      cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
 Section "InputClass"
         Identifier "system-keyboard"

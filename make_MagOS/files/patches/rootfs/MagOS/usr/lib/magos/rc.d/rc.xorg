@@ -1,0 +1,13 @@
+#!/bin/sh
+# to be sourced
+#
+# magosctl      Helper script for MagOS Linux Live.
+#
+# Authors:	Mikhail Zaripov <m3for@mail.ru>
+#
+
+for a in /usr/lib/magos/rc.xorg/* ;do
+   [ -x $a ] && $a 2>/dev/null
+done
+
+true

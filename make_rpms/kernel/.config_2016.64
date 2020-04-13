@@ -1,4 +1,5 @@
-KERNELURL=http://abf-downloads.rosalinux.ru/kernels_stable_personal/repository/rosa2016.1/SRPMS/kernel_4_19/release/kernel-4.19.72-1.src.rpm
+#KERNELURL=http://abf-downloads.rosalinux.ru/kernels_stable_personal/repository/rosa2016.1/SRPMS/kernel_4_19/release/kernel-4.19.72-1.src.rpm
+KERNELURL=http://abf-downloads.rosalinux.ru/kernels_stable_personal/repository/rosa2016.1/SRPMS/kernel_5_4/release/kernel-5.4.30-1.src.rpm
 BUILDDEPS="perl-devel numa-devel libunwind-devel kmod-devel kmod-compat gcc bc audit-devel elfutils-devel zlib-devel binutils-devel newt-devel python-devel pciutils-devel flex bison gettext docbook-style-xsl perl lib64gtk+2.0-devel libbzip2-devel lib64slang-devel xmlto asciidoc lib64openssl-devel"
 MAGOSREP=ftp://magos.sibsau.ru/rpms/2016.64/
-DKMS="bbswitch broadcom-wl rtl8192eu rtl8821cu rtlwifi_new vboxadditions virtualbox nvidia-current nvidia304"
+DKMS="bbswitch rtl8192eu rtl8821cu rtlwifi_new vboxadditions virtualbox nvidia-current nvidia390 nvidia340"

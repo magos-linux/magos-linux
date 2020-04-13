@@ -36,6 +36,7 @@ ldb-utils
 lftp
 lib64appindicator3_1
 lib64boost_random1.61.0
+lib64cacard0
 lib64capi20_3
 lib64dcerpc0
 lib64diffie1
@@ -68,6 +69,7 @@ lib64nm-glib-vpn1
 lib64nsswins2
 lib64openh264_5
 lib64pcks11-helper1
+lib64phodav2.0_0
 lib64pq5
 lib64proxychains3
 lib64pyldb-util1
@@ -84,6 +86,8 @@ lib64samdb0
 lib64sasl2-plug-gssapi
 lib64smbconf0
 lib64smbldap2
+lib64spice-client-glib2.0_8
+lib64spice-client-gtk3.0_5
 lib64telepathy-glib0
 lib64tevent-util0
 lib64threadutil6
@@ -133,6 +137,7 @@ perl-Tree-DAG_Node
 perl-XML-Filter-BufferText
 perl-XML-Stream
 perl-XML-Validator-Schema
+phodav-i18n
 ppp-pppoatm
 ppp-pppoe
 pptp-linux
@@ -167,10 +172,13 @@ qutim2-vkontakte
 qutim2-yandexnarod
 rdesktop
 remmina
-remmina-plugins-common
+remmina-plugins-exec
 remmina-plugins-nx
 remmina-plugins-rdp
+remmina-plugins-spice
+remmina-plugins-st
 remmina-plugins-vnc
+remmina-plugins-www
 remmina-plugins-xdmcp
 rfkill
 rp-pppoe

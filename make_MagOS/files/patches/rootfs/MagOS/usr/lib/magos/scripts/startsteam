@@ -69,6 +69,9 @@ PRRUN=
 # Checking for bumblebeed.service is exists and works
 [ -x /usr/bin/primusrun ] && primusrun glxinfo -h >/dev/null 2>&1 && PRRUN=primusrun
 
+# Workaround for primus and classic client bug. Disables primus for classc view.
+echo "$@" | grep -q bigpicture || PRRUN=
+
 # Fix for language bug
 [ -f ~/.steam/registry.vdf -a "$(locale | grep -m1 ru_RU)" ] && sed -i s/\"[Ll]anguage\".*$/\"language\"\\t\\t\"russian\"/ ~/.steam/registry.vdf
 
