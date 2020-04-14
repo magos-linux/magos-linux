@@ -1,0 +1,59 @@
+#!/bin/bash
+# to be sourced
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+FEHOPTIONS="-B black -x -Z --scale-down"
+WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
+[ -f /etc/MagOS/theme ]  && . /etc/MagOS/theme
+[ "$BACKGROUNDMODE" = "2" ] && FEHOPTIONS="-F --zoom fill"
+[ -f /etc/MagOS/config ] && . /etc/MagOS/config
+
+# primary monitor
+[ -z "$MONITORPRIMARY" ] || xrandr --output "$MONITORPRIMARY" --primary
+
+# get resolution of primary (or first) monitor
+XORG_RES=$(LC_ALL=C /usr/bin/xrandr | awk -F" connected primary " '{print $2}' | sed s/+.*// | grep -m1 .)
+[ -z "$XORG_RES" ] && XORG_RES=$(LC_ALL=C /usr/bin/xrandr | awk -F" connected " '{print $2}' | sed s/+.*// | grep -m1 .)
+[ -z "$XORG_RES" ] && XORG_RES=1920x1080
+
+# show wallpaper
+[ -x /usr/bin/feh ] && /usr/bin/feh $FEHOPTIONS -g "$XORG_RES" $(dirname $WPDEFFILE)/default.orig.jpg &
+# killswitch for feh
+[ -x /usr/bin/feh ] && bash -c "while ! ps -A | egrep -q 'splash|panel|desktop' ;do sleep 1 ;done && sleep 5 && killall feh" &
+
+# multimonitor support
+[ -z "$MONITORLEFT"    ] || xrandr --output "$MONITORLEFT"    --left-of  "$MONITORPRIMARY"
+[ -z "$MONITORRIGHT"   ] || xrandr --output "$MONITORRIGHT"   --right-of "$MONITORPRIMARY"
+[ -z "$MONITORABOVE"   ] || xrandr --output "$MONITORABOVE"   --above-of "$MONITORPRIMARY"
+[ -z "$MONITORBELOW"   ] || xrandr --output "$MONITORBELOW"   --below-of "$MONITORPRIMARY"
+
+if [ -x /usr/bin/convert ] ;then
+  # resizing wallpaper for monitor resolution (default is proportional on black bacground)
+  RESIZEOPT="-resize $XORG_RES -background black -gravity center -extent $XORG_RES"
+  [ "$BACKGROUNDMODE" = "1" ] && RESIZEOPT="-resize $XORG_RES!"
+  [ "$BACKGROUNDMODE" = "2" ] && RESIZEOPT="-resize $XORG_RES^ -gravity center -extent $XORG_RES"
+  convert $RESIZEOPT $(dirname $WPDEFFILE)/default.orig.jpg /tmp/background.jpg
+  # Graffiti effects
+  if [ "$GRAFFITI" = "yes" ] ;then
+     [ "$(cmdline_value changes)$(cmdline_value uird.changes)" ] && LABEL=magos.png || LABEL=clean.png
+     convert -resize x$(expr $(echo $XORG_RES | awk -Fx '{ print $2 }') / 10) /usr/share/magos/graffiti/$LABEL /tmp/logo.png
+     composite -gravity SouthWest  /tmp/logo.png /tmp/background.jpg /tmp/background2.jpg
+     mv -f /tmp/background2.jpg /tmp/background.jpg
+     rm -f /tmp/logo.png
+  fi
+  # placing warning about default passwords
+  if [ "$GRAFFITI" != "no" -a -x /usr/bin/composite ] ;then
+     . /usr/lib/magos/os-config
+     A=0
+     grep -q "^root:$DEFAULTROOTPASSWD:" /etc/shadow && A=1
+     grep -q "^user:$DEFAULTPASSWD:" /etc/shadow && A=1
+     [ "$A" = "1" ] && composite -gravity NorthWest /usr/share/magos/graffiti/warning.png /tmp/background.jpg /tmp/background2.jpg
+     [ -f /tmp/background2.jpg  ] && mv -f /tmp/background2.jpg /tmp/background.jpg
+  fi
+  # replacing default wallpaper
+  [ -f /tmp/background.jpg  ] && mv -f /tmp/background.jpg "$WPDEFFILE"
+  [ -d /usr/share/apps/ksplash ] && mkdir -p "/usr/share/apps/ksplash/Themes/Default/$XORG_RES"
+  [ -d /usr/share/apps/ksplash ] && convert "$WPDEFFILE" "/usr/share/apps/ksplash/Themes/Default/$XORG_RES/background.png"
+fi
+/bin/true

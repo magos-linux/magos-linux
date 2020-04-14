@@ -6,9 +6,6 @@
 #
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
-DEBUGMODE=no
-. /usr/lib/magos/functions
-debug_mode "$0" "$@"
 
 [ -f /etc/MagOS/config ] && . /etc/MagOS/config
-[ "$RUNLDCONFIG" = "yes"  ] && /sbin/ldconfig &
+[ "$RUNLDCONFIG" != "yes" -a "$RUNLDCONFIG" != "no"  ] && bash -c "sleep 30 && sudo /sbin/ldconfig" &

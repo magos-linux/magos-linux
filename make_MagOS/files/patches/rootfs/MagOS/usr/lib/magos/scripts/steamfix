@@ -1,18 +1,28 @@
 #!/bin/sh
 # This scripts is a workarond for steam client issue. It allows to use steam overlay by adding command line parameter "steamoverlay %command%" in game's properties.
-STEAMLD_PRELOAD="$HOME/.local/share/Steam/ubuntu12_32/gameoverlayrenderer.so:$HOME/.local/share/Steam/ubuntu12_64/gameoverlayrenderer.so"
-USEPRIMUSRUN=yes
+STP=$(readlink -f "$HOME/.local/share/Steam")
+LDPRIMUS="/usr/$LIB/primus:/usr/$LIB/nvidia:/usr/$LIB/libglvnd:/usr/bin/$LIB"
+SLIBS="/usr/lib64/heimdal:/usr/lib64/samba:/usr/lib/mesa:/usr/lib:/lib:/lib64:/usr/lib64:"
+STEAMLPL="$STP/ubuntu12_32/gameoverlayrenderer.so:$STP/ubuntu12_64/gameoverlayrenderer.so"
+STEAMLLP="$STP/ubuntu12_32/steam-runtime/pinned_libs_32:$STP/ubuntu12_32/steam-runtime/pinned_libs_64:$SLIBS\
+$STP/ubuntu12_32/steam-runtime/lib/i386-linux-gnu:$STP/ubuntu12_32/steam-runtime/usr/lib/i386-linux-gnu:\
+$STP/ubuntu12_32/steam-runtime/lib/x86_64-linux-gnu:$STP/ubuntu12_32/steam-runtime/usr/lib/x86_64-linux-gnu:\
+$STP/ubuntu12_32/steam-runtime/lib:$STP/ubuntu12_32/steam-runtime/usr/lib:"
+PRRUN=primusrun
 . /etc/MagOS/config
 
-PRRUN=
-# Checking for bumblebeed.service is exists and works
-if [ "$USEPRIMUSRUN" = "yes" ] && systemctl is-active bumblebeed >/dev/null ;then
-   # check if allready using primusrun
-   if ! glxinfo | grep -qi vendor.*nvidia ;then
-      #check if primusrun works fine with bumblebeed
-      primusrun glxinfo | grep -qi vendor.*nvidia >/dev/null 2>&1 && PRRUN=primusrun
-   fi
-fi
+#debug echo
+#echo -e "LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nLD_PRELOAD=$LD_PRELOAD" > /tmp/steamruntime.log
 
-export LD_PRELOAD="$STEAMLD_PRELOAD"
-exec $PRRUN $@
+# Checking for bumblebeed process is started
+LD_LIBRARY_PATH= LD_PRELOAD= /bin/ps -A | grep -q bumblebeed || PRRUN=
+# check if primusrun works fine with bumblebeed
+[ ! -z "$PRRUN" ] && primusrun glxinfo | grep -qi vendor.*nvidia >/dev/null 2>&1 || PRRUN=
+# check if allready using primusrun to correct LD_LIBRARY_PATH
+echo "$LD_LIBRARY_PATH" | grep -q primus && export LD_LIBRARY_PATH="$STEAMLLP"
+export LD_PRELOAD="$STEAMLPL"
+
+#debug echo
+#echo -e "LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nLD_PRELOAD=$LD_PRELOAD\nPRRUN=$PRRUN" >> /tmp/steamruntime.log
+
+exec $PRRUN "$1" "$2" "$3"

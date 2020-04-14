@@ -8,5 +8,6 @@ if ! grep -q "^%wheel ALL=(ALL) NOPASSWD: ALL" $PFP ;then
 fi
 grep -q "^%sudo ALL=(ALL) ALL" $PFP || echo "%sudo ALL=(ALL) ALL" >> $PFP
 groupadd -r sudo
+grep -q /sbin/ldconfig  $PFP || echo "%users ALL=NOPASSWD: /sbin/ldconfig" >> $PFP
 
 exit 0
