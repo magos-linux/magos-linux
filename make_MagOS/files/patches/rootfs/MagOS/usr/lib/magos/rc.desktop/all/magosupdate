@@ -10,8 +10,8 @@ function dialogreboot()
  MSG02=$(gettext -s "MagOS updated. Please reboot computer.")
  MSG03=$(gettext -s "Reboot now")
  MSG04=$(gettext -s "No, i will reboot later")
- CHOISE=$(Xdialog --title "$MSG01" --radiolist "$MSG02" 0 0 3 "1" "$MSG03" on "2" "$MSG04" off 2>&1 | tail -1)
- [ "$CHOISE" = "1" ] || exit 0
+ CHOICE=$(Xdialog --title "$MSG01" --radiolist "$MSG02" 0 0 3 "1" "$MSG03" on "2" "$MSG04" off 2>&1 | tail -1)
+ [ "$CHOICE" = "1" ] || exit 0
  systemctl reboot
  reboot
 }
@@ -19,6 +19,7 @@ function dialogreboot()
 function dialogerror()
 {
  MSG01=$(gettext -s "Update was unsuccessful.")
+ cat $LOGFILEROOT >> $LOGFILE 2>/dev/null
  Xdialog --title "$MSG01" --no-cancel --textbox $LOGFILE 0 0
 }
 
@@ -31,11 +32,11 @@ function dialogupdate()
  MSG04=$(gettext -s "Yes, right now")
  MSG05=$(gettext -s "No, later")
  MSG06=$(gettext -s "Never, don't ask me again")
- CHOISE=$(Xdialog --title "$MSG01" --radiolist "$MSG02\n$MSG03" 0 0 4 "1" "$MSG04" on "2" "$MSG05" off "3" "$MSG06" off 2>&1 | tail -1)
- if [ "$CHOISE" = "3" ] ;then
+ CHOICE=$(Xdialog --title "$MSG01" --radiolist "$MSG02\n$MSG03" 0 0 4 "1" "$MSG04" on "2" "$MSG05" off "3" "$MSG06" off 2>&1 | tail -1)
+ if [ "$CHOICE" = "3" ] ;then
     touch $MAGOSPATH/.dontupdatemagos 2>/dev/null || touch $HOME/.config/.dontupdatemagos
  fi
- [ "$CHOISE" = "1" ] && return 0
+ [ "$CHOICE" = "1" ] && return 0
  return 1
 }
 
@@ -47,7 +48,8 @@ echo $PATH | grep -q /usr/lib/magos/scripts || PATH=/usr/lib/magos/scripts:$PATH
 . /etc/MagOS/config
 DEBUGMODE=no
 debug_mode "$0" "$@"
-LOGFILE=/tmp/magosupdate.log
+LOGFILE=/tmp/magosupdate-$UID.log
+LOGFILEROOT=/tmp/magosupdate-0.log
 MAGOSPATH=/mnt/livemedia/MagOS
 [ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
 [ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
@@ -67,11 +69,11 @@ magosupdate --checkserver || exit 1
 if   magosupdate --checknewversion ;then
     if dialogupdate "New version of MagOS Linux is detected on server."  ;then
 	magosupdate --updateversion || dialogerror
-	grep -qi "please reboot" $LOGFILE && dialogreboot
+	grep -qi "please reboot" $LOGFILE $LOGFILEROOT 2>/dev/null && dialogreboot
     fi
 elif magosupdate --checkupdates    ;then
     if dialogupdate "New updates for MagOS Linux are detected on server." ;then
 	magosupdate --updatebase || dialogerror
-	grep -qi "please reboot" $LOGFILE && dialogreboot
+	grep -qi "please reboot" $LOGFILE $LOGFILEROOT 2>/dev/null && dialogreboot
     fi
 fi

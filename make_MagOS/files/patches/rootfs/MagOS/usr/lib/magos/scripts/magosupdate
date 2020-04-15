@@ -32,7 +32,7 @@ function initparameters()
  export TEXTDOMAINDIR=/usr/share/locale
  export TEXTDOMAIN=magos_functions
  TMPDIR="/tmp/magosupdate-$UID"
- LOGFILE=/tmp/magosupdate.log
+ LOGFILE=/tmp/magosupdate-$UID.log
  rm -fr "$TMPDIR" 2>/dev/null
  mkdir -p "$TMPDIR"
  touch $LOGFILE
