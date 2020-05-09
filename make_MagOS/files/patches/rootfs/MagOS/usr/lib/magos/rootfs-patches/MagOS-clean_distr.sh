@@ -10,6 +10,7 @@ rm -fr 2>/dev/null \
    etc/xdg/autostart/parcellite-startup.desktop \
    etc/xdg/autostart/org.kde.kgpg.desktop \
    etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop \
+   etc/xdg/autostart/hplip-systray.desktop \
    etc/xdg/plasma-workspace/env/gtk*.sh \
    usr/share/GeoIP/GeoLiteCity.dat \
    usr/share/apps/kio_desktop/DesktopLinks/* \
@@ -22,7 +23,7 @@ rm -fr 2>/dev/null \
    usr/share/doc/HTML/ru/kstars usr/share/doc/HTML/ru/kbruch usr/share/doc/HTML/ru/akregator \
    usr/share/help/C/cheese/figures/effects.png \
    usr/share/doc/perl-Libconf/html/Libconf/Libconf \
-   usr/share/backgrounds/gnome \
+   usr/share/backgrounds/gnome usr/share/backgrounds/mate \
    usr/share/xsessions/openbox*.desktop usr/share/kio_desktop/DesktopLinks/* \
    usr/share/sddm/themes/elarun/images/background.png
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \

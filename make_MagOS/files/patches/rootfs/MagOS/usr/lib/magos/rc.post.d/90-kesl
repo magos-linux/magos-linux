@@ -1,0 +1,15 @@
+#!/bin/bash
+# MagOS project
+# Authors: Mikhail Zaripov
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+if [ -d /var/opt/kaspersky ] ;then
+   if [ -d /mnt/livedata/MagOS-Data ] ;then
+      if [ ! -d /mnt/livedata/MagOS-Data/cache/kaspersky ] ;then
+         mkdir -p /mnt/livedata/MagOS-Data/cache/kaspersky
+         cp -pr /var/opt/kaspersky/* /mnt/livedata/MagOS-Data/cache/kaspersky || exit 1
+      fi
+      mount --bind /mnt/livedata/MagOS-Data/cache/kaspersky /var/opt/kaspersky
+   fi
+fi

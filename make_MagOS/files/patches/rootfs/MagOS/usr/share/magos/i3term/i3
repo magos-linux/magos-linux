@@ -1,0 +1,4 @@
+#!/bin/bash
+#starting script for i3 as a term client environment
+/usr/bin/i3 -c /etc/i3term/config
+ 

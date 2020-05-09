@@ -9,6 +9,27 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+LINKATI=/etc/ld.so.conf.d/GL/standard.conf
+LINKNVIDIA96=/etc/nvidia96xx/ld.so.conf
+LINKNVIDIA173=/etc/nvidia173/ld.so.conf
+LINKNVIDIA304=/etc/nvidia304/ld.so.conf
+LINKNVIDIA340=/etc/nvidia340/ld.so.conf
+LINKNVIDIA360=/etc/nvidia360/ld.so.conf
+LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
+LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
+NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia"
+FAILSAFENVIDIA=nouveau
+CREATE_XORG_CONF=yes
+GLLDCONFIG=yes
+BUMBLEBEE=no
+OPTIRUN=
+PRIMUSRUN=
+VGABUSID=
+INTEGRATEDVGA=yes
+SORTOPT=
+XFILE=etc/X11/xorg.conf
+DELETE_XORG_CONF=no
+
 DEBUGMODE=no
 . usr/lib/magos/functions
 . usr/lib/magos/os-config
@@ -80,16 +101,19 @@ if [ -z "$XDRIVER" ] ; then
    [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia
 fi
 
-# testing nonfree nvidia modules (nvidia390 nvidia340 nvidia304 nvidia-current)
-if [ "$XDRIVER" = "nvidia" ] ;then
-   XDRIVER=
-   for a in $NVIDIATEST ;do
+# testing nonfree nvidia modules (nvidia-current nvidia340 nvidia304 nvidia)
+if echo "$XDRIVER" | grep -q "nvidia"  ;then
+   XDRIVERTESTED=
+   XDRIVERCURRENT=$XDRIVER
+   [ "$XDRIVER" = "nvidia" ] && XDRIVERCURRENT=
+   for a in $XDRIVERCURRENT $NVIDIATEST ;do
        chroot . modprobe $a
-       lsmod | grep -q nvidia && XDRIVER=$a
-       [ -z "$XDRIVER" ] || break
+       lsmod | grep -q nvidia && XDRIVERTESTED=$a
+       [ -z "$XDRIVERTESTED" ] || break
    done
-# nouveau driver
-   [ -z "$XDRIVER" ] && XDRIVER=$FAILSAFENVIDIA
+   [ -z "$XDRIVERTESTED" ] || XDRIVER=$XDRIVERTESTED
+   # nouveau driver
+   [ -z "$XDRIVERTESTED" ] && XDRIVER=$FAILSAFENVIDIA
 fi
 
 # storing data in config file
@@ -108,7 +132,7 @@ fi
 
 # removing blocking conflict modules if its forced
 [ "$XDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
-[ "$XDRIVER" = "nvidia" ] && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
+echo "$XDRIVER" | grep -q "nvidia" && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
 
 # first run ldconfig tweak
 if [ "$GLLDCONFIG" = "yes" ] ;then

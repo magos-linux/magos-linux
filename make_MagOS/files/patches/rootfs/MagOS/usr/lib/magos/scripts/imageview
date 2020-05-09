@@ -10,7 +10,6 @@ case "$DE" in
     kde|plasma)
     PREF=/usr/bin/gwenview
     ;;
-
     gnome|gnome-shell)
     PREF=/usr/bin/gqview
     ;;

@@ -7,11 +7,14 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
+
+STEAMNODPMS=yes
+
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 . $HARDCONF
-[ "$XDRIVER" != "nvidia" ] && rmmod nvidia
+echo "$XDRIVER" | grep -q "nvidia" || rmmod nvidia
 [ -d "$SYSCONF" ] || SYSCONF=/etc/MagOS
 . /etc/MagOS/config
 . $SYSCONF/desktop
@@ -20,7 +23,7 @@ debug_mode "$0" "$@"
 [ "$DELETE_XORG_CONF" = "yes" ] && rm -f /etc/X11/xorg.conf
 
 grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
-if [ "$SETXORGRES" = "yes" ] ;then
+if [ "$SETXORGRES" != "no" ] ;then
   if ! [ -z "$XORG_RES" ] ;then 
      XCF=/etc/X11/xorg.conf
      grep -qi modes $XCF 2>/dev/null || XCF=/etc/X11/xorg.conf.d/00-modes.conf
@@ -46,7 +49,7 @@ if [ "$DPMS" = "no" ] ;then
      sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
 fi
 
-if [ "$MKKBDFXORG" = "yes" ] ;then
+if [ "$MKKBDFXORG" != "no" ] ;then
   if ! grep -qi XkbOptions /etc/X11/xorg.conf ;then
      . $SYSCONF/keyboard
      cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<EOF

@@ -35,7 +35,7 @@ show()
 }
 
 
-if [ "$MKSMBPWD" = "yes" ] ;then
+if [ "$MKSMBPWD" != "no" ] ;then
   smbpasswd -L$GUESTOPT nobody >/dev/null 2>&1 || addusers
 fi
 

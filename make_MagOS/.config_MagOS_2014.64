@@ -7,6 +7,9 @@ VERREL=2014.64
 RE4NAME="-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*.rpm"
 HIDEBININSTALL="mkinitrd dracut dracut-install grub grub-install grub2-install grub2-mkimage grub2-reboot update-grub2 mkinitrd-mkinitrd mkinitrd-dracut"
 
+#TMPROOTFS=no
+#ROOTFS=/media/data/make_magos_2014.64_rootfs
+
 # Размер в Мб для данных и изменений системы для каждого профиля
 DATASIZE1=756
 

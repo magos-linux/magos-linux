@@ -17,11 +17,13 @@ ln -sf magos.png                                  /usr/share/icons/mandriva-butt
 #Disable unmounting nfs livemedia
 sed -i s='if \[\[ "$rootfs"'='if grep -q " /mnt/livemedia nfs " /proc/mounts || \[\[ "$rootfs"'= /etc/rc.d/init.d/network
 
-sed -i 's|^prefixes=.*|prefixes=/var/lib/mandriva/kde4-profiles/common,/var/lib/mandriva/kde4-profiles/Default,/usr/share/magos/kde4|' /var/lib/mandriva/kde4-profiles/Default/kde4rc
+PFP=/var/lib/mandriva/kde4-profiles/Default/kde4rc
+[ -f $PFP ] && sed -i 's|^prefixes=.*|prefixes=/var/lib/mandriva/kde4-profiles/common,/var/lib/mandriva/kde4-profiles/Default,/usr/share/magos/kde4|' $PFP
 
 [ -d /usr/share/icons/rosa -a ! -d /usr/share/icons/rosa-flat ] && ln -sf rosa /usr/share/icons/rosa-flat
 
-sed -i 's|,/usr/share/applications/kde4/kopete.desktop||'  /var/lib/mandriva/kde4-profiles/common/share/config/kickoffrc
+PFP=/var/lib/mandriva/kde4-profiles/common/share/config/kickoffrc
+[ -f $PFP ] && sed -i 's|,/usr/share/applications/kde4/kopete.desktop||' $PFP
 
 PFP=/usr/share/mdk/dm/mdk-gdm-nolist.xml
 [ -f $PFP ] && sed -i s=/usr/share/mdk/backgrounds/default.jpg=/usr/share/magos/wallpapers/default.jpg= $PFP

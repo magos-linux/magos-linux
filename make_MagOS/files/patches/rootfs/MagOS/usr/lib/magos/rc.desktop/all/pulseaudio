@@ -5,4 +5,4 @@ ENABLED=yes
 . /usr/lib/magos/os-config
 . /etc/sound/profiles/current/profile.conf
 
-[ "$SOUNDPROFILE" = "pulse" -a "$PULSEAUDIOSTART" = "yes" ] && start-pulseaudio-x11 &
+[ "$SOUNDPROFILE" = "pulse" -a "$PULSEAUDIOSTART" != "no" ] && start-pulseaudio-x11 &

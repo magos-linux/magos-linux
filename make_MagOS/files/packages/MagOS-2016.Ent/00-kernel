@@ -1,6 +1,4 @@
-kernel-nrj-desktop-4.19.112-1rosa-x86_64
-kernel-nrj-desktop-devel-4.19.112-1rosa-x86_64
-vboxadditions-kernel-4.19.112-nrj-desktop-1rosa-x86_64
-vboxadditions-kernel-nrj-desktop-latest
-virtualbox-kernel-4.19.112-nrj-desktop-1rosa-x86_64
-virtualbox-kernel-nrj-desktop-latest
+kernel-ml
+kernel-ml-devel
+vboxadditions-kernel-4.20.3-1.res7c.x86_64
+virtualbox-kernel-4.20.3-1.res7c.x86_64

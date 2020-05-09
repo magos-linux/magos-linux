@@ -14,8 +14,8 @@ ln -sf "../MagOS/$DIROPENBOX"  "/usr/share/themes/Default/$DIROPENBOX"
 
 PFP=/etc/xdg/lxsession/LXDE/desktop.conf
 sed -i s%sNet/ThemeName=.*%sNet/ThemeName=Default% $PFP
-sed -i s%sNet/IconThemeName=.*%sNet/IconThemeName=rosa% $PFP
-sed -i s%sGtk/CursorThemeName=.*%sGtk/CursorThemeName=rosa-flat% $PFP
+sed -i s%sNet/IconThemeName=.*%sNet/IconThemeName=Default% $PFP
+sed -i s%sGtk/CursorThemeName=.*%sGtk/CursorThemeName=Default% $PFP
 
 [ -d /usr/share/magos/lxde/skel ] && cp -aprf /usr/share/magos/lxde/skel /etc
 

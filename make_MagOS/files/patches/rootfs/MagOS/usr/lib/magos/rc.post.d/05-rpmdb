@@ -24,7 +24,7 @@ if egrep -q "tmpfs /memory |/dev/zram. /memory " /proc/mounts ;then
    grep -q " /memory/changes "  /proc/mounts || RPMDB2TMPFS=no
 fi
 
-if [ "$RPMDB2TMPFS" = "yes" ] ;then
+if [ "$RPMDB2TMPFS" != "no" ] ;then
    # make copy of rpmdb
    mkdir -p /var/lib/rpmdb
    mount -t tmpfs tmpfs /var/lib/rpmdb

@@ -10,5 +10,6 @@ DEBUGMODE=no
 . /usr/lib/magos/functions
 debug_mode "$0" "$@"
 
+. /usr/lib/magos/os-config
 [ -f /etc/MagOS/config ] && . /etc/MagOS/config
-[ "$RUNLDCONFIG" = "yes"  ] && /sbin/ldconfig &
+[ "$RUNLDCONFIG" = "yes"  ] && /sbin/ldconfig

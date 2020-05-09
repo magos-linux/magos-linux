@@ -19,12 +19,24 @@ function echowall()
 
 function findmagosdir()
 {
- MAGOSPATH=/mnt/livemedia/MagOS
- [ -f /mnt/live/etc/modules ] && . /mnt/live/etc/modules
- [ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
+ if [ -d /memory/layer-base/0 ] ;then
+   MAGOSDEV=$(grep -m1 " /memory/layer-base/0 " /proc/self/mountinfo | awk '{ print $10 }')
+   [ -e "$MAGOSDEV" ] || exit 1
+   MAGOSPATH=$(findmnt -lnf $MAGOSDEV -o TARGET)$(grep -m1 " /memory/layer-base/0 " /proc/self/mountinfo | awk '{ print $4 }')
+ elif [ -f /mnt/live/etc/modules ] ;then
+   . /mnt/live/etc/modules
+   [ ! -z "$MAGOSMODS" -a -d "$MAGOSMODS/base" ] && MAGOSPATH="$MAGOSMODS"
+ fi
+ [ -z "$MAGOSPATH" ] && MAGOSPATH=/mnt/livemedia/MagOS
  [ -f "$MAGOSPATH/vmlinuz" -a -d "$MAGOSPATH/base" ] || exit 1
  ARCH=$(gawk '{print $1}' "$MAGOSPATH/VERSION")
  [ -z "$ARCH" ] && exit 1
+ if echo "$MAGOSPATH" | grep -q [.bak]$ ;then
+    echolog "System started from backup folder $MAGOSPATH"
+    MAGOSPATH=$(echo $MAGOSPATH | sed s%[.]bak$%%)
+    [ -d "$MAGOSPATH" ] || exit 1
+    RUNFROMBACKUP=1
+ fi
 }
 
 function initparameters()
@@ -151,7 +163,7 @@ function checkfilesums()
  for a in $(awk '{print $2}' "$1") ;do
     MDS=$(md5sum "$a")
     if ! grep -q "$MDS" "$1" ;then
-	echowall "MagOS update error"
+	echowall "System update error"
         echoerror "md5sum for $a incorrect."
     fi
  done
@@ -198,7 +210,7 @@ function checkupdates()
  MAGOSVER=$(gawk '{print $2}' "$MAGOSPATH/VERSION")
  NEWVER=$(gawk '{print $2}' "$TMPDIR/VERSION")
  if [ "0$NEWVER" != "0$MAGOSVER" ] ;then
-    echolog "MagOS version doesn't match server version"
+    echolog "System version doesn't match server version"
     return 1
  fi
  if ! comparemdsum "$MAGOSPATH/MD5SUM" "$TMPDIR/MD5SUM" "$TMPDIR/MD5SUM.updates" ;then
@@ -232,7 +244,11 @@ function restartasroot()
 {
  if [ "$UID" != "0" ] ;then
     echolog "Restarting script as root."
-    beesu -l /bin/bash $(readlink -f $0) $@ || echolog "Failed."
+    if sudo -l $(basename $0) $@ >/dev/null 2>&1 ;then
+      sudo $(basename $0) $@
+    else
+      beesu -l /bin/bash $(readlink -f $0) $@ || echolog "Failed."
+    fi
     exit $?
  fi
 }
@@ -240,15 +256,15 @@ function restartasroot()
 function startwall()
 {
  echolog "--------------- Magosupdate started by user $UID -------------------"
- echowall "MagOS update started. Please wait."
+ echowall "System update started. Please wait."
 }
 
 function endwall()
 {
  if grep -qi "please reboot" "$LOGFILE" ;then
-    echowall "MagOS update finished. Please reboot."
+    echowall "System update finished. Please reboot."
  else
-    echowall "MagOS update finished."
+    echowall "System update finished."
  fi
 }
 
@@ -323,16 +339,16 @@ function updateversion()
 {
  startwall
 
- echolog "Preparing new directory ${MAGOSPATH}_${NEWVER}..."
- [ -d "${MAGOSPATH}.bak" ] &&  rm -fr "${MAGOSPATH}.bak"
- mkdir -p "${MAGOSPATH}_${NEWVER}"
- cd "${MAGOSPATH}_${NEWVER}" || echoerror "Can't create directory ${MAGOSPATH}_${NEWVER}"
+ echolog "Preparing new directory ${MAGOSPATH}.upd ..."
+ [ -d "${MAGOSPATH}.bak" -a "$RUNFROMBACKUP" != "1" ] && rm -fr "${MAGOSPATH}.bak"
+ mkdir -p "${MAGOSPATH}.upd"
+ cd "${MAGOSPATH}.upd" || echoerror "Can't create directory ${MAGOSPATH}.upd"
  mv -f $TMPDIR/VERSION VERSION
  cp -pfr -t ./ "$MAGOSPATH/"*.sgn "$MAGOSPATH/"*.ini "$MAGOSPATH/machines" "$MAGOSPATH/modules" "$MAGOSPATH/optional"
  [ -d base ] || cp -pfr -t ./ "$MAGOSPATH/base"
  echolog "Destination directory is ready now."
 
- echolog "Downloading MagOS files..."
+ echolog "Downloading system files..."
  download LICENSE		.
  download boot.tar.bz2		.
  download MagOS-Data.tar.bz2 	.
@@ -351,8 +367,12 @@ function updateversion()
 
  echolog "Renaming livemedia folders..."
  sync
- mv "${MAGOSPATH}" "${MAGOSPATH}.bak" || exit 1
- mv "${MAGOSPATH}_${NEWVER}" "${MAGOSPATH}"
+ if [ "$RUNFROMBACKUP" != "1" ] ;then
+   mv "${MAGOSPATH}" "${MAGOSPATH}.bak" || exit 1
+ else
+   rm -fr "${MAGOSPATH}"
+ fi
+ mv "${MAGOSPATH}.upd" "${MAGOSPATH}"
 
  echolog "Update finished. Please reboot."
  cat $LOGFILE >> "${MAGOSPATH}.bak/magosupdate.log"
@@ -427,6 +447,26 @@ function updatemodules()
  endwall
 }
 
+function revertversion()
+{
+ echolog "Downgrading to old version ..."
+ if [ -d "${MAGOSPATH}.bak" ] ;then
+     echolog "Renaming current version ${MAGOSPATH} to ${MAGOSPATH}.del"
+     mv "${MAGOSPATH}" "${MAGOSPATH}.del" || exit 1
+     echolog "Renaming ${MAGOSPATH}.bak to ${MAGOSPATH}"
+     mv "${MAGOSPATH}.bak" "${MAGOSPATH}" || exit 1
+     echolog "Removing ${MAGOSPATH}.del"
+     rm -fr "${MAGOSPATH}.del" || exit 1
+     sync
+     echolog "Downgrading finished. Please reboot."
+     endwall
+ else
+     echolog "Folder ${MAGOSPATH}.bak is not found."
+     exit 1
+ fi
+}
+
+
 function help()
 {
  echo "This script updates system from server"
@@ -441,6 +481,7 @@ function help()
  echo " -uv|--updateversion	updates system release if it's available"
  echo " -ub|--updatebase	updates system modules if they are was updated on server"
  echo " -um|--updatemodules	updates optional modules if they will be founded on server"
+ echo " -rv|--revertversion	revert system to old version, if folder MagOS.bak is exists"
  echo "Script without parameters does all checks and tryes to update system if it's necessary."
 }
 
@@ -477,6 +518,10 @@ case $1 in
     -um|--updatemodules)
 	restartasroot -um
 	updatemodules && exit 0 || exit 1
+    ;;
+    -rv|--revertversion)
+	restartasroot -rv
+	revertversion && exit 0 || exit 1
     ;;
     ""|--auto)
 	checkrootfs || exit 1

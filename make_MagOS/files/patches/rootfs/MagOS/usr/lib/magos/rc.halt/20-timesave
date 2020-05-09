@@ -3,7 +3,7 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 . /usr/lib/magos/os-config
-[ "$HALTSAVETIME" != "yes" ] && exit 0
+[ "$HALTSAVETIME" = "no" ] && exit 0
 #Setting clock
 . /etc/sysconfig/clock
 HWCLOCKOPIONS="--utc"

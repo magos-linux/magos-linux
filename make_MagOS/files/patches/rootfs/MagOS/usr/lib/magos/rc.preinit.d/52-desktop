@@ -97,6 +97,10 @@ for a in $(cmdline_value desktop | tr , " " ) ;do
          echo -e "DESKTOP=Plasma" >$SYSCONF/desktop
          PREFERREDDM=sddm
        ;;
+       mate)
+         echo -e "DESKTOP=MATE" >$SYSCONF/desktop
+         PREFERREDDM=lightdm
+       ;;
        kdm)
          setupdm KDM kdm
        ;;
@@ -172,7 +176,9 @@ cat >etc/X11/wmsession.d/00DEFAULT <<EOF
 [Desktop Entry]
 Encoding=UTF-8
 Name=DEFAULT
+Name[ru]=Сеанс по умолчанию
 Comment=Default MagOS Session
+Comment[ru]=Предопределённая рабочая среда пользователя
 Exec=/usr/share/X11/xdm/Xsession $DESKTOP
 Icon=
 Type=Application

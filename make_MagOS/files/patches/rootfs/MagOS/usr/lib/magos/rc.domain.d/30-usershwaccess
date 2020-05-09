@@ -1,5 +1,6 @@
 #!/bin/bash
 ENABLED=yes
+DOMUSGR=audio,video,usb,vboxusers,bumblebee,cdrom,cdwriter,lp,floppy
 [ "$ENABLED" != "yes" ] && exit 0
 . /usr/lib/magos/os-config
 . /etc/MagOS/config

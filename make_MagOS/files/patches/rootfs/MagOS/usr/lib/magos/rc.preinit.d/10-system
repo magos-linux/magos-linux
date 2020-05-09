@@ -19,7 +19,7 @@ ps | grep ntfsmount | awk '{ print $1 }' >> var/run/sendsigs.omit
 
 #Setting up local time zone
 [ -f etc/sysconfig/clock ] && . etc/sysconfig/clock
-[ "$UTC" = "false" -a -f usr/share/zoneinfo/$ZONE ] && ln -sf /usr/share/zoneinfo/$ZONE etc/localtime
+[ -f "usr/share/zoneinfo/$ZONE" ] && ln -sf "/usr/share/zoneinfo/$ZONE" etc/localtime
 
 #devfs support
 if [ -d run/udev/rules.d ] ;then

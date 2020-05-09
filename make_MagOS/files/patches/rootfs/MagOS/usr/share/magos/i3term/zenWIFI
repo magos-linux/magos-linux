@@ -1,0 +1,33 @@
+#!/bin/bash
+get_nmcli() {
+    nmcli  -c no -f SSID device wifi list | tail -n +2 |while read essid ; do
+    echo -n "${essid}|"
+    done
+}
+
+get_essid() {
+TLIST=$(get_nmcli|sed 's/|$//' )
+ESSID_PASS=$(zenity --forms --title="Подключение к сети WIFI" \
+    --text="Выберите точку доступа из списка:" \
+    --separator="" \
+    --add-list="ESSID:" \
+    --list-values="$TLIST" \
+    --add-password="Пароль:" \
+    --width=400 \
+    --name="zenWifi" \
+    --class="Xdialog" \
+)
+ESSID=$(echo "$ESSID_PASS" |cut -f1 -d ",") 
+[ -z "$ESSID" ] && exit
+PASS=$(echo "$ESSID_PASS" |cut -f2 -d ",")
+[ -z "$PASS" ] && exit
+}
+
+until ping -c 1 ya.ru  ;do  
+get_essid
+nmcli device wifi connect "$ESSID" password "$PASS"
+unset PASS
+unset ESSID
+sleep 1
+done
+

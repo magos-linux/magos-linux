@@ -7,8 +7,11 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
+
+UPDATEGTKICONOPTS="-fit /usr/share/icons/hicolor"
+
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
-[ "$UPDATEGTKICONCACHE" = "yes" ] && gtk-update-icon-cache $UPDATEGTKICONOPTS >/dev/null 2>&1
+[ "$UPDATEGTKICONCACHE" != "no" ] && gtk-update-icon-cache $UPDATEGTKICONOPTS >/dev/null 2>&1

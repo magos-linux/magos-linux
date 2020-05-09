@@ -5,4 +5,5 @@ PFP=$(ls -d1 /usr/lib/thunderbird* 2>/dev/null| tail -1)
 [ -d "$PFP"/defaults ] || exit 0
 mkdir -p "$PFP"/defaults/profile
 ln -sf /usr/share/magos/mozilla/thunderbird-prefs.js "$PFP"/defaults/profile/prefs.js
+[ -x /usr/bin/thunderbird -a ! -x /usr/bin/mozilla-thunderbird ] && ln -sf thunderbird /usr/bin/mozilla-thunderbird
 exit 0

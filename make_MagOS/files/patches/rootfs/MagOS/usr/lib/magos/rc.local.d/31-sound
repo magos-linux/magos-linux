@@ -8,6 +8,13 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
+
+SNDMIX_MASTER_N=Master
+SNDMIX_MASTER_VOL=35%
+SNDMIX_DEFAULT_VOL=90%
+SNDMIX_SWITCH_ON="IEC958 Playback Default,IEC958 Playback Switch"
+SNDMIX_SWITCH_OFF="Beep Playback Switch,Mic Playback Switch"
+
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
@@ -15,7 +22,7 @@ debug_mode "$0" "$@"
 . /etc/MagOS/config
 
 # in case of card 0 is HDMI, card 1 is audiocard
-if [ "$SNDFINCARD" = "yes" ] ;then
+if [ "$SNDFINCARD" != "no" ] ;then
    if [ -z "$ALSACARD" -o -z "$ALSADEVICE" ] && LC_ALL=C aplay -l |  grep -qi "card 0.*HDMI" ;then
       ALSACARD=$(aplay -l | grep -v "card 0:" | grep -m1 "card .:.*device " | sed s/"card "// | sed s/":.*"//)
       ALSADEVICE=$(LC_ALL=C aplay -l | grep -m1 "card $ALSACARD:.*device " | sed s/".* device "// | sed s/:.*//)
@@ -34,7 +41,7 @@ if [ "$ALSACARD" -a "$ALSADEVICE" ] ;then
 fi
 
 # default settings for mixer
-if [ "$SNDMIXSET" = "yes" ] ;then
+if [ "$SNDMIXSET" != "no" ] ;then
   amixer controls | awk -F, '{print $1}' | while read a ;do
     SNDNAME=$(LC_ALL=C amixer cget "$a" | grep -m1 name= | awk -F'name='\' '{print $2}' | awk -F\' '{print $1}')
     SNDTYPE=$(LC_ALL=C amixer cget "$a" | grep -m1 type= | awk -F'type=' '{print $2}' | awk -F, '{ print $1}')

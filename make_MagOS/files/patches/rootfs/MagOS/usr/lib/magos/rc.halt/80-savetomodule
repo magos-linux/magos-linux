@@ -37,6 +37,7 @@ if [ -w $SAVETOMODULEDIR -a "$SAVETOMODULE" = "yes" ] ;then
    else 
       SRC=$CHSRC
    fi
+   [ -d /memory/ovl/changes ] && SRC=/memory/ovl/changes
    # preparing excluded files list
    echo -e "/tmp/includedfiles\n/tmp/excludedfiles" > /tmp/excludedfiles
    if [ -f "$FILELIST" ] ;then

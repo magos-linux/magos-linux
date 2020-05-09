@@ -5,3 +5,13 @@ x11-driver-video-nvidia340
 x11-driver-video-nvidia-current
 xscreensaver
 xscreensaver-common
+iwl3945-firmware
+iwl4965-firmware
+iwl-ax200-firmware
+iwl-ax201-firmware
+iwlwifi-agn-ucode
+libertas-sd8686-firmware
+libertas-sd8787-firmware
+libertas-usb8388-firmware
+libertas-usb8388-olpc-firmware
+linux-firmware

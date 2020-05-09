@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=i3
+Name[ru]=Мозаичный менеджер окон i3
+Comment=improved dynamic tiling window manager
+Comment[ru]=Мозаичный менеджер окон i3 для разработчиков
+Exec=i3
+TryExec=i3
+Type=Application
+X-LightDM-DesktopName=i3
+DesktopNames=i3
+Keywords=tiling;wm;windowmanager;window;manager;

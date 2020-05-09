@@ -5,7 +5,7 @@ ENABLED=yes
 . /usr/lib/magos/os-config
 . /etc/sysconfig/keyboard
 
-[ "$RESETKBMODE" = "yes" ] && setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions
+[ "$RESETKBMODE" != "no" ] && setxkbmap $XkbLayout -model $XkbModel -option $XkbOptions
 
 . /etc/MagOS/config
 

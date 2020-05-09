@@ -144,7 +144,7 @@ mv -f "$MYPATH/flash/current/modules/"* "$DESTDIR/$FLASHNAME/base" || stop "Can'
 chmod 444 "$DESTDIR/$FLASHNAME/base/"*
 mv "$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international"
 mv "$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}" 2>/dev/null
-mv "$DESTDIR/$FLASHNAME/base/"80-*.xzm     "$DESTDIR/$FLASHNAME/optional" 2>/dev/null
+mv "$DESTDIR/$FLASHNAME/base/"82-*.xzm     "$DESTDIR/$FLASHNAME/optional" 2>/dev/null
 
 echo -e "\nДобавление графического материала"
 cd "$MYPATH/../graphics" || stop "Can't cd to ../graphics"

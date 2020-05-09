@@ -1,0 +1,20 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+XDG_DESKTOP_DIR="$HOME/Рабочий стол"
+
+. /usr/lib/magos/os-config
+. /etc/MagOS/config
+
+[ -z "$PLACEONDESKTOP" ] && exit 0
+[ -f ~/.config/.desktopinitialized ] && exit 0
+. ~/.config/user-dirs.dirs
+[ -d "$XDG_DESKTOP_DIR" ] || mkdir -p "$XDG_DESKTOP_DIR"
+echo "$PLACEONDESKTOP" | tr ',;' \\n | while read a ;do
+     DF=$(find /usr/share/applications -type f -name $a.desktop )
+     [ -f "$DF" ] && cp "$DF" "$XDG_DESKTOP_DIR"
+     grep "#!/usr/bin/env xdg-open" "$XDG_DESKTOP_DIR"/$a.desktop || sed -i 1s%^%'\#\!/usr/bin/env xdg-open\n'% "$XDG_DESKTOP_DIR"/$a.desktop
+     chmod 755 "$XDG_DESKTOP_DIR"/$a.desktop
+done
+touch ~/.config/.desktopinitialized

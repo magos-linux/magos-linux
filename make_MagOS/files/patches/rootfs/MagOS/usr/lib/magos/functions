@@ -90,15 +90,19 @@ function concatenate_ini()
 
 detectDE()
 {
-  if [ x"$KDE_FULL_SESSION" = x"true" ]; then SESSION=kde
-    elif [ x"$DESKTOP_SESSION" = x"LXDE" ]; then SESSION=lxde
-    elif [ x"$XDG_CURRENT_DESKTOP" = x"LXQt" ]; then SESSION=lxqt
-    elif [ x"$DESKTOP_SESSION" = x"i3" ]; then SESSION=i3
-    elif [ x"$XDG_CURRENT_DESKTOP" = x"i3" ]; then SESSION=i3  
+  if [ x"$KDE_FULL_SESSION" = x"true" ];          then SESSION=kde
+    elif [ x"$DESKTOP_SESSION" = x"LXDE" ];       then SESSION=lxde
+    elif [ x"$XDG_CURRENT_DESKTOP" = x"LXQt" ];   then SESSION=lxqt
+    elif [ x"$DESKTOP_SESSION" = x"i3" ];         then SESSION=i3
+    elif [ x"$XDG_CURRENT_DESKTOP" = x"i3" ];     then SESSION=i3
+    elif [ x"$DESKTOP_SESSION" = x"i3term" ];     then SESSION=i3term
+    elif [ x"$XDG_CURRENT_DESKTOP" = x"i3term" ]; then SESSION=i3term
+    elif [ x"$XDG_CURRENT_DESKTOP" = x"MATE" ];   then SESSION=mate
   fi
-  if [ -z "$SESSION" ] ;then 
-         ps -A | grep -q "kdeinit" && SESSION=kde
-         ps -A | grep -q " i3$" && SESSION=i3
+  if [ -z "$SESSION" ] ;then
+         ps -A | grep -q "kdeinit"     && SESSION=kde
+         ps -A | grep -q " i3$"        && SESSION=i3
+         ps -A | grep -q " i3term$"    && SESSION=i3term
          ps -A | grep -q "gnome-panel" && SESSION=gnome
          ps -A | grep -q "gnome-shell" && SESSION=gnome-shell
   fi

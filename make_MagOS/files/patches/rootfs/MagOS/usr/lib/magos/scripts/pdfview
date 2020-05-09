@@ -11,7 +11,7 @@ case "$DE" in
     PREF=/usr/bin/okular
     ;;
 
-    gnome|gnome-shell)
+    gnome|gnome-shell|mate)
     PREF=/usr/bin/evince
     ;;
 esac

@@ -1,0 +1,28 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+TESTNETWORK=yes
+TESTNETTOOL="ping -c 1 "
+TESTNETSERVER="77.88.8.8"
+STARTNWTOOL=/usr/share/magos/i3term/zenWIFI
+WM=marco
+TESTINDE=i3term
+
+. /usr/lib/magos/os-config
+. /etc/sysconfig/desktop
+. /etc/MagOS/config
+
+[ -f /run/$(basename $0)_started ] && exit 0
+
+if [ "$DESKTOP" = "$TESTINDE" ] ;then
+  if [ "$TESTNETWORK" = "yes" ] ;then
+     if ! $TESTNETTOOL $TESTNETSERVER  >/dev/null 2>/dev/null ;then
+        $WM &
+        pid=$!
+        su -l root -c "$STARTNWTOOL"
+        kill $pid
+        echo 1 >/run/$(basename $0)_started
+     fi
+  fi
+fi

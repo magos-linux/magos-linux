@@ -2,8 +2,10 @@
 # xscreensaver helper scripts
 ENABLED=yes
 XSSHBTM=20s
-# don't start xss in DE
-XSSDEIGNORE=kde
+# exit for DE
+XSSDEIGNORE="kde,mate"
+# exit if process started
+XSSEXIT="screensaver"
 # stop xss if process started
 XSSBLRUNED="kscreenlocker"
 # stop xss if process eats resources
@@ -14,9 +16,12 @@ XSSBLLOADED="rosa-media-play,mplayer,tvtime,firefox,steam,chromium"
 . /usr/lib/magos/functions
 . /etc/MagOS/config
 
+which xscreensaver >/dev/null 2>&1 || exit 0
 DE=$(detectDE)
 [ "$XSSDEIGNORE" = "all" ] && exit 0
 echo " $XSSDEIGNORE " | tr ',;' ' ' | grep -q " $DE " &&  exit 0
+XSSEXIT="$(echo "$XSSEXIT" | tr ',; ' '|' )"
+ps -U $(id -un) -o comm | egrep -q "$XSSEXIT" && exit 0
 
 xscreensaver -no-splash &
 sleep 1s

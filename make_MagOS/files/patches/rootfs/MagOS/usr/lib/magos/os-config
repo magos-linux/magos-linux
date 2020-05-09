@@ -1,6 +1,5 @@
 #this file contains different values for magos scripts
 
-
 ##rc.desktop/all/* is launching when desktop is ready
 
 #rc.desktop/all/autoexec
@@ -9,11 +8,13 @@
 
 #rc.desktop/all/fusion-icon
 # timeout to start fusion-icon
-FUSIONICONTIMEOUT=5
+#FUSIONICONTIMEOUT=5
+# disable fusion-icon for de
+#FUSIONICONDEDIS=gnome-shell,gnome,i3term
 
 #rc.desktop/all/keyboard
 # set keyboard layout when system start
-RESETKBMODE=yes
+#RESETKBMODE=yes
 # set on/off/autoset numlock kbd mode
 #NUMLOCK
 
@@ -23,38 +24,38 @@ MUPDSRCHTTP=http://mirror.yandex.ru/mirrors/magos/netlive
 MUPDSRCRSYNC=rsync://mirror.yandex.ru:/mirrors/magos/netlive
 
 #rc.desktop/all/xbindkeys
-XBINDKEYSSTART=yes
-XBINDKEYSOPTIONS=
+#XBINDKEYSSTART=yes
+#XBINDKEYSOPTIONS=
 
 #rc.desktop/gnome/guake
-GUAKESTART=yes
+#GUAKESTART=yes
 
 #rc.desktop/all/pulseaudio
-PULSEAUDIOSTART=yes
+#PULSEAUDIOSTART=yes
 
 #rc.desktop/kde/hideloop4dolphin
 # kde dolphin workaround. scripts hides loop devices in places bar
-HIDELOOP4DOLPHIN=yes
-DOLPHINBOOKMARKS=.local/share/user-places.xbel
-HIDELOOP=255
-HIDERAM=0
+#HIDELOOP4DOLPHIN=yes
+#DOLPHINBOOKMARKS=.local/share/user-places.xbel
+#HIDELOOP=255
+#HIDERAM=0
 
 #rc.desktop/kde/yakuake
-YAKUAKESTART=yes
+#YAKUAKESTART=yes
 
 #rc.desktop/kde/parcellite
-PARCELLITESTART=yes
+#PARCELLITESTART=yes
 
 #rc.domain.d/30-usershwaccess
-DOMUSGR=audio,video,usb,vboxusers,bumblebee,cdrom,cdwriter,lp,floppy
+#DOMUSGR=audio,video,usb,vboxusers,bumblebee,cdrom,cdwriter,lp,floppy
 
 #rc.halt/16-rpmdb
 #rc.post.d/05-rpmdb
-RPMDB2TMPFS=yes
-RPMDBCONVERT=auto
+#RPMDB2TMPFS=yes
+#RPMDBCONVERT=auto
 
 #rc.halt/20-timesave
-HALTSAVETIME=yes
+#HALTSAVETIME=yes
 
 #rc.local.d/01-background
 WALLPAPERSRES=1920x1080
@@ -66,43 +67,41 @@ WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
 
 #rc.local.d/10-network
 # start interface if its not networkmanager
-AUTOSTARTIFNNM=yes
-NFSMOUNTTM=10
-NFSMOUNTWAIT=6
-NFSOPTS="vers=3,nolock,users,noauto"
+#AUTOSTARTIFNNM=yes
+#NFSMOUNTTM=10
+#NFSMOUNTWAIT=6
+#NFSOPTS="vers=3,nolock,users,noauto"
 
 #rc.local.d/31-sound
 # to set default alsa card in case of 0 card is HDMI (see aplay -l)
-SNDFINCARD=yes
+#SNDFINCARD=yes
 # mixer settings (see amixer)
-SNDMIXSET=yes
-SNDMIX_MASTER_N=Master
-SNDMIX_MASTER_VOL=35%
-SNDMIX_DEFAULT_VOL=90%
-SNDMIX_SWITCH_ON="IEC958 Playback Default,IEC958 Playback Switch"
-SNDMIX_SWITCH_OFF="Beep Playback Switch,Mic Playback Switch"
+#SNDMIXSET=yes
+#SNDMIX_MASTER_N=Master
+#SNDMIX_MASTER_VOL=35%
+#SNDMIX_DEFAULT_VOL=90%
+#SNDMIX_SWITCH_ON="IEC958 Playback Default,IEC958 Playback Switch"
+#SNDMIX_SWITCH_OFF="Beep Playback Switch,Mic Playback Switch"
 
 #rc.local.d/51-gtk-update-icon-cache
-UPDATEGTKICONCACHE=yes
-UPDATEGTKICONOPTS="-fit /usr/share/icons/hicolor"
+#UPDATEGTKICONCACHE=yes
+#UPDATEGTKICONOPTS="-fit /usr/share/icons/hicolor"
 
 #rc.local.d/51-mozilla_extensions
-REGISTERMOZEXT=yes
+#REGISTERMOZEXT=yes
 
 #rc.local.d/81-samba
 # make random passwords for samba users (for home nets)
-MKSMBPWD=yes
-# display passwd
-SHDSMBPW=yes
+#MKSMBPWD=yes
 
 #rc.post.d/02-hwclock
-SETCLKATSTART=yes
+#SETCLKATSTART=yes
 
 #rc.post.d/11-xorg
 HARDCONF=etc/sysconfig/harddrake2/service.conf
 # make /etc/X11/xorg.conf.d/00-keyboard.conf
-SETXORGRES=yes
-MKKBDFXORG=yes
+#SETXORGRES=yes
+#MKKBDFXORG=yes
 # options (only if its not specified in /etc/sysconfig/keyboard )
 XkbModel=pc105
 GRP_TOGGLE=ctrl_shift_toggle
@@ -110,7 +109,7 @@ XkbLayout=us,ru
 KEYBOARD=ru
 KEYTABLE=ru4
 XkbOptions=grp:ctrl_shift_toggle,grp_led:scroll,compose:rwin
-STEAMNODPMS=yes
+#STEAMNODPMS=yes
 
 #rc.preinit/10-accounts
 DEFAULTPASSWD='$6$kCP2oNGB$LD4VUJfTMxTmzbZNZg16AYDjSQ6CB1hEaqzb49I91KntXDTVxux6KueiYj59HiHddL9zJwlQ4Y8hzvXRTwpFQ0'
@@ -121,54 +120,29 @@ USERGROUPS=audio,video,usb,vboxusers,bumblebee,cdrom,lp
 NOSECUREROOTPASSWD=$DEFAULTROOTPASSWD
 ADMGROUPS=wheel
 ADMUID=500
-ADDADM=no
+#ADDADM=no
 
 #rc.preinit/50-xorg
-LINKFGLRX=/etc/ld.so.conf.d/GL/ati.conf
-LINKATI=/etc/ld.so.conf.d/GL/standard.conf
-LINKNVIDIA96=/etc/nvidia96xx/ld.so.conf
-LINKNVIDIA173=/etc/nvidia173/ld.so.conf
-LINKNVIDIA304=/etc/nvidia304/ld.so.conf
-LINKNVIDIA340=/etc/nvidia340/ld.so.conf
-LINKNVIDIA360=/etc/nvidia360/ld.so.conf
-LINKNVIDIA390=/etc/nvidia390/ld.so.conf
-LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
-LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-#NVIDIATEST="nvidia390 nvidia360 nvidia340 nvidia304 nvidia173 nvidia96 nvidia-current nouveau"
-NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia"
-FAILSAFENVIDIA=nouveau
-FAILSAFEATI=ati
-DELETE_XORG_CONF=no
-CREATE_XORG_CONF=yes
-GLLDCONFIG=yes
-BUMBLEBEE=no
-OPTIRUN=
-PRIMUSRUN=
-VGABUSID=
-INTEGRATEDVGA=yes
-SORTOPT=
-XFILE=etc/X11/xorg.conf
+#NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia"
+#FAILSAFENVIDIA=nouveau
+#CREATE_XORG_CONF=yes
+#XFILE=etc/X11/xorg.conf
+
+#rc.post/11-xorg
+#DELETE_XORG_CONF=no
 
 #rc.preinit.d/53-language
-FORCE_LOCARCHIVE=no
+#FORCE_LOCARCHIVE=no
 
-#rc.halt.pre/05-shutdown
-#rc.halt/05-shutdown
-HALTSERVICESSTOP=""
-HALTPROCESSESKILL="slim kdm X lxdm xdm sddm cupsd pdnsd mc mandb"
+#rc.halt.pre/10-shutdown
+#HALTSERVICESSTOP=""
+#HALTPROCESSESKILL="slim kdm X lxdm xdm sddm cupsd pdnsd mc mandb"
 
 #rc.preinit/02-skel-adds
 STEAMAPP=/mnt/livedata/MagOS-Data/steam
 
 #/usr/lib/magos/rc.post.d/03-modprobepreload
-MODPROBEPRELOAD=yes
-
-#/usr/lib/magos/scripts/startsteam
-GL32MOD=81-libs4mesagl32.xzm
-GL32URL=http://mirror.yandex.ru/mirrors/magos/modules/2014.64
-GL32LIB=/usr/lib/libGL.so.1
-PRDNL="wget -O "
-USERMODSPATH=/mnt/livedata/MagOS-Data/modules
+#MODPROBEPRELOAD=yes
 
 #/usr/lib/magos/functions
 MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
@@ -177,8 +151,14 @@ MKSQFS_OPTS="-b 512K -comp xz -Xbcj x86"
 MKSQFS_FASTALG="-b 512K -comp lz4 -Xhc"
 
 #/usr/lib/magos/rc.desktop/lxqt/qterminal
-QTERMINALSTART=yes
+#QTERMINALSTART=yes
 
 #/usr/lib/magos/rc.preinit.d/52-desktop
 #/usr/lib/magos/rc.post.d/11-xorg
 SYSCONF=/etc/sysconfig
+
+#/usr/lib/magos/rc.d/rc.desktop
+#NOEXEC="i3term:xbindkeys;i3term:fusion-icon;i3term:magosupdate"
+
+#/usr/lib/magos/rc.desktop/i3term/exclusiveapp
+#EXCLUSIVEAPP=remmina

@@ -97,10 +97,9 @@ lrzsz
 madwimax
 minicom
 mirrordir
-mozilla-thunderbird
-mozilla-thunderbird-enigmail
-mozilla-thunderbird-enigmail-ru
-mozilla-thunderbird-ru
+thunderbird
+thunderbird-ru
+thunderbird-enigmail
 ncpfs
 nethogs
 networkmanager-applet
@@ -191,3 +190,7 @@ wvdial
 x11-server-xephyr
 xl2tpd
 zcip
+tigervnc-server
+cert-sh-functions
+lib64rfxencode0
+xrdp

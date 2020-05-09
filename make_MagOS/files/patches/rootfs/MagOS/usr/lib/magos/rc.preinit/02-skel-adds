@@ -28,5 +28,5 @@ if [ -f etc/sysconfig/steam ] ;then
   . etc/sysconfig/steam
   rm -f etc/skel/.steam etc/skel/.local/share/Steam 2>/dev/null
   [ -z "$STEAMCONF" ] || ln -sf "$STEAMCONF" etc/skel/.steam
-  ln -sf "$STEAMAPP" etc/skel/.local/share/Steam
+  [ -z "$STEAMAPP"  ] || ln -sf "$STEAMAPP"  etc/skel/.local/share/Steam
 fi

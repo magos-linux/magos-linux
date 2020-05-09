@@ -3,4 +3,4 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 . /usr/lib/magos/os-config
 
-[ "$XBINDKEYSSTART" = "yes" ] && xbindkeys $XBINDKEYSOPTIONS &
+[ "$XBINDKEYSSTART" != "no" ] && xbindkeys $XBINDKEYSOPTIONS &

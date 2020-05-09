@@ -1,6 +1,7 @@
-steam
 aufs-tools
-kernel-headers
+kernel-ml
+kernel-ml-devel
+kernel-ml-headers
 x11-driver-video-nvidia304
 x11-driver-video-nvidia-current
 xscreensaver

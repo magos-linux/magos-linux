@@ -1,4 +1,3 @@
-abrt
 android-tools
 arj
 augeas-lenses
@@ -44,7 +43,6 @@ foremost
 fsarchiver
 fuse-exfat
 fuseiso
-gcalctool
 gcc
 gcc-c++
 gcc-cpp
@@ -58,27 +56,13 @@ grub2
 grub2-theme-rosa
 gucharmap
 gurpmi
-harddrake
-harddrake-ui
 hexedit
 hfsutils
 html2text
 htop
 ipset
 jfsutils
-kcm-drakauth
-kcm-drakfirewall
-kcm-drakguard
-kcm-draksec
-kcm-harddrake
-kcm-printer
-kcm-rpmdrake
-kcm-rpmdrake-sources
-kcm-rpmdrake-update
-kcm-userdrake
-kcm-XFdrake
-kernel-headers
-leafpad
+kernel-ml-headers
 lha
 lib64aal1.0_6
 lib64augeas0
@@ -164,7 +148,6 @@ lib64Xsettings-client0
 lib64yelp0
 lib64z-devel
 libcap-utils
-libdrakx-net
 libquvi-scripts
 libsmi
 libsmi-mibs-std
@@ -181,8 +164,6 @@ master-boot-code
 mc
 mdv-distrib-tools
 mdvinput
-migration-assistant
-mkcd
 msec
 msec-gui
 ms-sys
@@ -196,7 +177,6 @@ opensc
 os-prober
 ozerocdoff
 p7zip
-packdrake
 pam_pkcs11
 pam_pkcs11-tools
 partclone
@@ -206,7 +186,6 @@ patch
 pax
 pbzip2
 pcsc-tools
-peazip
 perl-Class-Inspector
 perl-Config-IniFiles
 perl-Crypt-PasswdMD5
@@ -270,7 +249,6 @@ python-rpm
 python-rpm5utils
 python-vte
 qemu-img
-qpdfview
 quota
 recode
 reiser4progs
@@ -302,14 +280,12 @@ tmpwatch
 tolua++
 tor
 totem-pl-parser-i18n
-transfugdrake
 tsocks
 ttmkfdir
 unrar
 upx
 urpmi
 urpm-tools
-userdrake
 whdd
 wmctrl
 xdelta3
@@ -318,3 +294,4 @@ xmlstarlet
 xorriso
 yelp
 yelp-xsl
+cryptkeeper

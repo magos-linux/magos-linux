@@ -1,0 +1,11 @@
+#!/bin/bash
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+if [ -f /etc/init.d/cts ] ;then
+   if ! systemctl is-active cts 2>/dev/null ;then
+      ldconfig /usr/lib64/cts && systemctl restart cts
+   fi
+fi
+
+exit 0

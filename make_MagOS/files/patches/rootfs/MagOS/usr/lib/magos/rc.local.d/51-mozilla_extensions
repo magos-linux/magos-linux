@@ -14,7 +14,7 @@ debug_mode "$0" "$@"
 . /etc/MagOS/config
 
 # Registering mozilla extentions (firefox and thunderbird)
-if [ "$REGISTERMOZEXT" = "yes" ] ;then
+if [ "$REGISTERMOZEXT" != "no" ] ;then
   for i in firefox thunderbird ; do
     if [ -d /usr/lib/mozilla/$i/extensions ] ;then
       for a in $(ls -d /usr/lib/mozilla/$i/extensions/* ) ; do

@@ -5,6 +5,7 @@ FLASHNAME=MagOS
 VERREL=2016.Ent
 
 RE4NAME="-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*.rpm"
+RE4NEXC="-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*.rpm"
 HIDEBININSTALL="mkinitrd dracut dracut-install grub grub-install grub2-install grub2-mkimage grub2-reboot update-grub2 mkinitrd-mkinitrd mkinitrd-dracut"
 
 # Размер в Мб для данных и изменений системы для каждого профиля

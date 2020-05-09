@@ -12,25 +12,25 @@ color black/cyan yellow/cyan
 splashimage /boot/grub4dos/boot_xpm.gz
 
 iftitle [if exist /isomode] MagOS Linux-Run from ISO/DVD
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en uird.force scantimeout=3
+kernel /MagOS/vmlinuz vga=791 quiet splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en uird.force scantimeout=3
 initrd /MagOS/uird.magos.cpio.xz
 
 iftitle [if not exist /isomode] MagOS Linux with saving data
 if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en uird.home=home.img uird.mode=machines
+kernel /MagOS/vmlinuz vga=791 quiet splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en uird.home=home.img uird.mode=machines
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux Clean mode
 if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en
+kernel /MagOS/vmlinuz vga=791 quiet splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en
 initrd /MagOS/uird.magos.cpio.xz
 
 iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux with saving data (previous version)
-kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en uird.home=home.img uird.mode=machines uird.from=MagOS.bak;MagOS-Data
+kernel /MagOS.bak/vmlinuz vga=791 quiet splash=silent plymouth.enable=1 logo.nologo vt.global_cursor_default=0 lang=en uird.home=home.img uird.mode=machines uird.from=MagOS.bak;MagOS-Data
 initrd /MagOS.bak/uird.magos.cpio.xz
 
 iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux Clean mode (previous version)
-kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=1 logo.nologo lang=en uird.from=MagOS.bak;MagOS-Data
+kernel /MagOS.bak/vmlinuz vga=791 quiet splash=silent plymouth.enable=1 logo.nologo lang=en uird.from=MagOS.bak;MagOS-Data
 initrd /MagOS.bak/uird.magos.cpio.xz
 
 #title MagOS Linux Home profile (initrd)

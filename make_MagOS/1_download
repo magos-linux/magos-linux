@@ -63,9 +63,20 @@ function findpackage()
   [ -f "$TMPDIR/store/$PAC" ] || grep -m1 "/$PAC$" "$TMPDIR/re/urls/$3" >> "$TMPDIR/downloadlist.txt"
 }
 
+function findpackage2()
+{
+  PAC=$(grep "^$1$RE4NEXC" "$TMPDIR/re/media/$3" 2>/dev/null| tail -1)
+  [ -z "$PAC" ] && return 1
+  echo $PAC >> "$TMPDIR"/modules/packages/$2
+  grep -m1 "/$PAC$" "$TMPDIR/re/urls/$3" >> "$TMPDIR/re/urls/$FLASHNAME-$VERREL.txt" || stop "Can't find $PAC in media $3"
+  [ -f "$TMPDIR/store/$PAC" ] && ln -sf ../store/$PAC "$TMPDIR/installsrc"
+  [ -f "$TMPDIR/store/$PAC" ] || grep -m1 "/$PAC$" "$TMPDIR/re/urls/$3" >> "$TMPDIR/downloadlist.txt"
+}
+
 cd "$MYPATH"
 [ -f .config ] &&  . .config || stop "Can't find .config"
 [ -z "$CACHE" ] && CACHE="cache/$FLASHNAME-$VERREL"
+[ -z "$RE4NEXC" ] && RE4NEXC="$RE4NAME"
 
 echo -e "\nПодготовка папки"
 rm -fr "$TMPDIR"
@@ -101,8 +112,11 @@ find "$TMPDIR"/re/packages -maxdepth 1 -type f -name ??-* | sort | while read a 
   MODULE=$(basename $a) ; echo "  $MODULE"
   cat $a | while read n ;do
     MEDIA=$(grep -l ^$n$ "$TMPDIR/"re/packages/media_preferred/* | tail -1 | sed s%^.*/%%)
-    [ -z "$MEDIA" ] && MEDIA=default
-    findpackage "$n" "$MODULE" "$MEDIA" || findpackage "$n" "$MODULE" "ignored" || findpackage "$n" "$MODULE" "skiped" || echo $n >> "$TMPDIR/not_founded.txt"
+    if [ ! -z "$MEDIA" ] ;then
+       findpackage2 "$n" "$MODULE" "$MEDIA" || findpackage "$n" "$MODULE" "$MEDIA"  || echo $n >> "$TMPDIR/not_founded.txt"
+    else
+       findpackage "$n" "$MODULE" "default" || findpackage "$n" "$MODULE" "ignored" || findpackage "$n" "$MODULE" "skiped" || echo $n >> "$TMPDIR/not_founded.txt"
+    fi
   done
 done
 if [ -f "$TMPDIR/not_founded.txt" ] ;then 

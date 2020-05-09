@@ -6,13 +6,18 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
+
+NFSMOUNTTM=10
+NFSMOUNTWAIT=6
+NFSOPTS="vers=3,nolock,users,noauto"
+
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
 
 [ "$(cmdline_parameter flightmode)" ] && rfkill block all
 
-if [ "$AUTOSTARTIFNNM" = "yes" ];then
+if [ "$AUTOSTARTIFNNM" != "no" ];then
    for a in /etc/sysconfig/network-scripts/ifcfg-* ;do
      NM_CONTROLLED=
      ONBOOT=

@@ -1,5 +1,5 @@
 #!/bin/sh
-# This scripts is a workarond for steam client issue. It allows to use steam overlay by adding command line parameter "steamoverlay %command%" in game's properties.
+# This scripts is a workarond for steam client issue. It allows to use steam overlay by adding command line parameter "steamfix %command%" in game's properties.
 STP=$(readlink -f "$HOME/.local/share/Steam")
 LDPRIMUS="/usr/$LIB/primus:/usr/$LIB/nvidia:/usr/$LIB/libglvnd:/usr/bin/$LIB"
 SLIBS="/usr/lib64/heimdal:/usr/lib64/samba:/usr/lib/mesa:/usr/lib:/lib:/lib64:/usr/lib64:"

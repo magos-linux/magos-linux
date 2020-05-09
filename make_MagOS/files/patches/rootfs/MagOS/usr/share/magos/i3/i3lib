@@ -1,5 +1,7 @@
 #!/bin/sh
 #helper library for i3 config actions
+export TEXTDOMAINDIR=/usr/share/locale
+export TEXTDOMAIN=magos_functions
 
 HELP(){
 	echo "$0 is a helper library for i3 config actions" ; echo ""
@@ -50,20 +52,23 @@ QuickTermResize() {
 }
 
 PowerMenu() {
-case $(mdialog --menu "Power_menu" "poweroff poweroff reboot reboot sleep sleep") in
+MSG01=$(gettext -s "Power_menu")
+MSG02=$(gettext -s "Poweroff")
+MSG03=$(gettext -s "Reboot")
+MSG04=$(gettext -s "Sleep")
+MSG05=$(gettext -s "Logout")
+case $(mdialog --menu $MSG01 "poweroff $MSG02 reboot $MSG03 sleep $MSG04 logout $MSG05") in
     poweroff ) systemctl poweroff ;;
     reboot ) systemctl reboot ;;
     sleep ) systemctl suspend ;;
+    logout ) i3-msg exit ;;
  esac
 }
 
-
-
-
 if [ "$(basename $0)" == "i3lib" ] ;then
-	[ $1 ] || HELP
-	command="$1" 
-	shift
-	$command $@
-	[ $? -ne 0 ] && echo "$command ERROR!"
-fi 
+    [ $1 ] || HELP
+    command="$1"
+    shift
+    $command $@
+    [ $? -ne 0 ] && echo "$command ERROR!"
+fi

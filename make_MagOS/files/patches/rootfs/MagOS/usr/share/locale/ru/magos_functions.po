@@ -2,7 +2,7 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# msgfmt --output-file=LC_MESSAGES/magos_functions.mo magos_functions.po
 #, fuzzy
 msgid ""
 msgstr ""
@@ -96,11 +96,17 @@ msgstr "Пожалуйста, выберите"
 msgid "Do you want to update it now?"
 msgstr "Желаете обновить систему сейчас?"
 
-msgid "New version of MagOS Linux is detected on server."
-msgstr "На сервере обновлений обнаружена новая сборка MagOS Linux."
+msgid "New version of"
+msgstr "Новая сборка"
 
-msgid "New updates for MagOS Linux are detected on server."
-msgstr "Обнаружены обновления для текущей версии MagOS Linux."
+msgid "is detected on server."
+msgstr "доступна для загрузки на сервере обновлений."
+
+msgid "New updates for"
+msgstr "Обновления для текущей сборки"
+
+msgid "are detected on server."
+msgstr "доступны для загрузки на сервере обновлений."
 
 msgid "Yes, right now"
 msgstr "Да, немедленно"
@@ -111,10 +117,13 @@ msgstr "Нет, позже"
 msgid "Never, don't ask me again"
 msgstr "Нет, и больше не спрашивать"
 
-msgid "MagOS update is over"
-msgstr "Обновление MagOS завершено"
+msgid "System update"
+msgstr "Обновление системы"
 
-msgid "MagOS updated. Please reboot computer."
+msgid "System update is over"
+msgstr "Обновление системы завершено"
+
+msgid "System updated. Please reboot computer."
 msgstr "Система обновлена. Необходимо перезагрузить компьютер "
 
 msgid "Reboot now"
@@ -126,14 +135,66 @@ msgstr "Нет, я перезагружу позже"
 msgid "Update was unsuccessful."
 msgstr "Обновление не удалось."
 
-msgid "MagOS update error"
-msgstr "Обновление MagOS не удалось."
+msgid "System update error"
+msgstr "Обновление системы не удалось."
 
-msgid "MagOS update started. Please wait."
-msgstr "Обновление MagOS. Пожалуйста, подождите."
+msgid "System update started. Please wait."
+msgstr "Обновление системы. Пожалуйста, подождите."
 
-msgid "MagOS update finished. Please reboot."
-msgstr "Обновление MagOS завершено. Необходима перезагрузка."
+msgid "System update finished. Please reboot."
+msgstr "Обновление системы завершено. Необходима перезагрузка."
 
-msgid "MagOS update finished."
-msgstr "Обновление MagOS завершено успешно."
+msgid "System update finished."
+msgstr "Обновление системы завершено успешно."
+
+msgid "Updates were not found at server."
+msgstr "На сервере не найдены новые обновления."
+
+msgid "Not connected to internet"
+msgstr "Нет подключения к интернету"
+
+msgid "It's possible to revert update."
+msgstr "Возможно отменить обновление"
+
+msgid "System started from backup version currently."
+msgstr "Система в настоящее время загружена с предыдущей версии."
+
+msgid "If you have a problems with new version, you can revert update."
+msgstr "Если у вас возникли проблемы после обновления, вы можете отменить обновление."
+
+msgid "Do you want to remove new version and switch to old one?"
+msgstr "Желаете восстановить предыдущую версию системы взамен новой?"
+
+msgid "Yes, downgrade back to old version now"
+msgstr "Да, отменить обновление немедленно"
+
+msgid "No, do nothing right now"
+msgstr "Нет, ничего не предпринимать сейчас"
+
+msgid "Error"
+msgstr "Ошибка"
+
+msgid "Can't find system folder"
+msgstr "Не удаётся найти путь установки"
+
+msgid "Can't connect with server"
+msgstr "Не удаётся подключиться к серверу обновлений"
+
+msgid "Please wait. Connecting to server..."
+msgstr "Соединение с сервером, пожалуйста, ожидайте..."
+
+msgid "Power_menu"
+msgstr "Выключение"
+
+msgid "Poweroff"
+msgstr "Выключение"
+
+msgid "Reboot"
+msgstr "Перезагрузка"
+
+msgid "Sleep"
+msgstr "Спящий_режим"
+
+msgid "Logout"
+msgstr "Выход"
+

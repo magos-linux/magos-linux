@@ -1,0 +1,58 @@
+#!/bin/sh
+ENABLED=yes
+[ "$ENABLED" != "yes" ] && exit 0
+
+EXCLUSIVEAPP=remmina
+TERMMODEEXIT="i3-msg exit"
+TERMMODSCRIPTPRE=
+TERMMODETIMEOUT=15
+. /usr/lib/magos/os-config
+. /etc/MagOS/config
+
+function setsetting()
+{
+ if [ -f "$1" ];then
+    if grep -q ^$2= $1 ;then
+      sed -i s%"^$2=.*"%"$2=$3"% $1
+    else
+      echo "$2=$3" >> $1
+    fi
+ fi
+}
+
+if [ "$EXCLUSIVEAPP" ] ;then
+  if [ ! -z "$TERMMODSCRIPTPRE" ] ;then
+     zenity --info --text="Запуск скрипта установки соединения с сервером. Пожалуйста, ожидайте" &
+     pid=$!
+     $TERMMODSCRIPTPRE
+     kill $pid
+  fi
+  if echo "$EXCLUSIVEAPP" | grep -q "remmina" ;then
+     FILEPREF=$HOME/.remmina/remmina.pref
+     setsetting "$FILEPREF" disable_tray_icon true
+     setsetting "$FILEPREF" save_view_mode false
+     FILEPREF=$HOME/.config/remmina/remmina.pref
+     setsetting "$FILEPREF" disable_tray_icon true
+     setsetting "$FILEPREF" save_view_mode false
+     FILEPREF=$(ls $HOME/.remmina/*.remmina | head -1)
+     if [ ! -z "$FILEPREF" ] ;then
+        setsetting "$FILEPREF" viewmode 4
+        TMSERVER=$(grep ^server= "$FILEPREF" |awk -F= '{print $2}' | awk -F: '{print $1}')
+        TMPORT=$(grep ^server= "$FILEPREF" |awk -F= '{print $2}' | awk -F: '{print $2}')
+        [ -z "$TMPORT" ] && TMPORT=3389
+        if [ "$TMSERVER" ] && [ "0$TERMMODETIMEOUT" -gt "0" ] ;then
+           STEP=$(( 100 * 100 / $TERMMODETIMEOUT ))
+           for a in $(seq 1 $TERMMODETIMEOUT) ;do
+                nmap --open -p$TMPORT $TMSERVER 2>/dev/null | grep -q "^$TMPORT/" && break
+                sleep 1
+                echo "$(( $a * $STEP / 100 ))"
+           done | zenity --progress --percentage=0 --no-cancel --text "Ожидание подключения к удаленному серверу." --auto-close
+        fi
+        EXCLUSIVEAPP="$EXCLUSIVEAPP -c $FILEPREF"
+     fi
+  fi
+  $EXCLUSIVEAPP &
+  pid=$!
+  wait $pid
+  $TERMMODEEXIT
+fi

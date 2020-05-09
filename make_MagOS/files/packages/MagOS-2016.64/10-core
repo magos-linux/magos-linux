@@ -150,6 +150,7 @@ lib64freebl3
 lib64fuse2
 lib64gamin-1_0
 lib64gcc1
+lib64gcc_s-gcc10_1
 lib64gcrypt20
 lib64gdbm4
 lib64gettextmisc
@@ -317,6 +318,7 @@ lib64ssh4
 lib64ssh_threads4
 lib64ssl1.0.0
 lib64ssl_libressl48
+lib64stdc++-gcc10_6
 lib64stdc++6
 lib64sysfs2
 lib64systemd0

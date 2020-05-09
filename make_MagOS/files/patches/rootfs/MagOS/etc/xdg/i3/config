@@ -19,8 +19,8 @@ for_window [class="Xdialog"] floating enable, move position center
 #---------------------------------------------------------------
 ### Quick terminal
 exec --no-startup-id xrdb -merge /usr/share/magos/i3/Xresources
-for_window [instance="dropdown"] floating enable, exec --no-startup-id i3lib QuickTermResize
-bindsym F12 [instance="dropdown"] exec --no-startup-id i3lib QuickTerm
+for_window [instance="dropdown"] floating enable, exec --no-startup-id /usr/share/magos/i3/i3lib QuickTermResize
+bindsym F12 [instance="dropdown"] exec --no-startup-id /usr/share/magos/i3/i3lib QuickTerm
 
 #---------------------------------------------------------------
 ### Switch between the current and the previously focused workspace
@@ -30,7 +30,7 @@ bindsym $win+Tab workspace back_and_forth
 bindsym $alt+Tab exec --no-startup-id "rofi -config /usr/share/magos/i3/rofi.cfg -show window -kb-accept-entry '!Alt+Tab,!Alt_L,!Alt_R,Return' -kb-row-tab 'Tab,Alt-Tab'"
 
 ### bindsym help
-bindsym $mod+F1 exec --no-startup-id i3lib ShowKeys
+bindsym $mod+F1 exec --no-startup-id /usr/share/magos/i3/i3lib ShowKeys
 
 #---------------------------------------------------------------
 # Specific autostart

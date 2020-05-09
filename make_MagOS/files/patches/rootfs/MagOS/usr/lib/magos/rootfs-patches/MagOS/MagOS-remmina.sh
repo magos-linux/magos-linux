@@ -1,4 +1,9 @@
+#!/bin/bash
 
+PFP=/etc/skel/.remmina/1289458408692.remmina
+[ -f $PFP ] && exit 0
+mkdir -p /etc/skel/.remmina
+cat >$PFP <<EOF
 [remmina]
 name=MagOS-Server
 group=
@@ -52,3 +57,4 @@ window_height=306
 window_maximize=true
 toolbar_opacity=0
 nx_privatekey=/usr/share/magos/MagOS_client.id_dsa.key
+EOF

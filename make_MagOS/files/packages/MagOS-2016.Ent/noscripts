@@ -1,6 +1,7 @@
 ^glibc
 ^kernel-desktop-
 ^kernel-nrj-desktop-
+^kernel-ml-[4-9]
 ^netprofile-
 ^partimage-
 ^locales-

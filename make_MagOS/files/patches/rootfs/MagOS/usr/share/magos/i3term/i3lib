@@ -1,0 +1,50 @@
+#!/bin/sh
+#helper library for i3term config actions
+
+ShowHelp() {
+    win_number=$(xdotool search --onlyvisible --classname bwsr_gtk.py) 
+	if ! [ -z $win_number ] ; then
+		echo $win_number > /tmp/help_win_number
+		xdotool windowunmap $win_number
+		return
+	fi
+	win_number=$(cat /tmp/help_win_number)
+	if ! xdotool windowmap $win_number ; then 
+		WORKDIR=$(dirname $0)
+		$WORKDIR/bwsr_gtk.py $WORKDIR/index.html &
+		sleep 1
+		win_number=$(xdotool search --onlyvisible --classname bwsr_gtk.py)
+		i3-msg [instance="bwsr_gtk.py"] move position center, move container to workspace current
+		ShowHelpResize $win_number
+	fi 
+	i3-msg [instance="bwsr_gtk.py"] focus, move position center
+
+}
+
+ShowHelpResize() {
+	win_number=$1
+	screen_size=$(xrandr |grep \* |awk '{print $1}')
+	width=$(echo $screen_size |cut -d x -f1)
+	height=$(echo $screen_size |cut -d x -f2)
+	WIDTH=$(($width - 100))
+	HEIGHT=$(($height - 100))
+	xdotool windowsize $win_number $WIDTH $HEIGHT
+}
+
+
+PowerMenuRu() {
+case $(mdialog --menu "Завершение_работы" "poweroff Выключение reboot Перезагрузка sleep Спящий_режим logout Выход") in
+    poweroff ) systemctl poweroff ;;
+    reboot ) systemctl reboot ;;
+    sleep ) systemctl suspend ;;
+    logout ) i3-msg exit ;;
+ esac
+}
+
+if [ "$(basename $0)" == "i3lib" ] ;then
+	[ $1 ] || HELP
+	command="$1" 
+	shift
+	$command $@
+	[ $? -ne 0 ] && echo "$command ERROR!"
+fi 

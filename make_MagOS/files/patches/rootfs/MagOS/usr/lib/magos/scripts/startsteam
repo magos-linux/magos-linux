@@ -1,7 +1,11 @@
 #!/bin/sh
 
+GL32MOD=81-libs4mesagl32.xzm
+GL32URL=http://mirror.yandex.ru/mirrors/magos/modules/2014.64
+GL32LIB=/usr/lib/libGL.so.1
 PRDNL="wget -O "
 USERMODSPATH=/mnt/livedata/MagOS-Data/modules
+
 . /usr/lib/magos/os-config
 . /etc/sound/profiles/current/profile.conf
 . /etc/MagOS/config

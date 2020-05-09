@@ -6,9 +6,9 @@ ENABLED=yes
 . /usr/lib/magos/os-config
 
 [ "$RPMDBCONVERT" = "yes"  -a -x /usr/lib/rpm/bin/dbconvert ] && /usr/lib/rpm/bin/dbconvert
-[ "$RPMDBCONVERT" = "auto" -a -x /usr/lib/rpm/bin/dbconvert -a -f /var/lib/rpm/__db.001 ] && /usr/lib/rpm/bin/dbconvert
+[ "$RPMDBCONVERT" != "no" -a -x /usr/lib/rpm/bin/dbconvert -a -f /var/lib/rpm/__db.001 ] && /usr/lib/rpm/bin/dbconvert
 
-[ "$RPMDB2TMPFS" != "yes" ] && exit 0
+[ "$RPMDB2TMPFS" = "no" ] && exit 0
 grep -q " /var/lib/rpm " /proc/mounts || exit 0
 
 CHPATH=/mnt/live/memory/changes

@@ -3,6 +3,7 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+HALTPROCESSESKILL="slim kdm X lxdm xdm sddm cupsd pdnsd mc mandb"
 PATH=/usr/lib/magos/scripts:$PATH
 . /usr/lib/magos/os-config
 
@@ -11,4 +12,3 @@ for a in $HALTSERVICESSTOP ;do
 done
 
 [ -z "$HALTPROCESSESKILL" ] || killall -9 $HALTPROCESSESKILL
-

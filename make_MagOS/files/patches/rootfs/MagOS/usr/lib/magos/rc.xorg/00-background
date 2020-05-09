@@ -5,9 +5,11 @@ ENABLED=yes
 
 FEHOPTIONS="-B black -x -Z --scale-down"
 WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
+FEHKILLSWITCH="while ! ps -A | egrep -q 'splash|panel|xbindkeys|lightdm-gtk-gr|polybar' ;do sleep 1 ;done ; sleep 7 ; killall feh"
 [ -f /etc/MagOS/theme ]  && . /etc/MagOS/theme
 [ "$BACKGROUNDMODE" = "2" ] && FEHOPTIONS="-F --zoom fill"
 [ -f /etc/MagOS/config ] && . /etc/MagOS/config
+. /usr/lib/magos/os-config
 
 # primary monitor
 [ -z "$MONITORPRIMARY" ] || xrandr --output "$MONITORPRIMARY" --primary
@@ -20,7 +22,7 @@ XORG_RES=$(LC_ALL=C /usr/bin/xrandr | awk -F" connected primary " '{print $2}' |
 # show wallpaper
 [ -x /usr/bin/feh ] && /usr/bin/feh $FEHOPTIONS -g "$XORG_RES" $(dirname $WPDEFFILE)/default.orig.jpg &
 # killswitch for feh
-[ -x /usr/bin/feh ] && bash -c "while ! ps -A | egrep -q 'splash|panel|desktop' ;do sleep 1 ;done && sleep 5 && killall feh" &
+[ -x /usr/bin/feh ] && bash -c "$FEHKILLSWITCH" &
 
 # multimonitor support
 [ -z "$MONITORLEFT"    ] || xrandr --output "$MONITORLEFT"    --left-of  "$MONITORPRIMARY"

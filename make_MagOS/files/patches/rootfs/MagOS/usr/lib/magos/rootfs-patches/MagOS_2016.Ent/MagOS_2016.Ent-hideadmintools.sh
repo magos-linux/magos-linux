@@ -1,5 +1,5 @@
 #!/bin/bash
-HIDEPROGS="modmnger install-helper"
+HIDEPROGS="modmnger install-helper magos-wiki"
 for a in $HIDEPROGS  ;do
    [ -f "/usr/share/applications/$a.desktop" ] || continue
    grep -q Hidden=true "/usr/share/applications/$a.desktop" ||  sed -i s/"\[Desktop Entry\]"/"[Desktop Entry]\\nHidden=true"/ "/usr/share/applications/$a.desktop"
