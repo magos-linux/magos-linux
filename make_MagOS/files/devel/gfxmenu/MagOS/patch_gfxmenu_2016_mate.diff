@@ -1,0 +1,46 @@
+diff -auprN a/help-boot/en/main::magosdesktop.html b/help-boot/en/main::magosdesktop.html
+--- a/help-boot/en/main::magosdesktop.html	2020-05-19 10:55:53.124916808 +0300
++++ b/help-boot/en/main::magosdesktop.html	2020-05-19 11:08:44.914910617 +0300
+@@ -28,5 +28,9 @@ This allows you to use your hardware as
+ </p>
+ 
+ <p>
++5. Mate is lightweight DE based on Gnome2 desktop.
++</p>
++
++<p>
+ Also you may boot system without any DE in textmode console.
+ </p>
+diff -auprN a/help-boot/ru/main::magosdesktop.html b/help-boot/ru/main::magosdesktop.html
+--- a/help-boot/ru/main::magosdesktop.html	2020-05-19 10:55:53.127916808 +0300
++++ b/help-boot/ru/main::magosdesktop.html	2020-05-19 11:09:56.467910043 +0300
+@@ -30,6 +30,10 @@ Это позволяет преврат
+ </p>
+ 
+ <p>
++5. Mate - нетребовательная рабочая среда, основанная на среде Gnome2.
++</p>
++
++<p>
+ Также у вас есть возможность загрузиться в чистую консоль без какой-либо графической среды.
+ </p>
+ 
+diff -auprN a/src/dia_magosdesktop.inc b/src/dia_magosdesktop.inc
+--- a/src/dia_magosdesktop.inc	2020-05-19 10:55:53.131916808 +0300
++++ b/src/dia_magosdesktop.inc	2020-05-19 11:10:26.483909802 +0300
+@@ -16,6 +16,7 @@
+   "desktop=lxqt"
+   "desktop=i3"
+   "desktop=steam"
++  "desktop=mate"
+   "desktop=none"
+ ] def
+ 
+@@ -37,6 +38,7 @@
+     "LXQT"
+     "i3"
+     "Steam"
++    "Mate"
+     /txt_desktop_console
+   ] put
+   xmenu .xm_title /txt_desktop put

@@ -72,7 +72,7 @@ WINETRICKS_VERSION=20200412-next
 #   Copyright (C) 2011 Łukasz Wojniłowicz
 #   Copyright (C) 2011 Matthew Bozarth
 #   Copyright (C) 2013-2017 Andrey Gusev <andrey.goosev!gmail.com>
-#   Copyright (C) 2013-2017 Hillwood Yang <hillwood!opensuse.org>
+#   Copyright (C) 2013-2020 Hillwood Yang <hillwood!opensuse.org>
 #   Copyright (C) 2013,2016 André Hentschel <nerv!dawncrow.de>
 #
 # License:
@@ -467,6 +467,8 @@ w_package_unsupported_win64()
         case $LANG in
             pl*) w_warn "Ten pakiet ($W_PACKAGE) nie działa z 64-bitową instalacją. Musisz użyć prefiksu utworzonego z WINEARCH=win32." ;;
             ru*) w_warn "Данный пакет не работает в 64-битном окружении. Используйте префикс, созданный с помощью WINEARCH=win32." ;;
+            zh_CN*) w_warn "($W_PACKAGE) 无法在64位下工作，只能将容器变量设置为 WINEARCH=win32 安装。" ;;
+            zh_TW*|zh_HK*) w_warn "($W_PACKAGE) 無法在64元下工作，只能將容器變數設定為 WINEARCH=win32 安装。" ;;
             *) w_warn "This package ($W_PACKAGE) does not work on a 64-bit installation. You must use a prefix made with WINEARCH=win32." ;;
         esac
         exit 32
@@ -480,6 +482,8 @@ w_package_warn_win64()
         case $LANG in
             pl*) w_warn "Ten pakiet ($W_PACKAGE) może nie działać poprawnie z 64-bitową instalacją. Prefiks 32-bitowy może działać lepiej." ;;
             ru*) w_warn "Данный пакет может работать не полностью в 64-битном окружении. 32-битные префиксы могут работать лучше." ;;
+            zh_CN*) w_warn "($W_PACKAGE) 可能在64位环境下工作有问题，安装在32位环境可能会更好。" ;;
+            zh_TW*|zh_HK*) w_warn "($W_PACKAGE) 可能在64元環境下工作有問題，安装在32元環境可能會更好。" ;;
             *) w_warn "This package ($W_PACKAGE) may not fully work on a 64-bit installation. 32-bit prefixes may work better." ;;
         esac
     fi
@@ -2470,41 +2474,70 @@ Usage: 'w_override_app_dlls app mode dll ...'." ;;
 w_set_winver()
 {
     w_skip_windows w_set_winver && return
-    # FIXME: This should really be done with winecfg, but it has no CLI options.
-    # Wine-Bug: https://bugs.winehq.org/show_bug.cgi?id=45616
 
-    # First, delete any lingering version info, otherwise it may conflict:
-    (
-    "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion" /v SubVersionNumber /f || true
-    "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion" /v VersionNumber /f || true
-    "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CSDVersion /f || true
-    "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CurrentBuildNumber /f || true
-    "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CurrentVersion /f || true
-    "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /f || true
-    "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ServiceCurrent" /v OS /f || true
-    "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\Windows" /v CSDVersion /f || true
-    "$WINE" reg delete "HKCU\\Software\\Wine" /v Version /f || true
-    "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /f || true
-    ) > /dev/null 2>&1
+    _W_winver="$1"
 
-    case "$1" in
-        win31)
-            echo "Setting Windows version to $1"
-            cat > "$W_TMP"/set-winver.reg <<_EOF_
+    if w_wine_version_in ,5.7 ; then
+        # Make sure we pass the right version name:
+        case "$_W_winver" in
+            # These are the mismatched ones:
+            # winecfg doesn't accept 'default' as an option (as of wine-5.9):
+            # https://bugs.winehq.org/show_bug.cgi?id=49241
+            # For now, assuming win7:
+            default)  _W_winver="win7";;
+            win2k3)   _W_winver="win2003";;
+            win2k8)   _W_winver="win2008";;
+            win2k8r2) _W_winver="win2008r2";;
+
+            # xp has two entries (winxp/winxp64):
+            winxp)
+                if [ "$W_ARCH" = "win64" ]; then
+                    _W_winver="winxp64"
+                else
+                    _W_winver="winxp"
+                fi
+                ;;
+            # These are the same:
+            nt351|nt40|vista|win10|win20|win2k|win30|win31|win7|win8|win81|win95|win98|winme) : ;;
+            *) w_die "Unsupported Windows version $_W_winver";;
+        esac
+
+        w_try "$WINE" winecfg -v "$_W_winver"
+    else
+        # FIXME: remove this after wine-7.0 (i.e., after it's been in stable wine for a while):
+
+        # First, delete any lingering version info, otherwise it may conflict:
+        (
+        "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion" /v SubVersionNumber /f || true
+        "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion" /v VersionNumber /f || true
+        "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CSDVersion /f || true
+        "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CurrentBuildNumber /f || true
+        "$WINE" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CurrentVersion /f || true
+        "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /f || true
+        "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ServiceCurrent" /v OS /f || true
+        "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\Windows" /v CSDVersion /f || true
+        "$WINE" reg delete "HKCU\\Software\\Wine" /v Version /f || true
+        "$WINE" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /f || true
+        ) > /dev/null 2>&1
+
+        case "$_W_winver" in
+            win31)
+                echo "Setting Windows version to $_W_winver"
+                cat > "$W_TMP"/set-winver.reg <<_EOF_
 REGEDIT4
 
 [HKEY_USERS\\S-1-5-4\\Software\\Wine]
 "Version"="win31"
 
 _EOF_
-            w_try_regedit "$W_TMP_WIN"\\set-winver.reg
-            return
-            ;;
-        win95)
-            # This key is only used for Windows 95/98:
+                w_try_regedit "$W_TMP_WIN"\\set-winver.reg
+                return
+                ;;
+            win95)
+                # This key is only used for Windows 95/98:
 
-            echo "Setting Windows version to $1"
-            cat > "$W_TMP"/set-winver.reg <<_EOF_
+                echo "Setting Windows version to $_W_winver"
+                cat > "$W_TMP"/set-winver.reg <<_EOF_
 REGEDIT4
 
 [HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion]
@@ -2513,14 +2546,14 @@ REGEDIT4
 "VersionNumber"="4.0.950"
 
 _EOF_
-            w_try_regedit "$W_TMP_WIN"\\set-winver.reg
-            return
-            ;;
-        win98)
-            # This key is only used for Windows 95/98:
+                w_try_regedit "$W_TMP_WIN"\\set-winver.reg
+                return
+                ;;
+            win98)
+                # This key is only used for Windows 95/98:
 
-            echo "Setting Windows version to $1"
-            cat > "$W_TMP"/set-winver.reg <<_EOF_
+                echo "Setting Windows version to $_W_winver"
+                cat > "$W_TMP"/set-winver.reg <<_EOF_
 REGEDIT4
 
 [HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion]
@@ -2529,14 +2562,14 @@ REGEDIT4
 "VersionNumber"="4.10.2222"
 
 _EOF_
-            w_try_regedit "$W_TMP_WIN"\\set-winver.reg
-            return
-            ;;
-        nt40)
-            # Similar to modern version, but sets two extra keys:
+                w_try_regedit "$W_TMP_WIN"\\set-winver.reg
+                return
+                ;;
+            nt40)
+                # Similar to modern version, but sets two extra keys:
 
-            echo "Setting Windows version to $1"
-            cat > "$W_TMP"/set-winver.reg <<_EOF_
+                echo "Setting Windows version to $_W_winver"
+                cat > "$W_TMP"/set-winver.reg <<_EOF_
 REGEDIT4
 
 [HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion]
@@ -2554,96 +2587,96 @@ REGEDIT4
 "CSDVersion"=dword:00000600
 
 _EOF_
-            w_try_regedit "$W_TMP_WIN"\\set-winver.reg
-            return
-            ;;
-        win2k)
-            csdversion="Service Pack 4"
-            currentbuildnumber="2195"
-            currentversion="5.0"
-            csdversion_hex=dword:00000400
-            ;;
-        winxp)
-            # Special case, afaik it's the only Windows version that has different version numbers for 32/64-bit
-            # So ensure we set the arch appropriate version:
-            if [ "$W_ARCH" = "win32" ]; then
-                csdversion="Service Pack 3"
-                currentbuildnumber="2600"
-                currentversion="5.1"
-                csdversion_hex=dword:00000300
-            elif [ "$W_ARCH" = "win64" ]; then
+                w_try_regedit "$W_TMP_WIN"\\set-winver.reg
+                return
+                ;;
+            win2k)
+                csdversion="Service Pack 4"
+                currentbuildnumber="2195"
+                currentversion="5.0"
+                csdversion_hex=dword:00000400
+                ;;
+            winxp)
+                # Special case, afaik it's the only Windows version that has different version numbers for 32/64-bit
+                # So ensure we set the arch appropriate version:
+                if [ "$W_ARCH" = "win32" ]; then
+                    csdversion="Service Pack 3"
+                    currentbuildnumber="2600"
+                    currentversion="5.1"
+                    csdversion_hex=dword:00000300
+                elif [ "$W_ARCH" = "win64" ]; then
+                    csdversion="Service Pack 2"
+                    currentbuildnumber="3790"
+                    currentversion="5.2"
+                    csdversion_hex=dword:00000200
+                    "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
+                else
+                    w_die "Invalid W_ARCH $W_ARCH"
+                fi
+                ;;
+            win2k3)
                 csdversion="Service Pack 2"
                 currentbuildnumber="3790"
                 currentversion="5.2"
                 csdversion_hex=dword:00000200
+                "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
+                ;;
+            vista)
+                csdversion="Service Pack 2"
+                currentbuildnumber="6002"
+                currentversion="6.0"
+                csdversion_hex=dword:00000200
                 "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-            else
-                w_die "Invalid W_ARCH $W_ARCH"
-            fi
-            ;;
-        win2k3)
-            csdversion="Service Pack 2"
-            currentbuildnumber="3790"
-            currentversion="5.2"
-            csdversion_hex=dword:00000200
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
-            ;;
-        vista)
-            csdversion="Service Pack 2"
-            currentbuildnumber="6002"
-            currentversion="6.0"
-            csdversion_hex=dword:00000200
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-            ;;
-        win7|default)
-            csdversion="Service Pack 1"
-            currentbuildnumber="7601"
-            currentversion="6.1"
-            csdversion_hex=dword:00000100
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-            ;;
-        win2k8)
-            csdversion="Service Pack 2"
-            currentbuildnumber="6002"
-            currentversion="6.0"
-            csdversion_hex=dword:00000200
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
-            ;;
-        win2k8r2)
-            csdversion="Service Pack 1"
-            currentbuildnumber="7601"
-            currentversion="6.1"
-            csdversion_hex=dword:00000100
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
-            ;;
-        win8)
-            csdversion=""
-            currentbuildnumber="9200"
-            currentversion="6.2"
-            csdversion_hex=dword:00000000
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-            ;;
-        win81)
-            csdversion=""
-            currentbuildnumber="9600"
-            currentversion="6.3"
-            csdversion_hex=dword:00000000
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-            ;;
-        win10)
-            csdversion=""
-            currentbuildnumber="10240"
-            currentversion="10.0"
-            csdversion_hex=dword:00000000
-            "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-            ;;
-        *)
-            w_die "Invalid Windows version given."
-            ;;
-    esac
+                ;;
+            win7|default)
+                csdversion="Service Pack 1"
+                currentbuildnumber="7601"
+                currentversion="6.1"
+                csdversion_hex=dword:00000100
+                "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
+                ;;
+            win2k8)
+                csdversion="Service Pack 2"
+                currentbuildnumber="6002"
+                currentversion="6.0"
+                csdversion_hex=dword:00000200
+                "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
+                ;;
+            win2k8r2)
+                csdversion="Service Pack 1"
+                currentbuildnumber="7601"
+                currentversion="6.1"
+                csdversion_hex=dword:00000100
+                "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
+                ;;
+            win8)
+                csdversion=""
+                currentbuildnumber="9200"
+                currentversion="6.2"
+                csdversion_hex=dword:00000000
+                "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
+                ;;
+            win81)
+                csdversion=""
+                currentbuildnumber="9600"
+                currentversion="6.3"
+                csdversion_hex=dword:00000000
+                "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
+                ;;
+            win10)
+                csdversion=""
+                currentbuildnumber="10240"
+                currentversion="10.0"
+                csdversion_hex=dword:00000000
+                "$WINE" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
+                ;;
+            *)
+                w_die "Invalid Windows version given."
+                ;;
+        esac
 
-    echo "Setting Windows version to $1"
-    cat > "$W_TMP"/set-winver.reg <<_EOF_
+        echo "Setting Windows version to $_W_winver"
+        cat > "$W_TMP"/set-winver.reg <<_EOF_
 REGEDIT4
 
 [HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion]
@@ -2655,10 +2688,12 @@ REGEDIT4
 "CSDVersion"=$csdversion_hex
 
 _EOF_
-    w_try_regedit "$W_TMP_WIN"\\set-winver.reg
+        w_try_regedit "$W_TMP_WIN"\\set-winver.reg
 
-    # Prevent a race when calling from another verb
-    w_wineserver -w
+        # Prevent a race when calling from another verb
+        w_wineserver -w
+
+        fi
 }
 
 w_unset_winver()
@@ -2691,7 +2726,7 @@ w_set_app_winver()
 # Note: currently only -ge and -le are supported,
 #       as well as the special case -bn (between)
 # Example:
-#  if w_compare_wine_version -gt 2.5 ; then
+#  if w_compare_wine_version -ge 2.5 ; then
 #      ...
 #  fi
 w_compare_wine_version()
@@ -3279,6 +3314,8 @@ winetricks_latest_version_check()
         case $LANG in
             pl*) w_warn "GitHub nie działa? Wersja '${latest_version}' nie wydaje się być prawdiłową wersją" ;;
             ru*) w_warn "Отсутствует подключение к Github? версия '${latest_version}' может быть неактуальной" ;;
+            zh_CN*) w_warn "Github 提供的下载？${latest_version} 似乎不是个有效的版本号。" ;;
+            zh_TW*|zh_HK*) w_warn "Github 提供的下載？${latest_version} 似乎不是個有效的版本號。" ;;
             *) w_warn "Github down? version '${latest_version}' doesn't appear to be a valid version" ;;
         esac
 
@@ -3301,6 +3338,14 @@ winetricks_latest_version_check()
                 ru*)
                     w_warn "Запущен winetricks-${WINETRICKS_VERSION}, последняя версия winetricks-${latest_version}!"
                     w_warn "Вы можете ее обновить с помощью менеджера пакетов, --self-update или вручную."
+                    ;;
+                zh_CN*)
+                    w_warn "你正在使用 winetricks-${WINETRICKS_VERSION}，最新版本是 winetricks-${latest_version}!"
+                    w_warn "你应该使用你的发行版软件管理器、--self-update 或者手动更新。"
+                    ;;
+                zh_TW*|zh_HK*)
+                    w_warn "你正在使用 winetricks-${WINETRICKS_VERSION}，最新版本是 winetricks-${latest_version}!"
+                    w_warn "你應該使用你的發行版軟體管理者、--self-update 或者手動更新。"
                     ;;
                 *)
                     w_warn "You are running winetricks-${WINETRICKS_VERSION}, latest upstream is winetricks-${latest_version}!"
@@ -3473,8 +3518,8 @@ winetricks_prefixmenu()
              _W_msg_unattended1="Увімкнути автоматичне встановлення"
              _W_msg_help="Переглянути довідку"
              ;;
-        zh_CN*)   _W_msg_title="Winetricks - 选择一个 Wine 容器"
-             _W_msg_body='您想要做什么？'
+        zh_CN*)   _W_msg_title="Winetricks - 择一 Wine 容器"
+             _W_msg_body='君欲何为？'
              _W_msg_apps='安装一个 Windows 应用'
              _W_msg_games='安装一个游戏'
              _W_msg_benchmarks='安装一个基准测试软件'
@@ -3484,8 +3529,8 @@ winetricks_prefixmenu()
              _W_msg_unattended1="启用静默安装"
              _W_msg_help="查看帮助"
              ;;
-        zh_TW*|zh_HK*)   _W_msg_title="Winetricks - 選取一個 Wine 容器"
-             _W_msg_body='您想要做什麼？'
+        zh_TW*|zh_HK*)   _W_msg_title="Winetricks - 取一 Wine 容器"
+             _W_msg_body='君欲何為？'
              _W_msg_apps='安裝一個 Windows 應用'
              _W_msg_games='安裝一個遊戲'
              _W_msg_benchmarks='安裝一個基准測試軟體'
@@ -5010,7 +5055,9 @@ winetricks_set_wineprefix()
         # WINE64 = wine64, available on 64-bit prefixes
         # WINE_ARCH = the native wine for the prefix (wine for 32-bit, wine64 for 64-bit)
         # WINE_MULTI = generic wine, new name
-        if [ "${WINE%??}64" = "$WINE" ]; then
+        if [ -n "$WINE64" ]; then
+            true
+        elif [ "${WINE%??}64" = "$WINE" ]; then
             WINE64="${WINE}"
         elif command -v "${WINE}64" >/dev/null 2>&1; then
             WINE64="${WINE}64"
@@ -5091,7 +5138,6 @@ winetricks_set_wineprefix()
     case "$W_APPDATA_WIN" in
         "") w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%AppData%' returned empty string, error message \"$(cat $W_TMP_EARLY/early_wine.err.txt)\" ";;
         %*) w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%AppData%' returned unexpanded string '$W_PROGRAMS_WIN' ... this can be caused by a corrupt wineprefix (\`wineboot -u\` may help), by an old wine, or by not owning $WINEPREFIX" ;;
-        *unknown*) w_info "$(winetricks_print_wineprefix_info)" ; w_die "$WINE cmd.exe /c echo '%AppData%' returned a string containing the word 'unknown', as if a voice had cried out in terror, and was suddenly silenced." ;;
     esac
 
     # Kludge: use Temp instead of temp to avoid \t expansion in w_try
@@ -8115,6 +8161,24 @@ load_dxvk161()
     helper_dxvk_d9vk "$file1" "5.3" "1.1.113" "dxgi,d3d9,d3d10core,d3d11"
 }
 
+w_metadata dxvk170 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.7)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.7.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/d3d10core.dll" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/d3d11.dll" \
+    installed_file4="$W_SYSTEM32_DLLS_WIN/dxgi.dll"
+
+load_dxvk170()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.7/dxvk-1.7.tar.gz" 67d78239906c24bd50a5ecbc2fd792c1721e274a7a60dd22f74b21b08ca4c7a1
+    helper_dxvk_d9vk "$file1" "5.8" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
+}
+
 #----------------------------------------------------------------
 
 w_metadata dxvk dlls \
@@ -8133,7 +8197,7 @@ load_dxvk()
     _W_dxvk_version="$(w_get_github_latest_release doitsujin dxvk)"
     _W_dxvk_version="${_W_dxvk_version#v}"
     w_linkcheck_ignore=1 w_download "https://github.com/doitsujin/dxvk/releases/download/v${_W_dxvk_version}/dxvk-${_W_dxvk_version}.tar.gz"
-    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "5.3" "1.1.113" "dxgi,d3d9,d3d10core,d3d11"
+    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "5.8" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
     unset _W_dxvk_version
 }
 
@@ -8158,7 +8222,7 @@ load_dxvk_master()
         w_try rm -f "${W_CACHE}/${W_PACKAGE}/${file1}"
     fi
     w_linkcheck_ignore=1 w_download_to "${W_CACHE}/${W_PACKAGE}" "https://git.froggi.es/doitsujin/dxvk/-/jobs/artifacts/master/download?job=dxvk" "" "dxvk_master.zip"
-    helper_dxvk_d9vk "$file1" "5.3" "1.1.113" "dxgi,d3d9,d3d10core,d3d11"
+    helper_dxvk_d9vk "$file1" "5.8" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
 }
 
 #----------------------------------------------------------------
@@ -8670,14 +8734,14 @@ load_dotnet20sp1()
         w_download https://download.microsoft.com/download/0/8/c/08c19fa4-4c4f-4ffb-9d6c-150906578c9e/NetFx20SP1_x86.exe c36c3a1d074de32d53f371c665243196a7608652a2fc6be9520312d5ce560871
         exe="NetFx20SP1_x86.exe"
 
-        w_warn "Setting windows version so installer works"
+        w_warn "Setting Windows version so installer works"
         w_set_winver win2k
     elif [ "$W_ARCH" = "win64" ]; then
         # https://www.microsoft.com/en-us/download/details.aspx?id=6041
         w_download https://download.microsoft.com/download/9/8/6/98610406-c2b7-45a4-bdc3-9db1b1c5f7e2/NetFx20SP1_x64.exe 1731e53de5f48baae0963677257660df1329549e81c48b4d7db7f7f3f2329aab
         exe="NetFx20SP1_x64.exe"
 
-        w_warn "Setting windows version so installer works"
+        w_warn "Setting Windows version so installer works"
         w_set_winver winxp
     fi
 
@@ -8736,7 +8800,7 @@ load_dotnet20sp2()
         WINEDLLOVERRIDES="ngen.exe,regsvcs.exe,mscorsvw.exe=b;$WINEDLLOVERRIDES"
         export WINEDLLOVERRIDES
     fi
-    w_warn "Setting windows version so installer works"
+    w_warn "Setting Windows version so installer works"
     w_set_winver winxp
 
     if [ "$W_ARCH" = "win32" ]; then
@@ -9760,22 +9824,22 @@ load_filever()
 # FIXME: update winetricks_is_installed to look at installed_file2..n
 # https://github.com/Winetricks/winetricks/issues/988
 w_metadata flash dlls \
-    title="Flash Player 29" \
+    title="Flash Player 32" \
     publisher="Adobe" \
-    year="2018" \
+    year="2020" \
     media="download" \
-    file1="fp_29.0.0.171_archive.zip" \
-    installed_file1="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil32_29_0_0_171_Plugin.exe" \
-    installed_file2="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil32_29_0_0_171_ActiveX.exe" \
-    installed_file3="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/flashplayer29_0r0_171_win_sa.exe" \
+    file1="fp_32.0.0.363_archive.zip" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil32_32_0_0_363_Plugin.exe" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/FlashUtil32_32_0_0_363_ActiveX.exe" \
+    installed_file3="$W_SYSTEM32_DLLS_WIN/Macromed/Flash/flashplayer32_0r0_363_win_sa.exe" \
     homepage="https://www.adobe.com/products/flashplayer/"
 
 load_flash()
 {
-    _W_ver_major=29
+    _W_ver_major=32
     _W_ver_minor=0
     _W_ver_rel=0
-    _W_ver_build=171
+    _W_ver_build=363
     _W_dirname="${_W_ver_major}_${_W_ver_minor}_r${_W_ver_rel}_${_W_ver_build}"
     _W_archive="fp_${_W_ver_major}.${_W_ver_minor}.${_W_ver_rel}.${_W_ver_build}_archive.zip"
     _W_fileprefix="flashplayer${_W_ver_major}_${_W_ver_minor}r${_W_ver_rel}_${_W_ver_build}"
@@ -9789,7 +9853,8 @@ load_flash()
     # https://helpx.adobe.com/flash-player/kb/archived-flash-player-versions.html
 
     # 2018/06/24: d4b6f9a5e42cc9f2c7cbd1fd72059d4c1bead91b076afa2ca042d28f0fd7bedb
-    w_linkcheck_ignore=1 w_download "https://fpdownload.macromedia.com/pub/flashplayer/installers/archive/$_W_archive" d4b6f9a5e42cc9f2c7cbd1fd72059d4c1bead91b076afa2ca042d28f0fd7bedb
+    # 2020/05/24  a64230033de485f9454a07cdb1b366e1307d005223657086ab8a0b8b91610ed4
+    w_linkcheck_ignore=1 w_download "https://fpdownload.macromedia.com/pub/flashplayer/installers/archive/$_W_archive" a64230033de485f9454a07cdb1b366e1307d005223657086ab8a0b8b91610ed4
 
     # If OS version is Vista or newer:
     #   1. NPAPI plugin doesn't work
@@ -10972,7 +11037,8 @@ load_msxml6()
     # https://www.microsoft.com/en-us/download/details.aspx?id=9774
 
     # 64bit exe also includes 32bit dlls
-    w_download https://download.microsoft.com/download/1/5/8/158F681A-E595-472B-B15E-62B649B1B6FF/msxml6-KB973686-enu-amd64.exe 0e5c4af488e88e8defb59de80271671d8283d5744b2eebdb351bbd4950fb0883
+    # Originally here: https://download.microsoft.com/download/1/5/8/158F681A-E595-472B-B15E-62B649B1B6FF/msxml6-KB973686-enu-amd64.exe
+    w_download https://web.archive.org/web/20190122095451/https://download.microsoft.com/download/1/5/8/158F681A-E595-472B-B15E-62B649B1B6FF/msxml6-KB973686-enu-amd64.exe 0e5c4af488e88e8defb59de80271671d8283d5744b2eebdb351bbd4950fb0883
 
     w_try_cabextract --directory="${W_TMP}" "${W_CACHE}"/msxml6/msxml6-KB973686-enu-amd64.exe
     w_try_cabextract --directory="${W_TMP}" "${W_TMP}"/msxml6.msi
@@ -11170,7 +11236,7 @@ load_prntvpt()
 
     if [ "$W_ARCH" = "win64" ]; then
         helper_win7sp1_x64 amd64_microsoft-windows-p..g-printticket-win32_31bf3856ad364e35_6.1.7601.17514_none_7180ae1eb5ce8062/prntvpt.dll
-        w_try cp "$W_TMP/x86_microsoft-windows-p..g-printticket-win32_31bf3856ad364e35_6.1.7601.17514_none_1562129afd710f2c/prntvpt.dll" "$W_SYSTEM64_DLLS/prntvpt.dll"
+        w_try cp "$W_TMP/amd64_microsoft-windows-p..g-printticket-win32_31bf3856ad364e35_6.1.7601.17514_none_7180ae1eb5ce8062/prntvpt.dll" "$W_SYSTEM64_DLLS/prntvpt.dll"
         w_try_regsvr64 prntvpt.dll
     fi
 }
@@ -11976,13 +12042,26 @@ w_metadata vcrun2003 dlls \
 
 load_vcrun2003()
 {
-    # Load the Visual C++ 2003 runtime libraries
     # Sadly, I know of no Microsoft URL for these
-    echo "Installing BZFlag (which comes with the Visual C++ 2003 runtimes)"
     # winetricks-test can't handle ${file1} in url since it does a raw parsing :/
     w_download https://sourceforge.net/projects/bzflag/files/bzedit%20win32/1.6.5/BZEditW32_1.6.5.exe 84d1bda5dbf814742898a2e1c0e4bc793e9bc1fba4b7a93d59a7ef12bd0fd802
-    w_try "$WINE" "$W_CACHE/vcrun2003/${file1}" ${W_OPT_UNATTENDED:+/S}
-    w_try cp "$W_PROGRAMS_X86_UNIX/BZEdit1.6.5"/m*71* "$W_SYSTEM32_DLLS"
+
+    w_try_7z "$W_SYSTEM32_DLLS" "${W_CACHE}/vcrun2003/BZEditW32_1.6.5.exe" "mfc71.dll" "msvcp71.dll" "msvcr71.dll" -y
+}
+
+w_metadata mfc71 dlls \
+    title="Visual C++ 2003 mfc71 library; part of vcrun2003" \
+    publisher="Microsoft" \
+    year="2003" \
+    media="download" \
+    file1="BZEditW32_1.6.5.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc71.dll"
+
+load_mfc71()
+{
+    w_download_to vcrun2003 https://sourceforge.net/projects/bzflag/files/bzedit%20win32/1.6.5/BZEditW32_1.6.5.exe 84d1bda5dbf814742898a2e1c0e4bc793e9bc1fba4b7a93d59a7ef12bd0fd802
+
+    w_try_7z "$W_SYSTEM32_DLLS" "${W_CACHE}/vcrun2003/BZEditW32_1.6.5.exe" "mfc71.dll" -y
 }
 
 #----------------------------------------------------------------
@@ -12024,6 +12103,39 @@ load_vcrun2005()
     if [ "$W_ARCH" = "win64" ] ;then
         w_download https://download.microsoft.com/download/8/B/4/8B42259F-5D70-43F4-AC2E-4B208FD8D66A/vcredist_x64.EXE 0551a61c85b718e1fa015b0c3e3f4c4eea0637055536c00e7969286b4fa663e0
         w_try "$WINE" vcredist_x64.exe ${W_OPT_UNATTENDED:+/q}
+    fi
+}
+
+w_metadata mfc80 dlls \
+    title="Visual C++ 2005 mfc80 library; part of vcrun2005" \
+    publisher="Microsoft" \
+    year="2011" \
+    media="download" \
+    file1="../vcrun2005/vcredist_x86.EXE" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc80.dll"
+
+load_mfc80()
+{
+    w_download_to vcrun2005 https://download.microsoft.com/download/8/B/4/8B42259F-5D70-43F4-AC2E-4B208FD8D66A/vcredist_x86.EXE 4ee4da0fe62d5fa1b5e80c6e6d88a4a2f8b3b140c35da51053d0d7b72a381d29
+
+    w_try_cabextract --directory="$W_TMP/win32" "$W_CACHE"/vcrun2005/vcredist_x86.EXE -F 'vcredist.msi'
+    w_try_cabextract --directory="$W_TMP/win32" "$W_TMP/win32/vcredist.msi"
+
+    w_try cp "$W_TMP/win32"/mfc80.dll.8.0.50727.6195.9BAE13A2_E7AF_D6C3_FF1F_C8B3B9A1E18E "$W_SYSTEM32_DLLS"/mfc80.dll
+    w_try cp "$W_TMP/win32"/mfc80u.dll.8.0.50727.6195.9BAE13A2_E7AF_D6C3_FF1F_C8B3B9A1E18E "$W_SYSTEM32_DLLS"/mfc80u.dll
+    w_try cp "$W_TMP/win32"/mfcm80.dll.8.0.50727.6195.9BAE13A2_E7AF_D6C3_FF1F_C8B3B9A1E18E "$W_SYSTEM32_DLLS"/mfcm80.dll
+    w_try cp "$W_TMP/win32"/mfcm80u.dll.8.0.50727.6195.9BAE13A2_E7AF_D6C3_FF1F_C8B3B9A1E18E "$W_SYSTEM32_DLLS"/mfcm80u.dll
+
+    if [ "$W_ARCH" = "win64" ]; then
+        w_download_to vcrun2005 https://download.microsoft.com/download/8/B/4/8B42259F-5D70-43F4-AC2E-4B208FD8D66A/vcredist_x64.EXE 0551a61c85b718e1fa015b0c3e3f4c4eea0637055536c00e7969286b4fa663e0
+
+        w_try_cabextract --directory="$W_TMP/win64" "$W_CACHE"/vcrun2005/vcredist_x64.EXE -F 'vcredist.msi'
+        w_try_cabextract --directory="$W_TMP/win64" "$W_TMP/win64/vcredist.msi"
+
+        w_try cp "$W_TMP/win64"/mfc80.dll.8.0.50727.6195.8731EA9C_B0D8_8F16_FF1F_C8B3B9A1E18E "$W_SYSTEM64_DLLS"/mfc80.dll
+        w_try cp "$W_TMP/win64"/mfc80u.dll.8.0.50727.6195.8731EA9C_B0D8_8F16_FF1F_C8B3B9A1E18E "$W_SYSTEM64_DLLS"/mfc80u.dll
+        w_try cp "$W_TMP/win64"/mfcm80.dll.8.0.50727.6195.8731EA9C_B0D8_8F16_FF1F_C8B3B9A1E18E "$W_SYSTEM64_DLLS"/mfcm80.dll
+        w_try cp "$W_TMP/win64"/mfcm80u.dll.8.0.50727.6195.8731EA9C_B0D8_8F16_FF1F_C8B3B9A1E18E "$W_SYSTEM64_DLLS"/mfcm80u.dll
     fi
 }
 
@@ -12080,6 +12192,39 @@ load_vcrun2008()
     esac
 }
 
+w_metadata mfc90 dlls \
+    title="Visual C++ 2008 mfc90 library; part of vcrun2008" \
+    publisher="Microsoft" \
+    year="2011" \
+    media="download" \
+    file1="../vcrun2008/vcredist_x86.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc90.dll"
+
+load_mfc90()
+{
+    w_download_to vcrun2008 https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x86.exe 6b3e4c51c6c0e5f68c8a72b497445af3dbf976394cbb62aa23569065c28deeb6
+
+    w_try_cabextract --directory="$W_TMP/win32" "$W_CACHE"/vcrun2008/vcredist_x86.exe -F 'vc_red.cab'
+    w_try_cabextract --directory="$W_TMP/win32" "$W_TMP/win32/vc_red.cab"
+
+    w_try cp "$W_TMP/win32"/mfc90.dll.30729.6161.Microsoft_VC90_MFC_x86.QFE "$W_SYSTEM32_DLLS"/mfc90.dll
+    w_try cp "$W_TMP/win32"/mfc90u.dll.30729.6161.Microsoft_VC90_MFC_x86.QFE "$W_SYSTEM32_DLLS"/mfc90u.dll
+    w_try cp "$W_TMP/win32"/mfcm90.dll.30729.6161.Microsoft_VC90_MFC_x86.QFE "$W_SYSTEM32_DLLS"/mfcm90.dll
+    w_try cp "$W_TMP/win32"/mfcm90u.dll.30729.6161.Microsoft_VC90_MFC_x86.QFE "$W_SYSTEM32_DLLS"/mfcm90u.dll
+
+    if [ "$W_ARCH" = "win64" ]; then
+        w_download_to vcrun2008 https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x64.exe b811f2c047a3e828517c234bd4aa4883e1ec591d88fad21289ae68a6915a6665
+
+        w_try_cabextract --directory="$W_TMP/win64" "$W_CACHE"/vcrun2008/vcredist_x64.exe -F 'vc_red.cab'
+        w_try_cabextract --directory="$W_TMP/win64" "$W_TMP/win64/vc_red.cab"
+
+        w_try cp "$W_TMP/win64"/mfc90.dll.30729.6161.Microsoft_VC90_MFC_x64.QFE "$W_SYSTEM64_DLLS"/mfc90.dll
+        w_try cp "$W_TMP/win64"/mfc90u.dll.30729.6161.Microsoft_VC90_MFC_x64.QFE "$W_SYSTEM64_DLLS"/mfc90u.dll
+        w_try cp "$W_TMP/win64"/mfcm90.dll.30729.6161.Microsoft_VC90_MFC_x64.QFE "$W_SYSTEM64_DLLS"/mfcm90.dll
+        w_try cp "$W_TMP/win64"/mfcm90u.dll.30729.6161.Microsoft_VC90_MFC_x64.QFE "$W_SYSTEM64_DLLS"/mfcm90u.dll
+    fi
+}
+
 #----------------------------------------------------------------
 
 w_metadata vcrun2010 dlls \
@@ -12118,6 +12263,39 @@ load_vcrun2010()
             fi
             ;;
     esac
+}
+
+w_metadata mfc100 dlls \
+    title="Visual C++ 2010 mfc100 library; part of vcrun2010" \
+    publisher="Microsoft" \
+    year="2010" \
+    media="download" \
+    file1="../vcrun2010/vcredist_x86.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc100u.dll"
+
+load_mfc100()
+{
+    w_download_to vcrun2010 https://download.microsoft.com/download/5/B/C/5BC5DBB3-652D-4DCE-B14A-475AB85EEF6E/vcredist_x86.exe 8162b2d665ca52884507ede19549e99939ce4ea4a638c537fa653539819138c8
+
+    w_try_cabextract --directory="$W_TMP/win32" "$W_CACHE"/vcrun2010/vcredist_x86.exe -F '*.cab'
+    w_try_cabextract --directory="$W_TMP/win32" "$W_TMP/win32/vc_red.cab"
+
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfc100_x86 "$W_SYSTEM32_DLLS"/mfc100.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfc100u_x86 "$W_SYSTEM32_DLLS"/mfc100u.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfcm100_x86 "$W_SYSTEM32_DLLS"/mfcm100.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfcm100u_x86 "$W_SYSTEM32_DLLS"/mfcm100u.dll
+
+    if [ "$W_ARCH" = "win64" ]; then
+        w_download_to vcrun2010 https://download.microsoft.com/download/A/8/0/A80747C3-41BD-45DF-B505-E9710D2744E0/vcredist_x64.exe c6cd2d3f0b11dc2a604ffdc4dd97861a83b77e21709ba71b962a47759c93f4c8
+
+        w_try_cabextract --directory="$W_TMP/win64" "$W_CACHE"/vcrun2010/vcredist_x64.exe -F '*.cab'
+        w_try_cabextract --directory="$W_TMP/win64" "$W_TMP/win64/vc_red.cab"
+
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfc100_x64 "$W_SYSTEM64_DLLS"/mfc100.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfc100u_x64 "$W_SYSTEM64_DLLS"/mfc100u.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfcm100_x64 "$W_SYSTEM64_DLLS"/mfcm100.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfcm100u_x64 "$W_SYSTEM64_DLLS"/mfcm100u.dll
+    fi
 }
 
 #----------------------------------------------------------------
@@ -12162,6 +12340,39 @@ load_vcrun2012()
     esac
 }
 
+w_metadata mfc110 dlls \
+    title="Visual C++ 2012 mfc110 library; part of vcrun2012" \
+    publisher="Microsoft" \
+    year="2012" \
+    media="download" \
+    file1="../vcrun2012/vcredist_x86.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc110u.dll"
+
+load_mfc110()
+{
+    w_download_to vcrun2012 https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x86.exe b924ad8062eaf4e70437c8be50fa612162795ff0839479546ce907ffa8d6e386
+
+    w_try_cabextract --directory="$W_TMP/win32"  "$W_CACHE"/vcrun2012/vcredist_x86.exe -F 'a3'
+    w_try_cabextract --directory="$W_TMP/win32" "$W_TMP/win32/a3"
+
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfc110_x86 "$W_SYSTEM32_DLLS"/mfc110.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfc110u_x86 "$W_SYSTEM32_DLLS"/mfc110u.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfcm110_x86 "$W_SYSTEM32_DLLS"/mfcm110.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfcm110u_x86 "$W_SYSTEM32_DLLS"/mfcm110u.dll
+
+    if [ "$W_ARCH" = "win64" ]; then
+        w_download_to vcrun2012 https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x64.exe 681be3e5ba9fd3da02c09d7e565adfa078640ed66a0d58583efad2c1e3cc4064
+
+        w_try_cabextract --directory="$W_TMP/win64"  "$W_CACHE"/vcrun2012/vcredist_x64.exe -F 'a3'
+        w_try_cabextract --directory="$W_TMP/win64" "$W_TMP/win64/a3"
+
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfc110_x64 "$W_SYSTEM64_DLLS"/mfc110.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfc110u_x64 "$W_SYSTEM64_DLLS"/mfc110u.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfcm110_x64 "$W_SYSTEM64_DLLS"/mfcm110.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfcm110u_x64 "$W_SYSTEM64_DLLS"/mfcm110u.dll
+    fi
+}
+
 #----------------------------------------------------------------
 
 w_metadata vcrun2013 dlls \
@@ -12204,6 +12415,39 @@ load_vcrun2013()
             fi
             ;;
     esac
+}
+
+w_metadata mfc120 dlls \
+    title="Visual C++ 2013 mfc120 library; part of vcrun2013" \
+    publisher="Microsoft" \
+    year="2013" \
+    media="download" \
+    file1="../vcrun2013/vcredist_x86.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc120u.dll"
+
+load_mfc120()
+{
+    w_download_to vcrun2013 https://download.microsoft.com/download/0/5/6/056dcda9-d667-4e27-8001-8a0c6971d6b1/vcredist_x86.exe 89f4e593ea5541d1c53f983923124f9fd061a1c0c967339109e375c661573c17
+
+    w_try_cabextract --directory="$W_TMP/win32"  "$W_CACHE"/vcrun2013/vcredist_x86.exe -F 'a3'
+    w_try_cabextract --directory="$W_TMP/win32" "$W_TMP/win32/a3"
+
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfc120_x86 "$W_SYSTEM32_DLLS"/mfc120.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfc120u_x86 "$W_SYSTEM32_DLLS"/mfc120u.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfcm120_x86 "$W_SYSTEM32_DLLS"/mfcm120.dll
+    w_try cp "$W_TMP/win32"/F_CENTRAL_mfcm120u_x86 "$W_SYSTEM32_DLLS"/mfcm120u.dll
+
+    if [ "$W_ARCH" = "win64" ]; then
+        w_download_to vcrun2013 https://download.microsoft.com/download/0/5/6/056dcda9-d667-4e27-8001-8a0c6971d6b1/vcredist_x64.exe 20e2645b7cd5873b1fa3462b99a665ac8d6e14aae83ded9d875fea35ffdd7d7e
+
+        w_try_cabextract --directory="$W_TMP/win64"  "$W_CACHE"/vcrun2013/vcredist_x64.exe -F 'a3'
+        w_try_cabextract --directory="$W_TMP/win64" "$W_TMP/win64/a3"
+
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfc120_x64 "$W_SYSTEM64_DLLS"/mfc120.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfc120u_x64 "$W_SYSTEM64_DLLS"/mfc120u.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfcm120_x64 "$W_SYSTEM64_DLLS"/mfcm120.dll
+        w_try cp "$W_TMP/win64"/F_CENTRAL_mfcm120u_x64 "$W_SYSTEM64_DLLS"/mfcm120u.dll
+    fi
 }
 
 #----------------------------------------------------------------
@@ -12267,6 +12511,39 @@ load_vcrun2015()
             fi
             ;;
     esac
+}
+
+w_metadata mfc140 dlls \
+    title="Visual C++ 2015 mfc140 library; part of vcrun2015" \
+    publisher="Microsoft" \
+    year="2015" \
+    media="download" \
+    file1="../vcrun2015/vc_redist.x86.exe" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/mfc140u.dll"
+
+load_mfc140()
+{
+    w_download_to vcrun2015 https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe fdd1e1f0dcae2d0aa0720895eff33b927d13076e64464bb7c7e5843b7667cd14
+
+    w_try_cabextract --directory="$W_TMP/win32"  "$W_CACHE"/vcrun2015/vc_redist.x86.exe -F 'a11'
+    w_try_cabextract --directory="$W_TMP/win32" "$W_TMP/win32/a11"
+
+    w_try cp "$W_TMP/win32"/mfc140.dll "$W_SYSTEM32_DLLS"/mfc140.dll
+    w_try cp "$W_TMP/win32"/mfc140u.dll "$W_SYSTEM32_DLLS"/mfc140u.dll
+    w_try cp "$W_TMP/win32"/mfcm140.dll "$W_SYSTEM32_DLLS"/mfcm140.dll
+    w_try cp "$W_TMP/win32"/mfcm140u.dll "$W_SYSTEM32_DLLS"/mfcm140u.dll
+
+    if [ "$W_ARCH" = "win64" ]; then
+        w_download_to vcrun2015 https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe 5eea714e1f22f1875c1cb7b1738b0c0b1f02aec5ecb95f0fdb1c5171c6cd93a3
+
+        w_try_cabextract --directory="$W_TMP/win64"  "$W_CACHE"/vcrun2015/vc_redist.x64.exe -F 'a11'
+        w_try_cabextract --directory="$W_TMP/win64" "$W_TMP/win64/a11"
+
+        w_try cp "$W_TMP/win64"/mfc140.dll "$W_SYSTEM64_DLLS"/mfc140.dll
+        w_try cp "$W_TMP/win64"/mfc140u.dll "$W_SYSTEM64_DLLS"/mfc140u.dll
+        w_try cp "$W_TMP/win64"/mfcm140.dll "$W_SYSTEM64_DLLS"/mfcm140.dll
+        w_try cp "$W_TMP/win64"/mfcm140u.dll "$W_SYSTEM64_DLLS"/mfcm140u.dll
+    fi
 }
 
 #----------------------------------------------------------------
@@ -12340,7 +12617,7 @@ load_vcrun2017()
 #----------------------------------------------------------------
 
 w_metadata vcrun2019 dlls \
-    title="Visual C++ 2015-2019 libraries (concrt140.dll,mfc140.dll,mfc140u.dll,mfcm140.dll,mfcm140u.dll,msvcp140.dll,vcamp140.dll,vccorlib140.dll,vcomp140.dll,vcruntime140.dll)" \
+    title="Visual C++ 2015-2019 libraries (concrt140.dll,mfc140.dll,mfc140u.dll,mfcm140.dll,mfcm140u.dll,msvcp140.dll,vcamp140.dll,vccorlib140.dll,vcomp140.dll,vcruntime140.dll) (and vcruntime140_1.dll on win64)" \
     publisher="Microsoft" \
     year="2019" \
     media="download" \
@@ -12353,7 +12630,8 @@ load_vcrun2019()
     # https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
     # 2019/12/26: e59ae3e886bd4571a811fe31a47959ae5c40d87c583f786816c60440252cd7ec
     # 2020/03/23: ac96016f1511ae3eb5ec9de04551146fe351b7f97858dcd67163912e2302f5d6
-    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe ac96016f1511ae3eb5ec9de04551146fe351b7f97858dcd67163912e2302f5d6
+    # 2020/05/20: a06aac66734a618ab33c1522920654ddfc44fc13cafaa0f0ab85b199c3d51dc0
+    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe a06aac66734a618ab33c1522920654ddfc44fc13cafaa0f0ab85b199c3d51dc0
 
     w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcr140 ucrtbase vcomp140 vcruntime140
 
@@ -12365,7 +12643,12 @@ load_vcrun2019()
             # Also install the 64-bit version
             # 2019/12/26: 40ea2955391c9eae3e35619c4c24b5aaf3d17aeaa6d09424ee9672aa9372aeed
             # 2020/03/23: b6c82087a2c443db859fdbeaae7f46244d06c3f2a7f71c35e50358066253de52
-            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe b6c82087a2c443db859fdbeaae7f46244d06c3f2a7f71c35e50358066253de52
+            # 2020/05/20: 7d7105c52fcd6766beee1ae162aa81e278686122c1e44890712326634d0b055e
+
+            # vcruntime140_1 is only shipped on x64:
+            w_override_dlls native,builtin vcruntime140_1
+
+            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe 7d7105c52fcd6766beee1ae162aa81e278686122c1e44890712326634d0b055e
             w_try "$WINE" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
     esac
@@ -12936,12 +13219,7 @@ w_metadata calibri fonts \
 
 load_calibri()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=13
-    # Originally at https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe
-    w_download_to PowerPointViewer "http://www.business.uwm.edu/gdrive/Dietenberger_E/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
-    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/$file1"
-    w_try_cabextract -d "$W_TMP" -F "CALIBRI*.TTF" "$W_TMP/ppviewer.cab"
-    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "CALIBRI*.TTF"
+    helper_pptfonts "CALIBRI*.TTF"
     w_register_font calibri.ttf "Calibri"
     w_register_font calibrib.ttf "Calibri Bold"
     w_register_font calibrii.ttf "Calibri Italic"
@@ -12960,12 +13238,7 @@ w_metadata cambria fonts \
 
 load_cambria()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=13
-    # Originally at https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe
-    w_download_to PowerPointViewer "http://www.business.uwm.edu/gdrive/Dietenberger_E/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
-    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/$file1"
-    w_try_cabextract -d "$W_TMP" -F "CAMBRIA*.TT*" "$W_TMP/ppviewer.cab"
-    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "CAMBRIA*.TT*"
+    helper_pptfonts "CAMBRIA*.TT*"
     w_register_font cambria.ttc "Cambria & Cambria Math"
     w_register_font cambriab.ttf "Cambria Bold"
     w_register_font cambriai.ttf "Cambria Italic"
@@ -12984,12 +13257,7 @@ w_metadata candara fonts \
 
 load_candara()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=13
-    # Originally at https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe
-    w_download_to PowerPointViewer "http://www.business.uwm.edu/gdrive/Dietenberger_E/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
-    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/$file1"
-    w_try_cabextract -d "$W_TMP" -F "CANDARA*.TTF" "$W_TMP/ppviewer.cab"
-    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "CANDARA*.TTF"
+    helper_pptfonts "CANDARA*.TTF"
     w_register_font candara.ttf "Candara"
     w_register_font candarab.ttf "Candara Bold"
     w_register_font candarai.ttf "Candara Italic"
@@ -13008,12 +13276,7 @@ w_metadata consolas fonts \
 
 load_consolas()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=13
-    # Originally at https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe
-    w_download_to PowerPointViewer "http://www.business.uwm.edu/gdrive/Dietenberger_E/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
-    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/$file1"
-    w_try_cabextract -d "$W_TMP" -F "CONSOLA*.TTF" "$W_TMP/ppviewer.cab"
-    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "CONSOLA*.TTF"
+    helper_pptfonts "CONSOLA*.TTF"
     w_register_font consola.ttf "Consolas"
     w_register_font consolab.ttf "Consolas Bold"
     w_register_font consolai.ttf "Consolas Italic"
@@ -13032,12 +13295,7 @@ w_metadata constantia fonts \
 
 load_constantia()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=13
-    # Originally at https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe
-    w_download_to PowerPointViewer "http://www.business.uwm.edu/gdrive/Dietenberger_E/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
-    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/$file1"
-    w_try_cabextract -d "$W_TMP" -F "CONSTAN*.TTF" "$W_TMP/ppviewer.cab"
-    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "CONSTAN*.TTF"
+    helper_pptfonts "CONSTAN*.TTF"
     w_register_font constan.ttf "Constantia"
     w_register_font constanb.ttf "Constantia Bold"
     w_register_font constani.ttf "Constantia Italic"
@@ -13056,12 +13314,7 @@ w_metadata corbel fonts \
 
 load_corbel()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=13
-    # Originally at https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe
-    w_download_to PowerPointViewer "http://www.business.uwm.edu/gdrive/Dietenberger_E/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
-    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/$file1"
-    w_try_cabextract -d "$W_TMP" -F "CORBEL*.TTF" "$W_TMP/ppviewer.cab"
-    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "CORBEL*.TTF"
+    helper_pptfonts "CORBEL*.TTF"
     w_register_font corbel.ttf "Corbel"
     w_register_font corbelb.ttf "Corbel Bold"
     w_register_font corbeli.ttf "Corbel Italic"
@@ -13081,12 +13334,7 @@ w_metadata meiryo fonts \
 
 load_meiryo()
 {
-    # https://www.microsoft.com/en-us/download/details.aspx?id=13
-    # Originally at https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe
-    w_download_to PowerPointViewer "http://www.business.uwm.edu/gdrive/Dietenberger_E/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
-    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/$file1"
-    w_try_cabextract -d "$W_TMP" -F "MEIRYO*.TTC" "$W_TMP/ppviewer.cab"
-    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "MEIRYO*.TTC"
+    helper_pptfonts "MEIRYO*.TTC"
     w_register_font meiryo.ttc "Meiryo & Meiryo Italic & Meiryo UI & Meiryo UI Italic"
     w_register_font meiryob.ttc "Meiryo Bold & Meiryo Bold Italic & Meiryo UI Bold & Meiryo UI Bold Italic"
 }
@@ -13108,6 +13356,19 @@ load_pptfonts()
     w_call constantia
     w_call corbel
     w_call meiryo
+}
+
+helper_pptfonts()
+{
+    # download PowerPointViewer, extract the given files, and copy them to $W_FONTSDIR_UNIX
+    # Font registration should still be done by the respective verbs
+    # $1 - font pattern to extract
+
+    pptfont="$1"
+    w_download_to PowerPointViewer "https://web.archive.org/web/20171225132744if_/https://download.microsoft.com/download/E/6/7/E675FFFC-2A6D-4AB0-B3EB-27C9F8C8F696/PowerPointViewer.exe" 249473568eba7a1e4f95498acba594e0f42e6581add4dead70c1dfb908a09423
+    w_try_cabextract -d "$W_TMP" -F "ppviewer.cab" "$W_CACHE/PowerPointViewer/PowerPointViewer.exe"
+    w_try_cabextract -d "$W_TMP" -F "$pptfont" "$W_TMP/ppviewer.cab"
+    w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX" "$pptfont"
 }
 
 #----------------------------------------------------------------
@@ -14482,7 +14743,7 @@ load_ie6()
         "$WINE" regsvr32 /i $i > /dev/null 2>&1
     done
 
-    # Set windows version back to user's default. Leave at win2k for better rendering (is there a bug for that?)
+    # Set Windows version back to the default. Leave at win2k for better rendering (is there a bug for that?)
     w_set_winver 'default'
 
     # the ie6 we use these days lacks pngfilt, so grab that
@@ -15366,7 +15627,7 @@ load_psdk2003()
     w_download https://download.microsoft.com/download/7/5/e/75ec7f04-4c8c-4f38-b582-966e76602643/5.2.3790.1830.15.PlatformSDK_Svr2003SP1_rtm.img 7ef138b07a8ed2e008371d8602900eb68e86ac2a832d16b53f462a9e64f24d53
 
     # Unpack ISO (how handy that 7z can do this!)
-    # Only the windows version of 7z can handle .img files?
+    # Only the Windows version of 7z can handle .img files?
     WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
     w_try_cd "$W_PROGRAMS_X86_UNIX"/7-Zip
     w_try "$WINE" 7z.exe x -y -o"$W_TMP_WIN" "$W_CACHE_WIN\\psdk2003\\5.2.3790.1830.15.PlatformSDK_Svr2003SP1_rtm.img"
@@ -15490,11 +15751,11 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata qq apps \
-    title="QQ 8.9.1(Chinese chat app)" \
+    title="QQ 8.9.6(Chinese chat app)" \
     publisher="Tencent" \
     year="2017" \
     media="download" \
-    file1="QQ8.9.1.exe" \
+    file1="QQ8.9.6.exe" \
     file2="QQ.tar.gz"\
     installed_exe1="$W_PROGRAMS_X86_WIN/Tencent/QQ/Bin/QQScLauncher.exe" \
     homepage="https://www.qq.com/" \
@@ -15502,7 +15763,7 @@ w_metadata qq apps \
 
 load_qq()
 {
-    w_download https://dldir1.qq.com/qqfile/qq/QQ8.9.1/20437/QQ8.9.1.exe 8e0d3ff5264da2d77e2fc011c21048edeebcf082f55f68a301f763c3a15c0d3f
+    w_download https://dldir1.qq.com/qqfile/qq/QQ8.9.6/22404/QQ8.9.6.exe d207f49a642be21c4e1b14fc9f4cf47a6a9a2718afbc8bd0685b607b65424ef6
     w_download https://hillwoodhome.net/wine/QQ.tar.gz eb5cd6371eb75ec9e2fc0271199df05cbb9f38a60c2e81d5d8ac7daeb40aba62
 
     if w_workaround_wine_bug 5162 "Installing native riched20 to work around can't input username."; then
@@ -15525,7 +15786,7 @@ load_qq()
         w_try mv QQ/48x48/QQ.png ~/.local/share/icons/hicolor/48x48/apps
         w_try mv QQ/256x256/QQ.png ~/.local/share/icons/hicolor/256x256/apps
         # shellcheck disable=SC1001
-        echo Exec=env WINEPREFIX="$WINEPREFIX" "$WINE" "$W_PROGRAMS_X86_WIN"\/Tencent\/QQ\/bin\/QQScLauncher.exe >> "$HOME/.local/share/applications/wine/Programs/腾讯软件/QQ/腾讯QQ.desktop"
+        echo Exec=env WINEPREFIX="$WINEPREFIX" "$WINE" \""$W_PROGRAMS_X86_WIN"/Tencent/QQ/bin/QQScLauncher.exe\" >> "$HOME/.local/share/applications/wine/Programs/腾讯软件/QQ/腾讯QQ.desktop"
     fi
 
     if w_workaround_wine_bug 39657 "Disable ntoskrnl.exe to work around can't be started bug"; then
@@ -15535,6 +15796,9 @@ load_qq()
     if w_workaround_wine_bug 37680 "Disable txplatform.exe to work around QQ can't be quit cleanly"; then
         w_override_dlls disabled txplatform.exe
     fi
+
+    # Disable update, stay on the version.
+    w_override_dlls disabled txupd.exe
 
     w_try_cd "$W_CACHE/$W_PACKAGE"
     w_try "$WINE" "$file1"
@@ -15848,7 +16112,7 @@ load_vc2005trial()
     w_download https://download.microsoft.com/download/6/f/5/6f5f7a01-50bb-422d-8742-c099c8896969/En_vs_2005_vsts_180_Trial.img 3ae9f611c60c64d82e1fa9c94714aa6b6c10f6c2c05446e14b5afb5a257f86dc
 
     # Unpack ISO (how handy that 7z can do this!)
-    # Only the windows version of 7z can handle .img files?
+    # Only the Windows version of 7z can handle .img files?
     WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
     w_try_cd "$W_PROGRAMS_X86_UNIX"/7-Zip
     w_try "$WINE" 7z.exe x -y -o"$W_TMP_WIN" "$W_CACHE_WIN\\vc2005trial\\En_vs_2005_vsts_180_Trial.img"
@@ -16113,7 +16377,7 @@ load_wmp9()
       w_try cabextract -d "$W_TMP" ./MPSetup.exe
       w_try_cd "$W_TMP"
       w_try sed -i 's/IsWow64Process/IsNow64Process/' setup_wm.exe
-      w_try "$WINE" setup_wm.exe ${W_OPT_UNATTENDED:+/quiet}
+      w_try "$WINE" setup_wm.exe ${W_OPT_UNATTENDED:+/Quiet}
     else
       w_try "$WINE" MPSetup.exe ${W_OPT_UNATTENDED:+/q}
     fi
@@ -21540,7 +21804,11 @@ w_metadata ddr=opengl settings \
 
 load_ddr()
 {
-    winetricks_set_wined3d_var DirectDrawRenderer "$1"
+    if w_wine_version_in ,3.16 ; then
+        winetricks_set_wined3d_var DirectDrawRenderer "$1"
+    else
+        winetricks_set_wined3d_var renderer "$1"
+    fi
 }
 
 #----------------------------------------------------------------
@@ -22078,12 +22346,26 @@ _EOF_
 # settings->winversions
 #----------------------------------------------------------------
 
+w_metadata nt351 settings \
+    title_uk="Встановити версію Windows NT 3.51" \
+    title="Set Windows version to Windows NT 3.51"
+
+load_nt351()
+{
+    w_package_unsupported_win64
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
+    w_set_winver nt351
+}
+
+#----------------------------------------------------------------
+
 w_metadata nt40 settings \
     title_uk="Встановити версію Windows NT 4.0" \
-    title="Set windows version to Windows NT 4.0"
+    title="Set Windows version to Windows NT 4.0"
 
 load_nt40()
 {
+    w_package_unsupported_win64
     w_set_winver nt40
 }
 
@@ -22100,12 +22382,26 @@ load_vista()
 
 #----------------------------------------------------------------
 
+w_metadata win20 settings \
+    title_uk="Встановити версію Windows 2.0" \
+    title="Set Windows version to Windows 2.0"
+
+load_win20()
+{
+    w_package_unsupported_win64
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
+    w_set_winver win20
+}
+
+#----------------------------------------------------------------
+
 w_metadata win2k settings \
     title_uk="Встановити версію Windows 2000" \
     title="Set Windows version to Windows 2000"
 
 load_win2k()
 {
+    w_package_unsupported_win64
     w_set_winver win2k
 }
 
@@ -22144,12 +22440,26 @@ load_win2k8r2()
 
 #----------------------------------------------------------------
 
+w_metadata win30 settings \
+    title_uk="Встановити версію Windows 3.0" \
+    title="Set Windows version to Windows 3.0"
+
+load_win30()
+{
+    w_package_unsupported_win64
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
+    w_set_winver win30
+}
+
+#----------------------------------------------------------------
+
 w_metadata win31 settings \
     title_uk="Встановити версію Windows 3.1" \
     title="Set Windows version to Windows 3.1"
 
 load_win31()
 {
+    w_package_unsupported_win64
     w_set_winver win31
 }
 
@@ -22205,6 +22515,7 @@ w_metadata win95 settings \
 
 load_win95()
 {
+    w_package_unsupported_win64
     w_set_winver win95
 }
 
@@ -22216,7 +22527,21 @@ w_metadata win98 settings \
 
 load_win98()
 {
+    w_package_unsupported_win64
     w_set_winver win98
+}
+
+#----------------------------------------------------------------
+
+w_metadata winme settings \
+    title_uk="Встановити версію Windows ME" \
+    title="Set Windows version to Windows ME"
+
+load_winme()
+{
+    w_package_unsupported_win64
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
+    w_set_winver winme
 }
 
 #----------------------------------------------------------------

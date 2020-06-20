@@ -7,7 +7,8 @@ date
 
 TMPDIR=/tmp/$(basename $0)
 TMPROOTFS=yes
-SIZETMPFS=13G
+ZRAMFS=no
+SIZEROOTFS=14
 MYPATH=$(dirname $0)
 MYPATH=$(readlink -f $MYPATH)
 NOTAERROR="^warning:|^Preparing packages|^Running in chroot, ignoring|^update-alternatives: using|^Created symlink"
@@ -109,7 +110,13 @@ cat "$TMPDIR/packageslist.txt" | while read a ;do
    grep -q ^$a$ "$TMPDIR/scripts" && mv "$TMPDIR/installsrc/$a" "$TMPDIR/installsrc2"
 done
 if [ "$TMPROOTFS" = "yes" ] ;then
-  mount -t tmpfs -o noatime,size=$SIZETMPFS tmpfs "$ROOTFS" || stop "Out of memory ($SIZETMPFS is needed)"
+  mount -t tmpfs -o noatime,size=${SIZEROOTFS}G tmpfs "$ROOTFS" || stop "Out of memory ($SIZETMPFS is needed)"
+elif [ "$ZRAMFS" = "yes"  ] ;then
+  [ -b /dev/zram4 ] || modprobe zram num_devices=5
+  grep -q /dev/zram4 /proc/mounts && exit 1
+  echo $(($SIZEROOTFS*1024*1024*1024)) > /sys/block/zram4/disksize
+  mkfs.ext2 -m0 -F /dev/zram4
+  mount -o noatime /dev/zram4 "$ROOTFS"
 elif [ -x /bin/rpm ] ;then
   mkdir -p "$ROOTFS/orig/var/lib/rpm"
   mount -t tmpfs -o noatime tmpfs "$ROOTFS/orig/var/lib/rpm" || stop "Cant mount tmpfs"

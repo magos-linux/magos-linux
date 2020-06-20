@@ -178,6 +178,7 @@ fi
 rm -fr $CACHE/{modules,installsrc} $CACHE/*.txt  $CACHE/packagesinfo/*scripts
 cp -prf -t "$CACHE" "$TMPDIR/modules" "$TMPDIR/packagesinfo" "$TMPDIR/installsrc" "$TMPDIR"/*.txt
 rm -fr "$TMPDIR"
+for a in "$CACHE/pubkeys/"* ;do dos2unix $a 2>/dev/null ; tail -1 "$a" | grep -q ^$ || echo >> "$a" ;done
 
 [ -f .auto ] || stop "\nРабота скрипта завершена."
 wall "Запуск следующего скрипта ./2_make_distro через 20 секунд"

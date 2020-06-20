@@ -7,6 +7,11 @@ VERREL=2016.64
 RE4NAME="-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*.rpm"
 HIDEBININSTALL="mkinitrd dracut dracut-install grub grub-install grub2-install grub2-mkimage grub2-reboot update-grub2 mkinitrd-mkinitrd mkinitrd-dracut"
 
+TMPROOTFS=no
+ZRAMFS=yes
+# Максимальный размер для исходного дистрибутива в Гбайтах
+SIZEROOTFS=20
+
 # Размер в Мб для данных и изменений системы для каждого профиля
 DATASIZE1=756
 

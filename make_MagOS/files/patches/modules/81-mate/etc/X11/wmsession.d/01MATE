@@ -1,0 +1,5 @@
+NAME=MATE
+DESC=MATE Desktop
+EXEC=/usr/bin/startmate
+SCRIPT:
+exec /usr/bin/startmate
