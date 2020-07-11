@@ -8,7 +8,7 @@ STEAMLLP="$STP/ubuntu12_32/steam-runtime/pinned_libs_32:$STP/ubuntu12_32/steam-r
 $STP/ubuntu12_32/steam-runtime/lib/i386-linux-gnu:$STP/ubuntu12_32/steam-runtime/usr/lib/i386-linux-gnu:\
 $STP/ubuntu12_32/steam-runtime/lib/x86_64-linux-gnu:$STP/ubuntu12_32/steam-runtime/usr/lib/x86_64-linux-gnu:\
 $STP/ubuntu12_32/steam-runtime/lib:$STP/ubuntu12_32/steam-runtime/usr/lib:"
-PRRUN=primusrun
+PRRUN="optirun -b primus"
 . /etc/MagOS/config
 
 #debug echo

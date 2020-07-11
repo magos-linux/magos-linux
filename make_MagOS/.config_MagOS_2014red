@@ -9,8 +9,10 @@ HIDEBININSTALL="mkinitrd dracut dracut-install grub grub-install grub2-install g
 
 # Для сборки под 32битной системой не используйте tmpfs и имейти в виду что содежимое ROOTFS полностью очищается (rm -fr $ROOTFS)!
 TMPROOTFS=no
-ROOTFS=/media/data/make_magos_2014red_rootfs
-STAGE1METOD=oneinstall
+#ROOTFS=/media/data/make_magos_2014red_rootfs
+#STAGE1METOD=oneinstall
+ZRAMFS=yes
+SIZEROOTFS=15
 
 # Размер в Мб для данных и изменений системы для каждого профиля
 DATASIZE1=756

@@ -8,14 +8,14 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 DEBUGMODE=no
 
-ALLOWEDSUDO=ldconfig,magosupdate
+ALLOWEDSUDO=ldconfig,magosupdate,ntpdate
 PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:
 
 . /usr/lib/magos/functions
 . /etc/MagOS/config
 debug_mode "$0" "$@"
 
-for a in $ALLOWEDSUDO ;do
+for a in $(echo $ALLOWEDSUDO | tr ',;' ' ') ;do
     b=$(which $a 2>/dev/null)
     grep -q "NOPASSWD: $b" /etc/sudoers || echo "%users ALL=NOPASSWD: $b" >> /etc/sudoers
 done

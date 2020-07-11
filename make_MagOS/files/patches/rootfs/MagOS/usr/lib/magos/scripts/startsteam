@@ -5,6 +5,7 @@ GL32URL=http://mirror.yandex.ru/mirrors/magos/modules/2014.64
 GL32LIB=/usr/lib/libGL.so.1
 PRDNL="wget -O "
 USERMODSPATH=/mnt/livedata/MagOS-Data/modules
+PRIMUSCMD="optirun -b primus"
 
 . /usr/lib/magos/os-config
 . /etc/sound/profiles/current/profile.conf
@@ -71,9 +72,9 @@ fi
 
 PRRUN=
 # Checking for bumblebeed.service is exists and works
-[ -x /usr/bin/primusrun ] && primusrun glxinfo -h >/dev/null 2>&1 && PRRUN=primusrun
+[ -x /usr/bin/primusrun -a -x /usr/bin/optirun ] && $PRIMUSCMD glxinfo -h >/dev/null 2>&1 && PRRUN="$PRIMUSCMD"
 
-# Workaround for primus and classic client bug. Disables primus for classc view.
+# Workaround for primus and classic client bug. Disables primus for classic view.
 echo "$@" | grep -q bigpicture || PRRUN=
 
 # Fix for language bug

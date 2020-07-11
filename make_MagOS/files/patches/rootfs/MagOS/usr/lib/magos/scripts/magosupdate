@@ -356,6 +356,7 @@ function updateversion()
  download MD5SUM.sig		.
  downloadfromlist MD5SUM	.
  downloadmodules "modules"
+ downloadmodules "optional"
  echolog "Downloading finished."
 
  checksign MD5SUM.sig MD5SUM
@@ -395,6 +396,7 @@ function updatebase()
  echolog "Downloading updates..."
  downloadfromlist MD5SUM . || exit 1
  downloadmodules  modules
+ downloadmodules  optional
  echolog "Downloading finished."
 
  checkfilesums "MD5SUM" "./"
@@ -431,6 +433,7 @@ function updatemodules()
 
  echolog "Downloading updates..."
  downloadmodules  modules
+ downloadmodules  optional
  echolog "Downloading finished."
 
  # if modules wasn't updated delete them

@@ -1,7 +1,6 @@
 lib64d3dtracker1
 lib64faudio0
 lib64ncursesw5
-lib64spirv-tools
 lib64vkd3d1
 lib64vkd3d-utils1
 libalsa-plugins
@@ -72,7 +71,6 @@ libsasl2
 libSDL2_2.0_0
 libsoxr0
 libspeex1
-libspirv-tools
 libssl1.0.0
 libswresample2
 libswresample3
@@ -108,3 +106,6 @@ webcore-fonts
 wine32
 wine64
 wine64-binfmt
+lib64spirv-tools0
+libspirv-tools0
+spirv-tools

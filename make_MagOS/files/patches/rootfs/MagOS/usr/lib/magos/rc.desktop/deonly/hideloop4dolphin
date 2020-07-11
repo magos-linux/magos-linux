@@ -5,6 +5,7 @@ ENABLED=yes
 DOLPHINBOOKMARKS=.local/share/user-places.xbel
 HIDELOOP=255
 HIDERAM=0
+HIDEZRAM=8
 . /usr/lib/magos/os-config
 
 [ "$HIDELOOP4DOLPHIN" = "no" ] && exit 0
@@ -58,6 +59,24 @@ EOF
    </metadata>
   </info>
    <title>Ram device</title>
+ </separator>
+EOF
+  done
+  for a in $(seq 0 "$HIDEZRAM") ;do
+    grep -q devices/ram$a $FFP && continue
+    cat >>$FFP <<EOF
+ <separator>
+  <info>
+   <metadata owner="http://www.kde.org">
+    <UDI>/org/freedesktop/UDisks2/block_devices/zram$a</UDI>
+    <isSystemItem>true</isSystemItem>
+    <IsHidden>true</IsHidden>
+   </metadata>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="drive-harddisk"/>
+   </metadata>
+  </info>
+   <title>ZRam device</title>
  </separator>
 EOF
   done

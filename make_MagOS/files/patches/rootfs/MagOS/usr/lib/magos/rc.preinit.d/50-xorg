@@ -163,15 +163,38 @@ fi
 
 # bumblebee service for nvidia optimus card
 [ "$XDRIVER" = "intel" ] && lspci -nmm | sed s/"Class "// | grep -q '"0302" "10de"' && BUMBLEBEE=yes
+[ -f etc/bumblebee/bumblebee.conf ] || BUMBLEBEE=no
 if [ "$BUMBLEBEE" = "yes" ] ;then
    rm -f etc/systemd/system/bumblebeed.service
    ln -sf /lib/systemd/system/bumblebeed.service etc/systemd/system/graphical.target.wants/bumblebeed.service
+
+   # test for kernel module
+   [ -z "$BUMBLEBEEDRIVER" ] && for a in $NVIDIATEST ;do
+       chroot . modprobe $a
+       lsmod | grep -q nvidia && BUMBLEBEEDRIVER=$a
+       [ -z "$BUMBLEBEEDRIVER" ] || break
+   done
+   [ -z "$BUMBLEBEEDRIVER" ] && BUMBLEBEEDRIVER=nouveau
+
+   #settings for bumblebeed service
+   sed -i /^KernelDriver=/d                                                      etc/bumblebee/bumblebee.conf
+   sed -i "s/^\\[driver-nouveau\\]/\\[driver-nouveau\\]\\nKernelDriver=nouveau/" etc/bumblebee/bumblebee.conf
+   if [ "$BUMBLEBEEDRIVER" = "nouveau" ] ;then
+      sed -i "s/^Driver=.*/Driver=nouveau/"                                                  etc/bumblebee/bumblebee.conf
+      sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver=nvidia-current/"     etc/bumblebee/bumblebee.conf
+   else
+      sed -i "s/^Driver=.*/Driver=nvidia/"                                                   etc/bumblebee/bumblebee.conf
+      sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver="$BUMBLEBEEDRIVER"/" etc/bumblebee/bumblebee.conf
+      [ -d "usr/lib/$BUMBLEBEEDRIVER"   ] && [ ! -h usr/lib/nvidia   ] && ln -s "$BUMBLEBEEDRIVER" usr/lib/nvidia
+      [ -d "usr/lib64/$BUMBLEBEEDRIVER" ] && [ ! -h usr/lib64/nvidia ] && ln -s "$BUMBLEBEEDRIVER" usr/lib64/nvidia
+   fi
+
    echo "$OPTIRUN" | tr ',;' \\n | while read a ;do
      FILE=usr/share/applications/$a.desktop
      [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop
      if [ -f $FILE ] ;then
-        sed -i s/"Exec=primusrun "/"Exec="/ $FILE
-        grep -q optirun $FILE || sed -i s-"Exec="-"Exec=optirun "- $FILE
+        sed -i "s|Exec=primusrun |Exec=|" $FILE
+        grep -q optirun $FILE || sed -i "s|Exec=|Exec=optirun -b primus |" $FILE
      fi
    done
 
@@ -179,12 +202,11 @@ if [ "$BUMBLEBEE" = "yes" ] ;then
      FILE=usr/share/applications/$a.desktop
      [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop
      if [ -f $FILE ] ;then
-        sed -i s/"Exec=optirun "/"Exec="/ $FILE
-        grep -q primusrun $FILE || sed -i s-"Exec="-"Exec=primusrun "- $FILE
+        sed -i "s|Exec=optirun -b primus |Exec=|" $FILE
+        grep -q primusrun $FILE || sed -i "s|Exec=|Exec=primusrun |" $FILE
      fi
    done
-   [ -d usr/lib/nvidia-current   ] && [ ! -h usr/lib/nvidia   ] && ln -s nvidia-current usr/lib/nvidia
-   [ -d usr/lib64/nvidia-current ] && [ ! -h usr/lib64/nvidia ] && ln -s nvidia-current usr/lib64/nvidia
+
 fi
 
 #setting BusID option for multicard hardware
