@@ -81,9 +81,7 @@ gtk+3.0
 gtk+3.0-common
 gtk-aurora-engine
 gtk+-common
-gtk-clearlooks-engine
 gtk-engines2
-gtk-hcengine
 gtksourceview
 gtkspell
 gtk-update-icon-cache
@@ -285,8 +283,6 @@ lib64gtk+3_0
 lib64gtk-aurora-engine
 lib64gtk-engines2
 lib64gtk-gir3.0
-lib64gtk-clearlooks-engine
-lib64gtk-hcengine
 lib64gtkmm2.4_1
 lib64gtkmm3.0_1
 lib64gtk-modules2.0

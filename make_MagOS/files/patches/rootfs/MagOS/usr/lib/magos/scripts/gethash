@@ -1,0 +1,2 @@
+#!/bin/bash
+read -rsp "Enter password to calculate hash:" string ;echo ; python -c "import random,string,crypt;randomsalt = ''.join(random.sample(string.ascii_letters,8));print crypt.crypt('"$1"', '\$6\$%s\$' % randomsalt)"

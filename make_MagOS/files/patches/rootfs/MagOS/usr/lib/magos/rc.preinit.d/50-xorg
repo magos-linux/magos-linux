@@ -144,10 +144,10 @@ if [ "$GLLDCONFIG" = "yes" ] ;then
   [ "$XDRIVER" = "nvidia304" ] && LINK=$LINKNVIDIA304
   [ "$XDRIVER" = "nvidia340" ] && LINK=$LINKNVIDIA340
   [ "$XDRIVER" = "nvidia360" ] && LINK=$LINKNVIDIA360
-  chroot . /usr/sbin/alternatives --quiet --set gl_conf $LINK 2>/dev/null 2>&1
+  [ -x 'usr/sbin/alternatives' ] && chroot . /usr/sbin/alternatives --set gl_conf $LINK >/dev/null 2>&1
   LDCACHE=$XDRIVER
   [ -z "$LDCACHE" -o ! -d usr/share/magos/ld.so.cache/$LDCACHE ] && LDCACHE=fbdev
-  cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
+  [ -d "usr/share/magos/ld.so.cache/$LDCACHE" ] && cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
 fi
 
 # create or delete xorg.conf

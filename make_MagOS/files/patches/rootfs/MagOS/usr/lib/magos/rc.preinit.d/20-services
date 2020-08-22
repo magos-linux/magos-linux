@@ -36,6 +36,7 @@ if [ ! -z "$SERVICESSTART$SERVICESNOSTART$SERVICESMASK$SERVICESUNMASK" ] ;then
       fi
   done
   for a in $(echo $SERVICESMASK | tr , " ") ;do
+      [ -x bin/systemd ] && chroot . systemctl disable $a
       [ -x bin/systemd ] && chroot . systemctl mask $a
   done
   umount proc
