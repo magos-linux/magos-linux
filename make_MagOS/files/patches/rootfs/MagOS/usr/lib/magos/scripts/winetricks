@@ -163,6 +163,10 @@ WINETRICKS_VERSION=20200412-next
 # - Pull Requests: https://github.com/Winetricks/winetricks/pulls
 #--------------------------------------------------------------------
 
+# Using TRUE and FALSE instead of 0 and 1, to make the logic flow better and cause less confusion with other languages's definitions.
+TRUE=0
+FALSE=1
+
 # FIXME: XDG_CACHE_HOME is defined twice, clean this up
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
@@ -241,7 +245,7 @@ w_warn()
     # If $WINETRICKS_SUPER_QUIET is set, w_info is a no-op:
     if [ -z "$WINETRICKS_SUPER_QUIET" ] ; then
         echo "------------------------------------------------------"
-        echo "$@"
+        echo "warning: $*"
         echo "------------------------------------------------------"
     fi
 
@@ -308,30 +312,80 @@ _w_force_continue_check()
     fi
 }
 
+_w_get_broken_messages()
+{
+    # Unify the broken messages (to make it easier for future translators):
+    case $LANG in
+        *)
+            broken_good_version_known_default="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped}. Upgrade to >=${good_version}. See ${bug_link} for more info."
+            broken_good_and_bad_version_known_default="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped}. Broken since ${bad_version}. Upgrade to >=${good_version}. See ${bug_link} for more info."
+            broken_only_bad_version_known_default="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped}. Broken since ${bad_version}. See ${bug_link} for more info."
+            broken_no_version_known_default="This package ($W_PACKAGE) is broken. See ${bug_link} for more info."
+
+            broken_good_version_known_mingw="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped} when wine is built with mingw. Upgrade to >=${good_version} or rebuild wine without mingw. See ${bug_link} for more info."
+            broken_good_and_bad_version_known_mingw="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped}. Broken since ${bad_version} when wine is built with mingw. Upgrade to >=${good_version} or rebuild wine without mingw. See ${bug_link} for more info."
+            broken_only_bad_version_known_mingw="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped}. Broken since ${bad_version} when wine is built with mingw. See ${bug_link} for more info."
+            broken_no_version_known_mingw="This package ($W_PACKAGE) is broken when wine is built with mingw. See ${bug_link} for more info."
+
+            broken_good_version_known_no_mingw="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped} when wine is built without mingw. Upgrade to >=${good_version}. See ${bug_link} for more info."
+            broken_good_and_bad_version_known_no_mingw="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped}. Broken since ${bad_version} when wine is built without mingw. Upgrade to >=${good_version}. See ${bug_link} for more info."
+            broken_only_bad_version_known_no_mingw="This package ($W_PACKAGE) is broken in wine-${_wine_version_stripped}. Broken since ${bad_version} when wine is built without mingw. See ${bug_link} for more info."
+            broken_no_version_known_no_mingw="This package ($W_PACKAGE) is broken when wine is built without mingw. See ${bug_link} for more info."
+
+            broken_good_version_known_win64="This package ($W_PACKAGE) is broken on 64-bit wine-${_wine_version_stripped}. Use a prefix made with WINEARCH=win32 or upgrade wine to >=${good_version} to work around this. See: ${bug_link}"
+            broken_good_and_bad_version_known_win64="This package ($W_PACKAGE) is broken on 64-bit wine-${_wine_version_stripped}. Broken since ${bad_version}. Use a prefix made with WINEARCH=win32 or upgrade wine to >=${good_version} to work around this. See: ${bug_link}"
+            broken_only_bad_version_known_win64="This package ($W_PACKAGE) is broken on 64-bit wine-${_wine_version_stripped}. Broken since ${bad_version}. Use a prefix made with WINEARCH=win32 to work around this. See: ${bug_link}"
+            broken_no_version_known_win64="This package ($W_PACKAGE) is broken when wine is built without mingw. See ${bug_link} for more info."
+            ;;
+    esac
+}
+
 # Warn user if package is broken (on all arches) in the current wine version. Bug report required.
 w_package_broken()
 {
     # FIXME: test cases for this
 
     bug_link="$1"
-    bad_version="$2"
-    good_version="$3"
+    bad_version="$2"  # Optional, for upstream regressions
+    good_version="$3" # Optional, if it's been fixed upstream
+
+    _w_get_broken_messages
+
+    broken_good_version_known="${broken_good_version_known:-$broken_good_version_known_default}"
+    broken_good_and_bad_version_known="${broken_good_and_bad_version_known:-$broken_good_and_bad_version_known_default}"
+    broken_only_bad_version_known="${broken_only_bad_version_known:-$broken_only_bad_version_known_default}"
+    broken_no_version_known="${broken_no_version_known:-$broken_no_version_known_default}"
 
     if [ -z "$bug_link" ] ; then
         w_die "Bug report link required!"
     fi
 
-    if [ -n "$good_version" ]; then
-        if ! w_wine_version_in "${bad_version},${good_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped}. Upgrade to >=${good_version}. See ${bug_link} for more info."
+    if [ -n "$good_version" ] && [ -n "$bad_version" ]; then
+        if w_wine_version_in "${bad_version},${good_version}"; then
+            w_warn "${broken_good_and_bad_version_known}"
+        else
+            return
+        fi
+    elif [ -n "$good_version" ]; then
+        if w_wine_version_in ,"${good_version}"; then
+            w_warn "${broken_good_version_known}"
+        else
+            return
         fi
     elif [ -n "$bad_version" ]; then
-        if ! w_wine_version_in "${bad_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped}. Broken since ${bad_version}. See ${bug_link} for more info."
+        if w_wine_version_in "${bad_version}",; then
+            w_warn "${broken_only_bad_version_known}"
+        else
+            return
         fi
     else
-        w_warn "This package ($W_PACKAGE) is broken. See ${bug_link} for more info."
+        w_warn "${broken_no_version_known}"
     fi
+
+    unset broken_good_version_known
+    unset broken_good_and_bad_version_known
+    unset broken_only_bad_version_known
+    unset broken_no_version_known
 
     _w_force_continue_check
 }
@@ -346,7 +400,7 @@ w_detect_mingw()
     # builtin=mingw (wine-4.11+)
 
     # See https://github.com/Winetricks/winetricks/issues/1461
-    if w_wine_version_in ,4.10 ; then
+    if w_wine_version_in 4.10, ; then
         if grep -obUa "Wine placeholder DLL" "$(w_winepath -u "c:\\windows\\system32\\kernelbase.dll" 2>/dev/null)" | grep -q '64:Wine placeholder DLL'; then
             _W_no_mingw=1
         elif grep -obUa "Wine builtin DLL" "$(w_winepath -u "c:\\windows\\system32\\kernelbase.dll" 2>/dev/null)" | grep -q '64:Wine builtin DLL'; then
@@ -367,38 +421,24 @@ w_package_broken_mingw()
     # FIXME: test cases for this
 
     bug_link="$1"
-    bad_version="$2"
-    good_version="$3"
+    bad_version="$2"  # Optional, for upstream regressions
+    good_version="$3" # Optional, if it's been fixed upstream
 
     w_detect_mingw
 
-    if [ -z "$_W_mingw" ]; then
-        # We're not using a mingw build, nothing to do:
+    _w_get_broken_messages
+
+    if [ -z "${_W_mingw}" ]; then
+        echo "Not using a mingw build, nothing to do"
         return
     fi
 
-    if [ -z "$bug_link" ] ; then
-        w_die "Bug report link required!"
-    fi
+    broken_good_version_known="${broken_good_version_known_mingw}"
+    broken_good_and_bad_version_known="${broken_good_and_bad_version_known_mingw}"
+    broken_only_bad_version_known="${broken_only_bad_version_known_mingw}"
+    broken_no_version_known="${broken_no_version_known_mingw}"
 
-    if [ -n "$good_version" ]; then
-        if ! w_wine_version_in "${bad_version},${good_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} when wine is built with mingw. Upgrade to >=${good_version} or disable mingw. See ${bug_link} for more info."
-            _w_force_continue_check
-        else
-            echo "package was broken, now fixed"
-        fi
-    elif [ -n "$bad_version" ]; then
-        if ! w_wine_version_in "${bad_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} (broken since ${bad_version} when wine is built with mingw. See ${bug_link} for more info."
-            _w_force_continue_check
-        else
-            echo "Package is broken in future versions"
-        fi
-    else
-        w_warn "This package ($W_PACKAGE) is broken when wine is built with mingw. See ${bug_link} for more info."
-        _w_force_continue_check
-    fi
+    w_package_broken "${bug_link}" "${bad_version}" "${good_version}"
 }
 
 # Warn user if package is broken in the current wine version when compiled without mingw. Bug report required.
@@ -407,72 +447,48 @@ w_package_broken_no_mingw()
     # FIXME: test cases for this
 
     bug_link="$1"
-    bad_version="$2"
-    good_version="$3"
+    bad_version="$2"  # Optional, for upstream regressions
+    good_version="$3" # Optional, if it's been fixed upstream
+
+    w_detect_mingw
+
+    _w_get_broken_messages
 
     if [ -z "$_W_no_mingw" ]; then
-        # We're using a mingw build, nothing to do:
+        echo "Using a mingw build, nothing to do"
         return
     fi
 
-    if [ -z "$bug_link" ] ; then
-        w_die "Bug report link required!"
-    fi
+    broken_good_version_known="${broken_good_version_known_no_mingw}"
+    broken_good_and_bad_version_known="${broken_good_and_bad_version_known_no_mingw}"
+    broken_only_bad_version_known="${broken_only_bad_version_known_no_mingw}"
+    broken_no_version_known="${broken_no_version_known_no_mingw}"
 
-    if [ -n "$good_version" ]; then
-        if ! w_wine_version_in "${bad_version},${good_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} when wine is built without mingw. Upgrade to >=${good_version}. See ${bug_link} for more info."
-            _w_force_continue_check
-        else
-            echo "package was broken, now fixed"
-        fi
-    elif [ -n "$bad_version" ]; then
-        if ! w_wine_version_in "${bad_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken in ${_wine_version_stripped} (broken since ${bad_version} when wine is built without mingw. See ${bug_link} for more info."
-            _w_force_continue_check
-        else
-            echo "Package is broken in future versions"
-        fi
-    else
-        w_warn "This package ($W_PACKAGE) is broken when wine is built without mingw. See ${bug_link} for more info."
-        _w_force_continue_check
-    fi
+    w_package_broken "${bug_link}" "${bad_version}" "${good_version}"
 }
 
-# Warn user if package is broken on win64. Optionally provide a link to the bug report.
+# Warn user if package is broken on win64.
 w_package_broken_win64()
 {
     # FIXME: test cases for this
 
     bug_link="$1"
-    bad_version="$2"
-    good_version="$3"
+    bad_version="$2"  # Optional, for upstream regressions
+    good_version="$3" # Optional, if it's been fixed upstream
+
+    _w_get_broken_messages
 
     if [ "$W_ARCH" != "win64" ]; then
-        # not a 64-bit prefix, nothing to do:
-        :
-    elif [ -z "$bug_link" ]; then
-        w_die "Bug report link required!"
+        echo "Not using a 64-bit prefix, nothing to do"
+        return
     fi
 
-    if [ -n "$good_version" ]; then
-        if ! w_wine_version_in "${bad_version},${good_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken on 64-bit wine-${_wine_version_stripped}. Use a prefix made with WINEARCH=win32 or upgrade wine to >=${good_version} to work around this. See: ${bug_link}"
-            _w_force_continue_check
-        else
-            echo "package was broken on win64, now fixed"
-        fi
-    elif [ -n "$bad_version" ]; then
-        if ! w_wine_version_in "${bad_version}"; then
-            w_warn "This package ($W_PACKAGE) is broken on 64-bit wine-${_wine_version_stripped} (broken since ${bad_version}. Use a prefix made with WINEARCH=win32 to work around this. See: ${bug_link}"
-            _w_force_continue_check
-        else
-            echo "Package is broken in future versions on win64"
-        fi
-    else
-        w_warn "This package ($W_PACKAGE) is broken when wine is built without mingw. See ${bug_link} for more info."
-        _w_force_continue_check
-    fi
+    broken_good_version_known="${broken_good_version_known_win64}"
+    broken_good_and_bad_version_known="${broken_good_and_bad_version_known_win64}"
+    broken_only_bad_version_known="${broken_only_bad_version_known_win64}"
+    broken_no_version_known="${broken_no_version_known_win64}"
+
+    w_package_broken "${bug_link}" "${bad_version}" "${good_version}"
 }
 
 # Some packages don't support win32, die with an appropriate message
@@ -819,7 +835,7 @@ w_read_key()
 {
     if test ! "$W_OPT_UNATTENDED"; then
         W_KEY=dummy_to_make_autohotkey_happy
-        return 0
+        return "${TRUE}"
     fi
 
     mkdir -p "$W_CACHE/$W_PACKAGE"
@@ -1992,10 +2008,10 @@ w_skip_windows()
     case "$W_PLATFORM" in
         windows_cmd)
             echo "Skipping operation '$1' on Windows"
-            return 0
+            return "${TRUE}"
             ;;
     esac
-    return 1
+    return "${FALSE}"
 }
 
 # for common code in w_override_dlls and w_override_app_dlls
@@ -2505,7 +2521,7 @@ w_set_winver()
 
     _W_winver="$1"
 
-    if w_wine_version_in ,5.7 ; then
+    if w_wine_version_in 5.7, ; then
         # Make sure we pass the right version name:
         case "$_W_winver" in
             # These are the mismatched ones:
@@ -2717,7 +2733,7 @@ REGEDIT4
 
 _EOF_
         w_try_regedit "$W_TMP_WIN"\\set-winver.reg
-        fi # if w_wine_version_in ,5.7
+        fi # if w_wine_version_in 5.7,
 
     # Prevent a race when calling from another verb
     w_wineserver -w
@@ -2756,6 +2772,8 @@ w_set_app_winver()
 #  if w_compare_wine_version -ge 2.5 ; then
 #      ...
 #  fi
+#
+# Returns true if comparison is valid
 w_compare_wine_version()
 {
     comparison="$1"
@@ -2764,7 +2782,17 @@ w_compare_wine_version()
 
     case "$comparison" in
         # expected value if the comparison is true
-        -bn) _expected_pos_current_wine="2";;
+        -bn)
+            # If the current wine version matches the lower version, it's a match (the bug is present).
+            # If it matches the higher version, it's not a match (the bug is fixed in that version).
+            if [ "${_wine_version_stripped}" = "${known_wine_val1}" ]; then
+                return "${TRUE}"
+            elif [ "${_wine_version_stripped}" = "${known_wine_val2}" ]; then
+                return "${FALSE}"
+            else
+                _expected_pos_current_wine="2"
+            fi
+            ;;
         -ge) _expected_pos_current_wine="2";;
         -le) _expected_pos_current_wine="1";;
         *) w_die "Unsupported comparison. Only -bn, -ge, and -le are supported" ;;
@@ -2772,18 +2800,18 @@ w_compare_wine_version()
 
     # First, check if current wine is equal to either upper or lower wine version:
     case "${_wine_version_stripped}" in
-        "${known_wine_val1}"|"${known_wine_val2}") return 1;;
+        "${known_wine_val1}"|"${known_wine_val2}") return "${TRUE}";;
     esac
 
     _pos_current_wine="$(printf "%s\\n%s\\n%s" "${known_wine_val1}" "${_wine_version_stripped}" "${known_wine_val2}" | sort -t. -k 1,1n -k 2,2n -k 3,3n | grep -n "^${_wine_version_stripped}\$" | cut -d : -f1)"
     if [ "$_pos_current_wine" = "$_expected_pos_current_wine" ] ; then
         #echo "true: known_wine_version=$2, comparison=$1, stripped wine=$_wine_version_stripped, expected_pos=$_expected_pos_known, pos_known=$_pos_known_wine"
         #echo "Wine version comparison is true"
-        return 1
+        return "${TRUE}"
     else
         #echo "false: known_wine_version=$2, comparison=$1, stripped wine=$_wine_version_stripped, expected_pos=$_expected_pos_known, pos_known=$_pos_known_wine"
         #echo "Wine version comparison is false"
-        return 0
+        return "${FALSE}"
     fi
 }
 
@@ -2800,13 +2828,13 @@ w_wine_version_in()
         _W_val2=$(echo "$_W_range" | sed 's/.*,//')
         # If in this range, return true
         case $_W_range in
-            ,*) w_compare_wine_version -le "$_W_val2"            && unset _W_range _W_val1 _W_val2 && return 0;;
-            *,) w_compare_wine_version -ge "$_W_val1"            && unset _W_range _W_val1 _W_val2 && return 0;;
-            *)  w_compare_wine_version -bn "$_W_val1" "$_W_val2" && unset _W_range _W_val1 _W_val2 && return 0;;
+            ,*) w_compare_wine_version -le "$_W_val2"            && unset _W_range _W_val1 _W_val2 && return "${TRUE}";;
+            *,) w_compare_wine_version -ge "$_W_val1"            && unset _W_range _W_val1 _W_val2 && return "${TRUE}";;
+            *)  w_compare_wine_version -bn "$_W_val1" "$_W_val2" && unset _W_range _W_val1 _W_val2 && return "${TRUE}";;
         esac
     done
     unset _W_range _W_val1 _W_val2
-    return 1
+    return "${FALSE}"
 }
 
 # Usage: workaround_wine_bug bugnumber [message] [good-wine-version-range ...]
@@ -2817,7 +2845,7 @@ w_workaround_wine_bug()
 {
     if test "$WINE" = ""; then
         echo "No need to work around wine bug $1 on Windows"
-        return 1
+        return "${FALSE}"
     fi
     case "$2" in
         [0-9]*) w_die "bug: want message in w_workaround_wine_bug arg 2, got $2" ;;
@@ -2828,13 +2856,13 @@ w_workaround_wine_bug()
     # shellcheck disable=SC2086
     if test "$3" && w_wine_version_in $3 $4 $5 $6; then
         echo "Current Wine does not have Wine bug $1, so not applying workaround"
-        return 1
+        return "${FALSE}"
     fi
 
     case "$1" in
         "$WINETRICKS_BLACKLIST")
             echo "Wine bug $1 workaround blacklisted, skipping"
-            return 1
+            return "${FALSE}"
             ;;
     esac
 
@@ -2850,7 +2878,7 @@ w_workaround_wine_bug()
     esac
 
     winetricks_stats_log_command "w_workaround_wine_bug-$1"
-    return 0
+    return "${TRUE}"
 }
 
 # Function for verbs to register themselves so they show up in the menu.
@@ -3040,13 +3068,13 @@ w_do_call()
         if test "$WINETRICKS_VERIFY" = 1 && winetricks_is_installed "$1" && test -z "$WINETRICKS_FORCE"; then
             echo "$1 is already installed. --force wasn't given, --verify was, so re-verifying."
             winetricks_verify
-            return 0
+            return "${TRUE}"
         fi
 
         # Don't install if already installed
         if test "$WINETRICKS_FORCE" != 1 && winetricks_is_installed "$1"; then
             echo "$1 already installed, skipping"
-            return 0
+            return "${TRUE}"
         fi
 
         # We'd like to get rid of W_PACKAGE, but for now, just set it as late as possible.
@@ -4320,11 +4348,11 @@ winetricks_is_cached()
 
     if test -f "$_W_path"; then
         unset _W_path
-        return 0
+        return "${TRUE}"
     fi
 
     unset _W_path
-    return 1
+    return "${FALSE}"
 }
 
 # Returns true if given verb has been installed
@@ -4337,13 +4365,13 @@ winetricks_is_installed()
     elif test "$installed_file1"; then
         _W_file="$installed_file1"
     else
-        return 1  # not installed
+        return "${FALSE}"  # not installed
     fi
 
     # Test if the verb has been executed before
     if ! grep -qw "$1" "$WINEPREFIX/winetricks.log" 2>/dev/null; then
         unset _W_file
-        return 1  # not installed
+        return "${FALSE}"  # not installed
     fi
 
     case "$W_PLATFORM" in
@@ -4352,7 +4380,7 @@ winetricks_is_installed()
             _W_file_unix="$(w_pathconv -u "$_W_file")"
             if test -f "$_W_file_unix"; then
                 unset _W_file _W_file_unix _W_prefix
-                return 0  # installed
+                return "${TRUE}"  # installed
             fi
             ;;
         *)
@@ -4375,7 +4403,7 @@ winetricks_is_installed()
                 if test -f "$_W_file_unix" && ! grep -q "Wine placeholder DLL" "$_W_file_unix"; then
                     IFS="$_W_IFS"
                     unset _W_file _W_file_ _W_file_unix _W_prefix _W_IFS
-                    return 0  # installed
+                    return "${TRUE}"  # installed
                 fi
               done
              IFS="$_W_IFS"
@@ -4383,7 +4411,7 @@ winetricks_is_installed()
             ;;
     esac
     unset _W_file _W_prefix _W_IFS  # leak _W_file_unix for caller. Is this wise?
-    return 1  # not installed
+    return "${FALSE}"  # not installed
 }
 
 # List verbs which are already fully cached locally
@@ -4916,7 +4944,7 @@ winetricks_is_mounted()
         _W_dev=$(echo "$_W_tmp" | sed 's/ .*//')
         _W_mountpoint="$(echo "$_W_tmp" | sed 's/^[^ ]* //')"
         # Volume found!
-        return 0
+        return "${TRUE}"
     fi
 
     # If that fails, read volume name the hard way for each volume
@@ -4941,12 +4969,12 @@ winetricks_is_mounted()
         _W_dev=$(sed 's/ .*//' "$W_TMP_EARLY/_W_tmp.$LOGNAME")
         _W_mountpoint="$(sed 's/^[^ ]* //' "$W_TMP_EARLY/_W_tmp.$LOGNAME")"
         rm -f "$W_TMP_EARLY/_W_tmp.$LOGNAME"
-        return 0
+        return "${TRUE}"
     fi
 
     # Volume not found
     unset _W_dev _W_mountpoint _W_volname
-    return 1
+    return "${FALSE}"
 }
 
 winetricks_mount_real_volume()
@@ -5073,6 +5101,9 @@ winetricks_set_wineprefix()
     if [ ! -d "$WINEPREFIX" ] && [ -n "$WINEARCH" ]; then
         w_info "Creating WINEPREFIX \"$WINEPREFIX\" with WINEARCH=$WINEARCH"
         "$WINE" wineboot
+        # apparently wineboot doesn't wait for the prefix to be ready
+        # (to reproduce, run 'wine wineboot ; ls ~/.wine' it will often return before the .reg files are present
+        "$WINESERVER" -w
     fi
 
     # Make sure the prefix is initialized:
@@ -5461,7 +5492,7 @@ winetricks_wine_setup()
 
     # If WINE is < 4.0, warn user:
     # 4.0 doesn't do what I thought it would
-    if w_wine_version_in 3.99, ; then
+    if w_wine_version_in ,3.99 ; then
         w_warn "Your version of wine $_wine_version_stripped is no longer supported upstream. You should upgrade to 4.x"
     fi
 
@@ -5628,9 +5659,9 @@ winetricks_handle_option()
         -vv|--really-verbose) WINETRICKS_OPT_VERBOSE=2 ; set -x ;;
         -*) w_die "unknown option $1" ;;
         prefix=*) export WINEPREFIX="${W_PREFIXES_ROOT}/${1##prefix=}" ;;
-        *) return 1 ;;
+        *) return "${FALSE}" ;;
     esac
-    return 0
+    return "${TRUE}"
 }
 
 # Test whether temporary directory is valid - before initialising script
@@ -5819,8 +5850,10 @@ helper_win7sp1()
 {
     filename=$1
 
+    # Formerly at:
     # https://www.microsoft.com/en-us/download/details.aspx?id=5842
-    w_download_to win7sp1 https://download.microsoft.com/download/0/A/F/0AFB5316-3062-494A-AB78-7FB0D4461357/windows6.1-KB976932-X86.exe e5449839955a22fc4dd596291aff1433b998f9797e1c784232226aba1f8abd97
+    # 2020/08/27: https://download.microsoft.com/download/0/A/F/0AFB5316-3062-494A-AB78-7FB0D4461357/windows6.1-KB976932-X86.exe
+    w_download_to win7sp1 http://download.windowsupdate.com/msdownload/update/software/svpk/2011/02/windows6.1-kb976932-x86_c3516bc5c9e69fee6d9ac4f981f5b95977a8a2fa.exe e5449839955a22fc4dd596291aff1433b998f9797e1c784232226aba1f8abd97 windows6.1-KB976932-X86.exe
 
     w_try_cabextract -d "$W_TMP" -L -F "$filename" "$W_CACHE"/win7sp1/windows6.1-KB976932-X86.exe
 }
@@ -5830,8 +5863,10 @@ helper_win7sp1_x64()
 {
     filename=$1
 
+    # Formerly at:
     # https://www.microsoft.com/en-us/download/details.aspx?id=5842
-    w_download_to win7sp1 https://download.microsoft.com/download/0/A/F/0AFB5316-3062-494A-AB78-7FB0D4461357/windows6.1-KB976932-X64.exe f4d1d418d91b1619688a482680ee032ffd2b65e420c6d2eaecf8aa3762aa64c8
+    # 2020/08/27: https://download.microsoft.com/download/0/A/F/0AFB5316-3062-494A-AB78-7FB0D4461357/windows6.1-KB976932-X64.exe
+    w_download_to win7sp1 http://download.windowsupdate.com/msdownload/update/software/svpk/2011/02/windows6.1-kb976932-x64_74865ef2562006e51d7f9333b4a8d45b7a749dab.exe f4d1d418d91b1619688a482680ee032ffd2b65e420c6d2eaecf8aa3762aa64c8 windows6.1-KB976932-X64.exe
 
     w_try_cabextract -d "$W_TMP" -L -F "$filename" "$W_CACHE"/win7sp1/windows6.1-KB976932-X64.exe
 }
@@ -6002,7 +6037,7 @@ w_metadata cnc_ddraw dlls \
     title="Reimplentation of ddraw for CnC games" \
     homepage="https://github.com/CnCNet/cnc-ddraw" \
     publisher="CnCNet" \
-    year="2018" \
+    year="2020" \
     media="download" \
     file1="cnc-ddraw.zip" \
     installed_file1="$W_SYSTEM32_DLLS_WIN/Shaders/readme.txt"
@@ -6010,7 +6045,7 @@ w_metadata cnc_ddraw dlls \
 load_cnc_ddraw()
 {
     # Note: only works if ddraw.ini contains settings for the executable
-    w_download https://github.com/CnCNet/cnc-ddraw/releases/download/1.3.4.0/cnc-ddraw.zip c1f85053223ab04a573cc482b43b93a58077e928a401f3364c9dc5542ad090ae
+    w_download https://github.com/CnCNet/cnc-ddraw/releases/download/1.3.5.0/cnc-ddraw.zip f603b2893cb6c73cf01743761a7d77917955e9a927752ef37b0b675e8b190f17
     w_try_unzip "$W_SYSTEM32_DLLS" "$W_CACHE/$W_PACKAGE/$file1"
 
     w_override_dlls native,builtin ddraw
@@ -6791,7 +6826,7 @@ load_dinput8()
     w_try_cabextract -d "$W_SYSTEM32_DLLS" -L -F 'dinput8.dll' "$W_TMP/dxnt.cab"
 
     # Don't try to register native dinput8; it doesn't export DllRegisterServer().
-    w_try_regsvr dinput8
+    #w_try_regsvr32 dinput8
     w_override_dlls native dinput8
 }
 
@@ -7052,7 +7087,7 @@ helper_dxvk_d9vk()
     esac
     w_warn "Please refer to current dxvk base graphics driver requirements... See: https://github.com/doitsujin/dxvk/wiki/Driver-support"
 
-    if ! w_wine_version_in ",${_W_min_wine_version}" ; then
+    if w_wine_version_in ",${_W_min_wine_version}" ; then
         # shellcheck disable=SC2140
         w_warn "${_W_repository#*/} ${_W_package_version} does not support wine version ${_wine_version_stripped} . "\
             "${_W_repository#*/} ${_W_package_version} requires wine version ${_W_min_wine_version} (or newer). "\
@@ -8702,6 +8737,8 @@ load_dotnet20()
 
 verify_dotnet20()
 {
+    w_package_broken_win64 https://bugs.winehq.org/show_bug.cgi?id=49550 5.7
+
     w_dotnet_verify dotnet20
 }
 
@@ -8795,7 +8832,7 @@ load_dotnet20sp1()
     # Given that 3.x is deprecated, not worth looking into.
     # See https://github.com/Winetricks/winetricks/pull/1271
     # https://bugs.winehq.org/show_bug.cgi?id=47484, et al
-    if w_wine_version_in ,4.0 ; then
+    if w_wine_version_in 4.0, ; then
         WINEDLLOVERRIDES="regsvcs.exe,mscorsvw.exe=b;$WINEDLLOVERRIDES"
         export WINEDLLOVERRIDES
     else
@@ -8867,7 +8904,7 @@ load_dotnet20sp2()
     # Given that 3.x is deprecated, not worth looking into.
     # See https://github.com/Winetricks/winetricks/pull/1271
     # https://bugs.winehq.org/show_bug.cgi?id=47484, et al
-    if w_wine_version_in ,4.0 ; then
+    if w_wine_version_in 4.0, ; then
         WINEDLLOVERRIDES="regsvcs.exe,mscorsvw.exe=b;$WINEDLLOVERRIDES"
         export WINEDLLOVERRIDES
     else
@@ -8972,7 +9009,7 @@ load_dotnet30()
     # Given that 3.x is deprecated, not worth looking into.
     # See https://github.com/Winetricks/winetricks/pull/1271
     # https://bugs.winehq.org/show_bug.cgi?id=47484, et al
-    if w_wine_version_in ,4.0 ; then
+    if w_wine_version_in 4.0, ; then
         WINEDLLOVERRIDES="mscorsvw.exe=b;$WINEDLLOVERRIDES"
         export WINEDLLOVERRIDES
     else
@@ -9016,6 +9053,8 @@ load_dotnet30sp1()
 
     # And a third way, but only with mingw enabled in wine-4.12.1 through wine-4.14
     w_package_broken_mingw  "https://bugs.winehq.org/show_bug.cgi?id=47484" 4.12.1 4.14
+
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=49831" 5.17
 
     # FIXME: URL?
     w_download https://download.microsoft.com/download/8/F/E/8FEEE89D-9E4F-4BA3-993E-0FFEA8E21E1B/NetFx30SP1_x86.exe 3100df4d4db3965ead9520c887a534115cf6fc7ba100abde45226958b865695b
@@ -9696,7 +9735,7 @@ load_dsound()
     w_try_cabextract -d "$W_SYSTEM32_DLLS" -L -F 'dsound.dll' "$W_TMP/dxnt.cab"
 
     # Don't try to register native dsound; it doesn't export DllRegisterServer().
-    w_try_regsvr dsound.dll
+    #w_try_regsvr32 dsound.dll
     w_override_dlls native dsound
 }
 
@@ -10024,6 +10063,7 @@ w_metadata galliumnine02 dlls \
 load_galliumnine02()
 {
     w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=49676" 5.13
+    w_package_broken "https://github.com/iXit/wine-nine-standalone/issues/83" 5.14
 
     w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.2/gallium-nine-standalone-v0.2.tar.gz" 6818fe890e343aa32d3d53179bfeb63df40977797bd7b6263e85e2bb57559313
     helper_galliumnine "$file1"
@@ -10042,6 +10082,7 @@ w_metadata galliumnine03 dlls \
 load_galliumnine03()
 {
     w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=49676" 5.13
+    w_package_broken "https://github.com/iXit/wine-nine-standalone/issues/83" 5.14
 
     w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.3/gallium-nine-standalone-v0.3.tar.gz" 8bb564073ab2198e5b9b870f7b8cac8d9bc20bc6accf66c4c798e4b450ec0c91
     helper_galliumnine "$file1"
@@ -10060,6 +10101,7 @@ w_metadata galliumnine04 dlls \
 load_galliumnine04()
 {
     w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=49676" 5.13
+    w_package_broken "https://github.com/iXit/wine-nine-standalone/issues/83" 5.14
 
     w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.4/gallium-nine-standalone-v0.4.tar.gz" 4423c32d46419830c8e68fea86d28e740f17f182c365250c379b5493176e19ab
     helper_galliumnine "$file1"
@@ -10077,7 +10119,41 @@ w_metadata galliumnine05 dlls \
 
 load_galliumnine05()
 {
+    w_package_broken "https://github.com/iXit/wine-nine-standalone/issues/83" 5.14
+
     w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.5/gallium-nine-standalone-v0.5.tar.gz" c46e06b13a3ba0adee75b27a8b54e9d772f83ed29dee5e203364460771fb1bcd
+    helper_galliumnine "$file1"
+}
+
+w_metadata galliumnine06 dlls \
+    title="Gallium Nine Standalone (v0.6)" \
+    publisher="Gallium Nine Team" \
+    year="2020" \
+    media="download" \
+    file1="gallium-nine-standalone-v0.6.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9-nine.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/ninewinecfg.exe" \
+    homepage="https://github.com/iXit/wine-nine-standalone"
+
+load_galliumnine06()
+{
+    w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.6/gallium-nine-standalone-v0.6.tar.gz" 1a085b5175791414fdd513b5adb5682985917fef81e84f0116ef2b4d5295ad1c
+    helper_galliumnine "$file1"
+}
+
+w_metadata galliumnine07 dlls \
+    title="Gallium Nine Standalone (v0.7)" \
+    publisher="Gallium Nine Team" \
+    year="2020" \
+    media="download" \
+    file1="gallium-nine-standalone-v0.7.tar.gz" \
+    installed_file1="$W_SYSTEM32_DLLS_WIN/d3d9-nine.dll" \
+    installed_file2="$W_SYSTEM32_DLLS_WIN/ninewinecfg.exe" \
+    homepage="https://github.com/iXit/wine-nine-standalone"
+
+load_galliumnine07()
+{
+    w_download "https://github.com/iXit/wine-nine-standalone/releases/download/v0.7/gallium-nine-standalone-v0.7.tar.gz" e0b3005280119732d2ca48a5aa5aad27eaf08e6e1dd5598652744a04554a9475
     helper_galliumnine "$file1"
 }
 
@@ -10562,12 +10638,10 @@ w_metadata jet40 dlls \
 
 load_jet40()
 {
-    # mdac27 is 32-bit only, so use mdac28 for win64:
-    if [ "$W_ARCH" = "win64" ] ; then
-        w_call mdac28
-    else
-        w_call mdac27
-    fi
+    # Both mdac27/mdac28 are 32-bit only:
+    w_package_unsupported_win64
+
+    w_call mdac27
     w_call wsh57
 
     # https://support.microsoft.com/kb/239114
@@ -10674,6 +10748,8 @@ w_metadata mdac28 dlls \
 
 load_mdac28()
 {
+    w_package_unsupported_win64
+
     # https://www.microsoft.com/en-us/download/details.aspx?id=5793
     w_download https://download.microsoft.com/download/4/a/a/4aafff19-9d21-4d35-ae81-02c48dcbbbff/MDAC_TYP.EXE 157ebae46932cb9047b58aa849ac1885e8cbd2f218810cb83e57613b49c679d6
     load_native_mdac
@@ -11772,7 +11848,7 @@ w_metadata speechsdk dlls \
 
 load_speechsdk()
 {
-    w_package_warn_win64
+    w_package_unsupported_win64
 
     # https://www.microsoft.com/en-us/download/details.aspx?id=10121
     w_download https://download.microsoft.com/download/B/4/3/B4314928-7B71-4336-9DE7-6FA4CF00B7B3/SpeechSDK51.exe 520aa5d1a72dc6f41dc9b8b88603228ffd5d5d6f696224fc237ec4828fe7f6e0
@@ -13826,7 +13902,9 @@ w_metadata eufonts fonts \
 load_eufonts()
 {
     # https://www.microsoft.com/en-us/download/details.aspx?id=16083
-    w_download "https://download.microsoft.com/download/a/1/8/a180e21e-9c2b-4b54-9c32-bf7fd7429970/EUupdate.EXE" 464dd2cd5f09f489f9ac86ea7790b7b8548fc4e46d9f889b68d2cdce47e09ea8
+    # Previously at https://download.microsoft.com/download/a/1/8/a180e21e-9c2b-4b54-9c32-bf7fd7429970/EUupdate.EXE
+    # 2020/09/11: https://sourceforge.net/projects/mscorefonts2/files/cabs/EUupdate.EXE
+    w_download "https://sourceforge.net/projects/mscorefonts2/files/cabs/EUupdate.EXE" 464dd2cd5f09f489f9ac86ea7790b7b8548fc4e46d9f889b68d2cdce47e09ea8
     w_try_cabextract -d "$W_TMP" "$W_CACHE"/eufonts/EUupdate.EXE
     w_try_cp_font_files "$W_TMP" "$W_FONTSDIR_UNIX"
 
@@ -14283,6 +14361,28 @@ load_wenquanyi()
     w_try_cp_font_files "$W_TMP/wqy-microhei" "$W_FONTSDIR_UNIX" "*.ttc"
 
     w_register_font wqy-microhei.ttc "WenQuanYi Micro Hei"
+}
+
+#----------------------------------------------------------------
+
+w_metadata wenquanyizenhei fonts \
+    title="WenQuanYi ZenHei font" \
+    publisher="wenq.org" \
+    year="2009" \
+    media="download" \
+    file1="wqy-zenhei-0.8.38-1.tar.gz" \
+    installed_file1="$W_FONTSDIR_WIN/wqy-zenhei.ttc"
+
+load_wenquanyizenhei()
+{
+    # See http://wenq.org/wqy2/index.cgi?ZenHei
+    # Donate at http://wenq.org/wqy2/index.cgi?Donation if you want to help support free font development
+    w_download "http://downloads.sourceforge.net/wqy/wqy-zenhei-0.8.38-1.tar.gz" 6018eb54243eddc41e9cbe0b71feefa5cb2570ecbaccd39daa025961235dea22
+    w_try_cd "$W_TMP"
+    w_try tar -zxf "$W_CACHE/$W_PACKAGE/$file1"
+    w_try_cp_font_files "$W_TMP/wqy-zenhei" "$W_FONTSDIR_UNIX" "*.ttc"
+
+    w_register_font wqy-zenhei.ttc "WenQuanYi Zen Hei"
 }
 
 #----------------------------------------------------------------
@@ -16501,6 +16601,9 @@ load_wm9codecs()
 {
     # Note: must install WMP9 or 10 first, or installer will complain and abort.
 
+    # The Microsoft page says that is supports XP, but in both 32/64 prefixes, it gives a message box saying it requires win98/winme/win2k
+    w_package_unsupported_win64
+
     # See https://www.microsoft.com/en-us/download/details.aspx?id=507
     # Used by direct calls from load_wmp9, so we have to specify cache directory.
     # http://birds.camden.rutgers.edu/
@@ -16529,7 +16632,7 @@ load_wmp9()
 
     w_call wsh57
 
-    w_set_winver win2k
+    w_set_winver winxp
 
     # See also https://support.microsoft.com/en-us/help/18612/windows-media-player
     w_download https://web.archive.org/web/20180404022333if_/download.microsoft.com/download/1/b/c/1bc0b1a3-c839-4b36-8f3c-19847ba09299/MPSetup.exe 678c102847c18a92abf13c3fae404c3473a0770c871a046b45efe623c9938fc0
@@ -16547,14 +16650,15 @@ load_wmp9()
 
     w_try_cd "$W_CACHE"/"$W_PACKAGE"
     if [ "$W_ARCH" = "win64" ]; then
-      w_try cabextract -d "$W_TMP" ./MPSetup.exe
-      w_try_cd "$W_TMP"
-      w_try sed -i 's/IsWow64Process/IsNow64Process/' setup_wm.exe
-      w_try "$WINE" setup_wm.exe ${W_OPT_UNATTENDED:+/Quiet}
+        w_try cabextract -d "$W_TMP" ./MPSetup.exe
+        w_try_cd "$W_TMP"
+        w_try sed -i 's/IsWow64Process/IsNow64Process/' setup_wm.exe
+        w_try "$WINE" setup_wm.exe ${W_OPT_UNATTENDED:+/Quiet}
+        w_warn "wm9codecs is not supported in win64 prefixes. If you need those codecs, reinstall wmp9 in a 32-bit prefix."
     else
-      w_try "$WINE" MPSetup.exe ${W_OPT_UNATTENDED:+/q}
+        w_try "$WINE" MPSetup.exe ${W_OPT_UNATTENDED:+/q}
+        load_wm9codecs
     fi
-    load_wm9codecs
 
     w_set_winver 'default'
 }

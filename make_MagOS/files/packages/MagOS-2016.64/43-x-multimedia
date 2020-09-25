@@ -261,7 +261,7 @@ libglvnd-gles
 libglvnd-glx
 libgpod
 libllvm3.9
-libllvm8.0
+libllvm10.0
 libllvm-plugins
 liblzma5
 libnettle6
