@@ -1,6 +1,6 @@
 #!/bin/sh
 #Read list PFS packages
-#VERSION 4.2
+#VERSION 4.3
 
 if [ -f $(dirname $0)/pfs ] ;  then
     . $(dirname $0)/pfs
@@ -9,22 +9,30 @@ else
 fi    
 
 HLP(){
-echo   "Usage: $0 <par>" 
+echo   "Usage: $0 <par>"
+echo   "-d --delimeter	  separator character" 
 echo   "-s --stat         statistic"
 echo   "-m --mount   mount submodules"
 echo   "-i --install      installed submodules"
 exit 1
 }
 
+DELIMETER='/'
 for arg in "$@"
 do
   case "${arg}" in
+	"-d" | "--delimeter" ) delimeter='yes' ;;
 	"-h" | "--help" ) HLP ;;
     "-s" | "--stat") stat="yes";;
     "-m" | "--mount" | "--mount-packages") readdir="mount";;
     "-i" | "--install" | "--install-packages") readdir="install";;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; exit 1;;
-    *) inpack="${arg}";;
+    *) 	if [ "$delimeter" = 'yes' ] ; then
+			DELIMETER="$arg"
+		else 
+			inpack="${arg}"
+		fi
+		delimeter='no';;
   esac
 done
 
@@ -41,23 +49,19 @@ if [ "${pack}" ]; then
   exitmsg "File \"$1\" is not PFS!" $?
   if [ "${stat}" ] ; then
 	Comptype=$(unsquashfs -s  "${pack}" |grep ompression |awk '{print $NF}' | tr "\n" " ")
-	[ "$Comptype" ] || exitmsg "$pack Is non squshfs module" 1
+	[ "$Comptype" ] || exitmsg "$pack Is non squashfs module" 1
 	bpack=$(basename ${pack})
 	mkdir -p /tmp/squashfs/"${bpack}"
 	mount -t squashfs -o loop -o ro "${pack}" /tmp/squashfs/"${bpack}"
 	[ -e /tmp/squashfs/${bpack}${PFSDIR}/mount ] && ispfs=yes
-
-	Msize=$(du -s --block-size 1024 ${pack} |awk '{print $1}') 
-	Usize=$(du -s --block-size 1024  /tmp/squashfs/"${bpack}" |awk '{print $1}')
-	echo "Compression algorithm: $Comptype"
-	echo "Module size: $Msize"
-	echo "Uncompressed size: $Usize"
-	echo "Compression ratio: $( echo "scale=2 ; $Usize / $Msize" |bc), ($( echo "scale=2 ; 100 * $Msize  / $Usize  " |bc)%)"
+	
 	if [ "$ispfs" = "yes" ] ; then
 		Deps=$(find /tmp/squashfs/${bpack}${PFSDIR}/mount  -type f -name pfs.depends -exec cat "{}" \; |sort |uniq |grep -v "^$" | tr "\n" "   ")
-		Packs=$(ls -1   --indicator-style=none /tmp/squashfs/${bpack}${PFSDIR}/mount  | tr "\n" "   ")
-		echo "Packages: $Packs"
+		Packs=$(find /tmp/squashfs/${bpack} | grep ${PFSDIR}/.*/pfs.files |sed -e "s:/tmp/squashfs/${bpack}${PFSDIR}/mount/::" -e 's:/submod/mount::g' -e 's:/pfs.files$::' -e 's#/#'$DELIMETER'#g' | tr "\n" "   ")
+		[ -f /tmp/squashfs/${bpack}${PFSDIR}/INFO ] && cat /tmp/squashfs/${bpack}${PFSDIR}/INFO |sed 's/=/: /'
 		echo "Dependenses: $Deps"
+		echo "Modules: $Packs"
+		echo ''
 		echo ''
 		standard_files="pfs.files pfs.depends pfs.dirs.empty"
 		for file in $(find /tmp/squashfs/${bpack}${PFSDIR}/mount  -type f) ; do
@@ -68,18 +72,24 @@ if [ "${pack}" ]; then
 		fi
 		done
 	else 
-		echo "Packages: -----"
+		echo "Modules: -----"
 		echo "Dependenses:  -----"
 	fi
+
+	Msize=$(du -s ${pack} |cut -f1) 
+	Usize=$(du -s  /tmp/squashfs/"${bpack}" |cut -f1)
+	echo "Compression algorithm: $Comptype"
+	echo "Module size: $(du -hs ${pack} |cut -f1)"
+	echo "Uncompressed size: $(du -hs  /tmp/squashfs/"${bpack}" |cut -f1)"
+	echo "Compression ratio: $( echo "$((Usize/$Msize))") ($( echo "$((100*$Msize /$Usize))")%)"
 		
 	umount /tmp/squashfs/"${bpack}"
 	rmdir  /tmp/squashfs/"${bpack}"
   else
-    unsquashfs -l -d ""  "${pack}"  | grep ${PFSDIR}/.*/pfs.files |sed -e "s:${PFSDIR}/mount/::" -e 's:/submod/mount::g' -e 's:/pfs.files$::' -e 's#/#:#g'
+  unsquashfs -l -d ""  "${pack}"  | grep ${PFSDIR}/.*/pfs.files |sed -e "s#${PFSDIR}/mount/##" -e 's#/submod/mount##g' -e 's#/pfs.files$##' -e 's#/#'"$DELIMETER"'#g'
   fi
 else
   [ "${readdir}" != "install" ] && [ -d "${PFSDIR}/mount" ] && echo "$(find "${PFSDIR}/mount/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -f)"
   [ "${readdir}" != "mount" ] && [ -d "${PFSDIR}/install" ] && echo "$(find "${PFSDIR}/install/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -f)"
 fi
-
 exit 0

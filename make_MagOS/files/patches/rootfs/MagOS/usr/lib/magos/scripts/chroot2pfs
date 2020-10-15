@@ -66,14 +66,16 @@ done
 get_layers () {
 layers=""
 local layers
-[ "$MASK" ] && layers=$(aufs-n --hidetop  --reverse --raw '$bname_source $bundle' |grep "$MASK" | awk '{print $2}')
-#[ "$MLIST" ] && layers="$layers $(echo "$MLIST" |sed 's/[\,]/ /g')"
-[ "$MLIST" ] && layers="$layers $(echo "$MLIST" | sed 's/#[^,]\+,\?//g; s/,$//' |sed 's/[\,]/ /g')"
-#[ "$FLIST" ] && layers="$layers $(cat $FLIST)"
-[ "$FLIST" ] && layers="$layers $(grep -v '^#' $FLIST)"
-[[ -z  $layers ]] && layers=$(aufs-n --hidetop --reverse --raw '$bname_source $bundle'  | awk '{print $2}')
+if  [ "$MASK" -o "$MLIST" -o "$FLIST" ] ; then
+	[ "$MASK" ] && layers=$(aufs-n --hidetop  --reverse --raw '$bname_source $bundle' |grep "$MASK" | awk '{print $2}')
+	[ "$MLIST" ] && layers="$layers $(echo "$MLIST" | sed 's/#[^,]\+,\?//g; s/,$//' |sed 's/[\,]/ /g')"
+	[ "$FLIST" ] && layers="$layers $(grep -v '^#' $FLIST)"
+else
+	layers=$(aufs-n --hidetop --reverse --raw '$bundle')
+fi
+echo $layers |grep [[:alnum:]] && return
 for item in $layers ; do 
-[ -e $item ] && echo $item || exitmsg "	layer:   $item is not exists" 4
+	[ -e $item ] && echo $item 
 done
 }
 
@@ -95,6 +97,7 @@ do
     "-b" | "--bind") bind="yes" ;;
     "--mlist" ) mlist="yes" ;;
     "--flist" ) flist="yes" ;;
+    "--showlayers" ) SHOWLAYERS=yes ;;
     "-c" | "--contaner" ) contaner=yes;;
     "--notrim" ) TRIM="";;
     "-w" | "--wh" ) WH="--wh";;
@@ -132,8 +135,8 @@ if  $(file $(echo $modules |awk '{print $1}') 2>/dev/null | grep -q quashfs); th
     cd $buildDir
     for mod in $(find ./ -type d -name "??*"); do
 		SCRIPT=$(readlink -e $(ls -1 ./$mod/*.sh 2>/dev/null ) 2>/dev/null ) ; [ $SCRIPT ] && SCRIPT="--script $SCRIPT"
-        $u2pfs_current $(echo $(cat $mod/cmdline) $SCRIPT )  | tee ./urpm2pfs.out
-        module=$(cat ./urpm2pfs.out | tail -n1)
+        $u2pfs_current $(echo $(cat $mod/cmdline) $SCRIPT )  | tee ./chroot2pfs.out
+        module=$(cat ./chroot2pfs.out | tail -n1)
         mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
         mv $module ${CPWD}/
     done
@@ -149,12 +152,18 @@ allow_only_root
 
 [ $CONTANER ] &&  CHROOT="$CONTANER"
 
+if [ $SHOWLAYERS ] ; then 
+	get_layers
+	exit
+fi
+
 echo "Using:  $CHROOT"
 #Имя обязательно, так как зацепиться не за что
 [ $NOMOD ] && NAME=nomod
 [ $NAME ] || read -p "Please enter name for module:      " NAME  
 [ -f "${NAME}" ] && exitmsg "Output file '$NAME' already exist" 6
 [ -d "${NAME}" ] && exitmsg "Output diectory '$NAME' already exist" 6
+
 
 #make root aufs
 root_br="$(mkaufs || exitmsg "mkaufs error" 2)"
@@ -163,7 +172,9 @@ nn="$(echo "$root_br" | sed -n 's/^.*\([0-9]\)$/\1/p')"
 echo "aufs number: $nn"
 
 #add sources as aufs layers
-for  i in $(get_layers) ;do
+layers=$(get_layers)
+echo $layers |grep -q [[:alnum:]] || exitmsg "Empty layers list" 7
+for  i in $layers ;do
     eval addlayer "$nn" "$i" "$devnull" || exitmsg "can't insert layer to aufs $nn" 5
 done 
 
@@ -186,14 +197,16 @@ if [ "$SCRIPT" ] ; then
 fi
 
 if [ "$BIND" ] ; then
+bind_dirs=''
 binds="$(echo "$BIND" |sed 's/[\,]/ /g')"
 for bnd in $binds ; do
 	extdir=$(echo $bnd |sed 's/::/#/' |cut -d "#" -f1)
 	indir="$root_br/$(echo $bnd |sed 's/::/#/' |cut -d "#" -f2)"
 	mkdir -p "$indir"
 	mount -o bind "$extdir" "$indir"
+	bind_dirs="$bind_dirs $indir"
 done
- fi
+fi
 
 if [ "$X" = "yes" ] ; then
 	if ! xhost |grep -q "LOCAL:" ; then
@@ -204,8 +217,6 @@ fi
 
 if [ $CHROOT = "nspawn" ] ; then
 md5sum /bin/bash | awk '{print $1}' > $root_br/etc/machine-id #  nspawn do not works without machine-id
-#[ "$SCRIPT" ] || systemd-nspawn -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix $command 
-#[ "$SCRIPT" ] && systemd-nspawn -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
 [ "$SCRIPT" ] || systemd-nspawn $BOOT -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix:/tmp/.X11-unix $command 
 [ "$SCRIPT" ] && systemd-nspawn $BOOT -D $root_br   -M ${NAME%.$EXT} --setenv=DISPLAY="$DISPLAY" --bind=/tmp/.X11-unix /var/lib/chroot2pfs/$(basename "${NAME%.$EXT}")/$(basename $SCRIPT)
 elif [ $CHROOT = "chroot" ] ; then
@@ -225,7 +236,9 @@ rm -rf $mod_br/{dev,proc,sys,tmp} >/dev/null
 rmdir "$mod_br"/{dev,proc,sys,lost+found} "$mod_br/var/cache" "$mod_br/var/lib" "$mod_br/var" "$mod_br/etc" 2>/dev/null
 
 [ $NOMOD ] || mkpfs $mod_br -l $fast_alg  $WH  $TRIM   -o $NAME && MODULE="$(readlink -e ${NAME})" 
-umount "$indir"
+[ "$bind_dirs" ] && for dir in $bind_dirs ; do
+	umount "$dir"
+done 
 echo "delaufs $nn"
 delaufs $nn
 

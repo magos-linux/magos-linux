@@ -1,0 +1,15 @@
+_pfsload_command(){ 
+	source `which pfs`
+    COMPREPLY=()
+     _get_comp_words_by_ref cur prev words cword
+	if [[ ${cur} == -* ]] ; then 
+        LIST="$(_parse_help pfsload)"
+	elif [[ ${cur} == [[:alnum:]]* ]] ; then 
+        LIST="$(ls -1 ./ |egrep ".$EXT$|\/$")"
+	else  
+		_filedir
+		return
+    fi
+	COMPREPLY=( $(compgen -W "$LIST" -- ${cur}) )
+}
+complete -F _pfsload_command pfsload

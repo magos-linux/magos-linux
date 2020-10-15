@@ -1,0 +1,18 @@
+_pfsget_command(){ 
+	source `which pfs`
+	needfiles='\-o|\-\-outdir|\-\-mkrepolist'
+    COMPREPLY=()
+    LIST="$cur"
+    _get_comp_words_by_ref cur prev words cword 
+    if echo $prev |egrep -q "$needfiles" ; then
+        _filedir
+	elif [[ ${cur} == -* ]] ; then 
+        LIST="$(_parse_help pfsget)"
+	elif [ -f ${WORK_DIR}/sfs-full-repolist ] ; then
+		LIST="$(cat ${WORK_DIR}/sfs-full-repolist |sed -e 's#^.*NAME=##' -e 's# .*$##')"
+    else
+		LIST="-u -m -h"
+    fi
+	COMPREPLY=( $(compgen -W "$LIST" -- ${cur}) )
+}
+complete -F _pfsget_command pfsget

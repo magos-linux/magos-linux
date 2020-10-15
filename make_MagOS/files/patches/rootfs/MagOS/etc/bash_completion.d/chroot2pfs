@@ -1,0 +1,23 @@
+
+_cur_bundles() {
+    aufs-n --raw '$dname_source/$bname_source' | sed 1d
+}
+
+#main function
+_chroot2pfs() {
+    COMPREPLY=()
+    needfiles='\-n|\-o|\-\-name|\-\-script|\-\-flist'
+    needbundles='\-\-mlist'
+    _get_comp_words_by_ref cur prev words cword
+
+    if echo $prev |egrep -q "$needfiles" ; then
+        _filedir
+    elif echo $prev |egrep "$needbundles" ; then
+         COMPREPLY=($(compgen -W "$(_cur_bundles)" -- "$cur"))
+    else
+        COMPREPLY=($(compgen -W "$(_parse_help chroot2pfs)" -- "$cur"))
+    fi
+    true
+}
+
+complete -F _chroot2pfs chroot2pfs

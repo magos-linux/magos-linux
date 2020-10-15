@@ -1,0 +1,31 @@
+
+_pfsextract_command(){ 
+	source `which pfs`
+	PFSINFO=''
+	HLP=pfsextract
+	needfiles='\-d|\-o|\-\-nopfs|\-\-out\-dir'
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev words cword
+	for aaa in ${words[@]} ; do
+		[[ ${aaa} = '--mksqfs' ]] && HLP=mksquashfs
+		[ -f "$aaa" ] && MODULE=$aaa
+	done
+	if echo ${prev} |egrep -q $needfiles ; then
+		_filedir
+		return
+	elif [[ ${cur} = -* ]] ; then
+        LIST="$(_parse_help $HLP)"
+	elif [[ ${prev} = '--mksqfs' ]] ; then
+        LIST="$(_parse_help $HLP)"
+	elif [ $MODULE ] ; then	
+		LIST="$(echo $(pfsinfo $MODULE))"
+	elif [ ${cword} -eq 1 ] ; then 
+        LIST="$(ls -1 ./ |grep .$EXT$)"
+    else
+		_filedir
+		return
+    fi
+	COMPREPLY=( $(compgen -W "$LIST" -- ${cur}) )
+}
+
+complete -F _pfsextract_command pfsextract
