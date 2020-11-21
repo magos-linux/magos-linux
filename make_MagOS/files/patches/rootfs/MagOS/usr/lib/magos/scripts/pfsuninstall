@@ -35,9 +35,14 @@ if [ -f "${fileslist}" ]; then
   mkdir -p "/tmp/.pfs/uninstall/$package_name"
   mv "${fileslist}" "/tmp/.pfs/uninstall/$package_name"
   rm -rf "${PFSDIR}/install/$package_name/" 
-  finded="$(find ${PFSDIR}/ -mindepth 3 -maxdepth 3 -type f -name 'pfs.files' | while read listfiles; do cat "${listfiles}" | sed -e 's:[\]:\\\\\\\\:g'; done)"
+  found="$(find ${PFSDIR}/ -mindepth 3 -maxdepth 3 -type f -name 'pfs.files' | while read listfiles; do cat "${listfiles}" | sed -e 's:[\]:\\\\\\\\:g'; done)"
   listfiles="$(cat "/tmp/.pfs/uninstall/$package_name/pfs.files" | sed -e 's:^[^/]*::' -e 's:[\]:\\\\:g')"
-  echo "${listfiles}" | while read file; do echo "${finded}" | grep -q -F "${file}" || rm -f "${file}" 2>/dev/null; done
+  echo "${listfiles}" | while read file; do 
+	if ! echo "${found}" | grep -q -F "${file}" ; then 
+		[ ! -d $file ] && rm -f "${file}"  
+		[ -d $file ] && echo $file
+	fi 
+  done | xargs rmdir
   echo "${listfiles}" | grep -q -F "/lib/modules" && depmod &
   [ ! -z "$(which ldconfig)" ] && echo "${listfiles}" | grep -q -F "/lib" && ldconfig &
   echo "${listfiles}" | grep -q -F "/usr/share/glib-2.0/schemas" && glib-compile-schemas /usr/share/glib-2.0/schemas/ &

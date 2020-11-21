@@ -51,6 +51,12 @@ if echo $compression |grep -q xz; then
 	fi
 fi
 
+CFG_DIR="/etc/pfsget" 				# папска с конфигами для pfsget
+PUBKEYS="$CFG_DIR/keys"				# папка для доверенных публтчных ключей
+mirror_list="$CFG_DIR/mirror.lst"   # список зеркал 
+ALIASCFG="$CFG_DIR/aliases.cfg"      # файл с алиасами для нечеткого поиска
+WORK_DIR="/var/tmp/pfsget" 			# папка для хранения реполистов и проч. /var/lib/pfsget?
+
 #user config
 [ -f /etc/pfs.cfg ] && . /etc/pfs.cfg
 
@@ -96,7 +102,6 @@ $r/etc/udev/hwdb.bin
 $r/etc/ld.so.cache
 $r/var/cache/ldconfig/aux-cache
 $r/var/cache/fontconfig
-$r/var/cache/ldconfig
 $r/usr/local/share/applications/mimeinfo.cache
 $r/usr/share/applications/mimeinfo.cache
 EOF
@@ -107,21 +112,31 @@ find "$r/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm 
 }
 
 mklist () {
-source_root="$(realpath "$1")"
-[ "$2" ] && dest_root="$(realpath "$2")" || dest_root="$source_root"
-pack_name="$(basename "${1%.$EXT}")"
-[ "$3" ] && pack_name="$3"
-dest_dir="${dest_root}${PFSDIR}/mount/${pack_name}/"
-mkdir -p $dest_dir
-if [ -d "${source_root}${PFSDIR}/mount" ] ; then
+	local source_root dest_root pack_name spec_file depends
+	while [ $1 ] ; do eval $1 ; shift ; done 
+	[ "$source_root" ] || return 1
+	source_root=$(realpath $source_root)
+	if [ "$dest_root" ] ; then 
+		dest_root="$(realpath "$dest_root")" 
+	else 
+		dest_root="$source_root"
+	fi
+	[ $pack_name ] || pack_name="$(basename "${source_root%.$EXT}")"
+	dest_dir="${dest_root}${PFSDIR}/mount/${pack_name}/"
+	mkdir -p $dest_dir	
+if [ -d "${source_root}${PFSDIR}/mount" -a $(ls -1 "${source_root}${PFSDIR}/mount" 2>/dev/null |wc -l) -gt 1 ] ; then
   mkdir -p "${dest_dir}submod"
-  cp  -fr "${source_root}${PFSDIR}/mount"   /tmp/ 
-  mv  -f /tmp/mount "${dest_dir}submod/"
-  rm -rf /tmp/mount
+  cp  -fax "${source_root}${PFSDIR}/mount"   /tmp/ 
+  mv  -f /tmp/mount "${dest_dir}submod/" &&  rm -rf /tmp/mount
+  for submod in $(ls -1 ${source_root}${PFSDIR}/mount/ 2>/dev/null); do
+	  rm -rf ${dest_root}${PFSDIR}/mount/$submod
+  done
 fi
-[ -f "${dest_dir}/pfs.specs" ] || echo 'name="'$pack_name'"' > "${dest_dir}/pfs.specs"
-find "${source_root}" ! -type d        | sed "s:$source_root::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}/pfs.files" &&
-find "${source_root}"   -type d -empty | sed "s:$source_root::" |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}/pfs.dirs.empty"
+[ ! -z $spec_file -a -f $spec_file ] && cp "$spec_file" ${dest_dir}/
+find "${source_root}" ! -type d        | sed 's#'"$source_root"'##' |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}/pfs.files"
+find "${source_root}"   -type d -empty | sed 's#'"$source_root"'##' |egrep -v '^/.wh..wh.|^'$PFSDIR'' > "${dest_dir}/pfs.dirs.empty"
+[ "$depends" ] && echo "$depends" > "${dest_dir}/pfs.depends"
+return 0 #иначе без $depends не нулевое завершение 
 }
 
 checkramfreeb () {
@@ -269,14 +284,14 @@ case "$1" in
 	*) return 3
 esac
 [ "$(grep aufs$N /proc/mounts)" ] || return 4
-MODNAME="$(basename "$NEWLAYER")"
+MODNAME="$(basename "$NEWLAYER" |sed -e 's/,/_comma_/g' -e 's/=/_equal_/g' -e 's/\*/_asterisk_/g' -e 's/\#/_hash_/g')"
 #if df --output=fstype $NEWLAYER |grep -q ^aufs$ ;then
 if [ "$(cat /proc/mounts |egrep '^'`df "$NEWLAYER" |tail -1 |cut -f1 -d " "`' ' |cut -f3 -d " " |uniq)" = aufs ];then
 	[ "$(grep $SYSMNT/tmpfs$N /proc/mounts)" ] || ( mkdir $SYSMNT/tmpfs$N && mount -t tmpfs tmpfs $SYSMNT/tmpfs$N )
 	cp -auPR "$NEWLAYER" "$SYSMNT/tmpfs$N/"
 	NEWLAYER="${SYSMNT}/tmpfs${N}/$(basename $NEWLAYER)"
 fi
-case $(file -b $NEWLAYER) in
+case $(file -b "$NEWLAYER") in
 	*directory) 
 		mkdir -p "$SYSMNT/bundles$N/$MODNAME"
 		mount --bind "$NEWLAYER" "/$SYSMNT/bundles$N/$MODNAME"
@@ -300,6 +315,7 @@ excludes=""
 eval mksquashfs "${1}" "${2}" ${compression} ${excludes} -noappend ${noprogress} ${useproc} -wildcards $wh $devnull
 exitmsg "error create squashfs module" $? $3
 rm /tmp/mkpfs_excludes 2>/dev/null
+return 0
 }
 
 pfsramfree () {

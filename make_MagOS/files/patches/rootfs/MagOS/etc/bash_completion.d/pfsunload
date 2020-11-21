@@ -1,0 +1,11 @@
+_pfsunload_command(){ 
+    COMPREPLY=()
+     _get_comp_words_by_ref cur prev words cword
+	if [[ ${cur} == -* ]] ; then 
+        LIST="$(_parse_help pfsunload)"
+	else  
+		LIST="$(aufs-n --raw '$bname_bundle')"
+    fi
+	COMPREPLY=( $(compgen -W "$LIST" -- ${cur}) )
+}
+complete -F _pfsunload_command pfsunload

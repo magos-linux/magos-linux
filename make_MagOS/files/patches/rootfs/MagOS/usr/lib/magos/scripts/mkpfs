@@ -57,7 +57,9 @@ echo "  --mkilst  add files list to simple (non contaner) module"
 echo "  --save-duplicates  при сборке контейнеров сохранять одноименные файлы из разных источников если они отличаются, "
 echo "                     при распаковке файлы будут возвращены на место"
 echo "  --mksqfs / параметры для mksquashfs, компрессия размер блока и проч.(Внимание параметр должен быть последним)"
-
+echo "  --spec ./file  -  Добпаить файл с информацией. Только для атомарных модулей"
+echo "  --deps aaa,bbb,ccc - Добавить список зависимостей.  Только для атомарных модулей"
+echo ""
 echo "Алиасы (сокращения):"
 echo " -d | -D - Только каталоги"
 echo "	$(basename $0) -d dir ---> $(basename $0)" '$(find dir -maxdepth 1 -mindepth 1 -type d ) -o dir.$EXT'
@@ -85,6 +87,7 @@ for arg in $argslist
 do
   case "${arg}" in
     "-o" | "--out-file" ) onuserout="on";;
+    "--mkinfo" ) mkinfo='yes';;
     "-d" | "-D" ) ondir="on";;
     "-m" | "-M" ) onmod="on";;
     "-h" | "--help")  HLP ;exit 1;;
@@ -96,15 +99,19 @@ do
     "-w" | "--wh" ) WH="yes";;
     "-l" | "--local" ) inplace=yes ;;
     "--mklist" ) make_list=yes ;;
+    "--spec" ) make_list=yes ; spec=yes;;
+    "--depends" ) make_list=yes ; deps=yes ;; 
     "-f" | "--fast" | "-g" ) [ "$compression_fast" ] && compression="$compression_fast" || compression="gzip";;
     "-"*[A-Za-z]*) echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2; HLP; exit 1;;
     *) if [ "${usepkname}" = "on" ]; then packname="${arg}"
        elif [ "${ondir}" = "on" ]; then D "${arg}"
        elif [ "${onmod}" = "on" ]; then M "${arg}"
        elif [ "${onuserout}" = "on" ]; then userout="${arg}"
+       elif [ "${spec}" = "yes" ]; then SPEC="${arg}"
+       elif [ "${deps}" = "yes" ]; then DEPENDS="${arg}"
        elif [ "${numproc}" = "on" ]; then useproc="-processors ${arg}"
-       else sourcelist="${sourcelist} ${arg}"; fi
-       onuserout="off"; usepkname="off"; usindlib="off"; numproc="off";;
+       else sourcelist="${sourcelist} "${arg}""; fi
+       onuserout="off"; usepkname="off"; usindlib="off"; numproc="off"; deps="off"; spec="off" ;;
   esac
 done
 
@@ -125,7 +132,7 @@ if [ -d $sourcelist 2>/dev/null -a "$inplace" = "yes" ] ;then
 	eval echo "==== In place mode ====" $devnull
     [ "$wh" ] ||  eval  echo "=== save aufs whiteout \(.wh*\) ===" $devnull
     [ ! "$(ls -a $sourcelist)" ] && exitmsg "directory '$sourcelist' empty" 1
-    [ $make_list ] && mklist $sourcelist $sourcelist ${userout%.$EXT} 
+	[ $make_list ] && mklist source_root=$sourcelist dest_root=$sourcelist pack_name=${userout%.$EXT} spec_file="$SPEC" depends="$DEPENDS" 
     [ $TRIM ] && trim $sourcelist
     if echo ${userout} | grep -q "^.*\.$EXT$" ; then 
 		mksqmod $sourcelist "${userout}" && exit 0 
@@ -135,7 +142,6 @@ if [ -d $sourcelist 2>/dev/null -a "$inplace" = "yes" ] ;then
 		rmdir ${userout} 2>/dev/null
 		[ -d "${userout}" ] && exitmsg "Output diectory already exist" 6
 		mkdir -p "$(dirname ${userout})"
-		echo "cp -fax "$sourcelist" "${userout}""
 		cp -fax $sourcelist "${userout}" && exit 0
 		exitmsg "copy files error" 2
 	fi
@@ -144,8 +150,8 @@ fi
 
 #test sources, source must be dir or squashfs module
 for source in $sourcelist ;do
-	[ -d $source ] && continue
-	[ "$(fs_type $source)" = "squashfs" ] && continue
+	[ -d "$source" ] && continue
+	[ "$(fs_type "$source")" = "squashfs" ] && continue
 	exitmsg "Type of source \"$source\" is not correct" 2
 done	
 
@@ -163,18 +169,16 @@ done
 
 if [ $(echo $sourcelist | wc -w) -eq 1 ] ;then
   # if source is only one - submodule name is $userout with no prefix (pfs,xzm,etc)
-  [ $make_list ] && mklist "$i" "$n" $([ $(echo $sourcelist  |wc -w) -eq 1 ] && echo ${userout%.$EXT} )
+  pack_name=$([ $(echo $sourcelist  |wc -w) -eq 1 ] && echo ${userout%.$EXT} |sed -e 's/_comma_/,/g' -e 's/_equal_/=/g' -e 's/_asterisk_/\*/g' -e 's/_hash_/\#/g' )
+  [ $make_list ] && mklist source_root="$i" dest_root="$n" pack_name="$pack_name" spec_file="$SPEC" depends="$DEPENDS" 
 else	
-  bundles=$(find $(echo $n |sed 's:aufs:bundles:') -maxdepth 1 -mindepth 1 -type d )
+  bundles=$(find $(echo $n |sed 's#aufs#bundles#') -maxdepth 1 -mindepth 1 -type d )
   #mklist for modules, submodule name is basename source with no prefix
   for i in $bundles ;do
-	  name="$(basename "${i%.$EXT}")" 
-	  mklist "$i" "$n" "$name"
-	  for submod in $(ls -1 ${i}${PFSDIR}/mount/ 2>/dev/null); do
-		  rm -rf ${n}${PFSDIR}/mount/$submod
-	  done
+	  name="$(basename "${i%.$EXT}" |sed -e 's/_comma_/,/g' -e 's/_equal_/=/g' -e 's/_asterisk_/\*/g' -e 's/_hash_/\#/g')" 
+	  mklist source_root="$i" dest_root="$n" pack_name="$name"
   done
-[ $save_dups ] && save_duplicates
+  [ $save_dups ] && save_duplicates
 fi
 
 [ $TRIM ] && trim $n
@@ -188,7 +192,30 @@ if [ $WH ] ; then
 	rm /tmp/allfiles-wh
 fi
 
-if echo ${userout} | grep -q "^.*\.$EXT$" ; then 
+mkinfo() {
+	local NAME PACKVER MODVER AUTHOR ALIAS
+	info=$1/${PFSDIR}/INFO
+	mkdir -p $(dirname $info)
+	[ -f "$info" ] && source $info
+	> "$info"
+	for a in NAME PACKVER MODVER MODREV AUTHOR ALIAS; do
+		eval echo -n \""Please enter $a (current: \$$a): "\"
+		read newstr
+		if ! [ -z "$newstr" ] ; then
+			eval $a="$newstr"
+		fi
+		eval echo "$a=\$$a" >> $info
+		unset newstr 
+	done
+}
+
+
+if echo ${userout} | grep -q "^.*\.$EXT$" ; then
+	if [ $mkinfo ] ;then 
+		mkinfo "$n"
+	else
+		rm -f $n/${PFSDIR}/INFO
+	fi 
 	mksqmod "${n}" "${userout}" noexit
 else
 	echo "Please wait..."

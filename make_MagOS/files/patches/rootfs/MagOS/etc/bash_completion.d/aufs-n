@@ -1,0 +1,10 @@
+_aufs_n_command(){ 
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev words cword
+	if [[ "$cword" = 1 ]] ; then
+		COMPREPLY=( $(compgen -W '--raw --help' -- ${cur}) )
+    elif echo ${words[@]} |grep '\-\-raw' ; then
+		COMPREPLY=( $(compgen -W '\$bundle \$source \$n \$bname_source \$dname_source \$bname_bundle \$dname_bundle' -- ${cur}) ) 
+    fi
+}
+complete -F _aufs_n_command aufs-n
