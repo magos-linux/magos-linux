@@ -3,8 +3,15 @@
 # Written: Mikhail Zaripov . Написано: Михаил Зарипов
 # Last modified: ___  . Исправлено _____
 
+MYPATH=$(dirname $0)
+MYPATH=$(readlink -f $MYPATH)
+
 MTMP=/tmp/makemagos.tmp
 mkdir -p $MTMP
+
+cd ../git/magos-linux || cd ../
+git pull || exit 1
+cd "$MYPATH"
 
 git clone https://github.com/neobht/uird.git  $MTMP/uird
 git clone https://github.com/magos-linux/magos-linux.wiki.git $MTMP/wiki

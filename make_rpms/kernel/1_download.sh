@@ -14,7 +14,7 @@ urpmi.update -a
 rpmdbreset --copy
 rm -f /var/cache/urpmi/rpms/*
 #urpmi --nofdigests --auto --no-suggests --test --noclean --buildrequires cache/$MARCH/kernel/*.rpm
-urpmi --nofdigests --auto --no-suggests --test --noclean $BUILDDEPS
+urpmi --nofdigests --auto --no-suggests --test --noclean $BUILDDEPS $DKMSDEPS
 rsync -r --size-only --delete /var/cache/urpmi/rpms/ "cache/$MARCH/builddeps"
 
 #downloading dkms
@@ -33,7 +33,7 @@ done
 if [ ! -z "$ROSADKMS" ] ;then
   echo Downloading "$ROSADKMS"
   rm -f /var/cache/urpmi/rpms/*
-  urpmi -q --force --nofdigests --no-download-all  --test --noclean $ROSADKMS
+  urpmi -q --force --nofdigests --no-download-all --test --noclean $ROSADKMS $DKMSDEPS
   mv /var/cache/urpmi/rpms/dkms-* "$TMPD"
 fi
 

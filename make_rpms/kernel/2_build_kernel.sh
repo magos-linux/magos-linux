@@ -6,13 +6,17 @@ TMPD=/tmp/make_magos_kernel
 grep "$HOME/rpmbuild" /proc/mounts | awk '{print $2}' | sort -r | while read a ;do  echo umount "$a" ; umount "$a" 2>/dev/null ; done
 rm -fr rpms/"$MARCH"/{rpms,srpms}
 mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,BUILDROOT} rpms/$MARCH/{rpms,srpms}
-if [ "$(uname -i)" != "x86_64" ] ;then
-  mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILD
-  mount -t tmpfs -o size=4G tmpfs ~/rpmbuild/BUILDROOT
-fi
+
+[ -b /dev/zram4 ] || modprobe zram num_devices=5
+grep -q /dev/zram4 /proc/mounts && exit 1
+echo $((20*1024*1024*1024)) > /sys/block/zram4/disksize
+mkfs.ext2 -m0 -F /dev/zram4
+mount -o noatime /dev/zram4 ~/rpmbuild
+mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,BUILDROOT}
 
 rpm -Uhv --nodeps --nodigest cache/$MARCH/builddeps/*.rpm
 rpm -ihv --nodeps --noscripts --nodigest cache/$MARCH/kernel/*.rpm
+[ -x /usr/lib/rpm/bin/dbconvert ] && /usr/lib/rpm/bin/dbconvert
 
 cp -pf files/$MARCH/SOURCES/* ~/rpmbuild/SOURCES
 if cp -fv files/$MARCH/SPECS/* ~/rpmbuild/SPECS | grep -q . ;then
