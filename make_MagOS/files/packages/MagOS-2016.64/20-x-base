@@ -1014,7 +1014,6 @@ x11-font-xfree86-type1
 x11-server
 x11-server-common
 x11-server-xdmx
-x11-server-xfbdev
 x11-server-xnest
 x11-server-xorg
 x11-server-xvfb

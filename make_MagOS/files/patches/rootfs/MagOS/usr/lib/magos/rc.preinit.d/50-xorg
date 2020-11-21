@@ -188,6 +188,9 @@ if [ "$BUMBLEBEE" = "yes" ] ;then
       [ -d "usr/lib/$BUMBLEBEEDRIVER"   ] && [ ! -h usr/lib/nvidia   ] && ln -s "$BUMBLEBEEDRIVER" usr/lib/nvidia
       [ -d "usr/lib64/$BUMBLEBEEDRIVER" ] && [ ! -h usr/lib64/nvidia ] && ln -s "$BUMBLEBEEDRIVER" usr/lib64/nvidia
    fi
+   [ -z "$BBBUSID" ] && BBBUSID=$(lspci -mn | sed s/'"Class '// | awk '{ print $1 " " $2 }' | grep -m1 0302 | awk '{print $1}' | tr . :)
+   [ -z "$BBBUSID" ] || sed -i s/PCI:..:..:./PCI:$BBBUSID/ etc/bumblebee/xorg.conf.nvidia
+   [ -z "$BBBUSID" ] || sed -i s/PCI:..:..:./PCI:$BBBUSID/ etc/bumblebee/xorg.conf.nouveau
 
    echo "$OPTIRUN" | tr ',;' \\n | while read a ;do
      FILE=usr/share/applications/$a.desktop

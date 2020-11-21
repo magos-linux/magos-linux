@@ -1,4 +1,4 @@
-<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2020-07-06</p>
+<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2020-11-18</p>
 <hr><a name="Home"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>Home</h1>
 <p>Welcome to the magos-linux wiki!</p>
 <p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">Документация на русском языке</a></p>
@@ -461,6 +461,39 @@ lost+found/</p>
   Writing superblocks and filesystem accounting information: done<br>
 <em>4. не забывайте про отключение устройства, иначе кто-нибудь сможет подключить его без ввода пароля</em><br>
 <strong># cryptsetup close myenchome</strong></p>
+<h2><a href="https://ru.wikipedia.org/wiki/LUKS">LUKS</a></h2>
+<p>Разделы зашифрованные LUKS могут быть использованы в магос наравне с обычными разделами (только uird). 
+То есть все что вы можете разметить на обычном разделе можно разместить и на шифрованном LUKS.
+Это uird.mounts, uird.from, uird.home. Вероятно сработает и с uird.ro(cp), но там крипто контейнеры явно удобнее.</p>
+<h3>Создание радела LUKS</h3>
+<ol>
+<li>Создаете раздел любым способом, например с помощью gparted. Допустим имя раздела /dev/sdb1</li>
+<li>Форматируем раздел: <code>cryptsetup luksFormat /dev/sdb1</code></li>
+<li>Подключаем luks: <code>cryptsetup luksOpen /dev/sdb1 sdb1</code> (последний параметр это произвольное имя в /dev/mapper/)</li>
+<li>Форматируем luks в любимую fs: <code>mkfs.ext4 /dev/mapper/sdb1</code></li>
+<li>Монтируем: <code>mkdir /mnt/luks ; mount /dev/mapper/sdb1 /mnt/luks</code></li>
+</ol>
+<p>Теперь вы можете копировать в /mnt/luks нужные вам файлы</p>
+<h3>Разбираем в обратном порядке</h3>
+<ol>
+<li>Размонтируем: <code>umount /mnt/luks</code></li>
+<li>Отключаем: <code>cryptsetup luksClose sdb1</code></li>
+</ol>
+<p>Большинство из этих команд будет требовать пароль, это тот пароль который вы назначите при форматировании раздела с cryptsetup luksFormat</p>
+<h3>Примеры подключения</h3>
+<ul>
+<li><code>uird.mounts=LUKS@/</code>  - подключение раздела luks если такой у вас один, основано на том что тип раздела TYPE="crypto_LUKS"</li>
+<li><code>uird.from=/dev/sdb1/MagOS</code> - если /dev/sdb1 это luks у вас спросят пароль</li>
+</ul>
+<h3>Ключи и пароли</h3>
+<p>У вас есть возможность настроить загрузку с luks без ввода пароля. Например для загрузки на "доверенной" машине.
+Далее приводятся примеры как это можно организовать, но насколько это безопасно решать вам.</p>
+<ul>
+<li><code>uird.mounts=LUKS@/::PASS=123qwe</code>  - пароль открытым текстом</li>
+<li><code>uird.from=LUKS@/::KEY=/secret.key</code> - uird проведет поиск файла secret.key на всех доступных носителях и если найдет подключит с ипользованием файла в качестве ключа (Сперва поиск будет проведен внутри uird, то есть ключ может быть внедрен в uird при его сборке).</li>
+<li><code>uird.home=LUKS@/::PASS=//hardware//</code> - здесь //hardware// имеет специальное значение - подключение luks с паролем сгенерированным на основе характеристик железа. Для того чтоб это сработало вам нужно добавить такой пароль в один из слотов luks (всего их 8). Пароль нужно сгенерировать на целевой машине командой:</li>
+</ul>
+<p><code>busybox lspci |md5sum |cut -f1 -d ' '</code></p>
 <hr><a name="Параметры-загрузки"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>Параметры загрузки</h1>
 <p>Параметры могут быть поделены на несколько групп:</p>
 <ul>
@@ -1473,6 +1506,31 @@ optirun -b primus glxinfo | grep vendor
 optirun -b primus steam
 ```</p>
 <hr><a name="История"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>История</h1>
+<h3>сборка 20200925</h3>
+<ul>
+<li>обновления на 25.09.2020</li>
+<li>ядра 5.4.66 (2016.64) 4.9.236 (2014.*)</li>
+</ul>
+<h3>сборка 20200822</h3>
+<ul>
+<li>обновления на 22.08.2020</li>
+<li>ядра 5.4.60 (2016.64) 4.9.233 (2014.*)</li>
+<li>добавлен скрипт gethash отображающий хеши паролей для записи в MagOS.ini</li>
+<li>отключено уведомление от virtualbox после загрузки рабочего стола</li>
+<li>для ускорения загрузки отключены по умолчанию службы ntpdate openswan</li>
+</ul>
+<h3>сборка 20200711</h3>
+<ul>
+<li>обновления на 10.07.2020</li>
+<li>ядра 5.4.50 (2016.64) 4.9.229 (2014.*)</li>
+<li>в центр управления MagOS добавлена команда для обновления системы.</li>
+<li>модули в папке MagOS/optional теперь будут обновляться вместе с системой</li>
+<li>исправлен скрипт добавления команд в /etc/sudoers.</li>
+<li>добавлена команда ntpdate для запуска пользователем через sudo</li>
+<li>добавлено автоматическое определение драйвера и настройки службы bumblebeed, создания ссылок /usr/lib(64)/nvidia</li>
+<li>скрипты startsteam steamfix теперь используют "optirun -b primus" вместо "primusrun"</li>
+<li>в сборку 2016.64 добавлен драйвер broadcom-wl</li>
+</ul>
 <h3>сборка 20200619</h3>
 <ul>
 <li>обновления на 19.06.2020</li>
