@@ -8,7 +8,7 @@ DIRNAME=$NUM-$NAME
 [ "$AUTHOR" ] && DIRNAME=$DIRNAME-$AUTHOR
 DIRNAME=$DIRNAME-$RELEASE
 MAKEROOT="${PWD%/source*}"
-BUILDROOT="$MAKEROOT/buildroot/$DIRNAME"
+BUILDROOT="/tmp/makemod/buildroot/$DIRNAME"
 CACHE="$MAKEROOT/cache/$NAME"
 
 function die ()
@@ -92,16 +92,16 @@ function pack()
 {
   [ "$2" = "" -o "$3" != "" ] && die "pack: invalid parameters $@"
   echo Packing into module $2
-  mkdir -p "../../$MODULEFORMAT/"
-  dir2$MODULEFORMAT "$1" "../../$MODULEFORMAT/$2.$MODULEFORMAT" || die "pack: dir2$MODULEFORMAT error"
+  mkdir -p "$MAKEROOT/$MODULEFORMAT/"
+  dir2$MODULEFORMAT "$1" "$MAKEROOT/$MODULEFORMAT/$2.$MODULEFORMAT" || die "pack: dir2$MODULEFORMAT error"
 }
 
 function nopack()
 {
   [ "$2" = "" -o "$3" != "" ] && die "nopack: invalid parameters $@"
   echo Packing without compression into module $2
-  mkdir -p "../../$MODULEFORMAT/"
-  dir2nolzm "$1" "../../$MODULEFORMAT/$2.$MODULEFORMAT" || die "nopack: dir2$MODULEFORMAT error"
+  mkdir -p "$MAKEROOT/$MODULEFORMAT/"
+  dir2nolzm "$1" "$MAKEROOT/$MODULEFORMAT/$2.$MODULEFORMAT" || die "nopack: dir2$MODULEFORMAT error"
 }
 
 

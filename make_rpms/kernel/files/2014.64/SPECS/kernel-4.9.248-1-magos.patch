@@ -6,7 +6,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %define patchlevel	9
  # sublevel is now used for -stable patches
 -%define sublevel	155
-+%define sublevel	244
++%define sublevel	248
  
  # Release number. Increase this before a rebuild.
  %define rpmrel		1
