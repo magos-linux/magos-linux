@@ -35,6 +35,9 @@ nvidia-current-kernel-5.4.85-nrj-desktop-1rosa-x86_64
 nvidia-current-kernel-nrj-desktop-latest
 pcmcia-cis-firmware
 prism54-firmware
+rtl8188fu-firmware
+rtl8188fu-kernel-5.4.85-nrj-desktop-1rosa-x86_64
+rtl8188fu-kernel-nrj-desktop-latest
 rtl8192eu-kernel-5.4.85-nrj-desktop-1rosa-x86_64
 rtl8192eu-kernel-nrj-desktop-latest
 rtl8821ce-kernel-5.4.85-nrj-desktop-1rosa-x86_64
