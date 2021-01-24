@@ -7,7 +7,8 @@ AUTHOR=dont_redistribute
 VERSION=$(rpm -qq virtualbox | awk -F- '{print $2}')
 
 SOURCE0=https://download.virtualbox.org/virtualbox/${VERSION}/Oracle_VM_VirtualBox_Extension_Pack-${VERSION}.vbox-extpack
-DOWNLOADER="wget --proxy=192.168.42.129:8080"
+#DOWNLOADER="wget --proxy=192.168.42.129:8080"
+DOWNLOADER=wget
 
 . ../functions || exit 1
 
