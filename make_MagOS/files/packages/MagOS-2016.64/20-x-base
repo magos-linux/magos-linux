@@ -283,6 +283,7 @@ lib64gtk+3_0
 lib64gtk-aurora-engine
 lib64gtk-engines2
 lib64gtk-gir3.0
+lib64gtkglext1.0_0
 lib64gtkmm2.4_1
 lib64gtkmm3.0_1
 lib64gtk-modules2.0
@@ -419,6 +420,7 @@ lib64pangoft2_1.0_0
 lib64pangoft2-gir1.0
 lib64pango-gir1.0
 lib64pangomm2.4_1
+lib64pangox1.0_0
 lib64pangoxft1.0_0
 lib64paper1
 lib64pathplan4
