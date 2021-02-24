@@ -2,6 +2,7 @@ lib64d3dtracker1
 lib64faudio0
 lib64ncursesw5
 lib64vkd3d1
+lib64vkd3d-shader1
 lib64vkd3d-utils1
 libalsa-plugins
 libasound2
@@ -84,6 +85,7 @@ libusb1.0_0
 libv4l0
 libva2
 libvdpau1
+libvkd3d-shader1
 libvkd3d1
 libvo-amrwbenc0
 libvorbis0

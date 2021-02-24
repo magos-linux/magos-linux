@@ -6,7 +6,7 @@
 
 # Name of this version of winetricks (YYYYMMDD)
 # (This doesn't change often, use the sha256sum of the file when reporting problems)
-WINETRICKS_VERSION=20201206-next
+WINETRICKS_VERSION=20210206-next
 
 # This is a UTF-8 file
 # You should see an o with two dots over it here [ö]
@@ -5500,10 +5500,10 @@ winetricks_wine_setup()
     # wine-2.8
     _wine_version_stripped="$(echo "${WINETRICKS_WINE_VERSION}" | cut -d ' ' -f1 | sed -e 's/wine-//' -e 's/-rc.*//')"
 
-    # If WINE is < 4.0, warn user:
-    # 4.0 doesn't do what I thought it would
-    if w_wine_version_in ,3.99 ; then
-        w_warn "Your version of wine ${_wine_version_stripped} is no longer supported upstream. You should upgrade to 4.x"
+    # If WINE is < 5.0, warn user:
+    # 5.0 doesn't do what I thought it would
+    if w_wine_version_in ,4.99 ; then
+        w_warn "Your version of wine ${_wine_version_stripped} is no longer supported upstream. You should upgrade to 5.x"
     fi
 
     winetricks_set_wineprefix "$1"
@@ -5755,7 +5755,8 @@ helper_directx_dl()
     # https://www.microsoft.com/en-us/download/details.aspx?id=9033
     # FIXME: none of the verbs that use this will show download status right
     # until file1 metadata is extended to handle common cache dir
-    w_download_to directx9 https://download.microsoft.com/download/E/E/1/EE17FF74-6C45-4575-9CF4-7FC2597ACD18/directx_feb2010_redist.exe f6d191e89a963d7cca34f169d30f49eab99c1ed3bb92da73ec43617caaa1e93f
+    # 2021/01/28: https://download.microsoft.com/download/E/E/1/EE17FF74-6C45-4575-9CF4-7FC2597ACD18/directx_feb2010_redist.exe
+    w_download_to directx9 https://files.holarse-linuxgaming.de/mirrors/microsoft/directx_feb2010_redist.exe f6d191e89a963d7cca34f169d30f49eab99c1ed3bb92da73ec43617caaa1e93f
 
     DIRECTX_NAME=directx_feb2010_redist.exe
 }
@@ -5765,7 +5766,8 @@ helper_directx_Jun2010()
 {
     # June 2010 DirectX 9c User Redistributable
     # https://www.microsoft.com/en-us/download/details.aspx?id=8109
-    w_download_to directx9 https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe
+    # 2021/01/28: https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe
+    w_download_to directx9 https://files.holarse-linuxgaming.de/mirrors/microsoft/directx_Jun2010_redist.exe 8746ee1a84a083a90e37899d71d50d5c7c015e69688a466aa80447f011780c0d
 
     DIRECTX_NAME=directx_Jun2010_redist.exe
 }
@@ -5828,7 +5830,7 @@ helper_winxpsp2_support_tools()
     filename="$1"
 
     # https://www.microsoft.com/en-us/download/details.aspx?id=18546
-    w_download_to winxpsp2_support_tools https://download.microsoft.com/download/d/3/8/d38066aa-4e37-4ae8-bce3-a4ce662b2024/WindowsXP-KB838079-SupportTools-ENU.exe 7927e87af616d2fb8d4ead0db0103eb845a4e6651b20a5bffea9eebc3035c24d
+    w_download_to winxpsp2_support_tools https://web.archive.org/web/20070104163903/https://download.microsoft.com/download/d/3/8/d38066aa-4e37-4ae8-bce3-a4ce662b2024/WindowsXP-KB838079-SupportTools-ENU.exe 7927e87af616d2fb8d4ead0db0103eb845a4e6651b20a5bffea9eebc3035c24d
 
     w_try_cabextract -d "${W_TMP}" -L -F support.cab "${W_CACHE}"/winxpsp2_support_tools/WindowsXP-KB838079-SupportTools-ENU.exe
     w_try_cabextract -d "${W_TMP}" -L -F "${filename}" "${W_TMP}"/support.cab
@@ -5888,38 +5890,6 @@ helper_win7sp1_x64()
 #######################
 
 #---------------------------------------------------------
-
-w_metadata adobeair dlls \
-    title="Adobe AIR" \
-    publisher="Adobe" \
-    year="2018" \
-    media="download" \
-    file1="AdobeAIRInstaller.exe" \
-    installed_file1="${W_COMMONFILES_X86_WIN}/Adobe AIR/Versions/1.0/Adobe AIR.dll" \
-    homepage="https://www.adobe.com/products/air/"
-
-load_adobeair()
-{
-    # 2017/03/14: 20.0.0.260 (strings 'Adobe AIR.dll' | grep 20\\. ) sha256sum 318770b9a18e59ca4a721a1f5c2b0235cffdbe77a043e99cb2af32074d61de45
-    # 2018/01/30: 28.0.0.127 (strings 'Adobe AIR.dll' | grep 28\\. ) sha256sum 9076489e273652089a4a53a1d38c6631e8b7477e39426a843e0273f25bfb109f
-    # 2018/03/16: 29.0.0.112 (strings 'Adobe AIR.dll' | grep -E "^29\..+\..+" ) sha256sum 5186b54682644a30f2be61c9b510de9a9a76e301bc1b42f0f1bc50bd809a3625
-    # 2018/06/08: 30.0.0.107 (strings 'Adobe AIR.dll' | grep -E "^30\..+\..+" ) sha256sum bcc36174f6f70baba27e5ed1c0df67e55c306ac7bc86b1d280eff4db8c314985
-    # 2018/09/12: 31.0.0.96 (strings 'Adobe AIR.dll' | grep -E "^31\..+\..+" ) sha256sum dc82421f135627802b21619bdb7e4b9b0ec16d351120485c575aa6c16cd2737e
-    # 2018/12/22: 32.0.0.89 (strings 'Adobe AIR.dll' | grep -E "^32\..+\..+" ) sha256sum 24532d41ef2588c0daac4b6f8b7f863ee3c1a1b1e90b2d8d8b3eb4faa657e5e3
-    # 2019/06/11: 32.0.0.125 (strings 'Adobe AIR.dll' | grep -E "^32\..+\..+" ) sha256sum 6718308e10a45176155d0ecc8458bd3606308925b91f26a7d08c148cf52c9db3
-    w_download https://airdownload.adobe.com/air/win/download/latest/AdobeAIRInstaller.exe 6718308e10a45176155d0ecc8458bd3606308925b91f26a7d08c148cf52c9db3
-    w_try_cd "${W_CACHE}/${W_PACKAGE}"
-
-    # See https://bugs.winehq.org/show_bug.cgi?id=43506
-    # and https://github.com/Winetricks/winetricks/issues/821
-    if w_workaround_wine_bug 43506 "Forcing quiet install"; then
-        w_try "${WINE}" AdobeAIRInstaller.exe -silent
-    else
-        w_try "${WINE}" AdobeAIRInstaller.exe ${W_OPT_UNATTENDED:+-silent}
-    fi
-}
-
-#----------------------------------------------------------------
 
 w_metadata amstream dlls \
     title="MS amstream.dll" \
@@ -6252,6 +6222,33 @@ load_d3dcompiler_43()
     fi
 
     w_override_dlls native ${dllname}
+}
+
+#----------------------------------------------------------------
+
+w_metadata d3dcompiler_46 dlls \
+    title="MS d3dcompiler_46.dll" \
+    publisher="Microsoft" \
+    year="2010" \
+    media="download" \
+    file1="../directx9/directx_Jun2010_redist.exe" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/d3dcompiler_46.dll"
+
+load_d3dcompiler_46()
+{
+    # See https://bugs.winehq.org/show_bug.cgi?id=50350#c13
+
+    w_download http://download.microsoft.com/download/F/1/3/F1300C9C-A120-4341-90DF-8A52509B23AC/standalonesdk/Installers/2630bae9681db6a9f6722366f47d055c.cab
+    w_try_cabextract -d "${W_TMP}" -L -F "fil47ed91e900f4b9d9659b66a211b57c39" "${W_CACHE}/${W_PACKAGE}/2630bae9681db6a9f6722366f47d055c.cab"
+    w_try mv "${W_TMP}/fil47ed91e900f4b9d9659b66a211b57c39" "${W_SYSTEM32_DLLS}/d3dcompiler_46.dll"
+
+    if [ "${W_ARCH}" = "win64" ]; then
+        w_download http://download.microsoft.com/download/F/1/3/F1300C9C-A120-4341-90DF-8A52509B23AC/standalonesdk/Installers/61d57a7a82309cd161a854a6f4619e52.cab
+        w_try_cabextract -d "${W_TMP}" -L -F "fil8c20206095817436f8df4a711faee5b7" "${W_CACHE}/${W_PACKAGE}/61d57a7a82309cd161a854a6f4619e52.cab"
+        w_try mv "${W_TMP}/fil8c20206095817436f8df4a711faee5b7" "${W_SYSTEM64_DLLS}/d3dcompiler_46.dll"
+    fi
+
+    w_override_dlls native d3dcompiler_46
 }
 
 #----------------------------------------------------------------
@@ -8352,6 +8349,24 @@ load_dxvk173()
     helper_dxvk_d9vk "${file1}" "5.8" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
 }
 
+w_metadata dxvk180 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.8)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.8.tar.gz" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/d3d9.dll" \
+    installed_file2="${W_SYSTEM32_DLLS_WIN}/d3d10core.dll" \
+    installed_file3="${W_SYSTEM32_DLLS_WIN}/d3d11.dll" \
+    installed_file4="${W_SYSTEM32_DLLS_WIN}/dxgi.dll"
+
+load_dxvk180()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.8/dxvk-1.8.tar.gz" e84f7ac494ac7f5013976744470899226d145e29617c407ff52870055bda476e
+    helper_dxvk_d9vk "${file1}" "5.14" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
+}
+
 #----------------------------------------------------------------
 
 w_metadata dxvk dlls \
@@ -8370,32 +8385,8 @@ load_dxvk()
     _W_dxvk_version="$(w_get_github_latest_release doitsujin dxvk)"
     _W_dxvk_version="${_W_dxvk_version#v}"
     w_linkcheck_ignore=1 w_download "https://github.com/doitsujin/dxvk/releases/download/v${_W_dxvk_version}/dxvk-${_W_dxvk_version}.tar.gz"
-    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "5.8" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
+    helper_dxvk_d9vk "dxvk-${_W_dxvk_version}.tar.gz" "5.14" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
     unset _W_dxvk_version
-}
-
-#----------------------------------------------------------------
-
-w_metadata dxvk_master dlls \
-    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (master)" \
-    publisher="Philip Rebohle" \
-    year="2017" \
-    media="download" \
-    file1="dxvk_master.zip" \
-    installed_file1="${W_SYSTEM32_DLLS_WIN}/d3d9.dll" \
-    installed_file2="${W_SYSTEM32_DLLS_WIN}/d3d10core.dll" \
-    installed_file3="${W_SYSTEM32_DLLS_WIN}/d3d11.dll" \
-    installed_file4="${W_SYSTEM32_DLLS_WIN}/dxgi.dll"
-
-load_dxvk_master()
-{
-    # https://git.froggi.es/doitsujin/dxvk
-    # FIXME: Delete cached file, when verb is forced. Gitlab artifacts do not supply any version/commit hash information.
-    if test "${WINETRICKS_FORCE}" = 1 && test -f "${W_CACHE}/${W_PACKAGE}/${file1}"; then
-        w_try rm -f "${W_CACHE}/${W_PACKAGE}/${file1}"
-    fi
-    w_linkcheck_ignore=1 w_download_to "${W_CACHE}/${W_PACKAGE}" "https://git.froggi.es/doitsujin/dxvk/-/jobs/artifacts/master/download?job=dxvk" "" "dxvk_master.zip"
-    helper_dxvk_d9vk "${file1}" "5.8" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
 }
 
 #----------------------------------------------------------------
@@ -8410,7 +8401,7 @@ w_metadata dmusic32 dlls \
 
 load_dmusic32()
 {
-    w_download_to directx9 https://download.microsoft.com/download/3/9/7/3972f80c-5711-4e14-9483-959d48a2d03b/directx_apr2006_redist.exe dd8c3d401efe4561b67bd88475201b2f62f43cd23e4acc947bb34a659fa74952
+    w_download_to directx9 https://web.archive.org/web/20100920035904/https://download.microsoft.com/download/3/9/7/3972f80c-5711-4e14-9483-959d48a2d03b/directx_apr2006_redist.exe dd8c3d401efe4561b67bd88475201b2f62f43cd23e4acc947bb34a659fa74952
 
     w_try_cabextract -d "${W_TMP}" -F DirectX.cab "${W_CACHE}"/directx9/directx_apr2006_redist.exe
     w_try_cabextract -d "${W_SYSTEM32_DLLS}" -L -F dmusic32.dll "${W_TMP}"/DirectX.cab
@@ -9107,7 +9098,7 @@ w_metadata dotnet30sp1 dlls \
     media="download" \
     conflicts="dotnet11 dotnet20sdk" \
     file1="NetFx30SP1_x86.exe" \
-    installed_file1="c:/windows/system32/XpsFilt.dll"    # we're cheating a bit here
+    installed_file1="c:/windows/dotnet30sp1.installed.workaround"
 
 load_dotnet30sp1()
 {
@@ -9124,7 +9115,7 @@ load_dotnet30sp1()
     w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=49831" 5.17 6.0
 
     # XpsFilt.dll doesn't get installed (not sure what version exactly causes it, bug 49831 muddies things):
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=50463" 5.17
+    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=50463" 5.17 6.0
 
     # FIXME: URL?
     w_download https://download.microsoft.com/download/8/F/E/8FEEE89D-9E4F-4BA3-993E-0FFEA8E21E1B/NetFx30SP1_x86.exe 3100df4d4db3965ead9520c887a534115cf6fc7ba100abde45226958b865695b
@@ -9149,7 +9140,6 @@ load_dotnet30sp1()
 
     w_set_winver winxp
 
-    w_try "${WINE}" msiexec /i "XPSEP XP and Server 2003 32 bit.msi" ${W_OPT_UNATTENDED:+/qb}
     "${WINE}" sc delete FontCache3.0.0.0
 
     w_try_ms_installer "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/q}
@@ -9159,6 +9149,9 @@ load_dotnet30sp1()
 
     # Doesn't install any ngen.exe
     # W_NGEN_CMD=""
+
+    # Do not rely on temporary files. As a workaround, touch a file instead so that we know it's been installed for list-installed
+    w_try touch "${W_WINDIR_UNIX}/dotnet30sp1.installed.workaround"
 }
 
 verify_dotnet30sp1()
@@ -9232,8 +9225,22 @@ load_dotnet35sp1()
 
     w_set_winver winxp
 
-    w_try_cd "${W_CACHE}/${W_PACKAGE}"
+    w_override_dlls native mscoree mscorwks
+    w_wineserver -w
+
+    # The installer is braindead and picks the lowest drive letter that's writable
+    # winetricks_set_wineprefix(), which is called by w_do_call() sets up this symlink so that wine
+    # can make a windows path to the cache (which is removed during cleanup).
+    # To avoid that, we sylmink the executable directly and remove the symlink
+    # and then the installer leaves the cruft on C:\ instead (assuming there's no other drives mounted).
+    #
+    # If the user has other drives mounted (or maybe if Z:\ is writable),
+    # then they have to clean up the mess themselves, sorry.
+    w_try rm "${WINETRICKS_CACHE_SYMLINK}"
+    w_try_cd "${W_TMP}"
+    w_try ln -s "${W_CACHE}/${W_PACKAGE}/${file1}" .
     w_try_ms_installer "${WINE}" dotnetfx35.exe /lang:ENU ${W_OPT_UNATTENDED:+/q}
+    w_try rm dotnetfx35.exe
 
     w_set_winver 'default'
 
@@ -10063,88 +10070,6 @@ load_filever()
 
 #----------------------------------------------------------------
 
-# FIXME: update winetricks_is_installed to look at installed_file2..n
-# https://github.com/Winetricks/winetricks/issues/988
-w_metadata flash dlls \
-    title="Flash Player 32" \
-    publisher="Adobe" \
-    year="2020" \
-    media="download" \
-    file1="fp_32.0.0.363_archive.zip" \
-    installed_file1="${W_SYSTEM32_DLLS_WIN}/Macromed/Flash/FlashUtil32_32_0_0_363_Plugin.exe" \
-    installed_file2="${W_SYSTEM32_DLLS_WIN}/Macromed/Flash/FlashUtil32_32_0_0_363_ActiveX.exe" \
-    installed_file3="${W_SYSTEM32_DLLS_WIN}/Macromed/Flash/flashplayer32_0r0_363_win_sa.exe" \
-    homepage="https://www.adobe.com/products/flashplayer/"
-
-load_flash()
-{
-    _W_ver_major=32
-    _W_ver_minor=0
-    _W_ver_rel=0
-    _W_ver_build=363
-    _W_dirname="${_W_ver_major}_${_W_ver_minor}_r${_W_ver_rel}_${_W_ver_build}"
-    _W_archive="fp_${_W_ver_major}.${_W_ver_minor}.${_W_ver_rel}.${_W_ver_build}_archive.zip"
-    _W_fileprefix="flashplayer${_W_ver_major}_${_W_ver_minor}r${_W_ver_rel}_${_W_ver_build}"
-
-    # 2013/07/09: Adobe Flash 10 is no longer supported.
-    # 2013/06/24: Adobe Flash 10.3 won't even install for me, it tells you to go get a newer version!
-    # See
-    # https://blogs.adobe.com/psirt/
-    # https://get.adobe.com/de/flashplayer/otherversions/
-    # Now, we install older versions by using zipfiles at
-    # https://helpx.adobe.com/flash-player/kb/archived-flash-player-versions.html
-
-    # 2018/06/24: d4b6f9a5e42cc9f2c7cbd1fd72059d4c1bead91b076afa2ca042d28f0fd7bedb
-    # 2020/05/24  a64230033de485f9454a07cdb1b366e1307d005223657086ab8a0b8b91610ed4
-    w_linkcheck_ignore=1 w_download "https://fpdownload.macromedia.com/pub/flashplayer/installers/archive/${_W_archive}" a64230033de485f9454a07cdb1b366e1307d005223657086ab8a0b8b91610ed4
-
-    # If OS version is Vista or newer:
-    #   1. NPAPI plugin doesn't work
-    #   2. In win64 prefix, "File not found." dialog appears when installing:
-    #      'wine: cannot find L"C:\\windows\\system32\\Macromed\\Temp\\{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}\\InstallFlashPlayer.exe"'
-    w_set_winver winxp
-
-    # ActiveX plugin
-    # 2014/10/02: 3958827058648cfe05fc6ee510685e8d93f995d3428c3eedbd6814704765672a
-    w_try_unzip "${W_TMP}" "${W_CACHE}/flash/${_W_archive}" "${_W_dirname}/${_W_fileprefix}_winax.exe"
-    w_try_cd "${W_TMP}/${_W_dirname}"
-    w_try "${WINE}" "${_W_fileprefix}_winax.exe" ${W_OPT_UNATTENDED:+ /install}
-
-    # Mozilla / Firefox (NPAPI) plugin
-    # 2014/10/02: 17496fd3c863c180aead953d7d4499dd36f997a9570abc2b92f55e4ea1d55d73
-    w_try_unzip "${W_TMP}" "${W_CACHE}/flash/${_W_archive}" "${_W_dirname}/${_W_fileprefix}_win.exe"
-    w_try "${WINE}" "${_W_fileprefix}_win.exe" ${W_OPT_UNATTENDED:+ /install}
-
-    # Projector (standalone player)
-    # 2015/07/06: 8640c42e73dc44125045e17abd32412c48f3808a8393c94fc8281cf4b0d87bdc
-    w_try_unzip "${W_TMP}" "${W_CACHE}/flash/${_W_archive}" "${_W_dirname}/${_W_fileprefix}_win_sa.exe"
-    w_try mv "${_W_fileprefix}_win_sa.exe" "${W_SYSTEM32_DLLS}/Macromed/Flash"
-
-    # After updating the above, you should carry the following steps out by
-    # hand to verify that plugin works.
-
-    #    rm -rf ~/.cache/winetricks/flash
-    #    w_try_cd ~/winetricks/src
-    #    rm -rf ~/.wine
-    #    sh winetricks -q flash ie7
-    #    cd "~/.wine/drive_c/Program Files/Internet Explorer"
-    #    wine iexplore.exe https://www.adobe.com/software/flash/about
-    # Verify that the version of Flash shows up and that you're not prompted
-    # to install Flash again
-    #
-    #    w_try_cd ~/winetricks/src
-    #    rm -rf ~/.wine
-    #    sh winetricks -q flash firefox
-    #    cd "~/.wine/drive_c/Program Files/Mozilla Firefox"
-    #    wine firefox.exe https://www.adobe.com/software/flash/about
-    # Verify that the version of Flash shows up and that you're not prompted
-    # to install Flash again
-
-    unset _W_ver_major _W_ver_minor _W_ver_rel _W_ver_build _W_dirname _W_archive _W_fileprefix
-}
-
-#----------------------------------------------------------------
-
 # $1 - gallium nine standalone archive name (required)
 helper_galliumnine()
 {
@@ -10389,11 +10314,11 @@ load_gfw()
 {
     # https://www.microsoft.com/games/en-us/live/pages/livejoin.aspx
     # http://www.next-gen.biz/features/should-games-for-windows-live-die
-    w_download https://download.microsoft.com/download/5/5/8/55846E20-4A46-4EF8-B272-7F988BC9090A/gfwlivesetupmin.exe b14609508e2f8dba0886ded84e2817ad532ebfa31f8a6d4be2e6a5a03a9d7c23
+    w_download https://web.archive.org/web/20140730232216/https://download.microsoft.com/download/5/5/8/55846E20-4A46-4EF8-B272-7F988BC9090A/gfwlivesetupmin.exe b14609508e2f8dba0886ded84e2817ad532ebfa31f8a6d4be2e6a5a03a9d7c23
 
-    # FIXME: Depends on .NET 20, but is it really needed? For now, skip it.
-    w_try_cd "${W_CACHE}/${W_PACKAGE}"
-    w_try "${WINE}" gfwlivesetupmin.exe /nodotnet ${W_OPT_UNATTENDED:+/q}
+    # Otherwise it leaves an arbitrarily named empty directory in ${W_CACHE}
+    w_try cp "${W_CACHE}/${W_PACKAGE}/gfwlivesetupmin.exe" "${W_TMP}"
+    w_try "${WINE}" "${W_TMP_WIN}\gfwlivesetupmin.exe" /nodotnet ${W_OPT_UNATTENDED:+/q}
 
     w_call msasn1
 }
@@ -10430,7 +10355,7 @@ w_metadata gmdls dlls \
 
 load_gmdls()
 {
-    w_download_to directx9 https://download.microsoft.com/download/3/9/7/3972f80c-5711-4e14-9483-959d48a2d03b/directx_apr2006_redist.exe dd8c3d401efe4561b67bd88475201b2f62f43cd23e4acc947bb34a659fa74952
+    w_download_to directx9 https://web.archive.org/web/20100920035904/https://download.microsoft.com/download/3/9/7/3972f80c-5711-4e14-9483-959d48a2d03b/directx_apr2006_redist.exe dd8c3d401efe4561b67bd88475201b2f62f43cd23e4acc947bb34a659fa74952
 
     w_try_cabextract -d "${W_TMP}" -F DirectX.cab "${W_CACHE}"/directx9/directx_apr2006_redist.exe
     w_try_cabextract -d "${W_TMP}" -F gm16.dls "${W_TMP}"/DirectX.cab
@@ -10688,7 +10613,7 @@ w_metadata itircl dlls \
 load_itircl()
 {
     # https://msdn.microsoft.com/en-us/library/windows/desktop/ms669985(v=vs.85).aspx
-    w_download_to hhw https://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe b2b3140d42a818870c1ab13c1c7b8d4536f22bd994fa90aade89729a6009a3ae
+    w_download_to hhw https://web.archive.org/web/20160423015142if_/http://download.microsoft.com/download/0/a/9/0a939ef6-e31c-430f-a3df-dfae7960d564/htmlhelp.exe b2b3140d42a818870c1ab13c1c7b8d4536f22bd994fa90aade89729a6009a3ae
 
     w_try_cabextract -d "${W_TMP}" -F hhupd.exe "${W_CACHE}"/hhw/htmlhelp.exe
     w_try_cabextract -d "${W_SYSTEM32_DLLS}" -F itircl.dll "${W_TMP}"/hhupd.exe
@@ -10709,7 +10634,7 @@ w_metadata itss dlls \
 load_itss()
 {
     # https://msdn.microsoft.com/en-us/library/windows/desktop/ms669985(v=vs.85).aspx
-    w_download_to hhw https://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe b2b3140d42a818870c1ab13c1c7b8d4536f22bd994fa90aade89729a6009a3ae
+    w_download_to hhw https://web.archive.org/web/20160423015142if_/http://download.microsoft.com/download/0/a/9/0a939ef6-e31c-430f-a3df-dfae7960d564/htmlhelp.exe b2b3140d42a818870c1ab13c1c7b8d4536f22bd994fa90aade89729a6009a3ae
 
     w_try_cabextract -d "${W_TMP}" -F hhupd.exe "${W_CACHE}"/hhw/htmlhelp.exe
     w_try_cabextract -d "${W_SYSTEM32_DLLS}" -F itss.dll "${W_TMP}"/hhupd.exe
@@ -10906,7 +10831,7 @@ load_mdac28()
     w_package_unsupported_win64
 
     # https://www.microsoft.com/en-us/download/details.aspx?id=5793
-    w_download https://download.microsoft.com/download/4/a/a/4aafff19-9d21-4d35-ae81-02c48dcbbbff/MDAC_TYP.EXE 157ebae46932cb9047b58aa849ac1885e8cbd2f218810cb83e57613b49c679d6
+    w_download https://web.archive.org/web/20070127061938/https://download.microsoft.com/download/4/a/a/4aafff19-9d21-4d35-ae81-02c48dcbbbff/MDAC_TYP.EXE 157ebae46932cb9047b58aa849ac1885e8cbd2f218810cb83e57613b49c679d6
     load_native_mdac
     w_set_winver nt40
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
@@ -12081,7 +12006,7 @@ load_speechsdk()
     w_package_unsupported_win64
 
     # https://www.microsoft.com/en-us/download/details.aspx?id=10121
-    w_download https://download.microsoft.com/download/B/4/3/B4314928-7B71-4336-9DE7-6FA4CF00B7B3/SpeechSDK51.exe 520aa5d1a72dc6f41dc9b8b88603228ffd5d5d6f696224fc237ec4828fe7f6e0
+    w_download https://web.archive.org/web/20110805062427/https://download.microsoft.com/download/B/4/3/B4314928-7B71-4336-9DE7-6FA4CF00B7B3/SpeechSDK51.exe 520aa5d1a72dc6f41dc9b8b88603228ffd5d5d6f696224fc237ec4828fe7f6e0
 
     w_try_unzip "${W_TMP}" "${W_CACHE}"/speechsdk/SpeechSDK51.exe
 
@@ -13191,11 +13116,11 @@ load_windowscodecs()
     # Separate 32/64-bit installers:
     if [ "${W_ARCH}" = "win32" ] ; then
         # https://www.microsoft.com/en-us/download/details.aspx?id=32
-        w_download https://download.microsoft.com/download/f/f/1/ff178bb1-da91-48ed-89e5-478a99387d4f/wic_x86_enu.exe 196868b09d87ae04e4ab42b4a3e0abbb160500e8ff13deb38e2956ee854868b1
+        w_download https://web.archive.org/web/20200810071051if_/https://download.microsoft.com/download/f/f/1/ff178bb1-da91-48ed-89e5-478a99387d4f/wic_x86_enu.exe 196868b09d87ae04e4ab42b4a3e0abbb160500e8ff13deb38e2956ee854868b1
         EXE="wic_x86_enu.exe"
     elif [ "${W_ARCH}" = "win64" ] ; then
         # https://www.microsoft.com/en-us/download/details.aspx?id=1385
-        w_download https://download.microsoft.com/download/6/4/5/645FED5F-A6E7-44D9-9D10-FE83348796B0/wic_x64_enu.exe 5822fecd69a90c2833965a25e8779000825d69cc8c9250933f0ab70df52171e1
+        w_download https://web.archive.org/web/20191125095535if_/http://download.microsoft.com/download/6/4/5/645fed5f-a6e7-44d9-9d10-fe83348796b0/wic_x64_enu.exe 5822fecd69a90c2833965a25e8779000825d69cc8c9250933f0ab70df52171e1
         EXE="wic_x64_enu.exe"
     else
         w_die "Invalid W_ARCH value, ${W_ARCH}"
@@ -13556,7 +13481,7 @@ load_xna40()
     fi
 
     # https://www.microsoft.com/en-us/download/details.aspx?id=20914
-    w_download https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi e6c41d692ebcba854dad4b1c52bb7ddd05926bad3105595d6596b8bab01c25e7
+    w_download https://web.archive.org/web/20120325002813/https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi e6c41d692ebcba854dad4b1c52bb7ddd05926bad3105595d6596b8bab01c25e7
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
     w_try "${WINE}" msiexec ${W_OPT_UNATTENDED:+/quiet} /i "${file1}"
 }
@@ -14985,7 +14910,7 @@ load_hhw()
     w_call mfc40
 
     # https://msdn.microsoft.com/en-us/library/windows/desktop/ms669985(v=vs.85).aspx
-    w_download https://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe b2b3140d42a818870c1ab13c1c7b8d4536f22bd994fa90aade89729a6009a3ae
+    w_download https://web.archive.org/web/20160423015142if_/http://download.microsoft.com/download/0/a/9/0a939ef6-e31c-430f-a3df-dfae7960d564/htmlhelp.exe b2b3140d42a818870c1ab13c1c7b8d4536f22bd994fa90aade89729a6009a3ae
 
     # htmlhelp.exe automatically runs hhupd.exe. It shows a dialog that says
     # "This computer already has a newer version of HTML Help."
@@ -16052,48 +15977,6 @@ load_psdk2003()
     w_verify_sha256sum d2605ae6f35a7fcc209e1d8dfbdfdb42afcb61e7d173f58fd608ae31db4ab1e7 PSDK-x86.msi
 
     w_try "${WINE}" msiexec /i PSDK-x86.msi ${W_OPT_UNATTENDED:+/qb}
-}
-
-#----------------------------------------------------------------
-
-w_metadata psdkwin7 apps \
-    title="MS Windows 7 SDK" \
-    publisher="Microsoft" \
-    year="2009" \
-    media="download" \
-    file1="winsdk_web.exe" \
-    installed_exe1="C:/Program Files/Microsoft SDKs/Windows/v7.0/Bin/SetEnv.Cmd"
-
-load_psdkwin7()
-{
-    # https://www.microsoft.com/en-us/download/details.aspx?id=3138
-    w_call dotnet20
-    w_call mfc42   # need mfc42u, or setup will abort
-    # don't have a working unattended recipe.  Maybe we'll have to
-    # do an AutoHotKey script until Microsoft gets its act together:
-    # https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/c053b616-7d5b-405d-9841-ec465a8e21d5/
-    w_download https://download.microsoft.com/download/7/A/B/7ABD2203-C472-4036-8BA0-E505528CCCB7/winsdk_web.exe bb0e3b5d8feb750b3164b657a046f76ff086887719e418f57ce88ada5e8990d5
-    w_try_cd "${W_CACHE}/${W_PACKAGE}"
-    w_try "${WINE}" winsdk_web.exe
-
-    if w_workaround_wine_bug 21362; then
-        # Assume user installed in default location
-        cat > "${W_TMP}"/set-psdk7.reg <<_EOF_
-REGEDIT4
-
-[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Microsoft SDKs]
-
-[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Microsoft SDKs\\Windows]
-"CurrentVersion"="v7.0"
-"CurrentInstallFolder"="C:\\\\Program Files\\\\Microsoft SDKs\\\\Windows\\\\v7.0\\\\"
-
-[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Microsoft SDKs\\Windows\\v7.0]
-"InstallationFolder"="C:\\\\Program Files\\\\Microsoft SDKs\\\\Windows\\\\v7.0\\\\"
-"ProductVersion"="7.0.7600.16385.40715"
-"ProductName"="Microsoft Windows SDK for Windows 7 (7.0.7600.16385.40715)"
-_EOF_
-        w_try_regedit "${W_TMP_WIN}"\\set-psdk7.reg
-    fi
 }
 
 #----------------------------------------------------------------
@@ -18389,9 +18272,6 @@ w_metadata dcuo games \
 
 load_dcuo()
 {
-    # The installer would take care of this, but let's do it first
-    w_call flash
-
     w_mount "DCUO - Disc 1"
     w_ahk_do "
         SetWinDelay 1000
@@ -18931,10 +18811,6 @@ load_dragonage()
         cp -f "${ini}" "${ini}.old"
     fi
 
-    if w_workaround_wine_bug 22383 "use strictdrawordering to avoid video problems" ,4.15; then
-        w_call strictdrawordering=enabled
-    fi
-
     if w_workaround_wine_bug 22557 "Setting UseVSync=0 to avoid black menu" ,4.15; then
         sed 's,UseVSync=1,UseVSync=0,' < "${ini}" > "${ini}.new"
         mv -f "${ini}.new" "${ini}"
@@ -19003,10 +18879,6 @@ load_dragonage_ue()
         }
         winwaitclose
     "
-
-    if w_workaround_wine_bug 22383 "use strictdrawordering to avoid video problems" ,4.15; then
-        w_call strictdrawordering=enabled
-    fi
 
     if w_workaround_wine_bug 23730 "Run with WINEDEBUG=-all to reduce flickering" ,4.15; then
         :
@@ -21919,13 +21791,13 @@ w_metadata windowmanagerdecorated=n settings \
 
 #----------------------------------------------------------------
 
-w_metadata usetakefocus=enabled settings \
+w_metadata usetakefocus=y settings \
     title_cz="Aktivovat UseTakeFocus" \
     title_uk="Увімкнути фокусування на вікні" \
     title_sk="Aktivovať UseTakeFocus" \
     title_tlh="Qorwagh buSchoH \'e\' chu\'" \
     title="Enable UseTakeFocus"
-w_metadata usetakefocus=disabled settings \
+w_metadata usetakefocus=n settings \
     title_cz="Deaktivovat UseTakeFocus (výchozí)" \
     title_uk="Вимкнути фокусування на вікні (за замовчуванням)" \
     title_sk="Deaktivovať UseTakeFocus (výchozí)" \
@@ -21935,20 +21807,20 @@ w_metadata usetakefocus=disabled settings \
 load_usetakefocus()
 {
     case "$1" in
-        enabled) arg="Y";;
-        disabled) arg="N";;
+        y) arg="Y";;
+        n) arg="N";;
         *) w_die "illegal value $1 for UseTakeFocus";;
     esac
 
     echo "Setting UseTakeFocus to ${arg}"
-    cat > "${W_TMP}"/set-gfs.reg <<_EOF_
+    cat > "${W_TMP}"/set-usetakefocus.reg <<_EOF_
 REGEDIT4
 
 [HKEY_CURRENT_USER\\Software\\Wine\\X11 Driver]
 "UseTakeFocus"="${arg}"
 
 _EOF_
-    w_try_regedit "${W_TMP}"/set-gfs.reg
+    w_try_regedit "${W_TMP}"/set-usetakefocus.reg
 }
 
 #----------------------------------------------------------------
@@ -22093,7 +21965,7 @@ winetricks_set_wined3d_var()
         enable*) arg=enabled;;
         hard*) arg=hardware;;
         repack) arg=repack;;
-        backbuffer|fbo|gdi|none|opengl|readdraw|readtex|texdraw|textex|auto) arg=$2;;
+        arb|backbuffer|fbo|gdi|gl|glsl|no3d|none|readdraw|readtex|texdraw|textex|vulkan|auto) arg=$2;;
         [0-9]*) arg=$2;;
         *) w_die "illegal value $2 for $1";;
     esac
@@ -22110,27 +21982,12 @@ _EOF_
 }
 
 #----------------------------------------------------------------
-# AlwaysOffscreen settings
-
-w_metadata ao=enabled settings \
-    title_uk="Увімкнути AlwaysOffscreen" \
-    title="Enable AlwaysOffscreen"
-w_metadata ao=disabled settings \
-    title_uk="Вимкнути AlwaysOffscreen (за замовчуванням)" \
-    title="Disable AlwaysOffscreen (default)"
-
-load_ao()
-{
-    winetricks_set_wined3d_var AlwaysOffscreen "$1"
-}
-
-#----------------------------------------------------------------
 # CheckFloatConstants settings
 
 w_metadata cfc=enabled settings \
     title_uk="Увімкнути CheckFloatConstants" \
     title="Enable CheckFloatConstants"
-w_metadata cfc=disable settings \
+w_metadata cfc=disabled settings \
     title_uk="Вимкнути CheckFloatConstants (за замовчуванням)" \
     title="Disable CheckFloatConstants (default)"
 
@@ -22141,6 +21998,9 @@ load_cfc()
 #----------------------------------------------------------------
 # CSMT settings
 
+w_metadata csmt=force settings \
+    title_uk="Увімкнути та примусити серіалізацію команд OpenGL або Vulkan між кількома потоками команд в одній програмі" \
+    title="Enable and force serialisation of OpenGL or Vulkan commands between multiple command streams in the same application"
 w_metadata csmt=on settings \
     title_uk="Увімкнути Command Stream Multithreading (за замовчуванням)" \
     title="Enable Command Stream Multithreading (default)"
@@ -22153,6 +22013,7 @@ load_csmt()
     case "$1" in
         off) arg=0;;
         on)  arg=1;;
+        force) arg=3;;
         *) w_die "illegal value $1 for csmt";;
     esac
 
@@ -22170,38 +22031,6 @@ _EOF_
 #----------------------------------------------------------------
 # DirectDraw settings
 
-w_metadata ddr=gdi settings \
-    title_uk="Встановити DirectDrawRenderer на gdi" \
-    title="Set DirectDrawRenderer to gdi"
-w_metadata ddr=opengl settings \
-    title_uk="Встановити DirectDrawRenderer на opengl" \
-    title="Set DirectDrawRenderer to opengl"
-
-load_ddr()
-{
-    if w_wine_version_in ,3.16 ; then
-        winetricks_set_wined3d_var DirectDrawRenderer "$1"
-    else
-        winetricks_set_wined3d_var renderer "$1"
-    fi
-}
-
-#----------------------------------------------------------------
-
-w_metadata glsl=enabled settings \
-    title_uk="Увімкнути GLSL шейдери (за замовчуванням)" \
-    title="Enable GLSL shaders (default)"
-w_metadata glsl=disabled settings \
-    title_uk="Вимкнути GLSL шейдери та використовувати ARB шейдери (іноді впливає на швидкодію)" \
-    title="Disable GLSL shaders, use ARB shaders (faster, but sometimes breaks)"
-
-load_glsl()
-{
-    winetricks_set_wined3d_var UseGLSL "$1"
-}
-
-#----------------------------------------------------------------
-
 w_metadata gsm=0 settings \
     title_uk="Встановити MaxShaderModelGS на 0" \
     title="Set MaxShaderModelGS to 0"
@@ -22218,20 +22047,6 @@ w_metadata gsm=3 settings \
 load_gsm()
 {
     winetricks_set_wined3d_var MaxShaderModelGS "$1"
-}
-
-#----------------------------------------------------------------
-
-w_metadata multisampling=enabled settings \
-    title_uk="Увімкнути Direct3D мультисемплінг" \
-    title="Enable Direct3D multisampling"
-w_metadata multisampling=disabled settings \
-    title_uk="Вимкнути Direct3D мультисемплінг" \
-    title="Disable Direct3D multisampling"
-
-load_multisampling()
-{
-    winetricks_set_wined3d_var Multisampling "$1"
 }
 
 #----------------------------------------------------------------
@@ -22281,19 +22096,70 @@ load_psm()
 
 #----------------------------------------------------------------
 
-w_metadata strictdrawordering=enabled settings \
-    title_uk="Увімкнути StrictDrawOrdering" \
-    title="Enable StrictDrawOrdering"
-w_metadata strictdrawordering=disabled settings \
-    title_uk="Вимкнути StrictDrawOrdering (за замовчуванням)" \
-    title="Disable StrictDrawOrdering (default)"
+w_metadata shader_backend=glsl settings \
+    title_uk="Встановити shader_backend на glsl" \
+    title="Set shader_backend to glsl"
+w_metadata shader_backend=arb settings \
+    title_uk="Встановити shader_backend на arb" \
+    title="Set shader_backend to arb"
+w_metadata shader_backend=none settings \
+    title_uk="Встановити shader_backend на none" \
+    title="Set shader_backend to none"
 
-load_strictdrawordering()
+load_shader_backend()
 {
-    winetricks_set_wined3d_var StrictDrawOrdering "$1"
+    winetricks_set_wined3d_var shader_backend "$1"
 }
 
 #----------------------------------------------------------------
+
+w_metadata ssm=disabled settings \
+    title_uk="Вимкнути Struct Shader Math (за замовчуванням)" \
+    title="Disable Struct Shader Math (default)"
+w_metadata ssm=enabled settings \
+    title_uk="Увімкнути Struct Shader Math"\
+    title="Enable Struct Shader Math"
+
+load_ssm()
+{
+    case "$1" in
+        disabled) arg=0;;
+        enabled) arg=1;;
+        *) w_die "illegal value $1 for csmt";;
+    esac
+
+    echo "Setting strict_shader_math to ${arg}"
+    cat > "${W_TMP}"/set-ssm.reg <<_EOF_
+REGEDIT4
+
+[HKEY_CURRENT_USER\\Software\\Wine\\Direct3D]
+"strict_shader_math"=dword:${arg}
+
+_EOF_
+    w_try_regedit "${W_TMP}"/set-ssm.reg
+}
+
+#----------------------------------------------------------------
+
+w_metadata renderer=gdi settings \
+    title_uk="Встановити renderer на gdi" \
+    title="Set renderer to gdi"
+w_metadata renderer=gl settings \
+    title_uk="Встановити renderer на gl" \
+    title="Set renderer to gl"
+w_metadata renderer=no3d settings \
+    title_uk="Встановити renderer на no3d" \
+    title="Set renderer to no3d"
+w_metadata renderer=vulkan settings \
+    title_uk="Встановити renderer на vulkan" \
+    title="Set renderer to vulkan"
+
+load_renderer()
+{
+    winetricks_set_wined3d_var renderer "$1"
+}
+
+#----------------------------------------------------------------=
 
 w_metadata rtlm=auto settings \
     title_uk="Встановити RenderTargetLockMode на авто (за замовчуванням)" \
@@ -23162,22 +23028,12 @@ execute_command()
         shell) winetricks_shell ;;
 
         # These have to come before *=disabled to avoid looking like DLLs
+        cfc=disable*) w_call cfc=disabled ;;
         fontsmooth=disable*) w_call fontsmooth=disable ;;
-        glsl=disable*) w_call glsl=disabled ;;
-        multisampling=disable*) w_call multisampling=disabled ;;
         mwo=disable*) w_call mwo=disable ;;   # FIXME: relax matching so we can handle these spelling differences in verb instead of here
         rtlm=disable*) w_call rtlm=disabled ;;
         sound=disable*) w_call sound=disabled ;;
-        ao=disable*) w_call ao=disabled ;;
-        strictdrawordering=disable*) w_call strictdrawordering=disabled ;;
-
-        # Use winecfg if you want a GUI for plain old DLL overrides
-        alldlls=*) w_call "$1" ;;
-        *=native) w_do_call native "${cmd}";;
-        *=builtin) w_do_call builtin "${cmd}";;
-        *=default) w_do_call default "${cmd}";;
-        *=disabled) w_do_call disabled "${cmd}";;
-        vd=*) w_do_call "${cmd}";;
+        ssm=disable*) w_call ssm=disabled ;;
 
         # Hacks for backwards compatibility
         # 2017/03/22: add deprecation notices
@@ -23185,7 +23041,8 @@ execute_command()
         comdlg32.ocx) w_warn "Calling comdlg32.ocx is deprecated, please use comdlg32ocx instead" ; w_call comdlg32ocx ;;
         dotnet1) w_warn "Calling dotnet1 is deprecated, please use dotnet11 instead" ; w_call dotnet11 ;;
         dotnet2) w_warn "Calling dotnet2 is deprecated, please use dotnet20 instead" ; w_call dotnet20 ;;
-        d9vk_master) w_warn "Calling d9vk_master is deprecated, please use dxvk_master instead" ; w_call dxvk_master ;;
+        ddr=gdi) w_warn "Calling ddr=gdi is deprecated, please use renderer=gdi or renderer=no3d instead" ; w_call renderer=gdi ;;
+        ddr=opengl) w_warn "Calling ddr=opengl is deprecated, please use renderer=gl instead" ; w_call renderer=gl ;;
         dxvk54) w_warn "Calling dxvk54 is deprecated, please use dxvk054 instead" ; w_call dxvk054 ;;
         dxvk60) w_warn "Calling dxvk60 is deprecated, please use dxvk060 instead" ; w_call dxvk060 ;;
         dxvk61) w_warn "Calling dxvk61 is deprecated, please use dxvk061 instead" ; w_call dxvk061 ;;
@@ -23205,13 +23062,14 @@ execute_command()
         dxvk94) w_warn "Calling dxvk94 is deprecated, please use dxvk094 instead" ; w_call dxvk094 ;;
         dxvk95) w_warn "Calling dxvk95 is deprecated, please use dxvk095 instead" ; w_call dxvk095 ;;
         dxvk96) w_warn "Calling dxvk96 is deprecated, please use dxvk096 instead" ; w_call dxvk096 ;;
-        flash11) w_warn "Calling flash11 is deprecated, please use flash instead" ; w_call flash ;;
         # art2kmin also comes with fm20.dll
         fm20) w_warn "Calling fm20 is deprecated, please use controlpad instead" ; w_call controlpad ;;
         fontsmooth-bgr) w_warn "Calling fontsmooth-bgr is deprecated, please use fontsmooth=bgr instead" ; w_call fontsmooth=bgr ;;
         fontsmooth-disable) w_warn "Calling fontsmooth-disable is deprecated, please use fontsmooth=disable instead" ; w_call fontsmooth=disable ;;
         fontsmooth-gray) w_warn "Calling fontsmooth-gray is deprecated, please use fontsmooth=gray instead" ; w_call fontsmooth=gray ;;
         fontsmooth-rgb) w_warn "Calling fontsmooth-rgb is deprecated, please use fontsmooth=rgb instead" ; w_call fontsmooth=rgb ;;
+        glsl=enabled) w_warn "Calling glsl=enabled is deprecated, please use shader_backend=glsl instead" ; w_call shader_backend=glsl ;;
+        glsl=disabled) w_warn "Calling glsl=disabled is deprecated, please use shader_backend=arb instead" ; w_call shader_backend=arb ;;
         glsl-disable) w_warn "Calling glsl-disable is deprecated, please use glsl=disabled instead" ; w_call glsl=disabled ;;
         glsl-enable) w_warn "Calling glsl-enable is deprecated, please use glsl=enabled instead" ; w_call glsl=enabled ;;
         ie6_full) w_warn "Calling ie6_full is deprecated, please use ie6 instead" ; w_call ie6 ;;
@@ -23219,7 +23077,10 @@ execute_command()
         jscript) w_warn "Calling jscript is deprecated, please use wsh57 instead" ; w_call wsh57 ;;
         npm-repack) w_warn "Calling npm-repack is deprecated, please use npm=repack instead" ; w_call npm=repack ;;
         oss) w_warn "Calling oss is deprecated, please use sound=oss instead" ; w_call sound=oss ;;
+        psdkwin7) w_warn "psdkwin7 has been removed, use psdkwin71 instead"; w_call psdkwin71 ;;
         python) w_warn "Calling python is deprecated, please use python26 instead" ; w_call python26 ;;
+        strictdrawordering=enabled) w_warn "Calling strictdrawordering=enabled is deprecated, please use csmt=enabled instead" ; w_call csmt=enabled ;;
+        strictdrawordering=disabled) w_warn "Calling strictdrawordering=disabled is deprecated, please use csmt=disabled instead" ; w_call csmt=disabled ;;
         vbrun60) w_warn "Calling vbrun60 is deprecated, please use vb6run instead" ; w_call vb6run ;;
         vcrun2005sp1) w_warn "Calling vcrun2005sp1 is deprecated, please use vcrun2005 instead" ; w_call vcrun2005 ;;
         vcrun2008sp1) w_warn "Calling vcrun2008sp1 is deprecated, please use vcrun2008 instead" ; w_call vcrun2008 ;;
@@ -23227,6 +23088,14 @@ execute_command()
         # See https://github.com/Winetricks/winetricks/issues/747
         xact_jun2010) w_warn "Calling xact_jun2010 is deprecated, please use xact instead" ; w_call xact ;;
         xlive) w_warn "Calling xlive is deprecated, please use gfw instead" ; w_call gfw ;;
+
+        # Use winecfg if you want a GUI for plain old DLL overrides
+        alldlls=*) w_call "$1" ;;
+        *=native) w_do_call native "${cmd}";;
+        *=builtin) w_do_call builtin "${cmd}";;
+        *=default) w_do_call default "${cmd}";;
+        *=disabled) w_do_call disabled "${cmd}";;
+        vd=*) w_do_call "${cmd}";;
 
         # Normal verbs, with metadata and load_ functions
         *)

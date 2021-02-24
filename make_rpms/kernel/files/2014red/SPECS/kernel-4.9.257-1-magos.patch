@@ -1,16 +1,16 @@
 diff -aupr a/kernel.spec b/kernel.spec
---- a/kernel.spec	2020-04-05 18:31:46.000000000 +0300
-+++ b/kernel.spec	2020-04-12 13:12:13.756099767 +0300
+--- a/kernel.spec	2018-11-16 20:50:12.423008197 +0300
++++ b/kernel.spec	2018-11-16 20:52:16.879014148 +0300
 @@ -1,7 +1,7 @@
- %define kernelversion	5
- %define patchlevel	4
- # sublevel is used for stable-based kernels
--%define sublevel	87
-+%define sublevel	91
+ %define kernelversion	4
+ %define patchlevel	9
+ # sublevel is now used for -stable patches
+-%define sublevel	155
++%define sublevel	257
  
  # Release number. Increase this before a rebuild.
  %define rpmrel		1
-@@ -86,6 +86,19 @@
+@@ -74,6 +74,19 @@
  %define build_modxz		1
  # End of user definitions
  
@@ -28,11 +28,11 @@ diff -aupr a/kernel.spec b/kernel.spec
 +%define build_headers           1
 +
  # buildtime flags
- %{?_without_doc: %global build_doc 0}
- %{?_without_devel: %global build_devel 0}
-@@ -183,6 +196,11 @@ Patch109:	fs-aufs.patch
- # Other patches
- Patch110:	objtool-sync-check.sh-set-the-exit-code-explicitly.patch
+ %{?_without_nrj_desktop: %global build_nrj_desktop 0}
+ %{?_without_nrj_laptop: %global build_nrj_laptop 0}
+@@ -237,6 +250,11 @@ Patch303:	random-make-getrandom-ready-ea
+ # then, it seems, even if we place "Patch: <..>" under a conditional.
+ Source701:	sanitize-memory.patch
  ####################################################################
 +# MagOS patches section
 +Source880:	magos-logo.patch
@@ -40,29 +40,21 @@ diff -aupr a/kernel.spec b/kernel.spec
 +
 +####################################################################
  
- Autoreqprov: 	no
+ # Defines for the things that are needed for all the kernels
+ #
+@@ -639,6 +657,11 @@ cp %{SOURCE112} .
+ FLAVOURS="${FLAVOURS} nrj-laptop"
+ %endif
  
-@@ -243,7 +261,7 @@ Release:	%{fakerel}
- 
- Provides:	kernel = %{kverrel}
- Provides:	kernel = %{kernelversion}.%{patchlevel}
--Provides:	kernel-%{flavour} = %{kverrel}
-+Provides:	kernel-%{flavour}
- Provides:	alsa = 1.0.27
- Provides:	should-restart = system
- 
-@@ -682,6 +700,10 @@ echo "Creating the kernel configuration
- 
- # Configs
- cp %{SOURCE110} .config
 +cp %{SOURCE880} .
 +patch -p1 -i %{SOURCE880}
 +cp %{SOURCE881} .
 +patch -p1 -i %{SOURCE881}
++
+ CONFIG_DIR=arch/x86/configs
+ mkdir -p "${CONFIG_DIR}"
  
- # Disable ASLR for 32-bit systems because it does not play well with
- # hibernate.
-@@ -936,7 +958,8 @@ cp -a %{temp_root} %{buildroot}
+@@ -1148,7 +1171,8 @@ find %{target_source}/include -name .ins
  # compressing modules
  %if %{build_modxz}
  find %{target_modules} -name "*.ko" | %kxargs xz -6e
