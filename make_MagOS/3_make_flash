@@ -117,7 +117,7 @@ echo -e "\nУпаковка файлов в модули"
 for a in "$TMPDIR/modules/xzm/"??-* ;do
   MOD=$(basename $a)
   echo "  $MOD"
-  [ -f .test ] && echo "$MOD" | grep -q 81-int- && continue
+  [ -f .test ] && echo "$MOD" | grep -q -- -int- && continue
   rm -fr "$TMPDIR/tmp/module/"* 2>/dev/null
   tar -c --ignore-failed-read --no-recursion -C "$ROOTFS/aufs" -T "$a" 2>>"$TMPDIR/split_errors.txt" | tar -x -C "$TMPDIR/tmp/module"  || stop "Can't split module $MOD"
   [ -f "$ROOTFS/aufs/var/lib/rpm/modules/$MOD" ] && mkdir -p "$TMPDIR/tmp/module/var/lib/rpm/modules" && cp -p "$ROOTFS/aufs/var/lib/rpm/modules/$MOD" "$TMPDIR/tmp/module/var/lib/rpm/modules"

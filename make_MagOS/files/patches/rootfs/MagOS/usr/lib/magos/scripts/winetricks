@@ -99,7 +99,6 @@ WINETRICKS_VERSION=20210206-next
 # - No bash, zsh, or csh extensions; only use features from
 #   the POSIX standard shell and utilities; see
 #   https://pubs.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html
-# - 'checkbashisms -p -x winetricks' should show no warnings (per Debian policy)
 # - Prefer classic sh idioms as described in e.g.
 #   "Portable Shell Programming" by Bruce Blinn, ISBN: 0-13-451494-7
 # - If there is no universally available program for a needed function,
@@ -1027,11 +1026,15 @@ w_verify_sha256sum()
 
     w_get_sha256sum "${_W_vs_file}"
     if [ "${_W_gotsha256sum}"x != "${_W_vs_wantsum}"x ] ; then
-        case ${LANG} in
-            pl*) w_die "Niezgodność sumy sha256sum! Zmień nazwę ${_W_vs_file} i spróbuj ponownie." ;;
-            ru*) w_die "Контрольная сумма sha256sum не совпадает! Переименуйте файл ${_W_vs_file} и попробуйте еще раз." ;;
-            *) w_die "sha256sum mismatch! Rename ${_W_vs_file} and try again." ;;
-        esac
+        if [ "${WINETRICKS_FORCE}" = 1 ]; then
+            w_warn "sha256sum mismatch! However --force was used, so trying anyway. Caveat emptor."
+        else
+            case ${LANG} in
+                pl*) w_die "Niezgodność sumy sha256sum! Zmień nazwę ${_W_vs_file} i spróbuj ponownie." ;;
+                ru*) w_die "Контрольная сумма sha256sum не совпадает! Переименуйте файл ${_W_vs_file} и попробуйте еще раз." ;;
+                *) w_die "sha256sum mismatch! Rename ${_W_vs_file} and try again. Alternatively, use --force to ignore this check." ;;
+            esac
+        fi
     fi
     unset _W_vs_wantsum _W_vs_file _W_gotsha256sum
 }
@@ -8367,6 +8370,24 @@ load_dxvk180()
     helper_dxvk_d9vk "${file1}" "5.14" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
 }
 
+w_metadata dxvk181 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (1.8.1)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-1.8.1.tar.gz" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/d3d9.dll" \
+    installed_file2="${W_SYSTEM32_DLLS_WIN}/d3d10core.dll" \
+    installed_file3="${W_SYSTEM32_DLLS_WIN}/d3d11.dll" \
+    installed_file4="${W_SYSTEM32_DLLS_WIN}/dxgi.dll"
+
+load_dxvk181()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v1.8.1/dxvk-1.8.1.tar.gz" 756a09c46f8279ade84456e3af038f64613a51e00a2d4cfffa4c91c10ede60e8
+    helper_dxvk_d9vk "${file1}" "5.14" "1.2.140" "dxgi,d3d9,d3d10core,d3d11"
+}
+
 #----------------------------------------------------------------
 
 w_metadata dxvk dlls \
@@ -12863,7 +12884,8 @@ load_vcrun2019()
     # 2020/08/05: b4d433e2f66b30b478c0d080ccd5217ca2a963c16e90caf10b1e0592b7d8d519
     # 2020/10/03: caa38fd474164a38ab47ac1755c8ccca5ccfacfa9a874f62609e6439924e87ec
     # 2020/11/13: 50a3e92ade4c2d8f310a2812d46322459104039b9deadbd7fdd483b5c697c0c8
-    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe 50a3e92ade4c2d8f310a2812d46322459104039b9deadbd7fdd483b5c697c0c8
+    # 2021/03/09: 4521ed84b9b1679a706e719423d54ef5e413dc50dde1cf362232d7359d7e89c4
+    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe 4521ed84b9b1679a706e719423d54ef5e413dc50dde1cf362232d7359d7e89c4
 
     w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcp140_1 msvcp140_2 msvcr140 ucrtbase vcomp140 vcruntime140
 
@@ -12886,11 +12908,12 @@ load_vcrun2019()
             # 2020/08/05: 952a0c6cb4a3dd14c3666ef05bb1982c5ff7f87b7103c2ba896354f00651e358
             # 2020/10/03: 4b5890eb1aefdf8dfa3234b5032147eb90f050c5758a80901b201ae969780107
             # 2020/11/13: b1a32c71a6b7d5978904fb223763263ea5a7eb23b2c44a0d60e90d234ad99178
+            # 2021/03/09: f299953673de262fefad9dd19bfbe6a5725a03ae733bebfec856f1306f79c9f7
 
             # vcruntime140_1 is only shipped on x64:
             w_override_dlls native,builtin vcruntime140_1
 
-            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe b1a32c71a6b7d5978904fb223763263ea5a7eb23b2c44a0d60e90d234ad99178
+            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe f299953673de262fefad9dd19bfbe6a5725a03ae733bebfec856f1306f79c9f7
             w_try "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
     esac
@@ -14287,7 +14310,7 @@ w_metadata sourcehansans fonts \
 
 load_sourcehansans()
 {
-    w_download "https://github.com/adobe-fonts/source-han-sans/releases/download/2.001R/SourceHanSans.ttc" 9e94fe493685a7c99ce61e4488169007e3b97badb9f1ef43d3c13da501463780
+    w_download "https://github.com/adobe-fonts/source-han-sans/releases/download/2.002R/SourceHanSans.ttc" 8c06d305a45d56fbc81ec67ca0afa552fbae1e69d4d42b49016a9ace677f89d8
     w_try cp "${W_CACHE}/${W_PACKAGE}/${file1}" "${W_TMP}/sourcehansans.ttc"
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "*.ttc"
 
@@ -14642,25 +14665,26 @@ load_autohotkey()
 #----------------------------------------------------------------
 
 w_metadata busybox apps \
-    title="BusyBox FRP-2121" \
+    title="BusyBox FRP-3902-g61e53aa93" \
     publisher="Ron Yorston / Busybox authors" \
-    year="2015" \
+    year="2021" \
     media="download" \
-    file1="busybox-w32-FRP-2121-ga316078ad.exe" \
-    installed_exe1=""
+    file1="busybox-w32-FRP-3902-g61e53aa93.exe" \
+    installed_exe1="${W_SYSTEM32_DLLS_WIN}/busybox.exe"
 
 load_busybox()
 {
-    # Could use https://frippery.org/files/busybox/busybox.exe, but it hasn't updated in last 3 years..
-    w_download https://frippery.org/files/busybox/busybox-w32-FRP-2121-ga316078ad.exe 1bab530f2fd2a9d69528bc2b35ba1f9f75481ae053443b47cb23ad2c2740d887
+    w_download https://frippery.org/files/busybox/busybox-w32-FRP-3902-g61e53aa93.exe 5595ff92795dba4717df671c0b17fe3419c332986b2cf5e6a92b4a0f83312fa3
 
     if test "${W_ARCH}" = "win64"; then
-        w_download https://frippery.org/files/busybox/busybox-w64-FRP-2121-ga316078ad.exe dcb2faf17f996fda8d273d513bc195aec615ef468e3d55b8b4dc9c089b22e035
+        w_download https://frippery.org/files/busybox/busybox-w64-FRP-3902-g61e53aa93.exe 901f5125fd35df11102df65c70b8877f0d06aad5ac3a27bf9e5d50a43644744b
         w_try cp "${W_CACHE}/${W_PACKAGE}/${file1}" "${W_SYSTEM32_DLLS}/busybox.exe"
         w_try cp "${W_CACHE}/${W_PACKAGE}/busybox-w64-FRP-2121-ga316078ad.exe" "${W_SYSTEM64_DLLS}/busybox.exe"
     else
         w_try cp "${W_CACHE}/${W_PACKAGE}/${file1}" "${W_SYSTEM32_DLLS}/busybox.exe"
     fi
+
+    w_warn "There are known issues with busybox under wine. For https://bugs.winehq.org/show_bug.cgi?id=49780, set BB_SKIP_ANSI_EMULATION=0. For https://github.com/rmyorston/busybox-w32/issues/210, set BB_ALT_BUFFER=0. I.e., \`BB_SKIP_ANSI_EMULATION=0 BB_ALT_BUFFER=0 ${WINE} busybox.exe\`"
 }
 
 #----------------------------------------------------------------

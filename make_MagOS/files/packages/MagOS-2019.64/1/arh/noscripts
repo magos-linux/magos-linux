@@ -1,0 +1,14 @@
+^glibc
+^kernel-desktop-
+^kernel-nrj-desktop-
+^netprofile-
+^partimage-
+^locales-
+^dracut-
+^shadow-utils-
+^makedev-
+^grub-
+^grub2-
+^plymouth-
+^rkhunter-
+^cdrkit-

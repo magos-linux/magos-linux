@@ -108,7 +108,7 @@ done
 ls -1 $CACHE/store | grep [.]rpm$ > $TMPDIR/re/storelist.txt
 
 echo -e "\nОбработка списков пакетов"
-find "$TMPDIR"/re/packages -maxdepth 1 -type f -name ??-* | sort | while read a ;do
+find "$TMPDIR"/re/packages -maxdepth 1 -type f | grep /[0-9][0-9]-* | sort | while read a ;do
   MODULE=$(basename $a) ; echo "  $MODULE"
   cat $a | while read n ;do
     MEDIA=$(grep -l ^$n$ "$TMPDIR/"re/packages/media_preferred/* | tail -1 | sed s%^.*/%%)
@@ -166,7 +166,7 @@ for a in "$TMPDIR/modules/packages/"* ;do
 done
 
 echo -e "\nПроверка зависимостей"
-[ -x /bin/rpm ] && LC_ALL=C rpm -i --test --root "$TMPDIR/tmp" "$TMPDIR/installsrc/"* 2>&1 | grep -iv ^warning | grep -v "installing package" > "$TMPDIR/checkdeps.txt"
+[ -x /bin/rpm ] && LC_ALL=C rpm -i --test --root "$TMPDIR/tmp" "$TMPDIR/installsrc/"* 2>&1 | egrep -iv "^warning|warning:|installing package" > "$TMPDIR/checkdeps.txt"
 cat $TMPDIR/checkdeps.txt
 echo -e "\nВ случае наличия ошибок нужно добавить или убрать пакеты в files/packages/* и перезапустить сборку с начала"
 

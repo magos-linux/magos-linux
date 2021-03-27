@@ -1,0 +1,5 @@
+lib64dri-drivers-intel
+lib64dri-drivers-nouveau
+lib64dri-drivers-radeon
+lib64dri-drivers-swrast
+lib64dri-drivers-virtio
