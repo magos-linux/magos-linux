@@ -421,7 +421,7 @@ lib64tls_libressl20
 lib64udev1
 lib64unistring2
 lib64unwind8
-lib64upsclient3
+lib64upsclient4
 lib64usb1.0_0
 lib64usb-compat0.1_4
 lib64user1
@@ -934,3 +934,7 @@ preload
 help2man
 bootloader-utils
 lib64isl23
+rosa-kernel-tools
+lib64re2_9
+perl-File-HomeDir
+perl-File-Which

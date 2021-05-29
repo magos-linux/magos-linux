@@ -138,7 +138,7 @@ stardict-quick-eng-rus
 stardict-quick-rus-eng
 stylewriter
 system-config-printer
-system-config-printer-libs
+system-config-printer-common
 system-config-printer-udev
 task-printing
 task-printing-canon

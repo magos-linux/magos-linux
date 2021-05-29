@@ -716,3 +716,9 @@ lib64qtdeclarative4
 qt4-xmlpatterns
 lib64qtxmlpatterns4
 lib64qtdesigner4
+kdesignerplugin
+kshutdown
+plasma5-applet-binaryclock
+qqc2-breeze-style
+kdesignerplugin-i18n
+plasma5-systemmonitor

@@ -18,11 +18,12 @@ mate-settings-daemon
 mate-system-monitor
 mate-terminal
 mate-utils
-lib64marco-private1
+lib64marco-private2
 lib64mate-desktop2_17
 lib64matedict6
 lib64matekbd4
 lib64mate-menu2
+lib64mate-menu-gir2.0
 lib64matemixer0
 lib64mate-panel-applet4_1
 lib64mate-slab0
@@ -41,3 +42,10 @@ task-mate-minimal
 python3-cython
 blueman
 pluma
+lib64pluma-gir1.0
+lib64peas1.0_0
+lib64peas-gir1.0
+lib64peas-gtk1.0_0
+lib64peas-gtk-gir1.0
+lib64peas1.0-loaders
+libpeas-data

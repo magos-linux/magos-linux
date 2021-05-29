@@ -49,6 +49,9 @@ feh
 florence
 fonts-ttf-freefont
 fonts-ttf-liberation
+fonts-ttf-liberation-mono
+fonts-ttf-liberation-sans
+fonts-ttf-liberation-serif
 fonts-ttf-ptsans
 fonts-ttf-ptserif
 fribidi
@@ -63,8 +66,6 @@ gnome-icon-theme
 gnome-icon-theme-symbolic
 gnome-keyring
 gnome-mime-data
-gnome-python-desktop
-gnome-python-gnomekeyring
 gnome-themes-standard
 goocanvas2-i18n
 gpicview
@@ -218,7 +219,7 @@ lib64cogl-pango-gir1.0
 lib64colord2
 lib64colordprivate2
 lib64colorhug2
-lib64config9
+lib64config11
 lib64confuse2
 lib64cupsimage2
 lib64datrie1
@@ -270,7 +271,7 @@ lib64florence1.0_1
 lib64fltk1.3
 lib64fluidsynth2
 lib64fm4
-lib64fm-qt8
+lib64fm-qt9
 lib64fontenc1
 lib64freebl3
 lib64freeglut3
@@ -351,7 +352,9 @@ lib64gtkglext1.0_0
 lib64gtkmm2.4_1
 lib64gtk-modules2.0
 lib64gtk-modules3.0
-lib64gtksourceview-2.0_0
+lib64gtksourceview-3.0_1
+lib64gtksourceview-4_0
+lib64gtksourceview-gir4
 lib64gtkspell0
 lib64gtop2.0_11
 lib64gudev-gir1.0
@@ -366,6 +369,7 @@ lib64harfbuzz0
 lib64harfbuzz-icu0
 lib64harfbuzz-gir0.0
 lib64harfbuzz-gobject0
+lib64harfbuzz-subset0
 lib64hfstospell11
 lib64hspell0
 lib64hunspell1.7_0
@@ -859,7 +863,6 @@ perl-Event
 perl-Glib
 perl-Glib-Object-Introspection
 perl-Gtk2
-perl-Gtk2-SourceView2
 perl-Gtk3
 perl-IO-AIO
 perl-JSON-XS
@@ -1217,8 +1220,6 @@ fonts-ttf-bitstream-vera
 lib64glew2.2
 perl-Gtk2-WebKit
 perl-Gnome2-Vte
-pygtk2.0
-pygtk2.0-libglade
 lib64gtkspell3_0
 gtkspell3
 python3-simplejson
@@ -1274,6 +1275,7 @@ opensp
 lib64opensp5
 lib64openjade0
 gtksourceview3
+gtksourceview4
 source-highlight
 lib64source-highlight4
 lib64dbus-1_3
@@ -1284,7 +1286,6 @@ perl-SGMLSpm
 python3-gi-cairo
 lib64gnomesu0
 libgnomesu
-lib64gtksourceview-3.0_1
 imagemagick
 lib64avcodec58
 lib64avfilter7
@@ -1349,3 +1350,5 @@ lib64webkit-gir3.0
 lib64webkitgtk3.0_0
 lib64javascriptcoregtk3.0_0
 lib64jscore-gir3.0
+python3-gobject
+lib64otr5
