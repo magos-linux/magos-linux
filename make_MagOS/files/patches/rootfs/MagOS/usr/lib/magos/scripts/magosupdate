@@ -49,6 +49,7 @@ function initparameters()
  mkdir -p "$TMPDIR"
  touch $LOGFILE
  chmod 666 $LOGFILE
+ findmagosdir
  MUPDRSYNCOPT="-rtc"
  MAGOSUPDATEPROT=rsync
  MAGOSUPDATESERVER=mirror.yandex.ru
@@ -59,7 +60,6 @@ function initparameters()
  MAGOSUPDATEINTURL=$MAGOSUPDATEPROT://$MAGOSUPDATESERVER$MAGOSUPDATEMODSSHARE/$ARCH/international/
  . /usr/lib/magos/os-config
  . /etc/MagOS/config
- findmagosdir
 }
 
 # $1 filename
