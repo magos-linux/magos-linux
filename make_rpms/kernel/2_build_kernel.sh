@@ -9,7 +9,7 @@ mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,BUILDROOT} rpms/$MARCH/{rpms,srpms}
 
 [ -b /dev/zram4 ] || modprobe zram num_devices=5
 grep -q /dev/zram4 /proc/mounts && exit 1
-echo $((20*1024*1024*1024)) > /sys/block/zram4/disksize
+echo $((30*1024*1024*1024)) > /sys/block/zram4/disksize
 mkfs.ext2 -m0 -F /dev/zram4
 mount -o noatime /dev/zram4 ~/rpmbuild
 mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,BUILDROOT}

@@ -185,3 +185,8 @@ Type=Application
 EOF
 [ -d usr/share/xsessions ] && cp -pf etc/X11/wmsession.d/00DEFAULT usr/share/xsessions/default.desktop
 [ -d etc/X11/dm/Sessions ] && cp -pf etc/X11/wmsession.d/00DEFAULT etc/X11/dm/Sessions/00DEFAULT.desktop
+
+if [ "$(cmdline_parameter uird.silent)" ] ;then
+  sed -i /^ShowStatus=/d etc/systemd/system.conf
+  echo ShowStatus=no >> etc/systemd/system.conf
+fi

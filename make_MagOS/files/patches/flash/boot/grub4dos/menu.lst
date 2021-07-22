@@ -12,12 +12,12 @@ color black/cyan yellow/cyan
 splashimage /boot/grub4dos/boot_xpm.gz
 
 iftitle [if exist /isomode] MagOS Linux-Run from ISO/DVD
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.force scantimeout=3
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 vt.global_cursor_default=1 uird.silent uird.from=/MagOS lang=en
 initrd /MagOS/uird.magos.cpio.xz
 
 iftitle [if not exist /isomode] MagOS Linux with saving data
 if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 lang=en uird.home=home.img uird.mode=machines
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines lang=en
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux Clean mode

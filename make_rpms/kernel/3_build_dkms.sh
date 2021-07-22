@@ -8,7 +8,9 @@ rpm -ihv --nodeps --noscripts --nodigest rpms/$MARCH/rpms/kernel-header*.rpm
 rpm -ihv --nodeps --noscripts --nodigest rpms/$MARCH/rpms/kernel-*desktop*.rpm
 rpm -Uhv --nodeps --noscripts --nodigest cache/$MARCH/dkms/*.rpm
 
-KERN=$(ls -1d /usr/src/linux-* | tail -1 | sed s%/usr/src/linux-%% | sed s%/.*%%)
+KNUM=$(ls rpms/$MARCH/rpms/kernel-headers-* | sed s=.*/kernel-headers-== | sed s/-.*// | sort -n | tail -1)
+KERN=$(ls -1d /usr/src/linux-* | grep -- -$KNUM- | sed s%/usr/src/linux-%% | sed s%/$%%)
+echo $KERN
 [ -h /lib/modules/$KERN/build  ] || ln -sf /usr/src/linux-$KERN /lib/modules/$KERN/build
 [ -h /lib/modules/$KERN/source ] || ln -sf /usr/src/linux-$KERN /lib/modules/$KERN/source
 
