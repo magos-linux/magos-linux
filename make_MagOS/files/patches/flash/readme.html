@@ -1,4 +1,4 @@
-<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2021-07-17</p>
+<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2021-08-27</p>
 <hr><a name="Home"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>Home</h1>
 <p>Welcome to the magos-linux wiki!</p>
 <p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">Документация на русском языке</a></p>
@@ -1637,6 +1637,16 @@ optirun -b primus glxinfo | grep vendor
 optirun -b primus steam
 ```</p>
 <hr><a name="История"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>История</h1>
+<h3>сборка 20210720</h3>
+<ul>
+<li>обновления на 20.07.2021</li>
+<li>ядро 5.4.132</li>
+<li>исправлена ошибка в скрипте автоматического обновления</li>
+<li>при использовании параметра uird.silent отключается вывод сообщений systemd </li>
+<li>отключен по умолчанию plymouth в режиме загрузки UEFI</li>
+<li>при загрузке с iso образа отключен поиск MagOS-Data, включен тихий режим загрузки (uird.silent)</li>
+<li>в uird добавлен русский язык (используется по умолчанию, если не указан параметр lang)</li>
+</ul>
 <h3>сборка 20210626</h3>
 <ul>
 <li>обновления на 26.06.2021</li>
