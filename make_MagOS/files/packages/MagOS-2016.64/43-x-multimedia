@@ -324,6 +324,7 @@ python-pyxdg
 python-pyxml
 qastools
 qmmp
+qmmp-ffmpeg
 qmmp-plugins
 qmmp-wavpack
 qmplay2

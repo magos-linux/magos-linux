@@ -122,3 +122,12 @@ msec-gui
 81-int-sl:thunderbird-78-enigmail-sl
 81-int-zh:thunderbird-78-enigmail-zh_CN
 81-int-zh:thunderbird-78-enigmail-zh_TW
+dbview
+iperf
+lilo
+pdnsd
+rng-utils
+curlftpfs
+fusesmb
+mirrordir
+zcip

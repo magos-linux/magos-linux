@@ -45,14 +45,12 @@ dash
 dbus-common
 dbus-daemon
 dbus-tools
-dbview
 dhcp-client
 dhcp-common
 dhcp-server
 diffutils
 distro-release-common
-distro-release-rosa2019.1
-dkms-minimal
+distro-release-rosa2021.1
 dmidecode
 dmraid
 dmraid-events
@@ -61,7 +59,6 @@ dnsmasq-base
 dracut
 dracut-aufs
 dvd+rw-tools
-dynamic
 e2fsprogs
 efivar
 encfs
@@ -105,7 +102,6 @@ ifplugd
 info
 initscripts
 ipcalc
-iperf
 iproute2
 iptables
 iptables-services
@@ -235,7 +231,6 @@ lib64inih0
 lib64intl8
 lib64ip4tc2
 lib64ip6tc2
-lib64iperf0
 lib64iw30
 lib64jansson4
 lib64json0
@@ -260,8 +255,6 @@ lib64lm_sensors5
 lib64lockdev1
 lib64logging-stdlog0
 lib64ltdl7
-lib64lua5.1
-lib64lua5.2
 lib64lua5.3
 lib64lz4_1
 lib64lzma5
@@ -301,7 +294,6 @@ lib64newt0.52
 lib64nfnetlink0
 lib64nfsidmap1
 lib64nftnl11
-lib64nl1
 lib64nl3_200
 lib64nl-genl3_200
 lib64nl-route3_200
@@ -350,7 +342,6 @@ lib64powerman0
 lib64procps8
 lib64proxy1
 lib64psl5
-lib64pth20
 lib64pugixml1
 lib64pwdb0
 lib64pwquality1
@@ -472,7 +463,6 @@ libsoup-common
 libstdc++6
 libtirpc
 libuser
-lilo
 locales
 locales-en
 locales-ru
@@ -532,7 +522,6 @@ parted
 pciutils
 pcmciautils
 pcsc-lite
-pdnsd
 p11-kit-trust
 perl
 perl-Archive-Cpio
@@ -700,7 +689,6 @@ pwdb-conf
 python3
 python3-appdirs
 python3-dbus
-python3-dnspython
 python3-ldb
 python3-packaging
 python3-parsing
@@ -714,7 +702,6 @@ qmi-tools
 quota
 reptyr
 rmt
-rng-utils
 rootcerts
 rootfiles
 rpcbind
@@ -738,7 +725,6 @@ shadow-conv
 shadow-utils
 sharutils
 socat
-squashfs3-tools
 squashfs-tools
 sshfs-fuse
 sshpass
@@ -782,8 +768,6 @@ zip
 zstd
 whois
 rfkill
-curlftpfs
-fusesmb
 iftop
 krb5-workstation
 lftp
@@ -813,11 +797,8 @@ lib64isccfg163
 python3-bind
 lib64geoip1
 python3-ply
-mirrordir
-lib64diffie1
 nethogs
 xl2tpd
-zcip
 lib64net1.0.2
 pam_krb5
 vlan-utils

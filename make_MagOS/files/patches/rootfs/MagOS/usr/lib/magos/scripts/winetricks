@@ -11248,8 +11248,8 @@ load_msls31()
 {
     # Needed by native RichEdit and Internet Explorer
     # Originally at https://download.microsoft.com/download/WindowsInstaller/Install/2.0/NT45/EN-US/InstMsiW.exe
-    # Mirror list at http://www.filewatcher.com/m/InstMsiW.exe.1822848-0.html
-    w_download https://ftp.hp.com/pub/softlib/software/msi/InstMsiW.exe 4c3516c0b5c2b76b88209b22e3bf1cb82d8e2de7116125e97e128952372eed6b InstMsiW.exe
+    # Old mirror at https://ftp.hp.com/pub/softlib/software/msi/InstMsiW.exe
+    w_download https://web.archive.org/web/20160710055851if_/http://download.microsoft.com/download/WindowsInstaller/Install/2.0/NT45/EN-US/InstMsiW.exe 4c3516c0b5c2b76b88209b22e3bf1cb82d8e2de7116125e97e128952372eed6b
 
     w_try_cabextract --directory="${W_TMP}" "${W_CACHE}"/msls31/InstMsiW.exe
     w_try cp -f "${W_TMP}"/msls31.dll "${W_SYSTEM32_DLLS}"
@@ -12308,7 +12308,7 @@ w_metadata vb6run dlls \
     year="2004" \
     media="download" \
     file1="vbrun60sp6.exe" \
-    installed_file1="${W_SYSTEM32_DLLS_WIN}/MSVBVM60.DLL"
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/msvbvm60.dll"
 
 load_vb6run()
 {
@@ -12323,21 +12323,12 @@ load_vb6run()
         w_try mv "${W_TMP}"/vbrun60sp6.exe "${W_CACHE}"/vb6run
     fi
 
-    # Delete some fake DLLs to ensure that the installer overwrites them.
-    rm -f "${W_SYSTEM32_DLLS}"/comcat.dll
-    rm -f "${W_SYSTEM32_DLLS}"/oleaut32.dll
-    rm -f "${W_SYSTEM32_DLLS}"/olepro32.dll
-    rm -f "${W_SYSTEM32_DLLS}"/stdole2.tlb
+    # extract the files instead of using installer to avoid https://github.com/Winetricks/winetricks/issues/1806
+    w_try_cabextract -L "${W_CACHE}/${W_PACKAGE}/${file1}" -d "${W_TMP}"
 
-    w_try_cd "${W_CACHE}/${W_PACKAGE}"
-    # Exits with status 43 for some reason?
-    "${WINE}" vbrun60sp6.exe ${W_OPT_UNATTENDED:+/q}
-
-    status=$?
-    case ${status} in
-        0|43) ;;
-        *) w_die "${W_PACKAGE} installation failed"
-    esac
+    for dll in asycfilt.dll comcat.dll msvbvm60.dll oleaut32.dll olepro32.dll stdole2.tlb; do
+        w_try mv "${W_TMP}/${dll}" "${W_SYSTEM32_DLLS}"
+    done
 }
 
 #----------------------------------------------------------------
@@ -12367,23 +12358,16 @@ load_vcrun6()
     # Load the Visual C++ 6 runtime libraries, including the elusive mfc42u.dll
     winetricks_vcrun6_helper
 
-    # Delete some fake DLLs to avoid vcredist installer warnings
-    rm -f "${W_SYSTEM32_DLLS}"/comcat.dll
-    rm -f "${W_SYSTEM32_DLLS}"/msvcrt.dll
-    rm -f "${W_SYSTEM32_DLLS}"/oleaut32.dll
-    rm -f "${W_SYSTEM32_DLLS}"/olepro32.dll
-    rm -f "${W_SYSTEM32_DLLS}"/stdole2.tlb
-    "${WINE}" "${W_CACHE}"/vcrun6/vcredist.exe
+    # extract the files instead of using installer to avoid https://github.com/Winetricks/winetricks/issues/1806
+    w_try_cabextract "${W_CACHE}/${W_PACKAGE}/${file1}" -d "${W_TMP}" -F vcredist.exe
+    w_try_cabextract "${W_TMP}/vcredist.exe" -d "${W_TMP}"
 
-    status=$?
-    case ${status} in
-        0|43) ;;
-        *) w_die vcrun6 installation failed
-    esac
+    for dll in asycfilt.dll comcat.dll mfc42.dll mfc42u.dll msvcirt.dll msvcp60.dll msvcrt.dll oleaut32.dll olepro32.dll stdole2.tlb; do
+        w_try mv "${W_TMP}/${dll}" "${W_SYSTEM32_DLLS}"
+    done
 
-    # And then some apps need mfc42u.dll, dunno what the right way
-    # is to get it, vcredist doesn't seem to install it by default?
-    load_mfc42
+    # atla.dll lbecomes atl.dll (note: atlu.dll is unused)
+    w_try mv "${W_TMP}/atla.dll" "${W_SYSTEM32_DLLS}/atl.dll"
 }
 
 w_metadata mfc42 dlls \
@@ -12434,30 +12418,16 @@ load_vcrun6sp6()
 {
     w_download https://www.ddsystem.com.br/update/setup/vb6+sp6/VS6SP6.EXE 7fa1d1778824b55a5fceb02f45c399b5d4e4dce7403661e67e587b5f455edbf3
 
-    # No EULA is presented when passing command-line extraction arguments,
-    # so we'll simplify extraction with cabextract.
+    # extract the files instead of using installer to avoid https://github.com/Winetricks/winetricks/issues/1806
     w_try_cabextract "${W_CACHE}/${W_PACKAGE}/${file1}" -d "${W_TMP}" -F vcredist.exe
-    w_try_cd "${W_TMP}"
+    w_try_cabextract "${W_TMP}/vcredist.exe" -d "${W_TMP}"
 
-    # Delete some fake DLLs to avoid vcredist installer warnings
-    w_try rm -f "${W_SYSTEM32_DLLS}"/comcat.dll
-    w_try rm -f "${W_SYSTEM32_DLLS}"/msvcrt.dll
-    w_try rm -f "${W_SYSTEM32_DLLS}"/oleaut32.dll
-    w_try rm -f "${W_SYSTEM32_DLLS}"/olepro32.dll
-    w_try rm -f "${W_SYSTEM32_DLLS}"/stdole2.tlb
-    # vcredist still exits with status 43.  Anyone know why?
-    "${WINE}" vcredist.exe
+    for dll in asycfilt.dll comcat.dll mfc42.dll mfc42u.dll msvcirt.dll msvcp60.dll msvcrt.dll oleaut32.dll olepro32.dll stdole2.tlb; do
+        w_try mv "${W_TMP}/${dll}" "${W_SYSTEM32_DLLS}"
+    done
 
-    status=$?
-    case ${status} in
-        0|43) ;;
-        *) w_die "${W_PACKAGE} installation failed"
-    esac
-
-    # And then some apps need mfc42u.dll, dont know what right way
-    # is to get it, vcredist doesn't install it by default?
-    w_try_cabextract vcredist.exe -d "${W_SYSTEM32_DLLS}" -F mfc42u.dll
-    # Should the mfc42 verb install this one instead?
+    # atla.dll lbecomes atl.dll (note: atlu.dll is unused)
+    w_try mv "${W_TMP}/atla.dll" "${W_SYSTEM32_DLLS}/atl.dll"
 }
 
 #----------------------------------------------------------------
