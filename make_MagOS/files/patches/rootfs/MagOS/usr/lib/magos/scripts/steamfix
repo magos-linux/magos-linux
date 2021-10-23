@@ -12,7 +12,7 @@ PRRUN="optirun -b primus"
 . /etc/MagOS/config
 
 #debug echo
-#echo -e "LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nLD_PRELOAD=$LD_PRELOAD" > /tmp/steamruntime.log
+[ "$STEAMFIXDEBUG" = "yes" ] && echo -e "LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nLD_PRELOAD=$LD_PRELOAD\nPARAMS=$@" > /tmp/steamruntime.log
 
 # Checking for bumblebeed process is started
 LD_LIBRARY_PATH= LD_PRELOAD= /bin/ps -A | grep -q bumblebeed || PRRUN=
@@ -23,6 +23,6 @@ echo "$LD_LIBRARY_PATH" | grep -q primus && export LD_LIBRARY_PATH="$STEAMLLP"
 export LD_PRELOAD="$STEAMLPL"
 
 #debug echo
-#echo -e "LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nLD_PRELOAD=$LD_PRELOAD\nPRRUN=$PRRUN" >> /tmp/steamruntime.log
+[ "$STEAMFIXDEBUG" = "yes" ] && echo -e "LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nLD_PRELOAD=$LD_PRELOAD\nPRRUN=$PRRUN\nPARAMS=$1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18} ${18} ${20}" >> /tmp/steamruntime.log
 
-exec $PRRUN "$1" "$2" "$3"
+exec $PRRUN "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}" "${18}" "${20}"

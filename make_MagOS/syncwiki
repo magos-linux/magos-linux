@@ -24,21 +24,21 @@ if [ -x $MTMP/wiki/md2html.sh ] ;then
   fi
 fi
 
-[ -x files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks ] && wget -O $MTMP/protontricks https://raw.githubusercontent.com/Sirmentio/protontricks/master/protontricks
+#[ -x files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks ] && wget -O $MTMP/protontricks https://raw.githubusercontent.com/Sirmentio/protontricks/master/protontricks
 [ -x files/patches/rootfs/MagOS/usr/lib/magos/scripts/winetricks   ] && wget -O $MTMP/winetricks   https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 chmod +x $MTMP/*tricks 2>/dev/null
-[ -x $MTMP/protontricks ] && sed -i s%/usr/bin/winetricks%/usr/lib/magos/scripts/winetricks%g $MTMP/protontricks
-[ -x $MTMP/protontricks ] && mv -f $MTMP/protontricks files/patches/rootfs/MagOS/usr/lib/magos/scripts
+#[ -x $MTMP/protontricks ] && sed -i s%/usr/bin/winetricks%/usr/lib/magos/scripts/winetricks%g $MTMP/protontricks
+#[ -x $MTMP/protontricks ] && mv -f $MTMP/protontricks files/patches/rootfs/MagOS/usr/lib/magos/scripts
 [ -x $MTMP/winetricks   ] && mv -f $MTMP/winetricks   files/patches/rootfs/MagOS/usr/lib/magos/scripts
 
 rm -fr $MTMP
 
 #tests for protontricks and winetricks
-if [ -x /usr/lib/magos/scripts/protontricks ] ;then
-  diff -aup /usr/lib/magos/scripts/protontricks files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks > protontricks.diff
-  cp -pf files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks /usr/lib/magos/scripts/protontricks
-  su -lc protontricks $(id -un 500)
-fi
+#if [ -x /usr/lib/magos/scripts/protontricks ] ;then
+#  diff -aup /usr/lib/magos/scripts/protontricks files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks > protontricks.diff
+#  cp -pf files/patches/rootfs/MagOS/usr/lib/magos/scripts/protontricks /usr/lib/magos/scripts/protontricks
+#  su -lc protontricks $(id -un 500)
+#fi
 if [ -x /usr/lib/magos/scripts/winetricks   ] ;then
   diff -aup /usr/lib/magos/scripts/winetricks   files/patches/rootfs/MagOS/usr/lib/magos/scripts/winetricks   > winetricks.diff
   cp -pf files/patches/rootfs/MagOS/usr/lib/magos/scripts/winetricks /usr/lib/magos/scripts/winetricks
