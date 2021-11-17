@@ -9,6 +9,13 @@ NetworkManager-wait-online arp-ethers.service dbus-org.freedesktop.Avahi dhcpd w
 SOCKETSDISABLE="avahi-daemon rpcbind lvm2-lvmetad"
 SERVICESSTART="virtualbox"
 
+function sd_change()
+{
+ [ -f "$1" ] || return
+ sed -i /^$2=/d $1
+ echo $2=$3 >> $1
+}
+
 for a in $SERVICESDISABLE ;do
    find /etc/systemd/system | grep /$a.service | xargs rm -f
    find /lib/systemd/system | grep [.]wants/$a.service | xargs rm -f
@@ -21,27 +28,12 @@ for a in $SERVICESSTART ;do
     [ -f /lib/systemd/system/$a.service ] &&  systemctl enable $a.service
 done
 
-PFP=/etc/systemd/system.conf
-sed -i /^DefaultTimeoutStopSec/d $PFP
-echo DefaultTimeoutStopSec=10s >> $PFP
-
-PFP=/etc/systemd/coredump.conf
-sed -i /Storage=/d $PFP
-echo Storage=none >> $PFP
-
-PFP=/lib/systemd/network/90-enable.network
-sed -i /DHCP=/d $PFP
-echo DHCP=ipv4 >> $PFP
-
-PFP=/lib/systemd/network/90-wireless.network
-sed -i /DHCP=/d $PFP
-echo DHCP=ipv4 >> $PFP
-
-PFP=/etc/systemd/resolved.conf
-sed -i /FallbackDNS/d $PFP
-echo "FallbackDNS=77.88.8.8 77.88.8.1" >> $PFP
-sed -i /^LLMNR/d $PFP
-echo "LLMNR=no" >> $PFP
+sd_change /etc/systemd/system.conf DefaultTimeoutStopSec 10s
+sd_change /etc/systemd/coredump.conf Storage none
+sd_change /lib/systemd/network/90-enable.network DHCP ipv4
+sd_change /lib/systemd/network/90-wireless.network DHCP ipv4
+sd_change /etc/systemd/resolved.conf FallbackDNS "77.88.8.8 77.88.8.1"
+sd_change /etc/systemd/resolved.conf LLMNR no
 
 for a in sddm kdm gdm lightdm slim ;do
     [ -f /lib/systemd/system/$a.service ] || continue

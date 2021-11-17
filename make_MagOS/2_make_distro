@@ -15,6 +15,8 @@ NOTAERROR="^warning:|^Preparing packages|^Running in chroot, ignoring|^update-al
 ROOTFS="/opt/make_magos_rootfs"
 SAVEROOTFS=no
 STAGE1METOD=massinstall
+RPMOPT="--ignoresize --nodigest --nosignature --nosuggest --nodeps"
+RPMOPT="--ignoresize --nodigest --nosignature --nodeps --replacefiles"
 
 function stop()
 {
@@ -67,12 +69,12 @@ function installscripts()
   mkdir -p "$ROOTFS/orig/tmp/"{store,installsrc}
   cp -pr "$1"/* "$ROOTFS/orig/tmp/installsrc"
   mount --bind $(readlink -f "$TMPDIR/store") "$ROOTFS/orig/tmp/store" || stop "Error when mounting $ROOTFS/orig/tmp/store"
-  [ -x /bin/rpm ] && TMPDIR=/tmp LC_ALL=C chroot "$ROOTFS/orig" rpm -iv --ignoresize --nodigest --nosignature --nosuggest --nodeps /tmp/installsrc/* >"$TMPDIR/tmp/install_log"  2>&1
-  [ -x /bin/rpm ] && LC_ALL=C rpm -qa --root "$ROOTFS/orig" | LC_ALL=C sort | sed s/$/.rpm/ > "$ROOTFS/orig/tmp/packageslist.txt"
+  [ -x /bin/rpm ] && TMPDIR=/tmp LC_ALL=C chroot "$ROOTFS/orig" rpm -iv $RPMOPT /tmp/installsrc/* >"$TMPDIR/tmp/install_log"  2>&1
+  [ -x /bin/rpm ] && LC_ALL=C rpm -qa --root "$ROOTFS/orig" --qf '%{NAME}-%{Version}-%{RELEASE}\n' | LC_ALL=C sort > "$ROOTFS/orig/tmp/packageslist.txt"
   hidebinaries unhide "$ROOTFS/orig" "$HIDEBININSTALL"
   lsof 2>/dev/null | grep "$ROOTFS/orig" | awk '{print $2}' | sort -u | xargs kill 2>/dev/null -9
   umount "$ROOTFS/orig"/{tmp/store,sys/fs/fuse/connections,dev,proc,sys} 2>/dev/null
-  diff "$ROOTFS/orig/tmp/packageslist.txt" "packageslist.txt" | grep '> ' | sed s/^..// > "notinstalled"
+  grep -vf "$ROOTFS/orig/tmp/packageslist.txt" "packageslist.txt" > "notinstalled"
   rm -fr "$ROOTFS/orig/tmp/installsrc"; rmdir "$ROOTFS/orig/tmp/store"
 }
 
@@ -88,7 +90,7 @@ function installpackage()
 {
   echo -ne "\r  $(basename $1)                                                   \r"
   if [ -x /bin/rpm ] ;then
-    LC_ALL=C rpm -i --ignoresize --nodigest --nosignature --nosuggest --nodeps  --noscripts --root "$ROOTFS/orig" "$1" >>"$2"  2>&1 || stop "\nError when installing package $1"
+    LC_ALL=C rpm -i $RPMOPT --noscripts --root "$ROOTFS/orig" "$1" >>"$2"  2>&1 || stop "\nError when installing package $1"
   fi
 }
 
@@ -133,12 +135,14 @@ done
 
 echo -e "\nИмпортирование ключей"
 for a in "$TMPDIR/pubkeys/"*.pubkey ;do
-   [ -x /bin/rpm ] && rpm --root "$ROOTFS/orig" --import $a  || stop "Error when importing pibkey $a"
+   if [ -x /bin/rpm -a -f "$a" ] ;then
+      rpm --root "$ROOTFS/orig" --import "$a"  || stop "Error when importing pibkey $a"
+   fi
 done
 
 echo -e "\nУстановка основных пакетов"
 if [ "$STAGE1METOD" = "massinstall" ] ;then
-  LC_ALL=C rpm -i --ignoresize --nodigest --nosignature --nosuggest --nodeps  --noscripts --root "$ROOTFS/orig" "$TMPDIR/installsrc/"* >"$TMPDIR/install_log1.txt"  2>&1 || stop "Error when installing packages. See $TMPDIR/install_log1.txt"
+  LC_ALL=C rpm -i $RPMOPT --noscripts --root "$ROOTFS/orig" "$TMPDIR/installsrc/"* >"$TMPDIR/install_log1.txt"  2>&1 || stop "Error when installing packages. See $TMPDIR/install_log1.txt"
 else
   find -L "$TMPDIR/installsrc" -type f | sort | while read a ;do
     installpackage "$a" "$TMPDIR/install_log1.txt"
@@ -155,7 +159,7 @@ if grep -q . "notinstalled" ;then
   echo -e "Часть пакетов не установлена (возможно из-за неполных зависимостей):"
   cat "notinstalled" | while read a ;do
      echo "  $a"
-     mv "$TMPDIR/installsrc2/$a" "$TMPDIR/installsrc3" 
+     mv "$TMPDIR/installsrc2/$a" -t "$TMPDIR/installsrc3"
   done
   echo -e "Повторная установка"
   installscripts "$TMPDIR/installsrc3"

@@ -1,11 +1,13 @@
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/x86_64/main/release main-release
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/x86_64/main/updates main-updates update
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/x86_64/contrib/release contrib-release
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/x86_64/contrib/updates contrib-updates update
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/x86_64/non-free/release nonfree-release
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/i686/main/release main-release-32 ignore
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/i686/main/updates main-updates-32 update ignore
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/i686/contrib/release contrib-release-32 ignore
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/i686/contrib/updates contrib-updates-32 update ignore
-http://abf-downloads.rosalinux.ru/rosa2021.1/repository/i686/non-free/release nonfree-release-32 ignore
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/main/release main-release
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/main/updates main-updates update
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/contrib/release contrib-release
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/contrib/updates contrib-updates update
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/non-free/release nonfree-release
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/non-free/updates nonfree-updates
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/main/release main-release-32 ignore
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/main/updates main-updates-32 update ignore
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/contrib/release contrib-release-32 ignore
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/contrib/updates contrib-updates-32 update ignore
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/non-free/release nonfree-release-32 ignore
+http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/non-free/updates nonfree-updates-32 ignore
 http://magos.sibsau.ru/repository/rpms/2021 magos skip

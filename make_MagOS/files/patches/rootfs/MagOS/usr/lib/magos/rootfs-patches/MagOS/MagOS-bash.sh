@@ -7,5 +7,6 @@ if ! grep -q "/usr/lib/magos/scripts" $PFP ;then
 fi
 PFP=/root/.bashrc
 grep -q "/usr/lib/magos/scripts" $PFP || sed -i s%^PATH=.*%'PATH=/usr/lib/magos/scripts:/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin'% $PFP
+grep -q "/usr/lib/magos/scripts" $PFP || echo 'export PATH="/usr/lib/magos/scripts:$PATH"' >> $PFP
 
 exit 0

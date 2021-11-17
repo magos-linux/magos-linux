@@ -10,7 +10,9 @@ libserializer
 pentaho-libxml
 apache-commons-logging
 itext
-javapackages-tools
 libloader
 xml-commons-apis
 itext-core
+bouncycastle-mail
+bouncycastle-pkix
+javapackages-tools

@@ -183,7 +183,10 @@ Exec=/usr/share/X11/xdm/Xsession $DESKTOP
 Icon=
 Type=Application
 EOF
-[ -d usr/share/xsessions ] && cp -pf etc/X11/wmsession.d/00DEFAULT usr/share/xsessions/default.desktop
+
+[ -d usr/share/xsessions ] && cp -pf $(echo $DESKTOP | tr A-Z a-z).desktop usr/share/xsessions/default.desktop
+[ -f usr/share/xsessions/default.desktop ] && sed -i /^Name/d usr/share/xsessions/default.desktop 
+[ -f usr/share/xsessions/default.desktop ] && sed -i s/'\[Desktop Entry\]'/'[Desktop Entry]\nName=Default\nName[ru]=Сеанс по умолчанию'/ usr/share/xsessions/default.desktop
 [ -d etc/X11/dm/Sessions ] && cp -pf etc/X11/wmsession.d/00DEFAULT etc/X11/dm/Sessions/00DEFAULT.desktop
 
 if [ "$(cmdline_parameter uird.silent)" ] ;then

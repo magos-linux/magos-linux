@@ -101,7 +101,7 @@ plugin=rosaicon
 zvalue=0
 
 [Containments][2][Applets][6][Configuration]
-Url=file:///usr/share/applications/mandriva-mozilla-thunderbird.desktop
+Url=file:///usr/share/applications/thunderbird.desktop
 
 [Containments][2][Applets][6][LayoutInformation]
 Order=5

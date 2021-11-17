@@ -4,9 +4,11 @@
 # Default wallpaper
 ln -sf /usr/share/magos/wallpapers/default.jpg /usr/share/wallpapers/default.jpg
 
-#LXDE wallpaper
+#LXQT wallpaper
 PFP=/etc/xdg/pcmanfm-qt/lxqt/settings.conf
 [ -f $PFP ] && sed -i s%wallpaper=.*%wallpaper=/usr/share/magos/wallpapers/default.jpg% $PFP
+PFP=/usr/share/pcmanfm-qt/lxqt/settings.conf 
+[ -f $PFP ] && sed -i s%[Ww]allpaper=.*%Wallpaper=/usr/share/magos/wallpapers/default.jpg% $PFP
 
 PFP=/usr/share/xsessions/lxqt.desktop
 [ -f $PFP ] && sed -i s%Name=.*%Name=LXQT% $PFP
@@ -33,7 +35,7 @@ if [ -f $PFP ] ;then
    grep -q 'apps\\4\\desktop=' $PFP || sed -i 's|^apps\\size=3$|apps\\4\\desktop= \napps\\size=4|' $PFP
    grep -q 'apps\\5\\desktop=' $PFP || sed -i 's|^apps\\size=4$|apps\\5\\desktop= \napps\\size=5|' $PFP
    sed -i 's|apps\\2\\desktop=.*|apps\\2\\desktop=/usr/share/applications/firefox.desktop|' $PFP
-   sed -i 's|apps\\3\\desktop=.*|apps\\3\\desktop=/usr/share/applications/mandriva-mozilla-thunderbird.desktop|' $PFP
+   sed -i 's|apps\\3\\desktop=.*|apps\\3\\desktop=/usr/share/applications/thunderbird.desktop|' $PFP
    sed -i 's|apps\\4\\desktop=.*|apps\\4\\desktop=/usr/share/applications/doublecmd.desktop|' $PFP
    sed -i 's|apps\\5\\desktop=.*|apps\\5\\desktop=/usr/share/applications/gcalctool.desktop|' $PFP
    sed -i 's|quicklaunch, taskbar,|quicklaunch, desktopswitch, taskbar,|' $PFP
@@ -42,6 +44,8 @@ fi
 PFP=/etc/xdg/openbox/rc.xml
 [ -f $PFP ] && sed -i 's|<number>.</number>|<number>4</number>|' $PFP
 PFP=/etc/xdg/openbox/lxqt-rc.xml
+[ -f $PFP ] && sed -i 's|<number>.</number>|<number>4</number>|' $PFP
+PFP=/etc/skel/.config/openbox/rc.xml
 [ -f $PFP ] && sed -i 's|<number>.</number>|<number>4</number>|' $PFP
 
 PFP=/etc/X11/wmsession.d/04LXQT

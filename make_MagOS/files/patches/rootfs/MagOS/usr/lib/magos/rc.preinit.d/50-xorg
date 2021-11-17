@@ -14,10 +14,11 @@ LINKNVIDIA96=/etc/nvidia96xx/ld.so.conf
 LINKNVIDIA173=/etc/nvidia173/ld.so.conf
 LINKNVIDIA304=/etc/nvidia304/ld.so.conf
 LINKNVIDIA340=/etc/nvidia340/ld.so.conf
-LINKNVIDIA360=/etc/nvidia360/ld.so.conf
+LINKNVIDIA390=/etc/nvidia390/ld.so.conf
+LINKNVIDIA470=/etc/nvidia470/ld.so.conf
 LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
 LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-NVIDIATEST="nvidia-current nvidia340 nvidia304 nvidia"
+NVIDIATEST="nvidia-current nvidia470 nvidia390 nvidia340 nvidia304 nvidia"
 FAILSAFENVIDIA=nouveau
 CREATE_XORG_CONF=yes
 GLLDCONFIG=yes
@@ -104,12 +105,16 @@ fi
 # testing nonfree nvidia modules (nvidia-current nvidia340 nvidia304 nvidia)
 if echo "$XDRIVER" | grep -q "nvidia"  ;then
    XDRIVERTESTED=
-   XDRIVERCURRENT=$XDRIVER
-   [ "$XDRIVER" = "nvidia" ] && XDRIVERCURRENT=
+   [ "$XDRIVER" = "nvidia" ] || XDRIVERCURRENT=$XDRIVER
+   rmmod nvidia_drm nvidia_modeset nvidia 2>/dev/null
    for a in $XDRIVERCURRENT $NVIDIATEST ;do
-       chroot . modprobe $a
+       KERNM=$(find lib/modules/$(uname -r)/ -type f | egrep -m1 "/$a[.]ko|/$a/nvidia[.]ko")
+       chroot . modprobe $(basename $KERNM) 2>/dev/null
        lsmod | grep -q nvidia && XDRIVERTESTED=$a
-       [ -z "$XDRIVERTESTED" ] || break
+       [ -z "$XDRIVERTESTED" ] && continue
+       chroot . modprobe $XDRIVERTESTED-modeset 2>/dev/null || chroot . modprobe nvidia-modeset 2>/dev/null
+       chroot . modprobe $XDRIVERTESTED-drm     2>/dev/null || chroot . modprobe nvidia-drm     2>/dev/null
+       break
    done
    [ -z "$XDRIVERTESTED" ] || XDRIVER=$XDRIVERTESTED
    # nouveau driver
@@ -143,7 +148,8 @@ if [ "$GLLDCONFIG" = "yes" ] ;then
   [ "$XDRIVER" = "nvidia173" ] && LINK=$LINKNVIDIA173
   [ "$XDRIVER" = "nvidia304" ] && LINK=$LINKNVIDIA304
   [ "$XDRIVER" = "nvidia340" ] && LINK=$LINKNVIDIA340
-  [ "$XDRIVER" = "nvidia360" ] && LINK=$LINKNVIDIA360
+  [ "$XDRIVER" = "nvidia390" ] && LINK=$LINKNVIDIA390
+  [ "$XDRIVER" = "nvidia470" ] && LINK=$LINKNVIDIA470
   [ -x 'usr/sbin/alternatives' ] && chroot . /usr/sbin/alternatives --set gl_conf $LINK >/dev/null 2>&1
   LDCACHE=$XDRIVER
   [ -z "$LDCACHE" -o ! -d usr/share/magos/ld.so.cache/$LDCACHE ] && LDCACHE=fbdev

@@ -8,7 +8,13 @@ libcap2
 libcap-ng0
 libcrypto1.1
 libdbus-1_3
+libdri-drivers
+libdri-drivers-intel
+libdri-drivers-nouveau
+libdri-drivers-radeon
 libdri-drivers-swrast
+libdri-drivers-virtio
+libdri-drivers-vmwgfx
 libdrop_ambient0
 libexif12
 libext2fs2
@@ -62,3 +68,10 @@ libxml2_2
 libxrender1
 libxtst6
 libzstd1
+libpcap1
+libvulkan1
+libllvm12.0
+libx264_163
+libintl8
+libnl3_200
+libnl-genl3_200

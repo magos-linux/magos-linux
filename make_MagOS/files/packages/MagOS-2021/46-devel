@@ -20,10 +20,7 @@ rpmlint-rosa-policy
 rpm-manbo-setup
 rpm-manbo-setup-build
 rpm-mandriva-setup-build
-rpm-openmandriva-setup-build
 rpmtools
-kernel-nrj-desktop-devel-5.4.99-1rosa-x86_64
-kernel-headers
 lib64aio-devel
 lib64atomic-devel
 lib64audit-devel
@@ -77,7 +74,6 @@ elfutils
 qml-rpm-generators
 lib64cc1_0
 lib64dbginfod1
-lib64rpmsign9
 lib64mpc3
 dpkg
 perl-Dpkg
@@ -86,3 +82,7 @@ python3-rpm
 python3-magic
 lib64imaevm2
 perl-Devel-Peek
+rpm-rosa-setup-build
+lib64packagekit-devel
+kernel-5.10-desktop-devel
+kernel-headers

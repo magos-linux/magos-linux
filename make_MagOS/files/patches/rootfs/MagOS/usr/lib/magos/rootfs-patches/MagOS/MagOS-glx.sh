@@ -1,10 +1,11 @@
 #!/bin/bash
 #speedboot tweak
 [ -f /etc/ld.so.conf.d/GL/standard.conf ] || exit 0
-for a in nvidia390 nvidia340 nvidia304 nvidia-current standard ;do
-  LINK=$(alternatives --list gl_conf | grep -m1 $a)
+for a in nvidia470 nvidia390 nvidia340 nvidia304 nvidia-current standard ;do
+  LINK=$(LC_ALL=C alternatives --display gl_conf | grep priority | awk '{print $1}' | grep -m1 $a)
   [ -z "$LINK" ] && continue
-  alternatives --quiet --set gl_conf "$LINK"
+  echo found $LINK
+  alternatives --set gl_conf "$LINK"
   ldconfig
   mkdir -p "/usr/share/magos/ld.so.cache/$a/etc" "/usr/share/magos/ld.so.cache/$a/var/cache/ldconfig"
   cp -p /etc/ld.so.cache      "/usr/share/magos/ld.so.cache/$a/etc"

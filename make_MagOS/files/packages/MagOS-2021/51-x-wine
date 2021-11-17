@@ -1,4 +1,3 @@
-lib64bsd0
 lib64d3dadapter9_1
 lib64faudio0
 lib64spirv-tools0
@@ -10,8 +9,6 @@ libfaudio0
 libgphoto2_6
 libgphoto2_port12
 libgstbadaudio1.0_0
-libgstbadbase1.0_0
-libgstbadvideo1.0_0
 libgstreamer-plugins-base1.0_0
 libmpg123_0
 libnss_mdns2

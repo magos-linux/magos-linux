@@ -1,4 +1,7 @@
 #!/bin/bash
+
+[ -f /usr/share/applications/doublecmd.desktop ] || mv -f /usr/share/applications/doublecmd-qt.desktop /usr/share/applications/doublecmd.desktop
+
 FILE=/usr/lib/doublecmd/doublecmd.xml
 [ -f $FILE ] || FILE=/usr/lib64/doublecmd/doublecmd.xml
 [ -f $FILE ] || exit 0

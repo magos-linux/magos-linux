@@ -1,9 +1,0 @@
-copy-jdk-configs
-java-11-openjdk
-java-11-openjdk-headless
-lib64sctp1
-lksctp-tools
-rootcerts-java
-timezone-java
-javapackages-filesystem
-python3-scipy

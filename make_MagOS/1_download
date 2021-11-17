@@ -33,7 +33,7 @@ function loadmediainfo()
     mkdir -p "$TMPDIR/urpmi/"{etc/urpmi,var/lib/urpmi/$1} "$TMPDIR/pubkeys"
     curl -s --retry-delay 2 --retry 5 -o "$TMPDIR"/pubkeys/$a.pubkey "$2/media_info/pubkey"
     [ -f "$2/media_info/pubkey" ] && dos2unix "$2/media_info/pubkey" && echo "" >> "$2/media_info/pubkey"
-    grep -qi "<html " "$TMPDIR"/pubkeys/$a.pubkey && rm -f "$TMPDIR"/pubkeys/$a.pubkey
+    grep -qi "<html" "$TMPDIR"/pubkeys/$a.pubkey && rm -f "$TMPDIR"/pubkeys/$a.pubkey
     curl -s --retry-delay 2 --retry 5 -o "$TMPDIR"/urpmi/var/lib/urpmi/$1/MD5SUM "$2/media_info/MD5SUM" || stop "Can't download $2/media_info/MD5SUM"
     curl -s --retry-delay 2 --retry 5 -o "$TMPDIR"/urpmi/var/lib/urpmi/$1/synthesis.hdlist.cz "$2/media_info/synthesis.hdlist.cz" || stop "Can't download $2/media_info/synthesis.hdlist.cz"
     [ -f "$TMPDIR/urpmi/etc/urpmi/urpmi.cfg" ] || echo -e "{\n}\n" > "$TMPDIR/urpmi/etc/urpmi/urpmi.cfg"
@@ -166,7 +166,8 @@ for a in "$TMPDIR/modules/packages/"* ;do
 done
 
 echo -e "\nПроверка зависимостей"
-[ -x /bin/rpm ] && LC_ALL=C rpm -i --test --root "$TMPDIR/tmp" "$TMPDIR/installsrc/"* 2>&1 | egrep -iv "^warning|warning:|installing package" > "$TMPDIR/checkdeps.txt"
+[ -x /bin/rpm ] && LC_ALL=C rpm -i --test --root "$TMPDIR/tmp" "$TMPDIR/installsrc/"* 2>&1 | egrep -iv "^warning|warning:|installing package|error:" | sort > "$TMPDIR/checkdeps.txt"
+
 cat $TMPDIR/checkdeps.txt
 echo -e "\nВ случае наличия ошибок нужно добавить или убрать пакеты в files/packages/* и перезапустить сборку с начала"
 

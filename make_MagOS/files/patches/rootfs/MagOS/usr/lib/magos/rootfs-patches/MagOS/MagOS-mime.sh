@@ -1,22 +1,34 @@
 #!/bin/bash
 [ -f /usr/bin/update-mime-database ] || exit 0
+
+#OLDWAY
 DMF=/usr/share/applications/defaults.list
+
 function update_mime
 {
   [ "$2" = "" ] && return 1
-  grep -q "$1=$2" $DMF && return 0
   find /usr/share/applications -name "$2" | grep -q . || return 1
-  grep -q "$1=" $DMF || echo "$1=" >> $DMF
-  sed -i s%"$1="%"$1=$2;"% $DMF
-  echo "$1=$2;" >> /etc/skel/.local/share/applications/defaults.list
-  echo "$1=$2;" >> /etc/skel/.local/share/applications/mimeapps.list
+  if [ -f $DMF ] ;then
+    grep -q "$1=$2" $DMF && return 0
+    grep -q "$1=" $DMF || echo "$1=" >> $DMF
+    sed -i s%"$1="%"$1=$2;"% $DMF
+    echo "$1=$2;" >> /etc/skel/.local/share/applications/defaults.list
+    echo "$1=$2;" >> /etc/skel/.local/share/applications/mimeapps.list
+  else
+    echo "$1=$2;" >> /etc/skel/.config/mimeapps.list
+  fi
 }
 
-mkdir -p /etc/skel/.local/share/applications 2>/dev/null
-echo '[Default Applications]' > /etc/skel/.local/share/applications/defaults.list
-echo '[Added Associations]' > /etc/skel/.local/share/applications/mimeapps.list
+if [ -f $DMF ] ;then
+   mkdir -p /etc/skel/.local/share/applications 2>/dev/null
+   echo '[Default Applications]' > /etc/skel/.local/share/applications/defaults.list
+   echo '[Added Associations]' > /etc/skel/.local/share/applications/mimeapps.list
+else
+   mkdir -p /etc/skel/.config
+   echo '[Default Applications]' > /etc/skel/.config/mimeapps.list
+fi
 
-sed -i /'inode\/directory='/d /usr/share/applications/mimeapps.list
+[ -f /usr/share/applications/mimeapps.list ] && sed -i /'inode\/directory='/d /usr/share/applications/mimeapps.list
 
 update_mime application/x-visio             libreoffice-draw.desktop
 update_mime application/x-mimearchive       firefox.desktop

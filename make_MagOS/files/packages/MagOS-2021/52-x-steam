@@ -15,7 +15,6 @@ libavahi-common3
 libavcodec58
 libavformat58
 libavresample4
-libavutil55
 libavutil56
 libbluray2
 libcairo2
@@ -41,7 +40,6 @@ libfribidi0
 libgail18
 libgamin-1_0
 libGConf2_4
-libgcrypt11
 libgdk_pixbuf2.0_0
 libgdk_pixbuf_xlib2.0_0
 libggi2
@@ -66,7 +64,6 @@ libgtk-engines2
 libgtk-modules2.0
 libgudev1.0_0
 libharfbuzz0
-libhffilter1
 libhogweed6
 libidn12
 libidn2_0
@@ -123,10 +120,8 @@ libslang-modules
 libsoxr0
 libspeex1
 libspeexdsp1
-libsqlite3_0
 libssh4
 libswresample3
-libswscaler4
 libtasn1_6
 libtdb1
 libthai0
@@ -141,10 +136,8 @@ libvdpau1
 libvdpau-trace
 libvo-amrwbenc0
 libvorbisfile3
-libvpx1
 libvpx6
 libwavpack1
-libx264_159
 libx265_192
 libxcb-composite0
 libxcb-damage0
@@ -170,3 +163,7 @@ libxscrnsaver1
 libxt6
 libxvidcore4
 steam
+libpipewire0.3_0
+libswscaler5
+libtasn1-devel
+libsqlite3_0

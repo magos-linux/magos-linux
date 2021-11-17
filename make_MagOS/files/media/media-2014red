@@ -1,9 +1,0 @@
-http://mirror.rosalinux.com/rosa/red/repository/i586/contrib/release contrib-release
-http://mirror.rosalinux.com/rosa/red/repository/i586/main/release main-release
-http://mirror.rosalinux.com/rosa/red/repository/i586/non-free/release nonfree-release
-http://mirror.rosalinux.com/rosa/red/repository/i586/restricted/release restricted-release
-http://mirror.rosalinux.com/rosa/red/repository/i586/contrib/updates contrib-updates update
-http://mirror.rosalinux.com/rosa/red/repository/i586/main/updates main-updates update
-http://mirror.rosalinux.com/rosa/red/repository/i586/non-free/updates nonfree-updates update
-http://mirror.rosalinux.com/rosa/red/repository/i586/restricted/updates restricted-updates update
-http://magos.sibsau.ru/repository/rpms/2014red magos skip

@@ -3,6 +3,7 @@
 #BUGFIX It does not allow to launch any gtk apps under Gnome
 PFP=/lib/dbus-1/dbus-daemon-launch-helper
 [ -f $PFP ] || PFP=/lib64/dbus-1/dbus-daemon-launch-helper
+[ -f $PFP ] || exit 0
 chgrp messagebus /$PFP
 chmod 4750 $PFP
 exit 0

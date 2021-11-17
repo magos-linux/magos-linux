@@ -1,5 +1,0 @@
-^etc/gconf/gconf.xml.defaults/%gconf-tree-ru.xml
-^usr/share/locale/currency
-^usr/share/locale/l10n
-^usr/share/doc/HTML/en
-.*_ru.qm$

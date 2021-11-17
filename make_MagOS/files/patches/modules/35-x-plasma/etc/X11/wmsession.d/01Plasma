@@ -1,5 +1,0 @@
-NAME=Plasma
-DESC=Plasma Desktop
-EXEC=/usr/bin/startkde
-SCRIPT:
-exec /usr/bin/startkde

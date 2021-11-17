@@ -59,7 +59,7 @@ Plugin {
             id=firefox.desktop
         }
         Button {
-            id=mandriva-mozilla-thunderbird.desktop
+            id=thunderbird.desktop
         }
         Button {
             id=lxterminal.desktop
