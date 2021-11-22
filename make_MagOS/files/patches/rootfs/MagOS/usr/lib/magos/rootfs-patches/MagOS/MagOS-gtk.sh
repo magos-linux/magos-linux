@@ -6,6 +6,7 @@ ln -sf /usr/share/magos/wallpapers/Default     /usr/share/backgrounds/gnome
 DIRGTK=gtk-2.0
 DIRGTK3=gtk-3.0
 DIRMETACITY=metacity-1
+
 ln -sf "../MagOS/$DIRGTK"      "/usr/share/themes/Default/$DIRGTK"
 ln -sf "../MagOS/$DIRGTK3"     "/usr/share/themes/Default/$DIRGTK3"
 ln -sf "../MagOS/$DIRMETACITY" "/usr/share/themes/Default/$DIRMETACITY"

@@ -1,0 +1,3 @@
+^lib/firmware/amdgpu/
+^lib/firmware/i915/
+^lib/firmware/radeon/

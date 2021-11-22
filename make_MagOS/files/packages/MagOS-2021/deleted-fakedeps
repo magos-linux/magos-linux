@@ -1,0 +1,16 @@
+lib64filezilla-devel
+lib64blkid-devel
+lib64udev-devel
+lib64gcc-devel
+lib64nettle-devel
+lib64pugixml-devel
+lib64stdc++-devel
+lib64ncurses-devel
+lib64packagekit-devel
+gettext-devel
+kernel-5.10-rosa-flow-abi
+nvidia470-cuda-opencl
+autoconf
+automake
+gcc
+make

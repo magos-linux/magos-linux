@@ -2,15 +2,17 @@
 
 [ -f /usr/share/applications/doublecmd.desktop ] || mv -f /usr/share/applications/doublecmd-qt.desktop /usr/share/applications/doublecmd.desktop
 
-FILE=/usr/lib/doublecmd/doublecmd.xml
-[ -f $FILE ] || FILE=/usr/lib64/doublecmd/doublecmd.xml
-[ -f $FILE ] || exit 0
-grep -q [*][.]xzm $FILE && exit 0
-sed -i /'<\/doublecmd>'/d $FILE
-cat >>$FILE <<EOF
+PFP=/usr/lib/doublecmd
+[ -d "$PFP" ] || PFP=/usr/lib64/doublecmd
+[ -d "$PFP" ] || exit 0
+PFP=$PFP/doublecmd.xml
+[ -f "$PFP" ] || echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<doublecmd DCVersion=\"0.9.10 beta\" ConfigVersion=\"10\">\n</doublecmd>" > $PFP
+grep -q [*][.]xzm $PFP && exit 0
+sed -i /'<\/doublecmd>'/d $PFP
+cat >>$PFP <<EOF
   <Behaviours>
     <AutoFillColumns>True</AutoFillColumns>
-    <DriveBlackList>/dev/loop*;*.xzm</DriveBlackList>
+    <DriveBlackList>/dev/loop*;*.xzm;none;</DriveBlackList>
   </Behaviours>
   <Miscellaneous>
     <GridVertLine>True</GridVertLine>

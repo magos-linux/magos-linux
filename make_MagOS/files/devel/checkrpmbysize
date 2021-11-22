@@ -1,12 +1,15 @@
 #!/bin/bash
-# скрипт запущенный в loaded/MagOS-2011 создаёт папку test куда складирует все rpm по папкам-модулям
+# скрипт создаёт папку tmp/packages4mod куда складирует все папкам по папкам-модулям
 # удобно для определения больших пакетов
-rm -fr test
-for a in ../../files/rpm_names/MagOS-2011/??-* ;do
-   NM=$(echo ${a##.*/})
-   echo $NM
-   mkdir -p test/$NM
-   for b in `cat $a` ;do
-       cp -H rpms/$b[0-9][-0-9._a-zA-Z]*.rpm test/$NM
+TMPF=/tmp/packages4mod
+. .config || exit 1
+CACHE=cache/$FLASHNAME-$VERREL
+
+rm -fr "$TMPF"
+for a in $CACHE/modules/packages/??-* ;do
+   echo $(basename $a)
+   mkdir -p $TMPF/$(basename $a)
+   cat $a | while read b ;do
+       cp -H $CACHE/store/$b $TMPF/$(basename $a) || exit 1
    done
 done

@@ -1,6 +1,7 @@
 usr/share/help/.*/
 usr/share/gnome/help/.*/
 usr/share/doc/
+usr/share/doc5/
 usr/share/gtk-doc/
 usr/share/inkscape/examples/.*
 usr/share/inkscape/tutorials/.*

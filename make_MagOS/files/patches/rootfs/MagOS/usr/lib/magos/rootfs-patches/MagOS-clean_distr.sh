@@ -23,7 +23,7 @@ rm -fr 2>/dev/null \
    usr/share/doc/HTML/ru/kstars usr/share/doc/HTML/ru/kbruch usr/share/doc/HTML/ru/akregator \
    usr/share/help/C/cheese/figures/effects.png \
    usr/share/doc/perl-Libconf/html/Libconf/Libconf \
-   usr/share/backgrounds/gnome usr/share/backgrounds/mate \
+   usr/share/backgrounds/gnome usr/share/backgrounds/mate /usr/share/backgrounds/cosmos \
    usr/share/xsessions/openbox*.desktop usr/share/kio_desktop/DesktopLinks/* \
    usr/share/sddm/themes/elarun/images/background.png
 #   etc/samba/passdb.tdb etc/samba/secrets.tdb \

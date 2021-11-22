@@ -1,0 +1,321 @@
+#!/bin/bash
+# Version : 2.0
+# Description: create XZM (pfs) module from RPM (& dependences)
+# Author : Anton Goroshkin <http://magos-linux.ru>
+# Author : Alexandr Betkher <http://magos-linux.ru>
+# Author : Mikhail Zaripov <http://magos-linux.ru>
+
+HLP() {
+    echo "Usage:  $(basename $0) <$(basename $0) keys> <packages list>  -o mod.xzm --dnf <keys for dnf>"
+    echo "             $(basename $0) module1.xzm module2.xzm module3.xzm  < -l -d /path>-  rebuild modules"
+    echo "$(basename $0) keys:"
+    echo "-h | --help - this help"
+    echo "-o - name, fullname or dir for the module"
+    echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db"
+    echo "--mask clean - special mask value \"clean\" to choose base modules only (default)"
+    echo "--mask all  - special mask value \"all\" to choose all activated modules"
+    echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
+    echo "-u | --dnfdb - save dnf database in module"
+    echo "-e | --erase - create a module with whiteouts after dnf remove packages"
+    echo "-b | --rebuildable - save in module local rpms, it need to rebuild module"
+    echo "-f | --fast - fast compression alg"
+    echo "--steps  - run script in \"step by step\" mode"
+    echo " Next parameter works with rebuild module too:"
+    echo "-d | --bulddir  - working directory, default dir is in tmpfs." 
+    echo "-l | --load - mount the module after creation"
+    echo "-i | --info  - show module info"
+    exit
+}
+
+[ "$1" == "" -o "$1" == "--help" ] && HLP
+if [ $(id -un) != "root" ] ; then
+	echo  "You must be root !!!"
+	exit 1 
+fi
+
+MASK="base"     	#default mask (grep format) for modules in $mod_path to be mounted in new aufs
+dnfpars=""      	#default pars for dnf
+packages=""       	#list of packages, all parameters from dnf2xzm cmdline without "-" or "--" are packages
+rpmdb="no"        	#save or not rpm database in module
+dnfdb="no"   	  	#update and save or not dnf db before install packages
+erase="no"         	# make module with installed packages or deleted packages (wh aufs shadows)
+result="-1"			# result must be changed to zero by script
+rebuildable="no" 	# save or not local rpm packages in module
+argslist="$@"
+EXT="xzm"
+del_prefix="hidden_"
+MKSQOPTS=""
+
+#Work dirs
+export PATH=/usr/lib/magos/scripts:$PATH
+
+if . /etc/initvars; then
+    buildDir=${SYSMNT}/$$-tmp
+    mod_path=${SYSMNT}/bundles
+fi
+
+# to change default values via configs
+. /usr/lib/magos/os-config
+. /etc/MagOS/config
+[ "$MKSQFS_OPTS" ] && MKSQOPTS="$MKSQFS_OPTS"
+
+umount_ovl() {
+    echo "Unmounting filesystems..."
+    grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm; do
+        umount "$tm" 2>/dev/null
+    done
+    umount "$root_br" 2>/dev/null
+    
+}
+
+crash_exit() {
+    umount_ovl
+    umount "img_mnt" 2>/dev/null
+    rm -rf $buildDir
+    if [ "$2" -ne 0 ]; then
+        echo -ne '\033[0;31m'
+        echo "$1"
+        echo -ne '\033[0m\n'
+        [ "$3" ] || exit $2
+    fi
+}
+
+clear_rw_br() {
+    rm -rf "$rw_br/tmp" "$rw_br/var/tmp" "$rw_br"/var/cache/{dnf,ldconfig} "$rw_br"/etc/ld.so.cache 2>/dev/null
+    rm -rf "$rw_br"/var/lib/menu "$rw_br/var/log" "$rw_br/usr/share/applications/mimeinfo.cache" 2>/dev/null
+    find "$rw_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f
+    rmdir "$rw_br"/{dev,proc,sys,lost+found} "$rw_br/var/cache" "$rw_br/var/lib" "$rw_br/var" "$rw_br/etc" 2>/dev/null
+    # save or not databases
+    [ "$rpmdb" == "no" ] && rm -rf "$rw_br"/var/lib/rpm
+    [ "$dnfdb" == "no" ] && rm -rf "$rw_br"/var/lib/dnf
+}
+
+#get dnf parameters
+if echo $@ | grep -q "\-*dnf .*"; then
+    dnfpars="$(echo $@ | sed 's/^.*\-*dnf//')"
+    argslist="$(echo $@ | sed 's/\-*dnf.*$//')"
+fi
+
+#get packages list and dnf2xzm parameters
+for arg in $argslist; do
+    case "${arg}" in
+    "-h" | "--help") HLP ;;
+    "-l" | "--load") load="yes" ;;
+    "-o" ) name="yes" ;; #do not add long parameter
+    "-m" | "--mask") mask="yes" ;;
+    "-d" | "--builddir" ) bdir="yes" ;;  
+    "-r" | "--rpmdb") rpmdb="yes" ;;
+    "-u" | "--dnfdb") dnfdb="yes" ;;
+    "-e" | "--erase") erase="yes" ;;
+    "-i" | "--info") info="yes" ;;
+    "-f" | "--fast") MKSQOPTS="$MKSQFS_FASTALG" ;;
+    "-b" | "--rebuildable") rebuildable="yes" ;;
+    "--steps") steps="yes" ;;
+    "-"*[A-Za-z]*)
+        echo "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" >&2
+        exit 1
+        ;;
+    *)
+        if [ "${name}" = "yes" ]; then
+            NAME="${arg}"
+        elif [ "${mask}" = "yes" ]; then
+            MASK="${arg}"
+        elif [ "${bdir}" = "yes" ]; then
+            buildDir="$(readlink -e ${arg})/$$-tmp"
+        else packages="${arg} ${packages}"; fi
+        name="no"
+        mask="no"
+        bdir="no"
+        ;;
+    esac
+done
+
+# rebuild modules
+if  $(file $(echo $packages |awk '{print $1}') 2>/dev/null | grep -q quashfs); then
+    for rmod in $packages ; do
+		if ! unsquashfs -l $rmod | grep -q .*/var/lib/dnf2xzm/.  ; then
+			echo "Warning! Module $rmod was made by another program"
+			continue
+		fi
+    mkdir -p $(dirname $buildDir)
+    echo "$rmod processing..."
+    u2xzm_current=$(realpath $0)
+    unsquashfs -d $buildDir "$rmod" -e /var/lib/dnf2xzm -n >/dev/null
+    mv $buildDir/var/lib/dnf2xzm/* $buildDir 2>/dev/null # || crash_exit "Module $rmod was made by another program" 7
+    rm -fr $buildDir/var
+    CPWD=$(pwd)
+    cd $buildDir
+    for mod in $(find ./ -type d -name "??*"); do
+        if [ $info ] ; then
+			for a in $(ls $mod -1 ) ; do echo -e "\n${a}:" ; echo $(cat $mod/$a) ; done
+			unset module
+        else
+			$u2xzm_current -d $(basename $buildDir) $(echo $(cat $mod/cmdline))  | tee ./dnf2xzm.out
+			module=$(cat ./dnf2xzm.out | tail -n1)
+			mv $CPWD/$(basename $module) $CPWD/$(basename $module).old 2>/dev/null
+			mv $module ${CPWD}/
+        fi
+    done
+    cd $CPWD
+    rm -rf $buildDir
+    [ $module ] && newmods="$(echo $CPWD/$(basename $module)) $newmods"
+    done
+    #if [ "$load" = "yes" ] ; then 
+    #    for nm in $newmods ; do 
+    #        activate $nm  
+    #    done >/dev/null && echo "Mounted successfully"
+    # fi
+    echo "$newmods"
+    exit
+fi
+
+#get path and name for out module
+if [ $NAME ]; then
+    if [ $(echo $NAME | awk -F. '{print $NF}') == "xzm" ]; then
+        PNAME=$(dirname $NAME)
+        NAME=$(basename $NAME)
+        del_prefix=""
+    else
+	PNAME="$NAME"
+        unset NAME
+    fi
+fi
+[ $NAME ] || NAME=$(echo $packages | awk '{print $1}').xzm
+[ $PNAME ] || PNAME=$(dirname $NAME)
+[ -d $PNAME ] || crash_exit "Directory \"$PNAME\" is not exists" 2
+
+[ "$MASK" == "clean" -o "$MASK" == "base" ] && MASK="^[0-8][0-8]-"
+[ "$MASK" == "all" ] && MASK="."
+
+#show masked modules and exit
+if [[ -z "${packages}${dnfpars}" ]]; then
+    echo "Masked Modules:"
+    ls $mod_path | egrep $MASK |sort -r
+    echo ''
+    HLP
+    exit
+fi
+
+DNFTMP=${buildDir}/dnf2xzm
+root_br="$DNFTMP/root"
+img_mnt="$DNFTMP/img"
+rw_br="$img_mnt/changes"
+wkdir="$img_mnt/ovlwkdir"
+lower_br=""
+mod_file="$DNFTMP/dnf2xzm.img"
+
+umount_ovl
+umount $rw_br 2>/dev/null && rm -f $mod_file
+
+rm -rf "$rw_br" "$root_br" "$wkdir" 2>/dev/null
+mkdir -p "$rw_br" "$root_br" "$wkdir"
+SPACE=$(LC_ALL=C df -BM "$DNFTMP" --output=avail | tail -1 | tr -d M) # free space in folder
+[ ! -z "$SPACE" ] && SPACE=$(echo "$SPACE""*80/100" | bc)             # 80% of free space in folder
+[ ! -z "$SPACE" -a -z "$DNFSPACE" ] && DNFSPACE="$SPACE"M
+[ -z "$DNFSPACE" ] && DNFSPACE=1024M
+dd if=/dev/zero of="$mod_file" bs=1 count=0 seek="$DNFSPACE" >/dev/null && mkfs.ext2 "$mod_file" >/dev/null
+mount -o loop "$mod_file" "$img_mnt" || crash_exit "Can't mount temporary image file" 3
+
+for a in $(ls $mod_path | egrep $MASK |sort -r ); do
+    echo "--> $a"
+    lower_br="${lower_br}${mod_path}/${a}:"
+done
+lower_br=$(echo $lower_br |sed 's/:$//')
+
+mkdir -p "$rw_br" "$wkdir"
+
+mount -t overlay overlay -o lowerdir=${lower_br},upperdir="$rw_br",workdir="${wkdir}" "$root_br"
+[ $? -ne 0 ] && crash_exit "Can't mount overlay" 4
+mkdir -p $root_br/{dev,proc,sys,tmp}
+for tm in {dev,proc,sys}; do
+    mount -o bind /$tm $root_br/$tm
+done
+
+#hook to fix rpmdb bug
+#mount -o bind  $root_br/var/lib/rpm  /var/lib/rpm 
+
+#get rpms list before installing, need to generate rpm list in /var/lib/rpm/modules/mod_name
+rpm -qa -r $root_br >$DNFTMP/rpm_qa_before
+
+[ "$steps" ] && read -p "next step - dnf" ecode
+if [ "$ecode" == "exit" ]; then   umount_ovl ;   umount $rw_br ;   exit ; fi
+
+if [ "$erase" == "no" ]; then
+    for pack in $packages; do
+        #try to delete package before installing, it need to install package again
+        rpm -q "$pack" && /usr/bin/dnf remove --installroot="$root_br" -y $pack 2>/dev/null
+    done
+    [ "$dnfdb" == "yes" ] && /usr/bin/dnf  --refresh --installroot "$root_br"
+    /usr/bin/dnf install -y -b --installroot "$root_br"  $packages $dnfpars
+    result=$?
+    action=install
+else
+    #delete packages, it need to make module width overlay whiteouts
+    /usr/bin/dnf remove --installroot "$root_br" $packages 
+    result=$?
+    action=erase
+fi
+
+[ "$dbfdb" == 'no' ] && /usr/bin/dnf clean all --installroot "$root_br"
+
+#get rpms list after installing
+rpm -qa -r $root_br >$DNFTMP/rpm_qa_end
+
+#umount /var/lib/rpm
+umount_ovl
+clear_rw_br
+
+#save info into the module
+mkdir -p $rw_br/var/lib/dnf2xzm/$(basename "${NAME%.$EXT}")
+mkdir -p $rw_br/var/lib/rpm/modules/
+date > $rw_br/var/lib/dnf2xzm/$(basename "${NAME%.$EXT}")/date
+cat $SYSMNT/layer-base/0/VERSION > $rw_br/var/lib/dnf2xzm/$(basename "${NAME%.$EXT}")/os-release
+echo -e "$(cat $DNFTMP/rpm_qa_* | sort | uniq -d)\n$(cat $DNFTMP/rpm_qa_end)" | sort | uniq -u >$rw_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+sed -i 's/\(.*\)/\1.rpm/g' $rw_br/var/lib/rpm/modules/$(basename "${NAME%.$EXT}")
+rm $DNFTMP/rpm_qa_*
+
+# change all path in $@  to local paths, need to rebuild
+last="_"
+for a in $@; do
+    if [ -f "$a" -o "$(echo $a | awk -F. '{print $NF}')_" == "xzm_" ]; then
+        basename $a
+    elif [ -d "$a" -a $last == "-o" ]; then
+        echo "./"
+    elif [ "$last" == "-d" -o "$last" == "--builddir" ] ; then
+        true # drop builddir value
+    else
+        [ "$a" != "-l" -a "$a" != "--load" -a "$a" != "-d" -a "$a" != "--builddir"  ] && echo "$a" # drop --load, --builddir parameters
+    fi
+    last="$a"
+done > $rw_br/var/lib/dnf2xzm/$(basename "${NAME%.$EXT}")/cmdline
+
+#save local rpms in module
+if [ "$rebuildable" == "yes" ]; then
+    for b in $@; do
+        [ -f "$b" -a "$(echo $b | awk -F. '{print $NF}')_" == "rpm_" ] && cp $b $rw_br/var/lib/dnf2xzm/
+    done
+fi
+[ "$steps" ] && read -p "next step - mksquashfs" ecode
+if [ "$ecode" == "exit" ]; then   umount_ovl ;  umount $rw_br ;  exit ; fi
+
+if [ "$result" -eq 0 -a "$erase" == "no" ]; then
+    mksquashfs $rw_br ${PNAME}/${NAME} $MKSQOPTS -noappend  && MODULE="$(readlink -e ${PNAME}/${NAME})" && create=OK
+elif [ "$result" -eq 0 ]; then
+    mksquashfs $rw_br ${PNAME}/${del_prefix}${NAME} $MKSQOPTS -noappend && MODULE="$(readlink -e ${PNAME}/${del_prefix}${NAME})" && create=OK
+else
+    echo "Error $action packages: $packages"
+    echo "Size of module source dir: $(du -ch $rw_br | tail -n1 | cut -f 1)"
+    echo "Do you want to create the module, despite errors? [Y/N]"
+    read aaa
+    [ -z "$aaa" ] || aaa=no
+    if [ $aaa == "Y" -o $aaa == "y" ]; then
+        mksquashfs $rw_br ${PNAME}/${NAME} -noappend $MKSQOPTS && MODULE="$(readlink -e ${PNAME}/${NAME})" && create=OK
+    fi
+fi
+
+umount $img_mnt && rm -rf "$buildDir"
+
+if [ $create ]; then
+#    [ "$load" = "yes" ] && activate $MODULE >/dev/null && echo "Mounted successfully"
+    echo "$MODULE"
+fi

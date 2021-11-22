@@ -380,7 +380,6 @@ oxygen-cursor-theme-yellow
 oxygen-cursor-theme-zion
 oxygen-gtk
 oxygen-gtk3
-oxygen-icon-theme
 plasma5-applet-activitybar
 plasma5-applet-activitypager
 plasma5-applet-analogclock
@@ -704,7 +703,6 @@ plasma5-rosa-icons
 plasma5-rosa-icons-dark
 qt5-qtvirtualkeyboard
 lib64qt5-qtvirtualkeyboard-qml
-python2-qt4-core
 lib64kcolorpicker0.1.6
 libkdcraw
 lib64qt5virtualkeyboard5

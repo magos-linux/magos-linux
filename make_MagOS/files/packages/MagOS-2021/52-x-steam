@@ -1,4 +1,3 @@
-cyrus-sasl
 gio2.0-32
 heimdal-libs
 libaa1
@@ -167,3 +166,5 @@ libpipewire0.3_0
 libswscaler5
 libtasn1-devel
 libsqlite3_0
+python3-vdf
+protontricks

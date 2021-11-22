@@ -1,0 +1,8 @@
+^lib/firmware/ath10k/
+^lib/firmware/ath11k/
+^lib/firmware/brcm/
+^lib/firmware/intel/ibt-
+^lib/firmware/libertas/
+^lib/firmware/mediatek/
+^lib/firmware/mrvl/
+^lib/firmware/ti-connectivity/

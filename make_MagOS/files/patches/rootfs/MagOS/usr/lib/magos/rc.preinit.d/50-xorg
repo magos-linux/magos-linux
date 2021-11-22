@@ -108,7 +108,7 @@ if echo "$XDRIVER" | grep -q "nvidia"  ;then
    [ "$XDRIVER" = "nvidia" ] || XDRIVERCURRENT=$XDRIVER
    rmmod nvidia_drm nvidia_modeset nvidia 2>/dev/null
    for a in $XDRIVERCURRENT $NVIDIATEST ;do
-       KERNM=$(find lib/modules/$(uname -r)/ -type f | egrep -m1 "/$a[.]ko|/$a/nvidia[.]ko")
+       KERNM=$(find lib/modules/$(uname -r)/ -type f | egrep -m1 "/$a[.]ko|/$a/nvidia[.]ko" | sed s/[.]ko.*$//)
        chroot . modprobe $(basename $KERNM) 2>/dev/null
        lsmod | grep -q nvidia && XDRIVERTESTED=$a
        [ -z "$XDRIVERTESTED" ] && continue

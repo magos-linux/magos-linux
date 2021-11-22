@@ -3,7 +3,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 FUSIONICONTIMEOUT=5
-FUSIONICONDEDIS=gnome-shell,gnome,i3term
+NOCOMPIZ=gnome-shell,gnome,i3term
 . /etc/sysconfig/compositing-wm
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
@@ -12,8 +12,12 @@ FUSIONICONDEDIS=gnome-shell,gnome,i3term
 DE=$(detectDE)
 
 if [ "$COMPOSITING_WM_START" = "yes" -a "$COMPOSITING_WM" = "compiz-fusion" ] ;then
-   if ! echo " $FUSIONICONDEDIS " | tr ',;' " " | grep -q " $DE " ;then
-     sleep $FUSIONICONTIMEOUT
-     fusion-icon -f &
-   fi
+  if ! echo " $NOCOMPIZ " | tr ',;' " " | grep -q " $DE " ;then
+    if  which fusion-icon >/dev/null 2>&1 ;then
+      sleep $FUSIONICONTIMEOUT
+      fusion-icon -f &
+    else
+      compiz --replace &
+    fi
+  fi
 fi

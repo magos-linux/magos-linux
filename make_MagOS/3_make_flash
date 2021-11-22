@@ -78,6 +78,7 @@ cat "$TMPDIR/modules.inc/international.locales" | while read i ;do
   echo $i | grep -q . && movefiles "$TMPDIR/tmp/content" "$TMPDIR/modules/xzm/international" "$i" "$TMPDIR/locales/locales"
 done
 for a in "$TMPDIR/modules.inc/delete" "$TMPDIR/modules.inc/international" "$TMPDIR/modules.inc/"??-* ;do
+  [ -f "$a" ] || continue
   MOD=$(basename $a)
   echo "  $MOD"
   cat "$a" | while read i ;do

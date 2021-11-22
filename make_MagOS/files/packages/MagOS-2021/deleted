@@ -1,10 +1,16 @@
-grub
+10-core
+
+20-x-base
+lib64guile3.0_1
+guile-runtime
+python3-numpy
+lib64lapack3
+
+35-x-plasma
+oxygen-icon-theme
+
 kppp
-lilo
 magos-ctrl-center
-fbreader
-slim
-whdd
 
 compiz-fusion
 ccsm0.8
@@ -23,7 +29,6 @@ compiz0.8-bcop
 compizconfig-backends0.8
 lib64compizconfig0.8_8
 python-compizconfig0.8
-
 
 ext3grep
 djview4

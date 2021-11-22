@@ -83,4 +83,11 @@ diff -aupr a/layout.js b/layout.js
  panel.addWidget("org.kde.plasma.pager")
 EOF
 
+[ -h /usr/share/plasma/avatars ] && exit 0
+
+if [ -d /usr/share/plasma/avatars -a -d /usr/share/icons/gnome/48x48/emotes ] ;then
+   rm -fr /usr/share/plasma/avatars
+   ln -sf /usr/share/icons/gnome/48x48/emotes /usr/share/plasma/avatars
+fi
+
 exit 0

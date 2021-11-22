@@ -15,8 +15,8 @@ htop
 leafpad
 lha
 nrg2iso
-p7zip
 pbzip2
+brotli
 peazip
 pmount
 powertop
@@ -37,8 +37,6 @@ networkmanager-openvpn
 networkmanager-pptp
 networkmanager-vpnc
 modem-manager-gui
-lib64nma0
-libnma
 aisleriot
 alac_decoder
 amrnb
@@ -99,8 +97,6 @@ grip
 movit
 vobcopy
 vorbis-tools
-vulkan
-lib64vulkan1
 wavpack
 wildmidi
 timidity-patch-gravis
@@ -182,3 +178,17 @@ audacity
 lib64suil-qt5-in-gtk2
 lib64suil-qt5-in-gtk3
 lib64suil-x11-in-gtk3
+fbreader
+lib64zlcore0.99
+lib64zltext0.99
+lib64zlui0.99
+zlibrary-common
+python2
+python2-cairo
+python2-gobject-codegen
+python2-qt4-gui
+python2-sip4
+python2-sip4-qt4
+tkinter
+pyorbit
+python2-qt4-core

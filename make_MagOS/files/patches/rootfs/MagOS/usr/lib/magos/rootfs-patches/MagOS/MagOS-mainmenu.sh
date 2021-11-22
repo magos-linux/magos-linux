@@ -162,7 +162,7 @@ update_app_tag gparted "Name[ru]" "GParted-управление разделам
 update_app_tag gparted "Comment[ru]" "GParted-управление разделами"
 
 HIDEPROGS="$(ls -1 2>/dev/null /usr/share/applications/java*policytool.desktop | sed s=.*/== | sed s/[.]desktop//)"
-HIDEPROGS="$HIDEPROGS ccsm fusion-icon emerald-theme-manager kde5/kshutdown"
+HIDEPROGS="$HIDEPROGS fusion-icon emerald-theme-manager kde5/kshutdown"
 for a in $HIDEPROGS ;do
    update_app_tag $a Hidden true
 done
