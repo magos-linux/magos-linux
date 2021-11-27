@@ -10,131 +10,154 @@
 export PATH=/usr/lib/magos/scripts:/usr/lib/qt4/bin:$PATH
 
 . /usr/lib/magos/functions
+
 PREFIX=none
 DE=$(detectDE)
 
-[ -f /usr/bin/zenity ] && PREFIX=NONKDE
+[ -f /usr/bin/zenity ] && PREFIX=ZENITY
 
 if [ "$DE" == "plasma" -o "$DE" == "kde" ] ; then
-    [ -f /usr/bin/kdialog ] && PREFIX=KDE
+    [ -f /usr/bin/kdialog ] && PREFIX=KDIALOG
 else
     # if session is not KDE, but zenity is not exist - use kdialog
-    [ $PREFIX == none ] &&  [ -f /usr/bin/kdialog ] && PREFIX=KDE
+    [ $PREFIX == none ] &&  [ -f /usr/bin/kdialog ] && PREFIX=KDIALOG
 fi
 
 [ $PREFIX == none ] && echo "no zenity and kdialog in system" && exit -1
 
-
-# start mdialog with xuserrun  
-if [ "$(id -un)" = "root" ] ;then
-    xuserrun  $0 "$@" ; exit
+if [ "$1" == "RESTARTED" ] ; then
+    RESTARTED='yes'
+    shift
+fi 
+# restart mdialog with xuserrun  
+if [ "$(id -un)" = "root" -a ! "$RESTARTED" ] ;then
+    xuserrun  $0 RESTARTED "$@" ; exit
 fi
 
-KDE--msgbox () 
-{
+XAUTH=$(ps -p $(pgrep Xorg) -o cmd |tail -n1 |sed 's#\(.*-auth \)\(/\S*\)\( -.*$\)#\2#')
+[ -f "$XAUTH" ] && export XAUTHORITY="$XAUTH"
+
+ZENITY--radiolist() {
+	text="$2"
+	shift ; shift
+	for val in "$@" ; do
+	echo \""$val"\" |sed -e 's/on/TRUE/' -e 's/off/FALSE/'
+	done |tac | xargs \
+	zenity --list --text="$text" --column= --column= --column=return  --hide-column=3 --print-column=3 --radiolist  
+}
+KDIALOG--radiolist() {
+	shift
+	kdialog --radiolist "$@"
+}
+
+ZENITY--checklist() {
+	text="$2"
+	shift ; shift
+	for val in "$@" ; do
+	echo \""$val"\" |sed -e 's/on/TRUE/' -e 's/off/FALSE/'
+	done |tac | xargs \
+	zenity --list --text="$text" --column= --column= --column=return  --hide-column=3 --print-column=3 --checklist | \
+	sed -e 's/^/"/' -e 's/$/"/' -e 's/|/" "/g'   
+}
+KDIALOG--checklist() {
+	shift
+	kdialog --checklist "$@"
+}
+
+KDIALOG--password () {
+	kdialog --password "$2"
+}
+
+ZENITY--password() {
+	zenity --password --title="$2"
+}
+
+
+KDIALOG--msgbox () {
     kdialog --msgbox "$2"
 } 
 
-NONKDE--msgbox () 
-{
+ZENITY--msgbox () {
     zenity --info --text="$2"
 } 
 
-KDE--sorry () 
-{
+KDIALOG--sorry () {
     kdialog --sorry "$2"
 } 
-NONKDE--sorry () 
-{
+ZENITY--sorry () {
     zenity --warning --text="$2"
 } 
 
-KDE--error () 
-{
+KDIALOG--error () {
     kdialog --error "$2"
 } 
 
-NONKDE--error () 
-{
+ZENITY--error () {
     zenity --error --text="$2"
 } 
 
-KDE--yesno () 
-{
+KDIALOG--yesno ()  {
     kdialog --yesno "$2"
 } 
-NONKDE--yesno () 
-{
+ZENITY--yesno () {
     zenity --question --text="$2"
 } 
 
-KDE--inputbox () 
-{
+KDIALOG--inputbox () {
     kdialog --inputbox "$2" "$3"
 } 
-NONKDE--inputbox () 
-{
+ZENITY--inputbox () {
     zenity --entry --text="$2" --entry-text="$3"
 } 
 
-KDE--textbox () 
-{
+KDIALOG--textbox () {
     kdialog --textbox "$2"
 } 
 
-NONKDE--textbox () 
-{
+ZENITY--textbox () {
     zenity --text-info --filename="$2"
 } 
 
 # параметр работает как в zenity читает из файла
-KDE--textinputbox () 
-{
+KDIALOG--textinputbox () {
     kdialog --textinputbox  "Просмотр текста" "$(cat $2)"
 } 
 
-NONKDE--textinputbox () 
-{
+ZENITY--textinputbox () {
     zenity --text-info --editable --filename="$2"
 } 
 
-KDE--passivepopup () 
-{
+KDIALOG--passivepopup () {
     kdialog --passivepopup "$2" 5
 } 
-NONKDE--passivepopup () 
+ZENITY--passivepopup () 
 {
     notify-send "$2" || zenity --notification --text="$2"
 } 
 
-KDE--getopenfilename () 
-{
+KDIALOG--getopenfilename () {
     kdialog --getopenfilename `pwd`  
 } 
 
-NONKDE--getopenfilename () 
-{
+ZENITY--getopenfilename () {
     zenity --file-selection 
 } 
 
-KDE--getsavefilename () 
-{
+KDIALOG--getsavefilename () {
     shift
     filter=$1
     shift
     kdialog --getsavefilename `pwd` $filter $@
 } 
 
-NONKDE--getsavefilename () 
-{
+ZENITY--getsavefilename () {
     shift
     filter=$1
     shift
     zenity --file-selection --save --file-filter=$filter $@
 } 
 
-KDE--getexistingdirectory  () 
-{
+KDIALOG--getexistingdirectory  () {
     shift
     dir_name=`pwd`
     if [ ! "$1" = "" ]; then 
@@ -143,8 +166,7 @@ KDE--getexistingdirectory  ()
     kdialog --getexistingdirectory $dir_name
 }
 
-NONKDE--getexistingdirectory  () 
-{
+ZENITY--getexistingdirectory  () {
     shift
     dir_name=$(pwd)
     if [ ! "$1" = "" ]; then 
@@ -154,35 +176,29 @@ NONKDE--getexistingdirectory  ()
     zenity --file-selection --directory
 } 
 
-KDE--calendar () 
-{
+KDIALOG--calendar () {
     kdialog --calendar "$2"  
 } 
 
-NONKDE--calendar () 
-{
+ZENITY--calendar () {
     zenity --calendar  --date-format=%a" "%B" "%d" "%Y --text="$2" 
 } 
 
 
-KDE--menu () 
-{
+KDIALOG--menu () {
     shift
-    kdialog --menu $@  
+    kdialog --menu "$@"  
 } 
 
-NONKDE--menu () 
-{
+ZENITY--menu () {
     text=$2
     shift 2
-    zenity --list --text=$text --column=1  --column=2 --hide-header --print-column=1 --hide-column=1 $@
-    #zenity --list --text=$text  --column=1 --hide-header --print-column=1  $@
+    zenity --list --text="$text" --column=1  --column=2 --hide-header --print-column=1 --hide-column=1 "$@"
     exit 
 } 
 
 
-KDE--progressbar () 
-{
+KDIALOG--progressbar () {
     stdifs=$IFS
     dbusRef=`kdialog --progressbar "Подождите пожалуйста...." $#`
     inc=1
@@ -200,8 +216,7 @@ KDE--progressbar ()
     exit 0
 } 
 
-NONKDE--progressbar () 
-{
+ZENITY--progressbar () {
     IFS=:
     shift
     per=$(expr 100 / $#)
@@ -222,7 +237,7 @@ NONKDE--progressbar ()
 HELP () 
 {
     echo  "Скрипт $0, автоматически использует для создания графического интерфеса"
-    echo  "zenity либо kdialog, в зависимости от их наличия и среды KDE. GNOME, etc"
+    echo  "zenity либо kdialog, в зависимости от их наличия и среды KDIALOG. GNOME, etc"
     echo  "Синтаксис максимально повторяет kdialog, но есть и расхождения."
 
     echo  "--yesno <text>            Вопросительный диалог с кнопками да/нет"
@@ -253,9 +268,9 @@ TEST ()
     echo "команда mdialog --inputbox \"заголовок\" \"строка\""
     $0 --inputbox "заголовок" "строка"
     echo "команда mdialog --textbox mdialog" 
-    $0 --textbox /mnt/livemedia/MagOS/VERSION
+    $0 --textbox /etc/os-release
     echo "команда mdialog --textinputbox mdialog"
-    $0 --textinputbox /mnt/livemedia/MagOS/MagOS.sgn
+    $0 --textinputbox /ect/machine-id
     echo "команда mdialog --progressbar sleep:1 sleep:1 ls:-R ls:/etc" 
     $0 --progressbar sleep:1 sleep:1 ls:-R ls:/etc
     echo "команда mdialog --passivepopup \"тест окончен\"" 
@@ -276,5 +291,5 @@ case $cmd in
     TEST ;;
 
     * )
-    $PREFIX$cmd "$@";;
+    XAUTHORITY="$XAUTH" $PREFIX$cmd "$@" ;;
 esac

@@ -1,0 +1,5 @@
+#!/bin/bash
+oldpwd=$(pwd)
+cd /usr/share/pfsgui
+./start.py 
+cd $oldpwd 

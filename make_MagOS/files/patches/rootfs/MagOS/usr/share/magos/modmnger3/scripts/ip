@@ -1,0 +1,2 @@
+#!/bin/bash
+/sbin/ip addr show |grep "inet\ " |awk '{print $2}' |sed s'/\/.*//' |tail -n1

@@ -1,0 +1,311 @@
+body {color:#555; height: 100%;}
+html {
+	height:100%;
+	font-size: 15px;
+}
+
+table{
+font:90%/1.2 Arial;
+overflow:auto;
+padding:0;
+border-collapse: separate;
+#border: 1px solid grey;
+}
+
+h1,h2,h3,h4,.componentheading {font-weight:bold;margin:1em 0 1em;}
+h1,.componentheading {font-size:180%;}
+h2 {font-size:150%;}
+h3 {font-size:130%;}
+h4 {font-size:110%;}
+
+
+.input_text {    width: 90%; } 
+
+a {color:#3366CC;text-decoration:none;font-weight:bold;}
+td {overflow:auto;}
+.tr_grey {background: #efefef; border-right: 1px solid white;}
+
+.hidden_button {  display: none; }
+.show_button { display: block; }
+
+ 
+.bblockL {
+	#padding: 10px;
+	display: table-cell; 
+    #font-size: 32px;
+  	width: 10%;
+    #height: 50px;
+	#background: grey;
+    text-align: left;
+    vertical-align: middle;
+}
+.bblockR {
+	#padding: 10px;
+	display: table-cell; 
+    #width: 20%;
+    #background: grey;
+    #font-size: 32px;
+    text-align: right;
+    vertical-align: top;
+}
+
+.bblockC {
+	padding: 10px;
+	border: 1px solid #555;
+	display: table-cell; 
+    #font-size: 32px;
+    text-align: center;
+    #width: 600px;
+    #background: grey;
+    vertical-align: top;
+}
+
+.bblockB {
+	padding: 10px;
+	border: 1px solid #555;
+	display: table-cell; 
+    font-size: 15px;
+    text-align: left;
+    width: 150px;
+    #background: grey;
+    vertical-align: top;
+}
+
+.bblockTH {
+	padding: 5px;
+	border: 1px solid #555;
+	display: table-cell; 
+    font-size: 110%;
+    font-weight:bold;
+    margin:2em 0 1em;
+    text-align: center;
+    #width: 150px;
+    #background: grey;
+    vertical-align: middle;
+}
+
+.bblock25 {
+	padding: 10px;
+	border: 1px solid #555;
+	display: table-cell; 
+    #font-size: 32px;
+    text-align: center;
+    width: 25%;
+    #background: grey;
+    vertical-align: top;
+}
+
+.wrap {
+	display: table;  
+	border-spacing: 2px 2px; 
+	width: 100%;
+	#background-color: lightgray;
+	#box-sizing: border-box;
+	#border-collapse: collapse;
+	#border: 1px solid #555;
+	#empty-cells: show; 
+  
+}
+
+.wrap-tr { display: table-row; }
+
+.statusCL {
+    font-size: 12px;
+    font-weight:italic;
+    text-align: left;
+    vertical-align: top;
+}
+
+
+
+
+.disabled {font-size:200%; color:grey; text-align: center;  vertical-align: middle;  } 
+.mod_table {text-align:left; width:100%; border-spacing: 0;}
+
+.subdir_table {text-align:left; width:100% ; border-spacing:6 ; border-spacing: 0;}
+.td_actions {text-align:right;  width: 15px}
+.warning {font-size:80%; color:red; text-align: left;}
+.s2m_table {text-align:left;  font-weight:bold; }
+.s2m_table_disabled {text-align:left; font-size:120%; font-weight:bold;  }
+.item {text-align:left; vertical-align: top;  font-size:120%; font-weight:bold;  width: 20%}
+ 
+ 
+.td_button {text-align:center; vertical-align: center;  
+						font-size:300%; font-weight:bold;  
+						width: 400px; height: 150px;
+						border-bottom-right-radius: 10px;
+						border-bottom-left-radius: 10px;
+						border-top-right-radius: 10px;
+						border-top-left-radius: 10px;
+						border-bottom: 3px solid;
+						border-right: 1px solid;
+						border-left: 1px solid;
+						border-top: 3px solid;
+						padding: 10px }
+
+.td_button_colspan {text-align:center; vertical-align: center;  
+						font-size:250%; font-weight:bold;  
+						height: 60px;
+						border-bottom-right-radius: 10px;
+						border-bottom-left-radius: 10px;
+						border-bottom: 3px solid;
+						border-right: 1px solid;
+						border-left: 1px solid;
+						padding: 10px }
+
+
+.tr_button {
+  width: 100%;
+  margin: 0 auto;
+  border-spacing: 0;
+  margin-top:5px;
+  margin-bottom:10px;
+  text-align: center;
+}
+
+#info_table  {text-align:left; vertical-align: center;  
+						font-weight:bold;  
+						 }
+.td_info       {-moz-border-radius-bottomright: 10px;
+						-moz-border-radius-bottomleft: 10px;
+						border-bottom-right-radius: 10px;
+						border-bottom-left-radius: 10px;
+						-moz-border-radius-topright: 10px;
+						-moz-border-radius-topleft: 10px;
+						border-top-right-radius: 10px;
+						border-top-left-radius: 10px;
+						border-bottom: 3px solid;
+						border-right: 3px solid;
+						border-left: 1px solid;
+						border-top: 1px solid;
+						padding: 10px}
+.repo_table {width: 100%; }
+#rpm_list {text-align:left; vertical-align: top;  font-size:90%;   width: 40%;  height: 400px;}
+#file_list {text-align:left; vertical-align: top;  font-size:80%;   width: 60%; height: 400px;}
+.highlight {background-color: rgb(255,255,153); font-size:110%}
+
+
+.overlay-loader {
+	display: block;
+	margin: auto;
+	width: 150px;
+	height: 150px;
+	position: relative;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+.loader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	width: 150px;
+	height: 150px;
+	animation-name: rotateAnim;
+		-webkit-animation-name: rotateAnim;
+		-moz-animation-name: rotateAnim;
+	animation-duration: 0.51s;
+		-webkit-animation-duration: 0.51s;
+		-moz-animation-duration: 0.51s;
+	animation-iteration-count: infinite;
+		-webkit-animation-iteration-count: infinite;
+		-moz-animation-iteration-count: infinite;
+	animation-timing-function: linear;
+		-webkit-animation-timing-function: linear;
+		-moz-animation-timing-function: linear;
+}
+.loader div {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	border: 2px solid rgba(0,0,0,0.77);
+	position: absolute;
+	top: 3px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+}
+.loader div:nth-child(odd) {
+	border-top: none;
+	border-left: none;
+}
+.loader div:nth-child(even) {
+	border-bottom: none;
+	border-right: none;
+}
+.loader div:nth-child(2) {
+	border-width: 3px;
+	left: 0px;
+	top: -6px;
+	width: 18px;
+	height: 18px;
+}
+.loader div:nth-child(3) {
+	border-width: 3px;
+	left: -2px;
+	top: 5px;
+	width: 27px;
+	height: 27px;
+}
+.loader div:nth-child(4) {
+	border-width: 5px;
+	left: -2px;
+	top: -6px;
+	width: 36px;
+	height: 36px;
+}
+.loader div:nth-child(5) {
+	border-width: 5px;
+	left: -2px;
+	top: 6px;
+	width: 48px;
+	height: 48px;
+}
+.loader div:nth-child(6) {
+	border-width: 6px;
+	left: 0px;
+	top: -6px;
+	width: 60px;
+	height: 60px;
+}
+.loader div:nth-child(7) {
+	border-width: 6px;
+	left: 0px;
+	top: 9px;
+	width: 75px;
+	height: 75px;
+}
+############################### Анимация ожидания
+
+@keyframes rotateAnim {
+	from {
+		transform: rotate(360deg);
+	}
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+@-webkit-keyframes rotateAnim {
+	from {
+		-webkit-transform: rotate(360deg);
+	}
+	to {
+		-webkit-transform: rotate(0deg);
+	}
+}
+
+@-moz-keyframes rotateAnim {
+	from {
+		-moz-transform: rotate(360deg);
+	}
+	to {
+		-moz-transform: rotate(0deg);
+	}
+}
+

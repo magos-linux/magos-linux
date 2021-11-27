@@ -5,7 +5,7 @@ PFP=/etc/skel/.config/compiz-1/compizconfig/Default.ini
 mkdir -p $(dirname $PFP)
 cat >$PFP <<EOF
 [core]
-s0_active_plugins = core;composite;opengl;compiztoolbox;imgjpeg;maximumize;decor;grid;imgsvg;move;place;put;regex;resize;shift;wobbly;annotate;cube;expo;rotate;td;
+s0_active_plugins = core;composite;opengl;compiztoolbox;imgjpeg;maximumize;decor;grid;imgsvg;move;place;put;regex;resize;shift;wobbly;annotate;cube;expo;rotate;switcher;td;
 
 [composite]
 s0_refresh_rate = 50

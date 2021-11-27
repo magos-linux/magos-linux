@@ -2,7 +2,6 @@ steam
 aufs-tools
 kernel-headers
 x11-driver-video-nvidia340
-x11-driver-video-nvidia-current
 xscreensaver
 xscreensaver-common
 iwl3945-firmware

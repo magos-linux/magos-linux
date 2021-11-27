@@ -336,7 +336,7 @@ lib64florence1.0_1
 lib64fltk1.3
 lib64fluidsynth3
 lib64fm4
-lib64fm-qt9
+lib64fm-qt10
 lib64fontenc1
 lib64freebl3
 lib64freeglut3
@@ -520,9 +520,9 @@ lib64llvm12.0
 lib64llvm-plugins
 lib64lpc10_0
 lib64lqr1_0
-lib64lxqt0
-lib64lxqt-globalkeys0
-lib64lxqt-globalkeys-ui0
+lib64lxqt1
+lib64lxqt-globalkeys1
+lib64lxqt-globalkeys-ui1
 lib64lxqt-wallet3.2.0
 lib64MagickCore7.Q16HDRI_10
 lib64MagickWand7.Q16HDRI_10
@@ -699,7 +699,7 @@ lib64qt5xml5
 lib64qtclucene4
 lib64qtcore4
 lib64qtdbus4
-lib64qtermwidget5_0
+lib64qtermwidget5_1
 lib64qtgui4
 lib64qthelp4
 lib64qtmultimedia4

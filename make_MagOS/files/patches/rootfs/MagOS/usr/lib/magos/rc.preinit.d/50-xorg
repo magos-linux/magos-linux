@@ -109,6 +109,7 @@ if echo "$XDRIVER" | grep -q "nvidia"  ;then
    rmmod nvidia_drm nvidia_modeset nvidia 2>/dev/null
    for a in $XDRIVERCURRENT $NVIDIATEST ;do
        KERNM=$(find lib/modules/$(uname -r)/ -type f | egrep -m1 "/$a[.]ko|/$a/nvidia[.]ko" | sed s/[.]ko.*$//)
+       [ -z "$KERNM" -a "$a" = "nvidia-current" ] && KERNM=$(find lib/modules/$(uname -r)/ -type f | grep -m1 "/nvidia[.]ko" | sed s/[.]ko.*$//)
        chroot . modprobe $(basename $KERNM) 2>/dev/null
        lsmod | grep -q nvidia && XDRIVERTESTED=$a
        [ -z "$XDRIVERTESTED" ] && continue
@@ -189,10 +190,11 @@ if [ "$BUMBLEBEE" = "yes" ] ;then
       sed -i "s/^Driver=.*/Driver=nouveau/"                                                  etc/bumblebee/bumblebee.conf
       sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver=nvidia-current/"     etc/bumblebee/bumblebee.conf
    else
-      sed -i "s/^Driver=.*/Driver=nvidia/"                                                   etc/bumblebee/bumblebee.conf
-      sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver="$BUMBLEBEEDRIVER"/" etc/bumblebee/bumblebee.conf
       [ -d "usr/lib/$BUMBLEBEEDRIVER"   ] && [ ! -h usr/lib/nvidia   ] && ln -s "$BUMBLEBEEDRIVER" usr/lib/nvidia
       [ -d "usr/lib64/$BUMBLEBEEDRIVER" ] && [ ! -h usr/lib64/nvidia ] && ln -s "$BUMBLEBEEDRIVER" usr/lib64/nvidia
+      [ "$BUMBLEBEEDRIVER" = "nvidia-current" ] && BUMBLEBEEDRIVER=nvidia
+      sed -i "s/^Driver=.*/Driver=nvidia/"                                                   etc/bumblebee/bumblebee.conf
+      sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver="$BUMBLEBEEDRIVER"/" etc/bumblebee/bumblebee.conf
    fi
    [ -z "$BBBUSID" ] && BBBUSID=$(lspci -mn | sed s/'"Class '// | awk '{ print $1 " " $2 }' | grep -m1 0302 | awk '{print $1}' | tr . :)
    [ -z "$BBBUSID" ] || sed -i s/PCI:..:..:./PCI:$BBBUSID/ etc/bumblebee/xorg.conf.nvidia

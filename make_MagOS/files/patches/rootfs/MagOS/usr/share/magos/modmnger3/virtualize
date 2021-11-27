@@ -1,0 +1,65 @@
+#!/bin/bash
+error () {
+	echo $1
+	sleep 2
+	exit $2
+	}
+efi=no; force=no
+for arg in $@ ;do
+  case "${arg}" in
+    "-e" | "--efi") efi="yes";;
+    "-f" | "--force") forse="yes";;
+    "-"*[A-Za-z]*) error "$(basename "$0"): invalid option -- '$(echo ${arg} | tr -d '-')'" 7;;
+    *) Vdisk="{arg}";;
+  esac
+done
+
+[ -z "$Vdisk" ] && error "need one arg" 2
+[ $(id -un) != "root" ]  && error "must be root"  3 
+
+if ! [ $force ] ; then
+[ $(free -g |grep Mem |awk '{print $2}') -lt 3 ] && error "not enough memory" 4
+fi
+
+if cat /proc/mounts |grep -q $1 ; then
+	echo "Trying to unmount disks..."
+	for dev in  `ls -1 ${1}* |grep [[:digit:]]` ; do
+		if cat /proc/mounts |grep -q $dev ; then	
+			echo "unmounting $dev"
+			umount $dev || error "Sorry? can not unmount $dev" 5
+		fi
+	done
+fi
+
+Vdisk="$1"
+vm="$(echo VM${Vdisk} |sed 's/\//_/g')-$$"
+file="/root/${vm}.vmdk"
+arch=$(uname -i)
+
+if [ "$arch" !=  "x86_64" ] ;then  
+	pae=" --pae on "
+	ostype=linux
+else
+	pae=""
+	ostype=Linux_64
+fi
+
+echo "disk - $disk"
+echo "VboxVM  - $vm"
+echo "file - $file"
+echo "arch - $arch"
+echo "efi - $efi "
+
+chown root:root /usr /usr/lib /usr/lib64 /usr/bin 2>/dev/null # fix user modules permission bugs
+
+service virtualbox restart 
+VBoxManage createvm --name "$vm" -register
+VBoxManage modifyvm "$vm" --memory 1024  --vram 64 --boot1 disk --acpi on  --ostype $ostype --sata on  --nic1 nat $pae  
+VBoxManage internalcommands createrawvmdk -filename "$file" -rawdisk "$Vdisk"
+VBoxManage storageattach "$vm" --storagectl  "SATA" --port 0 --device 0 --type hdd --medium $file
+if [ $efi == "yes" ] ;then 
+	echo "enable efi booting..."
+	VBoxManage modifyvm  "$vm" --firmware efi
+fi
+VBoxManage startvm "$vm"
+

@@ -1,0 +1,95 @@
+body {color:#555; height: 100%;}
+html {height:100%}
+
+table{
+font:90%/1.2 Arial;
+overflow:auto;
+padding:0;
+border-collapse: collapse;
+}
+
+h1,h2,h3,h4,.componentheading {font-weight:bold;margin:2em 0 1em;}
+h1,.componentheading {font-size:180%;}
+h2 {font-size:150%;}
+h3 {font-size:130%;}
+h4 {font-size:110%;}
+
+
+a {color:#3366CC;text-decoration:none;font-weight:bold;}
+.bordered_td {overflow:auto; border: 1px solid grey; }
+ 
+.top {text-align:left; width:600px ; font-weight:bold; }
+.main_table {text-align:left;  width:100% }
+.bordered-table {text-align:left;  font-weight:bold; width:100% ;  vertical-align: bottom;   padding: 5px; border: 2px double black; }
+
+ 
+
+#fat32_100 {
+    width: 100%;
+    height: 30px;
+    background: #18D918;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+#ext4_100 {
+    width: 100%;
+    height: 30px;
+    background: #7590AE;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+#fat32_50 {
+	float: left;
+    width: 50%;
+    height: 30px;
+    background: #18D918;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+#efi_15 { 
+	float: left;
+    width: 15%;
+    height: 30px;
+    background: #E98706;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+
+#ext4_35 { 
+	float: left;
+    width: 35%;
+    height: 30px;
+    background: #7590AE;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+
+#ext4_30 {
+    float: left; 
+    width: 30%;
+    height: 30px;
+    background: #7590AE;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}
+
+#swap20 {
+	float: left;
+    width: 20%;
+    height: 30px;
+    background: #C1665A;
+    border: 1px solid grey;
+    border-radius: 0px 10px 0px 10px; 
+    box-sizing: border-box;
+}

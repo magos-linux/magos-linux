@@ -62,10 +62,10 @@ fi
 umount_ovl() {
     echo "Unmounting filesystems..."
     grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm; do
-        umount "$tm" 2>/dev/null
+        echo umount "$tm" 2>/dev/null
     done
-    umount "$root_br" 2>/dev/null
-    
+    echo umount "$root_br" 2>/dev/null
+    exit 0
 }
 
 crash_exit() {

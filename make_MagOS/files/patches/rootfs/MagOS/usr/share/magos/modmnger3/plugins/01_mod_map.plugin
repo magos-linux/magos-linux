@@ -1,0 +1,4 @@
+name = MagOS modules map
+action_name = It is a table for modules in base, modules and optional dirs
+url = /cgi-bin/mod_map.py
+i18n = mod_mnger

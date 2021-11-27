@@ -1,0 +1,4 @@
+name = Installator
+action_name = MagOS install helper
+url = /cgi-bin/install.py
+i18n = install-helper
