@@ -30,7 +30,7 @@ HLP() {
 [ "$1" == "" -o "$1" == "--help" ] && HLP
 if [ $(id -un) != "root" ] ; then
 	echo  "You must be root !!!"
-	exit 1 
+	exit 1
 fi
 
 MASK="base"     	#default mask (grep format) for modules in $mod_path to be mounted in new aufs
@@ -62,10 +62,9 @@ fi
 umount_ovl() {
     echo "Unmounting filesystems..."
     grep "$root_br"/ /proc/mounts | awk '{ print $2}' | sort -r | while read tm; do
-        echo umount "$tm" 2>/dev/null
+        umount "$tm" 2>/dev/null
     done
-    echo umount "$root_br" 2>/dev/null
-    exit 0
+    umount "$root_br" 2>/dev/null
 }
 
 crash_exit() {
@@ -81,13 +80,13 @@ crash_exit() {
 }
 
 clear_rw_br() {
-    rm -rf "$rw_br/tmp" "$rw_br/var/tmp" "$rw_br"/var/cache/{dnf,ldconfig} "$rw_br"/etc/ld.so.cache 2>/dev/null
-    rm -rf "$rw_br"/var/lib/menu "$rw_br/var/log" "$rw_br/usr/share/applications/mimeinfo.cache" 2>/dev/null
+    rm -rf "$rw_br/tmp" "$rw_br/var/tmp" "$rw_br/var/cache/"{dnf,ldconfig} "$rw_br/etc/ld.so.cache" 2>/dev/null
+    rm -rf "$rw_br/var/lib/menu" "$rw_br/var/log" "$rw_br/usr/share/applications/mimeinfo.cache" 2>/dev/null
     find "$rw_br/usr/share/icons" -type f -name icon-theme.cache 2>/dev/null | xargs rm -f
     rmdir "$rw_br"/{dev,proc,sys,lost+found} "$rw_br/var/cache" "$rw_br/var/lib" "$rw_br/var" "$rw_br/etc" 2>/dev/null
     # save or not databases
-    [ "$rpmdb" == "no" ] && rm -rf "$rw_br"/var/lib/rpm
-    [ "$dnfdb" == "no" ] && rm -rf "$rw_br"/var/lib/dnf
+    [ "$rpmdb" == "no" ] && rm -rf "$rw_br/var/lib/rpm"
+    [ "$dnfdb" == "no" ] && rm -rf "$rw_br/var/lib/dnf"
 }
 
 #get dnf parameters
@@ -103,7 +102,7 @@ for arg in $argslist; do
     "-l" | "--load") load="yes" ;;
     "-o" ) name="yes" ;; #do not add long parameter
     "-m" | "--mask") mask="yes" ;;
-    "-d" | "--builddir" ) bdir="yes" ;;  
+    "-d" | "--builddir" ) bdir="yes" ;;
     "-r" | "--rpmdb") rpmdb="yes" ;;
     "-u" | "--dnfdb") dnfdb="yes" ;;
     "-e" | "--erase") erase="yes" ;;
@@ -205,7 +204,7 @@ lower_br=""
 mod_file="$DNFTMP/dnf2xzm.img"
 
 umount_ovl
-umount $rw_br 2>/dev/null && rm -f $mod_file
+umount "$rw_br" 2>/dev/null && rm -f $mod_file
 
 rm -rf "$rw_br" "$root_br" "$wkdir" 2>/dev/null
 mkdir -p "$rw_br" "$root_br" "$wkdir"
@@ -238,7 +237,7 @@ done
 rpm -qa -r $root_br >$DNFTMP/rpm_qa_before
 
 [ "$steps" ] && read -p "next step - dnf" ecode
-if [ "$ecode" == "exit" ]; then   umount_ovl ;   umount $rw_br ;   exit ; fi
+if [ "$ecode" == "exit" ]; then   umount_ovl ;   umount "$rw_br" ;   exit ; fi
 
 if [ "$erase" == "no" ]; then
     for pack in $packages; do
@@ -251,7 +250,7 @@ if [ "$erase" == "no" ]; then
     action=install
 else
     #delete packages, it need to make module width overlay whiteouts
-    /usr/bin/dnf remove --installroot "$root_br" $packages 
+    /usr/bin/dnf remove --installroot "$root_br" $packages
     result=$?
     action=erase
 fi
@@ -296,7 +295,7 @@ if [ "$rebuildable" == "yes" ]; then
     done
 fi
 [ "$steps" ] && read -p "next step - mksquashfs" ecode
-if [ "$ecode" == "exit" ]; then   umount_ovl ;  umount $rw_br ;  exit ; fi
+if [ "$ecode" == "exit" ]; then   umount_ovl ;  umount "$rw_br" ;  exit ; fi
 
 if [ "$result" -eq 0 -a "$erase" == "no" ]; then
     mksquashfs $rw_br ${PNAME}/${NAME} $MKSQOPTS -noappend  && MODULE="$(readlink -e ${PNAME}/${NAME})" && create=OK
@@ -313,7 +312,7 @@ else
     fi
 fi
 
-umount $img_mnt && rm -rf "$buildDir"
+umount "$img_mnt" && rm -rf "$buildDir"
 
 if [ $create ]; then
 #    [ "$load" = "yes" ] && activate $MODULE >/dev/null && echo "Mounted successfully"
