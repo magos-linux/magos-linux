@@ -1497,3 +1497,7 @@ libgstreamer-plugins-base1.0_0
 libwayland-cursor0
 libwayland-egl1
 libEGL1
+perl-Template-Toolkit
+perl-AppConfig
+perl-Pod-POM
+pulseaudio-i18n

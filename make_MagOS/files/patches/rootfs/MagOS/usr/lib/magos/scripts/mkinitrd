@@ -19,29 +19,23 @@ INIRAMDBIN2='dosfsck fsck fsck.ext2 reiserfsck rsync losetup ntfsfix mksquashfs 
 # optional binaries for /usr/bin
 INIRAMDBINOPT="resume fsck.reiser4"
 
-INITRDMODULES='kernel/fs/aufs /kernel/fs/squashfs kernel/fs/fuse/fuse.
+INITRDMODULES='kernel/fs/aufs kernel/fs/squashfs kernel/fs/fuse/fuse. kernel/fs/unionfs/unionfs.
   kernel/fs/isofs kernel/fs/fat kernel/fs/ntfs kernel/fs/reiserfs kernel/fs/xfs
   kernel/fs/nfs/ kernel/fs/nfs_common kernel/fs/lockd kernel/fs/fscache
-  kernel/fs/nls/nls_cp866. kernel/fs/nls/nls_utf8.
-  kernel/drivers/block/loop. kernel/drivers/block/cryptoloop. kernel/drivers/scsi/sr_mod.
-  kernel/drivers/ata kernel/drivers/scsi/vmw_pvscsi.
-  kernel/drivers/usb/storage
-  kernel/drivers/usb/host/ehci-hcd.
-  kernel/drivers/usb/host/ohci-hcd. kernel/drivers/usb/host/uhci-hcd. kernel/drivers/usb/host/xhci-hcd.
-  kernel/drivers/hid/hid. kernel/drivers/hid/usbhid/usbhid.
-  kernel/drivers/pcmcia/pcmcia_core. kernel/drivers/pcmcia/pcmcia. kernel/drivers/pcmcia/yenta_socket.
+  kernel/fs/ext kernel/fs/jbd kernel/fs/nls/nls_cp866. kernel/fs/nls/nls_utf8.
+  kernel/drivers/block/loop. kernel/drivers/block/cryptoloop.
+  kernel/drivers/scsi/sr_mod. kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/scsi_mod. kernel/drivers/scsi/vmw_pvscsi.
+  kernel/drivers/ata kernel/drivers/ide
+  kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage
+  kernel/drivers/usb/host/ehci kernel/drivers/usb/host/ohci kernel/drivers/usb/host/uhc kernel/drivers/usb/host/xhci kernel/drivers/usb/host/ohci
+  kernel/drivers/hid/hid. kernel/drivers/hid/usbhid kernel/drivers/hid/hid-generic.
+  kernel/drivers/pcmcia  kernel/drivers/mmc/core kernel/drivers/mmc/card
+  kernel/drivers/crypto/ccp kernel/drivers/md/dm-crypt.
+  kernel/drivers/dca
   kernel/net/sunrpc/sunrpc. kernel/net/sunrpc/auth_gss/auth_rpcgss. kernel/net/packet/af_packet.
-  kernel/arch/x86/crypto/aes- kernel/drivers/md/dm-crypt. '
-INITRDMODULESOPT='kernel/fs/ext4 kernel/fs/jbd2 kernel/drivers/scsi/sd_mod. kernel/drivers/scsi/scsi_mod.
-  kernel/lib/crc16. kernel/lib/crc-t10dif. kernel/crypto/aes_generic.
-  kernel/drivers/usb/host/ehci-pci. kernel/drivers/usb/host/ehci-platform. kernel/drivers/hid/hid-generic.
-  kernel/drivers/usb/host/xhci-pci. kernel/drivers/usb/host/xhci-plat-hcd.
-  kernel/drivers/usb/host/ohci-pci. kernel/drivers/usb/host/ohci-plat-hcd.
-  kernel/drivers/ide dkms-binary/fs/squashfs dkms-binary/lib/lzma kernel/fs/unionfs/unionfs.
-  kernel/lib/zlib_inflate kernel/lib/zlib_deflate kernel/drivers/pcmcia/rsrc_nonstatic.
-  kernel/drivers/usb/core/usbcore. kernel/drivers/usb/usb-common. kernel/drivers/usb/storage/uas.
-  kernel/fs/ext3 kernel/fs/jbd kernel/crypto/cbc.
-  kernel/drivers/mmc/core kernel/drivers/mmc/card '
+  kernel/arch/x86/crypto/crc kernel/arch/x86/crypto/aes
+  kernel/crypto/cbc. kernel/crypto/aes_generic. kernel/crypto/cryptd. kernel/crypto/crypto_simd
+  kernel/lib/crc16. kernel/lib/crc-t10dif. kernel/lib/zlib_'
 
 INITRDNETWORKDRIVERS='3c59x e100 eepro100 e1000 hp100 ne2k-pci r8169 8139too 8139cp via-rhine forcedeth e2100 eepro eexpress pcnet32
    3c501 3c503 3c505 3c507 3c509 3c515 tg3 jme virtio_net atl1 atl1c atl2 igb alx'
@@ -265,6 +259,7 @@ done
 
 echo "unpacking all kernel modules for initrd"
 find lib -noleaf -name "*.ko.gz" | xargs -r gunzip || exit 1
+find lib -noleaf -name "*.ko.xz" | xargs -r unxz || exit 1
 
 echo "generating module dependency files"
 copy_mod modules.order $KERNEL || exit 1

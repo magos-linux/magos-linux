@@ -143,9 +143,10 @@ cp -L "$ROOTFS/aufs/boot/initrd.gz" "$DESTDIR/$FLASHNAME" || stop "Can't write i
 cp -L "$MYPATH/$CACHE/VERSION"      "$DESTDIR/$FLASHNAME" || stop "Can't write VERSION to $DESTDIR/$FLASHNAME"
 mv -f "$MYPATH/flash/current/modules/"* "$DESTDIR/$FLASHNAME/base" || stop "Can't move modules to $DESTDIR/$FLASHNAME/base"
 chmod 444 "$DESTDIR/$FLASHNAME/base/"*
-mv "$DESTDIR/$FLASHNAME/base/"??-int-*.xzm "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international"
-mv "$DESTDIR/$FLASHNAME/base/"81-*.xzm     "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}" 2>/dev/null
-mv "$DESTDIR/$FLASHNAME/base/"82-*.xzm     "$DESTDIR/$FLASHNAME/optional" 2>/dev/null
+ls -1 "$DESTDIR/$FLASHNAME/base/"*.xzm | sed 's=.*/==' | grep -f "$MYPATH/files/packages/${FLASHNAME}-${VERREL}/optional" | while read a ;do
+   mv "$DESTDIR/$FLASHNAME/base/$a" "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}"
+done
+mv "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}"/*-int-*.xzm "$MYPATH/flash/additions/${FLASHNAME}_${VERREL}_${DISTRVERSION}/international" 2>/dev/null
 
 echo -e "\nДобавление графического материала"
 cd "$MYPATH/../graphics" || stop "Can't cd to ../graphics"
