@@ -1,5 +1,5 @@
 #!/bin/bash
-#BUGFIX some lib links was captured by devel packages. 
+#BUGFIX some lib links was captured by devel packages.
 #We will not install them through the deps, but we will create links to make linked binary happy (if ldconfig did'nt make this job)
 
 function makelink()

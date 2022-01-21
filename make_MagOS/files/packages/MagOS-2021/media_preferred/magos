@@ -1,3 +1,17 @@
 kernel-headers
 xscreensaver
 xscreensaver-common
+lib64NX_X11_6
+lib64xcomp3
+lib64xcompshad3
+nxagent
+nxproxy
+remmina
+remmina-plugins-exec
+remmina-plugins-nx
+remmina-plugins-rdp
+remmina-plugins-spice
+remmina-plugins-st
+remmina-plugins-vnc
+remmina-plugins-www
+remmina-plugins-xdmcp

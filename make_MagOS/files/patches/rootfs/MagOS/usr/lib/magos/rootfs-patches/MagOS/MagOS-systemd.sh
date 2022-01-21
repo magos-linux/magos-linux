@@ -8,7 +8,7 @@ ldconfig xinetd lvm2-activation-early lvm2-activation-net lvm2-activation smb nm
 NetworkManager-wait-online arp-ethers.service dbus-org.freedesktop.Avahi dhcpd wine systemd-resolved ntpdate openswan \
 systemd-firstboot systemd-pstore systemd-modules-load systemd-binfmt"
 SOCKETSDISABLE="avahi-daemon rpcbind lvm2-lvmetad"
-SERVICESSTART="virtualbox"
+SERVICESSTART="virtualbox iptables"
 
 function sd_change()
 {

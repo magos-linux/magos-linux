@@ -188,6 +188,7 @@ rm -f "$ROOTFS/aufs/clean_distr.sh"
 if [ -x /bin/rpm ] ;then
   mkdir -p -m 755 "$ROOTFS/aufs/var/lib/rpm/modules"
   cp -p "$MYPATH/$CACHE/modules/packages/"??-* "$ROOTFS/aufs/var/lib/rpm/modules" || stop "Can't copy to $ROOTFS/aufs/var/lib/rpm/modules"
+  [ -f "$MYPATH/files/packages/$FLASHNAME-$VERREL/optional" ] && cp -p "$MYPATH/files/packages/$FLASHNAME-$VERREL/optional" "$ROOTFS/aufs/var/lib/rpm/modules"
   cp -prf pubkeys "$ROOTFS/aufs/var/lib/rpm" || stop "Can't copy to $ROOTFS/aufs/var/lib/rpm"
 fi
 for a in $FLASHNAME $FLASHNAME-$VERREL ;do

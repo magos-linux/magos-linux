@@ -15,4 +15,4 @@ libvkd3d1
 libvkd3d-shader1
 wine32
 wine64
-wine64-binfmt
+wine-common-binfmt

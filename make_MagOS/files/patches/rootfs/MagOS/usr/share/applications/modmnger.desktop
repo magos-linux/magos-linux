@@ -10,3 +10,4 @@ Type=Application
 StartupNotify=true
 MimeType=application/x-xzm;
 Categories=Settings;Systm;X-MandrivaLinux-CrossDesktop;
+Hidden=false

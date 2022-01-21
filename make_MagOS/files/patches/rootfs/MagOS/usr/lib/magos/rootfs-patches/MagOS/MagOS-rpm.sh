@@ -17,9 +17,10 @@ mv /var/lib/rpmbase/* /var/lib/rpm
 
 [ -f /var/lib/rpm/pubkeys/magos.pubkey ] && rpm --import /var/lib/rpm/pubkeys/magos.pubkey
 
-cat /var/lib/rpm/modules/8[12]-* | while read a ;do
+ls -1 /var/lib/rpm/modules/??-* | sed 's=.*/==' | grep -f "/var/lib/rpm/modules/optional" | sed 's|^|/var/lib/rpm/modules/|' | xargs cat | sort -u | while read a ;do
     rpm -e --nodeps --noscripts --notriggers --justdb ${a%.rpm} 2>/dev/null
 done
+rm -f /var/lib/rpm/modules/optional
 
 [ -x /usr/lib/rpm/bin/dbconvert ] && /usr/lib/rpm/bin/dbconvert
 

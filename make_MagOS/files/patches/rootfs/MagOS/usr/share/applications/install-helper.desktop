@@ -9,3 +9,4 @@ Terminal=false
 Type=Application
 StartupNotify=true
 Categories=Settings;Systm;X-MandrivaLinux-CrossDesktop;
+Hidden=false

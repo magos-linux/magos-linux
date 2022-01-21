@@ -91,7 +91,6 @@ jack-example-clients
 recoverjpeg
 soundwrapper
 tetzle
-youtube-dl
 gnome-mahjongg
 grip
 movit
@@ -192,3 +191,9 @@ python2-sip4-qt4
 tkinter
 pyorbit
 python2-qt4-core
+lib64tomcrypt1
+lib64tommath1
+python3-mutagen
+python3-pycryptodomex
+python3-yt-dlp
+yt-dlp

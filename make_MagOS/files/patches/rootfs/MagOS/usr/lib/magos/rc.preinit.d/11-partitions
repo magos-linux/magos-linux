@@ -10,6 +10,8 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 DEBUGMODE=no
+CRYPTOOPT="noauto defaults"
+CRYPTOPARTSAUTOMOUNT=no
 . usr/lib/magos/scripts/liblinuxlive
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
@@ -71,13 +73,14 @@ grep -q "tmpfs /media tmpfs" etc/fstab || echo "tmpfs /media tmpfs size=1M 0 0 #
 
 if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
    sed -i /PARTITIONSAUTOMOUNT/d etc/fstab
+   sed -i /PARTITIONSAUTOMOUNT/d etc/crypttab 2>/dev/null
    blkid | egrep -v "loop|/dev/ram" | grep /dev/ | awk -F: '{ print $1 }' | while read a ; do
        grep -q "^$a " etc/fstab && continue
        if grep -q "^$a " /proc/mounts ;then
           grep -m1 "^$a " /proc/mounts | grep /memory | sed s/$/" #PARTITIONSAUTOMOUNT=yes"/ >> etc/fstab
        else
          DEVTYPE=$(blkid $a | awk -FTYPE=\" '{print $2}'| sed s/\".*// )
-         if [ "$DEVTYPE" != "" -a "$DEVTYPE" != "swap" -a "$DEVTYPE" != "udf" -a "$DEVTYPE" != "iso9660" ] ;then
+         if [ "$DEVTYPE" != "" -a "$DEVTYPE" != "swap" -a "$DEVTYPE" != "udf" -a "$DEVTYPE" != "iso9660" -a "$DEVTYPE" != "crypto_LUKS" ] ;then
             DEVLABEL=$( blkid $a | awk -FLABEL=\" '{print $2}'| sed s/\".*//  | tr -d [:cntrl:][:space:])
             [ -z "$DEVLABEL" ] && DEVLABEL=$(get_name disk)
             [ -d media/"$DEVLABEL" ] && DEVLABEL=$(get_name $DEVLABEL)
@@ -85,9 +88,18 @@ if [ "$PARTITIONSAUTOMOUNT" = "yes" ] ;then
             DEVOPTS=$(fs_options $a fstab)
             [ "$DEVTYPE" = "vfat" -o "$DEVTYPE" = "ntfs" ] && DEVOPTS="$DEVOPTS,uid=$PARTITIONSMOUNTUID"
             echo "$a /media/$DEVLABEL $DEVTYPE $DEVOPTS 0 $FSCKFLAG #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
-            [ -d media/$DEVLABEL ] || mkdir -p media/$DEVLABEL
+            [ -d "media/$DEVLABEL" ] || mkdir -p "media/$DEVLABEL"
          elif [ "$DEVTYPE" = "swap" ] ;then
             grep -q "^$a none swap" etc/fstab || echo "$a none swap defaults 0 0 #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+         elif [ "$DEVTYPE" = "crypto_LUKS" ] ;then
+            if [ "$CRYPTOPARTSAUTOMOUNT" = "yes" ] ;then
+              DEVUUID=$(blkid $a | sed s/.*" "UUID=// | tr -d \" | awk '{ print $1}')
+              DEVNUM=$(grep ^crypto etc/crypttab 2>/dev/null| sort | tail -1 | awk '{print $1}' | sed s/crypto//)
+              DEVNUM=$(( $DEVNUM + 1 ))
+              grep "^crypto$DEVNUM " etc/crypttab 2>/dev/null || echo "crypto$DEVNUM UUID=$DEVUUID $CRYPTOOPT #PARTITIONSAUTOMOUNT=yes" >>etc/crypttab
+              grep "^crypto$DEVNUM " etc/fstab || echo "/dev/mapper/crypto$DEVNUM /media/crypto$DEVNUM auto noauto 0 0 #PARTITIONSAUTOMOUNT=yes" >>etc/fstab
+              [ -d "media/crypto$DEVNUM" ] || mkdir -p "media/crypto$DEVNUM"
+            fi
          fi
        fi
    done

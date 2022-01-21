@@ -2,7 +2,7 @@
 NUM=81
 NAME=virtualbox-plugin
 RELEASE=$(date +%Y%m%d)
-DISTR=2016
+DISTR=$(grep VERSION_ID /etc/os-release | awk -F= '{print $2}')
 AUTHOR=dont_redistribute
 VERSION=$(rpm -qq virtualbox | awk -F- '{print $2}')
 
