@@ -895,7 +895,6 @@ udev
 udpxy
 unbound
 unzip
-update-alternatives
 usb_modeswitch
 usb_modeswitch-data
 usbutils
@@ -938,3 +937,18 @@ lib64mpfr6
 lib64parted-fs-resize0
 parted
 lib64ecap3
+lib64curl-libressl4
+perl-namespace-autoclean
+perl-Params-ValidationCompiler
+perl-Specio
+perl-Time-Piece
+perl-Devel-StackTrace
+perl-Eval-Closure
+perl-Exception-Class
+perl-MRO-Compat
+perl-Role-Tiny
+perl-Sub-Identify
+perl-Sub-Quote
+perl-Test-Fatal
+perl-Class-Data-Inheritable
+lib64subid0

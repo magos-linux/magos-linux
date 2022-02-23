@@ -4,8 +4,8 @@
 ^..-x-mate
 ^..-x-java
 ^..-x-chromium
-^..-x-newmoon.xzm
-^..-x-rawtherapee.xzm
-^..-x-wine.xzm
-^..-x-wireshark.xzm
+^..-x-newmoon
+^..-x-rawtherapee
+^..-x-wine
+^..-x-wireshark
 ^18-

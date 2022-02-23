@@ -14,5 +14,4 @@
 ^cdrkit-
 ^rpm-
 ^networkmanager-[0-9]
-^update-alternatives-
 ^pm-fallback-policy-

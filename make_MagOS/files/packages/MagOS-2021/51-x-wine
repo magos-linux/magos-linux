@@ -14,5 +14,8 @@ libspirv-tools0
 libvkd3d1
 libvkd3d-shader1
 wine32
-wine64
+wine32-common
 wine-common-binfmt
+libsane1
+libieee1284_3
+libv4l0

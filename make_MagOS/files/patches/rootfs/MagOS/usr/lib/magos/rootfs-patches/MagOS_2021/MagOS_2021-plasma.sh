@@ -18,8 +18,8 @@ EOF
 
 patch -p1 -d /usr/share/plasma/layout-templates/org.kde.plasma.desktop.defaultPanel/contents <<EOF
 diff -aupr a/layout.js b/layout.js
---- a/layout.js	2021-11-16 20:21:05.318931059 +0300
-+++ b/layout.js	2021-11-16 20:15:03.000000000 +0300
+--- a/layout.js	2022-01-19 13:29:56.000000000 +0300
++++ b/layout.js	2022-02-22 17:36:03.708645030 +0300
 @@ -25,7 +25,7 @@ if (freeEdges["bottom"] == true) {
      panel.location = "top";
  }
@@ -29,7 +29,7 @@ diff -aupr a/layout.js b/layout.js
  
  // Restrict horizontal panel to a maximum size of a 21:9 monitor
  const maximumAspectRatio = 21/9;
-@@ -43,24 +43,42 @@ if (panel.formFactor === "horizontal") {
+@@ -43,18 +43,42 @@ if (panel.formFactor === "horizontal") {
  var kickoff = panel.addWidget("org.kde.plasma.kickoff")
  kickoff.currentConfigGroup = ["Shortcuts"]
  kickoff.writeConfig("global", "Alt+F1")
@@ -42,18 +42,14 @@ diff -aupr a/layout.js b/layout.js
  dolphin.writeConfig("iconName", "system-file-manager")
  dolphin.writeConfig("url","file:///usr/share/applications/kde5/org.kde.dolphin.desktop")
  
- var firefox = panel.addWidget("org.kde.plasma.icon")
+-var chromium = panel.addWidget("org.kde.plasma.icon")
+-chromium.currentConfigGroup = ["General"]
+-chromium.writeConfig("applicationName", "Chromium")
+-chromium.writeConfig("iconName", "chromium-browser")
+-chromium.writeConfig("url","file:///usr/share/applications/chromium-browser.desktop")
++var firefox = panel.addWidget("org.kde.plasma.icon")
 +firefox.writeConfig("localPath", "/usr/share/applications/firefox.desktop")
- firefox.currentConfigGroup = ["General"]
--firefox.writeConfig("applicationName", "Chromium")
--firefox.writeConfig("iconName", "chromium-browser")
--firefox.writeConfig("url","file:///usr/share/applications/chromium-browser.desktop")
--
--var libreoffice = panel.addWidget("org.kde.plasma.icon")
--libreoffice.currentConfigGroup = ["General"]
--libreoffice.writeConfig("applicationName", "Elisa")
--libreoffice.writeConfig("iconName", "elisa")
--libreoffice.writeConfig("url","file:///usr/share/applications/kde5/org.kde.elisa.desktop")
++firefox.currentConfigGroup = ["General"]
 +firefox.writeConfig("applicationName", "Firefox")
 +firefox.writeConfig("iconName", "firefox")
 +firefox.writeConfig("url","file:///usr/share/applications/firefox.desktop")
