@@ -1,3 +1,5 @@
 127.0.0.1               localhost MagOS
 127.0.0.1               sb-ssl.l.google.com safebrowsing.clients.google.com safebrowsing.cache.l.google.com
+127.0.0.1               contile.services.mozilla.com normandy.cdn.mozilla.net normandy-cdn.mozilla.net firefox.settings.services.mozilla.com fennec-catalog-cdn.prod.mozaws.net
+127.0.0.1               detectportal.firefox.com location.services.mozilla.com
 192.168.1.31            MagOS-Server

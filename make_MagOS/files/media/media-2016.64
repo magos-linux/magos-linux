@@ -14,4 +14,4 @@ http://mirror.rosalinux.com/rosa/rosa2016.1/repository/i586/contrib/updates cont
 http://mirror.rosalinux.com/rosa/rosa2016.1/repository/i586/main/updates main-updates-32 update ignore
 http://mirror.rosalinux.com/rosa/rosa2016.1/repository/i586/non-free/updates nonfree-updates-32 update ignore
 http://mirror.rosalinux.com/rosa/rosa2016.1/repository/i586/restricted/updates restricted-updates-32 update  ignore
-http://magos.sibsau.ru/repository/rpms/2016.64 magos skip
+https://mirror.yandex.ru/mirrors/magos/rpms/2016.64 magos skip

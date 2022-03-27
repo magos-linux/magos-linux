@@ -70,4 +70,8 @@ rm -fr 2>/dev/null usr/share/mdk/desktop/free/* usr/share/mdk/screensaver usr/sh
    var/lib/mandriva/kde4-profiles/Default/share/apps/ksplash/Themes
 [ -d usr/share/icons/rosa -a -d usr/share/icons/rosa-flat ] && rm -fr usr/share/icons/rosa-flat
 
+#meta
+rm -f usr/share/kservices5/searchproviders/facebook.desktop
+find usr/share/icons | grep -i facebook | xargs rm -f
+
 exit 0

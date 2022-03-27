@@ -18,6 +18,6 @@ kernel-module-8821ce-5.10-desktop
 kernel-module-8821cu-5.10-desktop
 kernel-module-wl-5.10-desktop
 broadcom-wl-aliases
-rtl8821ce-blacklist
 zd1201-firmware
 zd1211-firmware
+rtl8821ce-blacklist

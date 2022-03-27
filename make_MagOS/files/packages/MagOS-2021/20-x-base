@@ -1513,3 +1513,7 @@ remmina-plugins-st
 remmina-plugins-vnc
 remmina-plugins-www
 remmina-plugins-xdmcp
+lib64kate1
+lib64uring2
+lib64sndio7
+lib64portmidi0

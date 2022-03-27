@@ -4,4 +4,4 @@ http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/non-free/release n
 http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/main/release main32 ignore
 http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/contrib/release contrib32 ignore
 http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/non-free/release nonfree32 ignore
-http://magos.sibsau.ru/repository/rpms/2021 magos skip
+https://mirror.yandex.ru/mirrors/magos/rpms/2021 magos skip

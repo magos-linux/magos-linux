@@ -16,4 +16,5 @@ SIZEROOTFS=20
 DATASIZE1=756
 
 # ключи для команды mksquashfs при создании модулей
-MKSQOPT="-b 512K -comp xz -Xbcj x86"
+#MKSQOPT="-b 512K -comp xz -Xbcj x86"
+MKSQOPT="-b 512K -comp zstd -Xcompression-level 22"
