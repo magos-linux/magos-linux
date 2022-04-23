@@ -693,8 +693,8 @@ lib64attica-kde4_0.4
 lib64kerfuffle21
 lib64kf5pulseaudioqt3
 lib64kimageannotator0.6.0
-lib64konsoleapp21
-lib64konsoleprivate21
+lib64konsoleapp1
+lib64konsoleprivate1
 lib64ksysguardsystemstats1
 lib64layershellqt5
 lib64qalculate22
@@ -716,3 +716,8 @@ plasma5-kcm-drakfirewall
 plasma5-kcm-drakguard
 plasma5-kcm-draksec
 plasma5-kcm-harddrake
+lib64iex3_1_30
+lib64ilmthread3_1_30
+lib64Imath3_1_29
+lib64kf5localedata5
+lib64openexr3_3_1_30

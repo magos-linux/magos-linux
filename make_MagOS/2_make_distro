@@ -198,7 +198,7 @@ cp -pfr "$ROOTFS/magos/"* "$ROOTFS/aufs"
 mkdir -p "$ROOTFS/aufs/mnt/live"
 echo $VERREL $(date +%Y%m%d) > VERSION
 cp VERSION "$ROOTFS/aufs/mnt/live/VERSION"
-grep -q ^MKSQFS_OPTS= "$ROOTFS/usr/lib/magos/os-config" && sed -i "s/^MKSQFS_OPTS=.*/MKSQFS_OPTS=\"$MKSQOPT\"/" "$ROOTFS/usr/lib/magos/os-config"
+grep -q ^MKSQFS_OPTS= "$ROOTFS/aufs/usr/lib/magos/os-config" && sed -i "s/^MKSQFS_OPTS=.*/MKSQFS_OPTS=\"$MKSQOPT\"/" "$ROOTFS/aufs/usr/lib/magos/os-config"
 mountsys "$ROOTFS/aufs"
 chroot "$ROOTFS/aufs" "/usr/lib/magos/rootfs-patches/$FLASHNAME-patch_distr.sh"
 [ -f "$ROOTFS/aufs/usr/lib/magos/rootfs-patches/${FLASHNAME}_${VERREL}-patch_distr.sh" ] && chroot "$ROOTFS/aufs" "/usr/lib/magos/rootfs-patches/${FLASHNAME}_${VERREL}-patch_distr.sh"

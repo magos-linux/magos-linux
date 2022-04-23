@@ -369,7 +369,7 @@ lib64ggi2
 lib64gif4
 lib64gif7
 lib64gii1
-lib64git2_26
+lib64git2_1.4
 lib64gksu2.0_0
 lib64GL1
 lib64glade2.0_0
@@ -1221,7 +1221,6 @@ sound-scripts
 sound-theme-freedesktop
 source-highlight
 sox
-t1utils
 task-lxqt
 task-pulseaudio
 task-x11
@@ -1517,3 +1516,8 @@ lib64kate1
 lib64uring2
 lib64sndio7
 lib64portmidi0
+lib64jemalloc2
+lib64rnnoise0
+lib64xcb-screensaver0
+lib64qt5waylandcompositor5
+texlive-lcdftypetools.bin

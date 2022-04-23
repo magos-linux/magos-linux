@@ -196,4 +196,6 @@ lib64tommath1
 python3-mutagen
 python3-pycryptodomex
 python3-yt-dlp
+python3-brotli
 yt-dlp
+telegram-desktop

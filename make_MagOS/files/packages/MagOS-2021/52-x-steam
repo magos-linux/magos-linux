@@ -168,3 +168,4 @@ libtasn1-devel
 libsqlite3_0
 python3-vdf
 protontricks
+libnuma1
