@@ -17,8 +17,7 @@ patch -p1 -d /usr/share/plasma/wallpapers/org.kde.image/contents/config <<EOF
 EOF
 
 PFP=/usr/share/plasma/layout-templates/org.kde.plasma.desktop.defaultPanel/contents/layout.js
-[ -f $PFP.default ] || cp -pf $PFP $PFP.default
-cat > $PFP <<EOF
+cat >$PFP <<EOF
 var panel = new Panel
 var panelScreen = panel.screen
 var freeEdges = {"bottom": true, "top": true, "left": true, "right": true}
@@ -61,10 +60,49 @@ if (panel.formFactor === "horizontal") {
     }
 }
 
-panel.addWidget("org.kde.plasma.lock_logout")
-panel.addWidget("org.kde.plasma.digitalclock")
-panel.addWidget("org.kde.plasma.systemtray")
-panel.addWidget("org.kde.plasma.trash")
+var kickoff = panel.addWidget("org.kde.plasma.kickoff")
+kickoff.currentConfigGroup = ["Shortcuts"]
+kickoff.writeConfig("global", "Alt+F1")
+kickoff.writeConfig("icon", "/usr/share/icons/magos.svg")
+
+var dolphin = panel.addWidget("org.kde.plasma.icon")
+dolphin.writeConfig("localPath", "/usr/share/applications/kde5/org.kde.dolphin.desktop")
+dolphin.currentConfigGroup = ["General"]
+dolphin.writeConfig("applicationName", "Dolphin")
+dolphin.writeConfig("iconName", "system-file-manager")
+dolphin.writeConfig("url","file:///usr/share/applications/kde5/org.kde.dolphin.desktop")
+
+var firefox = panel.addWidget("org.kde.plasma.icon")
+firefox.writeConfig("localPath", "/usr/share/applications/firefox.desktop")
+firefox.currentConfigGroup = ["General"]
+firefox.writeConfig("applicationName", "Firefox")
+firefox.writeConfig("iconName", "firefox")
+firefox.writeConfig("url","file:///usr/share/applications/firefox.desktop")
+
+var thunderbird = panel.addWidget("org.kde.plasma.icon")
+thunderbird.writeConfig("localPath", "/usr/share/applications/thunderbird.desktop")
+thunderbird.currentConfigGroup = ["General"]
+thunderbird.writeConfig("applicationName", "Thunderbird")
+thunderbird.writeConfig("iconName", "mozilla-thunderbird")
+thunderbird.writeConfig("url","file:///usr/share/applications/thunderbird.desktop")
+
+var doublecmd = panel.addWidget("org.kde.plasma.icon")
+doublecmd.writeConfig("localPath", "/usr/share/applications/doublecmd.desktop")
+doublecmd.currentConfigGroup = ["General"]
+doublecmd.writeConfig("applicationName", "Double Commander")
+doublecmd.writeConfig("iconName", "doublecmd")
+doublecmd.writeConfig("url","file:///usr/share/applications/doublecmd.desktop")
+
+var kalc = panel.addWidget("org.kde.plasma.icon")
+kalc.writeConfig("localPath", "/usr/share/applications/kde5/org.kde.kcalc.desktop")
+kalc.currentConfigGroup = ["General"]
+kalc.writeConfig("applicationName", "Kalc")
+kalc.writeConfig("iconName", "accessories-calculator")
+kalc.writeConfig("url","file:///usr/share/applications/kde5/org.kde.kcalc.desktop")
+
+//panel.addWidget("org.kde.plasma.showActivityManager")
+var pager = panel.addWidget("org.kde.plasma.pager")
+var taskmanager = panel.addWidget("org.kde.plasma.taskmanager")
 
 var systemsettings = panel.addWidget("org.kde.plasma.icon")
 systemsettings.currentConfigGroup = ["Shortcuts"]
@@ -114,50 +152,10 @@ if (langIds.indexOf(languageId) != -1) {
     panel.addWidget("org.kde.plasma.kimpanel");
 }
 
-
-var kickoff = panel.addWidget("org.kde.plasma.kickoff")
-kickoff.currentConfigGroup = ["Shortcuts"]
-kickoff.writeConfig("global", "Alt+F1")
-kickoff.writeConfig("icon", "/usr/share/icons/magos.svg")
-
-var dolphin = panel.addWidget("org.kde.plasma.icon")
-dolphin.writeConfig("localPath", "/usr/share/applications/kde5/org.kde.dolphin.desktop")
-dolphin.currentConfigGroup = ["General"]
-dolphin.writeConfig("applicationName", "Dolphin")
-dolphin.writeConfig("iconName", "system-file-manager")
-dolphin.writeConfig("url","file:///usr/share/applications/kde5/org.kde.dolphin.desktop")
-
-var firefox = panel.addWidget("org.kde.plasma.icon")
-firefox.writeConfig("localPath", "/usr/share/applications/firefox.desktop")
-firefox.currentConfigGroup = ["General"]
-firefox.writeConfig("applicationName", "Firefox")
-firefox.writeConfig("iconName", "firefox")
-firefox.writeConfig("url","file:///usr/share/applications/firefox.desktop")
-
-var thunderbird = panel.addWidget("org.kde.plasma.icon")
-thunderbird.writeConfig("localPath", "/usr/share/applications/thunderbird.desktop")
-thunderbird.currentConfigGroup = ["General"]
-thunderbird.writeConfig("applicationName", "Thunderbird")
-thunderbird.writeConfig("iconName", "mozilla-thunderbird")
-thunderbird.writeConfig("url","file:///usr/share/applications/thunderbird.desktop")
-
-var doublecmd = panel.addWidget("org.kde.plasma.icon")
-doublecmd.writeConfig("localPath", "/usr/share/applications/doublecmd.desktop")
-doublecmd.currentConfigGroup = ["General"]
-doublecmd.writeConfig("applicationName", "Double Commander")
-doublecmd.writeConfig("iconName", "doublecmd")
-doublecmd.writeConfig("url","file:///usr/share/applications/doublecmd.desktop")
-
-var kalc = panel.addWidget("org.kde.plasma.icon")
-kalc.writeConfig("localPath", "/usr/share/applications/kde5/org.kde.kcalc.desktop")
-kalc.currentConfigGroup = ["General"]
-kalc.writeConfig("applicationName", "Kalc")
-kalc.writeConfig("iconName", "accessories-calculator")
-kalc.writeConfig("url","file:///usr/share/applications/kde5/org.kde.kcalc.desktop")
-
-//panel.addWidget("org.kde.plasma.showActivityManager")
-var pager = panel.addWidget("org.kde.plasma.pager")
-var taskmanager = panel.addWidget("org.kde.plasma.taskmanager")
+panel.addWidget("org.kde.plasma.trash")
+panel.addWidget("org.kde.plasma.systemtray")
+panel.addWidget("org.kde.plasma.digitalclock")
+panel.addWidget("org.kde.plasma.lock_logout")
 EOF
 
 [ -h /usr/share/plasma/avatars ] && exit 0

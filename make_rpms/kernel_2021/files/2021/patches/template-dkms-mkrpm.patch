@@ -1,0 +1,24 @@
+--- a/etc/dkms/template-dkms-mkrpm.spec	2021-09-29 04:00:06.000000000 +0300
++++ b/etc/dkms/template-dkms-mkrpm.spec	2021-11-15 12:07:49.000000000 +0300
+@@ -1,7 +1,7 @@
+ %{?!module_name: %{error: You did not specify a module name (%%module_name)}}
+ %{?!version: %{error: You did not specify a module version (%%version)}}
+ %{?!kernel_versions: %{error: You did not specify kernel versions (%%kernel_version)}}
+-%{?!packager: %define packager OpenMandriva Association  <https://openmandriva.org>
++%{?!packager: %define packager OpenMandriva Association  <https://openmandriva.org>}
+ %{?!license: %define license Commercial}
+ 
+ %{?!_dkmsdir: %define _dkmsdir %_localstatedir/lib/dkms}
+@@ -43,12 +43,6 @@ Release:	%{rel} \n\
+ License:	%{license} \n\
+ Vendor:		%{vendor} \n\
+ Group:		System/Kernel and hardware\n\
+-Requires(post):	dkms-minimal >= 2.0.19\n\
+-Requires(preun):dkms-minimal >= 2.0.19\n\
+-Requires:	${kpackag}
+-Requires(post):	${kpackage}
+-Requires(preun):${kpackage} = ${kversion}
+-Suggests:	%{module_name}-kernel-${kflavour}-latest \n\
+ \n\
+ %description -n %{module_name}-kernel-${kernel}\n\
+ dkms binary kernel modules for the %{module_name} driver version %{version},\n\

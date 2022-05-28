@@ -4,6 +4,7 @@ Style=InApplication
 [General]
 BrowserApplication[$e]=!firefox
 ColorScheme=MagOS
+ColorSchemeHash=cc454db6e264393748ea11e3eb8f0903e14893b6
 XftAntialias=true
 XftHintStyle=hintslight
 XftSubPixel=rgb

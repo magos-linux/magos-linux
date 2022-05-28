@@ -951,8 +951,12 @@ w_read_key()
 
 w_verify_cabextract_available()
 {
-    # If verb_a requires verb_b, then verba will fail when the dependency for verb_b is installed
+    # If verb_a requires verb_b, then verb_a will fail when the dependency for verb_b is installed
     # This should be called by verb_a, to give a proper warning
+
+    if test ! -x "$(command -v cabextract 2>/dev/null)"; then
+        w_die "Cannot find cabextract.  Please install it (e.g. 'sudo apt-get install cabextract' or 'sudo yum install cabextract')."
+    fi
 
     w_try_cabextract -q -v >/dev/null 2>&1
 }
@@ -16699,7 +16703,7 @@ load_wmp9()
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     if [ "${W_ARCH}" = "win64" ]; then
-        w_try cabextract -d "${W_TMP}" ./MPSetup.exe
+        w_try_cabextract -d "${W_TMP}" ./MPSetup.exe
         w_try_cd "${W_TMP}"
         w_try sed -i 's/IsWow64Process/IsNow64Process/' setup_wm.exe
         w_try "${WINE}" setup_wm.exe ${W_OPT_UNATTENDED:+/Quiet}
@@ -16745,7 +16749,7 @@ load_wmp10()
 
     # Crashes on exit, but otherwise ok; see https://bugs.winehq.org/show_bug.cgi?id=12633
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
-    w_try cabextract -d "${W_TMP}" ./MP10Setup.exe
+    w_try_cabextract -d "${W_TMP}" ./MP10Setup.exe
     w_try_cd "${W_TMP}"
     "${WINE}" setup_wm.exe ${W_OPT_UNATTENDED:+/Quiet}
 

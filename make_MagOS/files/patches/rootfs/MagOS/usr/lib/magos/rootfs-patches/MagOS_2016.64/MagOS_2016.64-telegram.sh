@@ -1,8 +1,8 @@
 #!/bin/bash
-
+[ ! -x /usr/bin/telegram-desktop -a -x /usr/bin/Telegram ] && ln -sf Telegram /usr/bin/telegram-desktop
+[ -x /usr/bin/telegram-desktop ] || exit 0
 PFP=/usr/share/applications/telegramdesktop.desktop
 [ -f $PFP ] && exit 0
-
 cat > $PFP  <<EOF
 [Desktop Entry]
 Version=1.5
@@ -28,7 +28,5 @@ Exec=telegram-desktop -quit
 Name=Quit Telegram
 Icon=application-exit
 EOF
-
 chmod 444 $PFP
-
 exit 0

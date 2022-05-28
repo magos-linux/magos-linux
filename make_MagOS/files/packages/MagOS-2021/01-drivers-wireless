@@ -14,9 +14,9 @@ libertas-sd8787-firmware
 libertas-usb8388-firmware
 libertas-usb8388-olpc-firmware
 prism54-firmware
-kernel-module-8821ce-5.10-desktop
-kernel-module-8821cu-5.10-desktop
-kernel-module-wl-5.10-desktop
+kernel-module-8821ce-5.15-desktop
+kernel-module-8821cu-5.15-desktop
+kernel-module-wl-5.15-desktop
 broadcom-wl-aliases
 zd1201-firmware
 zd1211-firmware

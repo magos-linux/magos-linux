@@ -1,0 +1,11 @@
+--- a/usr/src/tripso-1.2-0.git993f24.2/Makefile	2021-10-19 09:21:15.000000000 +0300
++++ b/usr/src/tripso-1.2-0.git993f24.2/Makefile	2022-05-24 05:47:33.482267715 +0300
+@@ -20,7 +20,7 @@ CFLAGS_xt_TRIPSO.o = -DDEBUG $(VOPT)
+ all: xt_TRIPSO.ko libxt_TRIPSO.so
+ 
+ xt_TRIPSO.ko: xt_TRIPSO.c xt_TRIPSO.h
+-	make -C $(KDIR) M=$(CURDIR) modules CONFIG_DEBUG_INFO=y
++	make -C $(KDIR) M=$(CURDIR) modules
+ 
+ install: install-mod install-lib
+ 

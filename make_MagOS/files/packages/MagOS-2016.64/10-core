@@ -574,3 +574,6 @@ xinetd
 xz
 zip
 cpuid
+nginx
+lib64gd3
+pcre

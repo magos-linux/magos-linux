@@ -103,7 +103,7 @@ grub
 busybox
 busybox-static
 dpkg
-kernel-5.10-desktop-devel
+kernel-5.15-desktop-devel
 kernel-headers
 m4
 perl-Dpkg

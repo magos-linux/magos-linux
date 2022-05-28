@@ -41,7 +41,7 @@ INITRDNETWORKDRIVERS='3c59x e100 eepro100 e1000 hp100 ne2k-pci r8169 8139too 813
    3c501 3c503 3c505 3c507 3c509 3c515 tg3 jme virtio_net atl1 atl1c atl2 igb alx'
 
 # add space (Mb) for ext2 system space losses
-RAMPLUSSIZE=3
+RAMPLUSSIZE=4
 
 MYPATH="$(pwd)"
 INITRDFOLD=/tmp/mkinitrd-$$

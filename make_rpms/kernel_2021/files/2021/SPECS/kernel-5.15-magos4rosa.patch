@@ -1,0 +1,76 @@
+diff -auprN a/kernel.spec b/kernel.spec
+--- a/kernel.spec	2022-04-11 11:12:39.000000000 +0300
++++ b/kernel.spec	2022-05-24 06:58:44.000000000 +0300
+@@ -107,7 +107,7 @@
+ %bcond_with binary_shredder
+ 
+ # Compress modules with zstd (zstd is good compression and fast decompression)
+-%bcond_without compress_modules
++%bcond_with compress_modules
+ # Spend more resources on compression, but make resulting size less;
+ # decompression speed will not be affected, but more memory will be required
+ # which should not a problem here (performance penalty from allocating more
+@@ -224,6 +224,17 @@ cat %{_builddir}/debugfiles.list >> %{de
+ %endif
+ 
+ # End of user definitions
++# MagOS variables
++%define build_magos            1
++%define build_doc              0
++%define build_source           0
++%define build_devel            1
++%define build_debug            0
++%define build_perf             0
++%define build_cpupower         0
++%define build_modxz            0
++%define build_headers          1
++%define flavour                desktop
+ 
+ # http://nickdesaulniers.github.io/blog/2018/06/02/speeding-up-linux-kernel-builds-with-ccache/
+ %if %{with ccache}
+@@ -362,6 +373,8 @@ Patch0609:	0609-Baikal-M-video-unit-driv
+ Patch0616:	0616-Baikal-M-PCIe-driver-from-SDK-M-4.3.patch
+ Patch0617:	0617-Baikal-M-PCIe-driver-from-SDK-M-4.4.patch
+ Patch0619:	0619-panfrost-compatibility-with-Baikal-M-firmware-from-S.patch
++Patch0880: magos-logo.patch
++Source880: magos-config.patch
+ 
+ # Disable AutoReq
+ AutoReq:	0
+@@ -1016,7 +1029,6 @@ cp %{SOURCE111} .
+ cp %{SOURCE112} .
+ cp %{SOURCE113} .
+ cp kernel-%{arch_suffix}.config .config
+-
+ touch %{build_dir}/.config.append
+ 
+ # Get rid of unwanted files
+@@ -1078,6 +1090,8 @@ for i in STREEBOG SHA1 SHA256 SHA512 ECR
+ done
+ 
+ cat %{build_dir}/.config.append >> .config
++cp %{SOURCE880} .
++patch -p1 -i %{SOURCE880}
+ 
+ ##################
+ # End of kernel config
+@@ -1714,6 +1728,7 @@ rm -f dictionary
+ 
+ find %{buildroot}%{_modulesdir}/%{kver_full} -type f -name '*.ko%{kmod_suffix}' | sed -e 's,^%{buildroot},,' | sort -u >> %{kernel_files}
+ find %{buildroot}%{_modulesdir}/%{kver_full} -type d | sed -e 's,^%{buildroot},%dir ,' | sort -u >> %{kernel_files}
++cat %{kernel_files} | sort -u > %{kernel_files}.tmp ; mv -f %{kernel_files}.tmp %{kernel_files}
+ 
+ # We estimate the size of the initramfs because rpm needs to take this size
+ # into consideration when performing disk space calculations (See rhbz#530778)
+@@ -1796,9 +1811,11 @@ ln -s /lib/modules/%{kernelversion}.%{pa
+ # Drop hidden files
+ rm -f %{buildroot}%{_docdir}/kernel-5.10-generic-doc/devicetree/bindings/.yamllint
+ 
++%if %{build_perf}
+ # Fix perms
+ chmod -x %{buildroot}%{_sysconfdir}/bash_completion.d/perf
+ chmod -x %{buildroot}%{_prefix}/lib/perf/examples/bpf/*.c
+ chmod -x %{buildroot}%{_prefix}/lib/perf/include/bpf/*.h
+ chmod -x %{buildroot}%{_prefix}/lib/perf/include/bpf/linux/*.h
+ chmod -x %{buildroot}%{_datadir}/doc/perf-tip/*.txt
++%endif

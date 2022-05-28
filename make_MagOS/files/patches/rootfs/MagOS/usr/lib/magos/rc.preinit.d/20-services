@@ -9,19 +9,26 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+PLYMOUTHSERVICES=systemd-ask-password-plymouth,plymouth-start
+
 DEBUGMODE=no
 . usr/lib/magos/functions
 debug_mode "$0" "$@"
 
 . etc/MagOS/config
 
+grep -q plymouth.enable=0 /proc/cmdline && SERVICESMASK=$PLYMOUTHSERVICES,$SERVICESMASK
+grep -q plymouth.enable=1 /proc/cmdline && SERVICESSTART=$PLYMOUTHSERVICES,$SERVICESSTART
+
 if [ ! -z "$SERVICESSTART$SERVICESNOSTART$SERVICESMASK$SERVICESUNMASK" ] ;then
   mkdir -p proc
   mount -o rbind /proc proc
   for a in $(echo $SERVICESUNMASK,$SERVICESSTART | tr , " ") ;do
+      [ -z "$a" ] && continue
       [ -x bin/systemd ] && chroot . systemctl unmask $a
   done
   for a in $(echo $SERVICESSTART | tr , " ") ;do
+      [ -z "$a" ] && continue
       if [ -x bin/systemd ] ;then
          chroot . systemctl enable $a || chroot . chkconfig --add $a
       else
@@ -29,6 +36,7 @@ if [ ! -z "$SERVICESSTART$SERVICESNOSTART$SERVICESMASK$SERVICESUNMASK" ] ;then
       fi
   done
   for a in $(echo $SERVICESNOSTART | tr , " ") ;do
+      [ -z "$a" ] && continue
       if [ -x bin/systemd ] ;then
          chroot . systemctl disable $a || chroot . chkconfig --del $a
       else
@@ -36,6 +44,7 @@ if [ ! -z "$SERVICESSTART$SERVICESNOSTART$SERVICESMASK$SERVICESUNMASK" ] ;then
       fi
   done
   for a in $(echo $SERVICESMASK | tr , " ") ;do
+      [ -z "$a" ] && continue
       [ -x bin/systemd ] && chroot . systemctl disable $a
       [ -x bin/systemd ] && chroot . systemctl mask $a
   done

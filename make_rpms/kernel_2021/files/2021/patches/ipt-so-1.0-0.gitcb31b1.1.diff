@@ -1,0 +1,11 @@
+--- a/usr/src/ipt-so-1.0-0.gitcb31b1.1/Makefile	2018-10-13 11:10:31.000000000 +0300
++++ b/usr/src/ipt-so-1.0-0.gitcb31b1.1/Makefile	2022-05-24 05:47:18.675600983 +0300
+@@ -17,7 +17,7 @@ CFLAGS_xt_so.o = -DDEBUG $(VOPT)
+ all: xt_so.ko libxt_so.so
+ 
+ xt_so.ko: xt_so.c xt_so.h
+-	make -C $(KDIR) M=$(CURDIR) modules CONFIG_DEBUG_INFO=y
++	make -C $(KDIR) M=$(CURDIR) modules
+ 
+ install: install-mod install-lib
+ 

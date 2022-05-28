@@ -155,7 +155,7 @@ lib64kcmkwincommon5
 lib64kde3support4
 lib64kdeclarative5
 lib64kdecorations2_5
-lib64kdecorations2private8
+lib64kdecorations2private9
 lib64kdefakes5
 lib64kdesu5
 lib64kdeui5
@@ -296,7 +296,6 @@ lib64ktexteditor4
 lib64kunittest4
 lib64kutils4
 lib64kwaylandserver5
-lib64kwin4_effect_builtins1
 lib64kwin5
 lib64kwin-qml
 lib64kwineffects13
@@ -317,7 +316,7 @@ lib64oxygenstyleconfig5_5
 lib64phabricatorhelpers5
 lib64plasma3
 lib64plasma-activityswitcher-qml
-lib64plasmacomicprovidercore2
+lib64plasmacomicprovidercore1
 lib64plasma-geolocation-interface5
 lib64plasmavolume-qml
 lib64plasma-workspace-qml
@@ -438,7 +437,6 @@ plasma5-baloo-widgets-i18n
 plasma5-bluedevil
 plasma5-color-scheme-breeze
 plasma5-color-scheme-breeze-dark
-plasma5-color-scheme-breeze-high-contrast
 plasma5-color-scheme-breeze-light
 plasma5-color-scheme-rosa
 plasma5-config-fresh
@@ -721,3 +719,6 @@ lib64ilmthread3_1_30
 lib64Imath3_1_29
 lib64kf5localedata5
 lib64openexr3_3_1_30
+plasma5-applet-manageinputmethod
+plasma5-windowswitcher-coverswitch
+plasma5-windowswitcher-flipswitch
