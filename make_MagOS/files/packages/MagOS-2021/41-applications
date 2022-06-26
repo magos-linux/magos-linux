@@ -76,7 +76,7 @@ qmmp
 qmmp-plugins
 qmmp-wavpack
 qmplay2
-lib64qmmp1
+lib64qmmp-1_1
 lib64qmmpui1
 lib64qmplay2_1
 qtox
@@ -119,7 +119,7 @@ lib64geoipupdate0
 lib64miniupnpc17
 lib64pq5
 lib64mms0
-lib64sidplayfp4
+lib64sidplayfp6
 lib64sqlcipher0
 lib64mp4v2_2
 lib64projectm3

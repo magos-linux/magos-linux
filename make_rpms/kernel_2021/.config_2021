@@ -1,7 +1,4 @@
-#KERNELURL=http://abf-downloads.rosalinux.ru/rosa2021.1/repository/SRPMS/main/release/kernel-5.10-generic-5.10.74-2.src.rpm
-#KERNELURL=http://magos.sibsau.ru/repository/rpms/srpms/kernel-5.10-desktop-5.10.101-2.src.rpm
-KERNELURL=http://mirror.rosalinux.com/rosa/rosa2021.1/repository/SRPMS/main/release/kernel-5.15-generic-5.15.32-6.src.rpm
+KERNELURL=http://mirror.rosalinux.com/rosa/rosa2021.1/repository/SRPMS/main/release/kernel-5.15-generic-5.15.43-2.src.rpm
 BUILDEXC="kernel-source-rosa-test-suite"
 BUILDDEPS="rpm-build dkms"
-DKMS="bbswitch vboxadditions virtualbox rtl8821ce rtl8821cu rtl8192eu rtl8812au rtlwifi_new"
-#DKMS="bbswitch vboxadditions virtualbox"
+DKMS="bbswitch virtualbox rtl8192eu"

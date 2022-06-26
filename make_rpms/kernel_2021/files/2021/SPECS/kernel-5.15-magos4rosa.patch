@@ -10,6 +10,16 @@ diff -auprN a/kernel.spec b/kernel.spec
  # Spend more resources on compression, but make resulting size less;
  # decompression speed will not be affected, but more memory will be required
  # which should not a problem here (performance penalty from allocating more
+@@ -162,9 +162,6 @@
+ %define	debuginfo_files %{_builddir}/debuginfo_files.list
+ 
+ # Append list of files generate by find-debuginfo.sh to our custom list
+-%global	__debug_install_post \
+-%{__debug_install_post} \
+-cat %{_builddir}/debugfiles.list >> %{debuginfo_files}
+ 
+ ############################################################################
+ 
 @@ -224,6 +224,17 @@ cat %{_builddir}/debugfiles.list >> %{de
  %endif
  

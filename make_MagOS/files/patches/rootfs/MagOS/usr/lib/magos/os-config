@@ -123,7 +123,7 @@ ADMUID=500
 #ADDADM=no
 
 #rc.preinit/50-xorg
-#NVIDIATEST="nvidia470 nvidia390 nvidia340 nvidia nvidia-current"
+#NVIDIATEST="nvidia515 nvidia470 nvidia390 nvidia340 nvidia nvidia-current"
 #FAILSAFENVIDIA=nouveau
 #CREATE_XORG_CONF=yes
 #XFILE=etc/X11/xorg.conf

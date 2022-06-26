@@ -173,7 +173,7 @@ print """
 	});
 
 	$(function(){
-	var availableTags = ["ftp://sibsau.magos-linux.ru", "ftp://mirror.yandex.ru", "ftp://192.168.2.31", "ftp://127.0.0.1"];
+	var availableTags = ["ftp://ftp.magos-linux.ru", "ftp://mirror.yandex.ru", "ftp://192.168.2.31", "ftp://127.0.0.1"];
 	$("#ftp_url").autocomplete({
 		source: availableTags
 	});

@@ -8,7 +8,7 @@ clean
 prepare
 
 mkdir -p rootfs/var/lib/rpm/modules cache
-dnf -y --downloadonly --destdir cache install gcc-c++ debugedit dwz elfutils flex glib-gettextize git python3-markdown\
+dnf -y --downloadonly --skip-broken --destdir cache install gcc-c++ debugedit dwz elfutils flex glib-gettextize git python3-markdown\
   dkms rpm-build rpmtools rpm-manbo-setup-build rpm-mandriva-setup-build devel-rpm-generators cmake-rpm-generators efi-srpm-macros\
   lib64elfutils-devel lib64dbus-1-devel lib64devmapper-event-devel lib64glib2.0-devel lib64kmod-devel lib64ncurses-devel lib64packagekit-devel lib64udev-devel lib64nss-devel || exit 1
 rsync -a --delete cache/ $CACHE || exit 1

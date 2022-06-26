@@ -38,11 +38,18 @@ EOF
   ln -sf rpmlint_fake /usr/bin/rpmlint
 fi
 
-if ! [ -x /usr/bin/find-debuginfo ] ;then
-  mv /usr/bin/find-debuginfo /usr/bin/find-debuginfo_real
-  cp -p /usr/bin/rpmlint_fake /usr/bin/find-debuginfo_fake
-  ln -sd find-debuginfo_fake /usr/bin/find-debuginfo
+if [ -x /usr/bin/find-debuginfo ] ;then
+  if ! [ -x /usr/bin/find-debuginfo_fake ] ;then
+    mv /usr/bin/find-debuginfo /usr/bin/find-debuginfo_real
+    cp -p /usr/bin/rpmlint_fake /usr/bin/find-debuginfo_fake
+    ln -sd find-debuginfo_fake /usr/bin/find-debuginfo
+  fi
 fi
+
+for a in files/$MARCH/patches/*.patch ;do
+    echo $a
+    [ -f "$a" ] && patch -N -d / -p1 -i $PWD/$a
+done
 
 rpmbuild -bs ~/rpmbuild/SPECS/kernel.spec || exit 1
 rpmbuild -bb ~/rpmbuild/SPECS/kernel.spec || exit 1

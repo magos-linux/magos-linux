@@ -28,9 +28,9 @@ else:
 		uri = (uri + '+inanchor%3A' + anchor )
 
 	  if area == 'repo':
-		uri = (uri + '+site%3Amagos.sibsau.ru+OR+site%3Amirror.yandex.ru')
+		uri = (uri + '+site%3Aftp.magos-linux.ru+OR+site%3Amirror.yandex.ru')
 	  elif area == 'larets':
-		uri = (uri + '+site%3Amagos.sibsau.ru+OR+site%3Amirror.yandex.ru+OR+site%3Afiles.magos-linux.ru')
+		uri = (uri + '+site%3Aftp.magos-linux.ru+OR+site%3Amirror.yandex.ru+OR+site%3Afiles.magos-linux.ru')
 	  
 	  if intext != 'none':
 		intext = urllib.quote(intext)

@@ -1,0 +1,21 @@
+--- a/nvidia515.spec	2022-06-10 08:59:27.000000000 +0300
++++ b/nvidia515.spec	2022-06-25 13:30:37.065561246 +0300
+@@ -130,7 +130,6 @@ Requires:	auto-krokodil-filesystem
+ %if %{with binary_kernel_modules}
+ %kroko_req_modules_in_nvidia -k 5.16 -f generic -j %{version_j} -n %{version_n}
+ %endif
+-Requires:	%{drivername}-cuda-opencl = %{EVRD}
+ Requires:	(kernel-modules-%{name}-5.10.118-1-generic if (kernel-5.10-generic = 5.10.118-1))
+ Requires:	(kernel-modules-%{name}-5.15.43-1-generic if (kernel-5.15-generic = 5.15.43-1))
+ Requires:	(kernel-modules-%{name}-5.16.19-1-generic if (kernel-5.16-generic = 5.16.19-1))
+@@ -169,10 +168,6 @@ Requires:	egl-wayland
+ Requires:	vulkan
+ Requires:	libglvnd
+ Provides:	nvidia = %{EVRD}
+-Conflicts:	nvidia-current
+-Conflicts:	nvidia390-core
+-Conflicts:	nvidia470-core
+-Conflicts:	nvidia510-core
+ Recommends:	nvidia-additional-settings
+ 
+ %description -n %{driverpkgname}

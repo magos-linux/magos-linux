@@ -39,7 +39,7 @@ def config(index):
 		
 	    for string in f.readlines():
 	        version =  string.split()[0]
-	        cfg['repository'] = 'ftp://magos.sibsau.ru/modules/' + str(version)
+	        cfg['repository'] = 'ftp://ftp.magos-linux.ru/modules/' + str(version)
 		
 	if index == 'all':
 		return cfg

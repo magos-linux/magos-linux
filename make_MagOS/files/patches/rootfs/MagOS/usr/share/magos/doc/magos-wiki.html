@@ -1,4 +1,4 @@
-<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2022-05-21</p>
+<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2022-06-25</p>
 <hr><a name="Home"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>Home</h1>
 <p>Welcome to the magos-linux wiki!</p>
 <p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">Документация на русском языке</a></p>
@@ -25,7 +25,7 @@
 <p>please remove and edit files to setup your locale as described in section above</p>
 </li>
 <li>
-<p>download your native language module from <a href="http://magos.sibsau.ru/repository/modules/2016.64/international/">our server</a> and place it into <em>MagOS/modules</em></p>
+<p>download your native language module from <a href="http://ftp.magos-linux.ru/modules/2021/international/">our server</a> and place it into <em>MagOS/modules</em></p>
 </li>
 <li>
 <p>change lang=en to lang=<em>your_locale</em> parameter in file <em>boot/grub4dos/menu.lst</em></p>
@@ -65,7 +65,7 @@
 <li>Включено ПО для работы в интернете, в офисе, средства администрирования и восстановления, графические редакторы, инструменты разработки.</li>
 <li>В комплект поставки входит установщик игрового клиента Steam, с помощью которого можно загружать и использовать тысячи игр, совместимые со SteamOS и Linux.</li>
 <li>На видеокартах с поддержкой ускорения (Nvidia, AMD/Ati, Intel) возможно использование трёхмерного рабочего стола Compiz с невероятными графическими эффектами.</li>
-<li>Для видекарт nvidia в комплекте дистрибутива есть 2 версии фирменных драйверов: nvidia470 и nvidia390 (nvidia-current и nvidia304 для 2016.64). Дистрибутив автоматически определяет необходимый драйвер и использует его, что позволяет использовать все возможности видеокарты для работы в современных играх (также драйвер можно указать вручную параметром загрузки xdriver=драйвер).</li>
+<li>Для видекарт nvidia в комплекте дистрибутива есть 2 версии фирменных драйверов: nvidia515 и nvidia390 (nvidia-current и nvidia304 для 2016.64). Дистрибутив автоматически определяет необходимый драйвер и использует его, что позволяет использовать все возможности видеокарты для работы в современных играх (также драйвер можно указать вручную параметром загрузки xdriver=драйвер).</li>
 </ul>
 <h3>Краткий обзор системы</h3>
 <ul>
@@ -220,6 +220,42 @@
 <li><strong>45-x-java.xzm</strong> - поддержка java</li>
 <li><strong>70-documentation.xzm</strong> - документация к программам и утилитам, в т.ч. man, info. </li>
 <li><strong>88-magos.xzm</strong> - скрипты и файлы MagOS, меняющие и дополняющие базовую систему, файлы настроек, скрипты, наше оформление и темы.</li>
+</ul>
+<p>Для сборки 2021 список будет немного отличаться:</p>
+<ul>
+<li><strong>00-kernel.xzm</strong> - ядро и модули ядра, обязательный модуль</li>
+<li><strong>01-drivers-wireless.xzm</strong> - дополнительные драйверы для wifi карт</li>
+<li><strong>01-x-drivers-mesa.xzm</strong> - свободные драйверы и библиотеки для различных видеокарт</li>
+<li><strong>01-x-drivers-nvidia390.xzm</strong> - фирменный драйвер для устаревших видеокарт nvidia</li>
+<li><strong>01-x-drivers-nvidia515.xzm</strong> - фирменный драйвер для современных видеокарт nvidia</li>
+<li><strong>10-core.xzm</strong> - системные библиотеки и утилиты, уровня командной строки, обязательный модуль</li>
+<li><strong>20-x-base.xzm</strong> - графический сервер, утилиты и библиотеки для работы в графике, LXQT, менеджеры входа sddm, slim</li>
+<li><strong>35-x-plasma.xzm</strong> - графическая среда Plasma, со своими библиотеками и приложениями</li>
+<li><strong>41-applications.xzm</strong> - программы и утилиты уровня пользователя</li>
+<li><strong>42-x-office.xzm</strong> - офисные программы, поддержка печати и сканера</li>
+<li><strong>43-admintools.xzm</strong> - программы и утилиты уровня администратора</li>
+<li><strong>51-x-gimp.xzm</strong> - программа Gimp для работы с фотографиями</li>
+<li><strong>51-x-inkscape.xzm</strong> - программа Inkscape для работы с векторной графикой</li>
+<li><strong>51-x-mozilla.xzm</strong> - программы Mozilla Firefox и Thunderbird для работы в сети</li>
+<li><strong>51-x-virtualbox.xzm</strong> - эмулятор Virtualbox</li>
+<li><strong>52-x-steam.xzm</strong> - игровой клиент Steam и библиотеки, необходимые для его работы</li>
+<li><strong>70-documentation.xzm</strong> - документация к программам и утилитам, в т.ч. man, info. </li>
+<li><strong>88-magos.xzm</strong> - скрипты и файлы MagOS, меняющие и дополняющие базовую систему, файлы настроек, скрипты, наше оформление и темы.</li>
+</ul>
+<p>Не вошедшие в сборку модули можно скачать с <a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/">сервера</a> и установить в папку MagOS/modules</p>
+<ul>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/international/">international/</a> - папка с дополнительными языковыми модулями</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/01-drivers-extra.xzm">01-drivers-extra.xzm</a> - дополнительные драйверы, не вошедщие в сборку (cypress dpaa2 qca qcom bnx2 bnx2x cxgb4 liquidio mellanox netronome qed)</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/01-x-drivers-printers.xzm">01-x-drivers-printers.xzm</a> - драйверы принтеров</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/18-squid.xzm">18-squid.xzm</a> - прокси сервер squid</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/31-x-mate.xzm">31-x-mate.xzm</a> - графическая среда Mate </li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/45-x-java.xzm">45-x-java.xzm</a> - средства Java</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/46-devel.xzm">46-devel.xzm</a> - средства разработки и библиотеки к ним</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/51-x-chromium.xzm">51-x-chromium.xzm</a> - альтернативный браузер на движке Google Chrome</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/51-x-newmoon.xzm">51-x-newmoon.xzm</a> - альтернативный браузер для слабых машин</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/51-x-rawtherapee.xzm">51-x-rawtherapee.xzm</a> - средство для провессиональной работы с фотографиями, в т.ч. в raw формате</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/51-x-wine.xzm">51-x-wine.xzm</a> - неэмулятор wine, для запуска программ для windows</li>
+<li><a href="https://mirror.yandex.ru/mirrors/magos/modules/2021/51-x-wireshark.xzm">51-x-wireshark.xzm</a> - графический перехватчик сетевых пакетов</li>
 </ul>
 <h3>Папки для хранения модулей</h3>
 <ul>
@@ -529,8 +565,8 @@ lost+found/</p>
 <li>
 <p><strong>xdriver=x</strong>, - принудительный выбор драйвера графического сервера. Драйвер vesa или fbdev может использоваться для всех видеокарт, поддерживающих режим framebuffer. Пример:</p>
 <p>xdriver=fbdev - универсальный драйвер для любой видекарты, не поддерживает 3D (используйте в случае если на Вашу карту драйверы отсутствуют или не работают как нужно)<br>
-  xdriver=nvidia-current - используйте, если система не смогла автоматически определить драйвер для вашей современной Nvidia карты<br>
-  xdriver=nvidia304 - используйте, если у вас старая видеокарта Nvidia и система не смогла автоматически определить драйвер для вашей карты<br>
+  xdriver=nvidia515 (в 2016 сборке nvidia-current) - eсли система не смогла автоматически определить драйвер для вашей современной Nvidia карты<br>
+  xdriver=nvidia390 (в 2016 сборке nvidia304) - используйте, если у вас старая видеокарта Nvidia и система не смогла автоматически определить драйвер для вашей карты<br>
   xdriver=nouveau - свободный драйвер для видеокарт nvidia, поддерживает большинство карт, поддержка 3D ускорения реализована частично<br>
   xdriver=intel - используйте, если система не смогла автоматически определить драйвер для вашей Intel карты<br>
   xdriver=ati - для AMD/ATI Radeon карт<br>
@@ -956,17 +992,23 @@ mount-hook: mount-uird.sh (выполняет скрипт uird-init)
   ├── initrd.gz - альтернативный загрузочный образ для использования вместо UIRD
   ├── /base - системные модули
   │  ├── 00-kernel.xzm - ядро и модули ядра, обязательный модуль
-  │  ├── 01-drivers.xzm - дополнительные драйверы и прошивки, в т.ч. драйверы для карт nvidia
-  │  ├── 10-core.xzm - системные библиотеки и утилиты, обязательный модуль
+  │  ├── 01-drivers-wireless.xzm - дополнительные драйверы для wifi карт
+  │  ├── 01-x-drivers-mesa.xzm - свободные драйверы и библиотеки для различных видеокарт
+  │  ├── 01-x-drivers-nvidia390.xzm - фирменный драйвер для устаревших видеокарт nvidia
+  │  ├── 01-x-drivers-nvidia515.xzm - фирменный драйвер для современных видеокарт nvidia
+  │  ├── 10-core.xzm - системные библиотеки и утилиты, уровня командной строки, обязательный модуль
   │  ├── 20-x-base.xzm - графический сервер, утилиты и библиотеки для работы в графике, LXQT, менеджеры входа sddm, slim
-  │  ├── 35-x-plasma.xzm - графическая среда Plasma
-  │  ├── 41-x-utilities.xzm - дополнительные утилиты
-  │  ├── 42-x-network.xzm - программы и утилиты для работы с сетью
-  │  ├── 43-x-multimedia.xzm - программы и библиотеки для работы со звуком/видео/играми
-  │  ├── 44-x-office.xzm - офисные программы, поддержка печати и сканера
-  │  ├── 45-x-java.xzm - поддержка java
+  │  ├── 35-x-plasma.xzm - графическая среда Plasma, со своими библиотеками и приложениями
+  │  ├── 41-applications.xzm - программы и утилиты уровня пользователя
+  │  ├── 42-x-office.xzm - офисные программы, поддержка печати и сканера
+  │  ├── 43-admintools.xzm - программы и утилиты уровня администратора
+  │  ├── 51-x-gimp.xzm - программа Gimp для работы с фотографиями
+  │  ├── 51-x-inkscape.xzm - программа Inkscape для работы с векторной графикой
+  │  ├── 51-x-mozilla.xzm - программы Mozilla Firefox и Thunderbird для работы в сети
+  │  ├── 51-x-virtualbox.xzm - эмулятор Virtualbox
+  │  ├── 52-x-steam.xzm - игровой клиент Steam и библиотеки, необходимые для его работы
   │  ├── 70-documentation.xzm - документация к программам и утилитам, в т.ч. man, info.
-  │  └── 88-magos.xzm - скрипты и файлы MagOS, меняющие и дополняющие базовую систему
+  │  └── 88-magos.xzm - скрипты и файлы MagOS, меняющие и дополняющие базовую систему, файлы настроек, скрипты, наше оформление и темы.
   ├── /modules - (если нет MagOS-Data) каталог для пользовательских модулей, загружаемых автоматически
   ├── /optional - (если нет MagOS-Data) каталог для доп. модулей, загружаемых с помощью параметров load= uird.load+=
   ├── /machines - (если нет MagOS-Data) каталог для сохранения системных настроек в виде модуля, привязанного к MAC адресу
@@ -995,7 +1037,7 @@ mount-hook: mount-uird.sh (выполняет скрипт uird-init)
   ├── profiles.7z - архив с пустыми профилями, которые можно использовать для системы и /home
   ├── /homes - папка для сохранения данных пользователя, если MagOS-Data лежит не на fat/ntfs, используйте   uird.home=homes (UIRD) или home=homes (initrd)
   ├── /changes - папка для сохранения данных системы, если MagOS-Data лежит на линуксовой ФС, можно использовать uird.changes=changes (UIRD) или changes=changes (initrd), уберите параметр uird.mode=machines
-  ├── /cache - зарезервировано для будущего использования
+  ├── /cache - место для внешнего хранения больших данных (к примеру Антивирус Касперского), для хранения данных в чистом режиме
   └── /steam - папка для установки клиента Steam (только для линуксовых ФС, не для fat/ntfs)
 </code></pre>
 <p><strong>readme.html</strong> - копия всех страниц этого wiki руководства в одном html файле</p>
@@ -1620,6 +1662,20 @@ mkfs.ext3 newhome.img
 <p>В этом примере создаётся  профиль размером 2Г c файловой системой ext3. 
 Новичку проще достать готовый профиль из архива MagOS-Data\profiles.7z , особенно если это делать с помощью <strong>mc</strong></p>
 <hr><a name="История"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>История</h1>
+<h3>сборка 20220626</h3>
+<ul>
+<li>обновления на 26.06.2022</li>
+<li>в 2021 сборке драйверы nvidia470 заменены на nvidia515 </li>
+<li>добавлены настройки по умолчанию серверы nginx для организации простого http сервера</li>
+<li>добавлен пакет minidlna</li>
+</ul>
+<h3>сборка 20220527</h3>
+<ul>
+<li>обновления на 27.05.2022</li>
+<li>переход на ядро 5.15 в 2021 сборке</li>
+<li>добавлен сервер nginx</li>
+<li>ipv6 по умолчанию отключен через sysctl</li>
+</ul>
 <h3>сборка 20220423</h3>
 <ul>
 <li>обновления на 23.04.2022</li>

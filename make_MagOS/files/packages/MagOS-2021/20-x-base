@@ -340,7 +340,7 @@ lib64florence1.0_1
 lib64fltk1.3
 lib64fluidsynth3
 lib64fm4
-lib64fm-qt10
+lib64fm-qt11
 lib64fontenc1
 lib64freebl3
 lib64freeglut3
@@ -1131,6 +1131,7 @@ pulseaudio-utils
 python3-app_version
 python3-cairo
 python3-chardet
+python3-charset-normalizer
 python3-compizconfig
 python3-cssselect
 python3-cython
@@ -1147,7 +1148,6 @@ python3-qt5-core
 python3-qt5-dbus
 python3-qt5-gui
 python3-qt5-widgets
-python3-qtermwidget
 python3-requests
 python3-setuptools
 python3-simplejson
@@ -1523,3 +1523,4 @@ lib64raw_r20
 qt5-qtdeclarative
 libde265
 lib64uv1
+minidlna

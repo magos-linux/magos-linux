@@ -21,3 +21,4 @@ broadcom-wl-aliases
 zd1201-firmware
 zd1211-firmware
 rtl8821ce-blacklist
+rtl8192eu-kernel-5.15.43-desktop-2rosa2021-x86_64
