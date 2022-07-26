@@ -77,4 +77,18 @@ EOF
   fi
 fi
 
+PFP=/etc/xdg/kded5rc
+cat >>$PFP <<EOF
+[Module-device_automounter]
+autoload=false
+EOF
+
+PFP=/etc/xdg/kded_device_automounterrc
+cat >>$PFP <<EOF
+[General]
+AutomountEnabled=false
+AutomountOnLogin=false
+AutomountOnPlugin=false
+EOF
+
 exit 0

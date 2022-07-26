@@ -108,7 +108,7 @@ hostap-utils
 hostname
 html2text
 hwdata
-icu-data
+icu71-data
 ifmetric
 ifplugd
 iftop
@@ -146,7 +146,7 @@ lib64accountsservice0
 lib64acl1
 lib64adns1
 lib64aio1
-lib64archive18
+lib64archive19
 lib64argon2_1
 lib64asm1
 lib64asound2
@@ -249,9 +249,9 @@ lib64Half2_5_25
 lib64history8
 lib64hogweed6
 lib64ice6
-lib64icudata67
-lib64icui18n67
-lib64icuuc67
+lib64icudata71
+lib64icui18n71
+lib64icuuc71
 lib64idn12
 lib64idn2_0
 lib64ini_config5

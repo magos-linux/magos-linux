@@ -1,0 +1,3 @@
+# Disable automount for udisks2
+ENV{UDISKS_AUTOMOUNT_HINT}="never"
+ENV{UDISKS_AUTO}="0"

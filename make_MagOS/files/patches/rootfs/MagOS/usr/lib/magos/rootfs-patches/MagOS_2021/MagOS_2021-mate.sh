@@ -2,6 +2,14 @@
 
 [ -x /usr/bin/startmate ] || exit 0
 
+cat >/etc/X11/wmsession.d/31MATE <<EOF
+NAME=MATE
+DESC=MATE Desktop
+EXEC=/usr/bin/startmate
+SCRIPT:
+exec /usr/bin/startmate
+EOF
+
 patch -d /usr/share/glib-2.0/schemas -p1 <<EOF
 --- a/org.mate.interface.gschema.xml	2021-08-03 20:28:41.000000000 +0300
 +++ b/org.mate.interface.gschema.xml	2021-11-16 10:37:49.000000000 +0300
