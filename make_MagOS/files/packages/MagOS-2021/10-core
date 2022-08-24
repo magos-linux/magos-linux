@@ -312,7 +312,6 @@ lib64mm-glib0
 lib64mnl0
 lib64mount1
 lib64mowgli2
-lib64mozjs78_78
 lib64natspec0
 lib64ncpfs2.3
 lib64ncurses6
@@ -961,3 +960,4 @@ lib64jpeg62
 lib64tiff5
 lib64webp7
 lib64x265_192
+lib64mozjs91_91

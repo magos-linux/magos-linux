@@ -38,7 +38,7 @@ DEBUGMODE=no
 debug_mode "$0" "$@"
 
 [ -f /memory/changes/etc/ld.so.cache ] && GLLDCONFIG=no
-[ -f /memory/changes/etc/X11/xorg.conf ] && CREATE_XORG_CONF=no
+[ -f /memory/changes"$XFILE" ] && CREATE_XORG_CONF=no
 
 # forcing modes=auto for xorg.conf
 grep -q XORG_RES etc/MagOS/config || echo XORG_RES=auto >>etc/MagOS/config
@@ -116,6 +116,9 @@ if echo "$XDRIVER" | grep -q "nvidia"  ;then
        [ -z "$XDRIVERTESTED" ] && continue
        chroot . modprobe $XDRIVERTESTED-modeset 2>/dev/null || chroot . modprobe nvidia-modeset 2>/dev/null
        chroot . modprobe $XDRIVERTESTED-drm     2>/dev/null || chroot . modprobe nvidia-drm     2>/dev/null
+       rm -f usr/lib/nvidia usr/lib64/nvidia 2>/dev/null
+       [ -d "usr/lib/$XDRIVERTESTED"   ] && ln -sf "$XDRIVERTESTED" usr/lib/nvidia
+       [ -d "usr/lib64/$XDRIVERTESTED" ] && ln -sf "$XDRIVERTESTED" usr/lib64/nvidia
        break
    done
    [ -z "$XDRIVERTESTED" ] || XDRIVER=$XDRIVERTESTED
@@ -161,7 +164,7 @@ fi
 
 # create or delete xorg.conf
 if [ "$DELETE_XORG_CONF" = "yes" ] ;then
-    rm -f etc/X11/xorg.conf
+    rm -f ./"$XFILE"
 else
    if [ "$CREATE_XORG_CONF" = "yes" ] ;then
       [ ! -z "$XDRIVER" -a -d usr/share/magos/xorg/$XDRIVER ] && cp -pfR usr/share/magos/xorg/$XDRIVER/* etc/X11
@@ -176,12 +179,18 @@ fi
 if [ "$BUMBLEBEE" = "yes" ] ;then
    rm -f etc/systemd/system/bumblebeed.service
    ln -sf /lib/systemd/system/bumblebeed.service etc/systemd/system/graphical.target.wants/bumblebeed.service
+   CARD=$(lspci -nmm | sed s/"Class "// | grep -m1 '[.]. "0302"')
+   PCIID=$(echo $CARD | awk -F\" '{print $6}')
+   PCIVEN=$(echo $CARD | awk -F\" '{print $4}')
 
    # test for kernel module
-   [ -z "$BUMBLEBEEDRIVER" ] && for a in $NVIDIATEST ;do
+   [ -z "$BUMBLEBEEDRIVER" ] && for a in $(grep -im1 ^$PCIVEN:$PCIID usr/share/magos/hwdata/bumblebeedriver/* | sed 's%:.*%%' | sed 's%.*/%%') $NVIDIATEST ;do
        chroot . modprobe $a
        lsmod | grep -q nvidia && BUMBLEBEEDRIVER=$a
-       [ -z "$BUMBLEBEEDRIVER" ] || break
+       [ -z "$BUMBLEBEEDRIVER" ] && continue
+       chroot . modprobe $BUMBLEBEEDRIVER-modeset 2>/dev/null || chroot . modprobe nvidia-modeset 2>/dev/null
+       chroot . modprobe $BUMBLEBEEDRIVER-drm     2>/dev/null || chroot . modprobe nvidia-drm     2>/dev/null
+       break
    done
    [ -z "$BUMBLEBEEDRIVER" ] && BUMBLEBEEDRIVER=nouveau
 
@@ -192,8 +201,9 @@ if [ "$BUMBLEBEE" = "yes" ] ;then
       sed -i "s/^Driver=.*/Driver=nouveau/"                                                  etc/bumblebee/bumblebee.conf
       sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver=nvidia-current/"     etc/bumblebee/bumblebee.conf
    else
-      [ -d "usr/lib/$BUMBLEBEEDRIVER"   ] && [ ! -h usr/lib/nvidia   ] && ln -s "$BUMBLEBEEDRIVER" usr/lib/nvidia
-      [ -d "usr/lib64/$BUMBLEBEEDRIVER" ] && [ ! -h usr/lib64/nvidia ] && ln -s "$BUMBLEBEEDRIVER" usr/lib64/nvidia
+      rm -f usr/lib/nvidia usr/lib64/nvidia 2>/dev/null
+      [ -d "usr/lib/$BUMBLEBEEDRIVER"   ] && ln -sf "$BUMBLEBEEDRIVER" usr/lib/nvidia
+      [ -d "usr/lib64/$BUMBLEBEEDRIVER" ] && ln -sf "$BUMBLEBEEDRIVER" usr/lib64/nvidia
       [ "$BUMBLEBEEDRIVER" = "nvidia-current" ] && BUMBLEBEEDRIVER=nvidia
       sed -i "s/^Driver=.*/Driver=nvidia/"                                                   etc/bumblebee/bumblebee.conf
       sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver="$BUMBLEBEEDRIVER"/" etc/bumblebee/bumblebee.conf

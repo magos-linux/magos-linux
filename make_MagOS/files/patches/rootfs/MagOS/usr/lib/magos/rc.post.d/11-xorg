@@ -13,19 +13,21 @@ STEAMNODPMS=yes
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 debug_mode "$0" "$@"
+XFILE=/etc/X11/xorg.conf
+[ -f "$XFILE" ] || XFILE=/etc/X11/xorg.conf.d/10-driver.conf
 . $HARDCONF
 echo "$XDRIVER" | grep -q "nvidia" || rmmod nvidia
 [ -d "$SYSCONF" ] || SYSCONF=/etc/MagOS
 . /etc/MagOS/config
 . $SYSCONF/desktop
 
-[ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f /etc/X11/xorg.conf
-[ "$DELETE_XORG_CONF" = "yes" ] && rm -f /etc/X11/xorg.conf
+[ ! -z "$VGAID" ] && grep -q $VGAID /usr/share/magos/hwdata/deleteconf && rm -f "$XFILE"
+[ "$DELETE_XORG_CONF" = "yes" ] && rm -f "$XFILE"
 
 grep -q xres= /proc/cmdline && XORG_RES=$(cat /proc/cmdline | awk -F xres= '{print $2}' | awk '{print $1}')
 if [ "$SETXORGRES" != "no" ] ;then
   if ! [ -z "$XORG_RES" ] ;then 
-     XCF=/etc/X11/xorg.conf
+     XCF="$XFILE"
      grep -qi modes $XCF 2>/dev/null || XCF=/etc/X11/xorg.conf.d/00-modes.conf
      if grep -qi modes $XCF 2>/dev/null ;then
         sed -i 's|^[[:space:]]*Modes.*|        Modes "'$XORG_RES'"|' $XCF
@@ -46,11 +48,11 @@ echo $DPMS | egrep -qi 'no|off|false' && DPMS=no
 [ "$STEAMNODPMS" = "yes" -a "$DESKTOP" = "Steam" ] && DPMS=no
 
 if [ "$DPMS" = "no" ] ;then
-     sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
+     sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ "$XFILE"
 fi
 
 if [ "$MKKBDFXORG" != "no" ] ;then
-  if ! grep -qi XkbOptions /etc/X11/xorg.conf ;then
+  if ! grep -qi XkbOptions "$XFILE" ;then
      . $SYSCONF/keyboard
      cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
 Section "InputClass"

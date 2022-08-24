@@ -6,7 +6,7 @@ rm -fr 2>/dev/null \
    etc/locale usr/share/locale/locale-archive usr/lib/locale/locale-archive \
    etc/machine-id var/lib/dbus/machine-id \
    etc/modprobe.d/nvidia[0-9]* \
-   etc/X11/xorg.conf etc/adjtime etc/localtime \
+   etc/X11/xorg.conf etc/X11/xorg.conf.d/*nvidia* etc/adjtime etc/localtime \
    etc/xdg/autostart/parcellite-startup.desktop \
    etc/xdg/autostart/org.kde.kgpg.desktop \
    etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop \
