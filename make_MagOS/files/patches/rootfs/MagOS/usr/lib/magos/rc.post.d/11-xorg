@@ -48,7 +48,11 @@ echo $DPMS | egrep -qi 'no|off|false' && DPMS=no
 [ "$STEAMNODPMS" = "yes" -a "$DESKTOP" = "Steam" ] && DPMS=no
 
 if [ "$DPMS" = "no" ] ;then
-     sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ "$XFILE"
+  sed -i s/'.*Option .DPMS.*'/'Option "DPMS" "false"'/ "$XFILE"
+fi
+
+if [ "$DPMS" = "yes" ] ;then
+  grep -qi 'Option.*DPMS.*false' "$XFILE" && sed -i s/'.*Option .DPMS.*'/'Option "DPMS"'/ "$XFILE"
 fi
 
 if [ "$MKKBDFXORG" != "no" ] ;then

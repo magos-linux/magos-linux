@@ -28,7 +28,7 @@ if [ -d /var/lib/dkms-binary/ ] ;then
 fi
 
 rm -fr "$KLIBDIR"*"rosa-flow-abi"
-for a in "$KLIBDIR"/* ;do
+for a in "$KLIBDIR"/*-* ;do
 #  echo processing kernel $a
    rm -f $a/kernel/zzz-*-abi 2>/dev/null
    KVER=$(basename $a)

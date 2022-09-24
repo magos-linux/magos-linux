@@ -342,7 +342,7 @@ lib64nl-genl3_200
 lib64nl-route3_200
 lib64nm0
 lib64npth0
-lib64nsl2
+lib64nsl3
 lib64nspr4
 lib64nss3
 lib64nss_mdns2
@@ -961,3 +961,5 @@ lib64tiff5
 lib64webp7
 lib64x265_192
 lib64mozjs91_91
+lib64urcu6
+lib64libqrtr-glib0

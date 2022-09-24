@@ -140,7 +140,7 @@ while [ "$1" != ""  ] ;do
     shift; shift
 done
 
-[ -z "$KERNEL" ] && KERNEL=$(ls -1 /lib/modules | tr -d / | tail -1)
+[ -z "$KERNEL" ] && KERNEL=$(ls -1 /lib/modules | tr -d / | grep [0-9]- | tail -1)
 [ -z "$FILENAME" -o -z "$KERNEL" ] && usage
 echo "Creating $FILENAME for kernel $KERNEL"
 

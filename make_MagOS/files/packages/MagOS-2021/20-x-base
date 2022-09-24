@@ -514,8 +514,7 @@ lib64libaesgm1
 lib64lightdm-gir1
 lib64lightdm-gobject1_0
 lib64lilv0_0
-lib64llvm12.0
-lib64llvm-plugins
+lib64llvm15
 lib64lpc10_0
 lib64lqr1_0
 lib64lxqt1
@@ -1409,12 +1408,11 @@ libkrb5_3
 libkrb5support0
 liblcms2_2
 libldap2.4_2
-libllvm-plugins
 liblm_sensors5
 libltdl7
 liblz4_1
 libmount1
-libnsl2
+libnsl3
 libogg0
 libopenal1
 libopus0
@@ -1444,7 +1442,7 @@ libxtst6
 libzstd1
 libpcap1
 libvulkan1
-libllvm12.0
+libllvm15
 libx264_163
 libintl8
 libnl3_200
@@ -1544,3 +1542,4 @@ lib64template1
 libicudata71
 libicui18n71
 libicuuc71
+lib64soup-3.0_0

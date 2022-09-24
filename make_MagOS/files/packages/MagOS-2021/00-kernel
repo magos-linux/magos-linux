@@ -1,6 +1,7 @@
 kernel-5.15-desktop
 kernel-module-v4l2loopback-5.15-desktop
 bbswitch-kernel-5.15.43-desktop-2rosa2021-x86_64
+vboxadditions-kernel-5.15.43-desktop-2rosa2021-x86_64
 virtualbox-kernel-5.15.43-desktop-2rosa2021-x86_64
 alsa-tools-firmware
 dvb-firmwares-frontends
