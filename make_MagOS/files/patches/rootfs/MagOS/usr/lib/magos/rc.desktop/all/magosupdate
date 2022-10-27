@@ -126,13 +126,16 @@ fi
 #check for updates
 MSG01=$(gettext -s "New version of")" $PRETTY_NAME "$(gettext -s "is detected on server.")
 MSG02=$(gettext -s "New updates for")" $PRETTY_NAME "$(gettext -s "are detected on server.")
+MSG03=$(gettext -s "System update started. Please wait.")
 if   magosupdate --checknewversion ;then
     if dialogupdate "$MSG01"  ;then
+        notify-send "$MSG03" &
 	magosupdate --updateversion || dialogerrorlog
 	grep -qi "please reboot" ${LOGFILE}-*.log && NEEDREBOOT=1
     fi
 elif magosupdate --checkupdates    ;then
     if dialogupdate "$MSG02" ;then
+        notify-send "$MSG03" &
 	magosupdate --updatebase || dialogerrorlog
 	grep -qi "please reboot" ${LOGFILE}-*.log  && NEEDREBOOT=1
     fi

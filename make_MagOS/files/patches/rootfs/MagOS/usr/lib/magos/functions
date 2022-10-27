@@ -105,6 +105,7 @@ detectDE()
          ps -A | grep -q " i3term$"    && SESSION=i3term
          ps -A | grep -q "gnome-panel" && SESSION=gnome
          ps -A | grep -q "gnome-shell" && SESSION=gnome-shell
+         ps -A | grep -q "plasmashell" && SESSION=plasma
   fi
   [ "$SESSION" = "kde" -a -f /etc/X11/wmsession.d/01Plasma ] && SESSION=plasma
   [ -z "$SESSION" -a -x /usr/bin/startlxde ] && SESSION=lxde

@@ -1,8 +1,12 @@
 anthy
+emacs-common
+emacs-el
 firefox-ja
 fonts-ttf-japanese
 kasumi
-lib64anthy0
+lib64anthy1
+lib64anthydic1
+lib64anthyinput1
 libreoffice-l10n-ja
 locales-ja
 thunderbird-91-ja

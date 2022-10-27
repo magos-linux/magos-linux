@@ -17,3 +17,8 @@ remmina-plugins-www
 remmina-plugins-xdmcp
 nvidia390-core
 nvidia515-core
+lib64qmmp-1_1
+lib64qmmpui1
+qmmp
+qmmp-plugins
+qmmp-wavpack

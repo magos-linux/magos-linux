@@ -7,16 +7,17 @@
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
+cd $HOME
 NOEXEC="i3term:xbindkeys;i3term:fusion-icon;i3term:magosupdate"
+USER=$(basename $HOME)
 
 . /usr/lib/magos/functions
 . /usr/lib/magos/os-config
 . /etc/MagOS/config
 
-DE=$(detectDE)
-cd $HOME
-
 NOEXEC=$(echo " $NOEXEC " | tr ',;' ' ')
+
+DE=$(detectDE)
 
 # We have to launch some rc scripts
 for a in /usr/lib/magos/rc.desktop/$DE/* ;do
@@ -30,4 +31,4 @@ done
 
 echo 1 > /run/magos_started
 
-true
+wait

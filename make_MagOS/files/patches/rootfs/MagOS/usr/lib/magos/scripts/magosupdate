@@ -37,6 +37,7 @@ function findmagosdir()
     [ -d "$MAGOSPATH" ] || exit 1
     RUNFROMBACKUP=1
  fi
+ return 0
 }
 
 function initparameters()
@@ -109,6 +110,7 @@ function downloadmod()
     *)
         echoerror "Protocol $MAGOSUPDATEPROT is not supported currently, sorry"
  esac
+ return 0
 }
 
 # $1 path to module dir
@@ -129,6 +131,7 @@ function checkserver()
  download MD5SUM     "$TMPDIR"
  download MD5SUM.sig "$TMPDIR"
  echolog "Connection to server is ok"
+ return 0
 }
 
 # $1 original MD5SUM
@@ -141,6 +144,7 @@ function comparemdsum()
     grep -q "$a" "$1" || echo "$a" >> "$3"
  done
  [ -f "$3" ] || return 1
+ return 0
 }
 
 # $1 original MD5SUM
@@ -152,6 +156,7 @@ function updatemdsum()
     grep "$a" "$2" >> "$1.new"
  done
  mv -f "$1.new" "$1"
+ return 0
 }
 
 # $1 MD5SUM file
@@ -170,6 +175,7 @@ function checkfilesums()
  done
  popd >/dev/null
  echolog "Checking complete."
+ return 0
 }
 
 # $1 signature
@@ -199,6 +205,7 @@ function checknewversion()
     return 1
  fi
  echolog "Found new version $NEWVER"
+ return 0
 }
 
 function checkupdates()
@@ -221,6 +228,7 @@ function checkupdates()
  awk '{print $2}' "$TMPDIR/MD5SUM.updates" | while read a ;do
     echolog "Found updated file: $a"
  done
+ return 0
 }
 
 function checkrootfs()
@@ -228,6 +236,7 @@ function checkrootfs()
  if grep $(df "$MAGOSPATH" | tail -1 | awk '{print $NF}') /proc/mounts | awk '{print "," $4 ","}' | grep -q ,ro, ;then
     echoerror "Error: root filesystem is mounted as readonly."
  fi
+ return 0
 }
 
 function checkneedroot()
@@ -238,6 +247,7 @@ function checkneedroot()
     echolog "Checking user acceess: failed."
     return 1
  fi
+ return 0
 }
 
 # $1 optional parameter
@@ -252,6 +262,7 @@ function restartasroot()
     fi
     exit $?
  fi
+ return 0
 }
 
 function startwall()
@@ -273,6 +284,7 @@ function endwall()
 function ismodactive()
 {
  grep -q /$(basename "$1")[[:space:]] /proc/mounts || return 1
+ return 0
 }
 
 # $1 modulename
@@ -286,6 +298,7 @@ function deletemodule()
     fi
  fi
  rm -f "$1"
+ return 0
 }
 
 # $1 full path to MD5SUM
@@ -305,6 +318,7 @@ function deleteobsolete()
     echolog "removed obsolete file $a"
  done
  popd >/dev/null
+ return 0
 }
 
 function movedisabled()
@@ -316,6 +330,7 @@ function movedisabled()
     [ -f "$a" ] && mv -f "$a" ../optional && echolog "Moved module $a to optional"
  done
  cd ..
+ return 0
 }
 
 function moveupdates()
@@ -334,6 +349,7 @@ function moveupdates()
     grep $(basename "$a") "MD5SUM" 2>/dev/null >> "$MAGOSPATH/MD5SUM"
  done
  echolog "Moving complete."
+ return 0
 }
 
 function updateversion()
@@ -380,6 +396,7 @@ function updateversion()
  cat $LOGFILE >> "${MAGOSPATH}.bak/magosupdate.log"
 
  endwall
+ return 0
 }
 
 function updatebase()
@@ -419,6 +436,7 @@ function updatebase()
  echolog "Update finished."
 
  endwall
+ return 0
 }
 
 function updatemodules()
@@ -449,6 +467,7 @@ function updatemodules()
  echolog "Update finished."
 
  endwall
+ return 0
 }
 
 function revertversion()
@@ -468,6 +487,7 @@ function revertversion()
      echolog "Folder ${MAGOSPATH}.bak is not found."
      exit 1
  fi
+ return 0
 }
 
 

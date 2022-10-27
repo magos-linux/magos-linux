@@ -198,3 +198,11 @@ msgstr "Спящий_режим"
 msgid "Logout"
 msgstr "Выход"
 
+msgid "Choice"
+msgstr "Выбор"
+
+msgid "Answer"
+msgstr "Решение"
+
+msgid "Checking for updates..."
+msgstr "Проверка обновлений..."

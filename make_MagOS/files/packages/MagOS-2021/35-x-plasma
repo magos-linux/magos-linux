@@ -316,7 +316,6 @@ lib64oxygenstyleconfig5_5
 lib64phabricatorhelpers5
 lib64plasma3
 lib64plasma-activityswitcher-qml
-lib64plasmacomicprovidercore1
 lib64plasma-geolocation-interface5
 lib64plasmavolume-qml
 lib64plasma-workspace-qml
@@ -549,7 +548,6 @@ plasma5-scriptengine-declarative
 plasma5-settings-breeze
 plasma5-settings-oxygen
 plasma5-shell-desktop
-plasma5-sounds-oxygen
 plasma5-style-breeze
 plasma5-style-oxygen
 plasma5-systemsettings
@@ -722,3 +720,6 @@ lib64openexr3_3_1_30
 plasma5-applet-manageinputmethod
 plasma5-windowswitcher-coverswitch
 plasma5-windowswitcher-flipswitch
+lib64kf5configqml5
+lib64kf5kcmutilscore5
+lib64kf5newstuffwidgets5

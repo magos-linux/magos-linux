@@ -5979,7 +5979,7 @@ w_metadata cnc_ddraw dlls \
 load_cnc_ddraw()
 {
     # Note: only works if ddraw.ini contains settings for the executable
-    w_download https://github.com/CnCNet/cnc-ddraw/releases/download/v4.4.9.0/cnc-ddraw.zip 81af9199eb1c2b0d178129b8574563435750a10135a087c3a3c7acf49a225f3a
+    w_download https://github.com/CnCNet/cnc-ddraw/releases/download/v4.6.0.0/cnc-ddraw.zip 1633d30bc80ecae60db97e881a4c804911e300dcb280d58ea8b8ddda2e1dd1ac
     w_try_unzip "${W_SYSTEM32_DLLS}" "${W_CACHE}/${W_PACKAGE}/${file1}"
 
     w_override_dlls native,builtin ddraw
@@ -12889,7 +12889,7 @@ w_metadata vcrun2015 dlls \
     publisher="Microsoft" \
     year="2015" \
     media="download" \
-    conflicts="vcrun2017 vcrun2019" \
+    conflicts="vcrun2017 vcrun2019 ucrtbase2019" \
     file1="vc_redist.x86.exe" \
     installed_file1="${W_SYSTEM32_DLLS_WIN}/mfc140.dll"
 
@@ -12968,7 +12968,7 @@ w_metadata vcrun2017 dlls \
     publisher="Microsoft" \
     year="2017" \
     media="download" \
-    conflicts="vcrun2015 vcrun2019" \
+    conflicts="vcrun2015 vcrun2019 ucrtbase2019" \
     file1="vc_redist.x86.exe" \
     installed_file1="${W_SYSTEM32_DLLS_WIN}/mfc140.dll"
 
@@ -13041,8 +13041,6 @@ load_vcrun2019()
     # 2021/10/23: 80c7969f4e05002a0cd820b746e0acb7406d4b85e52ef096707315b390927824
     # 2022/01/18: 4c6c420cf4cbf2c9c9ed476e96580ae92a97b2822c21329a2e49e8439ac5ad30
 
-    w_warn "ucrtbase.dll is no longer included in vcrun2019. For details see: https://github.com/Winetricks/winetricks/issues/1770"
-
     w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcp140_1 msvcp140_2 msvcp140_atomic_wait msvcp140_codecvt_ids vcamp140 vccorlib140 vcomp140 vcruntime140
 
     w_download https://aka.ms/vs/16/release/vc_redist.x86.exe 4c6c420cf4cbf2c9c9ed476e96580ae92a97b2822c21329a2e49e8439ac5ad30
@@ -13080,7 +13078,41 @@ load_vcrun2019()
             ;;
     esac
 
+    w_call ucrtbase2019
+
     w_set_winver 'default'
+}
+
+#----------------------------------------------------------------
+
+w_metadata ucrtbase2019 dlls \
+    title="Visual C++ 2019 librarie (ucrtbase.dll)" \
+    publisher="Microsoft" \
+    year="2019" \
+    media="download" \
+    conflicts="vcrun2015 vcrun2017" \
+    file1="vc_redist.x86.exe" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/ucrtbase.dll"
+
+load_ucrtbase2019()
+{
+    w_override_dlls native,builtin ucrtbase
+
+    # Microsoft download no longer containts ucrtbase so get the last known version from archive.org
+    w_download https://web.archive.org/web/20210415064013/https://download.visualstudio.microsoft.com/download/pr/85d47aa9-69ae-4162-8300-e6b7e4bf3cf3/14563755AC24A874241935EF2C22C5FCE973ACB001F99E524145113B2DC638C1/VC_redist.x86.exe 14563755ac24a874241935ef2c22c5fce973acb001f99e524145113b2dc638c1
+
+    w_try_cabextract --directory="${W_TMP}/win32"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x86.exe -F 'a10'
+    w_try_cabextract --directory="${W_SYSTEM32_DLLS}" "${W_TMP}/win32/a10" -F 'ucrtbase.dll'
+
+    case "${W_ARCH}" in
+        win64)
+            # Microsoft download no longer containts ucrtbase so get the last known version from archive.org
+            w_download https://web.archive.org/web/20210414165612/https://download.visualstudio.microsoft.com/download/pr/85d47aa9-69ae-4162-8300-e6b7e4bf3cf3/52B196BBE9016488C735E7B41805B651261FFA5D7AA86EB6A1D0095BE83687B2/VC_redist.x64.exe 52b196bbe9016488c735e7b41805b651261ffa5d7aa86eb6a1d0095be83687b2
+
+            w_try_cabextract --directory="${W_TMP}/win64"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x64.exe -F 'a10'
+            w_try_cabextract --directory="${W_SYSTEM64_DLLS}" "${W_TMP}/win64/a10" -F 'ucrtbase.dll'
+            ;;
+    esac
 }
 
 #----------------------------------------------------------------
@@ -14842,6 +14874,24 @@ load_dxdiag()
 
 #----------------------------------------------------------------
 
+w_metadata dxwnd apps \
+    title="Window hooker to run fullscreen programs in window and much more..." \
+    publisher="ghotik" \
+    year="2011" \
+    media="download" \
+    file1"v2_05_88_build.rar" \
+    installed_exe1="${W_PROGRAMS_X86_WIN}/dxwnd/dxwnd.exe" \
+    homepage="https://dxwnd.sourceforge.io"
+
+load_dxwnd()
+{
+    # 2022/10/02 v2_05_88_build.rar a80ad1246493b3b34fba2131494052423ac298a39592d4e06a685568b829922e
+    w_download https://versaweb.dl.sourceforge.net/project/dxwnd/Latest%20build/v2_05_88_build.rar a80ad1246493b3b34fba2131494052423ac298a39592d4e06a685568b829922e
+    w_try_7z "${W_PROGRAMS_X86_UNIX}"/dxwnd "${W_CACHE}"/"${W_PACKAGE}"/"${file1}" -aoa
+}
+
+#----------------------------------------------------------------
+
 w_metadata emu8086 apps \
     title="emu8086" \
     publisher="emu8086.com" \
@@ -16066,18 +16116,48 @@ load_origin()
         w_call corefonts
     fi
 
+    if w_workaround_wine_bug 44258 "Origin crashes on start."; then
+        w_override_app_dlls igoproxy.exe disabled d3d10
+        w_override_app_dlls igoproxy.exe disabled d3d10_1
+        w_override_app_dlls igoproxy.exe disabled d3d10core
+        w_override_app_dlls igoproxy.exe disabled d3d11
+        w_override_app_dlls igoproxy.exe disabled d3d12
+        w_override_app_dlls igoproxy.exe disabled dxgi
+        w_override_app_dlls igoproxy.exe disabled vulkan-1
+        w_override_app_dlls igoproxy.exe disabled winevulkan
+
+        if [ "${W_ARCH}" = "win64" ]; then
+            w_override_app_dlls igoproxy64.exe disabled d3d10
+            w_override_app_dlls igoproxy64.exe disabled d3d10_1
+            w_override_app_dlls igoproxy64.exe disabled d3d10core
+            w_override_app_dlls igoproxy64.exe disabled d3d11
+            w_override_app_dlls igoproxy64.exe disabled d3d12
+            w_override_app_dlls igoproxy64.exe disabled dxgi
+            w_override_app_dlls igoproxy64.exe disabled vulkan-1
+            w_override_app_dlls igoproxy64.exe disabled winevulkan
+        fi
+    fi
+
     if w_workaround_wine_bug 44985 "Disabling libglesv2 to make Store and Library function correctly."; then
         w_override_dlls disabled libglesv2
     fi
 
+    # Avoids "An unexpected error has occurred. Please try again in a few moments. Error: 327684:3"
+    # Games won't register correctly unless disabled
+    if w_workaround_wine_bug 52781 "Origin does not notice games exiting, does not allow them to be relaunched."; then
+        w_override_app_dlls origin.exe disabled gameux
+    fi
+
     # Origin requirements
     w_call vcrun2010
+    w_call vcrun2013
     w_call vcrun2019
-    w_call d3dcompiler_47
 
-    # Avoids "An unexpected error has occurred. Please try again in a few moments. Error: 327684:3"
-    # Games won't registor correctly unless disabled
-    w_override_app_dlls origin.exe disabled gameux
+    if w_wine_version_in ,6.3 ; then
+        w_call d3dcompiler_47
+    fi
+
+    w_warn "Origin In-game overlay must be disabled"
 }
 
 #----------------------------------------------------------------
