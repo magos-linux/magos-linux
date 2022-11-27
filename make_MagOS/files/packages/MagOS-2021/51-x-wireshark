@@ -1,13 +1,12 @@
 wireshark
 wireshark-tools
-lib64nghttp2_14
 lib64maxminddb0
 lib64smi2
 libsmi
 libsmi-mibs-std
 smi-tools
-lib64wireshark14
-lib64wiretap11
-lib64wsutil12
+lib64wireshark16
+lib64wiretap13
+lib64wsutil14
 dumpcap
 lib64spandsp3

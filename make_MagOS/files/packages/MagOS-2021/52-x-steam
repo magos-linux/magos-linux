@@ -169,3 +169,6 @@ libsqlite3_0
 python3-vdf
 protontricks
 libnuma1
+libcurl-gnutls4
+lib64curl-gnutls4
+libnghttp2_14

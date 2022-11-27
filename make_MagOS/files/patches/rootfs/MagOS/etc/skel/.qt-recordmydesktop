@@ -1,0 +1,56 @@
+#Order and overall number of lines must be preserved
+#For this file to be read correctly
+#Framerate
+24
+#Cursor(0 xfixes,1 white,2 black,3 none)
+3
+#Sound,0 disabled 1 enabled
+1
+#Full shots,1 disabled 0 enabled
+1
+#Filename
+/tmp/out.ogv
+#Delay,seconds
+0
+#Number of channels
+1
+#Frequency
+22050
+#Sound-device
+pulse
+#Video quality(0-63)
+63
+#Audio quality(0-10)
+10
+#Display
+$DISPLAY
+#Shared memory,1 disabled 0 enabled
+0
+#Reset capture area,1 disabled 0 enabled
+0
+#Recording area
+-1,-1,-1,-1
+#Quick subsampling,1 disabled 0 enabled
+1
+#Working directory(temporary files)
+/tmp
+#On the fly encoding,1 disabled 0 enabled
+0
+#Zero compression,1 disabled 0 enabled
+1
+#overwrite existing files,0 disabled 1 enabled
+0
+#Include window decorations,1 disabled 0 enabled
+1
+#Use jack
+0
+#last used jack ports
+
+#Tooltips,1 disabled 0 enabled
+1
+#draw an on-screen frame, surrounding the capture area
+1
+#Extra options
+
+#Follow mouse,1 disabled 0 enabled
+1

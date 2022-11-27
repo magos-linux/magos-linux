@@ -380,6 +380,7 @@ lib64GLdispatch0
 lib64GLESv2_2
 lib64glew2.2
 lib64glibmm2.4_1
+lib64glibmm2.68_1
 lib64glib-networking
 lib64glu1
 lib64GLX0
@@ -744,6 +745,7 @@ lib64shout3
 lib64sidplay1
 lib64sidplay2
 lib64sigc++2.0_0
+lib64sigc++3.0_0
 lib64smapidev2
 lib64snappy1
 lib64sndfile1
@@ -1549,3 +1551,5 @@ lib64xmlb2
 lib64txc-dxtn
 mesa
 libmpg123_0
+libsndio7
+adwaita-gtk3-theme

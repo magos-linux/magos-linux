@@ -1,8 +1,30 @@
 #!/bin/sh
 ENABLED=yes
+PULSECREATELOOP=yes
+PULSESRCMUTE=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 . /usr/lib/magos/os-config
 . /etc/sound/profiles/current/profile.conf
 
-[ "$SOUNDPROFILE" = "pulse" -a "$PULSEAUDIOSTART" != "no" ] && start-pulseaudio-x11 &
+if [ "$SOUNDPROFILE" = "pulse" -a "$PULSEAUDIOSTART" != "no" ] ;then
+  pacmd stat >/dev/null 2>&1 || start-pulseaudio-x11 &
+  sleep 1
+fi
+
+if [ "$PULSECREATELOOP" != "no" ] ;then
+  DSIN=$(LC_ALL=C pacmd stat | grep -E -m1 'Default sink' | gawk -F': ' '{print $2}')
+  DSRC=$(LC_ALL=C pacmd stat | grep -E -m1 'Default source' | gawk -F': ' '{print $2}')
+  if [ "$DSRC" != "loopback.monitor" ];then
+    pacmd list-modules | grep -q module-null-sink    || pacmd load-module module-null-sink sink_name=loopback
+    pacmd list-modules | grep -q module-loopback     || pacmd load-module module-loopback source=$DSRC sink=loopback source_dont_move=true sink_dont_move=true
+    pacmd list-modules | grep -q module-combine-sink || pacmd load-module module-combine-sink sink_name=combine slaves=loopback,$DSIN
+    pacmd set-default-source loopback.monitor
+  fi
+fi
+
+if [ "$PULSESRCMUTE" != "no" ] ;then
+  LC_ALL=C pacmd list-sources | grep "name: <alsa_input" | tr '>' '<' | awk -F '<' '{print $2}' | while read a ;do
+    pacmd set-source-mute $a 1
+  done
+fi
