@@ -338,7 +338,7 @@ lib64florence1.0_1
 lib64fltk1.3
 lib64fluidsynth3
 lib64fm4
-lib64fm-qt11
+lib64fm-qt12
 lib64fontenc1
 lib64freebl3
 lib64freeglut3
@@ -1553,3 +1553,9 @@ mesa
 libmpg123_0
 libsndio7
 adwaita-gtk3-theme
+lib64nvidia-egl-gbm1
+gtk-vnc-common
+lib64gtk-vnc2.0_0
+lib64gvnc-gir2.0
+lib64gvnc1.0_0
+lib64gvncpulse1.0_0

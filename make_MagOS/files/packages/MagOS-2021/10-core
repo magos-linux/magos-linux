@@ -349,7 +349,7 @@ lib64nss_mdns2
 lib64nss_myhostname2
 lib64nss_tcb2
 lib64nsswins2
-lib64ntfs-3g88
+lib64ntfs-3g89
 lib64numa1
 lib64oil0.3_0
 lib64onig5
@@ -964,3 +964,10 @@ lib64mozjs91_91
 lib64urcu6
 lib64libqrtr-glib0
 lib64nghttp2_14
+exfatprogs
+mtr
+tripso
+ipt-so
+lib64tsocks
+lib64aal1.0_7
+lib64reiser4_1.2_2

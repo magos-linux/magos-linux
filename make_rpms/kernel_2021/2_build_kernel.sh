@@ -16,6 +16,7 @@ mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,BUILDROOT}
 
 rpm -Uhv --nodeps --nodigest cache/$MARCH/builddeps/*.rpm
 rpm -ihv --nodeps --noscripts --nodigest cache/$MARCH/kernel/*.rpm
+rpm -Uhv --nodeps --noscripts --nodigest --replacepkgs cache/$MARCH/dkms/*.rpm
 
 cp -pf files/$MARCH/SOURCES/* ~/rpmbuild/SOURCES
 if cp -fv files/$MARCH/SPECS/* ~/rpmbuild/SPECS | grep -q . ;then

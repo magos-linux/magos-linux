@@ -9,7 +9,7 @@ ls rpms/$MARCH/rpms/kernel-header*.rpm rpms/$MARCH/rpms/kernel-*desktop*.rpm cac
 done
 
 KNUM=$(ls rpms/$MARCH/rpms/kernel-headers-* | sed s=.*/kernel-headers-== | sed s/-.*// |  sort -n | tail -1)
-KERN=$(ls -1d /usr/src/linux-* | grep -- -$KNUM- | sed s%/usr/src/linux-%% | sed s%/$%%)
+KERN=$(ls -1d /usr/src/linux-* | grep -- -$KNUM- | sed s%/usr/src/linux-%% | sed s%/$%% | tail -1)
 echo Using kernel $KERN
 
 [ -h /lib/modules/$KERN/build  ] || ln -sf /usr/src/linux-$KERN /lib/modules/$KERN/build

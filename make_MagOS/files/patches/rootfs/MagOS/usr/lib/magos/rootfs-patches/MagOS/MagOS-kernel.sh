@@ -9,6 +9,13 @@ if find $KLIBDIR -type f -name nvidia.ko | nl -n'ln' | grep -q ^2 ;then
       echo "$KDIR" | grep -q ^nvidia[0-9]*$ && rename "nvidia" "$KDIR" $(dirname $a)/nvidia*
   done
 fi
+KROKDIR=/usr/share/auto-krokodil/kmods
+if [ -d "$KROKDIR" ] ;then
+  find "$KROKDIR" -type f -name nvidia.ko | while read a ;do
+      KDIR=$(dirname $a); KDIR=$(basename $KDIR) ; KDIR=$(echo $KDIR | sed 's/[.].*//')
+      echo "$KDIR" | grep -q ^nvidia[0-9]*$ && rename "nvidia" "$KDIR" $(dirname $a)/nvidia*
+  done
+fi
 
 #BUGFIX install all dkms binary modules
 if [ -d /var/lib/dkms-binary/ ] ;then

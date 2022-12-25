@@ -1,21 +1,94 @@
---- a/nvidia515.spec	2022-06-10 08:59:27.000000000 +0300
-+++ b/nvidia515.spec	2022-06-25 13:30:37.065561246 +0300
-@@ -130,7 +130,6 @@ Requires:	auto-krokodil-filesystem
+diff -aupr a/nvidia515.spec b/nvidia515.spec
+--- a/nvidia515.spec	2022-10-19 02:24:11.000000000 +0300
++++ b/nvidia515.spec	2022-12-24 10:36:01.000000000 +0300
+@@ -31,7 +31,7 @@
+ %define pkgname %{pkgname64}
+ 
+ %bcond_without force_32bit_deps
+-%bcond_without binary_kernel_modules
++#%bcond_without binary_kernel_modules
+ 
+ # no need to provide libraries in %%nvidia_libdir
+ %global __provides_exclude ^lib.*\\.so
+@@ -47,8 +47,7 @@
+ 
  %if %{with binary_kernel_modules}
- %kroko_req_modules_in_nvidia -k 5.16 -f generic -j %{version_j} -n %{version_n}
+ # e.g.: 5.10.71-generic-1rosa2021.1-x86_64
+-%define kabi_510 %(if rpm -q kernel-5.10-generic-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-5.10-generic-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
+-%define kabi_515 %(if rpm -q kernel-5.15-generic-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-5.15-generic-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
++%define kabi_515 %(if rpm -q kernel-5.15-desktop-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-5.15-desktop-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
+ %define version_j %(echo %{VERSION} | awk -F '.' '{print $1}')
+ %define version_n %(echo %{VERSION} | awk -F '.' '{print $2}')
+ # For SRPM stage when auto-krokodil-rpm-macros is not installed
+@@ -72,8 +71,6 @@
+ # n - name
+ %define nv_cross_conflict(n:) %{expand:
+ Provides:	nvidia-%{-n*} = %{major}
+-Conflicts:	nvidia-%{-n*} > %{major}
+-Conflicts:	nvidia-%{-n*} < %{major}
+ }
+ 
+ Summary:	NVIDIA proprietary X.org driver and libraries
+@@ -114,8 +111,7 @@ ExclusiveArch:	%{x86_64}
+ BuildRequires:	auto-krokodil-rpm-generators
+ %if %{with binary_kernel_modules}
+ BuildRequires:	auto-krokodil-rpm-macros
+-BuildRequires:	kernel-5.10-generic-devel
+-BuildRequires:	kernel-5.15-generic-devel
++BuildRequires:	kernel-5.15-desktop-devel
+ BuildRequires:	findutils
+ BuildRequires:	zstd
+ %endif
+@@ -129,6 +125,7 @@ BuildRequires:	pkgconfig(xxf86vm)
+ BuildRequires:	pkgconfig(vdpau) >= 1.1
+ BuildRequires:	pkgconfig(libtirpc)
+ BuildRequires:	pkgconfig(dbus-1)
++BuildRequires:	lib64pciaccess-devel
+ 
+ %description
+ The proprietary driver for NVidia GPUs, long-lived branch.
+@@ -151,10 +148,8 @@ Conflicts:	x11-driver-video-%{drivername
+ Requires:	%{_lib}vdpau1 >= 1.1
+ Requires:	auto-krokodil-filesystem
+ %if %{with binary_kernel_modules}
+-%kroko_req_modules_in_nvidia -k 5.10 -f generic -j %{version_j} -n %{version_n}
+-%kroko_req_modules_in_nvidia -k 5.15 -f generic -j %{version_j} -n %{version_n}
++%kroko_req_modules_in_nvidia -k 5.15 -f desktop -j %{version_j} -n %{version_n}
  %endif
 -Requires:	%{drivername}-cuda-opencl = %{EVRD}
- Requires:	(kernel-modules-%{name}-5.10.118-1-generic if (kernel-5.10-generic = 5.10.118-1))
- Requires:	(kernel-modules-%{name}-5.15.43-1-generic if (kernel-5.15-generic = 5.15.43-1))
+ # EOLed kernels built without auto-krokodil
  Requires:	(kernel-modules-%{name}-5.16.19-1-generic if (kernel-5.16-generic = 5.16.19-1))
-@@ -169,10 +168,6 @@ Requires:	egl-wayland
- Requires:	vulkan
- Requires:	libglvnd
- Provides:	nvidia = %{EVRD}
--Conflicts:	nvidia-current
--Conflicts:	nvidia390-core
--Conflicts:	nvidia470-core
--Conflicts:	nvidia510-core
- Recommends:	nvidia-additional-settings
+ Requires:	(kernel-modules-%{name}-5.17.11-1-generic if (kernel-5.17-generic = 5.17.11-1))
+@@ -367,13 +362,7 @@ rm -f nvidia-settings-%{version}/src/*/*
  
- %description -n %{driverpkgname}
+ %if %{with binary_kernel_modules}
+ dir0="$PWD"
+-cp -r %{pkgname}/kernel %{pkgname}/kernel-5.10
+ cp -r %{pkgname}/kernel %{pkgname}/kernel-5.15
+-pushd %{pkgname}/kernel-5.10
+-%make SYSSRC=/lib/modules/%{kabi_510}/source
+-mkdir -p "$dir0"/%{kabi_510}
+-mv *.ko "$dir0"/%{kabi_510}
+-popd
+ pushd %{pkgname}/kernel-5.15
+ %make SYSSRC=/lib/modules/%{kabi_515}/source
+ mkdir -p "$dir0"/%{kabi_515}
+@@ -394,7 +383,7 @@ export LDFLAGS="%{?ldflags}"
+ %install
+ 
+ %if %{with binary_kernel_modules}
+-list="%{kabi_510} %{kabi_515}"
++list="%{kabi_515}"
+ # copied from kernel
+ # extract debuginfo
+ # TODO: sync location of *.debug files with kernel
+@@ -1386,8 +1375,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{nvidia_libdir32}/libcuda.so.1
+ 
+ %if %{with binary_kernel_modules}
+-%kroko_kmod_pkg -r %{kroko_release} -j %{version_j} -n %{version_n} -f generic -k 5.10 -m %(if rpm -q kernel-5.10-generic 1>/dev/null 2>/dev/null; then rpm -q --qf '%%{version}\n' kernel-5.10-generic | tail -n1 | awk -F '.' '{print $3}'; else echo 0; fi) -p %{kabi_510} -s %{NAME} -c .zst
+-%kroko_kmod_pkg -r %{kroko_release} -j %{version_j} -n %{version_n} -f generic -k 5.15 -m %(if rpm -q kernel-5.15-generic 1>/dev/null 2>/dev/null; then rpm -q --qf '%%{version}\n' kernel-5.15-generic | tail -n1 | awk -F '.' '{print $3}'; else echo 0; fi) -p %{kabi_515} -s %{NAME} -c .zst
++%kroko_kmod_pkg -r %{kroko_release} -j %{version_j} -n %{version_n} -f desktop -k 5.15 -m %(if rpm -q kernel-5.15-desktop 1>/dev/null 2>/dev/null; then rpm -q --qf '%%{version}\n' kernel-5.15-desktop | tail -n1 | awk -F '.' '{print $3}'; else echo 0; fi) -p %{kabi_515} -s %{NAME} -c .zst
+ 
+ %files debug
+ %{kroko_kmods_dir}/*/*.debug
