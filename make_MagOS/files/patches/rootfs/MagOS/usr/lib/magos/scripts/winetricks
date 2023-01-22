@@ -429,18 +429,12 @@ w_detect_mingw()
     # builtin=mingw (wine-4.11+)
 
     # See https://github.com/Winetricks/winetricks/issues/1461
-    if w_wine_version_in 4.10, ; then
-        if grep -obUa "Wine placeholder DLL" "$(w_winepath -u "c:\\windows\\system32\\kernelbase.dll" 2>/dev/null)" | grep -q '64:Wine placeholder DLL'; then
-            _W_no_mingw=1
-        elif grep -obUa "Wine builtin DLL" "$(w_winepath -u "c:\\windows\\system32\\kernelbase.dll" 2>/dev/null)" | grep -q '64:Wine builtin DLL'; then
-            _W_mingw=1
-        else
-            w_warn "Unable to detect wine dlls, please file an issue on Github!"
-        fi
-    else
-        # FIXME: better message here (at least, easier to grep/recognize
-        echo "w_detect_mingw: mingw detection unimplemented for wine<4.11"
+    if grep -obUa "Wine placeholder DLL" "$(w_winepath -u "c:\\windows\\system32\\kernelbase.dll" 2>/dev/null)" | grep -q '64:Wine placeholder DLL'; then
         _W_no_mingw=1
+    elif grep -obUa "Wine builtin DLL" "$(w_winepath -u "c:\\windows\\system32\\kernelbase.dll" 2>/dev/null)" | grep -q '64:Wine builtin DLL'; then
+        _W_mingw=1
+    else
+        w_warn "Unable to detect wine dlls, please file an issue on Github!"
     fi
 }
 
@@ -774,6 +768,22 @@ _EOF_
     unset _W_dest_dir
 }
 
+w_try_mkdir()
+{
+    # Only print a message if the directory doesn't already exist
+    # If -q is given, only print in verbose mode
+    dir="$1"
+
+    if [ "${dir}" = "-q" ]; then
+        dir="$2"
+        WINETRICKS_SUPER_QUIET=1 w_try mkdir -p "${dir}"
+    fi
+
+    if [ ! -d "${dir}" ]; then
+        w_try mkdir -p "${dir}"
+    fi
+}
+
 w_try_msiexec64()
 {
     if test "${W_ARCH}" != "win64"; then
@@ -893,7 +903,7 @@ w_read_key()
         return "${TRUE}"
     fi
 
-    mkdir -p "${W_CACHE}/${W_PACKAGE}"
+    w_try_mkdir "${W_CACHE}/${W_PACKAGE}"
 
     # backwards compatible location
     # Auth doesn't belong in cache, since restoring it requires user input
@@ -1352,7 +1362,7 @@ w_download_to()
     fi
 
     if test ! -d "${_W_cache}" ; then
-        w_try mkdir -p "${_W_cache}"
+        w_try_mkdir "${_W_cache}"
     fi
 
     # Try download twice
@@ -1650,7 +1660,7 @@ w_download_manual_to()
             *) _W_dlmsg="Please download ${_W_file} from ${_W_url}, place it in ${W_CACHE}/${_W_packagename}, then re-run this script.";;
         esac
 
-        mkdir -p "${W_CACHE}/${_W_packagename}"
+        w_try_mkdir "${W_CACHE}/${_W_packagename}"
         w_open_folder "${W_CACHE}/${_W_packagename}"
         w_open_webpage "${_W_url}"
         sleep 3   # give some time for web browser to open
@@ -1700,7 +1710,7 @@ w_mount()
     else
         WINETRICKS_IMG="${W_CACHE}/${W_PACKAGE}/$1.iso"
     fi
-    mkdir -p "${W_CACHE}/${W_PACKAGE}"
+    w_try_mkdir "${W_CACHE}/${W_PACKAGE}"
 
     if test -f "${WINETRICKS_IMG}"; then
         winetricks_mount_cached_iso
@@ -2330,219 +2340,31 @@ w_set_winver()
 
     _W_winver="$1"
 
-    if w_wine_version_in 5.7, ; then
-        # Make sure we pass the right version name:
-        case "${_W_winver}" in
-            # These are the mismatched ones:
-            # winecfg doesn't accept 'default' as an option (as of wine-5.9):
-            # https://bugs.winehq.org/show_bug.cgi?id=49241
-            # For now, assuming win7:
-            default)  _W_winver="win7";;
-            win2k3)   _W_winver="win2003";;
-            win2k8)   _W_winver="win2008";;
-            win2k8r2) _W_winver="win2008r2";;
+    # Make sure we pass the right version name:
+    case "${_W_winver}" in
+        # These are the mismatched ones:
+        # winecfg doesn't accept 'default' as an option (as of wine-5.9):
+        # https://bugs.winehq.org/show_bug.cgi?id=49241
+        # For now, assuming win7:
+        default)  _W_winver="win7";;
+        win2k3)   _W_winver="win2003";;
+        win2k8)   _W_winver="win2008";;
+        win2k8r2) _W_winver="win2008r2";;
 
-            # xp has two entries (winxp/winxp64):
-            winxp)
-                if [ "${W_ARCH}" = "win64" ]; then
-                    _W_winver="winxp64"
-                else
-                    _W_winver="winxp"
-                fi
-                ;;
-            # These are the same:
-            nt351|nt40|vista|win10|win20|win2k|win30|win31|win7|win8|win81|win95|win98|winme) : ;;
-            *) w_die "Unsupported Windows version ${_W_winver}";;
-        esac
+        # xp has two entries (winxp/winxp64):
+        winxp)
+            if [ "${W_ARCH}" = "win64" ]; then
+                _W_winver="winxp64"
+            else
+                _W_winver="winxp"
+            fi
+            ;;
+        # These are the same:
+        nt351|nt40|vista|win10|win20|win2k|win30|win31|win7|win8|win81|win95|win98|winme) : ;;
+        *) w_die "Unsupported Windows version ${_W_winver}";;
+    esac
 
-        w_try "${WINE}" winecfg -v "${_W_winver}"
-    else
-        # FIXME: remove this after wine-7.0 (i.e., after it's been in stable wine for a while):
-
-        # First, delete any lingering version info, otherwise it may conflict:
-        (
-        "${WINE}" reg delete "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion" /v SubVersionNumber /f || true
-        "${WINE}" reg delete "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion" /v VersionNumber /f || true
-        "${WINE}" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CSDVersion /f || true
-        "${WINE}" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CurrentBuildNumber /f || true
-        "${WINE}" reg delete "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion" /v CurrentVersion /f || true
-        "${WINE}" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /f || true
-        "${WINE}" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ServiceCurrent" /v OS /f || true
-        "${WINE}" reg delete "HKLM\\System\\CurrentControlSet\\Control\\Windows" /v CSDVersion /f || true
-        "${WINE}" reg delete "HKCU\\Software\\Wine" /v Version /f || true
-        "${WINE}" reg delete "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /f || true
-        ) > /dev/null 2>&1
-
-        case "${_W_winver}" in
-            win31)
-                echo "Setting Windows version to ${_W_winver}"
-                cat > "${W_TMP}"/set-winver.reg <<_EOF_
-REGEDIT4
-
-[HKEY_USERS\\S-1-5-4\\Software\\Wine]
-"Version"="win31"
-
-_EOF_
-                w_try_regedit "${W_TMP_WIN}"\\set-winver.reg
-                return
-                ;;
-            win95)
-                # This key is only used for Windows 95/98:
-
-                echo "Setting Windows version to ${_W_winver}"
-                cat > "${W_TMP}"/set-winver.reg <<_EOF_
-REGEDIT4
-
-[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion]
-"ProductName"="Microsoft Windows 95"
-"SubVersionNumber"=""
-"VersionNumber"="4.0.950"
-
-_EOF_
-                w_try_regedit "${W_TMP_WIN}"\\set-winver.reg
-                return
-                ;;
-            win98)
-                # This key is only used for Windows 95/98:
-
-                echo "Setting Windows version to ${_W_winver}"
-                cat > "${W_TMP}"/set-winver.reg <<_EOF_
-REGEDIT4
-
-[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion]
-"ProductName"="Microsoft Windows 98"
-"SubVersionNumber"=" A "
-"VersionNumber"="4.10.2222"
-
-_EOF_
-                w_try_regedit "${W_TMP_WIN}"\\set-winver.reg
-                return
-                ;;
-            nt40)
-                # Similar to modern version, but sets two extra keys:
-
-                echo "Setting Windows version to ${_W_winver}"
-                cat > "${W_TMP}"/set-winver.reg <<_EOF_
-REGEDIT4
-
-[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion]
-"CSDVersion"="Service Pack 6a"
-"CurrentBuildNumber"="1381"
-"CurrentVersion"="4.0"
-
-[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\ProductOptions]
-"ProductType"="WinNT"
-
-[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\ServiceCurrent]
-"OS"="Windows_NT"
-
-[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Windows]
-"CSDVersion"=dword:00000600
-
-_EOF_
-                w_try_regedit "${W_TMP_WIN}"\\set-winver.reg
-                return
-                ;;
-            win2k)
-                csdversion="Service Pack 4"
-                currentbuildnumber="2195"
-                currentversion="5.0"
-                csdversion_hex=dword:00000400
-                ;;
-            winxp)
-                # Special case, afaik it's the only Windows version that has different version numbers for 32/64-bit
-                # So ensure we set the arch appropriate version:
-                if [ "${W_ARCH}" = "win32" ]; then
-                    csdversion="Service Pack 3"
-                    currentbuildnumber="2600"
-                    currentversion="5.1"
-                    csdversion_hex=dword:00000300
-                elif [ "${W_ARCH}" = "win64" ]; then
-                    csdversion="Service Pack 2"
-                    currentbuildnumber="3790"
-                    currentversion="5.2"
-                    csdversion_hex=dword:00000200
-                    "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-                else
-                    w_die "Invalid W_ARCH ${W_ARCH}"
-                fi
-                ;;
-            win2k3)
-                csdversion="Service Pack 2"
-                currentbuildnumber="3790"
-                currentversion="5.2"
-                csdversion_hex=dword:00000200
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
-                ;;
-            vista)
-                csdversion="Service Pack 2"
-                currentbuildnumber="6002"
-                currentversion="6.0"
-                csdversion_hex=dword:00000200
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-                ;;
-            win7|default)
-                csdversion="Service Pack 1"
-                currentbuildnumber="7601"
-                currentversion="6.1"
-                csdversion_hex=dword:00000100
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-                ;;
-            win2k8)
-                csdversion="Service Pack 2"
-                currentbuildnumber="6002"
-                currentversion="6.0"
-                csdversion_hex=dword:00000200
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
-                ;;
-            win2k8r2)
-                csdversion="Service Pack 1"
-                currentbuildnumber="7601"
-                currentversion="6.1"
-                csdversion_hex=dword:00000100
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "ServerNT" /f
-                ;;
-            win8)
-                csdversion=""
-                currentbuildnumber="9200"
-                currentversion="6.2"
-                csdversion_hex=dword:00000000
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-                ;;
-            win81)
-                csdversion=""
-                currentbuildnumber="9600"
-                currentversion="6.3"
-                csdversion_hex=dword:00000000
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-                ;;
-            win10)
-                csdversion=""
-                currentbuildnumber="10240"
-                currentversion="10.0"
-                csdversion_hex=dword:00000000
-                "${WINE}" reg add "HKLM\\System\\CurrentControlSet\\Control\\ProductOptions" /v ProductType /d "WinNT" /f
-                ;;
-            *)
-                w_die "Invalid Windows version given."
-                ;;
-        esac
-
-        echo "Setting Windows version to ${_W_winver}"
-        cat > "${W_TMP}"/set-winver.reg <<_EOF_
-REGEDIT4
-
-[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion]
-"CSDVersion"="${csdversion}"
-"CurrentBuildNumber"="${currentbuildnumber}"
-"CurrentVersion"="${currentversion}"
-
-[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Windows]
-"CSDVersion"=${csdversion_hex}
-
-_EOF_
-        w_try_regedit "${W_TMP_WIN}"\\set-winver.reg
-        fi # if w_wine_version_in 5.7,
+    w_try "${WINE}" winecfg -v "${_W_winver}"
 
     # Prevent a race when calling from another verb
     w_wineserver -w
@@ -2810,7 +2632,7 @@ w_do_call()
             load_vd "${arg}"
             _W_status=$?
             test "${W_OPT_NOCLEAN}" = 1 || rm -rf "${W_TMP}"
-            mkdir -p "${W_TMP}"
+            w_try_mkdir -q "${W_TMP}"
             return ${_W_status}
         fi
 
@@ -2826,7 +2648,7 @@ w_do_call()
         W_TMP="${W_DRIVE_C}/windows/temp/_$1"
         W_TMP_WIN="C:\\windows\\Temp\\_$1"
         test "${W_OPT_NOCLEAN}" = 1 || rm -rf "${W_TMP}"
-        mkdir -p "${W_TMP}"
+        w_try_mkdir -q "${W_TMP}"
 
         # Unset all known used metadata values, in case this is a nested call
         unset conflicts installed_file1 installed_exe1
@@ -2842,7 +2664,7 @@ w_do_call()
             w_override_dlls "${cmd}" "${arg}"
             _W_status=$?
             test "${W_OPT_NOCLEAN}" = 1 || rm -rf "${W_TMP}"
-            mkdir -p "${W_TMP}"
+            w_try_mkdir "${W_TMP}"
             return ${_W_status}
         else
             w_die "No such verb $1"
@@ -2864,7 +2686,7 @@ w_do_call()
         esac
 
         test "${W_OPT_NOCLEAN}" = 1 || rm -rf "${W_TMP}"
-        mkdir -p "${W_TMP}"
+        w_try_mkdir -q "${W_TMP}"
 
         # Don't install if a conflicting verb is already installed:
         # shellcheck disable=SC2154
@@ -2915,7 +2737,7 @@ w_do_call()
 
         # Clean up after this verb
         test "${W_OPT_NOCLEAN}" = 1 || rm -rf "${W_TMP}"
-        mkdir -p "${W_TMP}"
+        w_try_mkdir -q "${W_TMP}"
 
         # Reset whether use of user mount tool
         unset W_USE_USERMOUNT
@@ -5008,7 +4830,7 @@ winetricks_set_wineprefix()
     fi
 
     export WINEPREFIX
-    w_try mkdir -p "$(dirname "${WINEPREFIX}")"
+    w_try_mkdir "$(dirname "${WINEPREFIX}")"
 
     case "${W_PLATFORM}" in
         windows_cmd)
@@ -5168,7 +4990,7 @@ winetricks_set_wineprefix()
             test "${WINETRICKS_CACHE_SYMLINK}" && rm -f "${WINETRICKS_CACHE_SYMLINK}"
             for letter in y x w v u t s r q p o n m; do
                 if ! test -d "${WINEPREFIX}"/dosdevices/${letter}:; then
-                    mkdir -p "${WINEPREFIX}"/dosdevices
+                    w_try_mkdir "${WINEPREFIX}"/dosdevices
                     WINETRICKS_CACHE_SYMLINK="${WINEPREFIX}"/dosdevices/${letter}:
                     ln -sf "${W_CACHE}" "${WINETRICKS_CACHE_SYMLINK}"
                     break
@@ -5192,7 +5014,7 @@ winetricks_set_wineprefix()
     else
         W_FONTSDIR_UNIX="${W_WINDIR_UNIX}"/Fonts
     fi
-    mkdir -p "${W_FONTSDIR_UNIX}"
+    w_try_mkdir "${W_FONTSDIR_UNIX}"
 
 
     # Unset WINEARCH which might be set from winetricks_set_winearch().
@@ -5260,7 +5082,7 @@ winetricks_init()
     # The list of categories is also hardcoded in winetricks_mainmenu() :-(
     WINETRICKS_CATEGORIES="apps benchmarks dlls fonts games settings mkprefix"
     for _W_cat in ${WINETRICKS_CATEGORIES}; do
-        mkdir -p "${WINETRICKS_METADATA}/${_W_cat}"
+        w_try_mkdir -q "${WINETRICKS_METADATA}/${_W_cat}"
     done
 
     # Which subdirectory of WINETRICKS_METADATA is currently active (or main, if none)
@@ -5319,7 +5141,7 @@ winetricks_init()
     # Config options are currently opt-in and not required, so not creating the config
     # directory unless there's demand:
     WINETRICKS_CONFIG="${XDG_CONFIG_HOME}/winetricks"
-    #test -d "$WINETRICKS_CONFIG" || mkdir -p "$WINETRICKS_CONFIG"
+    #test -d "$WINETRICKS_CONFIG" || w_try_mkdir "$WINETRICKS_CONFIG"
 
     # Load country code from config file only when "--country=" option is not specified
     if test -z "${W_COUNTRY}" -a -f "${WINETRICKS_CONFIG}"/country; then
@@ -6149,10 +5971,6 @@ w_metadata d3dcompiler_43 dlls \
 
 load_d3dcompiler_43()
 {
-    if w_workaround_wine_bug 24013 "Native d3dcompiler_43 may cause some d3d10 apps to crash, see https://bugs.winehq.org/show_bug.cgi?id=24013" 4.20,; then
-        :
-    fi
-
     dllname=d3dcompiler_43
 
     helper_directx_Jun2010
@@ -8294,6 +8112,24 @@ load_dxvk1103()
     helper_dxvk "${file1}" "5.14" "1.2.140" "dxgi,d3d9,d3d10core,d3d10,d3d11"
 }
 
+w_metadata dxvk2000 dlls \
+    title="Vulkan-based D3D9/D3D10/D3D11 implementation for Linux / Wine (2.0)" \
+    publisher="Philip Rebohle" \
+    year="2017" \
+    media="download" \
+    file1="dxvk-2.0.tar.gz" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/d3d9.dll" \
+    installed_file2="${W_SYSTEM32_DLLS_WIN}/d3d10core.dll" \
+    installed_file3="${W_SYSTEM32_DLLS_WIN}/d3d11.dll" \
+    installed_file4="${W_SYSTEM32_DLLS_WIN}/dxgi.dll"
+
+load_dxvk2000()
+{
+    # https://github.com/doitsujin/dxvk
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v2.0/dxvk-2.0.tar.gz" 3852f8b4a0c23fd723c9ce06ba8c36d8f84d891755a5d00bec1cd7f609a62477
+    helper_dxvk "${file1}" "7.1" "1.3.204" "dxgi,d3d9,d3d10core,d3d11"
+}
+
 #----------------------------------------------------------------
 
 w_metadata dxvk dlls \
@@ -8797,8 +8633,6 @@ load_dotnet20()
 
 verify_dotnet20()
 {
-    w_package_broken_win64 https://bugs.winehq.org/show_bug.cgi?id=49550 5.7
-
     w_dotnet_verify dotnet20
 }
 
@@ -8888,17 +8722,8 @@ load_dotnet20sp1()
 {
     w_call remove_mono internal
 
-    # Not sure when exactly it was fixed, but it works with 4.0+, and doesn't in 3.0
-    # Given that 3.x is deprecated, not worth looking into.
-    # See https://github.com/Winetricks/winetricks/pull/1271
-    # https://bugs.winehq.org/show_bug.cgi?id=47484, et al
-    if w_wine_version_in 4.0, ; then
-        WINEDLLOVERRIDES="regsvcs.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
-        export WINEDLLOVERRIDES
-    else
-        WINEDLLOVERRIDES="ngen.exe,regsvcs.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
-        export WINEDLLOVERRIDES
-    fi
+    WINEDLLOVERRIDES="ngen.exe,regsvcs.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
+    export WINEDLLOVERRIDES
 
     if [ "${W_ARCH}" = "win32" ]; then
         # https://www.microsoft.com/en-us/download/details.aspx?id=16614
@@ -8960,17 +8785,9 @@ load_dotnet20sp2()
 {
     w_call remove_mono internal
 
-    # Not sure when exactly it was fixed, but it works with 4.0+, and doesn't in 3.0
-    # Given that 3.x is deprecated, not worth looking into.
-    # See https://github.com/Winetricks/winetricks/pull/1271
-    # https://bugs.winehq.org/show_bug.cgi?id=47484, et al
-    if w_wine_version_in 4.0, ; then
-        WINEDLLOVERRIDES="regsvcs.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
-        export WINEDLLOVERRIDES
-    else
-        WINEDLLOVERRIDES="ngen.exe,regsvcs.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
-        export WINEDLLOVERRIDES
-    fi
+    WINEDLLOVERRIDES="ngen.exe=n;regsvcs.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
+    export WINEDLLOVERRIDES
+
     w_warn "Setting Windows version so installer works"
     w_set_winver winxp
 
@@ -9053,7 +8870,7 @@ load_dotnet30()
 
     # AF's workaround to avoid long pause
     LANGPACKS_BASE_PATH="${W_WINDIR_UNIX}/SYSMSICache/Framework/v3.0"
-    test -d "${LANGPACKS_BASE_PATH}" || mkdir -p "${LANGPACKS_BASE_PATH}"
+    test -d "${LANGPACKS_BASE_PATH}" || w_try_mkdir "${LANGPACKS_BASE_PATH}"
     # shellcheck disable=SC1010
     for lang in ar cs da de el es fi fr he it jp ko nb nl pl pt-BR pt-PT ru sv tr zh-CHS zh-CHT; do
         ln -sf "${W_SYSTEM32_DLLS}/spupdsvc.exe" "${LANGPACKS_BASE_PATH}/dotnetfx3langpack${lang}.exe"
@@ -9065,17 +8882,8 @@ load_dotnet30()
     # OK if this fails, that just means you have an older Wine.
     "${WINE}" sc delete "FontCache3.0.0.0"
 
-    # Not sure when exactly it was fixed, but it works with 4.0+, and doesn't in 3.0
-    # Given that 3.x is deprecated, not worth looking into.
-    # See https://github.com/Winetricks/winetricks/pull/1271
-    # https://bugs.winehq.org/show_bug.cgi?id=47484, et al
-    if w_wine_version_in 4.0, ; then
-        WINEDLLOVERRIDES="mscorsvw.exe=b;${WINEDLLOVERRIDES}"
-        export WINEDLLOVERRIDES
-    else
-        WINEDLLOVERRIDES="ngen.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
-        export WINEDLLOVERRIDES
-    fi
+    WINEDLLOVERRIDES="ngen.exe,mscorsvw.exe=b;${WINEDLLOVERRIDES}"
+    export WINEDLLOVERRIDES
 
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
     w_warn "Installing .NET 3.0 runtime silently, as otherwise it gets hidden behind taskbar. Installation usually takes about 3 minutes."
@@ -9109,18 +8917,6 @@ load_dotnet30sp1()
     # I can't find a 64-bit installer anywhere
     w_package_unsupported_win64
 
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=47436" 4.8 4.15
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=48277" 4.16 4.21
-
-    # And a third way, but only with mingw enabled in wine-4.12.1 through wine-4.14
-    w_package_broken_mingw  "https://bugs.winehq.org/show_bug.cgi?id=47484" 4.12.1 4.14
-
-    # crashes on install:
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=49831" 5.17 6.0
-
-    # XpsFilt.dll doesn't get installed (not sure what version exactly causes it, bug 49831 muddies things):
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=50463" 5.17 6.0
-
     # FIXME: URL?
     w_download https://download.microsoft.com/download/8/F/E/8FEEE89D-9E4F-4BA3-993E-0FFEA8E21E1B/NetFx30SP1_x86.exe 3100df4d4db3965ead9520c887a534115cf6fc7ba100abde45226958b865695b
     # Recipe from https://bugs.winehq.org/show_bug.cgi?id=25060#c10
@@ -9132,10 +8928,6 @@ load_dotnet30sp1()
     w_wineserver -w
     w_call dotnet20sp1
     w_wineserver -w
-
-    if w_workaround_wine_bug 47436 "Installing native prntvpt" 4.11,4.15 ;then
-        w_call prntvpt
-    fi
 
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
 
@@ -9243,7 +9035,8 @@ load_dotnet35sp1()
     w_try rm "${WINETRICKS_CACHE_SYMLINK}"
     w_try_cd "${W_TMP}"
     w_try ln -s "${W_CACHE}/${W_PACKAGE}/${file1}" .
-    w_try_ms_installer "${WINE}" dotnetfx35.exe /lang:ENU ${W_OPT_UNATTENDED:+/q}
+
+    WINEDLLOVERRIDES="ngen.exe=n" w_try_ms_installer "${WINE}" dotnetfx35.exe /lang:ENU ${W_OPT_UNATTENDED:+/q}
     w_try rm dotnetfx35.exe
 
     w_set_winver 'default'
@@ -9345,7 +9138,7 @@ load_dotnet40_kb2468871()
     fi
 
     w_try_cd "${W_TMP}"
-    w_try "${WINE}" msiexec /p NDP40-KB2468871.msp
+    WINEDLLOVERRIDES="ngen.exe=n" w_try "${WINE}" msiexec /p NDP40-KB2468871.msp
 
     # See https://bugs.winehq.org/show_bug.cgi?id=47277#c9
     case "${LANG}" in
@@ -9855,6 +9648,56 @@ load_dotnetcoredesktop3()
 
 #----------------------------------------------------------------
 
+w_metadata dotnet6 dlls \
+    title="MS .NET Runtime 6.0 LTS" \
+    publisher="Microsoft" \
+    year="2023" \
+    media="download" \
+    file1="dotnet-runtime-6.0.13-win-x86.exe" \
+    installed_file1="${W_PROGRAMS_WIN}/dotnet/dotnet.exe"
+
+load_dotnet6()
+{
+    # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+    w_download https://download.visualstudio.microsoft.com/download/pr/5f095cbb-af6c-4d20-909d-87db53879370/d4c6f380a9a68fc853bd891189f3c975/dotnet-runtime-6.0.13-win-x86.exe 4ae439fe745e6ac404e346662b32d5f305aa2512b751fe6a4acb4c59e3a50a36
+
+    w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
+    w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
+
+    if [ "${W_ARCH}" = "win64" ]; then
+        # Also install the 64-bit version
+        w_download https://download.visualstudio.microsoft.com/download/pr/436bce6a-f3e7-448e-9279-d58f1e39ab8a/9f5c7ed377294cc8e028e900540632d5/dotnet-runtime-6.0.13-win-x64.exe 59f853f718cb9d089e28393443d0db303934822290af4bf4023a0bf419cb0f9c
+        w_try "${WINE}" "" ${W_OPT_UNATTENDED:+/quiet}
+    fi
+}
+
+#----------------------------------------------------------------
+
+w_metadata dotnetdesktop6 dlls \
+    title="MS .NET Desktop Runtime 6.0 LTS" \
+    publisher="Microsoft" \
+    year="2023" \
+    media="download" \
+    file1="windowsdesktop-runtime-6.0.13-win-x86.exe" \
+    installed_file1="${W_PROGRAMS_WIN}/dotnet/dotnet.exe"
+
+load_dotnetdesktop6()
+{
+    # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+    w_download https://download.visualstudio.microsoft.com/download/pr/d37ab8e6-095b-4f42-bea5-f519b3c62b68/3b87e1c571a3fc49607acc821d3f107a/windowsdesktop-runtime-6.0.13-win-x86.exe bf8f4a1dedf6a056e6139b28d8a9c23cf8893c7e26de8a82528efb652f6f6068
+
+    w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
+    w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
+
+    if [ "${W_ARCH}" = "win64" ]; then
+        # Also install the 64-bit version
+        w_download https://download.visualstudio.microsoft.com/download/pr/4c5e26cf-2512-4518-9480-aac8679b0d08/523f1967fd98b0cf4f9501855d1aa063/windowsdesktop-runtime-6.0.13-win-x64.exe a2e875d7734b468225da5786616bab5bede1b8c4e71c5dd2e4faffa83b34dec5
+        w_try "${WINE}" "windowsdesktop-runtime-6.0.13-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
+    fi
+}
+
+#----------------------------------------------------------------
+
 w_metadata dotnet_verifier dlls \
     title="MS .NET Verifier" \
     publisher="Microsoft" \
@@ -10180,7 +10023,7 @@ helper_galliumnine()
     _W_galliumnine_tmp="${W_TMP}/galliumnine"
 
     w_try rm -rf "${_W_galliumnine_tmp}"
-    w_try mkdir -p "${_W_galliumnine_tmp}"
+    w_try_mkdir "${_W_galliumnine_tmp}"
     w_try tar -C "${_W_galliumnine_tmp}" --strip-components=1 -zxf "${W_CACHE}/${W_PACKAGE}/${_W_galliumnine_archive}"
     w_try mv "${_W_galliumnine_tmp}/lib32/d3d9-nine.dll.so" "${W_SYSTEM32_DLLS}/d3d9-nine.dll"
     w_try mv "${_W_galliumnine_tmp}/bin32/ninewinecfg.exe.so" "${W_SYSTEM32_DLLS}/ninewinecfg.exe"
@@ -10454,7 +10297,7 @@ w_metadata glut dlls \
 
 load_glut()
 {
-    w_download https://press.liacs.nl/researchdownloads/glut.win32/glut-3.7.6-bin.zip 788e97653bfd527afbdc69e1b7c6bcf9cb45f33d13ddf9d676dc070da92f80d4
+    w_download https://downloads.sourceforge.net/colladaloader/glut-3.7.6-bin.zip 788e97653bfd527afbdc69e1b7c6bcf9cb45f33d13ddf9d676dc070da92f80d4
     # FreeBSD unzip rm -rf's inside the target directory before extracting:
     w_try_unzip "${W_TMP}" "${W_CACHE}"/glut/glut-3.7.6-bin.zip
     w_try mv "${W_TMP}/glut-3.7.6-bin" "${W_DRIVE_C}"
@@ -10480,7 +10323,7 @@ load_gmdls()
     w_try_cabextract -d "${W_TMP}" -F gm16.dls "${W_TMP}"/DirectX.cab
 
     # When running in a 64bit prefix, syswow64/drivers doesn't exist
-    w_try mkdir -p "${W_SYSTEM32_DLLS}"/drivers
+    w_try_mkdir "${W_SYSTEM32_DLLS}"/drivers
     w_try mv "${W_TMP}"/gm16.dls "${W_SYSTEM32_DLLS}"/drivers/gm.dls
 
     if test "${W_ARCH}" = "win64"; then
@@ -10999,7 +10842,7 @@ load_mdx()
             w_try_cd "${ver}"
             for asm in *.dll; do
                 name="${asm%%.dll}"
-                w_try mkdir -p "${W_WINDIR_UNIX}/assembly/GAC/${name}/${ver}__31bf3856ad364e35"
+                w_try_mkdir "${W_WINDIR_UNIX}/assembly/GAC/${name}/${ver}__31bf3856ad364e35"
                 w_try cp "${asm}" "${W_WINDIR_UNIX}/assembly/GAC/${name}/${ver}__31bf3856ad364e35"
             done
         )
@@ -11441,21 +11284,20 @@ load_msxml4()
 w_metadata msxml6 dlls \
     title="MS XML Core Services 6.0 sp2" \
     publisher="Microsoft" \
-    year="2009" \
+    year="2014" \
     media="download" \
-    file1="msxml6-KB973686-enu-amd64.exe" \
+    file1="msxml6-KB2957482-enu-amd64.exe" \
     installed_file1="${W_SYSTEM32_DLLS_WIN}/msxml6.dll"
 
 load_msxml6()
 {
     # Service Pack 2
-    # https://www.microsoft.com/en-us/download/details.aspx?id=9774
+    # https://www.microsoft.com/en-us/download/details.aspx?id=43253
 
     # 64bit exe also includes 32bit dlls
-    # Originally here: https://download.microsoft.com/download/1/5/8/158F681A-E595-472B-B15E-62B649B1B6FF/msxml6-KB973686-enu-amd64.exe
-    w_download https://web.archive.org/web/20190122095451/https://download.microsoft.com/download/1/5/8/158F681A-E595-472B-B15E-62B649B1B6FF/msxml6-KB973686-enu-amd64.exe 0e5c4af488e88e8defb59de80271671d8283d5744b2eebdb351bbd4950fb0883
+    w_download https://download.microsoft.com/download/2/7/7/277681BE-4048-4A58-ABBA-259C465B1699/msxml6-KB2957482-enu-amd64.exe 260cd870851ffc3c6d10b71691f134e20d8d03ac26073bb36951eacb7aa85897
 
-    w_try_cabextract --directory="${W_TMP}" "${W_CACHE}"/msxml6/msxml6-KB973686-enu-amd64.exe
+    w_try_cabextract --directory="${W_TMP}" "${W_CACHE}"/msxml6/msxml6-KB2957482-enu-amd64.exe
     w_try_cabextract --directory="${W_TMP}" "${W_TMP}"/msxml6.msi
     w_try_cp_dll "${W_TMP}"/msxml6.dll.86F857F6_A743_463D_B2FE_98CB5F727E09 "${W_SYSTEM32_DLLS}"/msxml6.dll
     w_try_cp_dll "${W_TMP}"/msxml6r.dll.86F857F6_A743_463D_B2FE_98CB5F727E09 "${W_SYSTEM32_DLLS}"/msxml6r.dll
@@ -12207,7 +12049,7 @@ load_speechsdk()
 
     # If sapi.dll isn't in original location, applications won't start, see
     # e.g., https://bugs.winehq.org/show_bug.cgi?id=43841
-    mkdir -p "${W_SYSTEM32_DLLS}/Speech/Common/"
+    w_try_mkdir "${W_SYSTEM32_DLLS}/Speech/Common/"
     w_try ln -s "${W_COMMONFILES_X86}/Microsoft Shared/Speech/sapi.dll" "${W_SYSTEM32_DLLS}/Speech/Common"
 
     w_override_dlls native sapi
@@ -14702,16 +14544,11 @@ load_adobe_diged4()
 
     #w_call win7
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
-    if w_workaround_wine_bug 46019 "Installer fails under wine, manually unpacking it instead" ,4.6; then
+    if test "${W_OPT_UNATTENDED}"; then
+        # Silent install (/S) pops up an advertisement that AHK has trouble dismissing
         w_try_7z "${W_PROGRAMS_X86_UNIX}/Adobe/Adobe Digital Editions 4.5" "${file1}" -y
     else
-        w_ahk_do "
-            SetTitleMatchMode, 2
-            run, ${file1} ${W_OPT_UNATTENDED:+ /S}
-            winwait, Installing Adobe Digital Editions
-            ControlClick, Button1 ; Don't install Norton Internet Security
-            ControlClick, Static19 ; Next
-        "
+        "${WINE}" "${file1}"
     fi
 }
 
@@ -14722,14 +14559,14 @@ w_metadata autohotkey apps \
     publisher="autohotkey.org" \
     year="2010" \
     media="download" \
-    file1="AutoHotkey104805_Install.exe" \
+    file1="AutoHotkey_1.1.36.01_setup.exe" \
     installed_exe1="${W_PROGRAMS_X86_WIN}/AutoHotkey/AutoHotkey.exe"
 
 load_autohotkey()
 {
-    w_download https://github.com/AutoHotkey/AutoHotkey/releases/download/v1.0.48.05/AutoHotkey104805_Install.exe 4311c3e7c29ed2d67f415138360210bc2f55ff78758b20b003b91d775ee207b9
+    w_download https://github.com/AutoHotkey/AutoHotkey/releases/download/v1.1.36.01/AutoHotkey_1.1.36.01_setup.exe 62734d219f14a942986e62d6c0fef0c2315bc84acd963430aed788c36e67e1ff
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
-    w_try "${WINE}" AutoHotkey104805_Install.exe ${W_OPT_UNATTENDED:+/S}
+    w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/S}
 }
 
 #----------------------------------------------------------------
@@ -14788,7 +14625,7 @@ load_colorprofile()
     w_try_unzip "${W_TMP}" "${W_CACHE}"/colorprofile/ColorProfile.exe
 
     # It's in system32 for both win32/win64
-    mkdir -p "${W_WINDIR_UNIX}"/system32/spool/drivers/color
+    w_try_mkdir "${W_WINDIR_UNIX}"/system32/spool/drivers/color
     w_try cp -f "${W_TMP}/sRGB Color Space Profile.icm" "${W_WINDIR_UNIX}"/system32/spool/drivers/color
 }
 
@@ -14835,7 +14672,7 @@ load_controlspy()
     # 2019/04/11: changed to https://github.com/pywinauto/pywinauto/blob/master/apps/ControlSpy_20/ControlSpyV6.exe
     # Unfortunately that means no V5 of ControlSpy :/
     w_download https://github.com/pywinauto/pywinauto/blob/master/apps/ControlSpy_20/ControlSpyV6.exe
-    w_try mkdir -p "${W_PROGRAMS_X86_UNIX}/Microsoft/ControlSpy"
+    w_try_mkdir "${W_PROGRAMS_X86_UNIX}/Microsoft/ControlSpy"
     w_try cp "${W_CACHE}/${W_PACKAGE}/${file1}" "${W_PROGRAMS_X86_UNIX}/Microsoft/ControlSpy"
 }
 
@@ -14859,7 +14696,7 @@ load_dxdiag()
 
     w_try_cabextract -d "${W_TMP}" -L -F dxnt.cab "${W_CACHE}"/directx9/${DIRECTX_NAME}
     w_try_cabextract -d "${W_SYSTEM32_DLLS}" -L -F "dxdiag.exe" "${W_TMP}/dxnt.cab"
-    mkdir -p "${W_WINDIR_UNIX}/help"
+    w_try_mkdir "${W_WINDIR_UNIX}/help"
     w_try_cabextract -d "${W_WINDIR_UNIX}/help" -L -F "dxdiag.chm" "${W_TMP}/dxnt.cab"
     w_override_dlls native dxdiag.exe
 
@@ -15254,7 +15091,7 @@ load_ie7()
     w_download https://github.com/Winetricks/winetricks/raw/master/files/winetest.cat 5d18ab44fc289100ccf4b51cf614cc2d36f7ca053e557e2ba973811293c97d38
 
     # Put a dummy catalog file in place
-    mkdir -p "${W_SYSTEM32_DLLS}"/catroot/\{f750e6c3-38ee-11d1-85e5-00c04fc295ee\}
+    w_try_mkdir "${W_SYSTEM32_DLLS}"/catroot/\{f750e6c3-38ee-11d1-85e5-00c04fc295ee\}
     w_try cp -f "${W_CACHE}"/ie7/winetest.cat "${W_SYSTEM32_DLLS}"/catroot/\{f750e6c3-38ee-11d1-85e5-00c04fc295ee\}/oem0.cat
 
     # KLUDGE: if / is writable (as on OS X?), having a Z: mapping to it
@@ -15362,7 +15199,7 @@ load_ie8()
     w_download https://github.com/Winetricks/winetricks/raw/master/files/winetest.cat 5d18ab44fc289100ccf4b51cf614cc2d36f7ca053e557e2ba973811293c97d38
 
     # Put a dummy catalog file in place
-    mkdir -p "${W_SYSTEM32_DLLS}"/catroot/\{f750e6c3-38ee-11d1-85e5-00c04fc295ee\}
+    w_try_mkdir "${W_SYSTEM32_DLLS}"/catroot/\{f750e6c3-38ee-11d1-85e5-00c04fc295ee\}
     w_try cp -f "${W_CACHE}"/ie8/winetest.cat "${W_SYSTEM32_DLLS}"/catroot/\{f750e6c3-38ee-11d1-85e5-00c04fc295ee\}/oem0.cat
 
     if [ "${W_ARCH}" = "win32" ]; then
@@ -16335,9 +16172,9 @@ load_qq()
     if w_workaround_wine_bug 38171 "Installing desktop file to work around bug"; then
         w_try_cd "${W_TMP}/"
         tar -zxf "${W_CACHE}/qq/QQ.tar.gz"
-        mkdir -p "${HOME}/.local/share/applications/wine/Programs/腾讯软件/QQ"
-        mkdir -p "${HOME}/.local/share/icons/hicolor/48x48/apps"
-        mkdir -p "${HOME}/.local/share/icons/hicolor/256x256/apps"
+        w_try_mkdir "${HOME}/.local/share/applications/wine/Programs/腾讯软件/QQ"
+        w_try_mkdir "${HOME}/.local/share/icons/hicolor/48x48/apps"
+        w_try_mkdir "${HOME}/.local/share/icons/hicolor/256x256/apps"
         w_try mv QQ/腾讯QQ.desktop ~/.local/share/applications/wine/Programs/腾讯软件/QQ
         w_try mv QQ/48x48/QQ.png ~/.local/share/icons/hicolor/48x48/apps
         w_try mv QQ/256x256/QQ.png ~/.local/share/icons/hicolor/256x256/apps
@@ -16987,8 +16824,6 @@ load_wmp9()
 {
     w_skip_windows wmp9 && return
 
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=52772" 6.6
-
     # Not really expected to work well yet; see
     # https://appdb.winehq.org/appview.php?versionId=1449
 
@@ -17012,15 +16847,18 @@ load_wmp9()
     # Wine's pidgen is too stubby, crashes, see Wine bug 31111
     w_override_app_dlls MPSetup.exe native pidgen
 
-    w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
+    # The installer doesn't work in modern wine, in either 32 or 64-bit prefixes.
+    # https://bugs.winehq.org/show_bug.cgi?id=52772
+    # Luckily, it's just a wrapper for the real installer, which does still work:
+    w_try_cd "${W_TMP}"
+    w_try_cabextract "${W_CACHE}/${W_PACKAGE}/MPSetup.exe"
     if [ "${W_ARCH}" = "win64" ]; then
-        w_try_cabextract -d "${W_TMP}" ./MPSetup.exe
-        w_try_cd "${W_TMP}"
+        # https://github.com/Winetricks/winetricks/issues/1087
         w_try sed -i 's/IsWow64Process/IsNow64Process/' setup_wm.exe
         w_try "${WINE}" setup_wm.exe ${W_OPT_UNATTENDED:+/Quiet}
         w_warn "wm9codecs is not supported in win64 prefixes. If you need those codecs, reinstall wmp9 in a 32-bit prefix."
     else
-        w_try "${WINE}" MPSetup.exe ${W_OPT_UNATTENDED:+/q}
+        w_try "${WINE}" setup_wm.exe ${W_OPT_UNATTENDED:+/Quiet}
         load_wm9codecs
     fi
 
@@ -17634,17 +17472,6 @@ load_aoe3_demo()
         }
         WinWaitClose
     "
-
-    if w_workaround_wine_bug 24912 "Killing off lingering installer" ,4.19; then
-        # kill off lingering installer
-        w_ahk_do "
-            SetTitleMatchMode, 2
-            WinKill,Empires
-        "
-        # or should we just do w_wineserver -k, like fable_tlc does?
-        # shellcheck disable=SC2046
-        kill $(pgrep -f IDriver)
-    fi
 }
 
 #----------------------------------------------------------------
@@ -18803,7 +18630,7 @@ load_deadspace2()
         w_mount Disc2
         # On Linux, use symlinks for disc 2.  (On Cygwin, we'd have to copy.)
         w_try ln -s "${W_ISO_MOUNT_ROOT}"/*.dat .
-        mkdir -p movies/en movies/fr
+        w_try_mkdir movies/en movies/fr
         w_try ln -s "${W_ISO_MOUNT_ROOT}"/movies/en/* movies/en/
         w_try ln -s "${W_ISO_MOUNT_ROOT}"/movies/fr/* movies/fr/
         # Make the files writable, otherwise you'll get errors when trying to remove the temp directory.
@@ -19157,11 +18984,6 @@ load_dragonage()
     else
         cp -f "${ini}" "${ini}.old"
     fi
-
-    if w_workaround_wine_bug 22557 "Setting UseVSync=0 to avoid black menu" ,4.15; then
-        sed 's,UseVSync=1,UseVSync=0,' < "${ini}" > "${ini}.new"
-        mv -f "${ini}.new" "${ini}"
-    fi
 }
 
 #----------------------------------------------------------------
@@ -19226,14 +19048,6 @@ load_dragonage_ue()
         }
         winwaitclose
     "
-
-    if w_workaround_wine_bug 23730 "Run with WINEDEBUG=-all to reduce flickering" ,4.15; then
-        :
-    fi
-
-    if w_workaround_wine_bug 23081 "If you still see flickering, try applying the patch from https://bugs.winehq.org/show_bug.cgi?id=23081" ,4.15; then
-        :
-    fi
 
     w_warn "To activate the additional content, visit https://social.bioware.com/redeem_code.php?path=/dragonage/pc/dlcactivate/en"
 }
@@ -19414,20 +19228,6 @@ REGEDIT4
 
 _EOF_
     try_regedit "${W_TMP_WIN}\\${W_PACKAGE}.reg"
-
-    if w_workaround_wine_bug 24912 "Killing off lingering installer" ,4.19; then
-        # kill off lingering installer
-        w_ahk_do "
-            SetTitleMatchMode, 2
-            WinKill,Fable
-        "
-        w_killall IDriverT.exe
-        w_killall IDriver.exe
-    fi
-
-    if w_workaround_wine_bug 20074 "Installing native d3dx9_36" ,4.18; then
-        w_call d3dx9_36
-    fi
 }
 
 #----------------------------------------------------------------
@@ -19560,7 +19360,7 @@ load_mfsxde()
         w_try_cd "${W_CACHE}/${W_PACKAGE}"
         # Copy takes a LONG time, so offer a way to avoid copy while debugging verb
         if test ! -f bothdiscs/setup.exe; then
-            mkdir bothdiscs
+            w_try_mkdir bothdiscs
             w_try_cd bothdiscs
             w_try cp -R "${W_ISO_MOUNT_ROOT}"/* .
 
@@ -20448,10 +20248,6 @@ load_oblivion()
         }
         winwaitclose, Oblivion, Complete
     "
-
-    if w_workaround_wine_bug 20074 "Installing native d3dx9_36" ,4.18; then
-        w_call d3dx9_36
-    fi
 }
 
 #----------------------------------------------------------------
@@ -22620,7 +22416,7 @@ load_hosts()
     # See https://bugs.winehq.org/show_bug.cgi?id=12076
 
     # It's in system32 for both win32/win64
-    mkdir -p "${W_WINDIR_UNIX}"/system32/drivers/etc
+    w_try_mkdir "${W_WINDIR_UNIX}"/system32/drivers/etc
     touch "${W_WINDIR_UNIX}"/system32/drivers/etc/hosts
     touch "${W_WINDIR_UNIX}"/system32/drivers/etc/services
 }
@@ -22645,7 +22441,7 @@ load_isolate_home()
         elif echo "${_W_target}" | grep -q "^${HOME}"; then
             echo "removing directory symlink ${_W_symlink} -> ${_W_target} ..."
             w_try rm -f "${_W_symlink}"
-            w_try mkdir -p "${_W_symlink}"
+            w_try_mkdir "${_W_symlink}"
         else
             echo "leaving data directory symlink not pointing to \$HOME: ${_W_symlink} -> ${_W_target}"
         fi
@@ -22667,11 +22463,7 @@ load_native_mdac()
 {
     # Set those overrides globally so user programs get MDAC's ODBC
     # instead of Wine's unixodbc
-
-    # https://github.com/Winetricks/winetricks/issues/1447
-    if w_wine_version_in 4.22, ; then
-        w_override_dlls native,builtin msado15
-    fi
+    w_override_dlls native,builtin msado15
 
     # For a while, this wasn't set (i.e., it was set to `builtin`, not `native,builtin`)
     # See:
@@ -22805,7 +22597,6 @@ w_metadata nt351 settings \
 load_nt351()
 {
     w_package_unsupported_win64
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
     w_set_winver nt351
 }
 
@@ -22841,7 +22632,6 @@ w_metadata win20 settings \
 load_win20()
 {
     w_package_unsupported_win64
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
     w_set_winver win20
 }
 
@@ -22899,7 +22689,6 @@ w_metadata win30 settings \
 load_win30()
 {
     w_package_unsupported_win64
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
     w_set_winver win30
 }
 
@@ -22992,7 +22781,6 @@ w_metadata winme settings \
 load_winme()
 {
     w_package_unsupported_win64
-    w_package_broken "https://bugs.winehq.org/show_bug.cgi?id=41559" "" "5.7"
     w_set_winver winme
 }
 
@@ -23026,7 +22814,7 @@ winetricks_stats_save()
     # Save opt-in status
     if test "${WINETRICKS_STATS_REPORT}"; then
         if test ! -d "${W_CACHE}"; then
-            mkdir -p "${W_CACHE}"
+            w_try_mkdir "${W_CACHE}"
         fi
         echo "${WINETRICKS_STATS_REPORT}" > "${W_CACHE}"/track_usage
     fi
@@ -23162,7 +22950,7 @@ winetricks_stats_log_command()
         *) _W_LOGDIR="${WINEPREFIX}" ;;
     esac
 
-    mkdir -p "${_W_LOGDIR}"
+    w_try_mkdir "${_W_LOGDIR}"
     echo "$*" >> "${_W_LOGDIR}"/winetricks.log
     unset _W_LOGDIR
 }

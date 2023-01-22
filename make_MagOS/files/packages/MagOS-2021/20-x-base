@@ -135,6 +135,7 @@ hicolor-icon-theme
 i3lock
 i3status
 i3-wm
+i3-wm-mini
 iceauth
 imagemagick
 intltool
@@ -1559,3 +1560,5 @@ lib64gtk-vnc2.0_0
 lib64gvnc-gir2.0
 lib64gvnc1.0_0
 lib64gvncpulse1.0_0
+lib64md0
+lib64vte-gir2.91
