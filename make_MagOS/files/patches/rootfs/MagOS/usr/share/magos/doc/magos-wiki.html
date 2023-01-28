@@ -1608,11 +1608,11 @@ MagOS ~ # passwd user
 Повторите ввод нового пароля : 
 passwd: все данные аутентификации успешно обновлены.
 
-MagOS ~ # egrep "^root:|^user:" /etc/shadow
+MagOS ~ # grep -E "^root:|^user:" /etc/shadow
 user:$6$Eu1YImjA26czmPCZ$dZsOiwqkcMzxJ3XHHzfB1QEhAVurLtKT5HYTYz8lv5P/oOFUKWmxXj5cdeIMWW8mnIefa1BrLKdU2ojEN4TZB.:17800:0:99999:7:::
 root:$6$OPovNx99TQB28THt$YEWiGwVowag5W5ThpGyT6ZiEcTMdRirPW0jUyXyen/UqyoEYyi5GWTULoIZx6gjCjq56nUTRAp3f0v4VC/8e2/:17800:0:99999:7:::
 
-MagOS ~ # egrep "^root:|^user:" /etc/shadow | awk -F: '{print $1 " " $2}'
+MagOS ~ # grep -E "^root:|^user:" /etc/shadow | awk -F: '{print $1 " " $2}'
 user $6$Eu1YImjA26czmPCZ$dZsOiwqkcMzxJ3XHHzfB1QEhAVurLtKT5HYTYz8lv5P/oOFUKWmxXj5cdeIMWW8mnIefa1BrLKdU2ojEN4TZB.
 root $6$OPovNx99TQB28THt$YEWiGwVowag5W5ThpGyT6ZiEcTMdRirPW0jUyXyen/UqyoEYyi5GWTULoIZx6gjCjq56nUTRAp3f0v4VC/8e2/
 </code></pre>

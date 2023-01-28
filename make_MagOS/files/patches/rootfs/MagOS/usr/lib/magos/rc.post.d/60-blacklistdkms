@@ -14,7 +14,7 @@ WHITELISTMODULES="$(cmdline_value whitelist | tr ',;' ' ')"
 echo -n > /etc/modprobe.d/blacklist-magos-dkms.conf
 
 LC_ALL=C lspci -k | grep "Kernel modules: " | grep ", " | sed s/.*"Kernel modules: "// | sed s/", "/"\n"/g > /tmp/kernel_mods_lspci
-find /var/lib/dkms-binary -type f | egrep -v "nvidia|virtualbox|vbox" | egrep .ko$"|".ko.xz | gawk -F/ '{print $NF}' | sed s/[.]ko.*// | sort -u | grep -f /tmp/kernel_mods_lspci | while read a ;do
+find /var/lib/dkms-binary -type f | grep -vE "nvidia|virtualbox|vbox" | grep -E .ko$"|".ko.xz | gawk -F/ '{print $NF}' | sed s/[.]ko.*// | sort -u | grep -f /tmp/kernel_mods_lspci | while read a ;do
     lspci -nn | grep -q -f /usr/share/magos/hwdata/dkms/$a 2>/dev/null && continue
     echo "$WHITELISTMODULES" | grep -q "$a" && continue
     modprobe -r "$a" 2>/dev/null

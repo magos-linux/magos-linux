@@ -22,7 +22,7 @@ cp -pf files/$MARCH/SOURCES/* ~/rpmbuild/SOURCES
 if cp -fv files/$MARCH/SPECS/* ~/rpmbuild/SPECS | grep -q . ;then
    MYPATH="$PWD"
    cd ~/rpmbuild/SPECS
-   find | egrep '.patch$|.diff$' | sort | while read a ;do
+   find | grep -E '.patch$|.diff$' | sort | while read a ;do
      echo $a
      patch -N -p1 -i $a || exit 1
    done

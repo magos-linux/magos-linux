@@ -34,7 +34,7 @@ rm -fr 2>/dev/null \
 [ -d usr/share/wallpapers ] && for a in usr/share/wallpapers/* ;do [ -d "$a" ] && rm -fr "$a" ; done
 
 #Kill big icons to save some space
-[ -d usr/share/icons ] && for a in `find usr/share/icons -type d | egrep -e '[x/]512$|[x/]256$|/128x128$' ` ;do  rm -fr "$a" ; done
+[ -d usr/share/icons ] && for a in `find usr/share/icons -type d | grep -E -e '[x/]512$|[x/]256$|/128x128$' ` ;do  rm -fr "$a" ; done
 
 #KDE
 rm -fr 2>/dev/null usr/share/autostart/kaddressbookmigrator.desktop \

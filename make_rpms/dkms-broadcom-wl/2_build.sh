@@ -4,7 +4,7 @@ mkdir -p rpmbuild/SOURCES rpmbuild/SPECS rpms srpms
 cp -pf SOURCES/* rpmbuild/SOURCES
 cp -pf SPECS/* rpmbuild/SPECS
 cd rpmbuild/SPECS
-find | egrep '.patch$|.diff$' | while read a ;do
+find | grep -E '.patch$|.diff$' | while read a ;do
   echo $a
   patch -p1 -i $a || exit 1
 done

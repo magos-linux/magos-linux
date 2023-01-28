@@ -55,9 +55,9 @@ STATUS(){
 	 else 
 	 status=${status}" "f_disabled
 	fi
-	if ls $path/machines/static |egrep -q "$SAVETOMODULENAME" ; then
+	if ls $path/machines/static | grep -qE "$SAVETOMODULENAME" ; then
 		status=${status}" "static" "${path}/machines/static/${SAVETOMODULENAME}
-	elif 	ls $path/machines/dynamic |egrep -q "$SAVETOMODULENAME" ; then 
+	elif 	ls $path/machines/dynamic | grep -qE "$SAVETOMODULENAME" ; then 
 		status=${status}" "dynamic" "${path}/machines/dynamic/${SAVETOMODULENAME}
 	else
 		status=${status}" "no_saves" "${path}/machines/dynamic/${SAVETOMODULENAME}

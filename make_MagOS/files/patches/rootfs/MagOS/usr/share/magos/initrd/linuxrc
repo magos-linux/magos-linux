@@ -150,7 +150,7 @@ INIFILE=$(cmdline_value config)
 [ -f "$DATAMNT/$INIFILE" ] && PATHINI="$DATAMNT/$INIFILE"
 [ -z "$PATHINI" ] || echolog "using $PATHINI config file"
 [ -z "$PATHINI" ] && PATHINI=/dev/null
-egrep -v '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /tmp/$LIVECDNAME.ini.gz
+grep -vE '^#|^$' "$PATHINI" | sed s-\\\\r-- | gzip > /tmp/$LIVECDNAME.ini.gz
 grep '^CMDLINE=' "$PATHINI" | sed s/^CMDLINE=// | tr -d [:cntrl:]\'\" >/tmp/cmdline
 chmod 400 /tmp/$LIVECDNAME.ini.gz /tmp/cmdline 2>/dev/null
 

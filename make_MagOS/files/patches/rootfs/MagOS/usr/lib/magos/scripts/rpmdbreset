@@ -10,7 +10,7 @@ usage()
    echo "        It may be slow."
    echo "--erase Will clear changes in rootfs (/mnt/live/memory/changes/var/lib/rpm)."
    echo "        It is usefull for save change mode. It works after reboot."
-   echo "MASK - the mask (egrep format) and egrep keys for modules list where $(basename $0) will search rpm data base files"
+   echo "MASK - the mask (grep -E format) and grep keys for modules list where $(basename $0) will search rpm data base files"
    echo "default MASK - \".\""
    echo "clean   -  special mask value "clean" to choose base magos modules only"
    echo "example: $(basename $0) --copy '-v 99-saves' "
@@ -51,7 +51,7 @@ if [ -f /etc/initvars ] ; then
 fi
 
 function rebuild () {
-	lsbundles=$(aufs-n --raw '$bname_source' |awk -F. '{print $1}' | egrep $MASK)
+	lsbundles=$(aufs-n --raw '$bname_source' |awk -F. '{print $1}' | grep -E $MASK)
 	lsrpmlists=$(ls /var/lib/rpm/modules |grep -v '81\-int\-')
 	diff=$(echo -e "${lsbundles}\n${lsrpmlists}" | sort | uniq -u)
 	deactivated=$(echo -e "${diff}\n${lsrpmlists}" | sort | uniq -d)
@@ -76,7 +76,7 @@ case "$1" in
      echo remove rpm DB ...
      rm -fr /var/lib/rpm/*
      echo copy initial rpm DB ...
-     find "$IMGPATH" -maxdepth 4 -path "*/var/lib/rpm" | egrep $MASK | sort | while read a ; do
+     find "$IMGPATH" -maxdepth 4 -path "*/var/lib/rpm" | grep -E $MASK | sort | while read a ; do
        echo  "$a -> /var/lib/rpm"
        cp  -rf "$a"/* /var/lib/rpm
      done

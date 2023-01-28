@@ -37,8 +37,8 @@ do
 # 2 Display the results!
 
 # Print a little repport about how many failed and how many passed
-NumberOK=`cat /tmp/checktext.txt | fgrep -o -e "$Passed" | wc -l`
-NumberFailed=`cat /tmp/checktext.txt | fgrep -o -e "$Failed" | wc -l`
+NumberOK=`cat /tmp/checktext.txt | grep -F -o -e "$Passed" | wc -l`
+NumberFailed=`cat /tmp/checktext.txt | grep -F -o -e "$Failed" | wc -l`
    if [ $NumberFailed == 0 ]; then
        StatusMessage="$PrintAllOk"
    else

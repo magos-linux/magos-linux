@@ -22,7 +22,7 @@ ln -sf "$SSAVERTHEME" "$SSSYSDIR"
 # selecting file for default wallpaper
 [ -z "$BACKGROUND" ] && BACKGROUND="$WPDEFDIR"
 [ -r "$BACKGROUND" ] || BACKGROUND="$WPSYSDIR"
-[ -d "$BACKGROUND" ] && BACKGROUND=$(find -L "$BACKGROUND" | egrep -i "[.]jpeg$|[.]jpg$" | sort -R | head -1)
+[ -d "$BACKGROUND" ] && BACKGROUND=$(find -L "$BACKGROUND" | grep -iE "[.]jpeg$|[.]jpg$" | sort -R | head -1)
 [ -f "$BACKGROUND" ] || exit 0
 rm -f "$WPDEFFILE"
 cp -Lpf "$BACKGROUND" "$WPDEFFILE"

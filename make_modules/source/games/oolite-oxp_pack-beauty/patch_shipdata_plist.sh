@@ -6,7 +6,7 @@ if ! [ "$FILE" ] ;then
    exit 1
 fi
 grep -q 'griff_explosionScript.js' "$FILE" && exit 0
-grep 'roles = ' $FILE | egrep 'hunter|trader|buoy|miner|escort|shuttle|police|interceptor|wingman|pirate' | \
+grep 'roles = ' $FILE | grep -E 'hunter|trader|buoy|miner|escort|shuttle|police|interceptor|wingman|pirate' | \
   sort -u | while read a ;do
       STR=$(echo "$a"| sed s/\"/./g)
       echo $STR

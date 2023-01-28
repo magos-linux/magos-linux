@@ -22,7 +22,7 @@ function t_echo()
 # Find out which partition or disk are we using
 MYMNT=$(cd -P $(dirname $0) ; pwd)
 while [ "$MYMNT" != "" -a "$MYMNT" != "." -a "$MYMNT" != "/" ]; do
-   TARGET=$(egrep "[^[:space:]]+[[:space:]]+$MYMNT[[:space:]]+" /proc/mounts | cut -d " " -f 1)
+   TARGET=$(grep -E "[^[:space:]]+[[:space:]]+$MYMNT[[:space:]]+" /proc/mounts | cut -d " " -f 1)
    if [ "$TARGET" != "" ]; then break; fi
    MYMNT=$(dirname "$MYMNT")
 done

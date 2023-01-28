@@ -24,7 +24,7 @@ if [ "$MODULE" = "" -o ! -e "$MODULE" -o -d "$MODULE" ]; then
    exit 1
 fi
 
-if ! echo $MODULE | egrep -qi 'lzm|xzm|rom|enc' ;then
+if ! echo $MODULE | grep -qiE 'lzm|xzm|rom|enc' ;then
    echo 
    echo "$(basename $MODULE): Module must end with .xzm .lzm .rwm .rom .enc"
    exit 2

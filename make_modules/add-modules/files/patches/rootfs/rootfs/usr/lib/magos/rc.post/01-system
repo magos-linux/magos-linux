@@ -9,7 +9,7 @@ ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
 # If Linux installed on n[t]fs we have to omit killing rootfilesystem mounter when system halt.
-ps -A | egrep 'ntfsmount|rpciod|nfsiod|httpfs|curlftpfs' | awk '{ print $1 }' >> /var/run/sendsigs.omit
+ps -A | grep -E 'ntfsmount|rpciod|nfsiod|httpfs|curlftpfs' | awk '{ print $1 }' >> /var/run/sendsigs.omit
 
 # Correcting /etc/mtab
 for a in `grep /mnt/ /proc/mounts | grep -v '/mnt/live[ /]' | awk '{print $2}'` ;do

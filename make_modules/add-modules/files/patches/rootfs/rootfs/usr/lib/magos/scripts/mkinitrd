@@ -192,7 +192,7 @@ done
 
 echo "copying network modules"
 for mod in $(list_network_drivers); do
-   cat /lib/modules/$KERNEL/modules.dep | fgrep /$mod.ko | while read LINE; do
+   cat /lib/modules/$KERNEL/modules.dep | grep -F /$mod.ko | while read LINE; do
       for dep in $(echo $LINE | tr -d ":" ); do
          copy_mod $dep $KERNEL || exit 1
       done

@@ -90,7 +90,7 @@ fi
 #выводим сообщение, что модем найден и запускаем получение кода оператора в цикле
 
 operator=$(get_op)
-if ! echo $operator |egrep ^[[:digit:]]{5}$ ; then
+if ! echo $operator | grep -E ^[[:digit:]]{5}$ ; then
 [ "$QUIET" != "yes" ] && mdialog --passivepopup "$MSG4"
 operator=unknown
 fi
@@ -98,7 +98,7 @@ fi
 counter=$TIMEOUT
 while [ "$operator" == "unknown" -a "$counter" -ne 0 ] ; do
    operator=$(get_op)
-   echo $operator |egrep ^[[:digit:]]{5}$ || operator=unknown
+   echo $operator |grep -E ^[[:digit:]]{5}$ || operator=unknown
    sleep 1
    counter=$(($counter - 1))
 done

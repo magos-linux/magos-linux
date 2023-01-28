@@ -148,7 +148,7 @@ else
     installpackage "$a" "$TMPDIR/install_log1.txt"
   done
 fi
-egrep -v "$NOTAERROR" "$TMPDIR/install_log1.txt" | grep -q .  && stop "Ошибки при установке пакетов. Проверьте файл $TMPDIR/install_log1.txt"
+grep -vE "$NOTAERROR" "$TMPDIR/install_log1.txt" | grep -q .  && stop "Ошибки при установке пакетов. Проверьте файл $TMPDIR/install_log1.txt"
 makedev "$ROOTFS/orig/dev"
 cd "$TMPDIR"
 
@@ -168,8 +168,8 @@ if grep -q . "notinstalled" ;then
 fi
 
 echo -e "\nОбработка журналов установки"
-cat "$TMPDIR/install_log1.txt" "$TMPDIR/install_log2.txt" "$TMPDIR/install_log3.txt" 2>/dev/null | egrep -v "$NOTAERROR"  > "$TMPDIR/tmp/install_log"
-egrep "[.]noarch$|[.]x86_64$|[.]i586$" "$TMPDIR/tmp/install_log" > "$TMPDIR/tmp/install_list"
+cat "$TMPDIR/install_log1.txt" "$TMPDIR/install_log2.txt" "$TMPDIR/install_log3.txt" 2>/dev/null | grep -vE "$NOTAERROR"  > "$TMPDIR/tmp/install_log"
+grep -E "[.]noarch$|[.]x86_64$|[.]i586$" "$TMPDIR/tmp/install_log" > "$TMPDIR/tmp/install_list"
 diff -u1 -aup "$TMPDIR/tmp/install_log" "$TMPDIR/tmp/install_list" | sed  /^@@/d  > "$TMPDIR/install_errors.diff"
 
 echo -e "\nИзменение дистрибутива"

@@ -18,7 +18,7 @@ DEFAULTFILE=bluesth.jpg
 echo "$XORG_RES" | grep -q ^[0-9]*x[0-9]*$ || XORG_RES=1024x768
 
 SOURCE="$BACKGROUND"
-[ -d "$SOURCE" ] && SOURCE=$(find "$SOURCE" | egrep -i "[.]jpeg$|[.]jpg$" | sort -R | head -1)
+[ -d "$SOURCE" ] && SOURCE=$(find "$SOURCE" | grep -iE "[.]jpeg$|[.]jpg$" | sort -R | head -1)
 [ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/$BACKGROUND.jpg"
 [ -f "$SOURCE" ] || SOURCE="$DEFAULTDIR/$DEFAULTFILE"
 
@@ -58,7 +58,7 @@ else
 fi
 
 [ "$GRAFFITI" != "no" ] && \
-   egrep -q '^root\:\$2a\$08\$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji|^user\:\$2a\$08\$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2' /etc/shadow && \
+   grep -qE '^root\:\$2a\$08\$6Sd1ei3xkrWq21ypHSlgZOOlViPgyi4u.g7P0hZgpHx43cWwjO/Ji|^user\:\$2a\$08\$7zaCsmtvyXcGKVC3jRkUkeLnscv6s0mkXJ4GnJfrMzgmcMZzvF2a2' /etc/shadow && \
    convert $DEFAULTDIR/default.jpg  -gravity NorthWest -stroke '#000C' -strokewidth 1 \
        -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' -stroke  none  -fill red \
        -annotate 0 ' Warning: passwords are default - user:magos, root:toor ' $DEFAULTDIR/default.jpg

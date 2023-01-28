@@ -19,9 +19,9 @@ debug_mode "$0" "$@"
 FNAME=etc/MagOS/config
 FMOD=
 touch $FNAME
-gunzip -c $INIGZFILE | egrep '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
-gunzip -c $INIGZFILE | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
-   echo "$a" | egrep -q '^[[:space:]]*#|^[[:space:]]*$' && continue
+gunzip -c $INIGZFILE | grep -E '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
+gunzip -c $INIGZFILE | grep -vE '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
+   echo "$a" | grep -qE '^[[:space:]]*#|^[[:space:]]*$' && continue
    if echo "$a" | grep -q "^\[.*\][[:space:]]*" ;then
       FNAME=`echo "$a" | tr '[]' '|' | awk -F'|' '{print $2}' | sed s-^/--`
       FMOD=`echo "$a" | tr '[]' '|' | awk -F'|' '{print $3}' | tr -d ' '`

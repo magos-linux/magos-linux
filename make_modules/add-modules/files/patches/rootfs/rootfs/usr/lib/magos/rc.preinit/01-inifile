@@ -14,9 +14,9 @@ ENABLED=yes
 # MagOS.ini processing
 FNAME=etc/sysconfig/MagOS
 touch $FNAME
-gunzip -c /tmp/MagOS.ini.gz | egrep '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
-gunzip -c /tmp/MagOS.ini.gz | egrep -v '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
-   echo $a | egrep -q '^[:space:]*#|^[:space:]*$' && continue
+gunzip -c /tmp/MagOS.ini.gz | grep -E '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS' > /tmp/.credential
+gunzip -c /tmp/MagOS.ini.gz | grep -vE '^DEFAULTPASSWD|^DEFAULTROOTPASSWD|^NEEDEDUSERS'| while read a ;do
+   echo $a | grep -qE '^[:space:]*#|^[:space:]*$' && continue
    if echo $a | grep -q "^\[.*\][:space:]*" ;then
       FNAME=`echo "$a" | tr -d '[ ]' | sed s-^/--`
    else

@@ -9,7 +9,7 @@ rm -f nx.pass
 
 PFP=/usr/bin/nxloadconfig
 #BUGFIX fix sed error at every nxserver command
-sed -i 's%/dev/null | egrep .NXAGENT - Version%/dev/null | egrep -m1 '\''NXAGENT - Version%' $PFP
+sed -i 's%/dev/null | grep -E .NXAGENT - Version%/dev/null | grep -m1 -E '\''NXAGENT - Version%' $PFP
 #fix variables in /usr/bin/nxloadconfig
 sed -i 's|^DEFAULT_X_SESSION=.*|DEFAULT_X_SESSION=/etc/X11/Xsession|' $PFP
 sed -i 's|CUPS_BACKEND/nxipp|CUPS_BACKEND/ipp|' $PFP

@@ -28,7 +28,7 @@ get_requires() {
 getfile() {
 	local file='/' 
 	geturl() {
-		if  echo "$1" | egrep -q "^rsync://[a-z0-9./-]*" ; then
+		if  echo "$1" | grep -qE "^rsync://[a-z0-9./-]*" ; then
 			eval rsync -avzz --progress $1 $2 1>&2 $DEVNULL   || rm -f $2
 		else
 			eval wget -t 2 -O $2  $1 $DEVNULL || rm -f $2
@@ -36,9 +36,9 @@ getfile() {
 		
 	}
 	mkdir -p "$(dirname $2)"
-	if echo "$1" | egrep -q "^file://[a-z0-9./-]*" ; then
+	if echo "$1" | grep -qE "^file://[a-z0-9./-]*" ; then
 		file=$(echo $1 |sed 's#^file:/##')
-	elif echo "$1" | egrep -q "^[a-z]{3,6}://[a-z0-9./-]*"; then
+	elif echo "$1" | grep -qE "^[a-z]{3,6}://[a-z0-9./-]*"; then
     	geturl $1 $2
 	else
 		file="$1"  
@@ -196,7 +196,7 @@ add_repo_path() {
 }
 HLP() {
 # Заглушка
-cat $0 |egrep '\-.*\|.*\-\-.*\;\;' |sed 's/\"//g'
+cat $0 | grep -E '\-.*\|.*\-\-.*\;\;' |sed 's/\"//g'
 }
 #################### К О Д ##############################
 for arg in $@

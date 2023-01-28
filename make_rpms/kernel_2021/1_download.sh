@@ -16,7 +16,7 @@ rm -fr "$TMPD" &&  mkdir -p "$TMPD/deps"
 cd "$TMPD"
 rpm2cpio $MYPATH/cache/$MARCH/kernel/kernel-*src.rpm | cpio --quiet -i -d
 cd "$MYPATH"
-BUILDREQ="$BUILDDEPS "$(grep -i buildrequires: "$TMPD/kernel.spec" | sed s/^.*:[[:space:]]*// | egrep -v "$BUILDEXC" | tr \\n " ")
+BUILDREQ="$BUILDDEPS "$(grep -i buildrequires: "$TMPD/kernel.spec" | sed s/^.*:[[:space:]]*// | grep -vE "$BUILDEXC" | tr \\n " ")
 dnf install --skip-broken -y --downloadonly --destdir "$TMPD/deps" $BUILDREQ
 rsync -r --size-only --delete "$TMPD/deps/" "cache/$MARCH/builddeps"
 

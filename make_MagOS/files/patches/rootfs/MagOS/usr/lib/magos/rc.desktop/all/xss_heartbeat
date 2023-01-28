@@ -21,7 +21,7 @@ DE=$(detectDE)
 [ "$XSSDEIGNORE" = "all" ] && exit 0
 echo " $XSSDEIGNORE " | tr ',;' ' ' | grep -q " $DE " &&  exit 0
 XSSEXIT="$(echo "$XSSEXIT" | tr ',; ' '|' )"
-ps -U $(id -un) -o comm | egrep -q "$XSSEXIT" && exit 0
+ps -U $(id -un) -o comm | grep -qE "$XSSEXIT" && exit 0
 
 xscreensaver -no-splash &
 sleep 1s
@@ -30,7 +30,7 @@ while true ;do
    . /etc/MagOS/config
    XSSBLRUNED="$(echo "$XSSBLRUNED" | tr ',; ' '|' )"
    XSSBLLOADED="$(echo "$XSSBLLOADED" | tr ',; ' '|' )"
-   ps -U $(id -un) -o comm | egrep -q "$XSSBLRUNED" && xscreensaver-command -deactivate >/dev/null 2>&1
-   top -bn1 -u $(id -un) | awk '{ print $7 FS $NF }' | grep ^[1-9] | egrep -q "$XSSBLLOADED" && xscreensaver-command -deactivate >/dev/null 2>&1
+   ps -U $(id -un) -o comm | grep -qE "$XSSBLRUNED" && xscreensaver-command -deactivate >/dev/null 2>&1
+   top -bn1 -u $(id -un) | awk '{ print $7 FS $NF }' | grep ^[1-9] | grep -qE "$XSSBLLOADED" && xscreensaver-command -deactivate >/dev/null 2>&1
    sleep $XSSHBTM
 done

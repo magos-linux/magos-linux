@@ -5,7 +5,7 @@ ENABLED=yes
 
 FEHOPTIONS="-B black -x -Z --scale-down"
 WPDEFFILE=/usr/share/magos/wallpapers/default.jpg
-FEHKILLSWITCH="while ! ps -A | egrep -q 'splash|panel|xbindkeys|lightdm-gtk-gr|polybar' ;do sleep 1 ;done ; sleep 7 ; killall feh"
+FEHKILLSWITCH="while ! ps -A | grep -qE 'splash|panel|xbindkeys|lightdm-gtk-gr|polybar' ;do sleep 1 ;done ; sleep 7 ; killall feh"
 [ -f /etc/MagOS/theme ]  && . /etc/MagOS/theme
 [ "$BACKGROUNDMODE" = "2" ] && FEHOPTIONS="-F --zoom fill"
 [ -f /etc/MagOS/config ] && . /etc/MagOS/config

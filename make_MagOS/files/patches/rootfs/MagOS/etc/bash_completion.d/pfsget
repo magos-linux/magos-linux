@@ -4,7 +4,7 @@ _pfsget_command(){
     COMPREPLY=()
     LIST="$cur"
     _get_comp_words_by_ref cur prev words cword 
-    if echo $prev |egrep -q "$needfiles" ; then
+    if echo $prev | grep -qE "$needfiles" ; then
         _filedir
 	elif [[ ${cur} == -* ]] ; then 
         LIST="$(_parse_help pfsget)"

@@ -170,7 +170,7 @@ create_module()
 {
    . /usr/lib/magos/os-config
    . /etc/MagOS/config
-   echo " $@ " | egrep -q ' -comp | -noD ' && MKSQFS_OPTS=
+   echo " $@ " | grep -qE ' -comp | -noD ' && MKSQFS_OPTS=
    mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null || return 1
    chmod 444 "$2"
 }
@@ -181,7 +181,7 @@ create_module()
 cmdline_parameter()
 {
    . /etc/MagOS/config || . etc/MagOS/config
-   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1([[:space:]]|\$)" | head -1 | tr -d " "
+   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | grep -m1 -o -E "(^|[[:space:]])$1([[:space:]]|\$)" | head -1 | tr -d " "
 }
 
 # look into cmdline and echo value of $1 option
@@ -190,7 +190,7 @@ cmdline_parameter()
 cmdline_value()
 {
    . /etc/MagOS/config || . etc/MagOS/config
-   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | egrep -m1 -o "(^|[[:space:]])$1=[^[:space:]]+" | head -1 | cut -d "=" -f 2-
+   echo -n " $CMDLINE " | cat /proc/cmdline - 2>/dev/null | tr "[:cntrl:]" " " | grep -m1 -o -E "(^|[[:space:]])$1=[^[:space:]]+" | head -1 | cut -d "=" -f 2-
 }
 
 # Find and run all scripts from the given module
@@ -215,7 +215,7 @@ find_n_run_scripts()
    RUNSCRIPTS="$MOD$RCPATH|$MOD/usr/lib/magos/rc.local|$MOD/usr/lib/magos/rc.post"
    echo $@ | grep -q start || RUNSCRIPTS="$MOD$RCPATH"
 
-   find "$MOD" | egrep "$RUNSCRIPTS" | cut -b "${#MOD}"- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
+   find "$MOD" | grep -E "$RUNSCRIPTS" | cut -b "${#MOD}"- | cut -b 2- | xargs -n 1 -r readlink -f | sort -u | \
        while read SCRIPT; do
          if [ "$SCRIPT" != "" -a -x "$SCRIPT" -a ! -d "$SCRIPT" ]; then
             # call the script by real path, not from the module
@@ -274,7 +274,7 @@ xss_heartbeat()
   . /usr/lib/magos/os-config
   . /etc/MagOS/config
   SSAVERBLOCKAPPS="$(echo "$SSAVERBLOCKAPPS"| tr ',; ' '|' )"
-  bash -c "while true ;do top -bn1 -u $(id -un) | awk '{ print \$7 FS \$NF }' | grep ^[1-9] | egrep -q \"$SSAVERBLOCKAPPS\" && xscreensaver-command -deactivate >/dev/null ; sleep 20s ; done " &
+  bash -c "while true ;do top -bn1 -u $(id -un) | awk '{ print \$7 FS \$NF }' | grep ^[1-9] | grep -qE \"$SSAVERBLOCKAPPS\" && xscreensaver-command -deactivate >/dev/null ; sleep 20s ; done " &
 }
 
 

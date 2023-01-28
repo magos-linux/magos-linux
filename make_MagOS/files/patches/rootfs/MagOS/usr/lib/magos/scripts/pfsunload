@@ -76,7 +76,7 @@ fi
 
 
 if [ "$status" -ne 0 -a "$status" -ne 22 ] ;then
-  [ "$verb" ] && for a in $( lsof / |awk '{print $9}' |grep "\/..*" | egrep -v "/proc|/sys|/run|/tmp|/dev|/home" | sort -u) ; do
+  [ "$verb" ] && for a in $( lsof / |awk '{print $9}' |grep "\/..*" | grep -vE "/proc|/sys|/run|/tmp|/dev|/home" | sort -u) ; do
     [ -f "$a" ] || continue
     [ -d "$a" ] && continue
     [ -f  "$mountpoint/$a"	] && FILES="$FILES $a"

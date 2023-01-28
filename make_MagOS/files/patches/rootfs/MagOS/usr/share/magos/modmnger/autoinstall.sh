@@ -17,7 +17,7 @@ fi
 
 PWD0=$(pwd)
 device="$1"
-devsize=$(fdisk -l 2>/dev/null |egrep "^.*${device}:" |awk '{print $5}')
+devsize=$(fdisk -l 2>/dev/null | grep -E "^.*${device}:" |awk '{print $5}')
 echo  "${0}:  process is not finished correctly"  > /tmp/errorcode
 
  

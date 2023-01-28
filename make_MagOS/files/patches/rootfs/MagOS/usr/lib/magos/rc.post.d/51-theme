@@ -100,7 +100,7 @@ fi
 if [ "$THEMEPLASMACOLORS" != "" -a -f "/usr/share/color-schemes/$THEMEPLASMACOLORS.colors" -a -f /etc/xdg/kdeglobals  ] ;then
    cp -pf /usr/share/magos/plasma/kdeglobals /etc/xdg/kdeglobals
    sed -i s/^ColorScheme=.*/"ColorScheme=$THEMEPLASMACOLORS"/ /etc/xdg/kdeglobals
-   egrep -v "^\[General\]|^Name=|^\[KDE\]|^colorScheme=|^contrast=|^shadeSortColumn=" "/usr/share/color-schemes/$THEMEPLASMACOLORS.colors" >> /etc/xdg/kdeglobals
+   grep -vE "^\[General\]|^Name=|^\[KDE\]|^colorScheme=|^contrast=|^shadeSortColumn=" "/usr/share/color-schemes/$THEMEPLASMACOLORS.colors" >> /etc/xdg/kdeglobals
 fi
 if [ "$THEMEPLASMA" != "" -a -d "/usr/share/plasma/look-and-feel/$THEMEPLASMA" -a -f /etc/xdg/kdeglobals  ] ;then
    sed -i s/^LookAndFeelPackage=.*/"LookAndFeelPackage=$THEMEPLASMA"/ /etc/xdg/kdeglobals

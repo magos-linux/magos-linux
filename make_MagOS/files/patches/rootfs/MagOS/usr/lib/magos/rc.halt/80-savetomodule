@@ -21,7 +21,7 @@ IMSRC=$(readlink -f /mnt/live/memory/images)
 [ -f /.savetomodule ] && SAVETOMODULE=${SAVETOMODULE-yes}
 grep -q save2module /proc/cmdline && SAVETOMODULE=${SAVETOMODULE-yes}
 # if machine was freezed
-egrep -q '/dynamic/|/static/' /.savetomodule 2>/dev/null  && [ -f "$(sed s=dynamic=static= /.savetomodule)" ] && SAVETOMODULE=no
+grep -qE '/dynamic/|/static/' /.savetomodule 2>/dev/null  && [ -f "$(sed s=dynamic=static= /.savetomodule)" ] && SAVETOMODULE=no
 # if machine was unfreezed
 grep -q /static/ /.savetomodule 2>/dev/null && [ ! -f "$(cat /.savetomodule)" ] && SAVETOMODULENAME=$(sed s=static=dynamic= /.savetomodule)
 SAVETOMODULEDIR="$(dirname $SAVETOMODULENAME)"

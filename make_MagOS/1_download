@@ -86,12 +86,12 @@ ln -sf "$PWD/$CACHE/store" "$TMPDIR"/store
 if [ "$ONLINE" == "yes" ] ;then
   echo -e "\nЗагрузка списков хранилищ пакетов"
   for a in `gawk '{print $2}' files/media/media-$VERREL` ;do
-    loadmediafiles $a $(egrep -m1 " $a | $a$" files/media/media-$VERREL | gawk '{print $1}')
+    loadmediafiles $a $(grep -m1 -E " $a | $a$" files/media/media-$VERREL | gawk '{print $1}')
   done
   if [ -x /usr/sbin/urpmi ] ;then
      echo -e "\nСоздание источников для urpmi"
      for a in `gawk '{print $2}' files/media/media-$VERREL` ;do
-       loadmediainfo $a $(egrep -m1 " $a | $a$" files/media/media-$VERREL | gawk '{print $1 " " $3 " " $4}')
+       loadmediainfo $a $(grep -m1 -E " $a | $a$" files/media/media-$VERREL | gawk '{print $1 " " $3 " " $4}')
      done
   fi
 else
@@ -103,7 +103,7 @@ echo -e "\nСоздание списков пакетов"
 cp -prf -t "$TMPDIR"/re "$TMPDIR/media" "$TMPDIR/urls"
 cp -prf files/packages/$FLASHNAME-$VERREL "$TMPDIR/re/packages"
 for a in `gawk '{print $2}' files/media/media-$VERREL` ;do
-  makefilelists $a $(egrep -m1 " $a | $a$" files/media/media-$VERREL | gawk '{print $3 " " $4}')
+  makefilelists $a $(grep -m1 -E " $a | $a$" files/media/media-$VERREL | gawk '{print $3 " " $4}')
 done
 ls -1 $CACHE/store | grep [.]rpm$ > $TMPDIR/re/storelist.txt
 
@@ -166,7 +166,7 @@ for a in "$TMPDIR/modules/packages/"* ;do
 done
 
 echo -e "\nПроверка зависимостей"
-[ -x /bin/rpm ] && LC_ALL=C rpm -i --test --root "$TMPDIR/tmp" "$TMPDIR/installsrc/"* 2>&1 | egrep -iv "^warning|warning:|installing package|error:" | sort > "$TMPDIR/checkdeps.txt"
+[ -x /bin/rpm ] && LC_ALL=C rpm -i --test --root "$TMPDIR/tmp" "$TMPDIR/installsrc/"* 2>&1 | grep -ivE "^warning|warning:|installing package|error:" | sort > "$TMPDIR/checkdeps.txt"
 
 cat $TMPDIR/checkdeps.txt
 echo -e "\nВ случае наличия ошибок нужно добавить или убрать пакеты в files/packages/* и перезапустить сборку с начала"

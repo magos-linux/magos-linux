@@ -113,7 +113,7 @@ fi
 
 layername="$1"
 
-if echo $layername |egrep -q "\.rom$" ; then
+if echo $layername | grep -qE "\.rom$" ; then
 	filelayer || exitmsg "pfsload $layername ERROR" 5
 else
 	dirlayer || exitmsg "pfsload $layername ERROR" 6

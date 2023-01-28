@@ -309,7 +309,7 @@ function deleteobsolete()
  echolog "Removing obsolete modules..."
  for a in * ;do
     grep -q "/$a$" "$1" 2>/dev/null && continue
-    echo $a | egrep -qi "local|[*]" && continue
+    echo $a | grep -qiE "local|[*]" && continue
     if [ "$DEACTIVATE" = "yes" ] ;then
         deletemodule "$a"
     else

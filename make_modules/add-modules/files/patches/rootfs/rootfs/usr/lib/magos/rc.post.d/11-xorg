@@ -22,6 +22,6 @@ if [  "$MONITOR" != "" ] ;then
    sed -i s/HorizSync.*/"HorizSync 28.8-$HRH"/ /etc/X11/xorg.conf
    sed -i s/VertRefresh.*/"VertRefresh 60$VRH"/ /etc/X11/xorg.conf
 fi
-if echo $DPMS | egrep -qi 'no|off|false' ;then
+if echo $DPMS | grep -qiE 'no|off|false' ;then
    sed -i s/'.*Option .DPMS..*'/'    Option "DPMS" "false"'/ /etc/X11/xorg.conf
 fi

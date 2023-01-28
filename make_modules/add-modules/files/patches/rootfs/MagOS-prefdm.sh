@@ -6,7 +6,7 @@ cat >$PFP <<EOF
 #!/bin/sh
 # waiting network services
 [ -f /etc/sysconfig/MagOS ] && . /etc/sysconfig/MagOS
-if echo "\$DMFASTBOOT" | egrep -qi 'no|off|false' ;then
+if echo "\$DMFASTBOOT" | grep -qiE 'no|off|false' ;then
   while ! [ -f /var/lock/subsys/local ] ;do
     sleep 1s
   done

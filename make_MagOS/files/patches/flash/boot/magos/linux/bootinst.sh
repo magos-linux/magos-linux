@@ -69,7 +69,7 @@ sync
 
 SYSLINUX="$MYMNT/boot/syslinux/extlinux"
 
-if egrep -q "^$TARGET[[:space:]].*(noexec|showexec)" /proc/mounts ; then
+if grep -qE "^$TARGET[[:space:]].*(noexec|showexec)" /proc/mounts ; then
    t_echo "The disk" $TARGET "is mounted with noexec parameter, copying syslinux to" "$TMPBIN"
    cp -f "$SYSLINUX" "$TMPBIN" || exit 1
    SYSLINUX="$TMPBIN"

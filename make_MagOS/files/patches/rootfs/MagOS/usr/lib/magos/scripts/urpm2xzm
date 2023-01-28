@@ -12,7 +12,7 @@ HLP() {
     echo "$(basename $0) keys:"
     echo "-h | --help - this help"
     echo "-o - name, fullname or dir for the module"
-    echo "-m | --mask - mask (egrep format) to select modules where $(basename $0) will search rpm db"
+    echo "-m | --mask - mask (grep -E format) to select modules where $(basename $0) will search rpm db"
     echo "--mask clean - special mask value \"clean\" to choose base magos modules only (default)"
     echo "--mask all  - special mask value \"all\" to choose all activated modules"
     echo "-r | --rpmdb -  save /var/lib/rpm/* in module (rpm data base)"
@@ -188,7 +188,7 @@ fi
 #show masked modules and exit
 if [[ -z "${packages}${urpmipars}" ]]; then
     echo "Masked Modules:"
-    ls $mod_path | egrep $MASK |sort -r
+    ls $mod_path | grep -E $MASK |sort -r
     echo ''
     HLP
     exit
@@ -212,7 +212,7 @@ dd if=/dev/zero of="$mod_file" bs=1 count=0 seek="$URPMISPACE" >/dev/null && mkf
 mount -o loop "$mod_file" "$mod_br" || crash_exit "Can't mount temporary image file" 3
 
 mount_br="$mod_br=rw"
-for a in $(ls $mod_path | egrep $MASK |sort -r ); do
+for a in $(ls $mod_path | grep -E $MASK |sort -r ); do
     echo $a
     mount_br="$mount_br:$(readlink -f ${mod_path}/$a)=rr"
 done

@@ -5,7 +5,7 @@ _pfsload_command(){
 	if [[ ${cur} == -* ]] ; then 
         LIST="$(_parse_help pfsload)"
 	elif [[ ${cur} == [[:alnum:]]* ]] ; then 
-        LIST="$(ls -1 ./ |egrep ".$EXT$|\/$")"
+        LIST="$(ls -1 ./ | grep -E ".$EXT$|\/$")"
 	else  
 		_filedir
 		return

@@ -10,7 +10,7 @@ _pfsextract_command(){
 		[[ ${aaa} = '--mksqfs' ]] && HLP=mksquashfs
 		[ -f "$aaa" ] && MODULE=$aaa
 	done
-	if echo ${prev} |egrep -q $needfiles ; then
+	if echo ${prev} | grep -qE $needfiles ; then
 		_filedir
 		return
 	elif [[ ${cur} = -* ]] ; then

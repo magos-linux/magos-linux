@@ -12,7 +12,7 @@ done
 RCPATH=/etc/rc.d/init.d
 [ -d $RCPATH ] || RCPATH=/etc/init.d
 find $RCPATH -type f | sed s%$RCPATH/%% | while read a ;do
-   egrep -q 'chkconfig:|### BEGIN INIT INFO' $RCPATH/$a && chkconfig --del $a 2>/dev/null
+   grep -qE 'chkconfig:|### BEGIN INIT INFO' $RCPATH/$a && chkconfig --del $a 2>/dev/null
 done
 
 #enable some services

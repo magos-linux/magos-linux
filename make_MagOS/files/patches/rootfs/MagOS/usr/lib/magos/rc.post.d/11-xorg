@@ -44,7 +44,7 @@ EOF
   fi
 fi
 
-echo $DPMS | egrep -qi 'no|off|false' && DPMS=no
+echo $DPMS | grep -qiE 'no|off|false' && DPMS=no
 [ "$STEAMNODPMS" = "yes" -a "$DESKTOP" = "Steam" ] && DPMS=no
 
 if [ "$DPMS" = "no" ] ;then

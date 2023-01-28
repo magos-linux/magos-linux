@@ -8,7 +8,7 @@ fi
 TMPF=/tmp/$(basename $0)-$UID-
 rm -f ${TMPF}*
 
-lsof -M -T | awk '{print $1 " " $NF }' | sed 1d | grep " /." | egrep -v ' /dev/| /proc/| /sys/| /home/| /memfd:| /run/| /SYSV| /media' | sort >${TMPF}lsof
+lsof -M -T | awk '{print $1 " " $NF }' | sed 1d | grep " /." | grep -vE ' /dev/| /proc/| /sys/| /home/| /memfd:| /run/| /SYSV| /media' | sort >${TMPF}lsof
 echo processing, please wait...
 awk '{print $NF }' ${TMPF}lsof | sort -u | grep ^/ | while read a ;do
   RPMF=$(LC_ALL=C rpm -qf $a 2>/dev/null | grep -v ^file)

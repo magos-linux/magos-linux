@@ -17,7 +17,7 @@ debug_mode "$0" "$@"
 [ -f /etc/sysctl.d/magos.conf ] && sysctl -p /etc/sysctl.d/magos.conf
 
 # If Linux installed on n[t]fs we have to omit killing rootfilesystem mounter when system halt
-ps -A | egrep 'ntfsmount|rpciod|nfsiod|httpfs|curlftpfs' | awk '{ print $1 }' >> /var/run/sendsigs.omit
+ps -A | grep -E 'ntfsmount|rpciod|nfsiod|httpfs|curlftpfs' | awk '{ print $1 }' >> /var/run/sendsigs.omit
 
 # Creating /etc/mtab
 rm -f  /etc/mtab

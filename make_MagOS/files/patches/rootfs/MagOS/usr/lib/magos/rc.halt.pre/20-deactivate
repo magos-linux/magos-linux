@@ -9,8 +9,8 @@ IMAGES=/mnt/live/memory/images
 [ -f /etc/initvars ] && . /etc/initvars && IMAGES=$SYSMNT/bundles
 
 #umount any aufs from /media /mnt
-egrep " /mnt/.* aufs | /media/.* aufs " /proc/mounts | awk '{print $2}' | xargs umount >/dev/null 2>&1
+grep -E " /mnt/.* aufs | /media/.* aufs " /proc/mounts | awk '{print $2}' | xargs umount >/dev/null 2>&1
 
-egrep "$IMAGES" /proc/mounts | awk '{print $2}' | egrep -v "$COREMODS" | while read a ; do
+grep -E "$IMAGES" /proc/mounts | awk '{print $2}' | grep -vE "$COREMODS" | while read a ; do
    mount -t aufs -o remount,del:"$a" aufs / 2>/dev/null
 done

@@ -15,7 +15,7 @@ D(){
     [ "${userout}_" = "_" ] && [ ! "`echo "$arglist" |grep "\-o "`" ] && userout="./$(basename "$1").$EXT"
 }
 M(){
-    sourcelist="$(find "$1" -maxdepth 1 -mindepth 1 -type f |egrep ".pfs$|.xzm$|.sfs$|.squashfs$|.$EXT$" |sort)"
+    sourcelist="$(find "$1" -maxdepth 1 -mindepth 1 -type f | grep -E ".pfs$|.xzm$|.sfs$|.squashfs$|.$EXT$" |sort)"
     [ "$sourcelist" ] || exitmsg "no modules in '$2'" 1
     onmod=
     [ "${userout}_" = "_" ] && [ ! "`echo "$arglist" |grep "\-o "`" ] && userout="./$(basename "$1").$EXT"

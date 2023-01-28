@@ -208,7 +208,7 @@ else
 	sourcelist="$checked"
 fi
 
-if [ "$(unsquashfs -l ${pfs} |grep ${PFSDIR}/mount |egrep '.files$' |wc -l)" -lt 2 ];then
+if [ "$(unsquashfs -l ${pfs} |grep ${PFSDIR}/mount |grep -E '.files$' |wc -l)" -lt 2 ];then
 		extract_simple
 else
 		extract_contaner
