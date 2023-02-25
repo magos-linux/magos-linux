@@ -107,7 +107,8 @@ rm -fr "$ROOTFS" "$TMPDIR" "$CACHE/rootfs" 2>/dev/null
 mkdir -p "$TMPDIR"/{tmp,installsrc2,installsrc3} "$ROOTFS" "$CACHE/rootfs"
 ln -sf "$(readlink -f $CACHE/store)" "$TMPDIR/store"
 cp -prf -t "$TMPDIR" "$CACHE/installsrc" "$CACHE/packageslist.txt" "$CACHE/packagesinfo/"*scripts "files/packages/$FLASHNAME-$VERREL/base"
-[ -d "$CACHE/urpmi" ] && cp -prf -t "$TMPDIR" "$CACHE/urpmi" "$CACHE/pubkeys"
+[ -d "$CACHE/urpmi" ]   && cp -prf -t "$TMPDIR" "$CACHE/urpmi"
+[ -d "$CACHE/pubkeys" ] && cp -prf -t "$TMPDIR" "$CACHE/pubkeys"
 cat "$TMPDIR/packageslist.txt" | while read a ;do
    grep -q ^$a$ "$TMPDIR/scripts" && mv "$TMPDIR/installsrc/$a" "$TMPDIR/installsrc2"
 done
@@ -133,12 +134,14 @@ for a in `cat "$TMPDIR/base"` ;do
   done
 done
 
+if [ -d "$TMPDIR/pubkeys" ] ;then
 echo -e "\nИмпортирование ключей"
 for a in "$TMPDIR/pubkeys/"*.pubkey ;do
    if [ -x /bin/rpm -a -f "$a" ] ;then
       rpm --root "$ROOTFS/orig" --import "$a"  || stop "Error when importing pibkey $a"
    fi
 done
+fi
 
 echo -e "\nУстановка основных пакетов"
 if [ "$STAGE1METOD" = "massinstall" ] ;then
@@ -189,7 +192,7 @@ if [ -x /bin/rpm ] ;then
   mkdir -p -m 755 "$ROOTFS/aufs/var/lib/rpm/modules"
   cp -p "$MYPATH/$CACHE/modules/packages/"??-* "$ROOTFS/aufs/var/lib/rpm/modules" || stop "Can't copy to $ROOTFS/aufs/var/lib/rpm/modules"
   [ -f "$MYPATH/files/packages/$FLASHNAME-$VERREL/optional" ] && cp -p "$MYPATH/files/packages/$FLASHNAME-$VERREL/optional" "$ROOTFS/aufs/var/lib/rpm/modules"
-  cp -prf pubkeys "$ROOTFS/aufs/var/lib/rpm" || stop "Can't copy to $ROOTFS/aufs/var/lib/rpm"
+  [ -d pubkeys ] && cp -prf pubkeys "$ROOTFS/aufs/var/lib/rpm"
 fi
 for a in $FLASHNAME $FLASHNAME-$VERREL ;do
   [ -d "$MYPATH/files/patches/rootfs/$a" ] && cp -pfR "$MYPATH/files/patches/rootfs/$a/"* "$ROOTFS/magos"
