@@ -54,11 +54,11 @@ for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
   # create home
   if ! [ -d home/$NEEDEDUSER ] ;then
     cp -a etc/skel home/$NEEDEDUSER
-    chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
+    chroot . bin/chown -R $NEEDEDUSER:$NEEDEDUSER /home/$NEEDEDUSER
     chmod 700 home/$NEEDEDUSER
   elif [ "$UPDATEHOME" = "yes" ] ;then
     rsync  -rlpt --ignore-existing etc/skel/ home/$NEEDEDUSER
-    chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
+    chroot . bin/chown -R $NEEDEDUSER:$NEEDEDUSER /home/$NEEDEDUSER
   fi
 done
 set_passwd root "$DEFAULTROOTPASSWD"

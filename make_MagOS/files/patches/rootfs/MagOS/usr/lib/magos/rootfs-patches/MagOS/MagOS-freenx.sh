@@ -1,7 +1,7 @@
 #!/bin/sh
 [ -f /usr/bin/nxserver ] || exit 0
-chown -R nx.root /etc/nxserver
-chown -R nx.root /var/lib/nxserver
+chown -R nx:root /etc/nxserver
+chown -R nx:root /var/lib/nxserver
 passwd -uf nx >/dev/null 2>&1
 date +%N | md5sum | cut -c 1-16  > nx.pass
 passwd -f --stdin nx <nx.pass >/dev/null 2>&1

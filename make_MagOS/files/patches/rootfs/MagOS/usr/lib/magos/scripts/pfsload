@@ -97,7 +97,7 @@ if [ "${devtype}:${fstype}" = "file:squashfs" ]; then
   done
   if [ ! -b /dev/loop${freeloop} ]; then
     mknod -m660 /dev/loop${freeloop} b 7 ${freeloop}
-    chown root.root /dev/loop${freeloop}
+    chown root:root /dev/loop${freeloop}
     sync
   fi
   [ -b /dev/loop${freeloop} ] || exitmsg "Error! Free loop devices is not found!" 7

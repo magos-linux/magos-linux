@@ -80,7 +80,7 @@ case "$1" in
        echo  "$a -> /var/lib/rpm"
        cp  -rf "$a"/* /var/lib/rpm
      done
-     chown 0.0 -R /var/lib/rpm
+     chown 0:0 -R /var/lib/rpm
      chmod o-w -R /var/lib/rpm
      echo Done.
      ;;

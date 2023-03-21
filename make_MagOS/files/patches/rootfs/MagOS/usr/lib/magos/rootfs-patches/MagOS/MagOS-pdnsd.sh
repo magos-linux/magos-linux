@@ -4,7 +4,7 @@
 #BUGFIX
 PFP=/var/cache/pdnsd/pdnsd.cache
 [ -f $PFP ] && echo -n >$PFP
-chown pdnsd.pdnsd $PFP
+chown pdnsd:pdnsd $PFP
 
 PFP=/etc/resolv.conf
 [ -h "$PFP" ] && rm -f "$PFP"

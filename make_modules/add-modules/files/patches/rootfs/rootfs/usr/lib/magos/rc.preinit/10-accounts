@@ -33,11 +33,11 @@ for a in $(echo $NEEDEDUSERS | tr ",;" " " ) ;do
    fi
    if ! [ -d home/$NEEDEDUSER ] ;then
         cp -a etc/skel home/$NEEDEDUSER
-        chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
+        chroot . bin/chown -R $NEEDEDUSER:$NEEDEDUSER /home/$NEEDEDUSER
         chmod 700 home/$NEEDEDUSER
    elif [ "$UPDATEHOME" = "yes" ] ;then
 	rsync  -rlpt --ignore-existing etc/skel/ home/$NEEDEDUSER
-        chroot . bin/chown -R $NEEDEDUSER.$NEEDEDUSER /home/$NEEDEDUSER
+        chroot . bin/chown -R $NEEDEDUSER:$NEEDEDUSER /home/$NEEDEDUSER
    fi
 done
 sed -i s=^root::=root:"$DEFAULTROOTPASSWD":= etc/shadow

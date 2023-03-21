@@ -126,7 +126,7 @@ function checkrights()
 {
   [ "$1" = "" -o "$2" != "" ] && die "checkrights: invalid parameters $@"
   echo Setting correct rights to "$1"
-  chown -R 0.0 "$1"
+  chown -R 0:0 "$1"
   for a in $(echo $PATH | tr : " ") ;do
       chmod 755 "$1$a/"* 2>/dev/null
   done
@@ -136,7 +136,7 @@ function defaultrights()
 {
   [ "$1" = "" -o "$2" != "" ] && die "defaultrights: invalid parameters $@"
   echo Setting default rights to "$1"
-  chown -R 0.0 "$1" || die "defaultrights: chown -R 0.0 $1"
+  chown -R 0:0 "$1" || die "defaultrights: chown -R 0:0 $1"
   chmod -R 755 "$1" || die "defaultrights: chmod -R 755 $1"
   find "$1" -type f | while read a ; do chmod a-x "$a" ; done
   for a in $(echo $PATH | tr : " ") ;do
