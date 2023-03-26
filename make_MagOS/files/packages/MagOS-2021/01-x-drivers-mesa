@@ -12,3 +12,5 @@ libdri-drivers-swrast
 libdri-drivers-virtio
 libdri-drivers-vmwgfx
 libdri-drivers
+lib64dri-drivers-zink
+libdri-drivers-zink
