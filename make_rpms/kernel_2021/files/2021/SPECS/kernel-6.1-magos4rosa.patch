@@ -1,16 +1,7 @@
 diff -aupr a/kernel.spec b/kernel.spec
---- a/kernel.spec	2022-12-25 10:19:19.753071112 +0300
-+++ b/kernel.spec	2022-12-25 13:34:44.000000000 +0300
-@@ -32,7 +32,7 @@
- %define sublevel 79
- 
- # Release number. Increase this before a rebuild.
--%define rpmrel 1
-+%define rpmrel 2
- %define fullrpmrel %{rpmrel}
- 
- %define rpmtag %{disttag}
-@@ -103,7 +103,7 @@
+--- a/kernel.spec	2023-04-15 20:43:22.576660703 +0300
++++ b/kernel.spec	2023-04-15 20:44:16.967661580 +0300
+@@ -101,7 +101,7 @@
  %bcond_with binary_shredder
  
  # Compress modules with zstd (zstd is good compression and fast decompression)
@@ -19,7 +10,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  # Spend more resources on compression, but make resulting size less;
  # decompression speed will not be affected, but more memory will be required
  # which should not a problem here (performance penalty from allocating more
-@@ -158,9 +158,6 @@
+@@ -154,9 +154,6 @@
  %define	debuginfo_files %{_builddir}/debuginfo_files.list
  
  # Append list of files generate by find-debuginfo.sh to our custom list
@@ -29,7 +20,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  
  ############################################################################
  
-@@ -186,7 +183,7 @@ cat %{_builddir}/debugfiles.list >> %{de
+@@ -184,7 +181,7 @@ cat %{_builddir}/debugfiles.list >> %{de
  # global, not define, must be expanded only once
  %global kroko_release %kroko_mk_release -n kernel-%{kernelversion}.%{patchlevel}-%{flavour}
  
@@ -38,7 +29,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  
  ############################################################################
  
-@@ -216,7 +213,20 @@ cat %{_builddir}/debugfiles.list >> %{de
+@@ -214,7 +211,20 @@ cat %{_builddir}/debugfiles.list >> %{de
  %define	build_perf	1
  %define	build_cpupower	1
  
@@ -59,7 +50,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %if %{with modxz}
  %define	kmod_suffix .xz
  %else
-@@ -224,6 +234,7 @@ cat %{_builddir}/debugfiles.list >> %{de
+@@ -222,6 +232,7 @@ cat %{_builddir}/debugfiles.list >> %{de
  %endif
  %else
  %define	kmod_suffix %{nil}
@@ -67,25 +58,25 @@ diff -aupr a/kernel.spec b/kernel.spec
  %endif
  
  %if !%{build_debug}
-@@ -448,6 +459,8 @@ Patch0631: 0631-arm64-device-tree-Baikal
- Patch0632: 0632-arm64-device-tree-Baikal-M-fixed-GPU-opp_table.patch
- Patch0633: 0633-arm64-device-tree-Baikal-M-fixed-CPUs-opp_table.patch
- Patch0634: 0634-arm64-defconfig-for-Baikal-M-support-testing.patch
+@@ -382,6 +393,8 @@ Patch0628: 0628-input-added-TF307-serio-
+ Patch0629: 0629-input-new-driver-serdev-serio.patch
+ Patch0630: 0630-phy-realtek-leds-configuration-for-RTL8211f.patch
+ Patch0631: 0631-arm64-defconfig-for-Baikal-M-testing.patch
 +Patch0880: magos-logo.patch
 +Source880: magos-config.patch
  
  # Disable AutoReq
  AutoReq:	0
-@@ -554,8 +567,6 @@ BuildRequires:	kernel-source-nvidia510
- BuildRequires:	kernel-source-nvidia515
+@@ -487,8 +500,6 @@ BuildRequires:	kernel-source-nvidia515
  BuildRequires:	kernel-source-nvidia520
+ BuildRequires:	kernel-source-nvidia525
  %endif
 -BuildRequires:	kernel-source-tripso
 -BuildRequires:	kernel-source-ipt-so
  %if %{with binary_virtualbox_host}
  BuildRequires:	kernel-source-virtualbox
  %endif
-@@ -694,8 +705,6 @@ depmod -a %{kver_full}
+@@ -625,8 +636,6 @@ depmod -a %{kver_full}
  # vbox guest modules are in the mainline kernel now (vboxvideo vboxguest vboxsf)
  %exclude %{_modulesdir}/%{kver_full}/kernel/misc/vbox*.ko%{kmod_suffix}
  %endif
@@ -94,7 +85,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %if %{with nickel}
  %exclude %{_modulesdir}/%{kver_full}/kernel/misc/nlkm.ko%{kmod_suffix}
  %exclude %{_modulesdir}/%{kver_full}/kernel/misc/memfreetest.ko%{kmod_suffix}
-@@ -1046,17 +1055,15 @@ User Mode Linux (UML) kernel modules:
+@@ -913,18 +922,16 @@ User Mode Linux (UML) kernel modules:
  
  %ifarch %{ix86} %{x86_64}
  %ksob_mk_module_pkg -n wl -s net/wireless -r broadcom-wl-aliases
@@ -108,35 +99,31 @@ diff -aupr a/kernel.spec b/kernel.spec
 -%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_510_j} -n %{nvidia_510_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} -c %{kmod_suffix}
 -%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_515_j} -n %{nvidia_515_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} -c %{kmod_suffix}
 -%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_520_j} -n %{nvidia_520_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} -c %{kmod_suffix}
+-%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_525_j} -n %{nvidia_525_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} -c %{kmod_suffix}
 +%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_470_j} -n %{nvidia_470_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} %{kmod_suffix_par} %{kmod_suffix}
 +%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_510_j} -n %{nvidia_510_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} %{kmod_suffix_par} %{kmod_suffix}
 +%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_515_j} -n %{nvidia_515_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} %{kmod_suffix_par} %{kmod_suffix}
 +%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_520_j} -n %{nvidia_520_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} %{kmod_suffix_par} %{kmod_suffix}
++%kroko_kmod_pkg -r %{kroko_release} -j %{nvidia_525_j} -n %{nvidia_525_n} -f %{flavour} -k %{kernelversion}.%{patchlevel} -m %{sublevel} -p %{kver_full} -s %{NAME} %{kmod_suffix_par} %{kmod_suffix}
  %endif
 -%ksob_mk_module_pkg -n xt_TRIPSO -s net -r tripso
 -%ksob_mk_module_pkg -n xt_so -s net -r ipt-so
  %ksob_mk_module_pkg -n v4l2loopback -s drivers/media -r v4l2loopback
  
  %if %{with binary_shredder}
-@@ -1156,7 +1163,6 @@ cp %{SOURCE111} .
+@@ -1023,8 +1030,9 @@ echo "Creating the kernel configuration
+ cp %{SOURCE111} .
  cp %{SOURCE112} .
  cp %{SOURCE113} .
++cp %{SOURCE880} .
++patch -p1 -i %{SOURCE880}
  cp kernel-%{arch_suffix}.config .config
 -
  touch %{build_dir}/.config.append
  
  # Get rid of unwanted files
-@@ -1215,6 +1221,8 @@ for i in STREEBOG SHA1 SHA256 SHA512 ECR
- done
- 
- cat %{build_dir}/.config.append >> .config
-+cp %{SOURCE880} .
-+patch -p1 -i %{SOURCE880}
- 
- ##################
- # End of kernel config
-@@ -1573,22 +1581,6 @@ _build_nvidia 515
- _build_nvidia 520
+@@ -1379,22 +1387,6 @@ _build_nvidia 520
+ _build_nvidia 525
  %endif
  
 -cp -r "$(rpm -q --qf '/usr/src/tripso-%%{VERSION}-%%{RELEASE}' kernel-source-tripso)" kernel-source-tripso
@@ -158,7 +145,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %if %{with binary_shredder}
  cp -r "$(rpm -q --qf '/usr/src/shredder-kernel-%%{VERSION}-%%{RELEASE}' kernel-source-shredder-kernel)" kernel-source-shredder-kernel
  pushd kernel-source-shredder-kernel
-@@ -1911,10 +1903,11 @@ do
+@@ -1717,10 +1709,11 @@ do
  	echo "%dir $dir_no_buildroot" >> %{debuginfo_files}
  	%endif
  done

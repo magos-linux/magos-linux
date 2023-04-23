@@ -1,28 +1,27 @@
-diff -auprN a/nvidia390.spec b/nvidia390.spec
---- a/nvidia390.spec	2023-03-16 23:24:00.000000000 +0300
-+++ b/nvidia390.spec	2023-04-14 21:10:02.600980439 +0300
-@@ -38,7 +38,6 @@
- %endif
+diff -auprN a/nvidia525.spec b/nvidia525.spec
+--- a/nvidia525.spec	2023-03-16 23:04:16.000000000 +0300
++++ b/nvidia525.spec	2023-04-14 20:10:30.540693774 +0300
+@@ -31,7 +31,7 @@
+ %define pkgname %{pkgname64}
  
- %bcond_without external_glvnd
+ %bcond_without force_32bit_deps
 -%bcond_without binary_kernel_modules
++#%bcond_without binary_kernel_modules
  
  # no need to provide libraries in %%nvidia_libdir
  %global __provides_exclude ^lib.*\\.so
-@@ -59,9 +58,9 @@
+@@ -47,9 +47,7 @@
  
  %if %{with binary_kernel_modules}
  # e.g.: 5.10.71-generic-1rosa2021.1-x86_64
 -%define kabi_510 %(if rpm -q kernel-5.10-generic-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-5.10-generic-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
 -%define kabi_515 %(if rpm -q kernel-5.15-generic-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-5.15-generic-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
 -%define kabi_61 %(if rpm -q kernel-6.1-generic-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-6.1-generic-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
-+%define kabi_510 %(if rpm -q kernel-5.10-desktop-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-5.10-desktop-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
-+%define kabi_515 %(if rpm -q kernel-5.15-desktop-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-5.15-desktop-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
 +%define kabi_61 %(if rpm -q kernel-6.1-desktop-devel 1>/dev/null 2>/dev/null; then rpm -ql kernel-6.1-desktop-devel | grep -E '^/lib/modules/.*/source$' | tail -n1 | awk -F '/' '{print $4}'; else echo 0; fi)
  %define version_j %(echo %{VERSION} | awk -F '.' '{print $1}')
  %define version_n %(echo %{VERSION} | awk -F '.' '{print $2}')
  # For SRPM stage when auto-krokodil-rpm-macros is not installed
-@@ -80,8 +79,6 @@
+@@ -73,8 +71,6 @@
  # n - name
  %define nv_cross_conflict(n:) %{expand:
  Provides:	nvidia-%{-n*} = %{major}
@@ -31,8 +30,8 @@ diff -auprN a/nvidia390.spec b/nvidia390.spec
  }
  
  Summary:	NVIDIA proprietary X.org driver and libraries
-@@ -133,9 +130,7 @@ BuildRequires:	auto-krokodil-rpm-generat
- BuildRequires:	auto-krokodil-legacy-converter
+@@ -115,9 +111,7 @@ ExclusiveArch:	%{x86_64}
+ BuildRequires:	auto-krokodil-rpm-generators
  %if %{with binary_kernel_modules}
  BuildRequires:	auto-krokodil-rpm-macros
 -BuildRequires:	kernel-5.10-generic-devel
@@ -42,15 +41,21 @@ diff -auprN a/nvidia390.spec b/nvidia390.spec
  BuildRequires:	findutils
  BuildRequires:	zstd
  %endif
-@@ -170,22 +165,14 @@ Conflicts:	x11-driver-video-%{drivername
+@@ -131,6 +125,7 @@ BuildRequires:	pkgconfig(xxf86vm)
+ BuildRequires:	pkgconfig(vdpau) >= 1.1
+ BuildRequires:	pkgconfig(libtirpc)
+ BuildRequires:	pkgconfig(dbus-1)
++BuildRequires:	lib64pciaccess-devel
+ 
+ %description
+ The proprietary driver for NVidia GPUs, long-lived branch.
+@@ -153,16 +148,8 @@ Conflicts:	x11-driver-video-%{drivername
  Requires:	%{_lib}vdpau1 >= 1.1
  Requires:	auto-krokodil-filesystem
  %if %{with binary_kernel_modules}
 -%kroko_req_modules_in_nvidia -k 5.10 -f generic -j %{version_j} -n %{version_n}
 -%kroko_req_modules_in_nvidia -k 5.15 -f generic -j %{version_j} -n %{version_n}
 -%kroko_req_modules_in_nvidia -k 6.1 -f generic -j %{version_j} -n %{version_n}
-+%kroko_req_modules_in_nvidia -k 5.10 -f desktop -j %{version_j} -n %{version_n}
-+%kroko_req_modules_in_nvidia -k 5.15 -f desktop -j %{version_j} -n %{version_n}
 +%kroko_req_modules_in_nvidia -k 6.1 -f desktop -j %{version_j} -n %{version_n}
  %endif
 -Requires:	%{drivername}-cuda-opencl = %{EVRD}
@@ -62,13 +67,7 @@ diff -auprN a/nvidia390.spec b/nvidia390.spec
  
  # https://forum.rosalinux.ru/viewtopic.php?p=106968#p106968
  # XXX Maybe better use Supplements in plasma5-kwin-wayland-nvidia
- Recommends:	(plasma5-kwin-wayland-nvidia if plasma5-kwin)
--Requires:	(%{drivername}-dracut if dracut)
--Requires:	%{drivername}-blacklist
- 
- %if %{with external_glvnd}
- Requires:	%{_lib}gldispatch0
-@@ -367,19 +354,7 @@ rm -f nvidia-settings-%{version}/src/*/*
+@@ -370,19 +357,7 @@ rm -f nvidia-settings-%{version}/src/*/*
  
  %if %{with binary_kernel_modules}
  dir0="$PWD"
@@ -88,7 +87,7 @@ diff -auprN a/nvidia390.spec b/nvidia390.spec
  pushd %{pkgname}/kernel-6.1
  %make SYSSRC=/lib/modules/%{kabi_61}/source MODULE_ROOT="$PWD"
  mkdir -p "$dir0"/%{kabi_61}
-@@ -401,7 +376,7 @@ export LDFLAGS="%{?ldflags}"
+@@ -403,7 +378,7 @@ export LDFLAGS="%{?ldflags}"
  %install
  
  %if %{with binary_kernel_modules}
@@ -97,39 +96,8 @@ diff -auprN a/nvidia390.spec b/nvidia390.spec
  # copied from kernel
  # extract debuginfo
  # TODO: sync location of *.debug files with kernel
-@@ -869,10 +844,10 @@ done
- 
- # Create the convenience symlinks. As the packages with nvidia are mutually
- # exclusive now, there is no need to use alternatives for this.
--ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
--%ifarch %{biarches}
--	ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
--%endif
-+#ln -s %{nvidia_libdir} %{buildroot}%{_libdir}/nvidia
-+#%ifarch %{biarches}
-+#	ln -s %{nvidia_libdir32} %{buildroot}%{_prefix}/lib/nvidia
-+#%endif
- 
- # confirm SONAME; if something else than libvdpau_nvidia.so or libvdpau_nvidia.so.1, adapt .spec as needed:
- [ "$(objdump -p %{buildroot}%{nvidia_libdir}/vdpau/libvdpau_nvidia.so.%{version} | grep SONAME | gawk '{ print $2 }')" = "libvdpau_nvidia.so.1" ]
-@@ -1159,7 +1134,6 @@ modprobe -r nvidia > /dev/null 2>&1 || t
- %dir %{nvidia_libdir}
- %dir %{nvidia_libdir}/tls
- %dir %{nvidia_libdir}/vdpau
--%{_libdir}/nvidia
- %if ! %{with external_glvnd}
- %{nvidia_libdir}/libGL.so.1.0.0
- %{nvidia_libdir}/libGL.so.1
-@@ -1203,7 +1177,6 @@ modprobe -r nvidia > /dev/null 2>&1 || t
- %dir %{nvidia_libdir32}
- %dir %{nvidia_libdir32}/tls
- %dir %{nvidia_libdir32}/vdpau
--%{_prefix}/lib/nvidia
- %if ! %{with external_glvnd}
- %{nvidia_libdir32}/libGL.so.1.0.0
- %{nvidia_libdir32}/libGL.so.1
-@@ -1335,9 +1308,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
- %endif
+@@ -1401,9 +1376,7 @@ modprobe -r nvidia > /dev/null 2>&1 || t
+ %{nvidia_libdir32}/libcuda.so.1
  
  %if %{with binary_kernel_modules}
 -%kroko_kmod_pkg -r %{kroko_release} -j %{version_j} -n %{version_n} -f generic -k 5.10 -m %(if rpm -q kernel-5.10-generic 1>/dev/null 2>/dev/null; then rpm -q --qf '%%{version}\n' kernel-5.10-generic | tail -n1 | awk -F '.' '{print $3}'; else echo 0; fi) -p %{kabi_510} -s %{NAME} -c .zst

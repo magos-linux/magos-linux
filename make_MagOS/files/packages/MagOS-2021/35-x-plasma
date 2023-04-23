@@ -145,8 +145,8 @@ lib64fakekey0
 lib64grantlee-qt5-modules
 lib64Grantlee_Templates5
 lib64indicator7
-lib64k3bdevice7
-lib64k3blib7
+lib64k3bdevice8
+lib64k3blib8
 lib64kaccounts2
 lib64kaccounts-qml
 lib64kbookmarkmodel_private6
@@ -155,7 +155,7 @@ lib64kcmkwincommon5
 lib64kde3support4
 lib64kdeclarative5
 lib64kdecorations2_5
-lib64kdecorations2private9
+lib64kdecorations2private10
 lib64kdefakes5
 lib64kdesu5
 lib64kdeui5
@@ -298,9 +298,8 @@ lib64kutils4
 lib64kwaylandserver5
 lib64kwin5
 lib64kwin-qml
-lib64kwineffects13
-lib64kwinglutils13
-lib64kwinxrenderutils13
+lib64kwineffects14
+lib64kwinglutils14
 lib64kworkspace5_5
 lib64milou5
 lib64milou-qml
@@ -308,7 +307,7 @@ lib64musicbrainz5_1
 lib64nepomuk4
 lib64nepomukquery4
 lib64nepomukutils4
-lib64okular5core9
+lib64okular5core10
 lib64oxygen-gtk
 lib64oxygen-gtk3
 lib64oxygenstyle5_5
@@ -379,7 +378,6 @@ oxygen-cursor-theme-zion
 oxygen-gtk
 oxygen-gtk3
 plasma5-applet-activitybar
-plasma5-applet-activitypager
 plasma5-applet-analogclock
 plasma5-applet-appmenu
 plasma5-applet-battery
@@ -456,7 +454,6 @@ plasma5-dataengine-filebrowser
 plasma5-dataengine-geolocation
 plasma5-dataengine-hotplug
 plasma5-dataengine-keystate
-plasma5-dataengine-konsoleprofiles
 plasma5-dataengine-mouse
 plasma5-dataengine-mpris2
 plasma5-dataengine-notifications
@@ -506,9 +503,6 @@ plasma5-klipper
 plasma5-kmenuedit
 plasma5-konsole
 plasma5-kscreen
-plasma5-ksplash-theme-classic
-plasma5-ksplash-theme-minimalistic
-plasma5-ksplash-theme-none
 plasma5-kwalletmanager
 plasma5-kwin
 plasma5-kwrite
@@ -647,7 +641,6 @@ plasma5-color-scheme-oxygen
 plasma5-kcm-desktoptheme
 plasma5-kcm-fontinst
 plasma5-kcm-lookandfeel
-plasma5-kcm-translations
 plasma5-look-and-feel-breeze-twilight
 lib64qt5pdf5
 plasma5-kamera
@@ -686,7 +679,7 @@ kunitconversion
 kwayland-server
 layer-shell-qt
 lib64attica-kde4_0.4
-lib64kerfuffle21
+lib64kerfuffle22
 lib64kf5pulseaudioqt3
 lib64kimageannotator0.6.0
 lib64konsoleapp1
@@ -723,3 +716,16 @@ plasma5-windowswitcher-flipswitch
 lib64kf5configqml5
 lib64kf5kcmutilscore5
 lib64kf5newstuffwidgets5
+flatpak-kcm
+plasma5-kate
+lib64kf5kexiv2_5
+lib64kf5screendpms8
+lib64kf5pipewirerecord5
+lib64kf5pipewire5
+plasma5-color-scheme-breeze-aqua
+plasma5-workspace-x11
+kpipewire
+lib64flatpak0
+lib64kf5pipewiredmabuf5
+lib64ksanecore5
+lib64ostree1

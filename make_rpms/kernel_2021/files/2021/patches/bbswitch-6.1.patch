@@ -1,6 +1,6 @@
 diff -auprN a/usr/src/bbswitch-0.8-5/bbswitch.c b/usr/src/bbswitch-0.8-5/bbswitch.c
---- a/usr/src/bbswitch-0.8-5/bbswitch.c	2017-02-07 21:24:18.000000000 +0300
-+++ b/usr/src/bbswitch-0.8-5/bbswitch.c	2021-05-28 19:30:38.000000000 +0300
+--- a/usr/src/bbswitch-0.8-5/bbswitch.c	2023-04-14 19:21:47.871459224 +0300
++++ b/usr/src/bbswitch-0.8-5/bbswitch.c	2023-04-14 19:22:43.505463689 +0300
 @@ -35,6 +35,10 @@
  #include <linux/suspend.h>
  #include <linux/seq_file.h>
@@ -12,7 +12,20 @@ diff -auprN a/usr/src/bbswitch-0.8-5/bbswitch.c b/usr/src/bbswitch-0.8-5/bbswitc
  
  #define BBSWITCH_VERSION "0.8"
  
-@@ -375,6 +379,15 @@ static int bbswitch_pm_handler(struct no
+@@ -262,10 +266,9 @@ static void bbswitch_off(void) {
+     pci_disable_device(dis_dev);
+     do {
+         struct acpi_device *ad = NULL;
+-        int r;
+ 
+-        r = acpi_bus_get_device(dis_handle, &ad);
+-        if (r || !ad) {
++        ad = acpi_fetch_acpi_dev(dis_handle);
++        if (!ad) {
+             pr_warn("Cannot get ACPI device for PCI device\n");
+             break;
+         }
+@@ -375,6 +378,15 @@ static int bbswitch_pm_handler(struct no
      return 0;
  }
  
@@ -28,7 +41,7 @@ diff -auprN a/usr/src/bbswitch-0.8-5/bbswitch.c b/usr/src/bbswitch-0.8-5/bbswitc
  static struct file_operations bbswitch_fops = {
      .open   = bbswitch_proc_open,
      .read   = seq_read,
-@@ -382,6 +395,7 @@ static struct file_operations bbswitch_f
+@@ -382,6 +394,7 @@ static struct file_operations bbswitch_f
      .llseek = seq_lseek,
      .release= single_release
  };

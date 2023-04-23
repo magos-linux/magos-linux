@@ -118,6 +118,8 @@ lib64projectm3
 libprojectm-data
 obexfs
 mlt
+mlt-cli
+mlt-common
 lib64mlt7
 lib64mlt++7
 lib64movit8

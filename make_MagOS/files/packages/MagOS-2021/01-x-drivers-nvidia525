@@ -1,0 +1,6 @@
+kernel-modules-nvidia525-6.1-desktop
+nvidia525-core
+nvidia525-blacklist
+nvidia525-dracut
+nvidia525-power
+nvidia525-wayland

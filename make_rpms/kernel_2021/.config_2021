@@ -1,4 +1,4 @@
-KERNELURL=http://mirror.rosalinux.com/rosa/rosa2021.1/repository/SRPMS/main/release/kernel-5.15-generic-5.15.43-2.src.rpm
+KERNELURL=http://mirror.rosalinux.com/rosa/rosa2021.1/repository/SRPMS/main/release/kernel-6.1-generic-6.1.20-2.src.rpm
 BUILDEXC="kernel-source-rosa-test-suite"
 BUILDDEPS="rpm-build dkms"
-DKMS="bbswitch virtualbox rtl8192eu"
+DKMS="bbswitch virtualbox vboxadditions rtl8192eu"
