@@ -9,8 +9,8 @@ MYPATH=$(readlink -f $MYPATH)
 MTMP=/tmp/makemagos.tmp
 mkdir -p $MTMP
 
-cd ../git/magos-linux || cd ../
-git pull || exit 1
+#cd ../git/magos-linux || cd ../
+#git pull || exit 1
 cd "$MYPATH"
 
 git clone https://github.com/neobht/uird.git  $MTMP/uird

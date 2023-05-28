@@ -12,6 +12,7 @@ rm -fr 2>/dev/null \
    etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop \
    etc/xdg/autostart/hplip-systray.desktop \
    etc/xdg/plasma-workspace/env/gtk*.sh \
+   etc/xdg/kxkbrc \
    usr/share/GeoIP/GeoLiteCity.dat \
    usr/share/apps/kio_desktop/DesktopLinks/* \
    usr/share/applications/gscriptor.desktop \

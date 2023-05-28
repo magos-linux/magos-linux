@@ -976,3 +976,4 @@ lib64brotlicommon1
 lib64brotlidec1
 lib64brotlienc1
 ostree
+libmbim-utils

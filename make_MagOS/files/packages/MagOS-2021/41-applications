@@ -147,7 +147,7 @@ lib64opencv_tracking4.5
 lib64opencv_video4.5
 lib64opencv_videoio4.5
 lib64ubsan1
-lib64tesseract4
+lib64tesseract5
 lib64lept5
 avidemux-qt
 avidemux-cli
