@@ -336,7 +336,7 @@ lib64florence1.0_1
 lib64fltk1.3
 lib64fluidsynth3
 lib64fm4
-lib64fm-qt12
+lib64fm-qt13
 lib64fontenc1
 lib64freebl3
 lib64freeglut3
@@ -468,7 +468,7 @@ lib64IDL2_0
 lib64ieee1284_3
 lib64Iex2_5_25
 lib64IexMath2_5_25
-lib64IlmImf2_5_25
+lib64IlmImf2_5_26
 lib64IlmThread2_5_25
 lib64Imath2_5_25
 lib64imlib2_1
