@@ -5366,6 +5366,7 @@ winetricks_wine_setup()
                 "${WINE}server" \
                 "$(command -v wineserver 2> /dev/null)" \
                 "$(dirname "${WINE}")/server/wineserver" \
+                "$(dirname "${WINE}")/wineserver" \
                 /usr/bin/wineserver-development \
                 /usr/lib/wine/wineserver \
                 /usr/lib/i386-kfreebsd-gnu/wine/wineserver \
@@ -5578,6 +5579,8 @@ Options:
     --update-rollback Rollback the last self update
 -k, --keep_isos       Cache isos (allows later installation without disc)
     --no-clean        Don't delete temp directories (useful during debugging)
+    --optin           Opt in to reporting which verbs you use to the Winetricks maintainers
+    --optout          Opt out of reporting which verbs you use to the Winetricks maintainers
 -q, --unattended      Don't ask any questions, just install automatically
 -r, --ddrescue        Retry hard when caching scratched discs
 -t  --torify          Run downloads under torify, if available
@@ -9929,21 +9932,21 @@ w_metadata dotnet6 dlls \
     publisher="Microsoft" \
     year="2023" \
     media="download" \
-    file1="dotnet-runtime-6.0.16-win-x86.exe" \
+    file1="dotnet-runtime-6.0.19-win-x86.exe" \
     installed_file1="${W_PROGRAMS_WIN}/dotnet/dotnet.exe"
 
 load_dotnet6()
 {
     # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-    w_download https://download.visualstudio.microsoft.com/download/pr/78caa28b-2982-43ed-8b9c-20e3369f0795/c771e9fd12a67068436115cf295740f7/dotnet-runtime-6.0.16-win-x86.exe 03f8beb982dcf92cdcc55b374e2f0a3adb64c7399eee228f23fd8ff0e3ead0d0
+    w_download https://download.visualstudio.microsoft.com/download/pr/6b04af90-1760-4f04-93bc-548cc03f1d4b/1479bfb3a68bd45bdce774e18449fe6c/dotnet-runtime-6.0.19-win-x86.exe cc1e7714b2f988c779de37c831857e5fa9d9f3d3a53d02298679a2c514c55649
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
 
     if [ "${W_ARCH}" = "win64" ]; then
         # Also install the 64-bit version
-        w_download https://download.visualstudio.microsoft.com/download/pr/456fdf02-f100-4664-916d-fd46c192efea/619bbd8426537632b7598b4c7c467cf1/dotnet-runtime-6.0.16-win-x64.exe 2d8416f924f140b5dd14ac781d8782a70168866fc992fe84a946d0d15c0c4925
-        w_try "${WINE}" "dotnet-runtime-6.0.16-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
+        w_download https://download.visualstudio.microsoft.com/download/pr/7bb7f85b-9bf0-4c6f-b3e4-a3832720f162/73e280cfd7f686c34748e0bf98d879c7/dotnet-runtime-6.0.19-win-x64.exe e9b1a354e9d207465fc635be80984d842f94d75171a141e51f3151bbfcb06945
+        w_try "${WINE}" "dotnet-runtime-6.0.19-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
     fi
 }
 
@@ -9954,21 +9957,21 @@ w_metadata dotnetdesktop6 dlls \
     publisher="Microsoft" \
     year="2023" \
     media="download" \
-    file1="windowsdesktop-runtime-6.0.16-win-x86.exe" \
+    file1="windowsdesktop-runtime-6.0.19-win-x86.exe" \
     installed_file1="${W_PROGRAMS_WIN}/dotnet/dotnet.exe"
 
 load_dotnetdesktop6()
 {
     # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-    w_download https://download.visualstudio.microsoft.com/download/pr/ea0e40d2-e326-453b-8cac-2719cbbefeca/b26458b139a500d3067ec25987030497/windowsdesktop-runtime-6.0.16-win-x86.exe e054954dea30f74a3093951062dd0bf792175935d150ef5e6945fe52c36cee9a
+    w_download https://download.visualstudio.microsoft.com/download/pr/1a0e6cd8-4c5b-4a25-8da6-6985792c5cad/aea270b977828772087496b7b073f383/windowsdesktop-runtime-6.0.19-win-x86.exe 9e0399dabe100ebe271b76615629891a10dc9b14aaedb3ec14d0e22e99925ddf
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
 
     if [ "${W_ARCH}" = "win64" ]; then
         # Also install the 64-bit version
-        w_download https://download.visualstudio.microsoft.com/download/pr/85473c45-8d91-48cb-ab41-86ec7abc1000/83cd0c82f0cde9a566bae4245ea5a65b/windowsdesktop-runtime-6.0.16-win-x64.exe 1c1e90c6732a6389c9ebddd73bdca565d2f35671c2e7113e1704cb0a183e744a
-        w_try "${WINE}" "windowsdesktop-runtime-6.0.16-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
+        w_download https://download.visualstudio.microsoft.com/download/pr/30841ca9-5538-40c3-9022-d1ba1e69f6e8/aa94715bc3d74ee0b2e27de757ef0cdb/windowsdesktop-runtime-6.0.19-win-x64.exe f95017731cd35fe71b27aa904fb64242b16f390c52ad6f9d464ddfe8c11325c9
+        w_try "${WINE}" "windowsdesktop-runtime-6.0.19-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
     fi
 }
 
@@ -13401,10 +13404,11 @@ load_vcrun2022()
     # https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
     # 2022-08-05: 14.32.31332 @ https://download.visualstudio.microsoft.com/download/pr/7331f052-6c2d-4890-8041-8058fee5fb0f/CF92A10C62FFAB83B4A2168F5F9A05E5588023890B5C0CC7BA89ED71DA527B0F/VC_redist.x86.exe cf92a10c62ffab83b4a2168f5f9a05e5588023890b5c0cc7ba89ed71da527b0f
     # 2023-04-30: 14.34.31938 @ https://download.visualstudio.microsoft.com/download/pr/b2519016-4a13-4120-936c-cae003d567c4/8AE59D82845159DB3A70763F5CB1571E45EBF6A1ADFECC47574BA17B019483A0/VC_redist.x86.exe 8ae59d82845159db3a70763f5cb1571e45ebf6a1adfecc47574ba17b019483a0
+    # 2023/07/04: 14.36.32532 @ https://download.visualstudio.microsoft.com/download/pr/eaab1f82-787d-4fd7-8c73-f782341a0c63/5365A927487945ECB040E143EA770ADBB296074ECE4021B1D14213BDE538C490/VC_redist.x86.exe 5365a927487945ecb040e143ea770adbb296074ece4021b1d14213bde538c490
 
     w_override_dlls native,builtin concrt140 msvcp140 msvcp140_1 msvcp140_2 msvcp140_atomic_wait msvcp140_codecvt_ids vcamp140 vccorlib140 vcomp140 vcruntime140
 
-    w_download https://aka.ms/vs/17/release/vc_redist.x86.exe 8ae59d82845159db3a70763f5cb1571e45ebf6a1adfecc47574ba17b019483a0
+    w_download https://aka.ms/vs/17/release/vc_redist.x86.exe 5365a927487945ecb040e143ea770adbb296074ece4021b1d14213bde538c490
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try_ms_installer "${WINE}" vc_redist.x86.exe ${W_OPT_UNATTENDED:+/q}
@@ -13414,11 +13418,12 @@ load_vcrun2022()
             # Also install the 64-bit version
             # 2022/08/05: 14.32.31332 @ https://download.visualstudio.microsoft.com/download/pr/7331f052-6c2d-4890-8041-8058fee5fb0f/CE6593A1520591E7DEA2B93FD03116E3FC3B3821A0525322B0A430FAA6B3C0B4/VC_redist.x64.exe 8ae59d82845159db3a70763f5cb1571e45ebf6a1adfecc47574ba17b019483a0
             # 2023/04/30: 14.34.31938 @ https://download.visualstudio.microsoft.com/download/pr/8b92f460-7e03-4c75-a139-e264a770758d/26C2C72FBA6438F5E29AF8EBC4826A1E424581B3C446F8C735361F1DB7BEFF72/VC_redist.x64.exe 26c2c72fba6438f5e29af8ebc4826a1e424581b3c446f8c735361f1db7beff72
+            # 2023/07/04: 14.36.32532 @ https://download.visualstudio.microsoft.com/download/pr/eaab1f82-787d-4fd7-8c73-f782341a0c63/917C37D816488545B70AFFD77D6E486E4DD27E2ECE63F6BBAAF486B178B2B888/VC_redist.x64.exe 917c37d816488545b70affd77d6e486e4dd27e2ece63f6bbaaf486b178b2b888
 
             # vcruntime140_1 is only shipped on x64:
             w_override_dlls native,builtin vcruntime140_1
 
-            w_download https://aka.ms/vs/17/release/vc_redist.x64.exe 26c2c72fba6438f5e29af8ebc4826a1e424581b3c446f8c735361f1db7beff72
+            w_download https://aka.ms/vs/17/release/vc_redist.x64.exe 917c37d816488545b70affd77d6e486e4dd27e2ece63f6bbaaf486b178b2b888
             w_try_ms_installer "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
     esac
@@ -16400,104 +16405,60 @@ w_metadata origin apps \
     year="2011" \
     media="download" \
     file1="OriginSetup.exe" \
+    file2="version_v2.dll" \
     installed_file1="${W_PROGRAMS_X86_WIN}/Origin/Origin.exe" \
     homepage="https://www.origin.com/"
 
-helper_origin_dl()
-{
-    # Skipping checksum as this changes too often
-    w_download_to origin https://origin-a.akamaihd.net/Origin-Client-Download/origin/live/OriginSetup.exe
-}
-
 load_origin()
 {
-    # Need to force wine-6.0 as Origin doesn't run below WineCX21 (wine32on64)
-    if [ "$(uname -s)" = "Darwin" ] && w_wine_version_in ,6.0 ; then
-        w_die "${W_PACKAGE} requires wine version 6.0 (or newer)"
-    fi
+    w_download_to origin https://taskinoz.com/downloads/OriginSetup-10.5.119.52718.exe ed6ee5174f697744ac7c5783ff9021da603bbac42ae9836cd468d432cadc9779 OriginSetup.exe
+    w_download_to origin https://github.com/p0358/Fuck_off_EA_App/releases/download/v2/version.dll 5f0bbb15f7cff8540642c28739db0cd6b15e77e5935f4e6701351eea86d929ab version_v2.dll
 
-    if [ "${WINETRICKS_FORCE}" != 1 ] && w_workaround_wine_bug 44691 "Installer fails under wine, manually unpacking it instead" 6.7,; then
-        w_call originupdater
-        w_warn "${W_PACKAGE} might fail, to update use the originupdate verb"
-    else
-        helper_origin_dl
-        w_try_cd "${W_CACHE}/${W_PACKAGE}"
-        w_try "${WINE}" "${file1}" /NoLaunch ${W_OPT_UNATTENDED:+/SILENT}
-    fi
+    w_try_cd "${W_CACHE}/${W_PACKAGE}"
+    w_try "${WINE}" "${file1}" /NoLaunch ${W_OPT_UNATTENDED:+/SILENT}
 
     if w_workaround_wine_bug 32342 "QtWebEngineProcess.exe crashes when updating or launching Origin (missing fonts)"; then
         w_call corefonts
     fi
 
-    if w_workaround_wine_bug 44258 "Origin crashes on start."; then
-        w_override_app_dlls igoproxy.exe disabled d3d10
-        w_override_app_dlls igoproxy.exe disabled d3d10_1
-        w_override_app_dlls igoproxy.exe disabled d3d10core
-        w_override_app_dlls igoproxy.exe disabled d3d11
-        w_override_app_dlls igoproxy.exe disabled d3d12
-        w_override_app_dlls igoproxy.exe disabled dxgi
-        w_override_app_dlls igoproxy.exe disabled vulkan-1
-        w_override_app_dlls igoproxy.exe disabled winevulkan
-
-        if [ "${W_ARCH}" = "win64" ]; then
-            w_override_app_dlls igoproxy64.exe disabled d3d10
-            w_override_app_dlls igoproxy64.exe disabled d3d10_1
-            w_override_app_dlls igoproxy64.exe disabled d3d10core
-            w_override_app_dlls igoproxy64.exe disabled d3d11
-            w_override_app_dlls igoproxy64.exe disabled d3d12
-            w_override_app_dlls igoproxy64.exe disabled dxgi
-            w_override_app_dlls igoproxy64.exe disabled vulkan-1
-            w_override_app_dlls igoproxy64.exe disabled winevulkan
-        fi
+    if w_workaround_wine_bug 36863 "Disabling Origin In-game overlay."; then
+        w_override_dlls disabled igoproxy.exe
+        w_override_dlls disabled igoproxy64.exe
     fi
 
     if w_workaround_wine_bug 44985 "Disabling libglesv2 to make Store and Library function correctly."; then
-        w_override_dlls disabled libglesv2
+        w_override_app_dlls Origin.exe disabled libglesv2
     fi
 
     # Avoids "An unexpected error has occurred. Please try again in a few moments. Error: 327684:3"
     # Games won't register correctly unless disabled
     if w_workaround_wine_bug 52781 "Origin does not notice games exiting, does not allow them to be relaunched."; then
-        w_override_app_dlls origin.exe disabled gameux
+        w_override_app_dlls Origin.exe disabled gameux
     fi
 
-    # Origin requirements
-    w_call vcrun2010
-    w_call vcrun2013
-    w_call vcrun2019
-
-    if w_wine_version_in ,6.3 ; then
-        w_call d3dcompiler_47
+    if [ "$(uname -s)" = "Darwin" ]; then
+        w_override_app_dlls EALink.exe disabled d3d10
+        w_override_app_dlls EALink.exe disabled d3d10core
+        w_override_app_dlls EALink.exe disabled d3d12
+        w_override_app_dlls EALink.exe disabled d3d11
+        w_override_app_dlls EALink.exe disabled dxgi
+        w_override_app_dlls Origin.exe disabled dxgi
     fi
 
-    w_warn "Origin In-game overlay must be disabled"
-}
+    w_warn "Workaround Forced EA app upgrade."
+    w_try cp -f "${W_CACHE}/${W_PACKAGE}/version_v2.dll" "${W_PROGRAMS_X86_UNIX}/Origin/version.dll"
+    w_override_app_dlls Origin.exe native version
 
-#----------------------------------------------------------------
+    w_warn "Pretend EA app is installed"
+    cat > "${W_TMP}"/ea-app.reg <<_EOF_
+REGEDIT4
 
-w_metadata originupdater apps \
-    title="EA Origin (updater)" \
-    publisher="EA" \
-    media="download" \
-    file1="../origin/OriginSetup.exe" \
-    homepage="https://www.origin.com/"
+[HKEY_LOCAL_MACHINE\\Software\\Electronic Arts\\EA Desktop]
+"InstallSuccessful"="true"
 
-load_originupdater()
-{
-    # Need to force wine-6.0 as Origin doesn't run below WineCX21 (wine32on64)
-    if [ "$(uname -s)" = "Darwin" ] && w_wine_version_in ,6.0 ; then
-        w_die "${W_PACKAGE} requires wine version 6.0 (or newer)"
-    fi
+_EOF_
+    w_try_regedit "${W_TMP}"/ea-app.reg
 
-    # Remove cached installer as the checksum changes too often that is even more critical for the updater function
-    w_try rm -f "${W_CACHE}/origin/OriginSetup.exe"
-
-    helper_origin_dl
-
-    w_try rm -rf "${W_PROGRAMS_X86_UNIX}"/Origin
-    w_try_7z "${W_CACHE}"/origin "${W_CACHE}"/origin/OriginSetup.exe update
-    w_try_7z "${W_PROGRAMS_X86_UNIX}"/Origin "${W_CACHE}"/origin/update/OriginUpdate_*_*_*_*.zip -aoa
-    w_try rm -rf "${W_CACHE}"/origin/update
 }
 
 #----------------------------------------------------------------
