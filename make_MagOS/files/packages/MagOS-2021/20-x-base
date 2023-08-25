@@ -1563,3 +1563,5 @@ dmtx-utils
 libbrotlidec1
 libbrotlicommon1
 lib64tpms0
+lib64protobuf-lite23
+lib64speechd2
