@@ -1064,6 +1064,34 @@ w_expand_env()
     winetricks_early_wine_arch cmd.exe /c echo "%$1%"
 }
 
+# Determine what architecture a binary file is built for
+winetricks_get_file_arch()
+{
+    _W_file="$1"
+    # macOS uses Mach-O binaries, not ELF
+    if [ "$(uname -s)" = "Darwin" ]; then
+        _W_lipo_output="$(lipo -archs "${_W_file}")"
+        case "${_W_lipo_output}" in
+            "arm64")  _W_file_arch="arm64" ;;
+            "i386")   _W_file_arch="i386" ;;
+            "x86_64") _W_file_arch="x86_64" ;;
+            *)        w_die "Unknown file arch: ${_W_lipo_output}" ;;
+        esac
+    else
+        # Assume ELF binaries for everything else
+        _W_ob_output="$(od -An -t x1 -j 0x12 -N 1 "${_W_file}" | tr -d "[:space:]")"
+        case "${_W_ob_output}" in
+            "3e")      _W_file_arch="x86_64" ;;
+            "03"|"06") _W_file_arch="i386" ;;
+            "b7")      _W_file_arch="aarch64" ;;
+            "28")      _W_file_arch="aarch32" ;;
+            *)         w_die "Unknown file arch: ${_W_ob_output}";;
+        esac
+    fi
+
+    echo "${_W_file_arch}"
+}
+
 # Get the latest tagged release from github.com API
 w_get_github_latest_release()
 {
@@ -3524,6 +3552,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Стартиране на explorer'
             _W_msg_uninstaller='Стартиране на uninstaller'
             _W_msg_winecmd='Стартиране на терминала'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Стартиране на терминала (за отстраняване на неизправности)'
             _W_msg_folder='Търсене на файлове'
             _W_msg_annihilate="Изтриване на ВСИЧКИ ДАННИ И ПРИЛОЖЕНИЯ В ТАЗИ ПАПКА"
@@ -3539,6 +3568,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Run explorer'
             _W_msg_uninstaller='Run uninstaller'
             _W_msg_winecmd='Run a Wine cmd shell'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Run a commandline shell (for debugging)'
             _W_msg_folder='Browse files'
             _W_msg_annihilate="Delete ALL DATA AND APPLICATIONS INSIDE THIS WINEPREFIX"
@@ -3554,6 +3584,7 @@ winetricks_mainmenu()
             _W_msg_explorer='explorer starten'
             _W_msg_uninstaller='uninstaller starten'
             _W_msg_winecmd='Starten Sie Wine cmd'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Eine Kommandozeile zum debuggen starten'
             _W_msg_folder='Ordner durchsuchen'
             _W_msg_annihilate="ALLE DATEIEN UND PROGRAMME IN DIESEM WINEPREFIX Löschen"
@@ -3569,6 +3600,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Uruchomić explorer'
             _W_msg_uninstaller='Uruchomić program odinstalowujący'
             _W_msg_winecmd='Uruchomić Wine cmd'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Uruchomić powłokę wiersza poleceń (dla debugowania)'
             _W_msg_folder='Przeglądać pliki'
             _W_msg_annihilate="Usuńąć WSZYSTKIE DANE I APLIKACJE WEWNĄTRZ TEGO PREFIKSU WINE"
@@ -3584,6 +3616,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Executar explorer'
             _W_msg_uninstaller='Executar desinstalador'
             _W_msg_winecmd='Executar Wine cmd'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Executar linha de comandos shell (para depuração)'
             _W_msg_folder='Gerenciar arquivos'
             _W_msg_annihilate="Apagar TODOS OS DADOS E APLICATIVOS DENTRO DESTE WINEPREFIX"
@@ -3599,6 +3632,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Запустить explorer (Проводник)'
             _W_msg_uninstaller='Запустить uninstaller (установка и удаление программ)'
             _W_msg_winecmd='Запустить wine cmd (командную строку)'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Запустить графический терминал (для отладки)'
             _W_msg_folder='Запустить winefile (проводник файлов)'
             _W_msg_annihilate="Удалить ВСЕ ДАННЫЕ И ПРИЛОЖЕНИЯ в этом префиксе"
@@ -3614,6 +3648,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Запустити explorer'
             _W_msg_uninstaller='Встановлення/видалення програм'
             _W_msg_winecmd='Запустіть оболонку Wine cmd'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Запуск командної оболонки (для налагодження)'
             _W_msg_folder='Перегляд файлів'
             _W_msg_annihilate="Видалити УСІ ДАНІ ТА ПРОГРАМИ З ЦЬОГО WINEPREFIX"
@@ -3629,6 +3664,7 @@ winetricks_mainmenu()
             _W_msg_explorer='运行资源管理器'
             _W_msg_uninstaller='运行卸载程序'
             _W_msg_winecmd='运行 Wine cmd'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='运行命令提示窗口 (作为调试)'
             _W_msg_folder='浏览容器中的文件'
             _W_msg_annihilate="删除容器中所有数据和应用程序"
@@ -3644,6 +3680,7 @@ winetricks_mainmenu()
             _W_msg_explorer='執行檔案總管'
             _W_msg_uninstaller='執行解除安裝程式'
             _W_msg_winecmd='運行 Wine cmd'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='執行命令提示視窗 (作為偵錯)'
             _W_msg_folder='瀏覽容器中的檔案'
             _W_msg_annihilate="刪除容器中所有資料和應用程式"
@@ -3659,6 +3696,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Run explorer'
             _W_msg_uninstaller='Run uninstaller'
             _W_msg_winecmd='Run a Wine cmd shell'
+            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
             _W_msg_shell='Run a commandline shell (for debugging)'
             _W_msg_folder='Browse files'
             _W_msg_annihilate="Delete ALL DATA AND APPLICATIONS INSIDE THIS WINEPREFIX"
@@ -3688,6 +3726,7 @@ winetricks_mainmenu()
                     FALSE explorer    '${_W_msg_explorer}' \
                     FALSE uninstaller '${_W_msg_uninstaller}' \
                     FALSE winecmd     '${_W_msg_winecmd}' \
+                    FALSE wine_misc_exe '${_W_msg_wine_misc_exe}' \
                     FALSE shell       '${_W_msg_shell}' \
                     FALSE folder      '${_W_msg_folder}' \
                     FALSE annihilate  '${_W_msg_annihilate}' \
@@ -3712,6 +3751,7 @@ winetricks_mainmenu()
                     explorer    "${_W_msg_explorer}" off \
                     uninstaller "${_W_msg_uninstaller}" off \
                     winecmd     "${_W_msg_winecmd}" off \
+                    wine_misc_exe "${_W_msg_wine_misc_exe}" off \
                     shell       "${_W_msg_shell}" off \
                     folder      "${_W_msg_folder}" off \
                     annihilate  "${_W_msg_annihilate}" off \
@@ -5011,13 +5051,28 @@ winetricks_set_wineprefix()
     # Using the variable W_SYSTEM32_DLLS instead of SYSTEM32 because some stuff does go under system32 for both arch's
     # e.g., spool/drivers/color
     if test -d "${W_DRIVE_C}/windows/syswow64"; then
+        # Check the bitness of wineserver + wine binary, used later to determine if we're on a WOW setup (no wine64)
+        # https://github.com/Winetricks/winetricks/issues/2030
+        _W_wineserver_binary_arch="$(winetricks_get_file_arch "${WINESERVER}")"
+        _W_wine_binary_arch="$(winetricks_get_file_arch "${WINE}")"
+
+        # determine wow64 type (new/old)
+        # FIXME: check what upstream is calling them
+        if [ "${_W_wineserver_binary_arch}" = "${_W_wine_binary_arch}" ]; then
+            _W_wow64_style="new"
+        else
+            _W_wow64_style="classic"
+        fi
+
         # Probably need fancier handling/checking, but for a basic start:
         # Note 'wine' may be named 'wine-stable'/'wine-staging'/etc.):
         # WINE64 = wine64, available on 64-bit prefixes
-        # WINE_ARCH = the native wine for the prefix (wine for 32-bit, wine64 for 64-bit)
+        # WINE_ARCH = the native wine for the prefix (wine for 32-bit or new wow mode, wine64 for classic wow mode)
         # WINE_MULTI = generic wine, new name
         if [ -n "${WINE64}" ]; then
             true
+        elif [ "${_W_wow64_style}" = "new" ]; then
+            WINE64="${WINE}"
         elif [ "${WINE%??}64" = "${WINE}" ]; then
             WINE64="${WINE}"
         elif command -v "${WINE}64" >/dev/null 2>&1; then
@@ -5086,9 +5141,14 @@ winetricks_set_wineprefix()
                 pt*) w_warn "Você está usando um WINEPREFIX de 64-bit. Observe que muitos casos instalam apenas versões de pacotes de 32-bit. Se você encontrar problemas, teste novamente em um WINEPREFIX limpo de 32-bit antes de relatar um bug." ;;
                 *) w_warn "You are using a 64-bit WINEPREFIX. Note that many verbs only install 32-bit versions of packages. If you encounter problems, please retest in a clean 32-bit WINEPREFIX before reporting a bug." ;;
             esac
+
+            if [ "${_W_wow64_style}" = "new" ]; then
+                w_warn "You apppear to be using Wine's new wow64 mode. Note that this is EXPERIMENTAL and not yet fully supported. If reporting an issue, be sure to mention this."
+            fi
         fi
 
     else
+        _W_wow64_style="none"
         WINE64="false"
         WINE_ARCH="${WINE}"
         WINE_MULTI="${WINE}"
@@ -10820,7 +10880,8 @@ load_icodecs()
     # Work around bug in codec's installer?
     # https://support.britannica.com/other/touchthesky/win/issues/TSTUw_150.htm
     # https://appdb.winehq.org/objectManager.php?sClass=version&iId=7091
-    w_try_regsvr ir50_32.dll
+    w_override_dlls native,builtin ir50_32
+    w_try_regsvr ir50_32
 
     # Apparently some codecs are missing, see https://github.com/Winetricks/winetricks/issues/302
     # Download at https://www.moviecodec.com/download-codec-packs/indeo-codecs-legacy-package-31/
@@ -13209,7 +13270,7 @@ w_metadata mfc140 dlls \
 
 load_mfc140()
 {
-    w_download_to vcrun2015 https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe fdd1e1f0dcae2d0aa0720895eff33b927d13076e64464bb7c7e5843b7667cd14
+    w_download_to vcrun2015 https://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x86.exe dafb8b5f4b46bfaf7faa1d0ad05211f5c9855f0005cd603f8b5037b6a708d6b6
 
     w_try_cabextract --directory="${W_TMP}/win32"  "${W_CACHE}"/vcrun2015/vc_redist.x86.exe -F 'a11'
     w_try_cabextract --directory="${W_TMP}/win32" "${W_TMP}/win32/a11"
@@ -13220,7 +13281,7 @@ load_mfc140()
     w_try_cp_dll "${W_TMP}/win32"/mfcm140u.dll "${W_SYSTEM32_DLLS}"/mfcm140u.dll
 
     if [ "${W_ARCH}" = "win64" ]; then
-        w_download_to vcrun2015 https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe 5eea714e1f22f1875c1cb7b1738b0c0b1f02aec5ecb95f0fdb1c5171c6cd93a3
+        w_download_to vcrun2015 https://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x64.exe d7257265dbc0635c96dd67ddf938a09abe0866cb2d4fa05f8b758c8644e724e4
 
         w_try_cabextract --directory="${W_TMP}/win64"  "${W_CACHE}"/vcrun2015/vc_redist.x64.exe -F 'a11'
         w_try_cabextract --directory="${W_TMP}/win64" "${W_TMP}/win64/a11"
@@ -19062,6 +19123,21 @@ load_winxp()
 
 #---- Main Program ----
 
+# In GUI mode, allow a user to select an arbitrary executable and start it
+winetricks_misc_exe()
+{
+    _W_title="Select the exectuable to run"
+    _W_filter="*.exe *.msi *.msu"
+
+    case "${WINETRICKS_GUI}" in
+        *zenity) _W_exe="$("${WINETRICKS_GUI}" --file-selection --file-filter="${_W_filter}" --title="${_W_title}")" ;;
+        *kdialog) _W_exe="$("${WINETRICKS_GUI}" --getopenfilename "${HOME}" "${_W_filter}")" ;;
+        *) w_die "winetricks_misc_exe only support zenity/kdialog at this time" ;;
+    esac
+    # Using start.exe so that .exe/.msi/.msu will work without extra fuss
+    "${WINE}" start.exe "$(w_winepath -w "${_W_exe}")"
+}
+
 winetricks_stats_save()
 {
     # Save opt-in status
@@ -19221,6 +19297,8 @@ winetricks_stats_log_command()
 winetricks_shell()
 {
     (
+        _W_escape() { printf "'%s'\\n" "$(printf '%s' "$1" | sed -e "s/'/'\\\\''/g")"; }
+
         w_try_cd "${W_DRIVE_C}"
         export WINE
 
@@ -19232,7 +19310,14 @@ winetricks_shell()
                 for term in gnome-terminal konsole Terminal xterm; do
                     if test "$(command -v ${term} 2>/dev/null)"; then
                         if [ -n "${*}" ]; then
-                            WINEDEBUG=-all ${term} -e "${*}"
+                            # Convert the list of arguments into a single
+                            # string while single quoting each argument.
+                            _W_args=""
+                            for arg in "$@"; do
+                                _W_args="${_W_args}$(_W_escape "${arg}") "
+                            done
+
+                            WINEDEBUG=-all ${term} -e "${_W_args}"
                         else
                             WINEDEBUG=-all ${term}
                         fi
@@ -19295,6 +19380,7 @@ execute_command()
         uninstaller) "${WINE}" uninstaller ;;
         shell) winetricks_shell ;;
         winecmd) winetricks_shell "${WINE}" "cmd.exe" ;;
+        wine_misc_exe) winetricks_misc_exe ;;
 
         # These have to come before *=disabled to avoid looking like DLLs
         cfc=disable*) w_call cfc=disabled ;;
