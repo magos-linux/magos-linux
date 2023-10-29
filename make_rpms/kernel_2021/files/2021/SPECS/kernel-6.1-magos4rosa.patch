@@ -1,7 +1,7 @@
-diff -aupr a/kernel.spec b/kernel.spec
---- a/kernel.spec	2023-04-15 20:43:22.576660703 +0300
-+++ b/kernel.spec	2023-04-15 20:44:16.967661580 +0300
-@@ -101,7 +101,7 @@
+diff -auprN a/kernel.spec b/kernel.spec
+--- a/kernel.spec	2023-08-30 17:02:28.000000000 +0300
++++ b/kernel.spec	2023-09-29 21:08:45.280128007 +0300
+@@ -104,7 +104,7 @@
  %bcond_with binary_shredder
  
  # Compress modules with zstd (zstd is good compression and fast decompression)
@@ -10,7 +10,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  # Spend more resources on compression, but make resulting size less;
  # decompression speed will not be affected, but more memory will be required
  # which should not a problem here (performance penalty from allocating more
-@@ -154,9 +154,6 @@
+@@ -157,9 +157,6 @@
  %define	debuginfo_files %{_builddir}/debuginfo_files.list
  
  # Append list of files generate by find-debuginfo.sh to our custom list
@@ -20,7 +20,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  
  ############################################################################
  
-@@ -184,7 +181,7 @@ cat %{_builddir}/debugfiles.list >> %{de
+@@ -187,7 +184,7 @@ cat %{_builddir}/debugfiles.list >> %{de
  # global, not define, must be expanded only once
  %global kroko_release %kroko_mk_release -n kernel-%{kernelversion}.%{patchlevel}-%{flavour}
  
@@ -29,7 +29,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  
  ############################################################################
  
-@@ -214,7 +211,20 @@ cat %{_builddir}/debugfiles.list >> %{de
+@@ -217,7 +214,20 @@ cat %{_builddir}/debugfiles.list >> %{de
  %define	build_perf	1
  %define	build_cpupower	1
  
@@ -50,7 +50,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %if %{with modxz}
  %define	kmod_suffix .xz
  %else
-@@ -222,6 +232,7 @@ cat %{_builddir}/debugfiles.list >> %{de
+@@ -225,6 +235,7 @@ cat %{_builddir}/debugfiles.list >> %{de
  %endif
  %else
  %define	kmod_suffix %{nil}
@@ -58,7 +58,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %endif
  
  %if !%{build_debug}
-@@ -382,6 +393,8 @@ Patch0628: 0628-input-added-TF307-serio-
+@@ -392,6 +403,8 @@ Patch0628: 0628-input-added-TF307-serio-
  Patch0629: 0629-input-new-driver-serdev-serio.patch
  Patch0630: 0630-phy-realtek-leds-configuration-for-RTL8211f.patch
  Patch0631: 0631-arm64-defconfig-for-Baikal-M-testing.patch
@@ -67,7 +67,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  
  # Disable AutoReq
  AutoReq:	0
-@@ -487,8 +500,6 @@ BuildRequires:	kernel-source-nvidia515
+@@ -497,8 +510,6 @@ BuildRequires:	kernel-source-nvidia515
  BuildRequires:	kernel-source-nvidia520
  BuildRequires:	kernel-source-nvidia525
  %endif
@@ -76,7 +76,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %if %{with binary_virtualbox_host}
  BuildRequires:	kernel-source-virtualbox
  %endif
-@@ -625,8 +636,6 @@ depmod -a %{kver_full}
+@@ -635,8 +646,6 @@ depmod -a %{kver_full}
  # vbox guest modules are in the mainline kernel now (vboxvideo vboxguest vboxsf)
  %exclude %{_modulesdir}/%{kver_full}/kernel/misc/vbox*.ko%{kmod_suffix}
  %endif
@@ -85,7 +85,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %if %{with nickel}
  %exclude %{_modulesdir}/%{kver_full}/kernel/misc/nlkm.ko%{kmod_suffix}
  %exclude %{_modulesdir}/%{kver_full}/kernel/misc/memfreetest.ko%{kmod_suffix}
-@@ -913,18 +922,16 @@ User Mode Linux (UML) kernel modules:
+@@ -923,18 +932,16 @@ User Mode Linux (UML) kernel modules:
  
  %ifarch %{ix86} %{x86_64}
  %ksob_mk_module_pkg -n wl -s net/wireless -r broadcom-wl-aliases
@@ -111,18 +111,16 @@ diff -aupr a/kernel.spec b/kernel.spec
  %ksob_mk_module_pkg -n v4l2loopback -s drivers/media -r v4l2loopback
  
  %if %{with binary_shredder}
-@@ -1023,8 +1030,9 @@ echo "Creating the kernel configuration
- cp %{SOURCE111} .
+@@ -1034,6 +1041,8 @@ cp %{SOURCE111} .
  cp %{SOURCE112} .
  cp %{SOURCE113} .
+ cp %{SOURCE114} .
 +cp %{SOURCE880} .
 +patch -p1 -i %{SOURCE880}
  cp kernel-%{arch_suffix}.config .config
--
- touch %{build_dir}/.config.append
  
- # Get rid of unwanted files
-@@ -1379,22 +1387,6 @@ _build_nvidia 520
+ touch %{build_dir}/.config.append
+@@ -1390,22 +1399,6 @@ _build_nvidia 520
  _build_nvidia 525
  %endif
  
@@ -145,7 +143,7 @@ diff -aupr a/kernel.spec b/kernel.spec
  %if %{with binary_shredder}
  cp -r "$(rpm -q --qf '/usr/src/shredder-kernel-%%{VERSION}-%%{RELEASE}' kernel-source-shredder-kernel)" kernel-source-shredder-kernel
  pushd kernel-source-shredder-kernel
-@@ -1717,10 +1709,11 @@ do
+@@ -1728,10 +1721,11 @@ do
  	echo "%dir $dir_no_buildroot" >> %{debuginfo_files}
  	%endif
  done
