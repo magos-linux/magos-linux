@@ -192,7 +192,7 @@ lib64dcerpc0
 lib64devmapper1.02
 lib64devmapper-event1.02
 lib64dmraid1
-lib64dns1112
+lib64dns1115
 lib64drop_ambient0
 lib64dw1
 lib64edit0
@@ -980,3 +980,4 @@ libmbim-utils
 lib64crc32c1
 lib64sharpyuv0
 termhelper
+ncompress

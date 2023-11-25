@@ -1566,3 +1566,5 @@ lib64tpms0
 lib64protobuf-lite23
 lib64speechd2
 hspell
+perl-libintl-perl
+webp-pixbuf-loader
