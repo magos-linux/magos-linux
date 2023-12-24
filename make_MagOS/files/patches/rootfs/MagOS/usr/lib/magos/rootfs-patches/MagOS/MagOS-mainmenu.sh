@@ -137,6 +137,7 @@ update_app kde4/bluedevil-monolithic "Qt;KDE;X-Bluetooth;X-KDE-settings-peripher
 update_app kde4/kruler "Qt;KDE;Graphics;Scanning;"
 update_app kde4/kgpg "Qt;KDE;Utility;Security;"
 update_app kde4/nepomukcleaner "Qt;KDE;X-KDE-Utilities-Desktop;"
+update_app kde5/org.kde.kate.desktop "Qt;KDE;Utility;TextEditor;"
 update_app kde5/org.kde.kcolorchooser "Qt;KDE;Graphics;Scanning;"
 update_app kde5/org.kde.kruler "Qt;KDE;Graphics;Scanning;"
 update_app kde5/org.kde.kamoso "Qt;KDE;AudioVideo;Recorder;"

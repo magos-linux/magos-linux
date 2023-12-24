@@ -1,4 +1,4 @@
 #!/bin/bash
 SOUND=/usr/share/sounds/ia_ora-notification.wav
 [ ! -f "$SOUND" ] && SOUND="$(find /usr/share/sounds/ -type f | grep -m1 .ogg$)"
-play -q $SOUND
+play -q $SOUND 2>/dev/null

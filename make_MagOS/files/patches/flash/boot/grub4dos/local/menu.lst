@@ -12,25 +12,25 @@ color white/black yellow/blue
 splashimage /boot/grub4dos/boot_xpm.gz
 
 iftitle [if exist /isomode] MagOS Linux-Загрузка с ISO/DVD
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 vt.global_cursor_default=1 uird.silent uird.from=/MagOS
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 vt.global_cursor_default=1 uird.silent uird.from=/MagOS init_on_alloc=1 slab_nomerge iommu=force iommu.strict=1 iommu.passthrough=0 randomize_kstack_offset=1 vsyscall=no tsx=off
 initrd /MagOS/uird.magos.cpio.xz
 
 iftitle [if not exist /isomode] MagOS Linux-С сохранением данных
 if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines init_on_alloc=1 slab_nomerge iommu=force iommu.strict=1 iommu.passthrough=0 randomize_kstack_offset=1 vsyscall=no tsx=off
 initrd /MagOS/uird.magos.cpio.xz
 
 title MagOS Linux-Чистый режим
 if not exist /MagOS/MagOS.sgn find --set-root --ignore-floppies --ignore-cd /MagOS/MagOS.sgn
-kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0
+kernel /MagOS/vmlinuz vga=791 splash=silent plymouth.enable=0 init_on_alloc=1 slab_nomerge iommu=force iommu.strict=1 iommu.passthrough=0 randomize_kstack_offset=1 vsyscall=no tsx=off
 initrd /MagOS/uird.magos.cpio.xz
 
 iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux-С сохранением данных (предыдущая версия)
-kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines uird.from=MagOS.bak;MagOS-Data
+kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.home=home.img uird.mode=machines uird.from=MagOS.bak;MagOS-Data init_on_alloc=1 slab_nomerge iommu=force iommu.strict=1 iommu.passthrough=0 randomize_kstack_offset=1 vsyscall=no tsx=off
 initrd /MagOS.bak/uird.magos.cpio.xz
 
 iftitle [if exist /MagOS.bak/MagOS.sgn] MagOS Linux-Чистый режим (предыдущая версия)
-kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.from=MagOS.bak;MagOS-Data
+kernel /MagOS.bak/vmlinuz vga=791 splash=silent plymouth.enable=0 uird.from=MagOS.bak;MagOS-Data init_on_alloc=1 slab_nomerge iommu=force iommu.strict=1 iommu.passthrough=0 randomize_kstack_offset=1 vsyscall=no tsx=off
 initrd /MagOS.bak/uird.magos.cpio.xz
 
 #title MagOS Linux-С сохранением данных (initrd)

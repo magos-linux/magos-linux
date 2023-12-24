@@ -32,10 +32,11 @@ fi
 # setting default alsa card if its specified
 if [ "$ALSACARD" -a "$ALSADEVICE" ] ;then
    echo -e "#you can specify default alsa device, check output of aplay -l\\ndefaults.pcm.card $ALSACARD\\ndefaults.pcm.device $ALSADEVICE" >/etc/skel/.asoundrc
-   for a in /home/* ;do
+   chmod 600 /etc/skel/.asoundrc
+   for a in /root /home/* ;do
       if [ ! -f $a/.asoundrc ] ;then
-         cp /etc/skel/.asoundrc $a
-         chmod 666 $a/.asoundrc
+         cp -p /etc/skel/.asoundrc $a
+         chown $(basename $a):$(basename $a) $a/.asoundrc
       fi
    done
 fi

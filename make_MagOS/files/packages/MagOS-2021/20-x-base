@@ -336,7 +336,7 @@ lib64florence1.0_1
 lib64fltk1.3
 lib64fluidsynth3
 lib64fm4
-lib64fm-qt13
+lib64fm-qt14
 lib64fontenc1
 lib64freebl3
 lib64freeglut3
@@ -1568,3 +1568,5 @@ lib64speechd2
 hspell
 perl-libintl-perl
 webp-pixbuf-loader
+lib64dav1d7
+lxqt-menu-data
