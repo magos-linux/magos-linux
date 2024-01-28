@@ -6,7 +6,7 @@
 
 # Name of this version of winetricks (YYYYMMDD)
 # (This doesn't change often, use the sha256sum of the file when reporting problems)
-WINETRICKS_VERSION=20230212-next
+WINETRICKS_VERSION=20240105-next
 
 # This is a UTF-8 file
 # You should see an o with two dots over it here [ö]
@@ -56,7 +56,7 @@ WINETRICKS_VERSION=20230212-next
 #
 # Copyright:
 #   Copyright (C) 2007-2014 Dan Kegel <dank!kegel.com>
-#   Copyright (C) 2008-2022 Austin English <austinenglish!gmail.com>
+#   Copyright (C) 2008-2024 Austin English <austinenglish!gmail.com>
 #   Copyright (C) 2010-2011 Phil Blankenship <phillip.e.blankenship!gmail.com>
 #   Copyright (C) 2010-2015 Shannon VanWagner <shannon.vanwagner!gmail.com>
 #   Copyright (C) 2010 Belhorma Bendebiche <amro256!gmail.com>
@@ -3554,7 +3554,7 @@ winetricks_mainmenu()
             _W_msg_explorer='Стартиране на explorer'
             _W_msg_uninstaller='Стартиране на uninstaller'
             _W_msg_winecmd='Стартиране на терминала'
-            _W_msg_wine_misc_exe='Run an arbitrary executable (.exe/.msi/.msu)'
+            _W_msg_wine_misc_exe='Стартиране на изпълним файл (.exe/.msi/.msu)'
             _W_msg_shell='Стартиране на терминала (за отстраняване на неизправности)'
             _W_msg_folder='Търсене на файлове'
             _W_msg_annihilate="Изтриване на ВСИЧКИ ДАННИ И ПРИЛОЖЕНИЯ В ТАЗИ ПАПКА"
@@ -3935,11 +3935,18 @@ winetricks_settings_menu()
                     # Begin 'title' strings localization code
                     # shellcheck disable=SC2154
                     case ${LANG} in
+                    bg*)
+                        case "${title_bg}" in
+                            "") ;;
+                            *) title="${title_bg}";;
+                        esac
+                    ;;
                     uk*)
                         case "${title_uk}" in
                             "") ;;
                             *) title="${title_uk}";;
                         esac
+                    ;;
                     esac
 
                     # End of code
@@ -4962,7 +4969,7 @@ winetricks_cleanup()
     fi
     test "${WINETRICKS_CACHE_SYMLINK}" && rm -f "${WINETRICKS_CACHE_SYMLINK}"
 
-    if [ "${W_OPT_NOCLEAN}" = 1 ]; then
+    if [ -z "${W_OPT_NOCLEAN}" ]; then
         rm -rf "${WINETRICKS_WORKDIR}"
         rm -rf "${W_TMP_EARLY}"
         rm -rf "${WINEPREFIX}/wrapper.cfg"
@@ -5488,10 +5495,10 @@ winetricks_wine_setup()
     # wine-2.8
     _wine_version_stripped="$(echo "${WINETRICKS_WINE_VERSION}" | cut -d ' ' -f1 | sed -e 's/wine-//' -e 's/-rc.*//')"
 
-    # If WINE is < 7.0, warn user:
-    # 7.0 doesn't do what I thought it would
-    if w_wine_version_in ,6.99 ; then
-        w_warn "Your version of wine ${_wine_version_stripped} is no longer supported upstream. You should upgrade to 7.x"
+    # If WINE is < 8.0, warn user:
+    # 8.0 doesn't do what I thought it would
+    if w_wine_version_in ,7.99 ; then
+        w_warn "Your version of wine ${_wine_version_stripped} is no longer supported upstream. You should upgrade to 8.x"
     fi
 
     winetricks_set_wineprefix "$1"
@@ -5519,6 +5526,8 @@ winetricks_usage()
     --update-rollback Отменя последното обновяване на това приложение
 -k, --keep_isos       Кешира .iso файловете (позволява инсталация без диск)
     --no-clean        Не изтрива временните директории (полезно е за отстраняване на неизправности)
+    --optin           Включва докладването за използваните глаголи към разработчиците на Winetricks
+    --optout          Изключва докладването за използваните глаголи към разработчиците на Winetricks
 -q, --unattended      Не задава въпроси, инсталира автоматично
 -r, --ddrescue        Повтаря опитите за кеширане на одраскани дискове
 -t  --torify          Стартира изтегляне с torify, ако е налично
@@ -6175,7 +6184,7 @@ w_metadata crypt32_winxp dlls \
     file1="../winxpsp3/WindowsXP-KB936929-SP3-x86-ENU.exe" \
     installed_file1="${W_SYSTEM32_DLLS_WIN}/crypt32.dll"
 
-load_crypt32()
+load_crypt32_winxp()
 {
     w_package_warn_win64 # Only the 32-bit DLL is installed
 
@@ -10109,14 +10118,14 @@ w_metadata dotnet7 dlls \
 load_dotnet7()
 {
     # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/7.0
-    w_download https://download.visualstudio.microsoft.com/download/pr/91a03ec1-d418-4d81-b664-545e2057b67f/b8b8066ac5d54b8c6c31960d678b5b30/dotnet-runtime-7.0.14-win-x86.exe 5ad4892fea92784c56cbb4f4a939a4f492addbbb01b2151344c99832157c000f16750c4852fd0c55f9fb9b305deeba266c426b2622486e2b51d214aee22c498e
+    w_download https://download.visualstudio.microsoft.com/download/pr/de4e320a-79ea-4304-9acf-975d91251aae/bf49bfe95aa6b22b66eb9af462dee480/dotnet-runtime-7.0.14-win-x86.exe aec1444479216f0175472ade3ed4195276a294029c697d41c4a5e92c8760d734
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
 
     if [ "${W_ARCH}" = "win64" ]; then
         # Also install the 64-bit version
-        w_download https://download.visualstudio.microsoft.com/download/pr/7f25ba8c-e2f3-4432-83c2-8ab41e361a3e/5201929d4c9b5752a47a9cf4d2b494e0/dotnet-runtime-7.0.14-win-x64.exe 6ae850b7ba826d7d5bee7c299c444fe93b89f9721250e3d6d2bf35435dc00138fe0839884483ed96058b27d44db9283fb61b65d929ca117c1888acb30a58ab2d
+        w_download https://download.visualstudio.microsoft.com/download/pr/5e3be9c1-4b4c-4605-b3bc-18ef04b3c8d5/b1f864adc9c81ab6680385a4270b3887/dotnet-runtime-7.0.14-win-x64.exe 0f52b4e0c33713f8ff7681708fce9074bb7177f51c395139ce243319930bc932
         w_try "${WINE}" "dotnet-runtime-7.0.14-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
     fi
 }
@@ -10134,14 +10143,14 @@ w_metadata dotnetdesktop7 dlls \
 load_dotnetdesktop7()
 {
     # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/7.0
-    w_download https://download.visualstudio.microsoft.com/download/pr/84986c79-dd13-4bbc-abef-294638d5864a/75d29754580986fef26b5d64ec880075/windowsdesktop-runtime-7.0.14-win-x86.exe 6784176e4e341c66fb49321acef2261a4067360dee11a1c51989c701eac707bc58848abce8ef6cd934135924317e1432dcb1504f03c184648685545c9356f1f5
+    w_download https://download.visualstudio.microsoft.com/download/pr/3a87d4cf-87c7-4432-89af-37f21dc651a7/7996e26d189d21afa4fe54a02062df5d/windowsdesktop-runtime-7.0.14-win-x86.exe 956da197039167099ccbb30b71efc9cf3ea4bdcb844016ca0de7c1e41c217e61
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
 
     if [ "${W_ARCH}" = "win64" ]; then
         # Also install the 64-bit version
-        w_download https://download.visualstudio.microsoft.com/download/pr/515cc796-e9f2-4b5c-be7f-b42f115a65a7/b0b146fcbf1d1c135807ff24b3d88093/windowsdesktop-runtime-7.0.14-win-x64.exe cb43e9852e719cc2b42a7e3f265e816e20629980f3f0eee6b655558efefb7c8749aedcc9cd7c1f7cbaed5e228ff6d7d2a9fe3cc5434c9a19869dd50921c3bea5
+        w_download https://download.visualstudio.microsoft.com/download/pr/8f5b0079-2bb4-49cd-874e-0f58703eff6e/7010b5f213a2c436a307eb385dbb16ff/windowsdesktop-runtime-7.0.14-win-x64.exe 863d7c749f8c3d9d9e444813b3f8b829ce6aed79dd2c70a9c29532a9d3688821
         w_try "${WINE}" "windowsdesktop-runtime-7.0.14-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
     fi
 }
@@ -10946,7 +10955,9 @@ load_icodecs()
 
     # Apparently some codecs are missing, see https://github.com/Winetricks/winetricks/issues/302
     # Download at https://www.moviecodec.com/download-codec-packs/indeo-codecs-legacy-package-31/
-    w_download https://s3.amazonaws.com/moviecodec/files/iv5setup.exe 51bec25488b5b94eb3ce49b0a117618c9526161fd0753817a7a724ce25ff0cad
+    # 2017/05/24: https://s3.amazonaws.com/moviecodec/files/iv5setup.exe 51bec25488b5b94eb3ce49b0a117618c9526161fd0753817a7a724ce25ff0cad
+    # 2023/12/30: https://download.civforum.de/civ2/iv5setup.exe
+    w_download https://download.civforum.de/civ2/iv5setup.exe 51bec25488b5b94eb3ce49b0a117618c9526161fd0753817a7a724ce25ff0cad
 
     # Extract the installer so that we can create and use a pre-recorded
     # Install Shield response file for unattended installations
@@ -11995,7 +12006,7 @@ w_metadata peverify dlls \
 
 load_peverify()
 {
-    w_download_to dotnet20sdk https://download.microsoft.com/download/c/4/b/c4b15d7d-6f37-4d5a-b9c6-8f07e7d46635/setup.exe 1d7337bfbb2c65f43c82d188688ce152af403bcb67a2cc2a3cc68a580ecd8200
+    w_download_to dotnet20sdk https://web.archive.org/web/20111102051348/https://download.microsoft.com/download/c/4/b/c4b15d7d-6f37-4d5a-b9c6-8f07e7d46635/setup.exe 1d7337bfbb2c65f43c82d188688ce152af403bcb67a2cc2a3cc68a580ecd8200
 
     # Seems to require dotnet20; at least doesn't work if dotnet40 is installed instead
     w_call dotnet20
@@ -12909,8 +12920,8 @@ load_vcrun6sp6()
     w_download https://www.ddsystem.com.br/update/setup/vb6+sp6/VS6SP6.EXE 7fa1d1778824b55a5fceb02f45c399b5d4e4dce7403661e67e587b5f455edbf3
 
     # extract the files instead of using installer to avoid https://github.com/Winetricks/winetricks/issues/1806
-    w_try_cabextract "${W_CACHE}/${W_PACKAGE}/${file1}" -d "${W_TMP}" -F vcredist.exe
-    w_try_cabextract "${W_TMP}/vcredist.exe" -d "${W_TMP}"
+    w_try_cabextract -d "${W_TMP}" -F vcredist.exe "${W_CACHE}/${W_PACKAGE}/${file1}"
+    w_try_cabextract -d "${W_TMP}" "${W_TMP}/vcredist.exe"
 
     for dll in asycfilt.dll comcat.dll mfc42.dll mfc42u.dll msvcirt.dll msvcp60.dll msvcrt.dll oleaut32.dll olepro32.dll stdole2.tlb; do
         w_try mv "${W_TMP}/${dll}" "${W_SYSTEM32_DLLS}"
@@ -13461,10 +13472,10 @@ load_vcrun2019()
     # 2021/08/26: 1acd8d5ea1cdc3eb2eb4c87be3ab28722d0825c15449e5c9ceef95d897de52fa
     # 2021/10/23: 80c7969f4e05002a0cd820b746e0acb7406d4b85e52ef096707315b390927824
     # 2022/01/18: 4c6c420cf4cbf2c9c9ed476e96580ae92a97b2822c21329a2e49e8439ac5ad30
-
+    # 2023/12/30: 29f649c08928b31e6bb11d449626da14b5e99b5303fe2b68afa63732ef29c946
     w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcp140_1 msvcp140_2 msvcp140_atomic_wait msvcp140_codecvt_ids vcamp140 vccorlib140 vcomp140 vcruntime140
 
-    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe 4c6c420cf4cbf2c9c9ed476e96580ae92a97b2822c21329a2e49e8439ac5ad30
+    w_download https://aka.ms/vs/16/release/vc_redist.x86.exe 29f649c08928b31e6bb11d449626da14b5e99b5303fe2b68afa63732ef29c946
 
     if w_workaround_wine_bug 50894 "Working around failing wusa.exe lookup via C:\windows\SysNative"; then
         w_store_winver
@@ -13491,11 +13502,12 @@ load_vcrun2019()
             # 2021/08/26: 003063723b2131da23f40e2063fb79867bae275f7b5c099dbd1792e25845872b
             # 2021/10/23: 9b9dd72c27ab1db081de56bb7b73bee9a00f60d14ed8e6fde45dab3e619b5f04
             # 2022/01/18: 296f96cd102250636bcd23ab6e6cf70935337b1bbb3507fe8521d8d9cfaa932f
+            # 2023/12/30: cee28f29f904524b7f645bcec3dfdfe38f8269b001144cd909f5d9232890d33b
 
             # vcruntime140_1 is only shipped on x64:
             w_override_dlls native,builtin vcruntime140_1
 
-            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe 296f96cd102250636bcd23ab6e6cf70935337b1bbb3507fe8521d8d9cfaa932f
+            w_download https://aka.ms/vs/16/release/vc_redist.x64.exe cee28f29f904524b7f645bcec3dfdfe38f8269b001144cd909f5d9232890d33b
             w_try_ms_installer "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
     esac
@@ -13554,10 +13566,10 @@ load_vcrun2022()
     # 2022-08-05: 14.32.31332 @ https://download.visualstudio.microsoft.com/download/pr/7331f052-6c2d-4890-8041-8058fee5fb0f/CF92A10C62FFAB83B4A2168F5F9A05E5588023890B5C0CC7BA89ED71DA527B0F/VC_redist.x86.exe cf92a10c62ffab83b4a2168f5f9a05e5588023890b5c0cc7ba89ed71da527b0f
     # 2023-04-30: 14.34.31938 @ https://download.visualstudio.microsoft.com/download/pr/b2519016-4a13-4120-936c-cae003d567c4/8AE59D82845159DB3A70763F5CB1571E45EBF6A1ADFECC47574BA17B019483A0/VC_redist.x86.exe 8ae59d82845159db3a70763f5cb1571e45ebf6a1adfecc47574ba17b019483a0
     # 2023/07/04: 14.36.32532 @ https://download.visualstudio.microsoft.com/download/pr/eaab1f82-787d-4fd7-8c73-f782341a0c63/5365A927487945ECB040E143EA770ADBB296074ECE4021B1D14213BDE538C490/VC_redist.x86.exe 5365a927487945ecb040e143ea770adbb296074ece4021b1d14213bde538c490
-
+    # 2023/12/30: c61cef97487536e766130fa8714dd1b4143f6738bfb71806018eee1b5fe6f057
     w_override_dlls native,builtin concrt140 msvcp140 msvcp140_1 msvcp140_2 msvcp140_atomic_wait msvcp140_codecvt_ids vcamp140 vccorlib140 vcomp140 vcruntime140
 
-    w_download https://aka.ms/vs/17/release/vc_redist.x86.exe 5365a927487945ecb040e143ea770adbb296074ece4021b1d14213bde538c490
+    w_download https://aka.ms/vs/17/release/vc_redist.x86.exe c61cef97487536e766130fa8714dd1b4143f6738bfb71806018eee1b5fe6f057
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try_ms_installer "${WINE}" vc_redist.x86.exe ${W_OPT_UNATTENDED:+/q}
@@ -13568,11 +13580,11 @@ load_vcrun2022()
             # 2022/08/05: 14.32.31332 @ https://download.visualstudio.microsoft.com/download/pr/7331f052-6c2d-4890-8041-8058fee5fb0f/CE6593A1520591E7DEA2B93FD03116E3FC3B3821A0525322B0A430FAA6B3C0B4/VC_redist.x64.exe 8ae59d82845159db3a70763f5cb1571e45ebf6a1adfecc47574ba17b019483a0
             # 2023/04/30: 14.34.31938 @ https://download.visualstudio.microsoft.com/download/pr/8b92f460-7e03-4c75-a139-e264a770758d/26C2C72FBA6438F5E29AF8EBC4826A1E424581B3C446F8C735361F1DB7BEFF72/VC_redist.x64.exe 26c2c72fba6438f5e29af8ebc4826a1e424581b3c446f8c735361f1db7beff72
             # 2023/07/04: 14.36.32532 @ https://download.visualstudio.microsoft.com/download/pr/eaab1f82-787d-4fd7-8c73-f782341a0c63/917C37D816488545B70AFFD77D6E486E4DD27E2ECE63F6BBAAF486B178B2B888/VC_redist.x64.exe 917c37d816488545b70affd77d6e486e4dd27e2ece63f6bbaaf486b178b2b888
-
+            # 2023/12/30: 4dfe83c91124cd542f4222fe2c396cabeac617bb6f59bdcbdf89fd6f0df0a32f
             # vcruntime140_1 is only shipped on x64:
             w_override_dlls native,builtin vcruntime140_1
 
-            w_download https://aka.ms/vs/17/release/vc_redist.x64.exe 917c37d816488545b70affd77d6e486e4dd27e2ece63f6bbaaf486b178b2b888
+            w_download https://aka.ms/vs/17/release/vc_redist.x64.exe 4dfe83c91124cd542f4222fe2c396cabeac617bb6f59bdcbdf89fd6f0df0a32f
             w_try_ms_installer "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
     esac
@@ -14042,17 +14054,15 @@ load_xna40()
 w_metadata xvid dlls \
     title="Xvid Video Codec" \
     publisher="xvid.org" \
-    year="2009" \
+    year="2019" \
     media="download" \
-    file1="Xvid-1.3.2-20110601.exe" \
+    file1="Xvid-1.3.7-20191228.exe" \
     installed_file1="${W_PROGRAMS_X86_WIN}/Xvid/xvid.ico"
 
 load_xvid()
 {
     w_call vcrun6
-    # 2011/06/03: http://www.koepi.info/Xvid-1.3.2-20110601.exe
-    # 2022/09/08: https://s3.amazonaws.com/moviecodec/files/Xvid-1.3.2-20110601.exe
-    w_download https://s3.amazonaws.com/moviecodec/files/Xvid-1.3.2-20110601.exe 74b23965cebe59e388eab6dba224b6b751ef4519454cc12086ade51c81f0a33c
+    w_download https://downloads.xvid.com/downloads/Xvid-1.3.7-20191228.exe 7997cb88db3331191042eef5238fbf2eba44b9d244f43554a712996eba2fff49
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
     # This will give a warning about Windows Media Player being out of date.
     # Turns out it's not checking the wmp version, but the presence of ${W_SYSTEM32_DLLS}/l3codecp.acm
@@ -14279,7 +14289,7 @@ w_metadata andale fonts \
 
 load_andale()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/7d/andale32.exe" 0524fe42951adc3a7eb870e32f0920313c71f170c859b5f770d82b4ee111e970
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/andale32.exe" 0524fe42951adc3a7eb870e32f0920313c71f170c859b5f770d82b4ee111e970
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/andale32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "AndaleMo.TTF"
     w_register_font andalemo.ttf "Andale Mono"
@@ -14297,8 +14307,8 @@ w_metadata arial fonts \
 
 load_arial()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/5e/arial32.exe" 85297a4d146e9c87ac6f74822734bdee5f4b2a722d7eaa584b7f2cbf76f478f6
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/5d/arialb32.exe" a425f0ffb6a1a5ede5b979ed6177f4f4f4fdef6ae7c302a7b7720ef332fec0a8
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/arial32.exe" 85297a4d146e9c87ac6f74822734bdee5f4b2a722d7eaa584b7f2cbf76f478f6
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/arialb32.exe" a425f0ffb6a1a5ede5b979ed6177f4f4f4fdef6ae7c302a7b7720ef332fec0a8
 
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/arial32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "Arial*.TTF"
@@ -14324,7 +14334,7 @@ w_metadata comicsans fonts \
 
 load_comicsans()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/52/comic32.exe" 9c6df3feefde26d4e41d4a4fe5db2a89f9123a772594d7f59afd062625cd204e
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/comic32.exe" 9c6df3feefde26d4e41d4a4fe5db2a89f9123a772594d7f59afd062625cd204e
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/comic32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "Comic*.TTF"
     w_register_font comicbd.ttf "Comic Sans MS Bold"
@@ -14342,7 +14352,7 @@ w_metadata courier fonts \
     installed_file1="${W_FONTSDIR_WIN}/cour.ttf"
 load_courier()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/1b/courie32.exe" bb511d861655dde879ae552eb86b134d6fae67cb58502e6ff73ec5d9151f3384
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/courie32.exe" bb511d861655dde879ae552eb86b134d6fae67cb58502e6ff73ec5d9151f3384
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/courie32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "cour*.ttf"
     w_register_font courbd.ttf "Courier New Bold"
@@ -14362,7 +14372,7 @@ w_metadata georgia fonts \
     installed_file1="${W_FONTSDIR_WIN}/georgia.ttf"
 load_georgia()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/f0/georgi32.exe" 2c2c7dcda6606ea5cf08918fb7cd3f3359e9e84338dc690013f20cd42e930301
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/georgi32.exe" 2c2c7dcda6606ea5cf08918fb7cd3f3359e9e84338dc690013f20cd42e930301
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/georgi32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "Georgia*.TTF"
     w_register_font georgiab.ttf "Georgia Bold"
@@ -14383,7 +14393,7 @@ w_metadata impact fonts \
 
 load_impact()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/10/impact32.exe" 6061ef3b7401d9642f5dfdb5f2b376aa14663f6275e60a51207ad4facf2fccfb
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/impact32.exe" 6061ef3b7401d9642f5dfdb5f2b376aa14663f6275e60a51207ad4facf2fccfb
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/impact32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "Impact.TTF"
     w_register_font impact.ttf "Impact"
@@ -14401,7 +14411,7 @@ w_metadata times fonts \
 
 load_times()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/fe/times32.exe" db56595ec6ef5d3de5c24994f001f03b2a13e37cee27bc25c58f6f43e8f807ab
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/times32.exe" db56595ec6ef5d3de5c24994f001f03b2a13e37cee27bc25c58f6f43e8f807ab
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/times32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "Times*.TTF"
     w_register_font timesbd.ttf "Times New Roman Bold"
@@ -14422,7 +14432,7 @@ w_metadata trebuchet fonts \
 
 load_trebuchet()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/fa/trebuc32.exe" 5a690d9bb8510be1b8b4fe49f1f2319651fe51bbe54775ddddd8ef0bd07fdac9
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/trebuc32.exe" 5a690d9bb8510be1b8b4fe49f1f2319651fe51bbe54775ddddd8ef0bd07fdac9
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/trebuc32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "[tT]rebuc*.ttf"
     w_register_font trebucbd.ttf "Trebuchet MS Bold"
@@ -14443,7 +14453,7 @@ w_metadata verdana fonts \
 
 load_verdana()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/a1/verdan32.exe" c1cb61255e363166794e47664e2f21af8e3a26cb6346eb8d2ae2fa85dd5aad96
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master//verdan32.exe" c1cb61255e363166794e47664e2f21af8e3a26cb6346eb8d2ae2fa85dd5aad96
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/verdan32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "Verdana*.TTF"
     w_register_font verdanab.ttf "Verdana Bold"
@@ -14464,7 +14474,7 @@ w_metadata webdings fonts \
 
 load_webdings()
 {
-    w_download_to corefonts "https://mirrors.kernel.org/gentoo/distfiles/95/webdin32.exe" 64595b5abc1080fba8610c5c34fab5863408e806aafe84653ca8575bed17d75a
+    w_download_to corefonts "https://github.com/pushcx/corefonts/raw/master/webdin32.exe" 64595b5abc1080fba8610c5c34fab5863408e806aafe84653ca8575bed17d75a
     w_try_cabextract -d "${W_TMP}" "${W_CACHE}"/corefonts/webdin32.exe
     w_try_cp_font_files "${W_TMP}" "${W_FONTSDIR_UNIX}" "Webdings.TTF"
     w_register_font webdings.ttf "Webdings"
@@ -14816,7 +14826,7 @@ w_metadata opensymbol fonts \
     publisher="libreoffice.org" \
     year="2022" \
     media="download" \
-    file1="fonts-opensymbol_102.11+LibO7.0.4-4+deb11u7_all.deb" \
+    file1="fonts-opensymbol_102.12+LibO7.6.4~rc1-1~bpo12+1_all.deb" \
     installed_file1="${W_FONTSDIR_WIN}/opens___.ttf"
 
 load_opensymbol()
@@ -14824,7 +14834,7 @@ load_opensymbol()
     # The OpenSymbol fonts are a replacement for the Windows Wingdings font from OpenOffice.org.
     # Need to w_download Debian since I can't find a standalone download from OpenOffice
     # Note: The source download package on debian is for _all_ of OpenOffice, which is 266 MB.
-    w_download https://cdn-aws.deb.debian.org/debian-security/pool/updates/main/libr/libreoffice/fonts-opensymbol_102.11+LibO7.0.4-4+deb11u7_all.deb 56932af381469673cea780c452644c193ec963e37756a3030428445d8fbc67c3
+    w_download http://ftp.us.debian.org/debian/pool/main/libr/libreoffice/fonts-opensymbol_102.12+LibO7.6.4~rc1-1~bpo12+1_all.deb e35e57a0a703fe656230a30c7675a5c5c4772a11c6f650634765234d1f0fa35f
     w_try_cd "${W_TMP}"
     w_try_ar "${W_CACHE}/${W_PACKAGE}/${file1}" data.tar.xz
     w_try tar -Jxf "${W_TMP}/data.tar.xz" ./usr/share/fonts/truetype/libreoffice/opens___.ttf
@@ -15660,7 +15670,7 @@ load_ie6()
         shdocvw.dll shell32.dll vbscript.dll webcheck.dll \
         wshcon.dll wshext.dll asctrls.ocx hhctrl.ocx mscomct2.ocx \
         plugin.ocx proctexe.ocx tdc.ocx webcheck.dll wshom.ocx; do
-        "${WINE}" regsvr32 /i ${i} > /dev/null 2>&1
+        w_try_regsvr32 /i ${i} > /dev/null 2>&1
     done
 
     # Set Windows version back to the default. Leave at win2k for better rendering (is there a bug for that?)
@@ -15757,7 +15767,7 @@ load_ie7()
         shdocvw.dll shell32.dll urlmon.dll vbscript.dll webcheck.dll \
         wshcon.dll wshext.dll asctrls.ocx hhctrl.ocx mscomct2.ocx \
         plugin.ocx proctexe.ocx tdc.ocx webcheck.dll wshom.ocx; do
-        "${WINE}" regsvr32 /i ${i} > /dev/null 2>&1
+        w_try_regsvr32 /i ${i} > /dev/null 2>&1
     done
 
     # Builtin ieproxy is in system32, but ie7's lives in Program Files. Native
@@ -15902,11 +15912,15 @@ load_ie8()
         shdocvw.dll shell32.dll urlmon.dll vbscript.dll webcheck.dll \
         wshcon.dll wshext.dll asctrls.ocx hhctrl.ocx mscomct2.ocx \
         plugin.ocx proctexe.ocx tdc.ocx uxtheme.dll webcheck.dll wshom.ocx; do
-        "${WINE}" regsvr32 /i ${i} > /dev/null 2>&1
-        if [ "${W_ARCH}" = "win64" ]; then
-            "${WINE64}" regsvr32 /i ${i} > /dev/null 2>&1
-        fi
+        w_try_regsvr32 /i ${i} > /dev/null 2>&1
     done
+
+    # only a few dlls register for win64?
+    if [ "${W_ARCH}" = "win64" ]; then
+        for i in browseui.dll shdocvw.dll shell32.dll urlmon.dll; do
+            w_try_regsvr64 /i ${i} > /dev/null 2>&1
+        done
+    fi
 
     if w_workaround_wine_bug 25648 "Setting TabProcGrowth=0 to avoid hang"; then
         cat > "${W_TMP}"/set-tabprocgrowth.reg <<_EOF_
@@ -15947,7 +15961,7 @@ _EOF_
     if [ "${W_ARCH}" = "win32" ]; then
         w_warn "To start ie8, from a terminal shell, use the command \"${WINE}\" '${W_PROGRAMS_WIN}\\\\Internet Explorer\\\\iexplore.exe'"
     else
-        w_warn "To start ie8 (32-bit), from a terminal shell, use the command \"${WINE}\" '${W_PROGRAMS_X86_WIN}\\\\Internet Explorer\\\\iexplore.exe'\nTo start ie8 (64-bit), from a terminal shell, use the command \"${WINE}\" '${W_PROGRAMS_WIN}\\\\Internet Explorer\\\\iexplore.exe'"
+        w_warn "To start ie8 (32-bit), from a terminal shell, use the command \"${WINE}\" '${W_PROGRAMS_X86_WIN}\\\\Internet Explorer\\\\iexplore.exe'\nTo start ie8 (64-bit), from a terminal shell, use the command \"${WINE64}\" '${W_PROGRAMS_WIN}\\\\Internet Explorer\\\\iexplore.exe'"
     fi
 
     w_restore_winver
@@ -17944,12 +17958,15 @@ load_wglgears()
 # DirectInput settings
 
 w_metadata mwo=force settings \
+    title_bg="Задайте принудително DirectInput MouseWarpOverride (необходимо за някои игри)" \
     title_uk="Встановити примусове DirectInput MouseWarpOverride (необхідно для деяких ігор)" \
     title="Set DirectInput MouseWarpOverride to force (needed by some games)"
 w_metadata mwo=enabled settings \
+    title_bg="Включете DirectInput MouseWarpOverride (по подразбиране)" \
     title_uk="Увімкнути DirectInput MouseWarpOverride (за замовчуванням)" \
     title="Set DirectInput MouseWarpOverride to enabled (default)"
 w_metadata mwo=disable settings \
+    title_bg="Изключете DirectInput MouseWarpOverride" \
     title_uk="Вимкнути DirectInput MouseWarpOverride" \
     title="Set DirectInput MouseWarpOverride to disable"
 
@@ -17979,6 +17996,7 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata fontfix settings \
+    title_bg="Проверете за неработещи шрифтове" \
     title_uk="Перевірка шрифтів" \
     title="Check for broken fonts"
 
@@ -18001,15 +18019,19 @@ load_fontfix()
 #----------------------------------------------------------------
 
 w_metadata fontsmooth=disable settings \
+    title_bg="Изключете изглаждането на шрифта" \
     title_uk="Вимкнути згладжування шрифту" \
     title="Disable font smoothing"
 w_metadata fontsmooth=bgr settings \
+    title_bg="Включете подпикселното изглаждане на шрифта за BGR LCD монитори" \
     title_uk="Увімкнути субпіксельне згладжування шрифту для BGR LCD моніторів" \
     title="Enable subpixel font smoothing for BGR LCDs"
 w_metadata fontsmooth=rgb settings \
+    title_bg="Включете подпикселното изглаждане на шрифта за RGB LCD монитори" \
     title_uk="Увімкнути субпіксельне згладжування шрифту для RGB LCD моніторів" \
     title="Enable subpixel font smoothing for RGB LCDs"
 w_metadata fontsmooth=gray settings \
+    title_bg="Включете подпикселното изглаждане на шрифта" \
     title_uk="Увімкнути субпіксельне згладжування шрифту" \
     title="Enable subpixel font smoothing"
 
@@ -18042,9 +18064,11 @@ _EOF_
 # Mac Driver settings
 
 w_metadata macdriver=mac settings \
+    title_bg="Включете драйвера на Mac - Quartz (по подразбиране)" \
     title_uk="Увімкнути рідний Mac Quartz драйвер (за замовчуванням)" \
     title="Enable the Mac native Quartz driver (default)"
 w_metadata macdriver=x11 settings \
+    title_bg="Изключете драйвера на Mac - Quartz и включете драйвера на X11" \
     title_uk="Вимкнути рідний Mac Quartz драйвер та використовувати замість нього X11" \
     title="Disable the Mac native Quartz driver, use X11 instead"
 
@@ -18064,10 +18088,13 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata mackeyremap=both settings \
+    title_bg="Включете преназначаването на клавишите Opt->Alt и Cmd->Ctrl за драйвера на Mac" \
     title="Enable mapping opt->alt and cmd->ctrl keys for the Mac native driver"
 w_metadata mackeyremap=left settings \
+    title_bg="Включете преназначаването на левите клавиши Opt->Alt и Cmd->Ctrl за драйвера на Mac" \
     title="Enable mapping of left opt->alt and cmd->ctrl keys for the Mac native driver"
 w_metadata mackeyremap=none settings \
+    title_bg="Не преназначавайте клавишите за драйвера на Mac (по подразбиране)" \
     title="Do not remap keys for the Mac native driver (default)"
 
 load_mackeyremap()
@@ -18099,9 +18126,11 @@ _EOF_
 # X11 Driver settings
 
 w_metadata grabfullscreen=y settings \
+    title_bg="Задайте принудително прихващане на курсора за прозорци на цял екран (необходимо за някои игри)" \
     title_uk="Примусове захоплення курсору для повноекранних вікон (необхідно для деяких ігор)" \
     title="Force cursor clipping for full-screen windows (needed by some games)"
 w_metadata grabfullscreen=n settings \
+    title_bg="Изключете прихващането на курсора за прозорци на цял екран (по подразбиране)" \
     title_uk="Вимкнути примусове захоплення курсору для повноекранних вікон (за замовчуванням)" \
     title="Disable cursor clipping for full-screen windows (default)"
 
@@ -18124,21 +18153,25 @@ _EOF_
 }
 
 w_metadata windowmanagerdecorated=y settings \
+    title_bg="Позволете на мениджъра на прозорците да декорира прозорците (по подразбиране)" \
     title_uk="Дозволити менеджеру вікон декорувати вікна (за замовчуванням)" \
     title="Allow the window manager to decorate windows (default)"
 w_metadata windowmanagerdecorated=n settings \
+    title_bg="Не позволявайте на мениджъра на прозорците да декорира прозорците" \
     title_uk="Не дозволяти менеджеру вікон декорувати вікна" \
     title="Prevent the window manager from decorating windows"
 
 #----------------------------------------------------------------
 
 w_metadata usetakefocus=y settings \
+    title_bg="Включете UseTakeFocus" \
     title_cz="Aktivovat UseTakeFocus" \
     title_uk="Увімкнути фокусування на вікні" \
     title_sk="Aktivovať UseTakeFocus" \
     title_tlh="Qorwagh buSchoH \'e\' chu\'" \
     title="Enable UseTakeFocus"
 w_metadata usetakefocus=n settings \
+    title_bg="Изключете UseTakeFocus (по подразбиране)" \
     title_cz="Deaktivovat UseTakeFocus (výchozí)" \
     title_uk="Вимкнути фокусування на вікні (за замовчуванням)" \
     title_sk="Deaktivovať UseTakeFocus (výchozí)" \
@@ -18185,9 +18218,11 @@ _EOF_
 }
 
 w_metadata windowmanagermanaged=y settings \
+    title_bg="Позволете на мениджъра на прозорците да управлява прозорците (по подразбиране)" \
     title_uk="Дозволити менеджеру вікон керування вікнами (за замовчуванням)" \
     title="Allow the window manager to control windows (default)"
 w_metadata windowmanagermanaged=n settings \
+    title_bg="Не позволявайте на мениджъра на прозорците да управлява прозорците" \
     title_uk="Не дозволяти менеджеру вікон керування вікнами" \
     title="Prevent the window manager from controlling windows"
 
@@ -18214,21 +18249,27 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata vd=off settings \
+    title_bg="Изключете виртуалния работен плот" \
     title_uk="Вимкнути віртуальний робочий стіл" \
     title="Disable virtual desktop"
 w_metadata vd=640x480 settings \
+    title_bg="Включете виртуалния работен плот с разделителна способност 640x480" \
     title_uk="Увімкнути віртуальний робочий стіл та встановити розмір 640x480" \
     title="Enable virtual desktop, set size to 640x480"
 w_metadata vd=800x600 settings \
+    title_bg="Включете виртуалния работен плот с разделителна способност 800x600" \
     title_uk="Увімкнути віртуальний робочий стіл та встановити розмір 800x600" \
     title="Enable virtual desktop, set size to 800x600"
 w_metadata vd=1024x768 settings \
+    title_bg="Включете виртуалния работен плот с разделителна способност 1024x768" \
     title_uk="Увімкнути віртуальний робочий стіл та встановити розмір 1024x768" \
     title="Enable virtual desktop, set size to 1024x768"
 w_metadata vd=1280x1024 settings \
+    title_bg="Включете виртуалния работен плот с разделителна способност 1280x1024" \
     title_uk="Увімкнути віртуальний робочий стіл та встановити розмір 1280x1024" \
     title="Enable virtual desktop, set size to 1280x1024"
 w_metadata vd=1440x900 settings \
+    title_bg="Включете виртуалния работен плот с разделителна способност 1440x900" \
     title_uk="Увімкнути віртуальний робочий стіл та встановити розмір 1440x900" \
     title="Enable virtual desktop, set size to 1440x900"
 
@@ -18272,8 +18313,10 @@ _EOF_
 # MIME-type file associations settings
 
 w_metadata mimeassoc=on settings \
+    title_bg="Включете експортирането на файловите асоциации от MIME към работния плот (по подразбиране)" \
     title="Enable exporting MIME-type file associations to the native desktop (default)"
 w_metadata mimeassoc=off settings \
+    title_bg="Изключете експортирането на файловите асоциации от MIME към работния плот" \
     title="Disable exporting MIME-type file associations to the native desktop"
 
 load_mimeassoc()
@@ -18329,9 +18372,11 @@ _EOF_
 # CheckFloatConstants settings
 
 w_metadata cfc=enabled settings \
+    title_bg="Включете CheckFloatConstants" \
     title_uk="Увімкнути CheckFloatConstants" \
     title="Enable CheckFloatConstants"
 w_metadata cfc=disabled settings \
+    title_bg="Изключете CheckFloatConstants (по подразбиране)" \
     title_uk="Вимкнути CheckFloatConstants (за замовчуванням)" \
     title="Disable CheckFloatConstants (default)"
 
@@ -18343,12 +18388,15 @@ load_cfc()
 # CSMT settings
 
 w_metadata csmt=force settings \
+    title_bg="Включете принудително сериализацията на командите от OpenGL или Vulkan между няколко командни потока в приложението" \
     title_uk="Увімкнути та примусити серіалізацію команд OpenGL або Vulkan між кількома потоками команд в одній програмі" \
     title="Enable and force serialisation of OpenGL or Vulkan commands between multiple command streams in the same application"
 w_metadata csmt=on settings \
+    title_bg="Включете Command Stream Multithreading (по подразбиране)" \
     title_uk="Увімкнути Command Stream Multithreading (за замовчуванням)" \
     title="Enable Command Stream Multithreading (default)"
 w_metadata csmt=off settings \
+    title_bg="Изключете Command Stream Multithreading"\
     title_uk="Вимкнути Command Stream Multithreading"\
     title="Disable Command Stream Multithreading"
 
@@ -18376,15 +18424,19 @@ _EOF_
 # DirectDraw settings
 
 w_metadata gsm=0 settings \
+    title_bg="Задайте MaxShaderModelGS на 0" \
     title_uk="Встановити MaxShaderModelGS на 0" \
     title="Set MaxShaderModelGS to 0"
 w_metadata gsm=1 settings \
+    title_bg="Задайте MaxShaderModelGS на 1" \
     title_uk="Встановити MaxShaderModelGS на 1" \
     title="Set MaxShaderModelGS to 1"
 w_metadata gsm=2 settings \
+    title_bg="Задайте MaxShaderModelGS на 2" \
     title_uk="Встановити MaxShaderModelGS на 2" \
     title="Set MaxShaderModelGS to 2"
 w_metadata gsm=3 settings \
+    title_bg="Задайте MaxShaderModelGS на 3" \
     title_uk="Встановити MaxShaderModelGS на 3" \
     title="Set MaxShaderModelGS to 3"
 
@@ -18396,6 +18448,7 @@ load_gsm()
 #----------------------------------------------------------------
 
 w_metadata npm=repack settings \
+    title_bg="Задайте NonPower2Mode на repack" \
     title_uk="Встановити NonPower2Mode на repack" \
     title="Set NonPower2Mode to repack"
 
@@ -18407,9 +18460,11 @@ load_npm()
 #----------------------------------------------------------------
 
 w_metadata orm=fbo settings \
+    title_bg="Задайте OffscreenRenderingMode=fbo (по подразбиране)" \
     title_uk="Встановити OffscreenRenderingMode=fbo (за замовчуванням)" \
     title="Set OffscreenRenderingMode=fbo (default)"
 w_metadata orm=backbuffer settings \
+    title_bg="Задайте OffscreenRenderingMode=backbuffer" \
     title_uk="Встановити OffscreenRenderingMode=backbuffer" \
     title="Set OffscreenRenderingMode=backbuffer"
 
@@ -18421,15 +18476,19 @@ load_orm()
 #----------------------------------------------------------------
 
 w_metadata psm=0 settings \
+    title_bg="Задайте MaxShaderModelPS на 0" \
     title_uk="Встановити MaxShaderModelPS на 0" \
     title="Set MaxShaderModelPS to 0"
 w_metadata psm=1 settings \
+    title_bg="Задайте MaxShaderModelPS на 1" \
     title_uk="Встановити MaxShaderModelPS на 1" \
     title="Set MaxShaderModelPS to 1"
 w_metadata psm=2 settings \
+    title_bg="Задайте MaxShaderModelPS на 2" \
     title_uk="Встановити MaxShaderModelPS на 2" \
     title="Set MaxShaderModelPS to 2"
 w_metadata psm=3 settings \
+    title_bg="Задайте MaxShaderModelPS на 3" \
     title_uk="Встановити MaxShaderModelPS на 3" \
     title="Set MaxShaderModelPS to 3"
 
@@ -18441,12 +18500,15 @@ load_psm()
 #----------------------------------------------------------------
 
 w_metadata shader_backend=glsl settings \
+    title_bg="Задайте shader_backend на glsl" \
     title_uk="Встановити shader_backend на glsl" \
     title="Set shader_backend to glsl"
 w_metadata shader_backend=arb settings \
+    title_bg="Задайте shader_backend на arb" \
     title_uk="Встановити shader_backend на arb" \
     title="Set shader_backend to arb"
 w_metadata shader_backend=none settings \
+    title_bg="Задайте shader_backend на none" \
     title_uk="Встановити shader_backend на none" \
     title="Set shader_backend to none"
 
@@ -18458,9 +18520,11 @@ load_shader_backend()
 #----------------------------------------------------------------
 
 w_metadata ssm=disabled settings \
+    title_bg="Изключете Struct Shader Math (по подразбиране)" \
     title_uk="Вимкнути Struct Shader Math (за замовчуванням)" \
     title="Disable Struct Shader Math (default)"
 w_metadata ssm=enabled settings \
+    title_bg="Включете Struct Shader Math"\
     title_uk="Увімкнути Struct Shader Math"\
     title="Enable Struct Shader Math"
 
@@ -18486,15 +18550,19 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata renderer=gdi settings \
+    title_bg="Задайте renderer на gdi" \
     title_uk="Встановити renderer на gdi" \
     title="Set renderer to gdi"
 w_metadata renderer=gl settings \
+    title_bg="Задайте renderer на gl" \
     title_uk="Встановити renderer на gl" \
     title="Set renderer to gl"
 w_metadata renderer=no3d settings \
+    title_bg="Задайте renderer на no3d" \
     title_uk="Встановити renderer на no3d" \
     title="Set renderer to no3d"
 w_metadata renderer=vulkan settings \
+    title_bg="Задайте renderer на vulkan" \
     title_uk="Встановити renderer на vulkan" \
     title="Set renderer to vulkan"
 
@@ -18506,21 +18574,27 @@ load_renderer()
 #----------------------------------------------------------------=
 
 w_metadata rtlm=auto settings \
+    title_bg="Задайте RenderTargetLockMode на auto (по подразбиране)" \
     title_uk="Встановити RenderTargetLockMode на авто (за замовчуванням)" \
     title="Set RenderTargetLockMode to auto (default)"
 w_metadata rtlm=disabled settings \
+    title_bg="Задайте RenderTargetLockMode на disabled" \
     title_uk="Вимкнути RenderTargetLockMode" \
     title="Set RenderTargetLockMode to disabled"
 w_metadata rtlm=readdraw settings \
+    title_bg="Задайте RenderTargetLockMode на readdraw" \
     title_uk="Встановити RenderTargetLockMode на readdraw" \
     title="Set RenderTargetLockMode to readdraw"
 w_metadata rtlm=readtex settings \
+    title_bg="Задайте RenderTargetLockMode на readtex" \
     title_uk="Встановити RenderTargetLockMode на readtex" \
     title="Set RenderTargetLockMode to readtex"
 w_metadata rtlm=texdraw settings \
+    title_bg="Задайте RenderTargetLockMode на texdraw" \
     title_uk="Встановити RenderTargetLockMode на texdraw" \
     title="Set RenderTargetLockMode to texdraw"
 w_metadata rtlm=textex settings \
+    title_bg="Задайте RenderTargetLockMode на textex" \
     title_uk="Встановити RenderTargetLockMode на textex" \
     title="Set RenderTargetLockMode to textex"
 
@@ -18532,6 +18606,7 @@ load_rtlm()
 #----------------------------------------------------------------
 
 w_metadata set_mididevice settings \
+    title_bg="Задайте устройството MIDImap към стойността, посочена в променливата на средата MIDI_DEVICE" \
     title="Set MIDImap device to the value specified in the MIDI_DEVICE environment variable"
 
 load_set_mididevice()
@@ -18554,15 +18629,19 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata videomemorysize=default settings \
+    title_bg="Оставете на Wine да открие паметта на видеокартата" \
     title_uk="Дати можливість Wine визначити розмір відеопам'яті" \
     title="Let Wine detect amount of video card memory"
 w_metadata videomemorysize=512 settings \
+    title_bg="Кажете на Wine, че видеокартата има 512 МБ памет" \
     title_uk="Повідомити Wine про 512МБ відеопам'яті" \
     title="Tell Wine your video card has 512MB RAM"
 w_metadata videomemorysize=1024 settings \
+    title_bg="Кажете на Wine, че видеокартата има 1024 МБ памет" \
     title_uk="Повідомити Wine про 1024МБ відеопам'яті" \
     title="Tell Wine your video card has 1024MB RAM"
 w_metadata videomemorysize=2048 settings \
+    title_bg="Кажете на Wine, че видеокартата има 2048 МБ памет" \
     title_uk="Повідомити Wine про 2048МБ відеопам'яті" \
     title="Tell Wine your video card has 2048MB RAM"
 
@@ -18598,15 +18677,19 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata vsm=0 settings \
+    title_bg="Задайте MaxShaderModelVS на 0" \
     title_uk="Встановити MaxShaderModelVS на 0" \
     title="Set MaxShaderModelVS to 0"
 w_metadata vsm=1 settings \
+    title_bg="Задайте MaxShaderModelVS на 1" \
     title_uk="Встановити MaxShaderModelVS на 1" \
     title="Set MaxShaderModelVS to 1"
 w_metadata vsm=2 settings \
+    title_bg="Задайте MaxShaderModelVS на 2" \
     title_uk="Встановити MaxShaderModelVS на 2" \
     title="Set MaxShaderModelVS to 2"
 w_metadata vsm=3 settings \
+    title_bg="Задайте MaxShaderModelVS на 3" \
     title_uk="Встановити MaxShaderModelVS на 3" \
     title="Set MaxShaderModelVS to 3"
 
@@ -18621,8 +18704,10 @@ load_vsm()
 #----------------------------------------------------------------
 
 w_metadata autostart_winedbg=enabled settings \
+    title_bg="Стартирайте автоматично winedbg при възникване на необработено изключение (по подразбиране)" \
     title="Automatically launch winedbg when an unhandled exception occurs (default)"
 w_metadata autostart_winedbg=disabled settings \
+    title_bg="Не позволявайте стартирането на winedbg при възникване на необработено изключение" \
     title="Prevent winedbg from launching when an unhandled exception occurs"
 
 load_autostart_winedbg()
@@ -18651,6 +18736,7 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata heapcheck settings \
+    title_bg="Включете кумулативната проверка с GlobalFlag" \
     title_uk="Увімкнути накопичувальну перевірку GlobalFlag" \
     title="Enable heap checking with GlobalFlag"
 
@@ -18669,6 +18755,7 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata nocrashdialog settings \
+    title_bg="Изключете диалоговия прозорец за срив" \
     title_uk="Вимкнути діалог про помилку" \
     title="Disable crash dialog"
 
@@ -18687,6 +18774,7 @@ _EOF_
 }
 
 w_metadata set_userpath settings \
+    title_bg="задайте потребителската променлива PATH в папката, посочена от местоположенията в променливата на средата WINEPATH с разделител ';'" \
     title_uk="" \
     title="set user PATH variable in wine prefix specified by native and/or wine paths in WINEPATH environment variable with ';' as path separator"
 
@@ -18708,9 +18796,11 @@ _EOF_
 # settings->misc
 
 w_metadata alldlls=default settings \
+    title_bg="Премахнете всички замени на DLL файловете" \
     title_uk="Видалити всі перевизначення DLL" \
     title="Remove all DLL overrides"
 w_metadata alldlls=builtin settings \
+    title_bg="Заменете DLL файловете" \
     title_uk="Перевизначити найбільш поширені DLL на вбудовані" \
     title="Override most common DLLs to builtin"
 
@@ -18725,6 +18815,7 @@ load_alldlls()
 #----------------------------------------------------------------
 
 w_metadata bad settings \
+    title_bg="Фалшив глагол, който винаги връща false" \
     title="Fake verb that always returns false"
 
 load_bad()
@@ -18735,6 +18826,7 @@ load_bad()
 #----------------------------------------------------------------
 
 w_metadata forcemono settings \
+    title_bg="Задайте принудително Mono вместо .NET (за отстраняване на грешки)" \
     title_uk="Примусове використання mono замість .NET (для налагодження)" \
     title="Force using Mono instead of .NET (for debugging)"
 
@@ -18747,6 +18839,7 @@ load_forcemono()
 #----------------------------------------------------------------
 
 w_metadata good settings \
+    title_bg="Фалшив глагол, който винаги връща true" \
     title="Fake verb that always returns true"
 
 load_good()
@@ -18757,8 +18850,10 @@ load_good()
 #----------------------------------------------------------------
 
 w_metadata hidewineexports=enable settings \
+    title_bg="Включете скриване на експортирането на Wine от приложенията (wine-staging)" \
     title="Enable hiding Wine exports from applications (wine-staging)"
 w_metadata hidewineexports=disable settings \
+    title_bg="Изключете скриване на експортирането на Wine от приложенията (wine-staging)" \
     title="Disable hiding Wine exports from applications (wine-staging)"
 
 load_hidewineexports()
@@ -18793,6 +18888,7 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata hosts settings \
+    title_bg="Добавете празни файлове в C:\\windows\\system32\\drivers\\etc\\{hosts,services}" \
     title_uk="Додати порожні файли у C:\\windows\\system32\\drivers\\etc\\{hosts,services}" \
     title="Add empty C:\\windows\\system32\\drivers\\etc\\{hosts,services} files"
 
@@ -18814,6 +18910,7 @@ load_hosts()
 #----------------------------------------------------------------
 
 w_metadata isolate_home settings \
+    title_bg="Премахнете връзките на папката към \$HOME" \
     title_uk="Видалити посилання на вино преміум на \$HOME" \
     title="Remove wineprefix links to \$HOME"
 
@@ -18846,6 +18943,7 @@ load_isolate_home()
 #----------------------------------------------------------------
 
 w_metadata native_mdac settings \
+    title_bg="Заменете odbc32, odbccp32 и oledb32" \
     title_uk="Перевизначити odbc32, odbccp32 та oledb32" \
     title="Override odbc32, odbccp32 and oledb32"
 
@@ -18878,6 +18976,7 @@ load_native_mdac()
 #----------------------------------------------------------------
 
 w_metadata native_oleaut32 settings \
+    title_bg="Заменете oleaut32" \
     title_uk="Перевизначити oleaut32" \
     title="Override oleaut32"
 
@@ -18889,6 +18988,7 @@ load_native_oleaut32()
 #----------------------------------------------------------------
 
 w_metadata remove_mono settings \
+    title_bg="Премахнете wine-mono" \
     title_uk="Видалити вбудоване wine-mono" \
     title="Remove builtin wine-mono"
 
@@ -18899,22 +18999,31 @@ load_remove_mono()
     # extracted to /usr/share/wine/mono, or equivalent), only 'Wine Mono Windows Support' will be installed.
     # If using the old .msi installer, *both* tarballs are installed.
     #
-    # So, we uninstall anything that has 'Wine Mono' in the name to handle both cases.
-    # If wine uninstaller can't find the application it will return 0 anyway.
-    mono_uuid="$("${WINE_ARCH}" uninstaller --list | grep 'Wine Mono' | cut -f1 -d\|)"
-    if test "${mono_uuid}"; then
-        for uuid in ${mono_uuid}; do
-            "${WINE_ARCH}" uninstaller --remove "${uuid}"
-        done
+    # Sometime later, the installer name was updated to 'Wine Mono Runtime'
+    #
+    # And then in 8.22, uninstaller now returns an error rather than 0 if an uninstaller can't be found
+    # That can be avoided with the --silent option, but that option doesn't exist in older versions.
+    #
+    # So, now, loop through and try to uninstaller them one at a time.
+
+    mono_install_found=0
+    for mono_installer_desc in 'Wine Mono Windows Support' 'Wine Mono Runtime' 'Wine Mono'; do
+        mono_uuid="$(WINEDEBUG=-all "${WINE_ARCH}" uninstaller --list 2>&1 | grep "${mono_installer_desc}" | cut -f1 -d\|)"
+        if test "${mono_uuid}"; then
+            "${WINE_ARCH}" uninstaller --remove "${mono_uuid}"
+            mono_install_found=1
+        fi
+    done
+
+    if [ "${mono_install_found}" -eq 1 ]; then
         "${WINE_ARCH}" reg delete "HKLM\\Software\\Microsoft\\NET Framework Setup\\NDP\\v3.5" /f || true
         "${WINE_ARCH}" reg delete "HKLM\\Software\\Microsoft\\NET Framework Setup\\NDP\\v4" /f || true
 
-        if grep --quiet --text "WINE_MONO_OVERRIDES" "${W_WINDIR_UNIX}/system32/mscoree.dll"; then
-            w_try rm -f "${W_WINDIR_UNIX}/system32/mscoree.dll"
-        fi
-        if grep --quiet --text "WINE_MONO_OVERRIDES" "${W_WINDIR_UNIX}/syswow64/mscoree.dll"; then
-            w_try rm -f "${W_WINDIR_UNIX}/syswow64/mscoree.dll"
-        fi
+        for mscoree_dll in "${W_SYSTEM32_DLLS}/mscoree.dll" "${W_SYSTEM64_DLLS}/mscoree.dll"; do
+            if [ -f "${mscoree_dll}" ] && grep --quiet --text "WINE_MONO_OVERRIDES" "${mscoree_dll}"; then
+                w_try rm -f "${mscoree_dll}"
+            fi
+        done
     elif [ -z "$1" ] || [ "$1" != "internal" ]; then
         w_warn "Mono does not appear to be installed."
     fi
@@ -18924,6 +19033,7 @@ load_remove_mono()
 #----------------------------------------------------------------
 
 w_metadata sandbox settings \
+    title_bg="Добавете папката в пясъчника - премахнете връзките към \$HOME" \
     title_uk="Пісочниця wineprefix - видалити посилання до HOME" \
     title="Sandbox the wineprefix - remove links to \$HOME"
 
@@ -18948,18 +19058,23 @@ load_sandbox()
 #----------------------------------------------------------------
 
 w_metadata sound=alsa settings \
+    title_bg="Задайте звуковия драйвер на ALSA" \
     title_uk="Встановити звуковий драйвер ALSA" \
     title="Set sound driver to ALSA"
 w_metadata sound=coreaudio settings \
+    title_bg="Задайте звуковия драйвер на Mac CoreAudio" \
     title_uk="Встановити звуковий драйвер Mac CoreAudio" \
     title="Set sound driver to Mac CoreAudio"
 w_metadata sound=disabled settings \
+    title_bg="Задайте звуковия драйвер на disabled" \
     title_uk="Вимкнути звуковий драйвер" \
     title="Set sound driver to disabled"
 w_metadata sound=oss settings \
+    title_bg="Задайте звуковия драйвер на OSS" \
     title_uk="Встановити звуковий драйвер OSS" \
     title="Set sound driver to OSS"
 w_metadata sound=pulse settings \
+    title_bg="Задайте звуковия драйвер на PulseAudio" \
     title_uk="Встановити звуковий драйвер PulseAudio" \
     title="Set sound driver to PulseAudio"
 
@@ -18980,6 +19095,7 @@ _EOF_
 #----------------------------------------------------------------
 
 w_metadata nt351 settings \
+    title_bg="Задайте Windows NT 3.51" \
     title_uk="Встановити версію Windows NT 3.51" \
     title="Set Windows version to Windows NT 3.51"
 
@@ -18992,6 +19108,7 @@ load_nt351()
 #----------------------------------------------------------------
 
 w_metadata nt40 settings \
+    title_bg="Задайте Windows NT 4.0" \
     title_uk="Встановити версію Windows NT 4.0" \
     title="Set Windows version to Windows NT 4.0"
 
@@ -19004,6 +19121,7 @@ load_nt40()
 #----------------------------------------------------------------
 
 w_metadata vista settings \
+    title_bg="Задайте Windows Vista" \
     title_uk="Встановити версію Windows Vista" \
     title="Set Windows version to Windows Vista"
 
@@ -19015,6 +19133,7 @@ load_vista()
 #----------------------------------------------------------------
 
 w_metadata win20 settings \
+    title_bg="Задайте Windows 2.0" \
     title_uk="Встановити версію Windows 2.0" \
     title="Set Windows version to Windows 2.0"
 
@@ -19027,6 +19146,7 @@ load_win20()
 #----------------------------------------------------------------
 
 w_metadata win2k settings \
+    title_bg="Задайте Windows 2000" \
     title_uk="Встановити версію Windows 2000" \
     title="Set Windows version to Windows 2000"
 
@@ -19039,6 +19159,7 @@ load_win2k()
 #----------------------------------------------------------------
 
 w_metadata win2k3 settings \
+    title_bg="Задайте Windows 2003" \
     title_uk="Встановити версію Windows 2003" \
     title="Set Windows version to Windows 2003"
 
@@ -19050,6 +19171,7 @@ load_win2k3()
 #----------------------------------------------------------------
 
 w_metadata win2k8 settings \
+    title_bg="Задайте Windows 2008" \
     title_uk="Встановити версію Windows 2008" \
     title="Set Windows version to Windows 2008"
 
@@ -19061,6 +19183,7 @@ load_win2k8()
 #----------------------------------------------------------------
 
 w_metadata win2k8r2 settings \
+    title_bg="Задайте Windows 2008 R2" \
     title_uk="Встановити версію Windows 2008 R2" \
     title="Set Windows version to Windows 2008 R2"
 
@@ -19072,6 +19195,7 @@ load_win2k8r2()
 #----------------------------------------------------------------
 
 w_metadata win30 settings \
+    title_bg="Задайте Windows 3.0" \
     title_uk="Встановити версію Windows 3.0" \
     title="Set Windows version to Windows 3.0"
 
@@ -19084,6 +19208,7 @@ load_win30()
 #----------------------------------------------------------------
 
 w_metadata win31 settings \
+    title_bg="Задайте Windows 3.1" \
     title_uk="Встановити версію Windows 3.1" \
     title="Set Windows version to Windows 3.1"
 
@@ -19096,6 +19221,7 @@ load_win31()
 #----------------------------------------------------------------
 
 w_metadata win7 settings \
+    title_bg="Задайте Windows 7" \
     title_uk="Встановити версію Windows 7" \
     title="Set Windows version to Windows 7"
 
@@ -19107,6 +19233,7 @@ load_win7()
 #----------------------------------------------------------------
 
 w_metadata win8 settings \
+    title_bg="Задайте Windows 8" \
     title_uk="Встановити версію Windows 8" \
     title="Set Windows version to Windows 8"
 
@@ -19118,6 +19245,7 @@ load_win8()
 #----------------------------------------------------------------
 
 w_metadata win81 settings \
+    title_bg="Задайте Windows 8.1" \
     title_uk="Встановити версію Windows 8.1" \
     title="Set Windows version to Windows 8.1"
 
@@ -19129,6 +19257,7 @@ load_win81()
 #----------------------------------------------------------------
 
 w_metadata win10 settings \
+    title_bg="Задайте Windows 10" \
     title_uk="Встановити версію Windows 10" \
     title="Set Windows version to Windows 10"
 
@@ -19140,6 +19269,7 @@ load_win10()
 #----------------------------------------------------------------
 
 w_metadata win11 settings \
+    title_bg="Задайте Windows 11" \
     title_uk="Встановити версію Windows 11" \
     title="Set Windows version to Windows 11"
 
@@ -19151,6 +19281,7 @@ load_win11()
 #----------------------------------------------------------------
 
 w_metadata win95 settings \
+    title_bg="Задайте Windows 95" \
     title_uk="Встановити версію Windows 95" \
     title="Set Windows version to Windows 95"
 
@@ -19163,6 +19294,7 @@ load_win95()
 #----------------------------------------------------------------
 
 w_metadata win98 settings \
+    title_bg="Задайте Windows 98" \
     title_uk="Встановити версію Windows 98" \
     title="Set Windows version to Windows 98"
 
@@ -19175,6 +19307,7 @@ load_win98()
 #----------------------------------------------------------------
 
 w_metadata winme settings \
+    title_bg="Задайте Windows ME" \
     title_uk="Встановити версію Windows ME" \
     title="Set Windows version to Windows ME"
 
@@ -19188,6 +19321,7 @@ load_winme()
 
 # Really, we should support other values, since winetricks did
 w_metadata winver= settings \
+    title_bg="Задайте Windows 7 (по подразбиране)" \
     title_uk="Встановити версію Windows за замовчуванням (Windows 7)" \
     title="Set Windows version to default (win7)"
 
@@ -19199,6 +19333,7 @@ load_winver()
 #----------------------------------------------------------------
 
 w_metadata winxp settings \
+    title_bg="Задайте Windows XP" \
     title_uk="Встановити версію Windows XP" \
     title="Set Windows version to Windows XP"
 

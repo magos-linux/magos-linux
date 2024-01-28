@@ -594,7 +594,7 @@ lib64plymouth5
 lib64png0
 lib64png15
 lib64png3
-lib64podofo0.9.8
+lib64podofo2
 lib64polkit-gir1.0
 lib64polkit-qt5-agent-1_1
 lib64polkit-qt5-core-1_1
@@ -1570,3 +1570,4 @@ perl-libintl-perl
 webp-pixbuf-loader
 lib64dav1d7
 lxqt-menu-data
+lib64ptytty0

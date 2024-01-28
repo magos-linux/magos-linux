@@ -1,4 +1,4 @@
-<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2023-12-22</p>
+<!DOCTYPE html><title MagOS wiki></title><meta charset=utf-8><html><body><p>v.2024-01-26</p>
 <hr><a name="Home"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>Home</h1>
 <p>Welcome to the magos-linux wiki!</p>
 <p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">Документация на русском языке</a></p>
@@ -1660,6 +1660,22 @@ mkfs.ext3 newhome.img
 <p>В этом примере создаётся  профиль размером 2Г c файловой системой ext3. 
 Новичку проще достать готовый профиль из архива MagOS-Data\profiles.7z , особенно если это делать с помощью <strong>mc</strong></p>
 <hr><a name="История"><p><a href="#%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">В начало</a></p><h1>История</h1>
+<h3>сборка 20231223</h3>
+<ul>
+<li>обновления на 23.12.2023</li>
+<li>добавлена утилита yara</li>
+<li>исправлена обработка параметров ядра debug debugfs</li>
+<li>добавлены 2 сертификата Минцифры. Для добавления в браузер, их необходимо импортировать вручную из папки /usr/share/pki/ca-trust-source/anchors</li>
+<li>внесены изменения по безопасности в соответствии с рекомендациями ФСТЭК:</li>
+<li>в параметры ядра добавлено init_on_alloc=1 slab_nomerge iommu=force iommu.strict=1 iommu.passthrough=0 randomize_kstack_offset=1 vsyscall=no tsx=off (настройки загрузчика не изменяются при автоматическом обновлении, см. boot/grub/magos/grub_*.cfg boot/grub4dos/local/menu.lst)</li>
+<li>пользователь по умолчанию добавлен в группу wheel</li>
+<li>для команды su настроен /etc/pam.d/su на проверку наличия в группе wheel</li>
+<li>группе wheel разрешен запуск sudo с вводом пароля</li>
+<li>рекомендуемые настройки системы добавлены в /etc/sysctl.d/99-fstec_security.conf</li>
+<li>изменены права доступа /etc/shadow /etc/skel</li>
+<li>права доступа для файлов пользователя изменены (UMASK 077 в /etc/login.defs)</li>
+<li>включен запрет входа root через ssh (PermitRootLogin no в /etc/ssh/sshd_config)</li>
+</ul>
 <h3>сборка 20231124</h3>
 <ul>
 <li>обновления на 24.11.2023</li>
