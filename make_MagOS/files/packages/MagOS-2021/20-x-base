@@ -512,7 +512,7 @@ lib64libaesgm1
 lib64lightdm-gir1
 lib64lightdm-gobject1_0
 lib64lilv0_0
-lib64llvm15
+lib64llvm17
 lib64lpc10_0
 lib64lqr1_0
 lib64lxqt1
@@ -1441,7 +1441,7 @@ libxtst6
 libzstd1
 libpcap1
 libvulkan1
-libllvm15
+libllvm17
 libx264_163
 libintl8
 libnl3_200
@@ -1571,3 +1571,4 @@ webp-pixbuf-loader
 lib64dav1d7
 lxqt-menu-data
 lib64ptytty0
+libxkbcommon0

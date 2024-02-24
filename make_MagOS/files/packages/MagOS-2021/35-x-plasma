@@ -307,7 +307,7 @@ lib64musicbrainz5_1
 lib64nepomuk4
 lib64nepomukquery4
 lib64nepomukutils4
-lib64okular5core10
+lib64okular5core11
 lib64oxygen-gtk
 lib64oxygen-gtk3
 lib64oxygenstyle5_5
@@ -679,7 +679,7 @@ kunitconversion
 kwayland-server
 layer-shell-qt
 lib64attica-kde4_0.4
-lib64kerfuffle22
+lib64kerfuffle23
 lib64kf5pulseaudioqt3
 lib64kimageannotator0.6.0
 lib64konsoleapp1
@@ -729,7 +729,10 @@ lib64flatpak0
 lib64kf5pipewiredmabuf5
 lib64ksanecore5
 lib64ostree1
-lib64kateprivate22
+lib64kateprivate23
 plasma5-kate-l10n-common
 sonnet-hspell
 sonnet-hunspell
+lib64QCoro5_0
+lib64qt5websockets5
+lib64kf5prisonscanner5

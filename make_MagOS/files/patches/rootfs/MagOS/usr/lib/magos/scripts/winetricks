@@ -39,11 +39,11 @@ WINETRICKS_VERSION=20240105-next
 # - xz is used by some verbs to decompress tar archives.
 # - zenity is needed by the GUI, though it can limp along somewhat with kdialog/xmessage.
 #
-# On Ubuntu (20.04 and newer), the following line can be used to install all the prerequisites:
-#    sudo apt install aria2 binutils cabextract fuseiso p7zip-full pkexec tor unrar unzip wine xdg-utils xz-utils zenity
+# On Ubuntu (23.04 and newer), the following line can be used to install all the prerequisites:
+#    sudo apt install 7zip aria2 binutils cabextract fuseiso pkexec tor unrar-free unzip wine xdg-utils xz-utils zenity
 #
 # On older Ubuntu, the following line can be used to install all the prerequisites:
-#    sudo apt install aria2 binutils cabextract fuseiso p7zip-full policykit-1 tor unrar unzip wine xdg-utils xz-utils zenity
+#    sudo apt install aria2 binutils cabextract fuseiso p7zip-full policykit-1 tor unrar-free unzip wine xdg-utils xz-utils zenity
 #
 # On Fedora, these commands can be used (RPM Fusion is used to install unrar):
 #    sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
@@ -698,14 +698,14 @@ w_try_7z()
     if [ -z "${WINETRICKS_FORCE_WIN_7Z}" ] && [ -x "$(command -v 7z 2>/dev/null)" ] ; then
         w_try 7z x "${filename}" -o"${destdir}" "$@"
     else
-        w_warn "Cannot find 7z. Using Windows 7-Zip instead. (You can avoid this by installing 7z, e.g. 'sudo apt-get install p7zip-full' or 'sudo yum install p7zip-plugins')."
+        w_warn "Cannot find 7z. Using Windows 7-Zip instead. (You can avoid this by installing 7z, e.g. 'sudo apt install 7zip' or 'sudo yum install p7zip-plugins')."
         WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
 
         # w_call above will wipe $W_TMP; if that's the CWD, things will break. So forcefully reset the directory:
         w_try_cd "${PWD}"
 
         # errors out if there is a space between -o and path
-        w_try "${WINE}" "${W_PROGRAMS_X86_WIN}\\7-Zip\\7z.exe" x "$(w_pathconv -w "${filename}")" -o"$(w_pathconv -w "${destdir}")" "$@"
+        w_try "${WINE}" "${W_PROGRAMS_X86_WIN}\\7-Zip\\7z.exe" x "$(w_pathconv -w "${filename}")" -y -o"$(w_pathconv -w "${destdir}")" "$@"
     fi
 }
 
@@ -718,7 +718,7 @@ w_try_ar()
     if [ -z "${WINETRICKS_FORCE_WIN_7Z}" ] && [ -x "$(command -v ar 2>/dev/null)" ]; then
         w_try ar x "$@"
     else
-        w_warn "Cannot find ar. Using Windows 7-zip instead. (You can avoid this by installing binutils, e.g. 'sudo apt-get install binutils' or 'sudo yum install binutils')."
+        w_warn "Cannot find ar. Using Windows 7-zip instead. (You can avoid this by installing binutils, e.g. 'sudo apt install binutils' or 'sudo yum install binutils')."
         WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
 
         # w_call above will wipe $W_TMP; if that's the CWD, things will break. So forcefully reset the directory:
@@ -734,7 +734,7 @@ w_try_cabextract()
 {
     # Not always installed, but shouldn't be fatal unless it's being used
     if test ! -x "$(command -v cabextract 2>/dev/null)"; then
-        w_die "Cannot find cabextract.  Please install it (e.g. 'sudo apt-get install cabextract' or 'sudo yum install cabextract')."
+        w_die "Cannot find cabextract.  Please install it (e.g. 'sudo apt install cabextract' or 'sudo yum install cabextract')."
     fi
 
     w_try cabextract -q "$@"
@@ -900,7 +900,7 @@ w_try_unrar()
     if [ -z "${WINETRICKS_FORCE_WIN_7Z}" ] && [ -x "$(command -v unrar 2>/dev/null)" ]; then
         w_try unrar x "$@"
     else
-        w_warn "Cannot find unrar. Using Windows 7-Zip instead. (You can avoid this by installing unrar, e.g. 'sudo apt-get install unrar' or 'sudo yum install unrar')."
+        w_warn "Cannot find unrar. Using Windows 7-Zip instead. (You can avoid this by installing unrar, e.g. 'sudo apt install unrar-free' or 'sudo yum install unrar')."
         WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
 
         # w_call above will wipe $W_TMP; if that's the CWD, things will break. So forcefully reset the directory:
@@ -931,7 +931,7 @@ w_try_unzip()
             1|*) w_warn "Unzip failed, trying Windows 7-Zip instead." ;;
         esac
     else
-        w_warn "Cannot find unzip. Using Windows 7-Zip instead. (You can avoid this by installing unzip, e.g. 'sudo apt-get install unzip' or 'sudo yum install unzip')."
+        w_warn "Cannot find unzip. Using Windows 7-Zip instead. (You can avoid this by installing unzip, e.g. 'sudo apt install unzip' or 'sudo yum install unzip')."
     fi
 
     WINETRICKS_OPT_SHAREDPREFIX=1 w_call 7zip
@@ -1018,7 +1018,7 @@ w_verify_cabextract_available()
     # This should be called by verb_a, to give a proper warning
 
     if test ! -x "$(command -v cabextract 2>/dev/null)"; then
-        w_die "Cannot find cabextract.  Please install it (e.g. 'sudo apt-get install cabextract' or 'sudo yum install cabextract')."
+        w_die "Cannot find cabextract.  Please install it (e.g. 'sudo apt install cabextract' or 'sudo yum install cabextract')."
     fi
 
     w_try_cabextract -q -v >/dev/null 2>&1
@@ -6064,17 +6064,32 @@ load_cmd()
 
 w_metadata cnc_ddraw dlls \
     title="Reimplentation of ddraw for CnC games" \
-    homepage="https://github.com/CnCNet/cnc-ddraw" \
+    homepage="https://github.com/FunkyFr3sh/cnc-ddraw" \
     publisher="CnCNet" \
     year="2021" \
     media="download" \
-    file1="cnc-ddraw-v5.0.0.0.zip" \
+    file1="cnc-ddraw-v6.2.0.0.zip" \
     installed_file1="${W_SYSTEM32_DLLS_WIN}/Shaders/readme.txt"
 
 load_cnc_ddraw()
 {
     # Note: only works if ddraw.ini contains settings for the executable
-    w_download https://github.com/CnCNet/cnc-ddraw/releases/download/v5.0.0.0/cnc-ddraw.zip 9f37010bf87aafbe3d97a95f4253460a8f0869fb52bb45bcffbb73182b4b00fe cnc-ddraw-v5.0.0.0.zip
+    # 2018/12/11 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/1.3.4.0/cnc-ddraw.zip
+    # 2020/02/03 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/1.3.5.0/cnc-ddraw.zip
+    # 2021/09/29 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v4.4.4.0/cnc-ddraw.zip
+    # 2022/03/27 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v4.4.7.0/cnc-ddraw.zip
+    # 2022/09/18 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v4.4.9.0/cnc-ddraw.zip
+    # 2022/10/03 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v4.6.0.0/cnc-ddraw.zip
+    # 2023/02/08 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v5.0.0.0/cnc-ddraw.zip
+    # 2023/08/15 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v5.6.0.0/cnc-ddraw.zip
+    # 2023/08/24 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v5.7.0.0/cnc-ddraw.zip
+    # 2023/09/26 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v5.8.0.0/cnc-ddraw.zip
+    # 2023/10/20 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v5.9.0.0/cnc-ddraw.zip
+    # 2023/11/04 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v6.0.0.0/cnc-ddraw.zip
+    # 2024/02/03 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v6.1.0.0d/cnc-ddraw.zip
+    # 2024/02/21 https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v6.2.0.0/cnc-ddraw.zip
+
+    w_download https://github.com/FunkyFr3sh/cnc-ddraw/releases/download/v6.2.0.0/cnc-ddraw.zip e5677ba52c31ffa93421a16edacff0c4d1f03e107aea6fc860861b43e3356119 cnc-ddraw-v6.2.0.0.zip
     w_try_unzip "${W_SYSTEM32_DLLS}" "${W_CACHE}/${W_PACKAGE}/${file1}"
 
     w_override_dlls native,builtin ddraw
@@ -6219,6 +6234,25 @@ load_binkw32()
     w_try_cp_dll "${W_TMP}"/binkw32.dll "${W_SYSTEM32_DLLS}"/binkw32.dll
 
     w_override_dlls native binkw32
+}
+
+#----------------------------------------------------------------
+
+w_metadata d2gl dlls \
+    title="Diablo 2 LoD Glide to OpenGL Wrapper" \
+    publisher="Bayaraa" \
+    year="2023" \
+    media="download" \
+    file1="D2GL.v1.3.3.zip" \
+    installed_file1="${W_PROGRAMS_X86_WIN}/Diablo II/glide3x.dll" \
+    homepage="https://github.com/bayaraa/d2gl"
+
+load_d2gl()
+{
+    w_download https://github.com/bayaraa/d2gl/releases/download/v1.3.3/D2GL.v1.3.3.zip 33862ab74f314f9e72f992dd8850f8bfd0d6533ef0e4a0015867fc6524125ea2
+    w_try_unzip "${W_PROGRAMS_X86_UNIX}/Diablo II" "${W_CACHE}/${W_PACKAGE}/${file1}"
+
+    w_warn "Run Diablo II using game.exe -3dfx"
 }
 
 #----------------------------------------------------------------
@@ -10157,6 +10191,56 @@ load_dotnetdesktop7()
 
 #----------------------------------------------------------------
 
+w_metadata dotnet8 dlls \
+    title="MS .NET Runtime 8.0 LTS" \
+    publisher="Microsoft" \
+    year="2024" \
+    media="download" \
+    file1="dotnet-runtime-8.0.2-win-x86.exe" \
+    installed_file1="${W_PROGRAMS_WIN}/dotnet/dotnet.exe"
+
+load_dotnet8()
+{
+    # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+    w_download https://download.visualstudio.microsoft.com/download/pr/e4987764-bda2-4a72-8820-52605f30e899/f5b412fec80d7f4b20fc4ac7740f7279/dotnet-runtime-8.0.2-win-x86.exe b765676fc2f85cb393cabf2bef5dd118578a2a8761be97454352c0c2634957a4
+
+    w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
+    w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
+
+    if [ "${W_ARCH}" = "win64" ]; then
+        # Also install the 64-bit version
+        w_download https://download.visualstudio.microsoft.com/download/pr/a4bc7333-6e30-4e2d-b300-0b4f23537e5b/4b81af6d46a02fba5d9ce030af438c67/dotnet-runtime-8.0.2-win-x64.exe ec10da69116d12691abcb374929cf9eec65e4607095ff1ff035989848fd1db00
+        w_try "${WINE}" "dotnet-runtime-8.0.2-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
+    fi
+}
+
+#----------------------------------------------------------------
+
+w_metadata dotnetdesktop8 dlls \
+    title="MS .NET Desktop Runtime 8.0 LTS" \
+    publisher="Microsoft" \
+    year="2024" \
+    media="download" \
+    file1="windowsdesktop-runtime-8.0.2-win-x86.exe" \
+    installed_file1="${W_PROGRAMS_WIN}/dotnet/dotnet.exe"
+
+load_dotnetdesktop8()
+{
+    # Official version, see https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+    w_download https://download.visualstudio.microsoft.com/download/pr/9b77b480-7e32-4321-b417-a41e0f8ea952/3922bbf5538277b1d41e9b49ee443673/windowsdesktop-runtime-8.0.2-win-x86.exe 548bcca012cde72bfa68e693ee3dab175c3aa7926d3a3621c8f6f3b12904b909
+
+    w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
+    w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+/quiet}
+
+    if [ "${W_ARCH}" = "win64" ]; then
+        # Also install the 64-bit version
+        w_download https://download.visualstudio.microsoft.com/download/pr/84ba33d4-4407-4572-9bfa-414d26e7c67c/bb81f8c9e6c9ee1ca547396f6e71b65f/windowsdesktop-runtime-8.0.2-win-x64.exe 52099c00372c1ef6c78878f98f6994777170c8f8556bc3b42a6c291a268ce750
+        w_try "${WINE}" "windowsdesktop-runtime-8.0.2-win-x64.exe" ${W_OPT_UNATTENDED:+/quiet}
+    fi
+}
+
+#----------------------------------------------------------------
+
 w_metadata dotnet_verifier dlls \
     title="MS .NET Verifier" \
     publisher="Microsoft" \
@@ -11770,7 +11854,7 @@ w_metadata msxml3 dlls \
 
 load_msxml3()
 {
-    # Service Pack 7
+    # Service Pack 7, includes a version of msxml3r.dll (resources DLL)
     # Originally at https://download.microsoft.com/download/8/8/8/888f34b7-4f54-4f06-8dac-fa29b19f33dd/msxml3.msi
     # Mirror list: http://www.filewatcher.com/m/msxml3.msi.1070592-0.html
     # Known bad sites (2017/06/11):
@@ -11783,12 +11867,23 @@ load_msxml3()
     w_override_dlls native msxml3
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
 
-    # See https://github.com/Winetricks/winetricks/issues/1086
+    # Start with installing the older 32-bit only version, to get at least some
+    # version of the resources DLL, which is not included in win7sp1
+    # Use quiet install, see https://github.com/Winetricks/winetricks/issues/1086
     # and https://bugs.winehq.org/show_bug.cgi?id=26925
     if w_workaround_wine_bug 26925 "Forcing quiet install"; then
         w_try "${WINE}" msiexec /i msxml3.msi /q
     else
         w_try "${WINE}" msiexec /i msxml3.msi ${W_OPT_UNATTENDED:+/q}
+    fi
+
+    # Install newer version, which includes the x64 DLL if applicable
+    helper_win7sp1_x64 wow64_microsoft-windows-msxml30_31bf3856ad364e35_6.1.7601.17514_none_f0e8f05be1d66e78/msxml3.dll
+    w_try_cp_dll "${W_TMP}/wow64_microsoft-windows-msxml30_31bf3856ad364e35_6.1.7601.17514_none_f0e8f05be1d66e78/msxml3.dll" "${W_SYSTEM32_DLLS}/msxml3.dll"
+
+    if [ "${W_ARCH}" = "win64" ]; then
+        helper_win7sp1_x64 amd64_microsoft-windows-msxml30_31bf3856ad364e35_6.1.7601.17514_none_e6944609ad75ac7d/msxml3.dll
+        w_try_cp_dll "${W_TMP}/amd64_microsoft-windows-msxml30_31bf3856ad364e35_6.1.7601.17514_none_e6944609ad75ac7d/msxml3.dll" "${W_SYSTEM64_DLLS}/msxml3.dll"
     fi
 }
 
@@ -11943,6 +12038,141 @@ load_openal()
 
     w_try_unzip "${W_TMP}" "${W_CACHE}/${W_PACKAGE}/oalinst.zip"
     w_try "${WINE}" "${W_TMP}/oalinst.exe" /silent
+}
+
+
+#----------------------------------------------------------------
+
+# $1 - otvdm archive name (required)
+helper_otvdm()
+{
+    _W_package_archive="${1}"
+    _W_package_dir="${_W_package_archive%.zip}"
+
+    w_try_unzip "${W_TMP}" "${W_CACHE}/${W_PACKAGE}/${_W_package_archive}"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/otvdm.exe" "${W_SYSTEM32_DLLS}/otvdm.exe"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/libwine.dll" "${W_SYSTEM32_DLLS}/libwine.dll"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/avifile.dll16" "${W_SYSTEM32_DLLS}/avifile.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/comm.drv16" "${W_SYSTEM32_DLLS}/comm.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/commctrl.dll16" "${W_SYSTEM32_DLLS}/commctrl.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/commdlg.dll16" "${W_SYSTEM32_DLLS}/commdlg.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/compobj.dll16" "${W_SYSTEM32_DLLS}/compobj.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ctl3d.dll16" "${W_SYSTEM32_DLLS}/ctl3d.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ctl3dv2.dll16" "${W_SYSTEM32_DLLS}/ctl3dv2.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ddeml.dll16" "${W_SYSTEM32_DLLS}/ddeml.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/dispdib.dll16" "${W_SYSTEM32_DLLS}/dispdib.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/display.drv16" "${W_SYSTEM32_DLLS}/display.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/gdi.exe16" "${W_SYSTEM32_DLLS}/gdi.exe16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/keyboard.drv16" "${W_SYSTEM32_DLLS}/keyboard.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/krnl386.exe16" "${W_SYSTEM32_DLLS}/krnl386.exe16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/lzexpand.dll16" "${W_SYSTEM32_DLLS}/lzexpand.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/mmsystem.dll16" "${W_SYSTEM32_DLLS}/mmsystem.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/mouse.drv16" "${W_SYSTEM32_DLLS}/mouse.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/msacm.dll16" "${W_SYSTEM32_DLLS}/msacm.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/msvideo.dll16" "${W_SYSTEM32_DLLS}/msvideo.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/nddeapi.dll16" "${W_SYSTEM32_DLLS}/nddeapi.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ole2.dll16" "${W_SYSTEM32_DLLS}/ole2.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ole2conv.dll16" "${W_SYSTEM32_DLLS}/ole2conv.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ole2disp.dll16" "${W_SYSTEM32_DLLS}/ole2disp.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ole2nls.dll16" "${W_SYSTEM32_DLLS}/ole2nls.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ole2prox.dll16" "${W_SYSTEM32_DLLS}/ole2prox.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ole2thk.dll16" "${W_SYSTEM32_DLLS}/ole2thk.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/olecli.dll16" "${W_SYSTEM32_DLLS}/olecli.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/olesvr.dll16" "${W_SYSTEM32_DLLS}/olesvr.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/regedit.exe16" "${W_SYSTEM32_DLLS}/regedit.exe16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/rmpatch.dll16" "${W_SYSTEM32_DLLS}/rmpatch.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/shell.dll16" "${W_SYSTEM32_DLLS}/shell.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/sound.drv16" "${W_SYSTEM32_DLLS}/sound.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/storage.dll16" "${W_SYSTEM32_DLLS}/storage.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/system.drv16" "${W_SYSTEM32_DLLS}/system.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/timer.drv16" "${W_SYSTEM32_DLLS}/timer.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/toolhelp.dll16" "${W_SYSTEM32_DLLS}/toolhelp.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/typelib.dll16" "${W_SYSTEM32_DLLS}/typelib.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/user.exe16" "${W_SYSTEM32_DLLS}/user.exe16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/ver.dll16" "${W_SYSTEM32_DLLS}/ver.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/wifeman.dll16" "${W_SYSTEM32_DLLS}/wifeman.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/win87em.dll16" "${W_SYSTEM32_DLLS}/win87em.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/wing.dll16" "${W_SYSTEM32_DLLS}/wing.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/winnls.dll16" "${W_SYSTEM32_DLLS}/winnls.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/winoldap.mod16" "${W_SYSTEM32_DLLS}/winoldap.mod16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/winsock.dll16" "${W_SYSTEM32_DLLS}/winsock.dll16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/winspool.drv16" "${W_SYSTEM32_DLLS}/winspool.drv16"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/wow32.dll" "${W_SYSTEM32_DLLS}/wow32.dll"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/vm86.dll" "${W_SYSTEM32_DLLS}/vm86.dll"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/whpxvm.dll" "${W_SYSTEM32_DLLS}/whpxvm.dll"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/haxmvm.dll" "${W_SYSTEM32_DLLS}/haxmvm.dll"
+    w_try_cp_dll "${W_TMP}/${_W_package_dir}/dll/gvm.dll" "${W_SYSTEM32_DLLS}/gvm.dll"
+
+    w_override_dlls native,builtin avifile.dll16
+    w_override_dlls native,builtin comm.drv16
+    w_override_dlls native,builtin commctrl.dll16
+    w_override_dlls native,builtin commdlg.dll16
+    w_override_dlls native,builtin compobj.dll16
+    w_override_dlls native,builtin ctl3d.dll16
+    w_override_dlls native,builtin ctl3dv2.dll16
+    w_override_dlls native,builtin ddeml.dll16
+    w_override_dlls native,builtin dispdib.dll16
+    w_override_dlls native,builtin display.drv16
+    w_override_dlls native,builtin gdi.exe16
+    w_override_dlls native,builtin keyboard.drv16
+    w_override_dlls native,builtin krnl386.exe16
+    w_override_dlls native,builtin lzexpand.dll16
+    w_override_dlls native,builtin mmsystem.dll16
+    w_override_dlls native,builtin mouse.drv16
+    w_override_dlls native,builtin msacm.dll16
+    w_override_dlls native,builtin msvideo.dll16
+    w_override_dlls native,builtin nddeapi.dll16
+    w_override_dlls native,builtin ole2.dll16
+    w_override_dlls native,builtin ole2conv.dll16
+    w_override_dlls native,builtin ole2disp.dll16
+    w_override_dlls native,builtin ole2nls.dll16
+    w_override_dlls native,builtin ole2prox.dll16
+    w_override_dlls native,builtin ole2thk.dll16
+    w_override_dlls native,builtin olecli.dll16
+    w_override_dlls native,builtin olesvr.dll16
+    w_override_dlls native,builtin regedit.exe16
+    w_override_dlls native,builtin rmpatch.dll16
+    w_override_dlls native,builtin shell.dll16
+    w_override_dlls native,builtin sound.drv16
+    w_override_dlls native,builtin storage.dll16
+    w_override_dlls native,builtin system.drv16
+    w_override_dlls native,builtin timer.drv16
+    w_override_dlls native,builtin toolhelp.dll16
+    w_override_dlls native,builtin typelib.dll16
+    w_override_dlls native,builtin user.exe16
+    w_override_dlls native,builtin ver.dll16
+    w_override_dlls native,builtin wifeman.dll16
+    w_override_dlls native,builtin win87em.dll16
+    w_override_dlls native,builtin wing.dll16
+    w_override_dlls native,builtin winnls.dll16
+    w_override_dlls native,builtin winoldap.mod16
+    w_override_dlls native,builtin winsock.dll16
+    w_override_dlls native,builtin winspool.drv16
+    w_override_dlls native,builtin wow32
+}
+
+w_metadata otvdm090 dlls \
+    title="Otvdm - A modified version of winevdm as Win16 emulator" \
+    publisher="otya128" \
+    year="2024" \
+    media="download" \
+    file1="otvdm-v0.9.0.zip"
+
+load_otvdm090()
+{
+    w_download "https://github.com/otya128/winevdm/releases/download/v0.9.0/otvdm-v0.9.0.zip" 842b11aed5fa81f3e1d4272e0ee7d37f1a5a8f936de825309dda672835e16fd4
+    helper_otvdm "${file1}"
+}
+
+w_metadata otvdm dlls \
+    title="Otvdm - A modified version of winevdm as Win16 emulator" \
+    publisher="otya128" \
+    year="2024" \
+    media="download"
+
+load_otvdm()
+{
+    w_call otvdm090
 }
 
 #----------------------------------------------------------------
@@ -13567,9 +13797,10 @@ load_vcrun2022()
     # 2023-04-30: 14.34.31938 @ https://download.visualstudio.microsoft.com/download/pr/b2519016-4a13-4120-936c-cae003d567c4/8AE59D82845159DB3A70763F5CB1571E45EBF6A1ADFECC47574BA17B019483A0/VC_redist.x86.exe 8ae59d82845159db3a70763f5cb1571e45ebf6a1adfecc47574ba17b019483a0
     # 2023/07/04: 14.36.32532 @ https://download.visualstudio.microsoft.com/download/pr/eaab1f82-787d-4fd7-8c73-f782341a0c63/5365A927487945ECB040E143EA770ADBB296074ECE4021B1D14213BDE538C490/VC_redist.x86.exe 5365a927487945ecb040e143ea770adbb296074ece4021b1d14213bde538c490
     # 2023/12/30: c61cef97487536e766130fa8714dd1b4143f6738bfb71806018eee1b5fe6f057
+    # 2024/02/11: 510fc8c2112e2bc544fb29a72191eabcc68d3a5a7468d35d7694493bc8593a79
     w_override_dlls native,builtin concrt140 msvcp140 msvcp140_1 msvcp140_2 msvcp140_atomic_wait msvcp140_codecvt_ids vcamp140 vccorlib140 vcomp140 vcruntime140
 
-    w_download https://aka.ms/vs/17/release/vc_redist.x86.exe c61cef97487536e766130fa8714dd1b4143f6738bfb71806018eee1b5fe6f057
+    w_download https://aka.ms/vs/17/release/vc_redist.x86.exe 510fc8c2112e2bc544fb29a72191eabcc68d3a5a7468d35d7694493bc8593a79
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try_ms_installer "${WINE}" vc_redist.x86.exe ${W_OPT_UNATTENDED:+/q}
@@ -13581,10 +13812,11 @@ load_vcrun2022()
             # 2023/04/30: 14.34.31938 @ https://download.visualstudio.microsoft.com/download/pr/8b92f460-7e03-4c75-a139-e264a770758d/26C2C72FBA6438F5E29AF8EBC4826A1E424581B3C446F8C735361F1DB7BEFF72/VC_redist.x64.exe 26c2c72fba6438f5e29af8ebc4826a1e424581b3c446f8c735361f1db7beff72
             # 2023/07/04: 14.36.32532 @ https://download.visualstudio.microsoft.com/download/pr/eaab1f82-787d-4fd7-8c73-f782341a0c63/917C37D816488545B70AFFD77D6E486E4DD27E2ECE63F6BBAAF486B178B2B888/VC_redist.x64.exe 917c37d816488545b70affd77d6e486e4dd27e2ece63f6bbaaf486b178b2b888
             # 2023/12/30: 4dfe83c91124cd542f4222fe2c396cabeac617bb6f59bdcbdf89fd6f0df0a32f
+            # 2024/02/11: 1ad7988c17663cc742b01bef1a6df2ed1741173009579ad50a94434e54f56073
             # vcruntime140_1 is only shipped on x64:
             w_override_dlls native,builtin vcruntime140_1
 
-            w_download https://aka.ms/vs/17/release/vc_redist.x64.exe 4dfe83c91124cd542f4222fe2c396cabeac617bb6f59bdcbdf89fd6f0df0a32f
+            w_download https://aka.ms/vs/17/release/vc_redist.x64.exe 1ad7988c17663cc742b01bef1a6df2ed1741173009579ad50a94434e54f56073
             w_try_ms_installer "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
     esac
@@ -13951,6 +14183,30 @@ load_xact_x64()
     for x in 0 1 2 3 4 5 6 7 ; do
         w_try_regsvr64 "$(basename "${W_SYSTEM64_DLLS}/xaudio2_${x}")"
     done
+}
+
+#----------------------------------------------------------------
+
+w_metadata xaudio29 dlls \
+    title="MS XAudio Redistributable 2.9" \
+    publisher="Microsoft" \
+    year="2023" \
+    media="download" \
+    file1="microsoft.xaudio2.redist.1.2.11.nupkg" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/xaudio2_9.dll"
+
+load_xaudio29()
+{
+    w_download https://www.nuget.org/api/v2/package/Microsoft.XAudio2.Redist/1.2.11 4552e0b5b59de0cdbc6c217261c45f5968f7bbf1e8ab5f208e4bca6fd8fc5780 microsoft.xaudio2.redist.1.2.11.nupkg
+
+    w_try_unzip "${W_TMP}" "${W_CACHE}/${W_PACKAGE}/${file1}"
+    w_try_cp_dll "${W_TMP}/build/native/release/bin/x86/xaudio2_9redist.dll" "${W_SYSTEM32_DLLS}/xaudio2_9.dll"
+
+    if [ "${W_ARCH}" = "win64" ]; then
+        w_try_cp_dll "${W_TMP}/build/native/release/bin/x64/xaudio2_9redist.dll" "${W_SYSTEM64_DLLS}/xaudio2_9.dll"
+    fi
+
+    w_override_dlls native,builtin xaudio2_9
 }
 
 #----------------------------------------------------------------
@@ -16568,14 +16824,27 @@ w_metadata origin apps \
     year="2011" \
     media="download" \
     file1="OriginSetup.exe" \
-    file2="version_v2.dll" \
+    file2="version_v3.dll" \
     installed_file1="${W_PROGRAMS_X86_WIN}/Origin/Origin.exe" \
     homepage="https://www.origin.com/"
 
 load_origin()
 {
     w_download_to origin https://taskinoz.com/downloads/OriginSetup-10.5.119.52718.exe ed6ee5174f697744ac7c5783ff9021da603bbac42ae9836cd468d432cadc9779 OriginSetup.exe
-    w_download_to origin https://github.com/p0358/Fuck_off_EA_App/releases/download/v2/version.dll 5f0bbb15f7cff8540642c28739db0cd6b15e77e5935f4e6701351eea86d929ab version_v2.dll
+    w_download_to origin https://github.com/p0358/Fuck_off_EA_App/releases/download/v3/version.dll 6c2df238a5cbff3475527aa7adf1d8b76d4d2d1a33a6d62edd4749408305c2be version_v3.dll
+
+    w_try_mkdir "${W_DRIVE_C}/ProgramData/Origin"
+
+    w_warn "Stopping Origin from finding updates"
+    cat > "${W_DRIVE_C}/ProgramData/Origin/local.xml" <<_EOF_
+<?xml version="1.0"?>
+<Settings>
+  <Setting value="true" key="MigrationDisabled" type="1"/>
+  <Setting key="UpdateURL" value="http://joe.rilla" type="10"/>
+  <Setting key="AutoPatchGlobal" value="false" type="1"/>
+  <Setting key="AutoUpdate" value="false" type="1"/>
+</Settings>
+_EOF_
 
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
     w_try "${WINE}" "${file1}" /NoLaunch ${W_OPT_UNATTENDED:+/SILENT}
@@ -16609,7 +16878,7 @@ load_origin()
     fi
 
     w_warn "Workaround Forced EA app upgrade."
-    w_try cp -f "${W_CACHE}/${W_PACKAGE}/version_v2.dll" "${W_PROGRAMS_X86_UNIX}/Origin/version.dll"
+    w_try cp -f "${W_CACHE}/${W_PACKAGE}/version_v3.dll" "${W_PROGRAMS_X86_UNIX}/Origin/version.dll"
     w_override_app_dlls Origin.exe native version
 
     w_warn "Pretend EA app is installed"
