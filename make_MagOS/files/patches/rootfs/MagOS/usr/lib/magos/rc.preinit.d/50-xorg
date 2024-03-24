@@ -18,9 +18,10 @@ LINKNVIDIA390=/etc/nvidia390/ld.so.conf
 LINKNVIDIA470=/etc/nvidia470/ld.so.conf
 LINKNVIDIA515=/etc/nvidia515/ld.so.conf
 LINKNVIDIA525=/etc/nvidia525/ld.so.conf
+LINKNVIDIA550=/etc/nvidia550/ld.so.conf
 LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
 LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-NVIDIATEST="nvidia525 nvidia390 nvidia"
+NVIDIATEST="nvidia550 nvidia525 nvidia390 nvidia"
 FAILSAFENVIDIA=nouveau
 CREATE_XORG_CONF=yes
 GLLDCONFIG=yes
@@ -159,6 +160,7 @@ if [ "$GLLDCONFIG" = "yes" ] ;then
   [ "$XDRIVER" = "nvidia470" ] && LINK=$LINKNVIDIA470
   [ "$XDRIVER" = "nvidia515" ] && LINK=$LINKNVIDIA515
   [ "$XDRIVER" = "nvidia525" ] && LINK=$LINKNVIDIA525
+  [ "$XDRIVER" = "nvidia550" ] && LINK=$LINKNVIDIA550
   [ -x 'usr/sbin/alternatives' ] && chroot . /usr/sbin/alternatives --set gl_conf $LINK >/dev/null 2>&1
   LDCACHE=$XDRIVER
   [ -z "$LDCACHE" -o ! -d usr/share/magos/ld.so.cache/$LDCACHE ] && LDCACHE=fbdev

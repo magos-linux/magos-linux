@@ -2,9 +2,9 @@
 NUM="51-x"
 NAME="alvr"
 . ../functions || exit 1
-ALVRREL=21.0.0dev00-1.gitbc9d9a.1
-SOURCE0=https://mirror.yandex.ru/mirrors/magos/rpms/2021/alvr-$ALVRREL-rosa2021.x86_64.rpm
-SOURCE1=https://mirror.yandex.ru/mirrors/magos/rpms/2021/lib64alvr-$ALVRREL-rosa2021.x86_64.rpm
+ALVRREL=21.0.0dev00-1.git933bfa.1
+SOURCE0=http://ftp.magos-linux.ru/rpms/2021/alvr-$ALVRREL-rosa2021.x86_64.rpm
+SOURCE1=http://ftp.magos-linux.ru/rpms/2021/lib64alvr-$ALVRREL-rosa2021.x86_64.rpm
 DNFINST="android-tools"
 
 clean
