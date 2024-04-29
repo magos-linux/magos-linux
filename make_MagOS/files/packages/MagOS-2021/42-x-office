@@ -22,7 +22,7 @@ lib64clucene-contribs-lib2
 lib64clucene-core2
 lib64clucene_shared2
 lib64cmis0.5_5
-lib64cupsfilters1
+lib64cupsfilters2
 lib64e-book0.1_1
 lib64eot0
 lib64epubgen0.1_1
@@ -31,7 +31,6 @@ lib64etonyek0.1_1
 lib64evdocument3_4
 lib64evview3_3
 lib64exttextcat2.0_0
-lib64fontembed1
 lib64freehand0.1_1
 lib64gltf0.1_1
 lib64gxps2
@@ -52,7 +51,7 @@ lib64orcus0.18_0
 lib64orcus-parser0.18_0
 lib64pagemaker0.0_0
 lib64poppler-cpp0
-lib64qpdf28
+lib64qpdf29
 lib64qrcodegencpp1
 lib64qxp0.0_0
 lib64sane-hpaio1
@@ -83,7 +82,6 @@ libreoffice-ogltrans
 lpsolve
 mpage
 myspell-en_US
-myspell-ru_RU
 paper-utils
 poppler-data
 poster
@@ -117,3 +115,8 @@ xneur
 xsane
 lib64ZXing1
 espeak
+universal-ru-dict-myspell
+ghostscript10
+lib64ppd2
+libcupsfilters-data
+lib64gs10

@@ -1547,7 +1547,6 @@ qtxdg-tools
 lib64xcvt0
 lib64xmlb2
 lib64txc-dxtn
-mesa
 libmpg123_0
 libsndio7
 adwaita-gtk3-theme
@@ -1574,3 +1573,7 @@ lib64ptytty0
 libxkbcommon0
 lib64mujs0
 lib64mupdf23
+lib64avif15
+lib64backtrace0
+lib64svt-av1_0
+lib64yuv0

@@ -1,7 +1,7 @@
 #!/bin/bash
 #speedboot tweak
 [ -f /etc/ld.so.conf.d/GL/standard.conf ] || exit 0
-for a in nvidia550 nvidia525 nvidia390 standard ;do
+for a in nvidia550 nvidia390 standard ;do
   LINK=$(LC_ALL=C alternatives --display gl_conf | grep priority | awk '{print $1}' | grep -m1 $a)
   [ -z "$LINK" ] && continue
   echo found $LINK

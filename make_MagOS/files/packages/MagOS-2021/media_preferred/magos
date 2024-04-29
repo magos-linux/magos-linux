@@ -16,8 +16,9 @@ remmina-plugins-vnc
 remmina-plugins-www
 remmina-plugins-xdmcp
 nvidia390-core
-nvidia525-core
-nvidia525-blacklist
-nvidia525-dracut
-nvidia525-power
-nvidia525-wayland
+nvidia550-core
+nvidia550-blacklist
+nvidia550-dracut
+nvidia550-power
+nvidia550-wayland
+nvidia550-cuda-opencl

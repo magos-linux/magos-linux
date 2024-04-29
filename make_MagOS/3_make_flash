@@ -173,7 +173,7 @@ echo "Работа скрипта завершена, в папке flash леж
 [ -f .reboot ] && reboot
 [ -f .poweroff ] && poweroff
 
-#umountbranches "$ROOTFS"
+umountbranches "$ROOTFS"
 umountbranches "$TMPDIR"
 rm -fr "$MYPATH/flash/current" "$TMPDIR" 2>/dev/null
 beep
