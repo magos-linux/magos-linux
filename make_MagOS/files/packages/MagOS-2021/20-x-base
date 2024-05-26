@@ -353,10 +353,12 @@ lib64gail3_0
 lib64gbm1
 lib64gc1
 lib64gck1_0
+lib64gck2_2
 lib64GConf2_4
 lib64gconf-gir2.0
 lib64gconfmm2.6_1
 lib64gcr3_1
+lib64gcr4_4
 lib64gcr-base3_1
 lib64gdk_pixbuf2.0_0
 lib64gdk_pixbuf-gir2.0

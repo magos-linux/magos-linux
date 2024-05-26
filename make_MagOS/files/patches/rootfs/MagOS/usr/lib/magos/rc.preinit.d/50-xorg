@@ -109,7 +109,7 @@ fi
 if echo "$XDRIVER" | grep -q "nvidia"  ;then
    XDRIVERTESTED=
    [ "$XDRIVER" = "nvidia" ] || XDRIVERCURRENT=$XDRIVER
-   rmmod nvidia_drm nvidia_modeset nvidia 2>/dev/null
+   rmmod nvidia_uvm nvidia_drm nvidia_modeset nvidia 2>/dev/null
    for a in $XDRIVERCURRENT $NVIDIATEST ;do
        KERNM=$(find lib/modules/$(uname -r)/ -type f | grep -m1 -E "/$a[.]ko|/$a/nvidia[.]ko" | sed s/[.]ko.*$//)
        [ -z "$KERNM" -a "$a" = "nvidia-current" ] && KERNM=$(find lib/modules/$(uname -r)/ -type f | grep -m1 "/nvidia[.]ko" | sed s/[.]ko.*$//)
@@ -119,6 +119,7 @@ if echo "$XDRIVER" | grep -q "nvidia"  ;then
        [ -z "$XDRIVERTESTED" ] && continue
        chroot . modprobe $XDRIVERTESTED-modeset 2>/dev/null || chroot . modprobe nvidia-modeset 2>/dev/null
        chroot . modprobe $XDRIVERTESTED-drm     2>/dev/null || chroot . modprobe nvidia-drm     2>/dev/null
+       chroot . modprobe $XDRIVERTESTED-uvm     2>/dev/null || chroot . modprobe nvidia-uvm     2>/dev/null
        rm -f usr/lib/nvidia usr/lib64/nvidia 2>/dev/null
        [ -d "usr/lib/$XDRIVERTESTED"   ] && ln -sf "$XDRIVERTESTED" usr/lib/nvidia
        [ -d "usr/lib64/$XDRIVERTESTED" ] && ln -sf "$XDRIVERTESTED" usr/lib64/nvidia
