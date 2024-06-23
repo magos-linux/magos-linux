@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -x /usr/bin/doublecmd-qt ] || exit 0
+
 [ -f /usr/share/applications/doublecmd.desktop ] || mv -f /usr/share/applications/doublecmd-qt.desktop /usr/share/applications/doublecmd.desktop
 
 PFP=/usr/lib/doublecmd
@@ -24,4 +26,8 @@ cat >>$PFP <<EOF
   </Icons>
 </doublecmd>
 EOF
+
+mkdir -p /etc/skel/.config/doublecmd
+cp -p "$PFP" /etc/skel/.config/doublecmd
+
 exit 0

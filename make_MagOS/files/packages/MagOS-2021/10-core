@@ -991,3 +991,5 @@ lib64dcerpc-binding0
 lib64dcerpc-server0
 lib64dcerpc-server-core0
 lib64cpupower0
+audit
+lib64auparse0

@@ -21,11 +21,11 @@ debug_mode "$0" "$@"
 
 . /etc/MagOS/config
 
-# in case of card 0 is HDMI, card 1 is audiocard
+# in case of default card is HDMI device, switch default to audiocard
 if [ "$SNDFINCARD" != "no" ] ;then
-   if [ -z "$ALSACARD" -o -z "$ALSADEVICE" ] && LC_ALL=C aplay -l |  grep -qi "card 0.*HDMI" ;then
-      ALSACARD=$(aplay -l | grep -v "card 0:" | grep -m1 "card .:.*device " | sed s/"card "// | sed s/":.*"//)
-      ALSADEVICE=$(LC_ALL=C aplay -l | grep -m1 "card $ALSACARD:.*device " | sed s/".* device "// | sed s/:.*//)
+   if [ -z "$ALSACARD" -o -z "$ALSADEVICE" ] ;then
+      ALSACARD=$(LC_ALL=C aplay -l | grep -v HDMI | grep -m1 ^card | sed s/"card "// | sed s/":.*"//)
+      ALSADEVICE=$(LC_ALL=C aplay -l | grep -v HDMI | grep -m1 ^card | sed s/".* device "// | sed s/:.*//)
    fi
 fi
 

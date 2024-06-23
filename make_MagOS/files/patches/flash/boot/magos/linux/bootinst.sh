@@ -31,7 +31,7 @@ echo
 MYMNT="$WP"
 while [ "$MYMNT" != "" -a "$MYMNT" != "." -a "$MYMNT" != "/" -a "$TARGET" == "" ]; do
     MYMNT=$(dirname "$MYMNT")
-    TARGET=$(df "$MYMNT" | grep "[[:space:]]$MYMNT"$ | gawk '{print $1}')
+    TARGET=$(df "$MYMNT" | grep "[[:space:]]$MYMNT"$ | awk '{print $1}')
 done
 
 if [ "$TARGET" == "" -o "$MYMNT" == "/" ]; then
@@ -42,11 +42,11 @@ fi
 
 MBR=$(echo "$TARGET" | sed -r "s/[0-9]+\$//g")
 NUM=${TARGET:${#MBR}}
-FS=$(grep -m1 "$TARGET " /proc/mounts | gawk '{print $3}')
-FSOPTS=$(grep -m1 "$TARGET " /proc/mounts | gawk '{ print $4}')
+FS=$(grep -m1 "$TARGET " /proc/mounts | awk '{print $3}')
+FSOPTS=$(grep -m1 "$TARGET " /proc/mounts | awk '{ print $4}')
 
 if ! [ -w "$TARGET" ] ;then
-  t_echo "You have not rights to write on " "$TARGET""!" "Run as root."
+  t_echo "You have not rights to write on " "$TARGET""!" "Run as root. (sudo $0)"
   exit 1
 fi
 
@@ -102,7 +102,7 @@ if [ "$MBR" != "$TARGET" ]; then
 fi
 
 t_echo "Installing syslinux boot loader for" "$MYMNT" "($TARGET,$FS)..."
-"$SYSLINUX" -i "$MYMNT" || exit 1
+"$SYSLINUX" -i "$MYMNT" || extlinux -i "$MYMNT" || exit 1
 
 t_echo "Setting up syslinux for" "$FS..."
 DEFAULT=grub4dos

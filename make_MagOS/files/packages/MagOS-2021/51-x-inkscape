@@ -6,3 +6,5 @@ lib64pstoedit0
 lib64ming1
 lib64plotutils2
 python3-lxml
+python3-numpy
+lib64lapack3
