@@ -13,5 +13,4 @@ for a in nvidia550 nvidia390 standard ;do
 done
 mv      /usr/share/magos/ld.so.cache/nvidia96xx /usr/share/magos/ld.so.cache/nvidia 2>/dev/null
 mv      /usr/share/magos/ld.so.cache/standard   /usr/share/magos/ld.so.cache/fbdev
-cp -pfr /usr/share/magos/ld.so.cache/fbdev      /usr/share/magos/ld.so.cache/ati
 exit 0

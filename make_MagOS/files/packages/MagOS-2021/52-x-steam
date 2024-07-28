@@ -30,7 +30,6 @@ libdbus-glib-1_2
 libdbusmenu-glib4
 libdbusmenu-gtk4
 libdconf1
-libdconf-gio-modules
 libfdk-aac2
 libfontconfig1
 libfreebl3

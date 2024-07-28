@@ -9,7 +9,6 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-LINKATI=/etc/ld.so.conf.d/GL/standard.conf
 LINKNVIDIA96=/etc/nvidia96xx/ld.so.conf
 LINKNVIDIA173=/etc/nvidia173/ld.so.conf
 LINKNVIDIA304=/etc/nvidia304/ld.so.conf
@@ -68,8 +67,9 @@ NUM=$(lspci -nmm | sed s/"Class "// | grep -c '[.]. "0300"')
 # using VGABUSID if specified
 [ "$VGABUSID" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep ^"$VGABUSID" | head -n1)
 # trying to find VGA card for specidied XDRIVER
+[ -z "$CARD" -a "$XDRIVER" = "ati" ] && XDRIVER=amdgpu
 [ -z "$CARD" -a "$XDRIVER" = "intel" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "8086"' | sort $SORTOPT | head -n1)
-[ -z "$CARD" -a "$XDRIVER" = "ati" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "amdgpu" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
 [ -z "$CARD" -a "$XDRIVER" = "nouveau" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
 echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
 # if card are not found we are getting first/last card (it depends of INTEGRATEDVGA)
@@ -101,7 +101,7 @@ fi
 # detecting XDRIVER
 if [ -z "$XDRIVER" ] ; then
    [ "$PCIVEN" = "8086" ] && XDRIVER=intel
-   [ "$PCIVEN" = "1002" ] && XDRIVER=ati
+   [ "$PCIVEN" = "1002" ] && XDRIVER=amdgpu
    [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia
 fi
 
@@ -151,7 +151,6 @@ echo "$XDRIVER" | grep -q "nvidia" && sed -i /^blacklist.*nvidia/d etc/modprobe.
 # first run ldconfig tweak
 if [ "$GLLDCONFIG" = "yes" ] ;then
   LINK=$LINKFBDEV
-  [ "$XDRIVER" = "ati" ] && LINK=$LINKATI
   [ "$XDRIVER" = "nvidia" -o "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
   [ "$XDRIVER" = "nvidia96" ] && LINK=$LINKNVIDIA96
   [ "$XDRIVER" = "nvidia173" ] && LINK=$LINKNVIDIA173

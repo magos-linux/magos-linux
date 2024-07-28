@@ -295,7 +295,6 @@ lib64dbusmenu-gtk3_4
 lib64dbusmenu-qt5_2
 lib64dc1394_25
 lib64dconf1
-lib64dconf-gio-modules
 lib64dialog15
 lib64direct1.6_0
 lib64directfb1.6_0
@@ -1578,3 +1577,5 @@ lib64avif15
 lib64backtrace0
 lib64svt-av1_0
 lib64yuv0
+yad
+dconf-gio-modules

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -x /usr/bin/audit ] || exit 0
+[ -x /sbin/auditd ] || exit 0
 
 PFP=/etc/audit/rules.d/audit.rules
 grep -q MagOS "$PFP" 2>/dev/null || cat >"$PFP" <<EOF

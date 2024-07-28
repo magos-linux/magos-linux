@@ -108,7 +108,7 @@ done
 ls -1 $CACHE/store | grep [.]rpm$ > $TMPDIR/re/storelist.txt
 
 echo -e "\nОбработка списков пакетов"
-find "$TMPDIR"/re/packages -maxdepth 1 -type f | grep /[0-9][0-9]-* | sort | while read a ;do
+find "$TMPDIR"/re/packages -maxdepth 1 -type f | grep /[0-9][0-9]- | sort | while read a ;do
   MODULE=$(basename $a) ; echo "  $MODULE"
   cat $a | while read n ;do
     MEDIA=$(grep -l ^$n$ "$TMPDIR/"re/packages/media_preferred/* | tail -1 | sed s%^.*/%%)
