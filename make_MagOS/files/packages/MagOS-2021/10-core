@@ -153,6 +153,8 @@ lib64asound2
 lib64asprintf0
 lib64assuan0
 lib64atm1
+lib64atomic1
+lib64atomic_ops1
 lib64attr1
 lib64audit1
 lib64avahi-client3

@@ -217,8 +217,6 @@ lib64atk1.0_0
 lib64atk-bridge2.0_0
 lib64atk-gir1.0
 lib64atkmm1.6_1
-lib64atomic1
-lib64atomic_ops1
 lib64atspi0
 lib64audiofile1
 lib64augeas0
