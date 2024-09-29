@@ -995,3 +995,4 @@ lib64dcerpc-server-core0
 lib64cpupower0
 audit
 lib64auparse0
+translate-shell
