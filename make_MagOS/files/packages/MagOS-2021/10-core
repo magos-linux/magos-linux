@@ -996,3 +996,5 @@ lib64cpupower0
 audit
 lib64auparse0
 translate-shell
+gostsum
+liburing2
