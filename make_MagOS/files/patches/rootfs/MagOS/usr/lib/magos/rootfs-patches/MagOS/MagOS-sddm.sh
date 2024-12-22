@@ -1,9 +1,59 @@
 #!/bin/bash
 
 PFP=/etc/sddm.conf.d/50-default.conf
-[ -f $PFP ] || PFP=/etc/sddm.conf
-[ -f $PFP ] || exit 0
+grep -qi autologin $PFP || rm -f $PFP
+[ -f $PFP ] || cat <<EOF >$PFP
+[Autologin]
+#Relogin=false
+#Session=
+#User=
+[General]
+#DisplayServer=x11
+HaltCommand=/bin/systemctl poweroff
+InputMethod=
+#Namespaces=
+Numlock=none
+RebootCommand=/bin/systemctl reboot
+[Theme]
+#Current=
+#ThemeDir=/usr/share/sddm/themes
+#CursorTheme=
+#CursorSize=
+DisableAvatarsThreshold=7
+FacesDir=/usr/share/faces
+#Font=
+#EnableAvatars=false
 
+[Users]
+DefaultPath=/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/games
+HideShells=/sbin/nologin,/bin/false,/usr/sbin/nologin
+HideUsers=root
+#MinimumUid=500
+#MaximumUid=60000
+RememberLastSession=true
+RememberLastUser=true
+ReuseSession=true
+
+[X11]
+DisplayCommand=/usr/share/X11/xdm/Xsetup_0
+#DisplayStopCommand=
+MinimumVT=2
+ServerPath=/usr/bin/X
+#ServerArguments=
+XephyrPath=/usr/bin/Xephyr
+SessionCommand=/usr/share/X11/xdm/Xsession
+SessionDir=/usr/share/xsessions
+#ServerArguments=
+SessionLogFile=.local/share/sddm/xorg-session.log
+#EnableHiDPI=true
+
+[Wayland]
+#CompositorCommand=
+SessionDir=/usr/share/wayland-sessions
+SessionCommand=/usr/share/sddm/scripts/wayland-session
+SessionLogFile=.local/share/sddm/wayland-session.log
+EnableHiDPI=false
+EOF
 grep -q ^Current= $PFP || sed -i s/'\[Theme\]'/'[Theme]'\\n'Current=magos'/ $PFP
 grep -q ^Session= $PFP || sed -i s/'\[Autologin\]'/'[Autologin]'\\n'Session=default.magos'/ $PFP
 grep -q ^User= $PFP || sed -i s/'\[Autologin\]'/'[Autologin]'\\n'User='/ $PFP
