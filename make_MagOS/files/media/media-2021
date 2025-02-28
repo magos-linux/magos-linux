@@ -1,7 +1,7 @@
-http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/main/release main
-http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/contrib/release contrib
-http://mirror.rosalinux.com/rosa/rosa2021.1/repository/x86_64/non-free/release nonfree
-http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/main/release main32 ignore
-http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/contrib/release contrib32 ignore
-http://mirror.rosalinux.com/rosa/rosa2021.1/repository/i686/non-free/release nonfree32 ignore
+http://mirror.rosalinux.ru/rosa/rosa2021.1/repository/x86_64/main/release main
+http://mirror.rosalinux.ru/rosa/rosa2021.1/repository/x86_64/contrib/release contrib
+http://mirror.rosalinux.ru/rosa/rosa2021.1/repository/x86_64/non-free/release nonfree
+http://mirror.rosalinux.ru/rosa/rosa2021.1/repository/i686/main/release main32 ignore
+http://mirror.rosalinux.ru/rosa/rosa2021.1/repository/i686/contrib/release contrib32 ignore
+http://mirror.rosalinux.ru/rosa/rosa2021.1/repository/i686/non-free/release nonfree32 ignore
 http://ftp.magos-linux.ru/rpms/2021 magos skip

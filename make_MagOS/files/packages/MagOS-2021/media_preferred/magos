@@ -1,4 +1,5 @@
 kernel-
+kernel-headers
 xscreensaver
 xscreensaver-common
 lib64NX_X11_6

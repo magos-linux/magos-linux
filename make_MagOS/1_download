@@ -178,7 +178,7 @@ if [ "$ONLINE" == "yes" ] ;then
 fi
 rm -fr $CACHE/{modules,installsrc} $CACHE/*.txt  $CACHE/packagesinfo/*scripts
 cp -prf -t "$CACHE" "$TMPDIR/modules" "$TMPDIR/packagesinfo" "$TMPDIR/installsrc" "$TMPDIR"/*.txt
-rm -fr "$TMPDIR"
+#rm -fr "$TMPDIR"
 rmdir "$CACHE/pubkeys" >/dev/null 2>&1
 [ -d "$CACHE/pubkeys" ] && for a in "$CACHE/pubkeys/"* ;do dos2unix $a 2>/dev/null ; tail -1 "$a" | grep -q ^$ || echo >> "$a" ;done
 

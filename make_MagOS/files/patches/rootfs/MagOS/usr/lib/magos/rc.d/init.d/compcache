@@ -13,39 +13,37 @@
 # Description: Compcache uses part of the RAM as a compressed swap device
 ### END INIT INFO
 
-. /lib/lsb/init-functions
+. /etc/init.d/functions
 
 [ -f /etc/MagOS/services/compcache ] && . /etc/MagOS/services/compcache
 
 NUM_DEVICES=${NUM_DEVICES:-4}
 [ -z "$ZRAMSIZE" ] && ZRAMSIZE=$(($(free -b | grep -m1 -i ^mem: | awk '{print $2}') /4))
-GPRINTF=gprintf
-[ -f /etc/init.d/functions ] || GPRINTF=log_daemon_msg
 
 case "$1" in
   start)
-        $GPRINTF "Loading compcache: "
+        echo -n "Loading compcache: "
         /sbin/modprobe zram num_devices=$NUM_DEVICES && \
            echo $ZRAMSIZE > /sys/block/zram0/disksize && \
            mkswap /dev/zram0 >/dev/null 2>&1 && \
            swapon /dev/zram0
         RETVAL=$?
         if [ $RETVAL = 0 ]; then
-            log_success_msg $"%s startup" "$base"
+            echo_success
         else
-            log_failure_msg $"%s startup" "$base"
+            echo_failure
         fi
         echo
         [ $RETVAL -eq 0 ] && touch /var/lock/subsys/compcache
         ;;
   stop)
-        $GPRINTF "Stopping compcache: "
+        echo -n "Stopping compcache: "
         test -e /dev/zram0 &&  swapoff /dev/zram0 && sleep 0.5 && rmmod zram
         RETVAL=$?
         if [ $RETVAL = 0 ]; then
-            log_success_msg $"%s stop" "$base"
+            echo_success
         else
-            log_failure_msg $"%s stop" "$base"
+            echo_failure
         fi
         echo
         [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/compcache
