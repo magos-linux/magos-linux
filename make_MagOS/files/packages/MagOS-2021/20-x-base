@@ -1628,3 +1628,13 @@ lib64absl_synchronization2111
 lib64absl_throw_delegate2111
 lib64absl_time2111
 lib64absl_time_zone2111
+lib64Qt6Core
+lib64Qt6Gui
+lib64Qt6Widgets
+lib64Qt6DBus
+lib64Qt6EglFSDeviceIntegration
+lib64Qt6EglFsKmsGbmSupport
+lib64Qt6EglFsKmsSupport
+lib64Qt6Network
+lib64Qt6OpenGL
+lib64Qt6XcbQpa

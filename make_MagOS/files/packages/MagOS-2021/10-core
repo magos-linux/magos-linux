@@ -71,7 +71,6 @@ efivar
 encfs
 etcskel
 ethtool
-exfat-utils
 f2fs-tools
 file
 filesystem
