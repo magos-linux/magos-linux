@@ -1638,3 +1638,6 @@ lib64Qt6EglFsKmsSupport
 lib64Qt6Network
 lib64Qt6OpenGL
 lib64Qt6XcbQpa
+webkit2gtk4.1
+lib64javascriptcoregtk4.1_0
+lib64webkit2gtk4.1_0
