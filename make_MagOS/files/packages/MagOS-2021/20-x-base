@@ -1641,3 +1641,5 @@ lib64Qt6XcbQpa
 webkit2gtk4.1
 lib64javascriptcoregtk4.1_0
 lib64webkit2gtk4.1_0
+python3-tinycss2
+python3-webencodings
