@@ -4549,6 +4549,11 @@ winetricks_set_wineprefix()
             else
                 W_NO_WIN64_WARNINGS=0
             fi
+
+            # In unattended mode, do NOT show any Win64 warnings
+            if [ "${W_OPT_UNATTENDED}" = "1" ]; then
+                W_NO_WIN64_WARNINGS=1
+            fi
         fi
 
         # In case of GUI, only warn once per prefix, per session (i.e., don't warn next time)
@@ -7665,6 +7670,24 @@ w_metadata dxvk2062 dlls \
 load_dxvk2062()
 {
     w_download "https://github.com/doitsujin/dxvk/releases/download/v2.6.2/dxvk-2.6.2.tar.gz" 17761876556afd55736cb895d184f5a1c55d43350f1b1e3b129f8d28706d7992
+    helper_dxvk "${file1}" "7.1" "1.3.204" "dxgi,d3d8,d3d9,d3d10core,d3d11"
+}
+
+w_metadata dxvk2070 dlls \
+    title="Vulkan-based D3D8/D3D9/D3D10/D3D11 implementation for Linux / Wine (2.7)" \
+    publisher="Philip Rebohle" \
+    year="2025" \
+    media="download" \
+    file1="dxvk-2.7.tar.gz" \
+    installed_file1="${W_SYSTEM32_DLLS_WIN}/d3d8.dll" \
+    installed_file2="${W_SYSTEM32_DLLS_WIN}/d3d9.dll" \
+    installed_file3="${W_SYSTEM32_DLLS_WIN}/d3d10core.dll" \
+    installed_file4="${W_SYSTEM32_DLLS_WIN}/d3d11.dll" \
+    installed_file5="${W_SYSTEM32_DLLS_WIN}/dxgi.dll"
+
+load_dxvk2070()
+{
+    w_download "https://github.com/doitsujin/dxvk/releases/download/v2.7/dxvk-2.7.tar.gz" 1e569b0f7a1121d9fcee1614314fcb0c22e71c51d0b9df121e3eb81ae8c0346d
     helper_dxvk "${file1}" "7.1" "1.3.204" "dxgi,d3d8,d3d9,d3d10core,d3d11"
 }
 

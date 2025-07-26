@@ -202,3 +202,4 @@ libsamdb0
 libsmbldap2
 libwbclient0
 libassuan0
+libglapi0
