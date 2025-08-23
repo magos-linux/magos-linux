@@ -13,7 +13,7 @@ mkdir -p $MTMP
 #git pull || exit 1
 cd "$MYPATH"
 
-git clone https://github.com/neobht/uird.git  $MTMP/uird
+#git clone https://github.com/neobht/uird.git  $MTMP/uird
 git clone https://github.com/magos-linux/magos-linux.wiki.git $MTMP/wiki
 
 if [ -x $MTMP/wiki/md2html.sh ] ;then

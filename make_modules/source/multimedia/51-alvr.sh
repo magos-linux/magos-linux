@@ -22,6 +22,13 @@ cd ..
 rsync -a --delete cache/ $CACHE || exit 1
 
 cd rootfs
+mkdir -p etc/systemd/user/{default.target.wants,pipewire.service.wants,sockets.target.wants}
+ln -sf /usr/lib/systemd/user/wireplumber.service      etc/systemd/user/pipewire-session-manager.service
+ln -sf /usr/lib/systemd/user/pipewire-pulse.service   etc/systemd/user/default.target.wants/pipewire-pulse.service
+ln -sf /usr/lib/systemd/user/pipewire.service         etc/systemd/user/default.target.wants/pipewire.service
+ln -sf /usr/lib/systemd/user/wireplumber.service      etc/systemd/user/pipewire.service.wants/wireplumber.service
+ln -sf /usr/lib/systemd/user/pipewire-pulse.socket    etc/systemd/user/sockets.target.wants/pipewire-pulse.socket
+ln -sf /usr/lib/systemd/user/pipewire.socket          etc/systemd/user/sockets.target.wants/pipewire.socket
 for a in $CACHE/*.rpm ;do
    rpm2cpio $a | cpio -i -d 2>/dev/null || exit 1
 done
