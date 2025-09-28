@@ -923,7 +923,7 @@ aspell-ru
 lib64aspell15
 cyrus-sasl
 lib64comps0
-lib64pcre2posix2
+lib64pcre2posix3
 perl-Locale-gettext
 python3-dns
 btrfs-progs

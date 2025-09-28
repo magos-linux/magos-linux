@@ -124,7 +124,8 @@ lib64mlt7
 lib64mlt++7
 lib64movit8
 opensc
-lib64opensc8
+lib64opensc12
+lib64smm-local12
 python3-sip4
 python3-sip4-qt4
 upx
