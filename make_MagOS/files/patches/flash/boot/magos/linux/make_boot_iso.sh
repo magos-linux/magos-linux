@@ -36,7 +36,9 @@ t_echo -ne "Target ISO file name" [ "Hit enter for" $SUGGEST "]: "
 read ISONAME
 [ "$ISONAME" = "" ] && ISONAME="$SUGGEST"
 
-mkisofs -o "$ISONAME" -v -J -R -D -A "$CDLABEL" -V "$CDLABEL" \
--no-emul-boot -boot-info-table -boot-load-size 4 -b magos.ldr -c boot/grub4dos/boot.catalog \
--graft-points boot=boot EFI=EFI magos.ldr=boot/grub4dos/magos.ldr  \
-MagOS/vmlinuz=MagOS/vmlinuz MagOS/initrd.gz=MagOS/initrd.gz MagOS/uird.magos.cpio.xz=MagOS/uird.magos.cpio.xz
+xorriso -as mkisofs -o "$ISONAME" -v -J -R -D -A "$CDLABEL" -V "$CDLABEL" \
+ -graft-points -m '*_save*' boot=boot EFI=EFI isomode=boot/grub4dos/iso_conf \
+ MagOS/vmlinuz=MagOS/vmlinuz MagOS/initrd.gz=MagOS/initrd.gz MagOS/uird.magos.cpio.xz=MagOS/uird.magos.cpio.xz \
+ --no-emul-boot -boot-info-table -boot-load-size 4 --boot-catalog-hide \
+ -b boot/grub4dos/magos.ldr -iso_mbr_part_type 0x83 --mbr-force-bootable --partition_offset 16 \
+ -eltorito-alt-boot -isohybrid-mbr boot/syslinux/isohdpfx.bin -e EFI/efi.img

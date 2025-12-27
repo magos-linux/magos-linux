@@ -997,3 +997,5 @@ lib64auparse0
 translate-shell
 gostsum
 liburing2
+botan2
+lib64botan2_19
