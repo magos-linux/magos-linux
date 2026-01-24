@@ -1,0 +1,4 @@
+kernel-6.12-desktop
+kernel-module-v4l2loopback-6.12-desktop
+linux-firmware
+microcode_ctl

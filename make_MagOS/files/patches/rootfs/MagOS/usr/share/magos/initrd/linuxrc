@@ -28,6 +28,10 @@ modprobe_module squashfs-lzma
 # so it must be mounted from .xzm files
 mount_initrd_loops
 
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+# delete busybox version of kmod utilities
+[ -x /usr/bin/kmod ] && for a in depmod lsmod insmod modprobe rmmod modinfo ;do rm -f "/bin/$a" ;done
+
 # Load essential drivers, like CDROM drivers, aufs/squashfs etc,
 # use mdev to create /dev/ devices and setup it as a hotplug-handler
 modprobe_essential_modules
@@ -53,7 +57,7 @@ if [ "$(cmdline_parameter quickshell)$(cmdline_parameter qs)" ] ; then
    automount
    clear
    cat ./quickshell.hlp
-   /bin/bash autologin
+   bash autologin
    cd /
    umount /mnt/*
    export LANG=""
@@ -386,9 +390,9 @@ rmdir $UNION/mnt/* 2>/dev/null
 fstab_update $UNION
 cd $UNION
 if [ -x "usr/lib/magos/rc.d/rc.preinit" ] ;then
-  /bin/bash usr/lib/magos/rc.d/rc.preinit
+  bash usr/lib/magos/rc.d/rc.preinit
 elif [ -x "etc/rc.d/rc.preinit" ] ; then
-  /bin/bash etc/rc.d/rc.preinit
+  bash etc/rc.d/rc.preinit
 fi
 cd /
 
@@ -445,6 +449,9 @@ if [ "$CHROOT" = "" ]; then fatal "Can't find executable chroot command"; fi
 
 if [ -x bin/init ]; then INIT=bin/init; fi
 if [ -x sbin/init ]; then INIT=sbin/init; fi
+if [ -x usr/bin/init ]; then INIT=usr/bin/init; fi
+if [ -x usr/sbin/init ]; then INIT=usr/sbin/init; fi
+if [ -x usr/lib/systemd/systemd ]; then INIT=usr/lib/systemd/systemd; fi
 if [ "$INIT" = "" ]; then fatal "Can't find executable init command"; fi
 
 # time to end Linux Live scripts and start the distribution itself,
@@ -454,16 +461,20 @@ header "linux live end, starting $LIVECDNAME"
 debug_shell
 
 [ $(cmdline_parameter unionfs) ] && fs_type=unionfs || fs_type=aufs
+
+#to free some space
 fumount /lib/modules/*/kernel >/dev/null 2>/dev/null
+fumount /usr/lib/modules/*/kernel >/dev/null 2>/dev/null
 umount /proc 2>/dev/null
-rm -f /drivers.xzm /usr.xzm >/dev/null 2>/dev/null
+[ -f /drivers.xzm ] && rm -f /drivers.xzm >/dev/null 2>/dev/null
 #mount -n -o remount,ro $fs_type .
 
 # We will copy init from the distro to initrd (there should be 2MB free)
 # This allows us to use the cleanup script during reboot, as init will be
 # started from memory and not from the union and /union will not be busy.
+rm -f /bin/init 2>/dev/null
+cp -aHf $INIT /bin/init
 
-cp -aHf $INIT /bin
 if [ $? -eq 0 ]; then
    pivot_root . $INITRAMDISK
    exec $CHROOT . $INITRAMDISK/bin/init <dev/console >dev/console 2>&1

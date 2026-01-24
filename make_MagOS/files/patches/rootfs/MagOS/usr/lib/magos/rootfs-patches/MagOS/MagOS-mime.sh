@@ -37,7 +37,6 @@ update_mime application/pdf                 pdfview.desktop
 update_mime application/x-ms-dos-executable wine.desktop
 update_mime application/x-fictionbook       FBReader.desktop
 update_mime application/x-cd-image          isomaster.desktop
-update_mime application/x-rpm               mandriva-gurpmi.desktop
 update_mime image/tiff                      okularApplication_tiff.desktop
 update_mime image/jpeg                      gpicview.desktop
 update_mime image/png                       gpicview.desktop

@@ -1,0 +1,17 @@
+^glibc
+^kernel-desktop-
+^kernel-nrj-desktop-
+^netprofile-
+^partimage-
+^locales-
+^dracut-
+^shadow-utils-
+^makedev-
+^grub-
+^grub2-
+^plymouth-
+^rkhunter-
+^cdrkit-
+^rpm-
+^networkmanager-[0-9]
+^pm-fallback-policy-

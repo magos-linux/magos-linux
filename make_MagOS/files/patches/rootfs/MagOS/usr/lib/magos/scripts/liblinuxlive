@@ -35,7 +35,6 @@ MODULEFORMAT="xzm"
 CMDLNFILE=/memory/cmdline
 [ -f $CMDLNFILE ] || CMDLNFILE=/mnt/live/tmp/cmdline
 [ -f $CMDLNFILE ] || CMDLNFILE=/tmp/cmdline
-
 # this will be replaced by build script, so never change the following line!
 LIVECDNAME="MagOS"
 
@@ -1071,7 +1070,7 @@ modprobe_essential_modules()
 modprobe_usb_modules()
 {
    debug_log "modprobe_hardware_modules" "$*"
-   depmod
+#   depmod
    local ATAMODULES HWMODULES MANMODULES BLMODULES
    MANMODULES="$(cmdline_value rdloaddriver | tr ',;' ' ')"
    BLMODULES="$(cmdline_value blacklist | tr ',;' ' ')"
@@ -1157,7 +1156,7 @@ mount_httpfs()
    debug_log "mount_httpfs" "$*"
 
    mkdir -p $2
-   /bin/httpfs $1 $2 || return
+   httpfs $1 $2 || return
    if [ -f $2/$(basename $1) ] ;then
       echo $2/$(basename $1)
    else
@@ -1177,7 +1176,7 @@ mount_curlftpfs()
    [ "$(cmdline_value netfsoptions)" ] && OPTIONS="-o $(cmdline_value netfsoptions)"
 
    mkdir -p $2
-   /usr/bin/curlftpfs $OPTIONS $1 $2 </dev/console >/dev/console 2>/dev/console || return
+   curlftpfs $OPTIONS $1 $2 </dev/console >/dev/console 2>/dev/console || return
    if [ -f $2/$(basename $1) ] ;then
       echo $2/$(basename $1)
    else
@@ -1198,7 +1197,7 @@ mount_sshfs()
    mkdir -p $2
    times=3
    while [ $times -gt 0 ]; do
-     /usr/bin/sshfs ${1/ssh:??/} $2 $OPTIONS </dev/console >/dev/console 2>/dev/console
+     sshfs ${1/ssh:??/} $2 $OPTIONS </dev/console >/dev/console 2>/dev/console
      ERR=$?
      [ $ERR -eq 0 ] && break
      times=$(expr $times - 1)

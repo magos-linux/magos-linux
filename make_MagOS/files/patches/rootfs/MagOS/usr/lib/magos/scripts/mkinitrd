@@ -12,9 +12,9 @@ ARCH=32
 MODULEFORMAT=xzm
 
 # binaries for /bin
-INIRAMDBIN1="busybox.static lspci httpfs blkid blockdev"
+INIRAMDBIN1="busybox.static blkid blockdev"
 # binaries for /usr/bin
-INIRAMDBIN2='dosfsck fsck fsck.ext2 reiserfsck rsync losetup ntfsfix mksquashfs unsquashfs
+INIRAMDBIN2='kmod lspci httpfs dosfsck fsck fsck.ext2 reiserfsck rsync losetup ntfsfix mksquashfs unsquashfs
   ntfs-3g.probe ntfs-3g fusermount  mount.fuse ulockmgr_server sshfs shred cat ls dialog loadkeys unrar curlftpfs cryptsetup'
 # optional binaries for /usr/bin
 INIRAMDBINOPT="resume fsck.reiser4"
@@ -151,7 +151,7 @@ mkdir -p "$INITRDFOLD" || exit 1
 cd "$INITRDFOLD" || exit 1
 cp -R --preserve /usr/share/magos/initrd/* ./ || exit 1
 [ "$ARCH" = "64" ] && cp -fR --preserve /usr/share/magos/initrd64/* ./
-mkdir -p etc dev bin mnt proc lib sys tmp var/log etc/default usr/lib usr/bin usr/share/locale/ru_RU.UTF-8 lib/modules/$KERNEL/kernel/fs
+mkdir -p etc dev bin lib mnt proc sys tmp var/log etc/default usr/lib usr/bin usr/share/locale/ru_RU.UTF-8 lib/modules/$KERNEL/kernel/fs
 if [ -f /etc/magos-release ] ;then
    cp -p /etc/magos-release ./VERSION || exit 1
 else
@@ -159,8 +159,10 @@ else
 fi
 cp -p /usr/lib/magos/scripts/liblinuxlive ./ || exit 1
 ln -sf bin sbin
+ln -sf bin usr/sbin
+ln -sf lib lib64
+ln -sf lib usr/lib64
 touch etc/{m,fs}tab
-
 
 echo "creating devices"
 mknod dev/console c 5 1
@@ -195,11 +197,9 @@ for a in $INIRAMDBINOPT ;do
 done
 mv bin/busybox.static bin/busybox || exit 1
 mv usr/bin/losetup usr/bin/losetup.real || exit 1
-if [ -x /bin/kmod ] ;then
-   cp -pf /bin/kmod  bin
-fi
 [ -f /usr/share/pci.ids ] && cp -f /usr/share/pci.ids      usr/share
 [ -d /usr/share/locale/ru_RU.UTF-8 ] && cp -pHR /usr/share/locale/ru_RU.UTF-8/* usr/share/locale/ru_RU.UTF-8
+[ -x usr/bin/bash ] && ln -sf /usr/bin/bash bin/bash
 
 echo "copying libraries"
 for a in bin/* ; do
@@ -212,24 +212,21 @@ ls -1 lib/*.so* | sed s=lib/== > liblist
 for a in usr/bin/* ; do
    ldd 2>/dev/null $a | awk '{print $1}' | sed 's=^.*/=='
 done | sort -u | grep -vf liblist > usrliblist
+grep -q libcrypto usrliblist || echo "libcrypto.so.3" >> usrliblist
 cat usrliblist | while read a ;do
   copy_lib $a usr/lib || exit 1
 done
+[ -h /lib ] && cp -pf lib/*.* usr/lib
 rm -f liblist usrliblist
 
-echo "making links"
-if [ "$ARCH" = "64" ] ;then
-   ln -s lib lib64
-   ln -s lib usr/lib64
-fi
-ln -sf $(basename lib/libz.so.?)  lib/libz.so
+ln -sf $(basename usr/lib/libz.so.?)  usr/lib/libz.so
 # build links to busybox's functions from busybox's own help text
 for i in $(bin/busybox --help | grep -v Copyright | grep , | tr , " "); do
    ln -s busybox bin/$i 2>/dev/null
 done
-if [ -x bin/kmod ] ;then
+if [ -x usr/bin/kmod ] ;then
    for a in lsmod rmmod insmod modinfo modprobe depmod ;do
-      ln -sf kmod bin/$a
+      ln -sf kmod usr/bin/$a
    done
 fi
 ln -sf ../usr/bin/mksquashfs   bin/mksquashfs || exit 1
@@ -265,23 +262,31 @@ find lib -noleaf -name "*.ko.xz" | xargs -r unxz || exit 1
 echo "generating module dependency files"
 copy_mod modules.order $KERNEL || exit 1
 copy_mod modules.builtin $KERNEL || exit 1
+touch lib/modules/$KERNEL/modules.pcimap
+[ -h /lib ] && mv lib/modules usr/lib
 depmod -b "$INITRDFOLD" $KERNEL || exit 1
-#BUGFIX for Rosa 2012.1
-touch /lib/modules/$KERNEL/modules.pcimap
 
 echo "compressing usr in initrd"
 create_module usr usr.$MODULEFORMAT || exit 1
 chmod ago-x usr.$MODULEFORMAT || exit 1
-rm -Rf usr/*
 
-echo "compressing net in initrd"
 mkdir -p tmp_xzm/fs tmp_xzm/drivers
+[ -h /lib ] && mv usr/lib/modules lib
 mv lib/modules/$KERNEL/kernel/drivers/[ac-z]* tmp_xzm/drivers || exit 1
 mv lib/modules/$KERNEL/kernel/net tmp_xzm || exit 1
 mv lib/modules/$KERNEL/kernel/fs/[b-rt-z]* tmp_xzm/fs || exit 1
-cp -pr lib/modules/$KERNEL/kernel/* tmp_xzm || exit 1
-create_module tmp_xzm drivers.$MODULEFORMAT || exit 1
-chmod ago-x drivers.$MODULEFORMAT
+rm -Rf usr/*
+
+if [ -h /lib ] ;then
+   mv lib usr
+   ln -sf usr/lib lib
+   ln -sf lib usr/lib64
+else
+   echo "compressing drivers in initrd"
+   cp -pr lib/modules/$KERNEL/kernel/* tmp_xzm || exit 1
+   create_module tmp_xzm drivers.$MODULEFORMAT || exit 1
+   chmod ago-x drivers.$MODULEFORMAT
+fi
 rm -Rf tmp_xzm
 
 RAM0SIZE=$(du -bs "$INITRDFOLD" | awk '{print $1}' | sed s/......$//)

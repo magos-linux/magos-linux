@@ -1,0 +1,9 @@
+kernel-
+kernel-headers
+nvidia390-core
+nvidia550-core
+nvidia550-blacklist
+nvidia550-dracut
+nvidia550-power
+nvidia550-wayland
+nvidia550-cuda-opencl

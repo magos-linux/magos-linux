@@ -36,7 +36,7 @@ rm -fr 2>/dev/null \
 
 #Kill big icons to save some space
 [ -d usr/share/icons ] && for a in `find usr/share/icons -type d | grep -E -e '[x/]512$|[x/]256$|/128x128$' ` ;do  rm -fr "$a" ; done
-
+[ -d usr/share/icons/default ] && rm -f usr/share/icons/default
 #KDE
 rm -fr 2>/dev/null usr/share/autostart/kaddressbookmigrator.desktop \
   usr/share/autostart/kalarm.autostart.desktop \

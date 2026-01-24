@@ -1,0 +1,5 @@
+^dev/
+^etc/skel
+^/root
+var/lib/rpm/alternatives
+var/lib/rpm/modules/

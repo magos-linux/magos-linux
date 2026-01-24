@@ -1,0 +1,11 @@
+^lib/firmware/cypress/
+^lib/firmware/dpaa2/
+^lib/firmware/qca/
+^lib/firmware/qcom/
+^lib/firmware/bnx2/
+^lib/firmware/bnx2x/
+^lib/firmware/cxgb4/
+^lib/firmware/liquidio/
+^lib/firmware/mellanox/
+^lib/firmware/netronome/
+^lib/firmware/qed/
