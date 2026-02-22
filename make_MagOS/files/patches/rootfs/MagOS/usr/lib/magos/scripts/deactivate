@@ -53,7 +53,7 @@ try_remount()
 if [ $(cmdline_parameter unionfs) ];then
    mount -t unionfs -o remount,del="$IMAGES/$MODULE" unionfs / 2>/dev/null
 else
-   mount -t aufs -o remount,verbose,del:"$IMAGES/$MODULE" aufs / 2>/dev/null
+   mount -t aufs -o remount,verbose,del="$IMAGES/$MODULE" aufs / 2>/dev/null
 fi
 }
 

@@ -4,7 +4,7 @@
 
 chmod 444 /var/lib/rpm/modules/*
 
-if [ -d /etc/urpmi ] ;then
+if [ -f /etc/urpmi/skip.list ] ;then
   sed -i /^\\//d /etc/urpmi/skip.list
   echo -e "/kernel/"\\n"/nvidia/"\\n"/^timezone/" >> /etc/urpmi/skip.list
 fi

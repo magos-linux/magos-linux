@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=XSession
+Exec=/usr/lib/magos/scripts/startsteam-bp
+TryExec=/usr/lib/magos/scripts/startsteam-bp
+DesktopNames=Steam
+Name=Steam
+Name[ru]=Стим
+Comment=Steam by Valve
+Comment[ru]=Игровой клиент Steam от Valve

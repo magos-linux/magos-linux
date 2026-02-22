@@ -304,7 +304,7 @@ case $(file -b "$NEWLAYER") in
 	;;
 	*) return 5 ;;
 esac
-mount -o remount,add:1:"$NEWLAYER"=ro+wh "$AUFSMNT" || return 5
+mount -o remount,add=1:"$NEWLAYER"=ro+wh "$AUFSMNT" || return 5
 echo $NEWLAYER
 }
 

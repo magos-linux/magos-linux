@@ -159,7 +159,6 @@ lib64kdecorations2private10
 lib64kdefakes5
 lib64kdesu5
 lib64kdeui5
-lib64kdewebkit5
 lib64kdnssd4
 lib64kemoticons4
 lib64kf5activities5
@@ -737,3 +736,4 @@ lib64QCoro5_0
 lib64qt5websockets5
 lib64kf5prisonscanner5
 knotifications
+lib64kdewebkit5

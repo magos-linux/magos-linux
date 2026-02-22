@@ -1,2 +1,4 @@
 kernel/drivers/video/nvidia390/
 usr/share/auto-krokodil/kmods/nvidia390
+usr/lib/nvidia390
+usr/lib64/nvidia390

@@ -15,23 +15,32 @@ LINKNVIDIA304=/etc/nvidia304/ld.so.conf
 LINKNVIDIA340=/etc/nvidia340/ld.so.conf
 LINKNVIDIA390=/etc/nvidia390/ld.so.conf
 LINKNVIDIA470=/etc/nvidia470/ld.so.conf
-LINKNVIDIA515=/etc/nvidia515/ld.so.conf
-LINKNVIDIA525=/etc/nvidia525/ld.so.conf
 LINKNVIDIA550=/etc/nvidia550/ld.so.conf
+LINKNVIDIA580=/etc/nvidia580/ld.so.conf
 LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
 LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-NVIDIATEST="nvidia550 nvidia390 nvidia"
+NVIDIATEST="nvidia580 nvidia550 nvidia470 nvidia390 nvidia340 nvidia"
+PRIMETEST="nvidia580 nvidia550 nvidia470"
+PRIMEACTIVE="iGPU"
+PRIMEINACTIVE="nvidia"
+DRMMODESET=
 FAILSAFENVIDIA=nouveau
 CREATE_XORG_CONF=yes
 GLLDCONFIG=yes
-BUMBLEBEE=no
+PRIME=no
 OPTIRUN=
 PRIMUSRUN=
 VGABUSID=
 INTEGRATEDVGA=yes
 SORTOPT=
-XFILE=etc/X11/xorg.conf
+XFILE=etc/X11/xorg.conf.d/10-driver.conf
 DELETE_XORG_CONF=no
+NVMODSPATH="kernel/drivers/video"
+FULLNVMODSPATH="lib/modules/$(uname -r)/$NVMODSPATH"
+NVDEPMOD=yes
+[ -d $FULLNVMODSPATH ] || NVDEPMOD=no
+NVAVAILABLE=" $(ls $FULLNVMODSPATH | grep nvidia | tr \\n ' ')"
+echo "$NVAVAILABLE" | grep -q nvidia || NVDEPMOD=no
 
 DEBUGMODE=no
 . usr/lib/magos/functions
@@ -40,6 +49,7 @@ debug_mode "$0" "$@"
 
 [ -f /memory/changes/etc/ld.so.cache ] && GLLDCONFIG=no
 [ -f /memory/changes"$XFILE" ] && CREATE_XORG_CONF=no
+lspci -nmm | sed s/"Class "// | grep -q '"0302" "10de"' && PRIME=yes
 
 # forcing modes=auto for xorg.conf
 grep -q XORG_RES etc/MagOS/config || echo XORG_RES=auto >>etc/MagOS/config
@@ -78,6 +88,9 @@ echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | sed s/
 PCIID=$(echo $CARD | awk -F\" '{print $6}')
 PCIVEN=$(echo $CARD | awk -F\" '{print $4}')
 
+# setting VGABUSID only on multicard hardware
+[ "$NUM" != "1" ] && VGABUSID=$(echo $CARD | awk '{print $1}')
+
 # in case video was changed
 if [ "$PCIID" != "$VGAID" -a "$VGAID" ] ;then
    [ -f $XFILE ] && mv $XFILE $XFILE.$VGAVEN:$VGAID.bak
@@ -86,16 +99,21 @@ if [ "$PCIID" != "$VGAID" -a "$VGAID" ] ;then
    XDRIVER=$CLXD
 fi
 
-# deleting xorg.conf when xdriver=xorg specified
-[ "$XDRIVER" = "xorg" ] && DELETE_XORG_CONF=yes && CREATE_XORG_CONF=no && XDRIVER=
-
-# setting VGABUSID only on multicard hardware
-[ "$NUM" != "1" ] && VGABUSID=$(echo $CARD | awk '{print $1}')
-
 # looking exceptions
 if [ -z "$XDRIVER" ] ; then
    XDRIVER=$(grep -im1 ^$PCIVEN:$PCIID usr/share/magos/hwdata/xdriver/* | awk -F: '{print $1}')
    [ -z "$XDRIVER" ] || XDRIVER=$(basename $XDRIVER)
+fi
+
+# deleting xorg.conf when xdriver=xorg specified
+[ "$XDRIVER" = "xorg" ] && DELETE_XORG_CONF=yes && CREATE_XORG_CONF=no && XDRIVER= && PRIME=no
+
+# prime for nvidia optimus card
+if [ "$PRIME" = "yes" ] ;then
+   [ -z "$XDRIVER" ] && XDRIVER=$(echo $PRIMETEST | awk '{print $1}')
+   DRMMODESET="modeset=1"
+   FAILSAFENVIDIA=intel
+   NVIDIATEST="$PRIMETEST"
 fi
 
 # detecting XDRIVER
@@ -105,7 +123,7 @@ if [ -z "$XDRIVER" ] ; then
    [ "$PCIVEN" = "10de" ] && XDRIVER=nvidia
 fi
 
-# testing nonfree nvidia modules (nvidia-current nvidia340 nvidia304 nvidia)
+# testing nvidia modules
 if echo "$XDRIVER" | grep -q "nvidia"  ;then
    XDRIVERTESTED=
    [ "$XDRIVER" = "nvidia" ] || XDRIVERCURRENT=$XDRIVER
@@ -114,39 +132,27 @@ if echo "$XDRIVER" | grep -q "nvidia"  ;then
        KERNM=$(find lib/modules/$(uname -r)/ -type f | grep -m1 -E "/$a[.]ko|/$a/nvidia[.]ko" | sed s/[.]ko.*$//)
        [ -z "$KERNM" -a "$a" = "nvidia-current" ] && KERNM=$(find lib/modules/$(uname -r)/ -type f | grep -m1 "/nvidia[.]ko" | sed s/[.]ko.*$//)
        [ -z "$KERNM" ] && KERNM=$a
+       if [ "$NVDEPMOD" = "yes" ] && ! grep -qm1 "$KERNM[.]ko" lib/modules/$(uname -r)/modules.dep ;then
+          echo "exclude $NVAVAILABLE" | sed "s/ $a / /" >etc/depmod.d/nvidia_exclude.conf
+          chroot . depmod -a -C etc/depmod.d/nvidia_exclude.conf
+       fi
        chroot . modprobe $(basename $KERNM) 2>/dev/null
        lsmod | grep -q nvidia && XDRIVERTESTED=$a
        [ -z "$XDRIVERTESTED" ] && continue
-       chroot . modprobe $XDRIVERTESTED-modeset 2>/dev/null || chroot . modprobe nvidia-modeset 2>/dev/null
-       chroot . modprobe $XDRIVERTESTED-drm     2>/dev/null || chroot . modprobe nvidia-drm     2>/dev/null
-       chroot . modprobe $XDRIVERTESTED-uvm     2>/dev/null || chroot . modprobe nvidia-uvm     2>/dev/null
+       chroot . modprobe $XDRIVERTESTED-modeset         2>/dev/null || chroot . modprobe nvidia-modeset         2>/dev/null
+       chroot . modprobe $XDRIVERTESTED-drm $DRMMODESET 2>/dev/null || chroot . modprobe nvidia-drm $DRMMODESET 2>/dev/null
+       chroot . modprobe $XDRIVERTESTED-uvm             2>/dev/null || chroot . modprobe nvidia-uvm             2>/dev/null
        rm -f usr/lib/nvidia usr/lib64/nvidia 2>/dev/null
        [ -d "usr/lib/$XDRIVERTESTED"   ] && ln -sf "$XDRIVERTESTED" usr/lib/nvidia
        [ -d "usr/lib64/$XDRIVERTESTED" ] && ln -sf "$XDRIVERTESTED" usr/lib64/nvidia
        break
    done
    [ -z "$XDRIVERTESTED" ] || XDRIVER=$XDRIVERTESTED
-   # nouveau driver
-   [ -z "$XDRIVERTESTED" ] && XDRIVER=$FAILSAFENVIDIA
+   # failsafe driver
+   [ -z "$XDRIVERTESTED" ] && XDRIVER=$FAILSAFENVIDIA && PRIME=no && rm -f etc/depmod.d/nvidia_exclude.conf 2>/dev/null
+else
+   PRIME=no
 fi
-
-# storing data in config file
-if [ ! -z "$XDRIVER" ] ;then
-   sed -i /^XDRIVER=/d $HARDCONF
-   sed -i /^VGAID=/d $HARDCONF
-   sed -i /^VGAVEN=/d $HARDCONF
-   sed -i /^VGABUSID=/d $HARDCONF
-   sed -i /DELETE_XORG_CONF=/d $HARDCONF
-   echo XDRIVER=$XDRIVER >> $HARDCONF
-   echo VGAID=$PCIID >> $HARDCONF
-   echo VGAVEN=$PCIVEN >> $HARDCONF
-   [ "$DELETE_XORG_CONF" = "yes" ] && echo DELETE_XORG_CONF=yes >> $HARDCONF
-   [ "$VGABUSID" ] && echo VGABUSID=$VGABUSID >> $HARDCONF
-fi
-
-# removing blocking conflict modules if its forced
-[ "$XDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
-echo "$XDRIVER" | grep -q "nvidia" && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
 
 # first run ldconfig tweak
 if [ "$GLLDCONFIG" = "yes" ] ;then
@@ -158,9 +164,8 @@ if [ "$GLLDCONFIG" = "yes" ] ;then
   [ "$XDRIVER" = "nvidia340" ] && LINK=$LINKNVIDIA340
   [ "$XDRIVER" = "nvidia390" ] && LINK=$LINKNVIDIA390
   [ "$XDRIVER" = "nvidia470" ] && LINK=$LINKNVIDIA470
-  [ "$XDRIVER" = "nvidia515" ] && LINK=$LINKNVIDIA515
-  [ "$XDRIVER" = "nvidia525" ] && LINK=$LINKNVIDIA525
   [ "$XDRIVER" = "nvidia550" ] && LINK=$LINKNVIDIA550
+  [ "$XDRIVER" = "nvidia580" ] && LINK=$LINKNVIDIA580
   [ -x 'usr/sbin/alternatives' ] && chroot . /usr/sbin/alternatives --set gl_conf $LINK >/dev/null 2>&1
   LDCACHE=$XDRIVER
   [ -z "$LDCACHE" -o ! -d usr/share/magos/ld.so.cache/$LDCACHE ] && LDCACHE=fbdev
@@ -173,68 +178,14 @@ if [ "$DELETE_XORG_CONF" = "yes" ] ;then
 else
    if [ "$CREATE_XORG_CONF" = "yes" ] ;then
       [ ! -z "$XDRIVER" -a -d usr/share/magos/xorg/$XDRIVER ] && cp -pfR usr/share/magos/xorg/$XDRIVER/* etc/X11
-      [ -d usr/share/magos/xorg/$PCIVEN       ] && cp -pfR usr/share/magos/xorg/$PCIVEN/*  etc/X11
-      [ -d usr/share/magos/xorg/$PCIVEN$PCIID ] && cp -pfR usr/share/magos/xorg/$PCIVEN$PCIID/* etc/X11
+      [ -d usr/share/magos/xorg/$PCIVEN         ] && cp -pfR usr/share/magos/xorg/$PCIVEN/*       etc/X11
+      [ -d usr/share/magos/xorg/$PCIVEN$PCIID   ] && cp -pfR usr/share/magos/xorg/$PCIVEN$PCIID/* etc/X11
+      if [ "$PRIME" = "yes" ] ;then
+         cp -pfR usr/share/magos/xorg/nvidiaprime/* etc/X11
+         sed -i "s/Screen 0 .*/Screen 0 \"$PRIMEACTIVE\"/"   etc/X11/xorg.conf.d/15-nvidia.conf
+         sed -i "s/Inactive .*/Inactive \"$PRIMEINACTIVE\"/" etc/X11/xorg.conf.d/15-nvidia.conf
+      fi
    fi
-fi
-
-# bumblebee service for nvidia optimus card
-[ "$XDRIVER" = "intel" ] && lspci -nmm | sed s/"Class "// | grep -q '"0302" "10de"' && BUMBLEBEE=yes
-[ -f etc/bumblebee/bumblebee.conf ] || BUMBLEBEE=no
-if [ "$BUMBLEBEE" = "yes" ] ;then
-   rm -f etc/systemd/system/bumblebeed.service
-   ln -sf /lib/systemd/system/bumblebeed.service etc/systemd/system/graphical.target.wants/bumblebeed.service
-   CARD=$(lspci -nmm | sed s/"Class "// | grep -m1 '[.]. "0302"')
-   PCIID=$(echo $CARD | awk -F\" '{print $6}')
-   PCIVEN=$(echo $CARD | awk -F\" '{print $4}')
-
-   # test for kernel module
-   [ -z "$BUMBLEBEEDRIVER" ] && for a in $(grep -im1 ^$PCIVEN:$PCIID usr/share/magos/hwdata/bumblebeedriver/* | sed 's%:.*%%' | sed 's%.*/%%') $NVIDIATEST ;do
-       chroot . modprobe $a
-       lsmod | grep -q nvidia && BUMBLEBEEDRIVER=$a
-       [ -z "$BUMBLEBEEDRIVER" ] && continue
-       chroot . modprobe $BUMBLEBEEDRIVER-modeset 2>/dev/null || chroot . modprobe nvidia-modeset 2>/dev/null
-       chroot . modprobe $BUMBLEBEEDRIVER-drm     2>/dev/null || chroot . modprobe nvidia-drm     2>/dev/null
-       break
-   done
-   [ -z "$BUMBLEBEEDRIVER" ] && BUMBLEBEEDRIVER=nouveau
-
-   #settings for bumblebeed service
-   sed -i /^KernelDriver=/d                                                      etc/bumblebee/bumblebee.conf
-   sed -i "s/^\\[driver-nouveau\\]/\\[driver-nouveau\\]\\nKernelDriver=nouveau/" etc/bumblebee/bumblebee.conf
-   if [ "$BUMBLEBEEDRIVER" = "nouveau" ] ;then
-      sed -i "s/^Driver=.*/Driver=nouveau/"                                                  etc/bumblebee/bumblebee.conf
-      sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver=nvidia-current/"     etc/bumblebee/bumblebee.conf
-   else
-      rm -f usr/lib/nvidia usr/lib64/nvidia 2>/dev/null
-      [ -d "usr/lib/$BUMBLEBEEDRIVER"   ] && ln -sf "$BUMBLEBEEDRIVER" usr/lib/nvidia
-      [ -d "usr/lib64/$BUMBLEBEEDRIVER" ] && ln -sf "$BUMBLEBEEDRIVER" usr/lib64/nvidia
-      [ "$BUMBLEBEEDRIVER" = "nvidia-current" ] && BUMBLEBEEDRIVER=nvidia
-      sed -i "s/^Driver=.*/Driver=nvidia/"                                                   etc/bumblebee/bumblebee.conf
-      sed -i "s/^\\[driver-nvidia\\]/\\[driver-nvidia\\]\\nKernelDriver="$BUMBLEBEEDRIVER"/" etc/bumblebee/bumblebee.conf
-   fi
-   [ -z "$BBBUSID" ] && BBBUSID=$(lspci -mn | sed s/'"Class '// | awk '{ print $1 " " $2 }' | grep -m1 0302 | awk '{print $1}' | tr . :)
-   [ -z "$BBBUSID" ] || sed -i s/PCI:..:..:./PCI:$BBBUSID/ etc/bumblebee/xorg.conf.nvidia
-   [ -z "$BBBUSID" ] || sed -i s/PCI:..:..:./PCI:$BBBUSID/ etc/bumblebee/xorg.conf.nouveau
-
-   echo "$OPTIRUN" | tr ',;' \\n | while read a ;do
-     FILE=usr/share/applications/$a.desktop
-     [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop
-     if [ -f $FILE ] ;then
-        sed -i "s|Exec=primusrun |Exec=|" $FILE
-        grep -q optirun $FILE || sed -i "s|Exec=|Exec=optirun -b primus |" $FILE
-     fi
-   done
-
-   echo "$PRIMUSRUN" | tr ',;' \\n | while read a ;do
-     FILE=usr/share/applications/$a.desktop
-     [ -f $FILE ] || FILE=usr/share/applications/kde4/$a.desktop
-     if [ -f $FILE ] ;then
-        sed -i "s|Exec=optirun -b primus |Exec=|" $FILE
-        grep -q primusrun $FILE || sed -i "s|Exec=|Exec=primusrun |" $FILE
-     fi
-   done
-
 fi
 
 #setting BusID option for multicard hardware
@@ -249,9 +200,38 @@ if [ -f $XFILE -a "$VGABUSID" ] ;then
    fi
 fi
 
-#preloading kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
+# removing blocking conflict modules if its forced
+[ "$XDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
+echo "$XDRIVER" | grep -q "nvidia" && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
+
+# preloading kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
 if echo "$XDRIVER" | grep -qE 'nvidia|nouveau' ;then
    sed -i /^nvidia/d  etc/modprobe.preload
    sed -i /^nouveau/d etc/modprobe.preload
    echo "$XDRIVER" >> etc/modprobe.preload
+fi
+
+# adding modeset options for nvidia prime
+if [ "$PRIME" = "yes" ] ;then
+   sed -i /"^options nvidia"/d etc/modprobe.d/magos.conf
+   echo "options ${XDRIVER}_drm $DRMMODESET" >> etc/modprobe.d/magos.conf
+   [ -f etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf ] && sed -i 's/=.*/=dev-dri-card0.device dev-dri-card1.device/' etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf
+else
+   sed -i /"drm modeset=1"/d etc/modprobe.d/magos.conf
+   [ -f etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf ] && sed -i 's/=.*/=dev-dri-card0.device/' etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf
+fi
+
+# storing data in config file
+if [ ! -z "$XDRIVER" ] ;then
+   sed -i /^XDRIVER=/d $HARDCONF
+   sed -i /^VGAID=/d $HARDCONF
+   sed -i /^VGAVEN=/d $HARDCONF
+   sed -i /^VGABUSID=/d $HARDCONF
+   sed -i /DELETE_XORG_CONF=/d $HARDCONF
+   echo XDRIVER=$XDRIVER >> $HARDCONF
+   echo VGAID=$PCIID >> $HARDCONF
+   echo VGAVEN=$PCIVEN >> $HARDCONF
+   echo PRIME=$PRIME >> $HARDCONF
+   [ "$DELETE_XORG_CONF" = "yes" ] && echo DELETE_XORG_CONF=yes >> $HARDCONF
+   [ "$VGABUSID" ] && echo VGABUSID=$VGABUSID >> $HARDCONF
 fi

@@ -6,6 +6,7 @@ lib64dri-drivers-virtio
 lib64dri-drivers-vmwgfx
 lib64dri-drivers-zink
 lib64dri-drivers-gallium
+lib64dri-drivers-dril
 libdri-drivers-intel
 libdri-drivers-nouveau
 libdri-drivers-radeon
@@ -14,3 +15,4 @@ libdri-drivers-virtio
 libdri-drivers-vmwgfx
 libdri-drivers-zink
 libdri-drivers-gallium
+libdri-drivers-dril

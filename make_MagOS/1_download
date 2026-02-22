@@ -162,7 +162,7 @@ for a in "$TMPDIR/modules/packages/"* ;do
   cat $a | while read p ;do
     cat "$CACHE/packagesinfo/files/$p" >> "$TMPDIR/tmp/files"
   done
-  sort "$TMPDIR/tmp/files" > "$TMPDIR/modules/files/$(basename $a)"
+  sort "$TMPDIR/tmp/files" | grep . > "$TMPDIR/modules/files/$(basename $a)"
 done
 
 echo -e "\nПроверка зависимостей"

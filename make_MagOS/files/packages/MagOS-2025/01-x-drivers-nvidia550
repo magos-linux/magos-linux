@@ -1,5 +1,3 @@
 kernel-modules-nvidia550-6.12-desktop
 nvidia550-core
-nvidia550-dracut
-nvidia550-power
 nvidia550-cuda-opencl

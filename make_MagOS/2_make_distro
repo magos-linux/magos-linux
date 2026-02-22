@@ -183,7 +183,7 @@ if mount | grep -q "$ROOTFS/orig/var/lib/rpm" ;then
   umount -n "$ROOTFS/orig/var/lib/rpm"
   mv "$TMPDIR/rpmbase/"* "$ROOTFS/orig/var/lib/rpm"
 fi
-mount -t aufs -o noatime,br:"$ROOTFS/changes"=rw:"$ROOTFS/orig"=ro aufs "$ROOTFS/aufs" || stop "Can't mount aufs"
+mount -t aufs -o noatime,br="$ROOTFS/changes"=rw:"$ROOTFS/orig"=ro aufs "$ROOTFS/aufs" || stop "Can't mount aufs"
 cp -p "$MYPATH/files/patches/rootfs/$FLASHNAME/usr/lib/magos/rootfs-patches/$FLASHNAME-clean_distr.sh" "$ROOTFS/aufs/clean_distr.sh" || stop "Can't copy $FLASHNAME-clean_distr.sh to rootfs"
 chroot "$ROOTFS/aufs" "/clean_distr.sh" || stop "Errors in /clean_distr.sh"
 rm -f "$ROOTFS/aufs/clean_distr.sh"

@@ -1,18 +1,19 @@
 #!/bin/bash
 KLIBDIR=/lib/modules
-[ -d "$KLIBDIR" ] || KLIBDIR=/usr$KLIBDIR
+[ -d "/usr$KLIBDIR" ] && KLIBDIR=/usr$KLIBDIR
 
 #BUGFIX same kernel names for nvidia drivers
 if find $KLIBDIR -type f -name nvidia.ko | nl -n'ln' | grep -q ^2 ;then
   find $KLIBDIR -type f -name nvidia.ko | while read a ;do
-      KDIR=$(dirname $a); KDIR=$(basename $KDIR)
+      KDIR=$(dirname $a); KDIR=$(basename $KDIR) KDIR=$(echo $KDIR | sed s/-open// | sed s/-proprietary//)
       echo "$KDIR" | grep -q ^nvidia[0-9]*$ && rename "nvidia" "$KDIR" $(dirname $a)/nvidia*
   done
 fi
 KROKDIR=/usr/share/auto-krokodil/kmods
 if [ -d "$KROKDIR" ] ;then
   find "$KROKDIR" -type f -name nvidia.ko | while read a ;do
-      KDIR=$(dirname $a); KDIR=$(basename $KDIR) ; KDIR=$(echo $KDIR | sed 's/[.].*//')
+      KDIR=$(dirname $a); KDIR=$(basename $KDIR | sed s/-open// | sed s/-proprietary// )
+      KDIR=$(dirname $a); KDIR=$(basename $KDIR) ; KDIR=$(echo $KDIR | sed 's/[.].*//' | sed s/-open// | sed s/-proprietary//)
       echo "$KDIR" | grep -q ^nvidia[0-9]*$ && rename "nvidia" "$KDIR" $(dirname $a)/nvidia*
   done
 fi
@@ -39,7 +40,7 @@ for a in "$KLIBDIR"/*-* ;do
 #  echo processing kernel $a
    rm -f $a/kernel/zzz-*-abi 2>/dev/null
    KVER=$(basename $a)
-   /sbin/depmod -a $KVER
+   depmod -a $KVER
    [ -h $a/build ] || ln -sf $(find /usr/src -maxdepth 2 -type d -name *$KVER | head -1) $a/build
    [ -h $a/source ] || ln -sf build $a/source
 done

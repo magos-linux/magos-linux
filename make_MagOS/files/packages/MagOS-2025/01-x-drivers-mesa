@@ -5,4 +5,4 @@ lib64dri-drivers-swrast
 lib64dri-drivers-virtio
 lib64dri-drivers-vmwgfx
 lib64dri-drivers-zink
-lib64dri-drivers-gallium
+lib64dri-drivers-dril

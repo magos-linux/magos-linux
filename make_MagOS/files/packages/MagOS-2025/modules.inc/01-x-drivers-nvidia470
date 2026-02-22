@@ -1,0 +1,4 @@
+kernel/drivers/video/nvidia470/
+usr/share/auto-krokodil/kmods/nvidia470
+usr/lib/nvidia470
+usr/lib64/nvidia470

@@ -1,0 +1,80 @@
+#!/bin/sh
+
+GL32MOD=46-libs32.xzm
+GL32URL=http://mirror.yandex.ru/mirrors/magos/modules/2025
+GL32LIB=/usr/lib/libGL.so.1
+PRDNL="wget -O "
+USERMODSPATH=/mnt/livedata/MagOS-Data/modules
+PRRUN=
+
+. /usr/lib/magos/os-config
+. /etc/sound/profiles/current/profile.conf
+. /etc/MagOS/config
+
+# checking for standalone steam mode
+if ! wmctrl -m | grep -qi name ;then
+
+   # Clean up after GDM (GDM sets the number of desktops to one)
+   xprop -root -remove _NET_NUMBER_OF_DESKTOPS -remove _NET_DESKTOP_NAMES -remove _NET_CURRENT_DESKTOP 2> /dev/null
+
+   # Creating user directories
+   if [ -z "$XDG_CONFIG_HOME" ]; then
+	export XDG_CONFIG_HOME="$HOME/.config"
+   fi
+   if [ -e "$XDG_CONFIG_HOME/user-dirs.dirs" ]; then
+	. "$XDG_CONFIG_HOME/user-dirs.dirs"
+   else
+   	XDG_DESKTOP_DIR="$HOME/Desktop"
+   fi
+   mkdir -p "$XDG_DESKTOP_DIR"
+
+   #starting windows manager
+   if [ -x /usr/bin/openbox-session ] ;then
+      # Ensure the existance of openbox config file
+      OPENBOX_CONF_DIR="$XDG_CONFIG_HOME/openbox"
+      if [ ! -f "$OPENBOX_CONF_DIR/lxde-rc.xml" ]; then
+	mkdir -p "$OPENBOX_CONF_DIR"
+	cp /usr/share/lxde/openbox/rc.xml "$OPENBOX_CONF_DIR/lxde-rc.xml"
+      fi
+      # starting openbox
+      /usr/bin/openbox-session &
+   elif [ -x /usr/bin/kwin ] ;then
+      # starting kwin
+      /usr/bin/kwin &
+   fi
+
+   #Disabling dpms monitor function
+   xset -dpms
+
+   #Starting pulseaudio
+   [ "$SOUNDPROFILE" = "pulse" ] && start-pulseaudio-x11 &
+
+fi
+
+#Steam needs 32bit libs to work. Check for x64
+if [ "$(uname -i)" = "x86_64" -a ! -f "$GL32LIB" ] ;then
+  #Downloading xzm module
+  xterm -e "$PRDNL /tmp/$GL32MOD $GL32URL/$GL32MOD || rm -f /tmp/$GL32MOD"
+  if [ -f /tmp/$GL32MOD ] ;then
+     #Installing xzm module
+     MODCMD1="mv -f /tmp/$GL32MOD $USERMODSPATH/$GL32MOD ;"
+     if [ -w $USERMODSPATH ] ;then
+        "$MODCMD1"
+        ROOTCMD=
+     else
+        ROOTCMD="$MODCMD1"
+     fi
+     #Activating module
+     ROOTCMD="$ROOTCMD activate $USERMODSPATH/$GL32MOD"
+     beesu -l "$ROOTCMD"
+  fi
+fi
+
+#Checking for prime
+[ -z "$PRRUN" ] && LC_ALL=C xrandr --listproviders | grep -qi '^Provider [1-9]:.*nvidia' && PRRUN=prime-run
+
+# Fix for language bug
+[ -f ~/.steam/registry.vdf -a "$(locale | grep -m1 ru_RU)" ] && sed -i s/\"[Ll]anguage\".*$/\"language\"\\t\\t\"russian\"/ ~/.steam/registry.vdf
+
+# Start steam
+exec $PRRUN /usr/bin/steam $@

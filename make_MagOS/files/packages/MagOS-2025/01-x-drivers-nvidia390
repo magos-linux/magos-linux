@@ -1,2 +1,3 @@
 kernel-modules-nvidia390-6.12-desktop
 nvidia390-core
+nvidia390-cuda-opencl

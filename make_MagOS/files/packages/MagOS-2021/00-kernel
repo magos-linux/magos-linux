@@ -1,6 +1,5 @@
 kernel-6.1-desktop
 kernel-module-v4l2loopback-6.1-desktop
-bbswitch-kernel-6.1.58-desktop-1rosa2021-x86_64
 vboxadditions-kernel-6.1.58-desktop-1rosa2021-x86_64
 virtualbox-kernel-6.1.58-desktop-1rosa2021-x86_64
 alsa-tools-firmware

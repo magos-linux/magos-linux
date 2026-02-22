@@ -8,3 +8,4 @@
 ^usr/lib64/virtualbox/nls/.*.qm
 ^usr/share/doc/HTML/.*/
 ^usr/share/doc5/HTML/.*/
+^usr/share/doc6/HTML/.*/

@@ -10,7 +10,7 @@ HIDEBININSTALL="mkinitrd dracut dracut-install grub grub-install grub2-install g
 TMPROOTFS=no
 ZRAMFS=yes
 # Максимальный размер для исходного дистрибутива в Гбайтах
-SIZEROOTFS=20
+SIZEROOTFS=25
 
 # Размер в Мб для данных и изменений системы для каждого профиля
 DATASIZE1=756

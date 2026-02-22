@@ -986,6 +986,7 @@ lib64absl_throw_delegate2401.0.0
 lib64absl_time2401.0.0
 lib64absl_time_zone2401.0.0
 lib64aom3
+lib64llvm19
 lib64llvm20
 lib64ostree1
 lib64ssl3
@@ -1061,4 +1062,5 @@ lib64gdk_pixbuf2.0_0
 lib64openjp2_7
 lib64rav1e
 lib64svt-av1_2
-lib64maxminddb0
+selinux-policy
+lib64opensc-devel

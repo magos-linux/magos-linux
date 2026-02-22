@@ -26,7 +26,6 @@ breeze-gtk3-theme
 breeze-gtk4-theme
 breeze-gtk-theme-common
 bubblewrap
-bumblebee
 cabextract
 canberra-common
 ccp
@@ -613,7 +612,6 @@ lib64poppler-qt5-1
 lib64portaudio2
 lib64postproc55
 lib64potrace0
-lib64primus_gl1
 lib64pst4
 lib64pulseaudio0
 lib64pulsecommon14.2
@@ -683,8 +681,6 @@ lib64qt5svg5
 lib64qt5test5
 lib64qt5waylandclient5
 lib64qt5webchannel5
-lib64qt5webkit5
-lib64qt5webkitwidgets5
 lib64qt5widgets5
 lib64qt5x11extras5
 lib64qt5xcbqpa5
@@ -707,7 +703,6 @@ lib64qtscripttools4
 lib64qtsql4
 lib64qtsvg4
 lib64qttest4
-lib64qtwebkit4
 lib64qtxml4
 lib64quadmath0
 lib64qzion0
@@ -825,12 +820,6 @@ lib64wayland-client0
 lib64wayland-cursor0
 lib64wayland-egl1
 lib64wayland-server0
-lib64webkit2-gir3.0
-lib64webkit2gtk3.0_25
-lib64webkit2gtk4.0_37
-lib64webkit-gir3.0
-lib64webkitgtk1.0_0
-lib64webkitgtk3.0_0
 lib64webpdecoder3
 lib64webpdemux2
 lib64webpmux3
@@ -994,7 +983,6 @@ libOpenGL0
 libpciaccess0
 libpcre2-8_0
 libplist
-libprimus_gl1
 libpst
 libqtxdg
 libressl
@@ -1098,7 +1086,6 @@ perl-Glib
 perl-Glib-Object-Introspection
 perl-Gnome2-Vte
 perl-Gtk2
-perl-Gtk2-WebKit
 perl-Gtk3
 perl-IO-AIO
 perl-JSON-XS
@@ -1117,7 +1104,6 @@ pm-utils
 podofo
 polybar
 poppler
-primus
 pulseaudio
 pulseaudio-client-config
 pulseaudio-esound-compat
@@ -1241,10 +1227,6 @@ VirtualGL
 vnstat
 vte
 vte291
-webkit1.0
-webkit2gtk
-webkit2gtk4.0
-webkit3.0
 wizardpen
 wmctrl
 wxgtk2.8
@@ -1635,9 +1617,7 @@ lib64Qt6EglFsKmsSupport
 lib64Qt6Network
 lib64Qt6OpenGL
 lib64Qt6XcbQpa
-webkit2gtk4.1
 lib64javascriptcoregtk4.1_0
-lib64webkit2gtk4.1_0
 python3-tinycss2
 python3-webencodings
 lib64protobuf5_27
@@ -1732,3 +1712,20 @@ lib64absl_time2401.0.0
 lib64absl_time_zone2401.0.0
 lib64absl_vlog_config_internal2401.0.0
 gstreamer1.0-faad
+lib64qt5webkit5
+lib64qt5webkitwidgets5
+lib64qtwebkit4
+lib64webkit2-gir3.0
+lib64webkit2gtk3.0_25
+lib64webkit2gtk4.0_37
+lib64webkit-gir3.0
+lib64webkitgtk1.0_0
+lib64webkitgtk3.0_0
+webkit1.0
+webkit2gtk
+webkit2gtk4.0
+webkit3.0
+webkit2gtk4.1
+lib64webkit2gtk4.1_0
+lib64nvidia-egl-xcb1
+egl-x11

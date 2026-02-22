@@ -1,11 +1,11 @@
 wireshark
 wireshark-tools
-lib64wireshark18
-lib64wiretap15
+lib64wireshark19
+lib64wiretap16
 smi-tools
 lib64smi2
 libsmi
 libsmi-mibs-std
 lib64spandsp3
 dumpcap
-lib64wsutil16
+lib64wsutil17

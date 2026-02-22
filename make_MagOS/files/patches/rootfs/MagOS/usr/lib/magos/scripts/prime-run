@@ -1,0 +1,9 @@
+#!/bin/bash
+export __NV_PRIME_RENDER_OFFLOAD=1
+export __VK_LAYER_NV_optimus=NVIDIA_only
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export VK_LOADER_LAYERS_ENABLE=*nvidia*
+export VK_LOADER_DRIVERS_DISABLE=*
+export VK_LOADER_DRIVERS_SELECT=*nvidia*
+export VK_ICD_FILENAMES=/etc/vulkan/icd.d/nvidia_icd.json
+"$@"

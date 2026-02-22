@@ -3,3 +3,5 @@
 ^/root
 var/lib/rpm/alternatives
 var/lib/rpm/modules/
+etc/vulkan/icd.d
+etc/vulkan/implicit_layer.d

@@ -8,6 +8,8 @@ sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /usr/share/plasma/look-and-feel/org.m
 
 sed -i 's|<default>applications:systemsettings.desktop,preferred://filemanager,preferred://browser</default>|<default></default>|' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
 
+[ -f /usr/share/kscreen/graz.png ] && rm -f /usr/share/kscreen/graz.png ; convert /usr/share/magos/wallpapers/fantasy/Symphony_of_Lights.jpg /usr/share/kscreen/graz.png
+
 patch -p1 -d /usr/share/plasma/wallpapers/org.kde.image/contents/config <<EOF
 --- a/main.xml	2021-08-31 14:52:18.000000000 +0300
 +++ b/main.xml	2021-11-16 10:32:05.000000000 +0300

@@ -12,5 +12,5 @@ IMAGES=/mnt/live/memory/images
 grep -E " /mnt/.* aufs | /media/.* aufs " /proc/mounts | awk '{print $2}' | xargs umount >/dev/null 2>&1
 
 grep -E "$IMAGES" /proc/mounts | awk '{print $2}' | grep -vE "$COREMODS" | while read a ; do
-   mount -t aufs -o remount,del:"$a" aufs / 2>/dev/null
+   mount -t aufs -o remount,del="$a" aufs / 2>/dev/null
 done

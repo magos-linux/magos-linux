@@ -33,10 +33,12 @@ rm -fr 2>/dev/null \
 
 #wallpapers
 [ -d usr/share/wallpapers ] && for a in usr/share/wallpapers/* ;do [ -d "$a" ] && rm -fr "$a" ; done
+[ -d usr/share/lxqt/wallpapers ] && rm -f usr/share/lxqt/wallpapers/*g
+[ -d usr/share/rosa-wallpapers-default ] && rm -f usr/share/rosa-wallpapers-default/*
 
 #Kill big icons to save some space
 [ -d usr/share/icons ] && for a in `find usr/share/icons -type d | grep -E -e '[x/]512$|[x/]256$|/128x128$' ` ;do  rm -fr "$a" ; done
-[ -d usr/share/icons/default ] && rm -f usr/share/icons/default
+[ -d usr/share/icons/default ] && rm -fr usr/share/icons/default
 #KDE
 rm -fr 2>/dev/null usr/share/autostart/kaddressbookmigrator.desktop \
   usr/share/autostart/kalarm.autostart.desktop \

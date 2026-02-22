@@ -1,0 +1,5 @@
+kernel-modules-nvidia580-open-6.12-desktop
+nvidia580-core
+nvidia580-dracut
+nvidia580-power
+nvidia580-cuda-opencl

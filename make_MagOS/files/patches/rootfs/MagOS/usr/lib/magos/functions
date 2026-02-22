@@ -170,7 +170,7 @@ create_module()
 {
    . /usr/lib/magos/os-config
    . /etc/MagOS/config
-   echo " $@ " | grep -qE ' -comp | -noD ' && MKSQFS_OPTS=
+   echo " $@ " | grep -q -E ' -comp | -noD ' && MKSQFS_OPTS=
    mksquashfs "$1" "$2" $MKSQFS_OPTS $3 $4 $5 $6 $7 $8 $9 -noappend >/dev/null || return 1
    chmod 444 "$2"
 }
@@ -274,7 +274,7 @@ xss_heartbeat()
   . /usr/lib/magos/os-config
   . /etc/MagOS/config
   SSAVERBLOCKAPPS="$(echo "$SSAVERBLOCKAPPS"| tr ',; ' '|' )"
-  bash -c "while true ;do top -bn1 -u $(id -un) | awk '{ print \$7 FS \$NF }' | grep ^[1-9] | grep -qE \"$SSAVERBLOCKAPPS\" && xscreensaver-command -deactivate >/dev/null ; sleep 20s ; done " &
+  bash -c "while true ;do top -bn1 -u $(id -un) | awk '{ print \$7 FS \$NF }' | grep ^[1-9] | grep -q -E \"$SSAVERBLOCKAPPS\" && xscreensaver-command -deactivate >/dev/null ; sleep 20s ; done " &
 }
 
 

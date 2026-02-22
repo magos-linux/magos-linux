@@ -1,8 +1,7 @@
 #!/bin/bash
 
 PFP=/etc/sddm.conf.d/50-default.conf
-grep -qi autologin $PFP || rm -f $PFP
-[ -f $PFP ] || cat <<EOF >$PFP
+cat >$PFP <<EOF
 [Autologin]
 #Relogin=false
 #Session=
@@ -132,21 +131,5 @@ fi
 
 [ -x /usr/bin/startplasma-x11 ] && sed -i s/startkde/startplasma-x11/ /usr/share/xsessions/plasma.desktop
 [ -x /usr/bin/startplasma ] && sed -i s/startkde/startplasma/ /usr/share/xsessions/plasma.desktop
-
-if [ -x /usr/bin/steam ] ;then
-  if [ ! -f /usr/share/xsessions/steam.desktop ] ;then
-cat <<EOF >/usr/share/xsessions/steam.desktop
-[Desktop Entry]
-Type=XSession
-Exec=/usr/lib/magos/scripts/startsteam-bp
-TryExec=/usr/lib/magos/scripts/startsteam-bp
-DesktopNames=Steam
-Name=Steam
-Name[ru]=Стим
-Comment=Steam by Valve
-Comment[ru]=Игровой клиент Steam от Valve
-EOF
-  fi
-fi
 
 exit 0

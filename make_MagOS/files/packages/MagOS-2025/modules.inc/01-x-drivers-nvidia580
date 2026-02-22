@@ -1,0 +1,4 @@
+kernel/drivers/video/nvidia580
+usr/share/auto-krokodil/kmods/nvidia580
+usr/lib/nvidia580
+usr/lib64/nvidia580

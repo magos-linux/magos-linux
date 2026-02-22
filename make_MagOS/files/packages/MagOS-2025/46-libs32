@@ -31,7 +31,6 @@ libchromaprint1
 libcrypt1
 libcrypto3
 libcups2
-libd3dadapter9_1
 libdbus-1_3
 libdcerpc-binding0
 libdcerpc-server-core0
@@ -94,6 +93,7 @@ libldb2
 liblibndr-krb5pac0
 liblibndr-nbt0
 liblibndr-standard0
+libllvm19
 libllvm20
 liblm_sensors5
 libltdl7
@@ -159,7 +159,6 @@ libtiff6
 libudev1
 libudfread0
 libunwind8
-liburing2
 libusb1.0_0
 libv4l0
 libva2
@@ -334,3 +333,6 @@ libunistring5
 gio2.0-32
 libcurl4
 heimdal-libs
+libdisplay-info3
+libspirv-tools0
+libedit0

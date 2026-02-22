@@ -47,7 +47,7 @@ fi
 mountpoint=$(aufs-n --hidetop --raw '$n $bundle' |grep "$findit" |awk '{print $2}' )
 if [ -d "${mountpoint}" ]; then
   sync
-  mountb -t aufs -o remount,del:"${mountpoint}"/ aufs /  2>/dev/null
+  mountb -t aufs -o remount,del="${mountpoint}"/ aufs /  2>/dev/null
   stataufs=$?
   sync
  UP(){

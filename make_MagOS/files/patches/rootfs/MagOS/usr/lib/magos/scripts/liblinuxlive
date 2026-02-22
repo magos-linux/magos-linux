@@ -605,7 +605,7 @@ union_insert_dir()
    if [ $(cmdline_parameter unionfs) ]; then
 	mount -n -o remount,add=:"$2"="$3" unionfs "$1"
    else
-	mount -n -o remount,add:1:"$2"="$3" aufs "$1"
+	mount -n -o remount,add=1:"$2"="$3" aufs "$1"
    fi
 }
 

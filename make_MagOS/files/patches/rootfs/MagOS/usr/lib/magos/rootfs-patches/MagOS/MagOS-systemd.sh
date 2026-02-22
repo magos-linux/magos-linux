@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVICESDISABLE="adb atd abrtd irqbalance smartd bumblebeed crond hddtemp lircd lircmd \
+SERVICESDISABLE="adb atd abrtd irqbalance smartd crond hddtemp lircd lircmd \
 dhcpd6 ip6tables ebtables sshd tor rpcbind hostapd avahi-daemon avahi-dnsconfd ntpd openl2tp snmpd xl2tpd mdmonitor\
 fedora-loadmodules fedora-storage-init-late fedora-storage-init  blk-availability shorewall rtkit-daemon \
 canberra-system-bootup canberra-system-shutdown-reboot canberra-system-shutdown \
@@ -35,6 +35,7 @@ sd_change /lib/systemd/network/90-enable.network DHCP ipv4
 sd_change /lib/systemd/network/90-wireless.network DHCP ipv4
 sd_change /etc/systemd/resolved.conf FallbackDNS "77.88.8.8 77.88.8.1"
 sd_change /etc/systemd/resolved.conf LLMNR no
+echo -e "[Manager]\nDefaultTimeoutStopSec=5s" > /etc/systemd/user.conf.d/00-process-timeouts.conf
 
 for a in sddm kdm gdm lightdm slim ;do
     [ -f /lib/systemd/system/$a.service ] || continue
