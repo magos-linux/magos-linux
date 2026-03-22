@@ -10,6 +10,10 @@ SCRIPT:
 exec /usr/bin/startmate
 EOF
 
+[ -f /usr/share/glib-2.0/schemas/10_mate-Rosa.gschema.override ] && rm -f /usr/share/glib-2.0/schemas/10_mate-Rosa.gschema.override
+
+sed -i 's|usr/share/backgrounds/mate/desktop/Stripes.png|/usr/share/magos/wallpapers/default.jpg|' /usr/share/glib-2.0/schemas/org.mate.background.gschema.xml
+
 patch -d /usr/share/glib-2.0/schemas -p1 <<EOF
 --- a/org.mate.interface.gschema.xml	2021-08-03 20:28:41.000000000 +0300
 +++ b/org.mate.interface.gschema.xml	2021-11-16 10:37:49.000000000 +0300

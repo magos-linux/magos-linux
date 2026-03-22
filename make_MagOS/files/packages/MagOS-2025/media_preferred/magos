@@ -1,7 +1,5 @@
 kernel-
 kernel-headers
-nvidia340-core
-nvidia340-cuda-opencl
 nvidia390-core
 nvidia390-cuda-opencl
 nvidia470-core

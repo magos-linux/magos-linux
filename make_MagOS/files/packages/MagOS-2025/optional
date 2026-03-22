@@ -1,7 +1,6 @@
 ^81-int-
 ^..-drivers-extra
 ^..-x-drivers-printers
-^..-x-drivers-nvidia340
 ^..-x-drivers-nvidia390
 ^..-x-drivers-nvidia550
 ^..-x-mate

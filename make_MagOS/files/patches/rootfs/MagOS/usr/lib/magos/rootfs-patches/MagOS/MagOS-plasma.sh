@@ -53,11 +53,11 @@ cat >>$PFP <<EOF
 SyncClipboards=true
 EOF
 
-PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kicker/contents/config/main.xml
-sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP
+#PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kicker/contents/config/main.xml
+#sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP
 
-PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kickoff/contents/config/main.xml
-sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP
+#PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kickoff/contents/config/main.xml
+#sed -i s/rpmdrake.desktop/magos-ctrl-center.desktop/ $PFP
 
 [ -f /usr/bin/kdesu5 -a ! -f /usr/bin/kdesu ] && ln -s kdesu5 /usr/bin/kdesu
 

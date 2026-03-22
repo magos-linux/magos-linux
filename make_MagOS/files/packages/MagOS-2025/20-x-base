@@ -1269,7 +1269,7 @@ libfm
 libfm-qt
 lib64freerdp-server3_3
 libggi
-lib64glslang15
+lib64glslang16
 libglvnd
 libgnome-keyring-i18n
 libgphoto-common
@@ -1554,3 +1554,9 @@ lib64xcb-imdkit1
 lib64SDL3_ttf3.0_0
 lib64d3dadapter9_1
 lib64xatracker2
+gocryptfs
+jq
+lib64jq1
+qt6-qtwebengine
+lib64gexiv2-gir0.16
+markdown

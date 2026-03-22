@@ -208,8 +208,6 @@ lib64kf6calendarcore6
 lib64kf6calendarevents6
 lib64kf6cddb5
 lib64kf6codecs6
-lib64kf6colorcorrect6
-lib64kf6colorcorrect-qml
 lib64kf6colorscheme6
 lib64kf6compactdisc5
 lib64kf6completion6
@@ -335,7 +333,7 @@ lib64oxygen-gtk
 lib64oxygen-gtk3
 lib64oxygenstyle6_6
 lib64oxygenstyleconfig6_6
-lib64packagekitqt6_1
+lib64packagekitqt6_2
 lib64phonon4qt6_4
 lib64phonon4qt6experimental4
 lib64plasma6
@@ -343,7 +341,7 @@ lib64plasma6-activityswitcher-qml
 lib64plasma6-volume6
 lib64plasma6-volume-qml
 lib64plasma6-workspace-qml
-lib64plasmaactivities6
+lib64plasmaactivities7
 lib64plasmaactivities-qml
 lib64plasmaactivitiesstats1
 lib64plasma-qml
@@ -393,7 +391,6 @@ lib64signon-qt6
 lib64streamanalyzer0
 lib64streams0
 lib64taskmanager7
-lib64weather_ion8
 libkdcraw
 libkleo
 libkleo-i18n
@@ -675,7 +672,6 @@ lib64ksysguardsystemstats2
 lib64layershellqt5
 lib64qt6keychain1
 lib64Qt6WebEngineQuickDelegatesQml
-lib64kf6textautogeneratecmarkrccopy0
 lib64kf6textautogenerategenericnetwork1
 lib64kf6textautogenerateollama1
 phonon4qt6
@@ -687,3 +683,17 @@ lib64kf6win-x11_6
 lib64kf6win-qml-x11
 lib64kf6kirigamitemplates6
 appstream1.0
+lib64kf6holidays6
+lib64kglobalaccelmodel6
+lib64kf6klookandfeel6
+lib64kf6nighttime0
+lib64plasmaweatherdata6
+lib64Qt6VirtualKeyboardQml
+lib64kf6textutilscmarkrccopy0
+plasma6-kcm-nighttime
+plasma6-knighttime
+lib64kf6weather_ion7
+lib64plasmaweatherion6
+kf6-kholidays
+kf6-kholidays-i18n
+lib64kf6holidays-qml

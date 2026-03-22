@@ -19,7 +19,7 @@ LINKNVIDIA550=/etc/nvidia550/ld.so.conf
 LINKNVIDIA580=/etc/nvidia580/ld.so.conf
 LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
 LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-NVIDIATEST="nvidia580 nvidia550 nvidia470 nvidia390 nvidia340 nvidia"
+NVIDIATEST="nvidia580 nvidia550 nvidia470 nvidia390 nvidia"
 PRIMETEST="nvidia580 nvidia550 nvidia470"
 PRIMEACTIVE="iGPU"
 PRIMEINACTIVE="nvidia"
@@ -79,6 +79,7 @@ NUM=$(lspci -nmm | sed s/"Class "// | grep -c '[.]. "0300"')
 # trying to find VGA card for specidied XDRIVER
 [ -z "$CARD" -a "$XDRIVER" = "ati" ] && XDRIVER=amdgpu
 [ -z "$CARD" -a "$XDRIVER" = "intel" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "8086"' | sort $SORTOPT | head -n1)
+[ -z "$CARD" -a "$XDRIVER" = "radeon" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
 [ -z "$CARD" -a "$XDRIVER" = "amdgpu" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "1002"' | sort $SORTOPT | head -n1)
 [ -z "$CARD" -a "$XDRIVER" = "nouveau" ]   && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
 echo "$XDRIVER" | grep -q nvidia && [ -z "$CARD" ] && CARD=$(lspci -nmm | sed s/"Class "// | grep '0300" "10de"' | sort $SORTOPT | head -n1)
@@ -200,15 +201,28 @@ if [ -f $XFILE -a "$VGABUSID" ] ;then
    fi
 fi
 
-# removing blocking conflict modules if its forced
-[ "$XDRIVER" = "nouveau" ] && sed -i /^blacklist.*nouveau/d etc/modprobe.d/blacklist-magos.conf
-echo "$XDRIVER" | grep -q "nvidia" && sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
-
 # preloading kernel module to help xorg (all nvidia* modules are using one name 'nvidia')
-if echo "$XDRIVER" | grep -qE 'nvidia|nouveau' ;then
-   sed -i /^nvidia/d  etc/modprobe.preload
-   sed -i /^nouveau/d etc/modprobe.preload
+sed -i /^nvidia/d  etc/modprobe.preload
+sed -i /^nouveau/d etc/modprobe.preload
+sed -i /^radeon/d  etc/modprobe.preload
+sed -i /^amdgpu/d  etc/modprobe.preload
+if echo "$XDRIVER" | grep -qE 'nvidia|nouveau|amdgpu|radeon' ;then
    echo "$XDRIVER" >> etc/modprobe.preload
+   sed -i /^blacklist.*$XDRIVER/d etc/modprobe.d/blacklist-magos.conf
+fi
+
+# setting blacklist for conflicting modules
+if [ "$XDRIVER" = "amdgpu" ] ;then
+   grep -q blacklist.*radeon etc/modprobe.d/blacklist-magos.conf || echo "blacklist radeon" >> etc/modprobe.d/blacklist-magos.conf
+elif [ "$XDRIVER" = "radeon" ] ;then
+   grep -q blacklist.*amdgpu etc/modprobe.d/blacklist-magos.conf || echo "blacklist amdgpu" >> etc/modprobe.d/blacklist-magos.conf
+fi
+
+# to prevent X crash when nvidia drm is not ready in prime mode
+if lsmod | grep -q nvidia_drm ;then
+   echo -e "[Unit]\\nWants=dev-dri-card0.device\\nAfter=dev-dri-card0.device" > etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf
+else
+   rm -f etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf 2>/dev/null
 fi
 
 # adding modeset options for nvidia prime
