@@ -48,6 +48,7 @@ MKSQOPTS=""
 
 #Work dirs
 export PATH=/usr/lib/magos/scripts:$PATH
+export LIBMOUNT_FORCE_MOUNT2=always
 
 if . /etc/initvars; then
     buildDir=${SYSMNT}/$$-tmp

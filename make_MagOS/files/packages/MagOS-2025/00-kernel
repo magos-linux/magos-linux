@@ -1,3 +1,4 @@
 kernel-6.12-desktop
 kernel-module-v4l2loopback-6.12-desktop
-virtualbox-kernel-6.12.47-desktop-5rosa2021-x86_64
+virtualbox-kernel-6.12.74-desktop-3rosa2021-x86_64
+vboxadditions-kernel-6.12.74-desktop-3rosa2021-x86_64

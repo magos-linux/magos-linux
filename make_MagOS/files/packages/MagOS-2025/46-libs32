@@ -317,7 +317,6 @@ libdb18.1
 libfribidi0
 libgail18
 libidn2_0
-liblua5.3_5.3
 liblzo2_2
 libnghttp2_14
 libnsl3
@@ -336,3 +335,4 @@ heimdal-libs
 libdisplay-info3
 libspirv-tools0
 libedit0
+liblua5.3_5.3

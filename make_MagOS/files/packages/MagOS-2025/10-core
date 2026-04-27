@@ -482,8 +482,6 @@ logrotate
 lrzsz
 lsb-release
 lsof
-lua
-lua-posix
 lvm2
 lz4
 lzmacmd
@@ -995,7 +993,6 @@ glib-networking
 lib64glib-networking
 lib64duktape207
 lib64harfbuzz0
-lib64lua5.3
 lib64lua5.4
 lib64maxminddb0
 lib64md0
@@ -1064,3 +1061,4 @@ lib64rav1e
 lib64svt-av1_2
 selinux-policy
 lib64opensc-devel
+lib64auplugin1

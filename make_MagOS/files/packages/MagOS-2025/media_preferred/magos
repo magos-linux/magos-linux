@@ -19,3 +19,14 @@ lib64luajit-5.1__2
 luajit
 openmw
 lib64openxr
+lib64rpm9
+lib64rpmbuild9
+lib64rpmio9
+lib64rpmsign9
+python3-rpm
+rpm
+rpm-build
+rpm-plugin-audit
+rpm-plugin-ima
+rpm-plugin-syslog
+rpm-plugin-systemd-inhibit

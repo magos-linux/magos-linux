@@ -539,6 +539,7 @@ lib64polkit-qt-core-1_1
 lib64poly2tri1.0
 lib64poly2tri-c0.1_0
 lib64poppler140
+lib64poppler158
 lib64poppler-gir0.18
 lib64poppler-glib8
 lib64poppler-qt6-3
@@ -661,7 +662,6 @@ lib64theoradec1
 lib64theoraenc1
 lib64tinyxml0
 lib64tk8.6_0
-lib64tolua++5.3
 lib64topology2
 lib64totem-plparser18
 lib64tpms0
@@ -978,7 +978,6 @@ texlive-lcdftypetools.bin
 thai-data
 thin-provisioning-tools
 tk
-tolua++
 totem-pl-parser-i18n
 tpctl
 ttmkfdir
@@ -1560,3 +1559,7 @@ lib64jq1
 qt6-qtwebengine
 lib64gexiv2-gir0.16
 markdown
+lib64camera-ipa
+lib64poppler-cpp3
+lua
+lua-posix
