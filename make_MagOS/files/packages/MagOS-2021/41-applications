@@ -193,7 +193,6 @@ python3-pycryptodomex
 python3-yt-dlp
 python3-brotli
 yt-dlp
-telegram-desktop
 lib64gnome-games-support1_3
 libgnome-games-support-i18n
 python3-certifi
@@ -221,3 +220,14 @@ qmmp-simple-ui
 qmmp-ytb
 rosa-imagewriter
 lib64rubberband3
+lib64ffmpeg6-avcodec60
+lib64ffmpeg6-avfilter9
+lib64ffmpeg6-avformat60
+lib64ffmpeg6-avutil58
+lib64ffmpeg6-postproc57
+lib64ffmpeg6-swresample4
+lib64ffmpeg6-swscaler7
+lib64mysofa1
+lib64rabbitmq4
+lib64vapoursynth0
+lib64vapoursynth-script0

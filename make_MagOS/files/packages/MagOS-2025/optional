@@ -6,8 +6,10 @@
 ^..-x-mate
 ^..-x-java
 ^..-x-chromium
+^..-x-max
 ^..-x-newmoon
 ^..-x-rawtherapee
+^..-x-telegram
 ^..-x-wireshark
 ^..-x-yandex-browser
 ^..-x-inkscape

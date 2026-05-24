@@ -1729,3 +1729,5 @@ webkit2gtk4.1
 lib64webkit2gtk4.1_0
 lib64nvidia-egl-xcb1
 egl-x11
+lib64zimg2
+lib64zvbi0

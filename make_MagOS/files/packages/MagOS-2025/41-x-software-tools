@@ -106,6 +106,7 @@ lib64opencv_tracking4
 lib64opencv_video4
 lib64opencv_videoio4
 avidemux-qt
+avidemux-qt-plugins
 avidemux-cli
 avidemux-plugins
 lib64avidemux

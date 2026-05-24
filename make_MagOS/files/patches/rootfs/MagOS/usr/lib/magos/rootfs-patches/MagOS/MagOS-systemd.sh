@@ -35,7 +35,8 @@ sd_change /lib/systemd/network/90-enable.network DHCP ipv4
 sd_change /lib/systemd/network/90-wireless.network DHCP ipv4
 sd_change /etc/systemd/resolved.conf FallbackDNS "77.88.8.8 77.88.8.1"
 sd_change /etc/systemd/resolved.conf LLMNR no
-echo -e "[Manager]\nDefaultTimeoutStopSec=5s" > /etc/systemd/user.conf.d/00-process-timeouts.conf
+PFP=/etc/systemd/user.conf.d/00-process-timeouts.conf
+[ -f $PFP ] && echo -e "[Manager]\nDefaultTimeoutStopSec=5s" > $PFP
 
 for a in sddm kdm gdm lightdm slim ;do
     [ -f /lib/systemd/system/$a.service ] || continue
