@@ -1062,3 +1062,5 @@ lib64svt-av1_2
 selinux-policy
 lib64opensc-devel
 lib64auplugin1
+lib64glycin2_0
+lib64protobuf-c1

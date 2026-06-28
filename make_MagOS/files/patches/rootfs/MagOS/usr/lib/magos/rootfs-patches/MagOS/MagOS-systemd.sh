@@ -6,7 +6,7 @@ canberra-system-bootup canberra-system-shutdown-reboot canberra-system-shutdown 
 lvm2-lvmetad lvm2-monitor network dracut-shutdown fedora-readonly lm_sensors \
 ldconfig xinetd lvm2-activation-early lvm2-activation-net lvm2-activation smb nmb remount-rootfs \
 NetworkManager-wait-online arp-ethers.service dbus-org.freedesktop.Avahi dhcpd wine systemd-resolved ntpdate openswan \
-systemd-firstboot systemd-pstore systemd-modules-load systemd-binfmt auditd"
+systemd-firstboot systemd-pstore systemd-modules-load systemd-binfmt auditd sddm kdm gdm lightdm slim"
 SOCKETSDISABLE="avahi-daemon rpcbind lvm2-lvmetad"
 SERVICESSTART="virtualbox iptables"
 
@@ -38,9 +38,12 @@ sd_change /etc/systemd/resolved.conf LLMNR no
 PFP=/etc/systemd/user.conf.d/00-process-timeouts.conf
 [ -f $PFP ] && echo -e "[Manager]\nDefaultTimeoutStopSec=5s" > $PFP
 
+rm -f /etc/systemd/system/display-manager.service 2>/dev/null
 for a in sddm kdm gdm lightdm slim ;do
-    [ -f /lib/systemd/system/$a.service ] || continue
-    ln -sf /lib/systemd/system/$a.service /etc/systemd/system/display-manager.service && break
+    if [ -f /lib/systemd/system/$a.service -a ! -f /etc/systemd/system/display-manager.service ] ;then
+       ln -sf /lib/systemd/system/$a.service /etc/systemd/system/display-manager.service 
+       systemctl enable $a.service && break
+    fi
 done
 
 PFP=lib/systemd/system/laptop-mode.service

@@ -39,10 +39,10 @@ marco
 task-mate-minimal
 pluma
 lib64pluma-gir1.0
-lib64peas1.0_0
-lib64peas-gir1.0_0
-lib64peas-gtk1.0_0
-lib64peas-gtk-gir1.0_0
+lib64peas1.0_1
+lib64peas-gir1.0_1
+lib64peas-gtk1.0_1
+lib64peas-gtk-gir1.0_1
 lib64peas1.0-loaders
 libpeas-data
 libpeas0-data

@@ -1,11 +1,13 @@
 #!/bin/bash
-PFP=/etc/xdg/plasmarc
-[ -f $PFP ] || exit 0
-sed -i s/^name=.*/name=magos/ $PFP
 PFP=/etc/xdg/kdeglobals
+[ -f $PFP ] || exit 0
 cp -pf /usr/share/magos/plasma/kdeglobals $PFP
 sed -i s/^ColorScheme=.*/"ColorScheme=MagOS"/ $PFP
 grep -vE "^\[General\]|^Name=|^\[KDE\]|^ColorScheme=|^contrast=|^shadeSortColumn="  "/usr/share/color-schemes/MagOS.colors" >> /etc/xdg/kdeglobals
+
+PFP=/etc/xdg/plasmarc
+[ -f $PFP ] || echo -e "[Theme]\nname=magos" > $PFP
+sed -i s/^name=.*/name=magos/ $PFP
 
 PFP=/etc/xdg/kscreenlockerrc
 cat >$PFP <<EOF
@@ -32,7 +34,7 @@ PFP=/etc/xdg/kwinrc
 sed -i /^Rows.*/d $PFP
 sed -i s/^Number=.*/Number=4\\nRows=2/ $PFP
 sed -i s/^Enabled=.*/Enabled=false/    $PFP
-cat >>$PFP <<EOF
+grep -q '\[Plugins\]' $PFP || cat >>$PFP <<EOF
 
 [Plugins]
 blurEnabled=false

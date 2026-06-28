@@ -1,17 +1,12 @@
 #!/bin/bash
-PFP=/etc/xdg/plasmarc
+PFP=/etc/xdg/kdeglobals
 [ -f $PFP ] || exit 0
 
-sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /etc/xdg/kdeglobals 
-sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /usr/share/magos/plasma/kdeglobals 
+sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /etc/xdg/kdeglobals
+sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /usr/share/magos/plasma/kdeglobals
 sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /usr/share/plasma/look-and-feel/org.magos.desktop/contents/defaults
 
 sed -i 's|<default>applications:systemsettings.desktop,preferred://filemanager,preferred://browser</default>|<default></default>|' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
-
-if [ -f /usr/share/kscreen/graz.png ] ;then 
-   rm -f /usr/share/kscreen/graz.png 
-   convert /usr/share/magos/wallpapers/fantasy/Symphony_of_Lights.jpg /usr/share/kscreen/graz.png
-fi
 
 patch -p1 -d /usr/share/plasma/wallpapers/org.kde.image/contents/config <<EOF
 --- a/main.xml	2021-08-31 14:52:18.000000000 +0300
@@ -169,11 +164,7 @@ panel.addWidget("org.kde.plasma.digitalclock")
 panel.addWidget("org.kde.plasma.lock_logout")
 EOF
 
-[ -h /usr/share/plasma/avatars ] && exit 0
-
-if [ -d /usr/share/plasma/avatars -a -d /usr/share/icons/gnome/48x48/emotes ] ;then
-   rm -fr /usr/share/plasma/avatars
-   ln -sf /usr/share/icons/gnome/48x48/emotes /usr/share/plasma/avatars
-fi
+rm -f /usr/share/plasma/avatars/photos/Astronaut.png.license /usr/share/plasma/avatars/photos/Astronaut.png \
+  /usr/share/plasma/avatars/photos/Shuttle.png.license /usr/share/plasma/avatars/photos/Shuttle.png 2>/dev/null
 
 exit 0
