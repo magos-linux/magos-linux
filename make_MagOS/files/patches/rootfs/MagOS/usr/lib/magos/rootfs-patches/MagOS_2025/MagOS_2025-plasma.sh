@@ -6,20 +6,29 @@ sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /etc/xdg/kdeglobals
 sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /usr/share/magos/plasma/kdeglobals
 sed -i 's/^Theme=rosa$/Theme=rosa-fluent/' /usr/share/plasma/look-and-feel/org.magos.desktop/contents/defaults
 
-sed -i 's|<default>applications:systemsettings.desktop,preferred://filemanager,preferred://browser</default>|<default></default>|' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
-
 patch -p1 -d /usr/share/plasma/wallpapers/org.kde.image/contents/config <<EOF
---- a/main.xml	2021-08-31 14:52:18.000000000 +0300
-+++ b/main.xml	2021-11-16 10:32:05.000000000 +0300
-@@ -16,7 +16,7 @@
+diff -aur a/main.xml b/main.xml
+--- a/main.xml	2026-08-21 11:59:16.000000000 +0300
++++ b/main.xml	2026-08-21 15:56:57.988032623 +0300
+@@ -16,17 +16,7 @@
      </entry>
      <entry name="Image" type="String">
        <label>Wallpaper image path or wallpaper name</label>
+-      <tooltip>
+-        If the specified KPackage wallpaper contains dark images, then the following
+-        URL fragments may be specified:
+-
+-        - #day-night: switch between light and dark images based on time of day
+-        - #dark: only use the dark image
+-        - #light: only use the light image
+-        - if no fragment is specified, plasma will switch between dark and light
+-          images depending on the currently used color scheme
+-      </tooltip>
 -      <default></default>
 +      <default>file:///usr/share/magos/wallpapers/default.jpg</default>
      </entry>
-     <entry name="FillMode" type="int">
-       <label>Sizing, cropping and positioning of the wallpaper image</label>
+     <entry name="PreviewImage" type="String">
+       <label>Wallpaper preview image path</label>
 EOF
 
 PFP=/usr/share/plasma/layout-templates/org.kde.plasma.desktop.defaultPanel/contents/layout.js
@@ -109,6 +118,8 @@ kalc.writeConfig("url","file:///usr/share/applications/org.kde.kcalc.desktop")
 //panel.addWidget("org.kde.plasma.showActivityManager")
 var pager = panel.addWidget("org.kde.plasma.pager")
 var taskmanager = panel.addWidget("org.kde.plasma.taskmanager")
+taskmanager.currentConfigGroup = ["General"]
+taskmanager.writeConfig("launchers", "")
 
 var systemsettings = panel.addWidget("org.kde.plasma.icon")
 systemsettings.currentConfigGroup = ["Shortcuts"]

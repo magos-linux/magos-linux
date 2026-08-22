@@ -133,7 +133,7 @@ ldetect
 ldetect-lst
 less
 lftp
-lib64accountsservice0
+lib64accountsservice1
 lib64acl1
 lib64adns1
 lib64aio1
@@ -225,7 +225,7 @@ lib64gnutls30
 lib64gobject2.0_0
 lib64gomp1
 lib64gpg-error0
-lib64gpgme11
+lib64gpgme45
 lib64gpm2
 lib64gsnmp0
 lib64gssapi_krb5_2
@@ -367,7 +367,6 @@ lib64png16
 lib64polkit1_0
 lib64popt0
 lib64powerman0
-lib64proxy1
 lib64proxychains3
 lib64psl5
 lib64psx2
@@ -376,7 +375,6 @@ lib64pwdb0
 lib64pwquality1
 lib64py3ldb-util2
 lib64py3talloc-util2
-lib64python3.11
 lib64qmi-glib5
 lib64qrencode4
 lib64re2_11
@@ -1064,3 +1062,8 @@ lib64opensc-devel
 lib64auplugin1
 lib64glycin2_0
 lib64protobuf-c1
+libheif-plugins
+lib64python3
+libproxy-plugins
+lib64python3.11
+lib64proxy1

@@ -22,3 +22,5 @@ find /var/lib/dkms-binary -type f | grep -vE "nvidia|virtualbox|vbox" | grep -E 
 done
 
 rm -f /tmp/kernel_mods_lspci
+
+[ -x /usr/bin/VirtualBox -a ! -x /usr/bin/qemu-kvm ] && modprobe -r $(lsmod | grep kvm | awk '{print $1}' | tr \\n " ")

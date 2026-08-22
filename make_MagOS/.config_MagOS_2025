@@ -4,7 +4,7 @@
 FLASHNAME=MagOS
 VERREL=2025
 
-RE4NAME="-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*.rpm"
+RE4NAME="-[.A-Za-z0-9_+~]*-[.A-Za-z0-9_+]*-[.A-Za-z0-9_+]*.rpm"
 HIDEBININSTALL="mkinitrd dracut dracut-install grub grub-install grub2-install grub2-mkimage grub2-reboot update-grub2 mkinitrd-mkinitrd mkinitrd-dracut"
 
 TMPROOTFS=no

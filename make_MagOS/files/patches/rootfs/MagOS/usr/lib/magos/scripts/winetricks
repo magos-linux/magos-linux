@@ -5053,9 +5053,9 @@ winetricks_wine_setup()
             for x in \
                 "${WINESERVER}" \
                 "${WINE}server" \
-                "$(command -v wineserver 2> /dev/null)" \
                 "$(dirname "${WINE}")/server/wineserver" \
                 "$(dirname "${WINE}")/wineserver" \
+                "$(command -v wineserver 2> /dev/null)" \
                 /usr/bin/wineserver-development \
                 /usr/lib/wine/wineserver \
                 /usr/lib/i386-kfreebsd-gnu/wine/wineserver \
@@ -5529,7 +5529,8 @@ helper_directx_dl()
     # FIXME: none of the verbs that use this will show download status right
     # until file1 metadata is extended to handle common cache dir
     # 2021/01/28: https://download.microsoft.com/download/E/E/1/EE17FF74-6C45-4575-9CF4-7FC2597ACD18/directx_feb2010_redist.exe
-    w_download_to directx9 https://files.holarse-linuxgaming.de/mirrors/microsoft/directx_feb2010_redist.exe f6d191e89a963d7cca34f169d30f49eab99c1ed3bb92da73ec43617caaa1e93f
+    # 2026/08/04: https://files.holarse-linuxgaming.de/mirrors/microsoft/directx_feb2010_redist.exe
+    w_download_to directx9 https://web.archive.org/web/20100205000000id_/https://download.microsoft.com/download/E/E/1/EE17FF74-6C45-4575-9CF4-7FC2597ACD18/directx_feb2010_redist.exe f6d191e89a963d7cca34f169d30f49eab99c1ed3bb92da73ec43617caaa1e93f
 
     DIRECTX_NAME=directx_feb2010_redist.exe
 }
@@ -5540,7 +5541,8 @@ helper_directx_Jun2010()
     # June 2010 DirectX 9c User Redistributable
     # https://www.microsoft.com/en-us/download/details.aspx?id=8109
     # 2021/01/28: https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe
-    w_download_to directx9 https://files.holarse-linuxgaming.de/mirrors/microsoft/directx_Jun2010_redist.exe 8746ee1a84a083a90e37899d71d50d5c7c015e69688a466aa80447f011780c0d
+    # 2026/08/04: https://files.holarse-linuxgaming.de/mirrors/microsoft/directx_Jun2010_redist.exe
+    w_download_to directx9 https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe 053f76dcbb28802e23341b6a787e3b0791c0fa5c8d4d011b1044172dbf89c73b
 
     DIRECTX_NAME=directx_Jun2010_redist.exe
 }
@@ -13618,11 +13620,12 @@ load_vcrun2017()
 
     w_override_dlls native,builtin api-ms-win-crt-private-l1-1-0 api-ms-win-crt-conio-l1-1-0 api-ms-win-crt-heap-l1-1-0 api-ms-win-crt-locale-l1-1-0 api-ms-win-crt-math-l1-1-0 api-ms-win-crt-runtime-l1-1-0 api-ms-win-crt-stdio-l1-1-0 api-ms-win-crt-time-l1-1-0 atl140 concrt140 msvcp140 msvcp140_1 msvcp140_2 msvcp140_atomic_wait ucrtbase vcamp140 vcomp140 vccorlib140 vcruntime140 vcruntime140_1
 
-    # Setup will refuse to install msvcp140 & ucrtbase because builtin's version number is higher, so manually replace them
+    # Setup will refuse to install msvcp140, msvcp140_2 & ucrtbase because builtin's version number is higher, so manually replace them
     # See https://bugs.winehq.org/show_bug.cgi?id=46317 and
     # https://bugs.winehq.org/show_bug.cgi?id=57518
     w_try_cabextract --directory="${W_TMP}/win32"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x86.exe -F 'a10'
     w_try_cabextract --directory="${W_SYSTEM32_DLLS}" "${W_TMP}/win32/a10" -F 'msvcp140.dll'
+    w_try_cabextract --directory="${W_SYSTEM32_DLLS}" "${W_TMP}/win32/a10" -F 'msvcp140_2.dll'
     w_try_cabextract --directory="${W_SYSTEM32_DLLS}" "${W_TMP}/win32/a10" -F 'ucrtbase.dll'
 
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
@@ -13637,9 +13640,10 @@ load_vcrun2017()
             # 2019/08/14: 5b0cbb977f2f5253b1ebe5c9d30edbda35dbd68fb70de7af5faac6423db575b5
             # 2024/10/17: 7cf24eba2bd67ea6229b7dd131e06f4e92ebefc06e36fe401cdd227d7ed78264
             w_download https://aka.ms/vs/15/release/vc_redist.x64.exe 7cf24eba2bd67ea6229b7dd131e06f4e92ebefc06e36fe401cdd227d7ed78264
-            # Also replace 64-bit msvcp140.dll & ucrtbase.dll
+            # Also replace 64-bit msvcp140.dll, msvcp140_2.dll & ucrtbase.dll
             w_try_cabextract --directory="${W_TMP}/win64"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x64.exe -F 'a10'
             w_try_cabextract --directory="${W_SYSTEM64_DLLS}" "${W_TMP}/win64/a10" -F 'msvcp140.dll'
+            w_try_cabextract --directory="${W_SYSTEM64_DLLS}" "${W_TMP}/win64/a10" -F 'msvcp140_2.dll'
             w_try_cabextract --directory="${W_SYSTEM64_DLLS}" "${W_TMP}/win64/a10" -F 'ucrtbase.dll'
             w_try_ms_installer "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
@@ -13680,10 +13684,11 @@ load_vcrun2019()
 
     w_download https://aka.ms/vs/16/release/vc_redist.x86.exe 49545cb0f6499c4a65e1e8d5033441eeeb4edfae465a68489a70832c6a4f6399
 
-    # Setup will refuse to install msvcp140 because the builtin's version number is higher, so manually replace it
+    # Setup will refuse to install msvcp140 & msvcp140_2 because the builtin's version number is higher, so manually replace them
     # See https://bugs.winehq.org/show_bug.cgi?id=57518
     w_try_cabextract --directory="${W_TMP}/win32"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x86.exe -F 'a10'
     w_try_cabextract --directory="${W_SYSTEM32_DLLS}" "${W_TMP}/win32/a10" -F 'msvcp140.dll'
+    w_try_cabextract --directory="${W_SYSTEM32_DLLS}" "${W_TMP}/win32/a10" -F 'msvcp140_2.dll'
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try_ms_installer "${WINE}" vc_redist.x86.exe ${W_OPT_UNATTENDED:+/q}
@@ -13713,9 +13718,10 @@ load_vcrun2019()
 
             w_download https://aka.ms/vs/16/release/vc_redist.x64.exe 5d9999036f2b3a930f83b7fe3e2186b12e79ae7c007d538f52e3582e986a37c3
 
-            # Also replace 64-bit msvcp140.dll
+            # Also replace 64-bit msvcp140.dll & msvcp140_2.dll
             w_try_cabextract --directory="${W_TMP}/win64"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x64.exe -F 'a12'
             w_try_cabextract --directory="${W_SYSTEM64_DLLS}" "${W_TMP}/win64/a12" -F 'msvcp140.dll'
+            w_try_cabextract --directory="${W_SYSTEM64_DLLS}" "${W_TMP}/win64/a12" -F 'msvcp140_2.dll'
 
             w_try_ms_installer "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
@@ -13784,10 +13790,12 @@ load_vcrun2022()
 
     w_download https://aka.ms/vs/17/release/vc_redist.x86.exe 0c09f2611660441084ce0df425c51c11e147e6447963c3690f97e0b25c55ed64
 
-    # Setup will refuse to install msvcp140 because the builtin's version number is higher, so manually replace it
+    # Setup will refuse to install msvcp140 & msvcp140_2 because the builtin's version number is higher, so manually replace them
     # See https://bugs.winehq.org/show_bug.cgi?id=57518
     w_try_cabextract --directory="${W_TMP}/win32"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x86.exe -F 'a10'
-    w_try_cabextract --directory="${W_SYSTEM32_DLLS}" "${W_TMP}/win32/a10" -F 'msvcp140.dll'
+    w_try_cabextract --directory="${W_TMP}/win32" "${W_TMP}/win32/a10"
+    w_try mv -f "${W_TMP}/win32/msvcp140.dll_x86" "${W_SYSTEM32_DLLS}/msvcp140.dll"
+    w_try mv -f "${W_TMP}/win32/msvcp140_2.dll_x86" "${W_SYSTEM32_DLLS}/msvcp140_2.dll"
 
     w_try_cd "${W_CACHE}"/"${W_PACKAGE}"
     w_try_ms_installer "${WINE}" vc_redist.x86.exe ${W_OPT_UNATTENDED:+/q}
@@ -13810,9 +13818,11 @@ load_vcrun2022()
 
             w_download https://aka.ms/vs/17/release/vc_redist.x64.exe cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b
 
-            # Also replace 64-bit msvcp140.dll
+            # Also replace 64-bit msvcp140.dll & msvcp140_2.dll
             w_try_cabextract --directory="${W_TMP}/win64"  "${W_CACHE}"/"${W_PACKAGE}"/vc_redist.x64.exe -F 'a12'
-            w_try_cabextract --directory="${W_SYSTEM64_DLLS}" "${W_TMP}/win64/a12" -F 'msvcp140.dll'
+            w_try_cabextract --directory="${W_TMP}/win64" "${W_TMP}/win64/a12"
+            w_try mv -f "${W_TMP}/win64/msvcp140.dll_amd64" "${W_SYSTEM64_DLLS}/msvcp140.dll"
+            w_try mv -f "${W_TMP}/win64/msvcp140_2.dll_amd64" "${W_SYSTEM64_DLLS}/msvcp140_2.dll"
 
             w_try_ms_installer "${WINE}" vc_redist.x64.exe ${W_OPT_UNATTENDED:+/q}
             ;;
@@ -15115,15 +15125,15 @@ load_ipamona()
 w_metadata liberation fonts \
     title="Red Hat Liberation fonts (Mono, Sans, SansNarrow, Serif)" \
     publisher="Red Hat" \
-    year="2008" \
+    year="2021" \
     media="download" \
-    file1="liberation-fonts-ttf-1.07.4.tar.gz" \
+    file1="liberation-fonts-ttf-2.1.5.tar.gz" \
     installed_file1="${W_FONTSDIR_WIN}/liberationmono-bolditalic.ttf"
 
 load_liberation()
 {
-    # https://pagure.io/liberation-fonts
-    w_download "https://releases.pagure.org/liberation-fonts/liberation-fonts-ttf-1.07.4.tar.gz" 61a7e2b6742a43c73e8762cdfeaf6dfcf9abdd2cfa0b099a9854d69bc4cfee5c
+    # https://github.com/liberationfonts/liberation-fonts/
+    w_download https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz 7191c669bf38899f73a2094ed00f7b800553364f90e2637010a69c0e268f25d0
 
     w_try_cd "${W_TMP}"
     w_try tar -zxf "${W_CACHE}/${W_PACKAGE}/${file1}"
@@ -15870,74 +15880,6 @@ load_iceweasel()
     w_try_unzip "${W_PROGRAMS_X86_UNIX}" "${W_CACHE}/${W_PACKAGE}/${file1}"
 }
 
-
-#----------------------------------------------------------------
-
-w_metadata irfanview apps \
-    title="Irfanview" \
-    publisher="Irfan Skiljan" \
-    year="2016" \
-    media="download" \
-    file1="iview444_setup.exe" \
-    installed_file1="${W_PROGRAMS_X86_WIN}/IrfanView/i_view32.exe" \
-    homepage="https://www.irfanview.com/"
-
-load_irfanview()
-{
-    w_download http://download.betanews.com/download/967963863-1/iview444_setup.exe 71b44cd3d14376bbb619b2fe8a632d29200385738dd186680e988ce32662b3d6
-    if w_workaround_wine_bug 657 "Installing mfc42"; then
-        w_call mfc42
-    fi
-
-    w_try_cd "${W_CACHE}/${W_PACKAGE}"
-    if test "${W_OPT_UNATTENDED}"; then
-        w_ahk_do "
-            SetWinDelay 200
-            SetTitleMatchMode, 2
-            run ${file1}
-            winwait, Setup, This program will install
-            winactivate, Setup, This program will install
-            Sleep 900
-            ControlClick, Button7 ; Uncheck All
-            Sleep 900
-            ControlClick, Button4 ; Create start menu icons
-            Sleep 900
-            ControlClick, Button11 ; Next
-            Sleep 900
-            winwait, Setup, version
-            Sleep 900
-            ControlClick, Button11 ; Next
-            Sleep 900
-            winwait, Setup, associate extensions
-            Sleep 900
-            ControlClick, Button1 ; Images Only associations
-            Sleep 900
-            ControlClick, Button16 ; Next
-            Sleep 1000
-            winwait, Setup, INI
-            Sleep 1000
-            ControlClick, Button21 ; Next
-            Sleep 1000
-            winwait, Setup, You want to change
-            winactivate, Setup, really
-            Sleep 900
-            ControlClick, Button1 ; Yes
-            Sleep 900
-            winwait, Setup, successful
-            winactivate, Setup, successful
-            Sleep 900
-            ControlClick, Button1 ; no load webpage
-            Sleep 900
-            ControlClick, Button2 ; no start irfanview
-            Sleep 900
-            ControlClick, Button25 ; done
-            Sleep 900
-            winwaitclose
-        "
-    else
-        w_try "${WINE}" "${file1}"
-    fi
-}
 
 #----------------------------------------------------------------
 
@@ -17233,17 +17175,17 @@ load_vc2010express()
 #----------------------------------------------------------------
 
 w_metadata vlc apps \
-    title="VLC media player 2.2.1" \
+    title="VLC media player 3.0.23" \
     publisher="VideoLAN" \
-    year="2015" \
+    year="2026" \
     media="download" \
-    file1="vlc-2.2.1-win32.exe" \
-    installed_file1="${W_PROGRAMS_X86_WIN}/VideoLAN/VLC/vlc.exe" \
+    file1="vlc-3.0.23-win64.exe" \
+    installed_file1="${W_PROGRAMS_WIN}/VideoLAN/VLC/vlc.exe" \
     homepage="https://www.videolan.org/vlc/"
 
 load_vlc()
 {
-    w_download https://get.videolan.org/vlc/2.2.1/win32/vlc-2.2.1-win32.exe 2eaa3881b01a2464d2a155ad49cc78162571dececcef555400666c719a60794d
+    w_download https://plug-mirror.rcac.purdue.edu/vlc/vlc/3.0.23/win64/vlc-3.0.23-win64.exe 20ad191348684b470ddc4e05204316f3d8e39655f412b3e392a0eef97639daaf
     w_try_cd "${W_CACHE}/${W_PACKAGE}"
     w_try "${WINE}" "${file1}" ${W_OPT_UNATTENDED:+ /S}
 }
@@ -18402,6 +18344,77 @@ _EOF_
     esac
 
     w_try_regedit "${W_TMP_WIN}"/vd.reg
+
+    w_wineserver -w
+}
+
+#----------------------------------------------------------------
+
+w_metadata dpi=96 settings \
+    title="Set screen DPI to 96"
+
+w_metadata dpi=120 settings \
+    title="Set screen DPI to 120"
+
+w_metadata dpi=144 settings \
+    title="Set screen DPI to 144"
+
+w_metadata dpi=168 settings \
+    title="Set screen DPI to 168"
+
+w_metadata dpi=192 settings \
+    title="Set screen DPI to 192"
+
+w_metadata dpi=216 settings \
+    title="Set screen DPI to 216"
+
+w_metadata dpi=240 settings \
+    title="Set screen DPI to 240"
+
+w_metadata dpi=288 settings \
+    title="Set screen DPI to 288"
+
+w_metadata dpi=336 settings \
+    title="Set screen DPI to 336"
+
+w_metadata dpi=384 settings \
+    title="Set screen DPI to 384"
+
+w_metadata dpi=432 settings \
+    title="Set screen DPI to 432"
+
+w_metadata dpi=480 settings \
+    title="Set screen DPI to 480"
+
+load_dpi()
+{
+    dpi="$1"
+
+    case "${dpi}" in
+        96) log_pixels=00000060;;
+        120) log_pixels=00000078;;
+        144) log_pixels=00000090;;
+        168) log_pixels=000000a8;;
+        192) log_pixels=000000c0;;
+        216) log_pixels=000000d8;;
+        240) log_pixels=000000f0;;
+        288) log_pixels=00000120;;
+        336) log_pixels=00000150;;
+        384) log_pixels=00000180;;
+        432) log_pixels=000001b0;;
+        480) log_pixels=000001e0;;
+        *) w_die "illegal value $1 for DPI";;
+    esac
+
+    echo "Setting DPI to ${dpi}"
+    cat > "${W_TMP}"/set-dpi.reg <<_EOF_
+REGEDIT4
+
+[HKEY_CURRENT_USER\\Control Panel\\Desktop]
+"LogPixels"=dword:${log_pixels}
+
+_EOF_
+    w_try_regedit "${W_TMP}"/set-dpi.reg
 
     w_wineserver -w
 }

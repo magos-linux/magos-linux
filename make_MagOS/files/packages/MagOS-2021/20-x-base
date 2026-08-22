@@ -605,7 +605,7 @@ lib64polkit-qt-agent-1_1
 lib64polkit-qt-core-1_1
 lib64poly2tri1.0
 lib64poly2tri-c0.1_0
-lib64poppler121
+lib64poppler122
 lib64poppler-gir0.18
 lib64poppler-glib8
 lib64poppler-qt5-1
@@ -1731,3 +1731,4 @@ lib64nvidia-egl-xcb1
 egl-x11
 lib64zimg2
 lib64zvbi0
+lib64md4c0

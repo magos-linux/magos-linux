@@ -1,6 +1,6 @@
 kernel-6.6-desktop
 kernel-module-v4l2loopback-6.6-desktop
-virtualbox-kernel-6.6.144-desktop-1rosa2021-x86_64
+virtualbox-kernel-6.6.148-desktop-1rosa2021-x86_64
 alsa-tools-firmware
 dvb-firmwares-frontends
 dvb-firmwares-ttpci

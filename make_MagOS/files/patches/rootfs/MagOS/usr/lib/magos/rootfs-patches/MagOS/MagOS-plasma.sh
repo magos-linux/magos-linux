@@ -52,7 +52,7 @@ EOF
 PFP=/etc/xdg/klipperrc
 cat >>$PFP <<EOF
 [General]
-SyncClipboards=true
+SyncClipboards=false
 EOF
 
 #PFP=/usr/share/plasma/plasmoids/org.kde.plasma.kicker/contents/config/main.xml
