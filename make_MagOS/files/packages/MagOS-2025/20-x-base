@@ -1195,7 +1195,7 @@ lib64rubberband3
 lib64sawman1.7_7
 lib64SDL2_ttf2.0_0
 lib64soup2.4_1
-lib64sox_ng3
+lib64sox_ng5
 lib64swresample5
 lib64swscaler8
 lib64dri-drivers-gallium
@@ -1586,3 +1586,6 @@ lib64SDL2_net2.0_0
 lib64SDL_ttf2.0_0
 lib64vdpau-trace
 lib64Qt6LabsStyleKitImpl
+lib64qt5keychain1
+lib64SDL3_image3.0_0
+lib64sso-mib0

@@ -300,7 +300,7 @@ lib64ncpfs2.3
 lib64ncurses6
 lib64ncursesw6
 lib64ndp0
-lib64ndr3
+lib64ndr6
 lib64neon0.27
 lib64netapi1
 lib64netfilter_acct1
@@ -1067,3 +1067,4 @@ lib64python3
 libproxy-plugins
 lib64python3.11
 lib64proxy1
+samba-tool

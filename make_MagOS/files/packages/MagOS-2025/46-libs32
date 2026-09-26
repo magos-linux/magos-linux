@@ -131,7 +131,6 @@ libsamba-errors1
 libsamba-hostconfig0
 libsamba-libs-config0
 libsamba-passdb0
-libsamba-private
 libsamba-util0
 libsamdb0
 libsamplerate0
@@ -336,3 +335,4 @@ libdisplay-info3
 libspirv-tools0
 libedit0
 liblua5.3_5.3
+libsamba-private

@@ -44,8 +44,8 @@ lib64mythes1.2_0
 lib64netpbm11
 lib64numbertext0
 lib64odfgen0.1_1
-lib64orcus0.20_0
-lib64orcus-parser0.20_0
+lib64orcus0.21_0
+lib64orcus-parser0.21_0
 lib64pagemaker0.0_0
 lib64poppler-cpp1
 lib64qpdf29
@@ -109,3 +109,4 @@ xsane
 espeak
 lib64ppd2
 libcupsfilters-data
+lib64md4c0
