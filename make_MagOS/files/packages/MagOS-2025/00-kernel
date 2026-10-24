@@ -1,4 +1,5 @@
 kernel-6.12-desktop
 kernel-module-ec_touchpad_toggle-6.12-desktop
 kernel-module-v4l2loopback-6.12-desktop
-virtualbox-kernel-6.12.91-desktop-24rosa2021-x86_64
+kernel-modules-zfs-6.12-desktop
+virtualbox-kernel-6.12.112-desktop-8rosa2021-x86_64

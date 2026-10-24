@@ -18,6 +18,13 @@ if [ -d "$KROKDIR" ] ;then
   done
 fi
 
+#switch alternatives to open drivers
+for a in /var/lib/alternatives/*nvidia* ;do
+    DIR=$(grep -m1 -- open "$a")
+    [ -z "$DIR" ] || rm -f /etc/alternatives/$(basename "$a")
+    [ -z "$DIR" ] || ln -sf "$DIR" /etc/alternatives/$(basename "$a")
+done
+
 #BUGFIX install all dkms binary modules
 if [ -d /var/lib/dkms-binary/ ] ;then
   for a in /var/lib/dkms-binary/* ;do

@@ -3,6 +3,7 @@
 ^..-x-drivers-printers
 ^..-x-drivers-nvidia390
 ^..-x-drivers-nvidia550
+^..-x-drivers-nvidia580-proprietary
 ^..-x-mate
 ^..-x-java
 ^..-x-chromium

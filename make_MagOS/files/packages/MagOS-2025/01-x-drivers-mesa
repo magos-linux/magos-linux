@@ -6,3 +6,4 @@ lib64dri-drivers-virtio
 lib64dri-drivers-vmwgfx
 lib64dri-drivers-zink
 lib64dri-drivers-dril
+lib64SPIRV-Tools22

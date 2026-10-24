@@ -983,7 +983,7 @@ lib64absl_time2401.0.0
 lib64absl_time_zone2401.0.0
 lib64aom3
 lib64llvm19
-lib64llvm20
+lib64llvm22
 lib64ostree1
 lib64ssl3
 dracut
@@ -1068,3 +1068,10 @@ libproxy-plugins
 lib64python3.11
 lib64proxy1
 samba-tool
+glib2.0-gresource
+zfs
+lib64nvpair3
+lib64uutil3
+lib64zfs7
+lib64zpool7
+lib64zfs_core3

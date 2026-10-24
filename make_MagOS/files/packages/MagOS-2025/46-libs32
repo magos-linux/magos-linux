@@ -101,7 +101,6 @@ liblzma5
 libmodplug1
 libmount1
 libmpg123_0
-libndr3
 libnettle8
 libnl-genl3_200
 libnl3_200
@@ -336,3 +335,9 @@ libspirv-tools0
 libedit0
 liblua5.3_5.3
 libsamba-private
+libkadm5srv_mit12
+libkdb5_10
+libndr6
+libgssrpc4
+libllvm22
+libSPIRV-Tools22

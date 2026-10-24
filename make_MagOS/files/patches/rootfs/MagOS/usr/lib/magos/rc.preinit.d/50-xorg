@@ -9,38 +9,28 @@ export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
 ENABLED=yes
 [ "$ENABLED" != "yes" ] && exit 0
 
-LINKNVIDIA96=/etc/nvidia96xx/ld.so.conf
-LINKNVIDIA173=/etc/nvidia173/ld.so.conf
-LINKNVIDIA304=/etc/nvidia304/ld.so.conf
-LINKNVIDIA340=/etc/nvidia340/ld.so.conf
-LINKNVIDIA390=/etc/nvidia390/ld.so.conf
-LINKNVIDIA470=/etc/nvidia470/ld.so.conf
-LINKNVIDIA550=/etc/nvidia550/ld.so.conf
-LINKNVIDIA580=/etc/nvidia580/ld.so.conf
-LINKNVIDIACUR=/etc/nvidia-current/ld.so.conf
-LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
-NVIDIATEST="nvidia580 nvidia550 nvidia470 nvidia390 nvidia"
-PRIMETEST="nvidia580 nvidia550 nvidia470"
-PRIMEACTIVE="iGPU"
-PRIMEINACTIVE="nvidia"
-DRMMODESET=
-FAILSAFENVIDIA=nouveau
 CREATE_XORG_CONF=yes
+DELETE_XORG_CONF=no
+XFILE=etc/X11/xorg.conf.d/10-driver.conf
 GLLDCONFIG=yes
-PRIME=no
-OPTIRUN=
-PRIMUSRUN=
+LINKFBDEV=/etc/ld.so.conf.d/GL/standard.conf
+PRIMEACTIVE="iGPU"
+DRMMODESET=
 VGABUSID=
 INTEGRATEDVGA=yes
 SORTOPT=
-XFILE=etc/X11/xorg.conf.d/10-driver.conf
-DELETE_XORG_CONF=no
+
+#nvidia settings
+PRIME=no
+FAILSAFENVIDIA=nouveau
+PRIMEINACTIVE="nvidia"
+NVIDIATEST="nvidia615 nvidia610 nvidia595 nvidia590 nvidia580 nvidia575 nvidia570 nvidia565 nvidia560 \ 
+nvidia555 nvidia550 nvidia545 nvidia535 nvidia530 nvidia525 nvidia520 nvidia515 nvidia510 \
+nvidia495 nvidia470 nvidia465 nvidia460 nvidia455 nvidia450 nvidia440 nvidia435 nvidia430 nvidia418 nvidia415 nvidia410 nvidia396 nvidia390"
+PRIMEMINTEST=nvidia470
+NVUSEPROPRIETARY=yes
 NVMODSPATH="kernel/drivers/video"
 FULLNVMODSPATH="lib/modules/$(uname -r)/$NVMODSPATH"
-NVDEPMOD=yes
-[ -d $FULLNVMODSPATH ] || NVDEPMOD=no
-NVAVAILABLE=" $(ls $FULLNVMODSPATH | grep nvidia | tr \\n ' ')"
-echo "$NVAVAILABLE" | grep -q nvidia || NVDEPMOD=no
 
 DEBUGMODE=no
 . usr/lib/magos/functions
@@ -111,10 +101,9 @@ fi
 
 # prime for nvidia optimus card
 if [ "$PRIME" = "yes" ] ;then
-   [ -z "$XDRIVER" ] && XDRIVER=$(echo $PRIMETEST | awk '{print $1}')
+   [ -z "$XDRIVER" ] && XDRIVER=nvidia
    DRMMODESET="modeset=1"
    FAILSAFENVIDIA=intel
-   NVIDIATEST="$PRIMETEST"
 fi
 
 # detecting XDRIVER
@@ -129,17 +118,32 @@ if echo "$XDRIVER" | grep -q "nvidia"  ;then
    XDRIVERTESTED=
    [ "$XDRIVER" = "nvidia" ] || XDRIVERCURRENT=$XDRIVER
    rmmod nvidia_uvm nvidia_drm nvidia_modeset nvidia 2>/dev/null
-   for a in $XDRIVERCURRENT $NVIDIATEST ;do
-       KERNM=$(find lib/modules/$(uname -r)/ -type f | grep -m1 -E "/$a[.]ko|/$a/nvidia[.]ko" | sed s/[.]ko.*$//)
-       [ -z "$KERNM" -a "$a" = "nvidia-current" ] && KERNM=$(find lib/modules/$(uname -r)/ -type f | grep -m1 "/nvidia[.]ko" | sed s/[.]ko.*$//)
+   sed -i /^blacklist.*nvidia/d etc/modprobe.d/blacklist-magos.conf
+   NVTESTING="$NVIDIATEST"
+   [ "$PRIME" = "yes" ] && NVTESTING=$(echo "$NVIDIATEST" | sed "s|$PRIMEMINTEST.*|$PRIMEMINTEST|")
+   NVAVAILABLE="$(ls $FULLNVMODSPATH 2>/dev/null | grep nvidia | tr \\n '|' | sed 's/|$//')"
+   NVTESTING=$(echo $NVTESTING | tr " " \\n | grep -E "$NVAVAILABLE")
+   for a in $XDRIVERCURRENT $NVTESTING ;do
+       grep -qm1 "$a" lib/modules/$(uname -r)/modules.dep && NVDEPMOD=no || NVDEPMOD=yes
+       if [ "$NVUSEPROPRIETARY" = "yes" ] ; then
+         # switch to proprietary version if available
+         ALTNVMOD=$(ls var/lib/alternatives/*$a* 2>/dev/null | head -1)
+         [ -z "$ALTNVMOD" ] || ALTNVDIR=$(grep proprietary "$ALTNVMOD")
+         [ -f ".$ALTNVDIR/$a.ko" -o -f ".$ALTNVDIR/nvidia.ko" ] && NVDEPMOD=yes && chroot . /usr/sbin/alternatives --set $(basename "$ALTNVMOD") "$ALTNVDIR"
+       fi
+       # module name may be nvidia.ko or nvidiaXXX.ko
+       KERNM=$(chroot . find -L lib/modules/$(uname -r)/ -type f | grep "$a" | grep nvidia[0-9]*[.]ko | sed 's|[.]ko$||' | sed 's|.*/||')
        [ -z "$KERNM" ] && KERNM=$a
-       if [ "$NVDEPMOD" = "yes" ] && ! grep -qm1 "$KERNM[.]ko" lib/modules/$(uname -r)/modules.dep ;then
-          echo "exclude $NVAVAILABLE" | sed "s/ $a / /" >etc/depmod.d/nvidia_exclude.conf
+       # depmod
+       if [ "$NVDEPMOD" = "yes" ] ;then
+          echo "exclude $NVAVAILABLE " | sed 's/|/ /g'  | sed "s/ $a / /" >etc/depmod.d/nvidia_exclude.conf
           chroot . depmod -a -C etc/depmod.d/nvidia_exclude.conf
        fi
+       # testing module
        chroot . modprobe $(basename $KERNM) 2>/dev/null
        lsmod | grep -q nvidia && XDRIVERTESTED=$a
        [ -z "$XDRIVERTESTED" ] && continue
+       # module loaded
        chroot . modprobe $XDRIVERTESTED-modeset         2>/dev/null || chroot . modprobe nvidia-modeset         2>/dev/null
        chroot . modprobe $XDRIVERTESTED-drm $DRMMODESET 2>/dev/null || chroot . modprobe nvidia-drm $DRMMODESET 2>/dev/null
        chroot . modprobe $XDRIVERTESTED-uvm             2>/dev/null || chroot . modprobe nvidia-uvm             2>/dev/null
@@ -148,9 +152,16 @@ if echo "$XDRIVER" | grep -q "nvidia"  ;then
        [ -d "usr/lib64/$XDRIVERTESTED" ] && ln -sf "$XDRIVERTESTED" usr/lib64/nvidia
        break
    done
-   [ -z "$XDRIVERTESTED" ] || XDRIVER=$XDRIVERTESTED
+   XDRIVER=$XDRIVERTESTED
+   [ -z "$XDRIVERTESTED" ] && rm -f etc/depmod.d/nvidia_exclude.conf 2>/dev/null
    # failsafe driver
-   [ -z "$XDRIVERTESTED" ] && XDRIVER=$FAILSAFENVIDIA && PRIME=no && rm -f etc/depmod.d/nvidia_exclude.conf 2>/dev/null
+   [ -z "$XDRIVER" -a "$PRIME" = "yes" ] && XDRIVER=intel && PRIME=no
+   [ -z "$XDRIVER" ] && XDRIVER=$FAILSAFENVIDIA
+   if [ "$XDRIVER" = "nouveau" ] ;then
+      sed -i /^blacklist.*$XDRIVER/d etc/modprobe.d/blacklist-magos.conf
+      chroot . modprobe nouveau 2>/dev/null
+      lsmod | grep -q nouveau || XDRIVER=fbdev
+   fi
 else
    PRIME=no
 fi
@@ -158,18 +169,10 @@ fi
 # first run ldconfig tweak
 if [ "$GLLDCONFIG" = "yes" ] ;then
   LINK=$LINKFBDEV
-  [ "$XDRIVER" = "nvidia" -o "$XDRIVER" = "nvidia-current" ] && LINK=$LINKNVIDIACUR
-  [ "$XDRIVER" = "nvidia96" ] && LINK=$LINKNVIDIA96
-  [ "$XDRIVER" = "nvidia173" ] && LINK=$LINKNVIDIA173
-  [ "$XDRIVER" = "nvidia304" ] && LINK=$LINKNVIDIA304
-  [ "$XDRIVER" = "nvidia340" ] && LINK=$LINKNVIDIA340
-  [ "$XDRIVER" = "nvidia390" ] && LINK=$LINKNVIDIA390
-  [ "$XDRIVER" = "nvidia470" ] && LINK=$LINKNVIDIA470
-  [ "$XDRIVER" = "nvidia550" ] && LINK=$LINKNVIDIA550
-  [ "$XDRIVER" = "nvidia580" ] && LINK=$LINKNVIDIA580
+  [ -f "etc/$XDRIVER/ld.so.conf" ] && LINK="/etc/$XDRIVER/ld.so.conf"
   [ -x 'usr/sbin/alternatives' ] && chroot . /usr/sbin/alternatives --set gl_conf $LINK >/dev/null 2>&1
-  LDCACHE=$XDRIVER
-  [ -z "$LDCACHE" -o ! -d usr/share/magos/ld.so.cache/$LDCACHE ] && LDCACHE=fbdev
+  LDCACHE=fbdev
+  [ -d "usr/share/magos/ld.so.cache/$XDRIVER" ] && LDCACHE=$XDRIVER
   [ -d "usr/share/magos/ld.so.cache/$LDCACHE" ] && cp -pfR usr/share/magos/ld.so.cache/$LDCACHE/* ./
 fi
 
