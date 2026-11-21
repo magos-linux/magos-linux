@@ -129,3 +129,8 @@ lib64icu-devel
 lib64icutest76
 lib64icutu76
 vulkan-headers
+lib64gperftools1
+lib64ibverbs1
+lib64rdmacm1
+gperf
+tkinter3

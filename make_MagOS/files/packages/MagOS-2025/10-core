@@ -1075,3 +1075,5 @@ lib64uutil3
 lib64zfs7
 lib64zpool7
 lib64zfs_core3
+selinux-policy-targeted
+rpm-plugin-selinux

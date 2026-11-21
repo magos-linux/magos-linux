@@ -167,7 +167,7 @@ else
 fi
 
 # first run ldconfig tweak
-if [ "$GLLDCONFIG" = "yes" ] ;then
+if [ ! -z "$XDRIVER" -a "$GLLDCONFIG" = "yes" ] ;then
   LINK=$LINKFBDEV
   [ -f "etc/$XDRIVER/ld.so.conf" ] && LINK="/etc/$XDRIVER/ld.so.conf"
   [ -x 'usr/sbin/alternatives' ] && chroot . /usr/sbin/alternatives --set gl_conf $LINK >/dev/null 2>&1
